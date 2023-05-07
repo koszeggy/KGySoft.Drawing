@@ -219,7 +219,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a <see cref="Color64"/> structure from a 64-bit ARGB value.
         /// </summary>
-        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>0xAAAA_RRRR_GGGG_BBBB</c>
+        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>0xAAAA_RRRR_GGGG_BBBB</c>.
         /// where <c>AAAA</c> is the highest word and <c>BBBB</c> is the lowest word.</param>
         /// <returns>A <see cref="Color64"/> structure from the specified 64-bit ARGB value.</returns>
         public static Color64 FromArgb(long argb) => new Color64((ulong)argb);
@@ -237,7 +237,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="Color64"/> instance from the specified <see cref="Color64"/> structure, but with the new specified alpha value.
         /// </summary>
         /// <param name="a">The alpha value for the new <see cref="Color64"/> instance.</param>
-        /// <param name="baseColor">The <see cref="Color32"/> instance from which to create the new one.</param>
+        /// <param name="baseColor">The <see cref="Color64"/> instance from which to create the new one.</param>
         /// <returns>A <see cref="Color64"/> instance from the specified <see cref="Color64"/> structure and alpha value.</returns>
         [CLSCompliant(false)]
         public static Color64 FromArgb(ushort a, Color64 baseColor)
@@ -247,7 +247,8 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="Color64"/> structure from a 48-bit RGB value. The highest two bytes of the specified integer are ignored
         /// and the <see cref="A">A</see> property of the result will be 65535.
         /// </summary>
-        /// <param name="rgb">A value specifying the 48-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <param name="rgb">A value specifying the 48-bit RGB value. As a hex value it can be specified as <c>0xRRRR_GGGG_BBBB</c>.
+        /// The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color64"/> structure from a 48-bit RGB value.</returns>
         public static Color64 FromRgb(long rgb) => new Color64(alphaMask | (ulong)rgb);
 
@@ -255,7 +256,8 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="Color64"/> structure from a 48-bit RGB value. The highest two bytes of the specified integer are ignored
         /// and the <see cref="A">A</see> property of the result will be 65535.
         /// </summary>
-        /// <param name="rgb">A value specifying the 48-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <param name="rgb">A value specifying the 48-bit RGB value. As a hex value it can be specified as <c>0xRRRR_GGGG_BBBB</c>.
+        /// The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color64"/> structure from a 48-bit RGB value.</returns>
         [CLSCompliant(false)]
         public static Color64 FromRgb(ulong rgb) => new Color64(alphaMask | rgb);
@@ -356,9 +358,9 @@ namespace KGySoft.Drawing.Imaging
         public override int GetHashCode() => value.GetHashCode();
 
         /// <summary>
-        /// Gets the string representation of this <see cref="Color32"/> instance.
+        /// Gets the string representation of this <see cref="Color64"/> instance.
         /// </summary>
-        /// <returns>A <see cref="string"/> that represents this <see cref="Color32"/> instance.</returns>
+        /// <returns>A <see cref="string"/> that represents this <see cref="Color64"/> instance.</returns>
         public override string ToString() => $"{value:X16} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

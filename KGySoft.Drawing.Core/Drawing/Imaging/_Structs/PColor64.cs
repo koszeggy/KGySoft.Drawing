@@ -176,6 +176,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
         /// <param name="validate"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="validate"/> is <see langword="true"/> and <paramref name="r"/>, <paramref name="g"/> or <paramref name="b"/> is not between 0 and <paramref name="a"/>.</exception>
         [CLSCompliant(false)]
         public PColor64(ushort a, ushort r, ushort g, ushort b, bool validate)
             : this(a, r, g, b)

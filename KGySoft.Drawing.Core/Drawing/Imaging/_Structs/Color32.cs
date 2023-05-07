@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a 32-bit sRGB color where every color channel is represented by a 8-bit integer.
-    /// It represents the color space as the <see cref="Color"/> structure does but in a more optimized way
+    /// It represents the same color space as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
@@ -232,7 +232,8 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="Color32"/> structure from a 24-bit RGB value. The highest byte of the specified integer is ignored
         /// and the <see cref="A">A</see> property of the result will be 255.
         /// </summary>
-        /// <param name="rgb">A value specifying the 24-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <param name="rgb">A value specifying the 24-bit RGB value. As a hex value it can be specified as <c>0xRR_GG_BB</c>.
+        /// The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color32"/> structure from a 24-bit RGB value.</returns>
         public static Color32 FromRgb(int rgb) => new Color32(alphaMask | (uint)rgb);
 
@@ -240,7 +241,8 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="Color32"/> structure from a 24-bit RGB value. The highest byte of the specified integer is ignored
         /// and the <see cref="A">A</see> property of the result will be 255.
         /// </summary>
-        /// <param name="rgb">A value specifying the 24-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <param name="rgb">A value specifying the 24-bit RGB value. As a hex value it can be specified as <c>0xRR_GG_BB</c>.
+        /// The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color32"/> structure from a 24-bit RGB value.</returns>
         [CLSCompliant(false)]
         public static Color32 FromRgb(uint rgb) => new Color32(alphaMask | rgb);

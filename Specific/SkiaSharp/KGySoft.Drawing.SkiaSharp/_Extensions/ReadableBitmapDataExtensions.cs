@@ -40,10 +40,10 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Public Methods
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/>.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <returns>An <see cref="SKBitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
+        /// <returns>An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance that has the same content as the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
@@ -56,16 +56,16 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and color space.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> that has the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and color space.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
-        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.alphatype">AlphaType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
         /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
-        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
-        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
-        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
+        /// <br/>Default value: <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a>.</param>
+        /// <param name="targetColorSpace">Determines both the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colorspace">ColorSpace</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>,
         /// and also the working color space if the <paramref name="quantizer"/> is <see langword="null"/>. This parameter is optional.
         /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result. This parameter is optional.
@@ -73,23 +73,23 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <returns>An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> converted from the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
         /// Use the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)">ToSKBitmapAsync</see>
         /// method for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>To produce an <see cref="SKBitmap"/> with the best matching pixel format to <paramref name="source"/>,
+        /// <para>To produce an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> with the best matching pixel format to <paramref name="source"/>,
         /// use the <see cref="ToSKBitmap(IReadableBitmapData)"/> overload instead.</para>
-        /// <para>The <paramref name="targetColorSpace"/> parameter is purposely not an <see cref="SKColorSpace"/> value because only sRGB and linear color spaces are supported directly.
+        /// <para>The <paramref name="targetColorSpace"/> parameter is purposely not an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolorspace">SKColorSpace</a> value because only sRGB and linear color spaces are supported directly.
         /// If its value is <see cref="WorkingColorSpace.Linear"/>, then both the actual color space of the result and the working color space of the conversion operation will be in
         /// the linear color space (unless <paramref name="quantizer"/> is specified, which determines the working color space).
         /// To create a result with sRGB color space but perform the conversion in the linear color space either use a <paramref name="quantizer"/> and configure it
-        /// working in the linear color space, or create an <see cref="SKBitmap"/> manually, obtain an <see cref="IWritableBitmapData"/> for it by
+        /// working in the linear color space, or create an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> manually, obtain an <see cref="IWritableBitmapData"/> for it by
         /// the <see cref="SKBitmapExtensions.GetWritableBitmapData(SKBitmap, WorkingColorSpace, SKColor, byte)"/> method specifying the <see cref="WorkingColorSpace.Linear"/>
         /// working color space, and use the <see cref="BitmapDataExtensions.CopyTo(IReadableBitmapData, IWritableBitmapData, Point, IQuantizer?, IDitherer?)"/>
-        /// method to copy <paramref name="source"/> into the manually created <see cref="SKBitmap"/>.</para>
+        /// method to copy <paramref name="source"/> into the manually created <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.</para>
         /// </remarks>
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
@@ -102,45 +102,44 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/> and <paramref name="alphaType"/>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)"/> overload for details.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> that has the specified <paramref name="colorType"/> and <paramref name="alphaType"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
-        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.alphatype">AlphaType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
         /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
-        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
-        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a> to auto select an alpha type that matches the <paramref name="source"/> pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <returns>An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> converted from the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> or <paramref name="alphaType"/> does not specify a defined value.</exception>
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType, IQuantizer? quantizer, IDitherer? ditherer = null)
             => ToSKBitmap(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer);
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)"/> overload for details.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> that has the specified <paramref name="colorType"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <returns>An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> converted from the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> does not specify a defined value.</exception>
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, IQuantizer? quantizer, IDitherer? ditherer = null)
             => ToSKBitmap(source, colorType, SKAlphaType.Unknown, WorkingColorSpace.Default, quantizer, ditherer);
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> asynchronously.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
@@ -148,7 +147,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance that has the same content as the specified <paramref name="source"/>,
+        /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance that has the same content as the specified <paramref name="source"/>,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -162,16 +161,16 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> asynchronously.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
-        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.alphatype">AlphaType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
         /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
-        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
-        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
-        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
+        /// <br/>Default value: <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a>.</param>
+        /// <param name="targetColorSpace">Determines both the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colorspace">ColorSpace</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>,
         /// and also the working color space if the <paramref name="quantizer"/> is <see langword="null"/>. This parameter is optional.
         /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result. This parameter is optional.
@@ -184,7 +183,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance converted from the specified <paramref name="source"/>,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
@@ -203,14 +202,14 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> asynchronously.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
-        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.alphatype">AlphaType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
         /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
-        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format.</param>
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skalphatype">Unknown</a> to auto select an alpha type that matches the <paramref name="source"/> pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
@@ -220,7 +219,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance converted from the specified <paramref name="source"/>,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> or <paramref name="alphaType"/> does not specify a defined value.</exception>
@@ -232,11 +231,11 @@ namespace KGySoft.Drawing.SkiaSharp
             => ToSKBitmapAsync(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer, asyncConfig);
 
         /// <summary>
-        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// Converts the specified <paramref name="source"/> to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> asynchronously.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
-        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
-        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="colorType">Determines the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap.colortype">ColorType</a> property of the result <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>.
+        /// Can be <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Unknown</a> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
@@ -246,7 +245,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance converted from the specified <paramref name="source"/>,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> does not specify a defined value.</exception>

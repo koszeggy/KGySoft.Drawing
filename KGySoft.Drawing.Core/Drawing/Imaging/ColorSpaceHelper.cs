@@ -29,8 +29,8 @@ using System.Runtime.Intrinsics;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// A helper class containing low-level conversion methods for <see cref="byte">byte</see> and <see cref="float">float</see> types
-    /// to convert color components using the sRGB and linear color spaces.
+    /// A helper class containing low-level conversion methods for <see cref="byte">byte</see>, <see cref="ushort">ushort</see> and <see cref="float">float</see>
+    /// types to convert color components using the sRGB and linear color spaces.
     /// </summary>
     public static class ColorSpaceHelper
     {
@@ -174,10 +174,10 @@ namespace KGySoft.Drawing.Imaging
         public static float SrgbToLinear(byte value) => ByteToLinearCache.LookupTable[value];
 
         /// <summary>
-        /// Converts a <see cref="byte">byte</see> value representing an sRGB color component to a floating-point value between 0 and 1
+        /// Converts a <see cref="ushort"/> value representing an sRGB color component to a floating-point value between 0 and 1
         /// representing an RGB color component in the linear color space.
         /// </summary>
-        /// <param name="value">The <see cref="byte">byte</see> value to convert.</param>
+        /// <param name="value">The <see cref="ushort"/> value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an RGB color component in the linear color space.</returns>
         [CLSCompliant(false)]
         [MethodImpl(MethodImpl.AggressiveInlining)]

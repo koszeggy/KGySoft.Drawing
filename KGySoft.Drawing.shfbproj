@@ -32,9 +32,10 @@
       <DocumentationSource sourceFile="Specific\GdiPlus\KGySoft.Drawing\KGySoft.Drawing.csproj" />
       <DocumentationSource sourceFile="Specific\WinUI\KGySoft.Drawing.WinUI\KGySoft.Drawing.WinUI.csproj" />
       <DocumentationSource sourceFile="Specific\Wpf\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj" />
+      <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>7.2.0-preview.1</HelpFileVersion>
+    <HelpFileVersion>7.2.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -49,7 +50,8 @@
 &amp;lt%3bli&amp;gt%3bGDI+ support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
 &amp;lt%3bli&amp;gt%3bWPF support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Wpf&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
 &amp;lt%3bli&amp;gt%3bUWP support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Uwp&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Uwp&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
-&amp;lt%3bli&amp;gt%3bWinUI support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.WinUI&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.WinUI&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b</FooterText>
+&amp;lt%3bli&amp;gt%3bWinUI support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.WinUI&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.WinUI&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3bSkiaSharp support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.SkiaSharp&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b</FooterText>
     <CopyrightText>Copyright &amp;#169%3b KGy SOFT. All rights reserved.</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <VisibleItems>Attributes, InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>

@@ -24,8 +24,8 @@ using SkiaSharp;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// The <see cref="N:KGySoft.Drawing.SkiaSharp"/> namespace offers dedicated support to the <see cref="SKBitmap"/>, <see cref="SKPixmap"/>,
-    /// <see cref="SKImage"/> and <see cref="SKSurface"/> types and is available as a separate
+    /// The <see cref="N:KGySoft.Drawing.SkiaSharp"/> namespace offers dedicated support to the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>, <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a>,
+    /// <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a> and <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.sksurface">SKSurface</a> types and is available as a separate
     /// NuGet package <a href="https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/" target="_blank">KGySoft.Drawing.SkiaSharp</a>.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>

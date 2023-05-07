@@ -27,7 +27,7 @@ using SkiaSharp;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="SKPixmap"/> type.
+    /// Contains extension methods for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> type.
     /// </summary>
     public static class SKPixmapExtensions
     {
@@ -36,17 +36,17 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Public Methods
 
         /// <summary>
-        /// Gets a managed read-only accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result. As SkiaSharp does not support indexed formats
         /// with palette anymore the <paramref name="backColor"/> for the read-only result bitmap data is relevant in very rare cases only, such as cloning by
         /// the <see cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IDitherer?)"/> method or obtaining a quantizer by
         /// the <see cref="PredefinedColorsQuantizer.FromBitmapData"/> method.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// Similarly to <paramref name="backColor"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="alphaThreshold"/> is relevant
         /// in very rare cases such as cloning the result or obtaining a matching quantizer from it. This parameter is optional.
@@ -60,11 +60,11 @@ namespace KGySoft.Drawing.SkiaSharp
             => pixels.GetBitmapDataInternal(true, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets a managed read-only accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="workingColorSpace">Determines the <see cref="IBitmapData.WorkingColorSpace"/> property of the result and
         /// specifies the preferred color space that should be used when working with the result bitmap data. The working color space
         /// can be different from the actual color space of the specified <paramref name="pixels"/>.
@@ -73,8 +73,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// with palette anymore the <paramref name="backColor"/> for the read-only result bitmap data is relevant in very rare cases only, such as cloning by
         /// the <see cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IDitherer?)"/> method or obtaining a quantizer by
         /// the <see cref="PredefinedColorsQuantizer.FromBitmapData"/> method.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// Similarly to <paramref name="backColor"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="alphaThreshold"/> is relevant
         /// in very rare cases such as cloning the result or obtaining a matching quantizer from it. This parameter is optional.
@@ -88,16 +88,16 @@ namespace KGySoft.Drawing.SkiaSharp
             => pixels.GetBitmapDataInternal(true, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets a managed write-only accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed write-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
         /// Color values with alpha will be blended with this color before setting the pixel in the result bitmap data.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// As SkiaSharp does not support indexed pixel formats with palette anymore, this parameter is relevant in very rare cases only, such as
         /// obtaining a quantizer by the <see cref="PredefinedColorsQuantizer.FromBitmapData"/> method. This parameter is optional.
@@ -110,11 +110,11 @@ namespace KGySoft.Drawing.SkiaSharp
             => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets a managed write-only accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed write-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="workingColorSpace">Determines the <see cref="IBitmapData.WorkingColorSpace"/> property of the result and
         /// specifies the preferred color space that should be used when working with the result bitmap data. The working color space
         /// can be different from the actual color space of the specified <paramref name="pixels"/>.
@@ -122,8 +122,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
         /// Color values with alpha will be blended with this color before setting the pixel in the result bitmap data.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// As SkiaSharp does not support indexed pixel formats with palette anymore, this parameter is relevant in very rare cases only, such as
         /// obtaining a quantizer by the <see cref="PredefinedColorsQuantizer.FromBitmapData"/> method. This parameter is optional.
@@ -136,16 +136,16 @@ namespace KGySoft.Drawing.SkiaSharp
             => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets a managed read-write accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed read-write accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
         /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// Can be relevant in some operations such as when drawing another <see cref="IReadableBitmapData"/> instance with alpha into the returned bitmap data
         /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods and the specified <paramref name="pixels"/>
@@ -159,11 +159,11 @@ namespace KGySoft.Drawing.SkiaSharp
             => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets a managed read-write accessor for an <see cref="SKPixmap"/> instance.
+        /// Gets a managed read-write accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
-        /// <param name="pixels">An <see cref="SKPixmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="pixels">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a> instance, whose data is about to be accessed.</param>
         /// <param name="workingColorSpace">Determines the <see cref="IBitmapData.WorkingColorSpace"/> property of the result and
         /// specifies the preferred color space that should be used when working with the result bitmap data. The working color space
         /// can be different from the actual color space of the specified <paramref name="pixels"/>.
@@ -171,8 +171,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
         /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
-        /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
         /// Can be relevant in some operations such as when drawing another <see cref="IReadableBitmapData"/> instance with alpha into the returned bitmap data
         /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods and the specified <paramref name="pixels"/>

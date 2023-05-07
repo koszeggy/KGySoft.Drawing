@@ -28,7 +28,7 @@ using SkiaSharp;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// Provides extension methods for the <see cref="SKColor"/> type.
+    /// Provides extension methods for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a> type.
     /// </summary>
     public static class ColorExtensions
     {
@@ -116,28 +116,28 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Public Methods
 
         /// <summary>
-        /// Converts an <see cref="SKColor"/> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
+        /// Converts an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
         public static Color32 ToColor32(this SKColor color) => Unsafe.As<SKColor, Color32>(ref color);
 
         /// <summary>
-        /// Converts an <see cref="SKColor"/> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
+        /// Converts an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
         public static SKColor ToSKColor(this Color32 color) => new SKColor((uint)color.ToArgb());
 
         /// <summary>
-        /// Converts an <see cref="SKColor"/> struct to <see cref="Color">System.Drawing.Color</see>.
+        /// Converts an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a> struct to <see cref="Color">System.Drawing.Color</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
         public static Color ToColor(this SKColor color) => Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
 
         /// <summary>
-        /// Converts a <see cref="Color">System.Drawing.Color</see> struct to <see cref="SKColor"/>.
+        /// Converts a <see cref="Color">System.Drawing.Color</see> struct to <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>

@@ -28,7 +28,7 @@ using SkiaSharp;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="SKImageInfo"/> type.
+    /// Contains extension methods for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> type.
     /// </summary>
     public static class SKImageInfoExtensions
     {
@@ -39,8 +39,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <summary>
         /// Gets a <see cref="PixelFormatInfo"/> for this <paramref name="imageInfo"/>.
         /// </summary>
-        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to retrieve a <see cref="PixelFormatInfo"/> for.</param>
-        /// <returns>A <see cref="PixelFormatInfo"/> that represents the specified <see cref="SKImageInfo"/>.</returns>
+        /// <param name="imageInfo">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> to retrieve a <see cref="PixelFormatInfo"/> for.</param>
+        /// <returns>A <see cref="PixelFormatInfo"/> that represents the specified <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a>.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="imageInfo"/> must be a non-default valid value.</exception>
         public static PixelFormatInfo GetInfo(this SKImageInfo imageInfo)
         {
@@ -88,11 +88,11 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Gets whether this <see cref="SKImageInfo"/> instance represents a format with alpha (transparency) without checking
+        /// Gets whether this <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> instance represents a format with alpha (transparency) without checking
         /// whether <paramref name="imageInfo"/> represents a valid value.
         /// </summary>
-        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to be checked.</param>
-        /// <returns><see langword="true"/>, if this <see cref="SKImageInfo"/> instance represents a format with alpha; otherwise, <see langword="false"/>.</returns>
+        /// <param name="imageInfo">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> to be checked.</param>
+        /// <returns><see langword="true"/>, if this <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> instance represents a format with alpha; otherwise, <see langword="false"/>.</returns>
         public static bool HasAlpha(this SKImageInfo imageInfo)
             => (imageInfo.ColorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16)
                 || ((imageInfo.AlphaType is SKAlphaType.Unpremul or SKAlphaType.Premul)
@@ -103,11 +103,11 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="imageInfo"/>.
         /// </summary>
-        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to get a quantizer for.</param>
+        /// <param name="imageInfo">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimageinfo">SKImageInfo</a> to get a quantizer for.</param>
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
-        /// The <see cref="SKColor.Alpha"/> property of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
-        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="SKColor.Alpha"/> property,
+        /// The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a>, which has the same RGB values as <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolors.black">Black</a>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor.alpha">Alpha</a> property,
         /// under which a quantized color is considered completely transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="imageInfo"/>.</returns>

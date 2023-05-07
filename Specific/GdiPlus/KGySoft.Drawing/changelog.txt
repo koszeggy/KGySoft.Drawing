@@ -12,6 +12,7 @@
 * Common changes
 ================
 * Performance improvements, especially for wide pixel formats.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
 - KGySoft.Drawing namespace
 ===========================

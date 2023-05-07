@@ -66,7 +66,7 @@ namespace KGySoft.Drawing
     /// of the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a> library.</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/" target="_blank">KGySoft.Drawing.SkiaSharp</a></term>
     /// <description>This package provides dedicated support for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>,
-    /// <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a>, <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimag">SKImage</a>
+    /// <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a>, <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a>
     /// and <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.sksurface">SKSurface</a> types. For example,
     /// the <see cref="M:KGySoft.Drawing.SkiaSharp.SKBitmapExtensions.GetReadWriteBitmapData(SkiaSharp.SKBitmap,SkiaSharp.SKColor,System.Byte)">SKBitmapExtensions.GetReadWriteBitmapData</see>
     /// method can be used to expose the underlying buffer of an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>

@@ -45,25 +45,25 @@ namespace KGySoft.Drawing.Imaging
         #region Public Fields
 
         /// <summary>
-        /// Gets the red component value of this <see cref="ColorF"/> structure. This field is read-only.
+        /// Gets the red component value of this <see cref="PColorF"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(0)]
         public readonly float R;
 
         /// <summary>
-        /// Gets the green component value of this <see cref="ColorF"/> structure. This field is read-only.
+        /// Gets the green component value of this <see cref="PColorF"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(4)]
         public readonly float G;
 
         /// <summary>
-        /// Gets the blue component value of this <see cref="ColorF"/> structure. This field is read-only.
+        /// Gets the blue component value of this <see cref="PColorF"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(8)]
         public readonly float B;
 
         /// <summary>
-        /// Gets the alpha component value of this <see cref="ColorF"/> structure. This field is read-only.
+        /// Gets the alpha component value of this <see cref="PColorF"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(12)]
         public readonly float A;
@@ -169,7 +169,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The source color.</param>
         /// <param name="right">The scalar value.</param>
-        /// <returns>The scaled color.</returns>
+        /// <returns>The result of the division.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColorF operator /(PColorF left, float right)
         {
@@ -217,7 +217,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The first source color.</param>
         /// <param name="right">The second source color.</param>
-        /// <returns>The summed color.</returns>
+        /// <returns>The color that results from subtracting <paramref name="right"/> from <paramref name="right"/>.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColorF operator -(PColorF left, PColorF right)
         {
@@ -300,6 +300,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
         /// <param name="validate"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="validate"/> is <see langword="true"/> and <paramref name="a"/> is not between 0 and 1, or <paramref name="r"/>, <paramref name="g"/> or <paramref name="b"/> is not between 0 and <paramref name="a"/>.</exception>
         public PColorF(float a, float r, float g, float b, bool validate)
             : this(a, r, g, b)
         {
@@ -314,6 +315,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
         /// <param name="validate"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="validate"/> is <see langword="true"/> and <paramref name="r"/>, <paramref name="g"/> or <paramref name="b"/> is not between 0 and 1.</exception>
         public PColorF(float r, float g, float b, bool validate)
             : this(r, g, b)
         {

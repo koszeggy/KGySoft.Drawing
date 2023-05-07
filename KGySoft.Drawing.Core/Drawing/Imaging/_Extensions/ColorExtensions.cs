@@ -167,7 +167,7 @@ namespace KGySoft.Drawing.Imaging
         /// Converts this <see cref="Color64"/> to a <see cref="Color"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="Color"/> instance converted from this <see cref="Color"/> instance.</returns>
+        /// <returns>A <see cref="Color"/> instance converted from this <see cref="Color64"/> instance.</returns>
         public static Color ToColor(this Color64 color) => color.ToColor32().ToColor();
 
         /// <summary>
@@ -484,7 +484,7 @@ namespace KGySoft.Drawing.Imaging
             : GetBrightness(c);
 
         /// <summary>
-        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="short"/> based on human perception.
+        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="ushort"/> based on human perception.
         /// The <see cref="Color64.A"/> component of the specified value is ignored.
         /// </summary>
         /// <param name="c">The <see cref="Color64"/> instance to get the brightness of.</param>
