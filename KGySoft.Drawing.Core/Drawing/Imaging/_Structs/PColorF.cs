@@ -252,8 +252,9 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColorF"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColorF(float, float, float, float, bool)"/> constructor
-        /// or the <see cref="IsValid"/> property for validation, or the <see cref="Clip">Clip</see> method to return a valid instance.
+        /// For performance reasons this overload does not validate that the color components are between 0 and 1 but you can use
+        /// the <see cref="PColorF(float, float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
+        /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="a">The alpha component.</param>
         /// <param name="r">The red component.</param>
@@ -281,8 +282,9 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColorF"/> struct from RGB (red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColorF(float, float, float, bool)"/> constructor
-        /// or the <see cref="IsValid"/> property for validation, or the <see cref="Clip">Clip</see> method to return a valid instance.
+        /// For performance reasons this overload does not validate that the color components are between 0 and 1 but you can use
+        /// the <see cref="PColorF(float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
+        /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="r">The red component.</param>
         /// <param name="g">The green component.</param>
