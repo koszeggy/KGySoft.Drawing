@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: MainViewModel.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -255,6 +255,8 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
 
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
 
+                // NOTE: This GetReadableBitmapData is a local implementation using purely the KGySoft.Drawing.Core package.
+                //       For complete SkiaSharp support with all possible pixel formats the example at https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples/SkiaSharp_(Maui)
                 using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData(workingColorSpace);
 
                 // ===== a.) No overlay: just creating a clone bitmap with the specified quantizer/ditherer =====
