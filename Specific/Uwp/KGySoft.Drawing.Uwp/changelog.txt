@@ -6,6 +6,14 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v7.2.0:
+~~~~~~~~~
+
+* All changes are in the dependent KGySoft.Drawing.Core library only.
+  See https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+
+~~~~~~~~~
 + v7.1.0:
 ~~~~~~~~~
 
