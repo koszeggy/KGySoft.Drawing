@@ -24,6 +24,6 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on iOS" src="https://user-images.githubusercontent.com/27336165/237060110-57ffee34-fc4d-4f42-9ff0-c00d24d319c0.png"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on iOS" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/2d7931e1-cd3f-46f6-8c3b-0fe8b6cc2b70"/>
   <br/><em>iPhone 14 with iOS 16.2</em>
 </p>
