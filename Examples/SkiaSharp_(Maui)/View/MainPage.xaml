@@ -61,7 +61,7 @@
             <Picker Grid.Row="1" Grid.Column="1"
                     ItemsSource="{Binding AlphaTypes, Mode=OneTime}"
                     SelectedItem="{Binding SelectedAlphaType}"
-                    ToolTipProperties.Text="The desired alpha type. For color types without alpha with alpha only the selected value is indifferent."/>
+                    ToolTipProperties.Text="The desired alpha type. For color types without alpha or with alpha only the selected value is indifferent."/>
 
             <!--c.) Color Space-->
             <Label Grid.Row="2" Grid.Column="0">Color Space:</Label>
