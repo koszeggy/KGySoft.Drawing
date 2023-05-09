@@ -9,21 +9,21 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 ## Screenshots
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on Windows 11" src="https://user-images.githubusercontent.com/27336165/237056772-3cf78d62-3487-4af0-9cbd-46ac9df26ded.png"/>
+  <img alt="KGy SOFT Drawing SkiaSharp/MAUI Example App on Windows 11" src="https://user-images.githubusercontent.com/27336165/237056772-3cf78d62-3487-4af0-9cbd-46ac9df26ded.png"/>
   <br/><em>Windows 11</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on MacOS" src="https://user-images.githubusercontent.com/27336165/237056993-601c21a1-6609-47e4-80f0-d538f73a6499.png"/>
+  <img alt="KGy SOFT Drawing SkiaSharp/MAUI Example App on MacOS" src="https://user-images.githubusercontent.com/27336165/237056993-601c21a1-6609-47e4-80f0-d538f73a6499.png"/>
   <br/><em>MacOS</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on Android Phone" src="https://user-images.githubusercontent.com/27336165/237057266-49158fa3-090e-488d-9e20-4b96d28462bf.png"/>
+  <img alt="KGy SOFT Drawing SkiaSharp/MAUI Example App on Android Phone" src="https://user-images.githubusercontent.com/27336165/237057266-49158fa3-090e-488d-9e20-4b96d28462bf.png"/>
   <br/><em>Android Pixel 5 Phone</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on iOS" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/2d7931e1-cd3f-46f6-8c3b-0fe8b6cc2b70"/>
+  <img alt="KGy SOFT Drawing SkiaSharp/MAUI Example App on iOS" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/2d7931e1-cd3f-46f6-8c3b-0fe8b6cc2b70"/>
   <br/><em>iPhone 14 with iOS 16.2</em>
 </p>

@@ -92,7 +92,7 @@
             <ComboBox Grid.Row="1" Grid.Column="1"
                       ItemsSource="{Binding AlphaTypes, Mode=OneTime}"
                       SelectedItem="{Binding SelectedAlphaType}"
-                      ToolTip="The desired alpha type. For color types without alpha with alpha only the selected value is indifferent."/>
+                      ToolTip="The desired alpha type. For color types without alpha or with alpha only the selected value is indifferent."/>
 
             <!--c.) Color Space-->
             <TextBlock Grid.Row="2" Grid.Column="0">Color Space:</TextBlock>
