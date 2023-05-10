@@ -154,6 +154,7 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 * [KGySoft.Drawing.Wpf change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt)
 * [KGySoft.Drawing.Uwp change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Uwp/KGySoft.Drawing.Uwp/changelog.txt)
 * [KGySoft.Drawing.WinUI change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.WinUI/changelog.txt)
+* [KGySoft.Drawing.SkiaSharp change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/SkiaSharp/KGySoft.Drawing.SkiaSharp/changelog.txt)
 
 ## Examples
 
@@ -208,12 +209,12 @@ If you know the actual pixel format you can also access the raw data in a manage
 
 ### Fast GetPixel/SetPixel For Any Bitmaps
 
-The previous example showed how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a GDI+ `Bitmap`. But by using the different specific [available packages](#available-packages) the corresponding `GetReadWriteBitmapData` method will be available also for other bitmap types such as `WriteableBitmap` of [WPF](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) or [WinUI](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_WinUI_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) platforms offering fast [`GetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapData_GetPixel.htm) and [`SetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapData_SetPixel.htm) methods that are normally not available for a `WiteableBitmap` at all.
+The previous example showed how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a GDI+ `Bitmap`. But by using the different specific [available packages](#available-packages) the corresponding `GetReadWriteBitmapData` method will be available also for other bitmap types such as `SKBitmap` of [SkiaSharp](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_GetReadWriteBitmapData.htm), or the `WriteableBitmap` type of [WPF](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm), UWP or [WinUI](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_WinUI_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) platforms offering fast [`GetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapData_GetPixel.htm) and [`SetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapData_SetPixel.htm) methods that are normally not available for a `WiteableBitmap` at all.
 
 ### Managed Bitmap Data Manipulation
 <sub>(These examples require the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package.)</sub>
 
-Not only for the well-known `Bitmap` and `WriteableBitmap` types can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on a bitmap data:
+Not only for the well-known `Bitmap`, `WriteableBitmap` or `SKBitmap` types can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on a bitmap data:
 
 ```cs
 // Creating a completely managed, platform independent bitmap data.
