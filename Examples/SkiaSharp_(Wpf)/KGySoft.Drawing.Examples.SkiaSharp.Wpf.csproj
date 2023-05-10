@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.3" />
-    <PackageReference Include="KGySoft.Drawing.SkiaSharp" Version="7.2.0-preview.3" />
+    <PackageReference Include="KGySoft.Drawing.SkiaSharp" Version="7.2.0" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />

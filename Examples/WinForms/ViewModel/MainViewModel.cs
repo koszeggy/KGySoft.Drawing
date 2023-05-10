@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: MainViewModel.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -499,8 +499,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     // but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
                     // See the option b.) for the low-level solutions with more flexibility.
                     result = await (quantizer == null && ditherer == null
-                        ? cfg.Source.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : cfg.Source.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
+                        ? cfg.Source!.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                        : cfg.Source!.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
                     return;
                 }
 
@@ -509,7 +509,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 // Creating the temp 32 bpp bitmap data to work with. Will be converted back to Bitmap in the end.
                 // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear color space is selected
                 // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
-                using IReadWriteBitmapData tempBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.Width, cfg.Source.Height),
+                using IReadWriteBitmapData tempBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source!.Width, cfg.Source.Height),
                     workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
                     workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
 

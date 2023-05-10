@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+
+    <!--You can use the .NET Framework 4.7 build to execute the application on Linux/Mono--> 
     <TargetFrameworks>net6.0-windows;net47</TargetFrameworks>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
@@ -9,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="7.2.0-preview.1" />
+    <PackageReference Include="KGySoft.Drawing" Version="7.2.0" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />

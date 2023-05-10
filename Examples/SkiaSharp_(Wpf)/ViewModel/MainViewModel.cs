@@ -563,8 +563,8 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                 if (!cfg.ShowOverlay || cfg.Overlay == null)
                 {
                     result = await (quantizer == null && ditherer == null
-                        ? cfg.Source.ConvertPixelFormatAsync(cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, cfg.BackColor.ToSKColor(), cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : cfg.Source.ConvertPixelFormatAsync(quantizer, ditherer, cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, asyncConfig)); // with quantizing and/or dithering
+                        ? cfg.Source!.ConvertPixelFormatAsync(cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, cfg.BackColor.ToSKColor(), cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                        : cfg.Source!.ConvertPixelFormatAsync(quantizer, ditherer, cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, asyncConfig)); // with quantizing and/or dithering
                     return;
                 }
 
@@ -573,7 +573,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                 // Creating the temp 32 bpp bitmap data to work with. Will be converted back to SKBitmap in the end.
                 // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear working color space is selected
                 // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
-                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.Width, cfg.Source.Height),
+                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source!.Width, cfg.Source.Height),
                     workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
                     workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
 
