@@ -101,7 +101,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
 #### [KGySoft.Drawing.SkiaSharp](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.SkiaSharp.svg)](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp)
 
-This package provides dedicated support for the `SKBitmap`, `SKPixmap`, `SKImage` and `SKSurface` types of SkiaSharp. All pixel formats are supported, though for the fastest direct support the color space should be either sRGB or linear. The library also offers direct [pixel format conversion](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_ConvertPixelFormat.htm) with optional quantizing and dithering.
+This package provides dedicated support for the `SKBitmap`, `SKPixmap`, `SKImage` and `SKSurface` types of SkiaSharp. All pixel formats are supported (and [unlike](https://github.com/mono/SkiaSharp/issues/2354) SkiaSharp's own `GetPixel`, `IReadableBitmapData.GetPixel` also works correctly for all pixel formats), though for the fastest direct support the color space should be either sRGB or linear. The library also offers direct [pixel format conversion](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_ConvertPixelFormat.htm) with optional quantizing and dithering.
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) or by using the Package Manager Console:
 
@@ -295,7 +295,7 @@ return BitmapDataFactory.CreateBitmapData(
     });
 ```
 
-> 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/2f769973dff4c702dd496873f77ddcc4e728a994/Examples/Maui/Extensions/SKBitmapExtensions.cs#L99) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.
+> 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/8ac1a38317660a954ac6cf416c55d1fc3108c2fc/Examples/Maui/Extensions/SKBitmapExtensions.cs#L85) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
 
