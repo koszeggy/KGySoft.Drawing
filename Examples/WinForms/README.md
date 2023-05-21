@@ -6,10 +6,10 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 
 <p align="center">
   <img alt="KGy SOFT Drawing WinForms Example App on Windows 11" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/144e9407-958f-4b0e-b255-77fa81959791"/>
-  <br/><em>The KGy SOFT Drawing WPF Example App running on Windows 11</em>
+  <br/><em>The KGy SOFT Drawing WinForms Example App running on Windows 11</em>
 </p>
 
 <p align="center">
   <img alt="KGy SOFT Drawing WinForms Example App on Ubuntu Linux" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/42aa0da3-658d-4b29-bee2-bad4891de5b3"/>
-  <br/><em>The KGy SOFT Drawing WPF Example App running on Ubuntu Linux</em>
+  <br/><em>The KGy SOFT Drawing WinForms Example App running on Ubuntu Linux</em>
 </p>

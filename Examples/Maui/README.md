@@ -6,8 +6,6 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 
 > ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp_(Maui)) or [WPF](../SkiaSharp_(Maui)) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
 
-## Screenshots
-
 <p align="center">
   <img alt="KGy SOFT Drawing MAUI Example App on Windows 11" src="https://user-images.githubusercontent.com/27336165/236937972-115db525-c5d7-4e6a-b4d1-6eab465f2bcc.png"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on Windows 11</em>
