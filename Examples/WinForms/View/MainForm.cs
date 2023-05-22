@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
@@ -62,6 +63,12 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         #region Methods
 
         #region Protected Methods
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            errorProvider.UpdateBinding(); // just to display the errors immediately at startup if the files are missing
+        }
 
         protected override void Dispose(bool disposing)
         {
