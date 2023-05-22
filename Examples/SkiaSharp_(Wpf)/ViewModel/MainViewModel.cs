@@ -397,7 +397,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                 result.AddError(nameof(ImageFile), "The specified file does not exist");
             else if (ImageFileError != null)
                 result.AddError(nameof(ImageFile), ImageFileError);
-            if (ShowOverlay && (String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile)))
+            if (String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile))
                 result.AddError(nameof(OverlayFile), "The specified file does not exist");
             else if (OverlayFileError != null)
                 result.AddError(nameof(OverlayFile), OverlayFileError);

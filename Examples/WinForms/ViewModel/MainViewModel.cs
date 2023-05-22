@@ -25,6 +25,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using KGySoft.ComponentModel;
 using KGySoft.CoreLibraries;
@@ -307,8 +308,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         {
             progressUpdater = new ProgressUpdater(this);
             SelectedFormat = PixelFormat.Format8bppIndexed;
-            ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
-            OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
+            bool isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+            ImageFile =  isWindows ? @"..\..\..\..\..\Help\Images\Information256.png" : "../../../../../Help/Images/Information256.png";
+            OverlayFile = isWindows ? @"..\..\..\..\..\Help\Images\AlphaGradient.png" : "../../../../../Help/Images/AlphaGradient.png";
         }
 
         #endregion
@@ -335,7 +337,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 result.AddError(nameof(ImageFile), "The specified file does not exist");
             else if (ImageFileError != null)
                 result.AddError(nameof(ImageFile), ImageFileError);
-            if (ShowOverlay && (String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile)))
+            if (String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile))
                 result.AddError(nameof(OverlayFile), "The specified file does not exist");
             else if (OverlayFileError != null)
                 result.AddError(nameof(OverlayFile), OverlayFileError);
