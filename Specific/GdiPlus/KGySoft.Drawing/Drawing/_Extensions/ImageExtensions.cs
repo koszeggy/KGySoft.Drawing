@@ -373,11 +373,11 @@ namespace KGySoft.Drawing
         /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term>
         /// <term><list type="bullet">
         /// <item>This format is fully supported also by <c>System.Drawing</c>.</item>
-        /// <item>Saving as BMP preserves the pixel format but no loss of transparency occurs when saving as JPEG, PNG or TIFF either.</item>
+        /// <item>Saving as BMP preserves the pixel format but loss of transparency occurs when saving as JPEG, PNG or TIFF.</item>
         /// </list></term>
         /// <term><list type="bullet">
         /// <item>This format is fully supported also by <c>System.Drawing</c>.</item>
-        /// <item>Saving as BMP preserves the pixel format but no loss of transparency occurs when saving as JPEG, PNG or TIFF either.</item>
+        /// <item>Saving as BMP preserves the pixel format but loss of transparency occurs when saving as JPEG, PNG or TIFF.</item>
         /// </list></term></item>
         /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term>
         /// <term><list type="bullet">
@@ -431,9 +431,10 @@ namespace KGySoft.Drawing
         /// actually use 13 bit-per-channel colors internally (values between 0 and 8192, inclusively). The mapping between the 8 and 16 bit color channels is not linear: whereas the <see cref="Color"/>
         /// (and also <see cref="Color32"/>) structures represent colors with gamma correction γ = 2.2, the wide formats have no gamma correction (γ = 1.0).</item>
         /// <item>If wide color formats are supported on the current operating system, then KGySoft Drawing Libraries auto detects the used range and gamma correction.
-        /// For example, if the <a href="https://www.mono-project.com/docs/gui/libgdiplus/" target="_blank">libgdiplus</a> library will support them on Linux, or the .NET support will be implemented
-        /// in <a href="https://reactos.org/" target="_blank">ReactOS</a> (which uses full 16-bit range with linear mapping between wide and narrow color channels), then <see cref="IWritableBitmapData"/> and
-        /// <see cref="IReadableBitmapData"/> members will always use the correct transformations automatically.</item>
+        /// For example, if the <a href="https://www.mono-project.com/docs/gui/libgdiplus/" target="_blank">libgdiplus</a> library will support them on Linux, then <see cref="IWritableBitmapData"/>
+        /// and <see cref="IReadableBitmapData"/> members will always use the correct transformations automatically.</item>
+        /// <item>.NET Framework 4.0 is supported on <a href="https://reactos.org/" target="_blank">ReactOS</a>, which uses the full 16-bit range with linear mapping between wide and narrow color channels
+        /// the same way it's used at KGy SOFT's <see cref="KnownPixelFormat"/>.</item>
         /// <item>If you want to manipulate wide colors without losing information you can use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">IWritableBitmapDataRow.WriteRaw</see> and
         /// <see cref="IReadableBitmapDataRow.ReadRaw{T}">IReadableBitmapDataRow.ReadRaw</see> methods. As these methods provide access to the raw underlying data it is your responsibility to know
         /// what ranges and values are used for a specific <see cref="PixelFormat"/> on the current operating system.</item>
@@ -1699,7 +1700,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
-        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> already contain multiple frames, only the current frame is taken.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="stream">The stream into the GIF data is to be saved.</param>
@@ -1767,7 +1768,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified file.
-        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> already contain multiple frames, only the current frame is taken.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
@@ -1792,7 +1793,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
-        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> already contain multiple frames, only the current frame is taken.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
@@ -1810,7 +1811,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified file.
-        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> already contain multiple frames, only the current frame is taken.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
@@ -2029,7 +2030,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
-        /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
+        /// When <see cref="Image"/> instances in <paramref name="images"/> already contain multiple pages, only the current page is taken.
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
         /// <param name="stream">The stream into the TIFF data is to be saved.</param>
@@ -2110,8 +2111,8 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
-        /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
+        /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified file.
+        /// When <see cref="Image"/> instances in <paramref name="images"/> already contain multiple pages, only the current page is taken.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsMultipageTiff(IEnumerable{Image},Stream)"/> overload for details.
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
