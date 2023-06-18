@@ -1794,7 +1794,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="frames"/> already contain multiple frames, only the current frame is taken.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="stream">The stream into the GIF data is to be saved.</param>
