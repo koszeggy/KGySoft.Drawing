@@ -35,7 +35,7 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Explicit, Size = 12)]
     internal readonly struct RgbF : IEquatable<RgbF>
     {
         #region Fields
@@ -134,6 +134,37 @@ namespace KGySoft.Drawing.Imaging
             B = b;
         }
 
+        internal RgbF(Color32 c)
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value field
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            R = ColorSpaceHelper.SrgbToLinear(c.R);
+            G = ColorSpaceHelper.SrgbToLinear(c.G);
+            B = ColorSpaceHelper.SrgbToLinear(c.B);
+        }
+
+        internal RgbF(ColorF c)
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing the vector field
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Rgb = c.Rgb;
+#else
+            R = c.R;
+            G = c.G;
+            B = c.B;
+#endif
+        }
+
         internal RgbF(float rgb)
 #if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing the vector field
@@ -166,6 +197,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Public Methods
 
         public override string ToString() => $"[R={R:N8}; G={G:N8}; B={B:N8}]";
 
@@ -176,13 +209,28 @@ namespace KGySoft.Drawing.Imaging
         public bool Equals(RgbF other) => other.R == R && other.G == G && other.B == B;
 #endif
 
-        public override bool Equals(object? obj) => obj is ColorF other && Equals(other);
+        public override bool Equals(object? obj) => obj is RgbF other && Equals(other);
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public override int GetHashCode() => Rgb.GetHashCode();
 #else
         public override int GetHashCode() => (R, G, B).GetHashCode();
 #endif
+
+        #endregion
+
+        #region Internal Methods
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal Color32 ToColor32() => ColorF.FromRgb(Rgb).ToColor32();
+#else
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.LinearToSrgb8Bit(R),
+            ColorSpaceHelper.LinearToSrgb8Bit(G),
+            ColorSpaceHelper.LinearToSrgb8Bit(B));
+
+#endif
+
+        #endregion
 
         #endregion
     }

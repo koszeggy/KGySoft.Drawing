@@ -100,7 +100,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// If this <see cref="IBitmapData"/> represents a bitmap with single bit alpha or with a palette that has a transparent color,
-        /// then gets a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then gets a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which the color is considered transparent. If 0,
         /// then the pixels to be set will never be transparent.
         /// </summary>
         byte AlphaThreshold { get; }

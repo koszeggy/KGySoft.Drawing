@@ -3308,6 +3308,15 @@ namespace KGySoft.Drawing.Imaging
                     return bitmapData.RowSize >= bitmapData.Width << 3
                         ? GetColorCount<Color64>(context, bitmapData)
                         : DoGetColors(context, bitmapData, 0).Count;
+                case KnownPixelFormat.Format128bppRgba:
+                case KnownPixelFormat.Format128bppPRgba:
+                    return bitmapData.RowSize >= bitmapData.Width << 4
+                        ? GetColorCount<ColorF>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, 0).Count;
+                case KnownPixelFormat.Format96bppRgb:
+                    return bitmapData.RowSize >= bitmapData.Width * 12
+                        ? GetColorCount<RgbF>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, 0).Count;
                 default:
                     return DoGetColors(context, bitmapData, 0).Count;
             }
@@ -3332,6 +3341,8 @@ namespace KGySoft.Drawing.Imaging
 
                         // The JIT compiler will optimize away these branches
                         if (color is Color64 c64 && c64.A == 0)
+                            color = default;
+                        if (color is ColorF cF && cF.A <= 0f)
                             color = default;
                         colors.Add(color);
                         if (typeof(T) == typeof(Color16Gray) && colors.Count == UInt16.MaxValue)

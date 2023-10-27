@@ -1482,6 +1482,9 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555(cfg),
                 KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555(cfg),
                 KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray(cfg),
+                KnownPixelFormat.Format128bppRgba => new ManagedBitmapData128Rgba(cfg),
+                KnownPixelFormat.Format128bppPRgba => new ManagedBitmapData128PRgba(cfg),
+                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb(cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1541,6 +1544,15 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppGrayScale => buffer is Array2D<Color16Gray> buf
                     ? new ManagedBitmapData16Gray(buf, cfg)
                     : new ManagedBitmapData16Gray<T>(buffer, cfg),
+                KnownPixelFormat.Format128bppRgba => buffer is Array2D<ColorF> buf
+                    ? new ManagedBitmapData128Rgba(buf, cfg)
+                    : new ManagedBitmapData128Rgba<T>(buffer, cfg),
+                KnownPixelFormat.Format128bppPRgba => buffer is Array2D<PColorF> buf
+                    ? new ManagedBitmapData128PRgba(buf, cfg)
+                    : new ManagedBitmapData128PRgba<T>(buffer, cfg),
+                KnownPixelFormat.Format96bppRgb => buffer is Array2D<RgbF> buf
+                    ? new ManagedBitmapData96Rgb(buf, cfg)
+                    : new ManagedBitmapData96Rgb<T>(buffer, cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1593,6 +1605,9 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555_2D<T>(buffer, cfg),
                 KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555_2D<T>(buffer, cfg),
                 KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray2D<T>(buffer, cfg),
+                KnownPixelFormat.Format128bppRgba => new ManagedBitmapData128Rgba2D<T>(buffer, cfg),
+                KnownPixelFormat.Format128bppPRgba => new ManagedBitmapData128PRgba2D<T>(buffer, cfg),
+                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb2D<T>(buffer, cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1646,6 +1661,9 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppRgb555 => new UnmanagedBitmapData16Rgb555(buffer, stride, cfg),
                 KnownPixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData16Argb1555(buffer, stride, cfg),
                 KnownPixelFormat.Format16bppGrayScale => new UnmanagedBitmapData16Gray(buffer, stride, cfg),
+                KnownPixelFormat.Format128bppRgba => new UnmanagedBitmapData128Rgba(buffer, stride, cfg),
+                KnownPixelFormat.Format128bppPRgba => new UnmanagedBitmapData128PRgba(buffer, stride, cfg),
+                KnownPixelFormat.Format96bppRgb => new UnmanagedBitmapData96Rgb(buffer, stride, cfg),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
             };
         }
@@ -2067,6 +2085,16 @@ namespace KGySoft.Drawing.Imaging
                 case 64:
                     DoSaveRawLongs(context, bitmapData, rect, writer);
                     return;
+                case 96:
+                    rect.X *= 3;
+                    rect.Width *= 3;
+                    DoSaveRawInts(context, bitmapData, rect, writer);
+                    return;
+                case 128:
+                    rect.X <<= 1;
+                    rect.Width <<= 1;
+                    DoSaveRawLongs(context, bitmapData, rect, writer);
+                    return;
                 default: // 24/48bpp
                     int byteSize = bpp >> 3;
                     rect.X *= byteSize;
@@ -2198,6 +2226,15 @@ namespace KGySoft.Drawing.Imaging
                         case 64:
                             for (int x = 0; x < result.Width; x++)
                                 row.DoWriteRaw(x, reader.ReadInt64());
+                            break;
+                        case 128:
+                            int width = result.Width << 1;
+                            for (int x = 0; x < width; x += 2)
+                            {
+                                row.DoWriteRaw(x << 1, reader.ReadInt64());
+                                row.DoWriteRaw((x << 1) + 1, reader.ReadInt64());
+                            }
+
                             break;
                         default:
                             for (int x = 0; x < result.RowSize; x++)

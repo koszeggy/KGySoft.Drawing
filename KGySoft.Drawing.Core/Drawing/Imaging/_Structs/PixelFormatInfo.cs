@@ -36,6 +36,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constants
 
+        // ReSharper disable InconsistentNaming - matching names with System.Drawing.Imaging.PixelFormat
         // The following constants are basically the same as in System.Drawing.Imaging.PixelFormat,
         // occasionally decorated by some custom flags.
         internal const int Format1bppIndexed = 1 | (1 << 8) | FlagIndexed | isGdiCompatible;
@@ -52,6 +53,11 @@ namespace KGySoft.Drawing.Imaging
         internal const int Format48bppRgb = 12 | (48 << 8) | prefersColor64;
         internal const int Format64bppArgb = 13 | (64 << 8) | FlagHasAlpha | isCanonical | prefersColor64;
         internal const int Format64bppPArgb = 14 | (64 << 8) | FlagHasAlpha | hasPAlpha | prefersColor64;
+        // skipping 15, which is used for CMYK by an unnamed value in the System formats
+        internal const int Format96bppRgb = 16 | (96 << 8) | prefersColorF | isLinear;
+        internal const int Format128bppRgba = 17 | (128 << 8) | FlagHasAlpha | prefersColorF | isLinear;
+        internal const int Format128bppPRgba = 18 | (128 << 8) | FlagHasAlpha | hasPAlpha | prefersColorF | isLinear;
+        // ReSharper restore InconsistentNaming
 
         // The following constants have their corresponding values in System.Drawing.Imaging.PixelFormat.
         internal const int FlagHasAlpha = 0x00040000;
@@ -72,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
         private const int isCustomFormat = 1 << 24;
         private const int isGrayscale = 1 << 25;
         private const int hasSingleBitAlpha = 1 << 26;
-        //private const int prefersColorF = 1 << 27;
+        private const int prefersColorF = 1 << 27;
         private const int isLinear = 1 << 28;
 
         #endregion
@@ -123,7 +129,6 @@ namespace KGySoft.Drawing.Imaging
                     this.value |= FlagHasAlpha;
                 else
                     this.value &= ~(FlagHasAlpha | hasPAlpha | hasSingleBitAlpha);
-
                 this.value |= isCustomFormat;
             }
         }
@@ -147,7 +152,6 @@ namespace KGySoft.Drawing.Imaging
                     this.value |= FlagIndexed;
                 else
                     this.value &= ~FlagIndexed;
-
                 this.value |= isCustomFormat;
             }
         }
@@ -187,7 +191,6 @@ namespace KGySoft.Drawing.Imaging
                     this.value |= (hasPAlpha | FlagHasAlpha);
                 else
                     this.value &= ~hasPAlpha;
-
                 this.value |= isCustomFormat;
             }
         }
@@ -208,7 +211,6 @@ namespace KGySoft.Drawing.Imaging
                     this.value |= (hasSingleBitAlpha | FlagHasAlpha);
                 else
                     this.value &= ~hasSingleBitAlpha;
-
                 this.value |= isCustomFormat;
             }
         }
@@ -231,7 +233,7 @@ namespace KGySoft.Drawing.Imaging
                     this.value |= isLinear;
                 else
                     this.value &= ~isLinear;
-                this.value |= isLinear;
+                this.value |= isCustomFormat;
             }
         }
 
@@ -249,7 +251,7 @@ namespace KGySoft.Drawing.Imaging
         internal readonly bool HasMultiLevelAlpha => HasAlpha && !HasSingleBitAlpha;
         internal readonly KnownPixelFormat AsKnownPixelFormatInternal => (KnownPixelFormat)value;
         internal readonly bool IsKnownFormat => value != 0 && (value & isCustomFormat) == 0;
-        internal readonly bool IsWide => (value & prefersColor64) != 0;
+        internal readonly bool IsWide => (value & (prefersColor64 | prefersColorF)) != 0;
 
         internal readonly bool CanBeDithered
         {

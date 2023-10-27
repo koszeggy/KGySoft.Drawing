@@ -1048,6 +1048,10 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Srgb ? c.BlendWithBackgroundSrgb(backColor) : c.BlendWithBackgroundLinear(backColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ColorF BlendWithBackground(this ColorF c, ColorF backColor, bool linear)
+            => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackgroundSrgb(this Color32 c, Color32 backColor)
         {
             Debug.Assert(c.A != Byte.MaxValue, "Partially transparent fore color is expected. Call Blend for better performance.");
