@@ -83,10 +83,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "1 bit Indexed Blue 254", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(0, 0, 254), Color.Black, 0 },
             new object[] { "1 bit Indexed Lime", KnownPixelFormat.Format1bppIndexed, Color.Lime, Color.White, 1 },
             new object[] { "1 bit Indexed Transparent", KnownPixelFormat.Format1bppIndexed, Color.Transparent, Color.Black, 0 },
+            new object[] { "128 bit RGBA Lime", KnownPixelFormat.Format128bppRgba, Color.Lime, Color.Lime, 0x3F800000_00000000 /* only R and G as float */ },
+            new object[] { "128 bit RGBA Alpha 50%", KnownPixelFormat.Format128bppRgba, Color.FromArgb(128, Color.Lime), Color.FromArgb(128, Color.Lime), 0x3F800000_00000000 /* only R and G as float */ },
+            new object[] { "128 bit RGBA Transparent", KnownPixelFormat.Format128bppRgba, Color.Transparent, Color.Transparent, 0x3F800000_3F800000 /* only R and G as float */ },
+            new object[] { "128 bit PRGBA Lime", KnownPixelFormat.Format128bppPRgba, Color.Lime, Color.Lime, 0x3F800000_00000000 /* only R and G as float */ },
+            new object[] { "128 bit PRGBA Alpha Lime 50%", KnownPixelFormat.Format128bppPRgba, Color.FromArgb(128, Color.Lime), Color.FromArgb(128, Color.Lime), 0x3F008081_00000000 },
+            new object[] { "128 bit PRGBA Alpha Green 50%", KnownPixelFormat.Format128bppPRgba, Color.FromArgb(128, Color.Green), Color.FromArgb(128, Color.Green), 0x3DDDE874_00000000 },
+            new object[] { "128 bit PRGBA Alpha 1", KnownPixelFormat.Format128bppPRgba, Color.FromArgb(1, Color.Lime), Color.FromArgb(1, Color.Lime), 0x3B808081_00000000 },
+            new object[] { "128 bit PRGBA Alpha 254", KnownPixelFormat.Format128bppPRgba, Color.FromArgb(254, Color.Lime), Color.FromArgb(254, Color.Lime), 0x3F7EFEFF_00000000 },
+            new object[] { "128 bit PRGBA Transparent", KnownPixelFormat.Format128bppPRgba, Color.Transparent, Color.Empty, 0x00000000_00000000 },
+            new object[] { "96 bit RGB Blue", KnownPixelFormat.Format96bppRgb, Color.Lime, Color.Lime, 0x3F800000_00000000 },
+            new object[] { "96 bit RGB White", KnownPixelFormat.Format96bppRgb, Color.White, Color.White, 0x3F800000_3F800000 },
+            new object[] { "96 bit RGB Transparent", KnownPixelFormat.Format96bppRgb, Color.Transparent, Color.Black, 0x00000000_00000000 },
         };
 
         private static readonly object[][] blendingSetGetPixelTestSource =
         {
+            new object[] { "96 bit RGB sRGB", KnownPixelFormat.Format96bppRgb, Color.FromArgb(128, Color.Red), Color.FromArgb(128, 0, 0), WorkingColorSpace.Srgb, 0x3E5D0A8B },
+            new object[] { "96 bit RGB Linear", KnownPixelFormat.Format96bppRgb, Color.FromArgb(128, Color.Red), Color.FromArgb(188, 0, 0), WorkingColorSpace.Linear, 0x3F008081 },
             new object[] { "48 bit RGB sRGB", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Srgb, 0x0000_0000_807F },
             new object[] { "48 bit RGB Linear", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), WorkingColorSpace.Linear, 0x0000_0000_BC94 },
             new object[] { "32 bit RGB sRGB", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), WorkingColorSpace.Srgb, 0xFF_00_00_7F },
@@ -129,7 +143,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static unsafe long GetRawValueNative(int bpp, IntPtr ptr) => bpp switch
         {
-            64 => *(long*)ptr,
+            64 or 96 or 128 => *(long*)ptr,
             48 => *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32),
             32 => *(uint*)ptr,
             24 => *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16),
@@ -180,10 +194,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[] bufManaged = new long[size.Height * size.Width];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
-                new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
-                default, 128, WorkingColorSpace.Default, null, null, null))
+            int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
+            long[] bufManaged = new long[size.Height * longWidth];
+            using (IBitmapDataInternal managedBitmapData = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(
+                new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
@@ -206,9 +220,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[,] bufManaged2D = new long[size.Height, size.Width];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
-                default, 128, WorkingColorSpace.Default, null, null, null))
+            long[,] bufManaged2D = new long[size.Height, longWidth];
+            using (IBitmapDataInternal managedBitmapData = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
@@ -233,8 +246,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
-            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
-               default, 128, WorkingColorSpace.Default, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
+            using (IBitmapDataInternal unmanagedBitmapData = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bufUnmanaged, size, stride, pixelFormat, 
+                       disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");
@@ -294,9 +307,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[] bufManaged = new long[size.Height * size.Width];
+            int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
+            long[] bufManaged = new long[size.Height * longWidth];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
-                new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
+                new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat,
                 default, 128, workingColorSpace, null, null, null))
             {
                 // by Accessor Set/GetPixel
@@ -320,7 +334,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[,] bufManaged2D = new long[size.Height, size.Width];
+            long[,] bufManaged2D = new long[size.Height, longWidth];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
                 default, 128, workingColorSpace, null, null, null))
             {
