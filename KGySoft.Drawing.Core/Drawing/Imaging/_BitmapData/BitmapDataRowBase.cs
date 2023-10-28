@@ -102,8 +102,89 @@ namespace KGySoft.Drawing.Imaging
         #region Public Methods
 
         public Color GetColor(int x) => this[x].ToColor();
-
         public void SetColor(int x, Color color) => this[x] = new Color32(color);
+        public Color32 GetColor32(int x) => this[x];
+        public void SetColor32(int x, Color32 color) => this[x] = color;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColor32 GetPColor32(int x)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            return DoGetPColor32(x);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColor32(int x, PColor32 color)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            DoSetPColor32(x, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color64 GetColor64(int x)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            return DoGetColor64(x);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetColor64(int x, Color64 color)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            DoSetColor64(x, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColor64 GetPColor64(int x)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            return DoGetPColor64(x);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColor64(int x, PColor64 color)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            DoSetPColor64(x, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public ColorF GetColorF(int x)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            return DoGetColorF(x);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetColorF(int x, ColorF color)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            DoSetColorF(x, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColorF GetPColorF(int x)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            return DoGetPColorF(x);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColorF(int x, PColorF color)
+        {
+            if ((uint)x >= BitmapData.Width)
+                ThrowXOutOfRange();
+            DoSetPColorF(x, color);
+        }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public int GetColorIndex(int x)
@@ -167,16 +248,20 @@ namespace KGySoft.Drawing.Imaging
 
         public abstract Color32 DoGetColor32(int x);
         public abstract void DoSetColor32(int x, Color32 c);
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual PColor32 DoGetPColor32(int x) => DoGetColor32(x).ToPColor32();
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual void DoSetPColor32(int x, PColor32 c) => DoSetColor32(x, c.ToColor32());
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual Color64 DoGetColor64(int x) => DoGetColor32(x).ToColor64();
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual void DoSetColor64(int x, Color64 c) => DoSetColor32(x, c.ToColor32());
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual PColor64 DoGetPColor64(int x) => DoGetColor32(x).ToPColor64();
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual void DoSetPColor64(int x, PColor64 c) => DoSetColor32(x, c.ToColor32());
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual ColorF DoGetColorF(int x) => DoGetColor32(x).ToColorF();
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual void DoSetColorF(int x, ColorF c) => DoSetColor32(x, c.ToColor32());
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual PColorF DoGetPColorF(int x) => DoGetColor32(x).ToPColorF();
+        [MethodImpl(MethodImpl.AggressiveInlining)]public virtual void DoSetPColorF(int x, PColorF c) => DoSetColor32(x, c.ToColor32());
         public abstract T DoReadRaw<T>(int x) where T : unmanaged;
         public abstract void DoWriteRaw<T>(int x, T data) where T : unmanaged;
         public virtual int DoGetColorIndex(int x) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
         public virtual void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public virtual PColor32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public virtual void DoSetColor32Premultiplied(int x, PColor32 c) => DoSetColor32(x, c.ToStraight());
 
         #endregion
 

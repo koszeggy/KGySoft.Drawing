@@ -26,9 +26,17 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         Color32 DoGetColor32(int x);
-        PColor32 DoGetColor32Premultiplied(int x);
+        PColor32 DoGetPColor32(int x);
         void DoSetColor32(int x, Color32 c);
-        void DoSetColor32Premultiplied(int x, PColor32 c);
+        void DoSetPColor32(int x, PColor32 c);
+        Color64 DoGetColor64(int x);
+        PColor64 DoGetPColor64(int x);
+        void DoSetColor64(int x, Color64 c);
+        void DoSetPColor64(int x, PColor64 c);
+        ColorF DoGetColorF(int x);
+        PColorF DoGetPColorF(int x);
+        void DoSetColorF(int x, ColorF c);
+        void DoSetPColorF(int x, PColorF c);
         T DoReadRaw<T>(int x) where T : unmanaged;
         void DoWriteRaw<T>(int x, T data) where T : unmanaged;
         int DoGetColorIndex(int x);

@@ -73,6 +73,18 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="ReadRaw{T}"/>
         Color GetColor(int x);
 
+        Color32 GetColor32(int x);
+
+        PColor32 GetPColor32(int x);
+
+        Color64 GetColor64(int x);
+
+        PColor64 GetPColor64(int x);
+
+        ColorF GetColorF(int x);
+
+        PColorF GetPColorF(int x);
+
         /// <summary>
         /// If the owner <see cref="IReadableBitmapData"/> is an indexed one, then gets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
         /// </summary>

@@ -107,11 +107,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
-#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         Color32 GetColor32(int x, int y);
-#else
-        Color32 GetColor32(int x, int y) => new Color32(GetPixel(x, y));
-#endif
+
+        PColor32 GetPColor32(int x, int y);
+        
+        Color64 GetColor64(int x, int y);
+
+        PColor64 GetPColor64(int x, int y);
+        
+        ColorF GetColorF(int x, int y);
+        
+        PColorF GetPColorF(int x, int y);
 
         /// <summary>
         /// Gets an <see cref="IReadableBitmapDataRowMovable"/> instance representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadableBitmapData"/>.

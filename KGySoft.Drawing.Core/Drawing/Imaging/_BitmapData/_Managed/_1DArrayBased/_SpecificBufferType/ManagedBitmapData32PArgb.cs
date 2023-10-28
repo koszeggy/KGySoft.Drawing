@@ -38,10 +38,10 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColor32(int x, Color32 c) => Row[x] = c.ToPremultiplied();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override PColor32 DoGetColor32Premultiplied(int x) => Row[x];
+            public override PColor32 DoGetPColor32(int x) => Row[x];
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32Premultiplied(int x, PColor32 c) => Row[x] = c;
+            public override void DoSetPColor32(int x, PColor32 c) => Row[x] = c;
 
             #endregion
         }
@@ -65,10 +65,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => Buffer[y, x].ToStraight();
+        protected override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToStraight();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 c) => Buffer[y, x] = c.ToPremultiplied();
+        protected override void DoSetColor32(int x, int y, Color32 c) => Buffer[y, x] = c.ToPremultiplied();
 
         #endregion
     }

@@ -108,11 +108,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
-#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         void SetColor32(int x, int y, Color32 color);
-#else
-        void SetColor32(int x, int y, Color32 color) => SetPixel(x, y, color.ToColor());
-#endif
+
+        void SetPColor32(int x, int y, PColor32 color);
+        
+        void SetColor64(int x, int y, Color64 color);
+        
+        void SetPColor64(int x, int y, PColor64 color);
+
+        void SetColorF(int x, int y, ColorF color);
+        
+        void SetPColorF(int x, int y, PColorF color);
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapDataRowMovable"/> instance representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IWritableBitmapData"/>.

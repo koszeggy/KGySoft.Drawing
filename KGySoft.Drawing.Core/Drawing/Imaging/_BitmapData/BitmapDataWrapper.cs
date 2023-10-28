@@ -82,21 +82,41 @@ namespace KGySoft.Drawing.Imaging
             public bool MoveNextRow() => row.MoveNextRow();
             public void MoveToRow(int y) => row.MoveToRow(y);
             public Color GetColor(int x) => readableBitmapDataRow.GetColor(x);
-            public int GetColorIndex(int x) => readableBitmapDataRow.GetColorIndex(x);
-            public T ReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
             public void SetColor(int x, Color color) => writableBitmapDataRow.SetColor(x, color);
+            public Color32 GetColor32(int x) => readableBitmapDataRow.GetColor32(x);
+            public void SetColor32(int x, Color32 color) => writableBitmapDataRow.SetColor32(x, color);
+            public PColor32 GetPColor32(int x) => readableBitmapDataRow.GetPColor32(x);
+            public void SetPColor32(int x, PColor32 color) => writableBitmapDataRow.SetPColor32(x, color);
+            public Color64 GetColor64(int x) => readableBitmapDataRow.GetColor64(x);
+            public void SetColor64(int x, Color64 color) => writableBitmapDataRow.SetColor64(x, color);
+            public PColor64 GetPColor64(int x) => readableBitmapDataRow.GetPColor64(x);
+            public void SetPColor64(int x, PColor64 color) => writableBitmapDataRow.SetPColor64(x, color);
+            public ColorF GetColorF(int x) => readableBitmapDataRow.GetColorF(x);
+            public void SetColorF(int x, ColorF color) => writableBitmapDataRow.SetColorF(x, color);
+            public PColorF GetPColorF(int x) => readableBitmapDataRow.GetPColorF(x);
+            public void SetPColorF(int x, PColorF color) => writableBitmapDataRow.SetPColorF(x, color);
+            public int GetColorIndex(int x) => readableBitmapDataRow.GetColorIndex(x);
             public void SetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
+            public T ReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
             public void WriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
 
             public void DoMoveToRow(int y) => row.MoveToRow(y);
-            public Color32 DoGetColor32(int x) => readableBitmapDataRow[x];
-            public void DoSetColor32(int x, Color32 c) => writableBitmapDataRow[x] = c;
-            public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
-            public void DoWriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
+            public Color32 DoGetColor32(int x) => readableBitmapDataRow.GetColor32(x);
+            public void DoSetColor32(int x, Color32 c) => writableBitmapDataRow.SetColor32(x, c);
+            public PColor32 DoGetPColor32(int x) => readableBitmapDataRow.GetPColor32(x);
+            public void DoSetPColor32(int x, PColor32 c) => writableBitmapDataRow.SetPColor32(x, c);
+            public Color64 DoGetColor64(int x) => readableBitmapDataRow.GetColor64(x);
+            public void DoSetColor64(int x, Color64 c) => writableBitmapDataRow.SetColor64(x, c);
+            public PColor64 DoGetPColor64(int x) => readableBitmapDataRow.GetPColor64(x);
+            public void DoSetPColor64(int x, PColor64 c) => writableBitmapDataRow.SetPColor64(x, c);
+            public ColorF DoGetColorF(int x) => readableBitmapDataRow.GetColorF(x);
+            public void DoSetColorF(int x, ColorF c) => writableBitmapDataRow.SetColorF(x, c);
+            public PColorF DoGetPColorF(int x) => readableBitmapDataRow.GetPColorF(x);
+            public void DoSetPColorF(int x, PColorF c) => writableBitmapDataRow.SetPColorF(x, c);
             public int DoGetColorIndex(int x) => readableBitmapDataRow.GetColorIndex(x);
             public void DoSetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
-            public PColor32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
-            public void DoSetColor32Premultiplied(int x, PColor32 c) => DoSetColor32(x, c.ToStraight());
+            public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
+            public void DoWriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
 
             #endregion
         }
@@ -189,6 +209,16 @@ namespace KGySoft.Drawing.Imaging
         public void SetPixel(int x, int y, Color color) => AsWritable.SetPixel(x, y, color);
         public Color32 GetColor32(int x, int y) => AsReadable.GetColor32(x, y);
         public void SetColor32(int x, int y, Color32 color) => AsWritable.SetColor32(x, y, color);
+        public PColor32 GetPColor32(int x, int y) => AsReadable.GetPColor32(x, y);
+        public void SetPColor32(int x, int y, PColor32 color) => AsWritable.SetPColor32(x, y, color);
+        public Color64 GetColor64(int x, int y) => AsReadable.GetColor64(x, y);
+        public void SetColor64(int x, int y, Color64 color) => AsWritable.SetColor64(x, y, color);
+        public PColor64 GetPColor64(int x, int y) => AsReadable.GetPColor64(x, y);
+        public void SetPColor64(int x, int y, PColor64 color) => AsWritable.SetPColor64(x, y, color);
+        public ColorF GetColorF(int x, int y) => AsReadable.GetColorF(x, y);
+        public void SetColorF(int x, int y, ColorF color) => AsWritable.SetColorF(x, y, color);
+        public PColorF GetPColorF(int x, int y) => AsReadable.GetPColorF(x, y);
+        public void SetPColorF(int x, int y, PColorF color) => AsWritable.SetPColorF(x, y, color);
         public bool TrySetPalette(Palette? palette) => false;
         public IBitmapDataRowInternal GetRowUncached(int y) => DoGetRow(y);
 

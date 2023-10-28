@@ -373,12 +373,12 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int x = 0; x < width; x++)
                 {
-                    PColor32 colorSrc = rowSrc.DoGetColor32Premultiplied(x + offsetSrc);
+                    PColor32 colorSrc = rowSrc.DoGetPColor32(x + offsetSrc);
 
                     // fully solid source: overwrite
                     if (colorSrc.A == Byte.MaxValue)
                     {
-                        rowDst.DoSetColor32Premultiplied(x + offsetDst, colorSrc);
+                        rowDst.DoSetPColor32(x + offsetDst, colorSrc);
                         continue;
                     }
 
@@ -388,13 +388,13 @@ namespace KGySoft.Drawing.Imaging
 
                     // source here has a partial transparency: we need to read the target color
                     int pos = x + offsetDst;
-                    PColor32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
+                    PColor32 colorDst = rowDst.DoGetPColor32(pos);
 
                     // non-transparent target: blending
                     if (colorDst.A != 0)
                         colorSrc = colorSrc.BlendWithSrgb(colorDst);
 
-                    rowDst.DoSetColor32Premultiplied(pos, colorSrc);
+                    rowDst.DoSetPColor32(pos, colorSrc);
                 }
             }
 
@@ -639,7 +639,7 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                         return;
                     for (int x = 0; x < SourceRectangle.Width; x++)
-                        rowDst.DoSetColor32Premultiplied(x + TargetRectangle.X, rowSrc.DoGetColor32Premultiplied(x + SourceRectangle.X));
+                        rowDst.DoSetPColor32(x + TargetRectangle.X, rowSrc.DoGetPColor32(x + SourceRectangle.X));
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
                     context.Progress?.Increment();
@@ -662,7 +662,7 @@ namespace KGySoft.Drawing.Imaging
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
-                    rowDst.DoSetColor32Premultiplied(x + offsetDst, rowSrc.DoGetColor32Premultiplied(x + offsetSrc));
+                    rowDst.DoSetPColor32(x + offsetDst, rowSrc.DoGetPColor32(x + offsetSrc));
             });
         }
 

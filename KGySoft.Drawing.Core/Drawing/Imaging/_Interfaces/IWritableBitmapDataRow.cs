@@ -75,6 +75,18 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="WriteRaw{T}"/>
         void SetColor(int x, Color color);
 
+        void SetColor32(int x, Color32 color);
+
+        void SetPColor32(int x, PColor32 color);
+
+        void SetColor64(int x, Color64 color);
+
+        void SetPColor64(int x, PColor64 color);
+
+        void SetColorF(int x, ColorF color);
+
+        void SetPColorF(int x, PColorF color);
+
         /// <summary>
         /// If the owner <see cref="IWritableBitmapData"/> has an indexed pixel format, then sets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
         /// </summary>

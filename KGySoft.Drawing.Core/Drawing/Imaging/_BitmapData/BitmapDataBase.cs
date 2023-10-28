@@ -242,7 +242,7 @@ namespace KGySoft.Drawing.Imaging
                 ThrowYOutOfRange();
             if ((uint)x >= Width)
                 ThrowXOutOfRange();
-            return DoGetPixel(x, y);
+            return DoGetColor32(x, y);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -254,7 +254,127 @@ namespace KGySoft.Drawing.Imaging
                 ThrowYOutOfRange();
             if ((uint)x >= Width)
                 ThrowXOutOfRange();
-            DoSetPixel(x, y, color);
+            DoSetColor32(x, y, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColor32 GetPColor32(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetPColor32(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColor32(int x, int y, PColor32 color)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetPColor32(x, y, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color64 GetColor64(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetColor64(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetColor64(int x, int y, Color64 color)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetColor64(x, y, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColor64 GetPColor64(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetPColor64(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColor64(int x, int y, PColor64 color)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetPColor64(x, y, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public ColorF GetColorF(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetColorF(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetColorF(int x, int y, ColorF color)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetColorF(x, y, color);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColorF GetPColorF(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetPColorF(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPColorF(int x, int y, PColorF color)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetPColorF(x, y, color);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -291,8 +411,18 @@ namespace KGySoft.Drawing.Imaging
         #region Protected Methods
 
         protected abstract IBitmapDataRowInternal DoGetRow(int y);
-        protected abstract Color32 DoGetPixel(int x, int y);
-        protected abstract void DoSetPixel(int x, int y, Color32 c);
+        protected abstract Color32 DoGetColor32(int x, int y);
+        protected abstract void DoSetColor32(int x, int y, Color32 c);
+        protected virtual PColor32 DoGetPColor32(int x, int y) => DoGetColor32(x, y).ToPColor32();
+        protected virtual void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor32(x, y, c.ToColor32());
+        protected virtual Color64 DoGetColor64(int x, int y) => DoGetColor32(x, y).ToColor64();
+        protected virtual void DoSetColor64(int x, int y, Color64 c) => DoSetColor32(x, y, c.ToColor32());
+        protected virtual PColor64 DoGetPColor64(int x, int y) => DoGetColor32(x, y).ToPColor64();
+        protected virtual void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor32(x, y, c.ToColor32());
+        protected virtual ColorF DoGetColorF(int x, int y) => DoGetColor32(x, y).ToColorF();
+        protected virtual void DoSetColorF(int x, int y, ColorF c) => DoSetColor32(x, y, c.ToColor32());
+        protected virtual PColorF DoGetPColorF(int x, int y) => DoGetColor32(x, y).ToPColorF();
+        protected virtual void DoSetPColorF(int x, int y, PColorF c) => DoSetColor32(x, y, c.ToColor32());
 
         protected virtual void Dispose(bool disposing)
         {

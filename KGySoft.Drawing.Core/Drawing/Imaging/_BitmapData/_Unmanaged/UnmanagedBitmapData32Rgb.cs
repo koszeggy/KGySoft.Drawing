@@ -58,11 +58,11 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color32>(y, x)->ToOpaque();
+        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Color32>(y, x)->ToOpaque();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPixel(int x, int y, Color32 c)
+        protected override unsafe void DoSetColor32(int x, int y, Color32 c)
             => *GetPixelAddress<Color32>(y, x) = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace);
 
         #endregion

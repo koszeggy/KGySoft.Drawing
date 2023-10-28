@@ -55,10 +55,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color32>(y, x).ToOpaque();
+        protected override Color32 DoGetColor32(int x, int y) => GetPixelRef<Color32>(y, x).ToOpaque();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 c)
+        protected override void DoSetColor32(int x, int y, Color32 c)
             => GetPixelRef<Color32>(y, x) = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace);
 
         #endregion

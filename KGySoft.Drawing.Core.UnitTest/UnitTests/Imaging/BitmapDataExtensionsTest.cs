@@ -82,6 +82,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public void Dispose() => wrapped.Dispose();
             public Color GetPixel(int x, int y) => wrapped.GetPixel(x, y);
             public Color32 GetColor32(int x, int y) => wrapped.GetColor32(x, y);
+            public PColor32 GetPColor32(int x, int y) => wrapped.GetPColor32(x, y);
+            public Color64 GetColor64(int x, int y) => wrapped.GetColor64(x, y);
+            public PColor64 GetPColor64(int x, int y) => wrapped.GetPColor64(x, y);
+            public ColorF GetColorF(int x, int y) => wrapped.GetColorF(x, y);
+            public PColorF GetPColorF(int x, int y) => wrapped.GetPColorF(x, y);
             public IReadableBitmapDataRowMovable GetMovableRow(int y) => wrapped.GetMovableRow(y);
 
             #endregion
@@ -201,6 +206,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
         [TestCase(KnownPixelFormat.Format64bppArgb)]
         [TestCase(KnownPixelFormat.Format64bppPArgb)]
         [TestCase(KnownPixelFormat.Format48bppRgb)]
