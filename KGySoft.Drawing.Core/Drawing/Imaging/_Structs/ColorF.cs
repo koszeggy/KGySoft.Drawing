@@ -464,6 +464,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
+        /// <summary>
+        /// Creates a <see cref="ColorF"/> instance from the specified <see cref="ColorF"/> structure, but with the new specified alpha value.
+        /// This method does not validate if the color components are between 0 and 1 but you can use the the <see cref="IsValid"/> property
+        /// or the <see cref="Clip">Clip</see> method on the result.
+        /// </summary>
+        /// <param name="a">The alpha value for the new <see cref="ColorF"/> instance.</param>
+        /// <param name="baseColor">The <see cref="ColorF"/> instance from which to create the new one.</param>
+        /// <returns>A <see cref="ColorF"/> instance from the specified <see cref="ColorF"/> structure and alpha value.</returns>
+        public static ColorF FromArgb(float a, ColorF baseColor) =>
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            new ColorF(new Vector4(baseColor.Rgb, a));
+#else
+            new ColorF(a, baseColor.R, baseColor.G, baseColor.B);
+#endif
+
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         /// <summary>
         /// Creates a <see cref="ColorF"/> structure from a <see cref="Vector4"/> instance mapping <see cref="Vector4.X"/> to <see cref="R"/>,

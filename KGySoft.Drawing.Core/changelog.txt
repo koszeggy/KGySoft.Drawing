@@ -23,6 +23,14 @@
   ! New GetColor32/GetColor64/GetColorF/GetPColor32/GetPColor64/GetPColorF methods
 + KnownPixelFormat enum:
   + New Format96bppRgb, Format128bppRgba and Format128bppPRgba values
++ PColor32 struct:
+  + New FromArgb overload
++ PColor64 struct:
+  + New FromArgb overload
++ ColorF struct:
+  + New FromArgb method
++ PColorF struct:
+  + New FromArgb method
 - PixelFormatInfo struct:
   - LinearGamma property: setting it to false did not reset the value.
 

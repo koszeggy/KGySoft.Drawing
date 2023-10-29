@@ -318,6 +318,14 @@ namespace KGySoft.Drawing.Imaging
         [CLSCompliant(false)]
         public static PColor32 FromArgb(uint argb) => new PColor32(argb);
 
+        /// <summary>
+        /// Creates a <see cref="PColor32"/> instance from the specified <see cref="Color32"/> structure specifying a custom alpha value.
+        /// </summary>
+        /// <param name="a">The alpha value for the result <see cref="PColor32"/> instance.</param>
+        /// <param name="baseColor">The <see cref="Color32"/> instance to which apply the new alpha.</param>
+        /// <returns>A <see cref="PColor32"/> instance from the specified <see cref="Color32"/> structure and alpha value.</returns>
+        public static PColor32 FromArgb(byte a, Color32 baseColor) => new PColor32(Color32.FromArgb(a, baseColor));
+
         #endregion
 
         #region Private Methods

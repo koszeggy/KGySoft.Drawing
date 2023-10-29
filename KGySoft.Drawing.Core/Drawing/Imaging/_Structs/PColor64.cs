@@ -377,6 +377,15 @@ namespace KGySoft.Drawing.Imaging
         [CLSCompliant(false)]
         public static PColor64 FromArgb(ulong argb) => new PColor64(argb);
 
+        /// <summary>
+        /// Creates a <see cref="PColor64"/> instance from the specified <see cref="Color64"/> structure specifying a custom alpha value.
+        /// </summary>
+        /// <param name="a">The alpha value for the result <see cref="PColor64"/> instance.</param>
+        /// <param name="baseColor">The <see cref="Color64"/> instance to which apply the new alpha.</param>
+        /// <returns>A <see cref="PColor64"/> instance from the specified <see cref="Color64"/> structure and alpha value.</returns>
+        [CLSCompliant(false)]
+        public static PColor64 FromArgb(ushort a, Color64 baseColor) => new PColor64(Color64.FromArgb(a, baseColor));
+
         #endregion
 
         #region Private Methods
