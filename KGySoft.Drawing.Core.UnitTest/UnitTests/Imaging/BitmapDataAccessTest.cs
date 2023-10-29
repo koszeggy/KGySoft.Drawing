@@ -17,9 +17,11 @@
 
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -500,9 +502,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         [TestCase(KnownPixelFormat.Format24bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format32bppRgb)] // no alpha, after blending no loss is expected
-        [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
         [TestCase(KnownPixelFormat.Format32bppPArgb)] // direct format, no loss is expected
-        [TestCase(KnownPixelFormat.Format64bppArgb)] // just for curiosity: does the conversion back preserve the information?
         [TestCase(KnownPixelFormat.Format64bppPArgb)] // should work without loss of information
         [TestCase(KnownPixelFormat.Format128bppRgba)] // should work without loss of information
         [TestCase(KnownPixelFormat.Format128bppPRgba)] // actually incompatible color space
@@ -510,12 +510,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             Size size = new Size(1, 1);
             var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
-
+            
             Console.WriteLine(pixelFormat);
 
             foreach (byte a in new[] { 0, 1, 127, 128, 129, 254, 255 })
             {
                 PColor32 testColor = PColor32.FromArgb(a, baseColor);
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToPColor32());
+
                 Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
                 
                 using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
@@ -633,10 +636,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
         [TestCase(KnownPixelFormat.Format48bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format64bppArgb)] // direct format, no loss is expected
-        [TestCase(KnownPixelFormat.Format64bppPArgb)] // should not work
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format128bppRgba)] // should work without loss of information
         [TestCase(KnownPixelFormat.Format128bppPRgba)] // should not work
@@ -650,6 +651,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (ushort a in new[] { 0, 1, 32767, 32768, 32769, 65534, 65535 })
             {
                 Color64 testColor = Color64.FromArgb(a, baseColor.ToColor64());
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToColor64());
+
                 Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
 
                 using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
@@ -769,7 +773,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
         [TestCase(KnownPixelFormat.Format48bppRgb)] // no alpha, after blending no loss is expected
-        [TestCase(KnownPixelFormat.Format64bppArgb)] // should not work
+        [TestCase(KnownPixelFormat.Format64bppArgb)] // actually does not work for all possible values but in most cases it works
         [TestCase(KnownPixelFormat.Format64bppPArgb)] // direct format, no loss is expected
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format128bppRgba)] // just for curiosity: does the conversion back preserve the information?
@@ -784,6 +788,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (ushort a in new[] { 0, 1, 32767, 32768, 32769, 65534, 65535 })
             {
                 PColor64 testColor = PColor64.FromArgb(a, baseColor.ToColor64());
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToPColor64());
+
                 Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
 
                 using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
@@ -901,12 +908,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
-        [TestCase(KnownPixelFormat.Format64bppArgb)] // should not work
-        [TestCase(KnownPixelFormat.Format64bppPArgb)] // should not work
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format128bppRgba)] // direct format, no loss is expected
-        [TestCase(KnownPixelFormat.Format128bppPRgba)] // should not work
         public void SetGetPixelS128KnownTest(KnownPixelFormat pixelFormat)
         {
             Size size = new Size(1, 1);
@@ -917,6 +920,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (float a in new[] { 0f, 0f.Inc(), 0.5f.Dec(), 0.5f, 0.5f.Inc(), 1f.Dec(), 1f })
             {
                 ColorF testColor = ColorF.FromArgb(a, baseColor.ToColorF());
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToColorF());
+
                 Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
 
                 using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
@@ -1034,11 +1040,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
-        [TestCase(KnownPixelFormat.Format64bppArgb)] // should not work
-        [TestCase(KnownPixelFormat.Format64bppPArgb)] // should not work
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
-        [TestCase(KnownPixelFormat.Format128bppRgba)] // should not work
+        [TestCase(KnownPixelFormat.Format128bppRgba)] // should not work - TODO: but NaNs are not good...
         [TestCase(KnownPixelFormat.Format128bppPRgba)] // direct format, no loss is expected
         public void SetGetPixelP128KnownTest(KnownPixelFormat pixelFormat)
         {
@@ -1050,6 +1053,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (float a in new[] { 0f, 0f.Inc(), 0.5f.Dec(), 0.5f, 0.5f.Inc(), 1f.Dec(), 1f })
             {
                 PColorF testColor = PColorF.FromArgb(a, baseColor.ToColorF());
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToPColorF());
+
                 Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
 
                 using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
