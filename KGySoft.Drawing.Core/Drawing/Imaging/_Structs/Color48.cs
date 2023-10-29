@@ -40,13 +40,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal Color48(Color32 c)
-        {
-            B = ColorSpaceHelper.ToUInt16(c.B);
-            G = ColorSpaceHelper.ToUInt16(c.G);
-            R = ColorSpaceHelper.ToUInt16(c.R);
-        }
-
         internal Color48(Color64 c)
         {
             Debug.Assert(c.A == UInt16.MaxValue);
@@ -69,7 +62,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), ColorSpaceHelper.ToByte(B));
+        internal unsafe Color32 ToColor32()
+        {
+            // The same trick as in Color64.ToColor32()
+            Color48 value = this;
+            byte* bytes = (byte*)&value;
+            return new Color32(bytes[5], bytes[3], bytes[1]);
+
+            //return new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), ColorSpaceHelper.ToByte(B));
+        }
+
         internal Color64 ToColor64() => new Color64(R, G, B);
 
         #endregion

@@ -1201,6 +1201,10 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColor64 BlendWith(this PColor64 src, PColor64 dst, bool isLinear)
+            => isLinear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColorF BlendWith(this PColorF src, PColorF dst, WorkingColorSpace colorSpace)
             => colorSpace == WorkingColorSpace.Srgb ? src.BlendWithSrgb(dst) : src.BlendWithLinear(dst);
 
@@ -1453,7 +1457,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColor64 BlendWithLinear(this PColor64 src, PColor64 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0 && dst.A != 65535, "Partially transparent colors are expected");
             return src.ToColorF().BlendWithLinear(dst.ToColorF()).ToPColor64();
         }
 

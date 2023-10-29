@@ -36,13 +36,49 @@ namespace KGySoft.Drawing.Imaging
             public override Color32 DoGetColor32(int x) => Row[x].ToColor32();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c)
-                => Row[x] = c.A == Byte.MaxValue
+            public override void DoSetColor32(int x, Color32 c) => DoSetColor64(x, new Color64(c));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor32 DoGetPColor32(int x) => PColor32.FromArgb(Row[x].ToColor32().ToArgbUInt32());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor32(int x, PColor32 c) => DoSetColor64(x, c.ToColor64());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color64 DoGetColor64(int x) => Row[x].ToColor64();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor64(int x, Color64 c)
+                => Row[x] = c.A == UInt16.MaxValue
                     ? new Color48(c)
-                    : new Color48(c.ToColor64().BlendWithBackground(BitmapData.BackColor.ToColor64(), BitmapData.LinearWorkingColorSpace));
+                    : new Color48(c.BlendWithBackground(((ManagedBitmapData48Rgb)BitmapData).backColor64, BitmapData.LinearWorkingColorSpace));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor64 DoGetPColor64(int x) => PColor64.FromArgb(Row[x].ToColor64().ToArgbUInt64());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor64(int x, PColor64 c) => DoSetColor64(x, c.ToColor64());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override ColorF DoGetColorF(int x) => Row[x].ToColor64().ToColorF();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorF(int x, ColorF c) => DoSetColor64(x, c.ToColor64());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColorF DoGetPColorF(int x) => Row[x].ToColor64().ToPColorF();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColor64(x, c.ToColor64());
 
             #endregion
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly Color64 backColor64;
 
         #endregion
 
@@ -51,11 +87,13 @@ namespace KGySoft.Drawing.Imaging
         internal ManagedBitmapData48Rgb(in BitmapDataConfig cfg)
             : base(cfg)
         {
+            backColor64 = BackColor.ToColor64();
         }
 
         internal ManagedBitmapData48Rgb(Array2D<Color48> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {
+            backColor64 = BackColor.ToColor64();
         }
 
         #endregion
@@ -66,10 +104,40 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c)
-            => Buffer[y, x] = c.A == Byte.MaxValue
+        protected override void DoSetColor32(int x, int y, Color32 c) => DoSetColor64(x, y, new Color64(c));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor32 DoGetPColor32(int x, int y) => PColor32.FromArgb(Buffer[y, x].ToColor32().ToArgbUInt32());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor64(x, y, c.ToColor64());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override Color64 DoGetColor64(int x, int y) => Buffer[y, x].ToColor64();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColor64(int x, int y, Color64 c)
+            => Buffer[y, x] = c.A == UInt16.MaxValue
                 ? new Color48(c)
-                : new Color48(c.ToColor64().BlendWithBackground(BackColor.ToColor64(), LinearWorkingColorSpace));
+                : new Color48(c.BlendWithBackground(backColor64, LinearWorkingColorSpace));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor64 DoGetPColor64(int x, int y) => PColor64.FromArgb(Buffer[y, x].ToColor64().ToArgbUInt64());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor64(x, y, c.ToColor64());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override ColorF DoGetColorF(int x, int y) => Buffer[y, x].ToColor64().ToColorF();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColorF(int x, int y, ColorF c) => DoSetColor64(x, y, c.ToColor64());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColorF DoGetPColorF(int x, int y) => Buffer[y, x].ToColor64().ToPColorF();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColor64(x, y, c.ToColor64());
 
         #endregion
     }
