@@ -44,6 +44,12 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor32(int x, PColor32 c) => DoWriteRaw(x, c);
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor64 DoGetPColor64(int x) => DoReadRaw<PColor32>(x).ToPColor64();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor64(int x, PColor64 c) => DoWriteRaw(x, c.ToPColor32());
+
             #endregion
         }
 
@@ -66,6 +72,18 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<PColor32>(y, x) = c.ToPremultiplied();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor32 DoGetPColor32(int x, int y) => GetPixelRef<PColor32>(y, x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor32(int x, int y, PColor32 c) => GetPixelRef<PColor32>(y, x) = c;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor64 DoGetPColor64(int x, int y) => GetPixelRef<PColor32>(y, x).ToPColor64();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor64(int x, int y, PColor64 c) => GetPixelRef<PColor32>(y, x) = c.ToPColor32();
 
         #endregion
     }

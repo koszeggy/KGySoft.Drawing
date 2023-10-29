@@ -47,6 +47,14 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetPColor32(int x, PColor32 c) => ((PColor32*)Row)[x] = c;
 
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe PColor64 DoGetPColor64(int x) => ((PColor32*)Row)[x].ToPColor64();
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe void DoSetPColor64(int x, PColor64 c) => ((PColor32*)Row)[x] = c.ToPColor32();
+
             #endregion
         }
 
@@ -70,6 +78,22 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<PColor32>(y, x) = c.ToPremultiplied();
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override unsafe PColor32 DoGetPColor32(int x, int y) => *GetPixelAddress<PColor32>(y, x);
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override unsafe void DoSetPColor32(int x, int y, PColor32 c) => *GetPixelAddress<PColor32>(y, x) = c;
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override unsafe PColor64 DoGetPColor64(int x, int y) => GetPixelAddress<PColor32>(y, x)->ToPColor64();
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override unsafe void DoSetPColor64(int x, int y, PColor64 c) => *GetPixelAddress<PColor32>(y, x) = c.ToPColor32();
 
         #endregion
     }
