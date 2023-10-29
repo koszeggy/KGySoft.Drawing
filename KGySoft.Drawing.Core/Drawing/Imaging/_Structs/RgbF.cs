@@ -147,6 +147,19 @@ namespace KGySoft.Drawing.Imaging
             B = ColorSpaceHelper.SrgbToLinear(c.B);
         }
 
+        internal RgbF(Color64 c)
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value field
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            R = ColorSpaceHelper.SrgbToLinear(c.R);
+            G = ColorSpaceHelper.SrgbToLinear(c.G);
+            B = ColorSpaceHelper.SrgbToLinear(c.B);
+        }
+
         internal RgbF(ColorF c)
 #if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing the vector field
@@ -227,6 +240,22 @@ namespace KGySoft.Drawing.Imaging
         internal Color32 ToColor32() => new Color32(ColorSpaceHelper.LinearToSrgb8Bit(R),
             ColorSpaceHelper.LinearToSrgb8Bit(G),
             ColorSpaceHelper.LinearToSrgb8Bit(B));
+
+#endif
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal Color64 ToColor64() => ColorF.FromRgb(Rgb).ToColor64();
+#else
+        internal Color64 ToColor64() => new Color64(ColorSpaceHelper.LinearToSrgb16Bit(R),
+            ColorSpaceHelper.LinearToSrgb16Bit(G),
+            ColorSpaceHelper.LinearToSrgb16Bit(B));
+
+#endif
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal ColorF ToColorF() => ColorF.FromRgb(Rgb);
+#else
+        internal ColorF ToColorF() => new ColorF(R, G, B);
 
 #endif
 

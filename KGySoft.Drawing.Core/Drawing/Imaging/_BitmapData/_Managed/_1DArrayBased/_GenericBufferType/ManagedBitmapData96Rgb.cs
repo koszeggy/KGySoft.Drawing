@@ -40,10 +40,46 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColor32(int x, Color32 c)
                 => DoWriteRaw(x, c.A == Byte.MaxValue
                     ? new RgbF(c)
-                    : new RgbF(c.ToColorF().BlendWithBackground(BitmapData.BackColor.ToColorF(), BitmapData.LinearWorkingColorSpace)));
+                    : new RgbF(c.ToColorF().BlendWithBackground(((ManagedBitmapData96Rgb<T>)BitmapData).backColorF, BitmapData.LinearWorkingColorSpace)));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color64 DoGetColor64(int x) => DoReadRaw<RgbF>(x).ToColor64();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor64(int x, Color64 c)
+                => DoWriteRaw(x, c.A == UInt16.MaxValue
+                    ? new RgbF(c)
+                    : new RgbF(c.ToColorF().BlendWithBackground(((ManagedBitmapData96Rgb<T>)BitmapData).backColorF, BitmapData.LinearWorkingColorSpace)));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor64 DoGetPColor64(int x) => DoReadRaw<RgbF>(x).ToColor64().ToPColor64();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor64(int x, PColor64 c) => DoSetColorF(x, c.ToColorF());
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override ColorF DoGetColorF(int x) => DoReadRaw<RgbF>(x).ToColorF();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorF(int x, ColorF c)
+                => DoWriteRaw(x, c.A >= 1f
+                    ? new RgbF(c)
+                    : new RgbF(c.BlendWithBackground(((ManagedBitmapData96Rgb<T>)BitmapData).backColorF, BitmapData.LinearWorkingColorSpace)));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColorF DoGetPColorF(int x) => DoReadRaw<RgbF>(x).ToColorF().ToPColorF();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
 
             #endregion
         }
+
+        #endregion
+
+        #region Fields
+
+        private readonly ColorF backColorF;
 
         #endregion
 
@@ -52,6 +88,7 @@ namespace KGySoft.Drawing.Imaging
         internal ManagedBitmapData96Rgb(Array2D<T> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {
+            backColorF = BackColor.ToColorF();
         }
 
         #endregion
@@ -65,7 +102,37 @@ namespace KGySoft.Drawing.Imaging
         protected override void DoSetColor32(int x, int y, Color32 c)
             => GetPixelRef<RgbF>(y, x) = c.A == Byte.MaxValue
                 ? new RgbF(c)
-                : new RgbF(c.ToColorF().BlendWithBackground(BackColor.ToColorF(), LinearWorkingColorSpace));
+                : new RgbF(c.ToColorF().BlendWithBackground(backColorF, LinearWorkingColorSpace));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override Color64 DoGetColor64(int x, int y) => GetPixelRef<RgbF>(y, x).ToColor64();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColor64(int x, int y, Color64 c)
+            => GetPixelRef<RgbF>(y, x) = c.A == UInt16.MaxValue
+                ? new RgbF(c)
+                : new RgbF(c.ToColorF().BlendWithBackground(backColorF, LinearWorkingColorSpace));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor64 DoGetPColor64(int x, int y) => GetPixelRef<RgbF>(y, x).ToColor64().ToPColor64();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor64(int x, int y, PColor64 c) => DoSetColorF(x, y, c.ToColorF());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override ColorF DoGetColorF(int x, int y) => GetPixelRef<RgbF>(y, x).ToColorF();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColorF(int x, int y, ColorF c)
+            => GetPixelRef<RgbF>(y, x) = c.A >= 1f
+                ? new RgbF(c)
+                : new RgbF(c.BlendWithBackground(backColorF, LinearWorkingColorSpace));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColorF DoGetPColorF(int x, int y) => GetPixelRef<RgbF>(y, x).ToColorF().ToPColorF();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }
