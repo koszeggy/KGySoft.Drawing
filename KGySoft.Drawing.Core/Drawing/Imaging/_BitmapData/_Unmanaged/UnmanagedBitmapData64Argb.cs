@@ -39,27 +39,35 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Row)[x] = new Color64(c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe Color64 DoGetColor64(int x) => ((Color64*)Row)[x];
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetColor64(int x, Color64 c) => ((Color64*)Row)[x] = c;
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe PColor64 DoGetPColor64(int x) => ((Color64*)Row)[x].ToPColor64();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetPColor64(int x, PColor64 c) => ((Color64*)Row)[x] = c.ToColor64();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe ColorF DoGetColorF(int x) => ((Color64*)Row)[x].ToColorF();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetColorF(int x, ColorF c) => ((Color64*)Row)[x] = c.ToColor64();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe PColorF DoGetPColorF(int x) => ((Color64*)Row)[x].ToPColorF();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetPColorF(int x, PColorF c) => ((Color64*)Row)[x] = c.ToColor64();
 
@@ -87,27 +95,35 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<Color64>(y, x) = new Color64(c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe Color64 DoGetColor64(int x, int y) => *GetPixelAddress<Color64>(y, x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<Color64>(y, x) = c;
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe PColor64 DoGetPColor64(int x, int y) => GetPixelAddress<Color64>(y, x)->ToPColor64();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetPColor64(int x, int y, PColor64 c) => *GetPixelAddress<Color64>(y, x) = c.ToColor64();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<Color64>(y, x)->ToColorF();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color64>(y, x) = c.ToColor64();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe PColorF DoGetPColorF(int x, int y) => GetPixelAddress<Color64>(y, x)->ToPColorF();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetPColorF(int x, int y, PColorF c) => *GetPixelAddress<Color64>(y, x) = c.ToColor64();
 
