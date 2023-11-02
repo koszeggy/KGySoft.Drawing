@@ -64,7 +64,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal Color32 ToColor32() => Color32.FromGray((byte)(Value >> 8));
+        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.ToByte(Value));
+        internal Color64 ToColor64() => Color64.FromGray(Value);
 
         #endregion
 
