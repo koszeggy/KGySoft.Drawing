@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             #region Protected Properties
-            
+
             protected override uint MaxIndex => (1u << BitmapData.PixelFormat.BitsPerPixel) - 1u;
 
             #endregion
@@ -113,14 +113,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, in BitmapDataConfig cfg,
-            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex)
+        public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, in BitmapDataConfig cfg, CustomIndexedBitmapDataConfig<T> customConfig)
             : base(buffer, cfg)
         {
             Debug.Assert(cfg.PixelFormat.Indexed);
 
-            this.rowGetColorIndex = rowGetColorIndex;
-            this.rowSetColorIndex = rowSetColorIndex;
+            rowGetColorIndex = customConfig.RowGetColorIndex ?? ((_, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataWriteOnly));
+            rowSetColorIndex = customConfig.RowSetColorIndex ?? ((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
         }
 
         #endregion
@@ -131,7 +130,7 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
-  
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 

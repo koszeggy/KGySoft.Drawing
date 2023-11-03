@@ -18,14 +18,8 @@
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-#if NET35
 using System.Runtime.InteropServices;
-#endif
 using System.Security;
-
-#if !NET35
-using KGySoft.Collections;
-#endif
 
 #endregion
 
@@ -46,10 +40,40 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor.Invoke(this, x);
+            public override Color32 DoGetColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor32.Invoke(this, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColor.Invoke(this, x, c);
+            public override void DoSetColor32(int x, Color32 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColor32.Invoke(this, x, c);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor32 DoGetPColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetPColor32.Invoke(this, x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor32(int x, PColor32 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetPColor32.Invoke(this, x, c);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color64 DoGetColor64(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor64.Invoke(this, x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor64(int x, Color64 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColor64.Invoke(this, x, c);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColor64 DoGetPColor64(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetPColor64.Invoke(this, x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColor64(int x, PColor64 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetPColor64.Invoke(this, x, c);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override ColorF DoGetColorF(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColorF.Invoke(this, x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorF(int x, ColorF c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColorF.Invoke(this, x, c);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override PColorF DoGetPColorF(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetPColorF.Invoke(this, x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColorF(int x, PColorF c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetPColorF.Invoke(this, x, c);
 
             [SecuritySafeCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -71,8 +95,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private Func<ICustomBitmapDataRow, int, Color32> rowGetColor;
-        private Action<ICustomBitmapDataRow, int, Color32> rowSetColor;
+        private Func<ICustomBitmapDataRow, int, Color32> rowGetColor32;
+        private Action<ICustomBitmapDataRow, int, Color32> rowSetColor32;
+        private Func<ICustomBitmapDataRow, int, PColor32> rowGetPColor32;
+        private Action<ICustomBitmapDataRow, int, PColor32> rowSetPColor32;
+        private Func<ICustomBitmapDataRow, int, Color64> rowGetColor64;
+        private Action<ICustomBitmapDataRow, int, Color64> rowSetColor64;
+        private Func<ICustomBitmapDataRow, int, PColor64> rowGetPColor64;
+        private Action<ICustomBitmapDataRow, int, PColor64> rowSetPColor64;
+        private Func<ICustomBitmapDataRow, int, ColorF> rowGetColorF;
+        private Action<ICustomBitmapDataRow, int, ColorF> rowSetColorF;
+        private Func<ICustomBitmapDataRow, int, PColorF> rowGetPColorF;
+        private Action<ICustomBitmapDataRow, int, PColorF> rowSetPColorF;
 
         #endregion
 
@@ -88,9 +122,19 @@ namespace KGySoft.Drawing.Imaging
                     ThrowDisposed();
 
                 // Creating locals for all used members so self reference will not be captured.
-                Func<ICustomBitmapDataRow, int, Color32> getter = rowGetColor;
-                Action<ICustomBitmapDataRow, int, Color32> setter = rowSetColor;
-                Color32 backColor = BackColor;
+                Func<ICustomBitmapDataRow, int, Color32> getColor32 = rowGetColor32;
+                Func<ICustomBitmapDataRow, int, PColor32> getPColor32 = rowGetPColor32;
+                Func<ICustomBitmapDataRow, int, Color64> getColor64 = rowGetColor64;
+                Func<ICustomBitmapDataRow, int, PColor64> getPColor64 = rowGetPColor64;
+                Func<ICustomBitmapDataRow, int, ColorF> getColorF = rowGetColorF;
+                Func<ICustomBitmapDataRow, int, PColorF> getPColorF = rowGetPColorF;
+                Action<ICustomBitmapDataRow, int, Color32> setColor32 = rowSetColor32;
+                Action<ICustomBitmapDataRow, int, PColor32> setPColor32 = rowSetPColor32;
+                Action<ICustomBitmapDataRow, int, Color64> setColor64 = rowSetColor64;
+                Action<ICustomBitmapDataRow, int, PColor64> setPColor64 = rowSetPColor64;
+                Action<ICustomBitmapDataRow, int, ColorF> setColorF = rowSetColorF;
+                Action<ICustomBitmapDataRow, int, PColorF> setPColorF = rowSetPColorF;
+                Color32 backColor = BackColor; 
                 byte alphaThreshold = AlphaThreshold;
                 PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
@@ -98,9 +142,6 @@ namespace KGySoft.Drawing.Imaging
                 return (size, workingColorSpace) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
-
-#if NET35
-                    // In .NET 3.5 we cannot use a generic buffer for the clone because delegate parameters are invariant
                     int stride;
 
                     // original width: the original stride must be alright
@@ -114,23 +155,28 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => Marshal.FreeHGlobal(newBuffer));
-#else
-                    Array2D<byte> newBuffer;
-
-                    // original width: the original stride must be alright
-                    if (size.Width == origWidth)
-                        newBuffer = new Array2D<byte>(size.Height, origStride);
-                    else
+                    var cfg = new CustomBitmapDataConfig
                     {
-                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
-                        int stride = pixelFormat.GetByteWidth(size.Width);
-                        stride += 16 - stride % 16;
-                        newBuffer = new Array2D<byte>(size.Height, stride);
-                    }
+                        PixelFormat = pixelFormat,
+                        BackColor = backColor,
+                        AlphaThreshold = alphaThreshold,
+                        WorkingColorSpace = workingColorSpace,
+                        RowGetColor32 = getColor32,
+                        RowGetPColor32 = getPColor32,
+                        RowGetColor64 = getColor64,
+                        RowGetPColor64 = getPColor64,
+                        RowGetColorF = getColorF,
+                        RowGetPColorF = getPColorF,
+                        RowSetColor32 = setColor32,
+                        RowSetPColor32 = setPColor32,
+                        RowSetColor64 = setColor64,
+                        RowSetPColor64 = setPColor64,
+                        RowSetColorF = setColorF,
+                        RowSetPColorF = setPColorF,
+                        DisposeCallback = () => Marshal.FreeHGlobal(newBuffer)
+                    };
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => newBuffer.Dispose());
-#endif
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, cfg);
                 };
             }
         }
@@ -139,37 +185,83 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal UnmanagedCustomBitmapData(IntPtr buffer, int stride, in BitmapDataConfig cfg,
-            Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor)
+        internal UnmanagedCustomBitmapData(IntPtr buffer, int stride, in BitmapDataConfig cfg, CustomBitmapDataConfig customConfig)
             : base(buffer, stride, cfg)
         {
             Debug.Assert(!cfg.PixelFormat.Indexed);
-            this.rowGetColor = rowGetColor;
-            this.rowSetColor = rowSetColor;
+
+            rowGetColor32 = customConfig.GetRowGetColor32();
+            rowSetColor32 = customConfig.GetRowSetColor32();
+            rowGetPColor32 = customConfig.GetRowGetPColor32();
+            rowSetPColor32 = customConfig.GetRowSetPColor32();
+            rowGetColor64 = customConfig.GetRowGetColor64();
+            rowSetColor64 = customConfig.GetRowSetColor64();
+            rowGetPColor64 = customConfig.GetRowGetPColor64();
+            rowSetPColor64 = customConfig.GetRowSetPColor64();
+            rowGetColorF = customConfig.GetRowGetColorF();
+            rowSetColorF = customConfig.GetRowSetColorF();
+            rowGetPColorF = customConfig.GetRowGetPColorF();
+            rowSetPColorF = customConfig.GetRowSetPColorF();
         }
 
         #endregion
 
         #region Methods
 
-        #region Protected Methods
-
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
-     
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
 
         protected override void Dispose(bool disposing)
         {
             if (IsDisposed)
                 return;
-            rowGetColor = null!;
-            rowSetColor = null!;
+            rowGetColor32 = null!;
+            rowSetColor32 = null!;
+            rowGetPColor32 = null!;
+            rowSetPColor32 = null!;
+            rowGetColor64 = null!;
+            rowSetColor64 = null!;
+            rowGetPColor64 = null!;
+            rowSetPColor64 = null!;
+            rowGetColorF = null!;
+            rowSetColorF = null!;
+            rowGetPColorF = null!;
+            rowSetPColorF = null!;
             base.Dispose(disposing);
         }
-
-        #endregion
 
         #endregion
     }

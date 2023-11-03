@@ -21,6 +21,11 @@
   ! New SetColor32/SetColor64/SetColorF/SetPColor32/SetPColor64/SetPColorF methods
 ! IReadableBitmapDataRow interface: (breaking only if you implement it, which is normally not needed)
   ! New GetColor32/GetColor64/GetColorF/GetPColor32/GetPColor64/GetPColorF methods
++ New CustomBitmapDataConfig, CustomIndexedBitmapDataConfig types for configuring pixel access of bitmaps
+  with custom pixel formats.
++ BitmapDataFactory class:
+  + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
+    delegates for other color types than Color32.
 + KnownPixelFormat enum:
   + New Format96bppRgb, Format128bppRgba and Format128bppPRgba values
 + PColor32 struct:

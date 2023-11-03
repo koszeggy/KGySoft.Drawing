@@ -108,14 +108,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedCustomBitmapDataIndexed2D(T[,] buffer, in BitmapDataConfig cfg,
-            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex)
+        internal ManagedCustomBitmapDataIndexed2D(T[,] buffer, in BitmapDataConfig cfg, CustomIndexedBitmapDataConfig<T> customConfig)
             : base(buffer, cfg)
         {
             Debug.Assert(cfg.PixelFormat.Indexed);
 
-            this.rowGetColorIndex = rowGetColorIndex;
-            this.rowSetColorIndex = rowSetColorIndex;
+            rowGetColorIndex = customConfig.RowGetColorIndex ?? ((_, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataWriteOnly));
+            rowSetColorIndex = customConfig.RowSetColorIndex ?? ((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
         }
 
         #endregion

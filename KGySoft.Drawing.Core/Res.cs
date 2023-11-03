@@ -46,6 +46,8 @@ namespace KGySoft
             UseLanguageSettings = true,
         };
 
+        private static string? imagingCustomBitmapDataWriteOnly;
+
         #endregion
 
         #region Properties
@@ -74,10 +76,10 @@ namespace KGySoft
         /// <summary>The bitmap data has an invalid size.</summary>
         internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
 
-        /// <summary>This method expects a non-indexed pixel format.</summary>
+        /// <summary>A non-indexed pixel format is expected.</summary>
         internal static string ImagingNonIndexedPixelFormatExpected => Get("Imaging_NonIndexedPixelFormatExpected");
 
-        /// <summary>This method expects an indexed pixel format.</summary>
+        /// <summary>An indexed pixel format is expected.</summary>
         internal static string ImagingIndexedPixelFormatExpected => Get("Imaging_IndexedPixelFormatExpected");
 
         /// <summary>The specified width is too large for the given buffer width and pixel format.</summary>
@@ -91,6 +93,15 @@ namespace KGySoft
 
         /// <summary>One or more color components are out of range.</summary>
         internal static string ImagingInvalidArgbValues => Get("Imaging_InvalidArgbValues");
+
+        /// <summary>This custom bitmap data is write-only so it does not support getting pixels.</summary>
+        internal static string ImagingCustomBitmapDataWriteOnly => Get("Imaging_CustomBitmapDataWriteOnly");
+
+        /// <summary>This custom bitmap data is read-only so it does not support setting pixels.</summary>
+        internal static string ImagingCustomBitmapDataReadOnly => Get("Imaging_CustomBitmapDataReadOnly");
+
+        /// <summary>At least one of the pixel access delegates should be specified.</summary>
+        internal static string ImagingNoPixelAccessSpecified => Get("Imaging_NoPixelAccessSpecified");
 
         #endregion
 

@@ -87,14 +87,13 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecurityCritical]
-        internal UnmanagedCustomBitmapDataIndexed(IntPtr buffer, int stride, in BitmapDataConfig cfg,
-            Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex)
+        internal UnmanagedCustomBitmapDataIndexed(IntPtr buffer, int stride, in BitmapDataConfig cfg, CustomIndexedBitmapDataConfig customConfig)
             : base(buffer, stride, cfg)
         {
             Debug.Assert(cfg.PixelFormat.Indexed);
 
-            this.rowGetColorIndex = rowGetColorIndex;
-            this.rowSetColorIndex = rowSetColorIndex;
+            rowGetColorIndex = customConfig.RowGetColorIndex ?? ((_, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataWriteOnly));
+            rowSetColorIndex = customConfig.RowSetColorIndex ?? ((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
         }
 
         #endregion

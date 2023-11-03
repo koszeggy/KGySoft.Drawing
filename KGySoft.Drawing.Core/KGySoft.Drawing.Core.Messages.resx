@@ -157,10 +157,10 @@
     <value>Palette index {0} is invalid. It must be less than palette count {1}.</value>
   </data>
   <data name="Imaging_NonIndexedPixelFormatExpected" xml:space="preserve">
-    <value>This method expects a non-indexed pixel format.</value>
+    <value>A non-indexed pixel format is expected.</value>
   </data>
   <data name="Imaging_IndexedPixelFormatExpected" xml:space="preserve">
-    <value>This method expects an indexed pixel format.</value>
+    <value>An indexed pixel format is expected.</value>
   </data>
   <data name="Imaging_WidthTooLarge" xml:space="preserve">
     <value>The specified width is too large for the given buffer width and pixel format.</value>
@@ -173,6 +173,15 @@
   </data>
   <data name="Imaging_InvalidArgbValues" xml:space="preserve">
     <value>One or more color components are out of range.</value>
+  </data>
+  <data name="Imaging_CustomBitmapDataWriteOnly" xml:space="preserve">
+    <value>This custom bitmap data is write-only so it does not support getting pixels.</value>
+  </data>
+  <data name="Imaging_CustomBitmapDataReadOnly" xml:space="preserve">
+    <value>This custom bitmap data is read-only so it does not support setting pixels.</value>
+  </data>
+  <data name="Imaging_NoPixelAccessSpecified" xml:space="preserve">
+    <value>At least one of the pixel access delegates should be specified.</value>
   </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
