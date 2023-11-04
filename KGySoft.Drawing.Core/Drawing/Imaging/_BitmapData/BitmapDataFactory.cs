@@ -25,7 +25,7 @@ using System.Runtime.CompilerServices;
 using System.Security;
 using KGySoft.Collections;
 #if !NET35
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
@@ -393,7 +393,7 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColor, rowSetColor, workingColorSpace, backColor, alphaThreshold, disposeCallback);
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, customBitmapDataConfig);
 
@@ -457,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, customBitmapDataConfig);
 
@@ -673,11 +673,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColor == null && rowSetColor == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomBitmapDataConfig<T>
+            var cfg = new CustomBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColor32 = rowGetColor,
-                RowSetColor32 = rowSetColor,
+                RowGetColorLegacy = rowGetColor,
+                RowSetColorLegacy = rowSetColor,
                 WorkingColorSpace = workingColorSpace,
                 BackColor = backColor,
                 AlphaThreshold = alphaThreshold,
@@ -687,7 +687,7 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             int elementWidth = ValidateArguments(buffer, size, stride, customBitmapDataConfig);
@@ -742,11 +742,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColorIndex == null && rowSetColorIndex == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomIndexedBitmapDataConfig<T>
+            var cfg = new CustomIndexedBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColorIndex = rowGetColorIndex,
-                RowSetColorIndex = rowSetColorIndex,
+                RowGetColorIndexLegacy = rowGetColorIndex,
+                RowSetColorIndexLegacy = rowSetColorIndex,
                 Palette = palette,
                 TrySetPaletteCallback = trySetPaletteCallback,
                 DisposeCallback = disposeCallback,
@@ -755,7 +755,7 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             int elementWidth = ValidateArguments(buffer, size, stride, customBitmapDataConfig);
@@ -948,11 +948,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColor == null && rowSetColor == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomBitmapDataConfig<T>
+            var cfg = new CustomBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColor32 = rowGetColor,
-                RowSetColor32 = rowSetColor,
+                RowGetColorLegacy = rowGetColor,
+                RowSetColorLegacy = rowSetColor,
                 WorkingColorSpace = workingColorSpace,
                 BackColor = backColor,
                 AlphaThreshold = alphaThreshold,
@@ -962,12 +962,20 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
             return CreateManagedCustomBitmapData(buffer, pixelWidth, customBitmapDataConfig);
         }
+
+        // TODO
+        //public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
+        //    where T : unmanaged
+        //{
+        //    ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
+        //    return CreateManagedCustomBitmapData(buffer, pixelWidth, customBitmapDataConfig);
+        //}
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two dimensional array with the specified parameters.
@@ -1010,11 +1018,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColorIndex == null && rowSetColorIndex == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomIndexedBitmapDataConfig<T>
+            var cfg = new CustomIndexedBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColorIndex = rowGetColorIndex,
-                RowSetColorIndex = rowSetColorIndex,
+                RowGetColorIndexLegacy = rowGetColorIndex,
+                RowSetColorIndexLegacy = rowSetColorIndex,
                 Palette = palette,
                 TrySetPaletteCallback = trySetPaletteCallback,
                 DisposeCallback = disposeCallback,
@@ -1023,7 +1031,7 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
@@ -1212,11 +1220,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColor == null && rowSetColor == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomBitmapDataConfig<T>
+            var cfg = new CustomBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColor32 = rowGetColor,
-                RowSetColor32 = rowSetColor,
+                RowGetColorLegacy = rowGetColor,
+                RowSetColorLegacy = rowSetColor,
                 WorkingColorSpace = workingColorSpace,
                 BackColor = backColor,
                 AlphaThreshold = alphaThreshold,
@@ -1226,7 +1234,7 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
@@ -1274,11 +1282,11 @@ namespace KGySoft.Drawing.Imaging
             if (rowGetColorIndex == null && rowSetColorIndex == null)
                 throw new ArgumentNullException(null, Res.ImagingNoPixelAccessSpecified);
 
-            var cfg = new CustomIndexedBitmapDataConfig<T>
+            var cfg = new CustomIndexedBitmapDataConfig
             {
                 PixelFormat = pixelFormatInfo,
-                RowGetColorIndex = rowGetColorIndex,
-                RowSetColorIndex = rowSetColorIndex,
+                RowGetColorIndexLegacy = rowGetColorIndex,
+                RowSetColorIndexLegacy = rowSetColorIndex,
                 Palette = palette,
                 TrySetPaletteCallback = trySetPaletteCallback,
                 DisposeCallback = disposeCallback,
@@ -1287,7 +1295,7 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
-        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
@@ -1773,7 +1781,7 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
-        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig<T> customConfig)
+        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig customConfig)
             where T : unmanaged
         {
             var commonConfig = new BitmapDataConfig(new Size(pixelWidth, buffer.Height), customConfig.PixelFormat,
@@ -1782,7 +1790,7 @@ namespace KGySoft.Drawing.Imaging
             return new ManagedCustomBitmapData<T>(buffer, commonConfig, customConfig);
         }
 
-        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customConfig)
+        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig customConfig)
             where T : unmanaged
         {
             Palette? palette = customConfig.Palette;
@@ -1826,7 +1834,7 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
-        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig<T> customConfig)
+        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customConfig)
             where T : unmanaged
         {
             var commonConfig = new BitmapDataConfig(new Size(pixelWidth, buffer.GetLength(0)), customConfig.PixelFormat,
@@ -1835,7 +1843,7 @@ namespace KGySoft.Drawing.Imaging
             return new ManagedCustomBitmapData2D<T>(buffer, commonConfig, customConfig);
         }
 
-        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customConfig)
+        internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig customConfig)
             where T : unmanaged
         {
             Palette? palette = customConfig.Palette;
@@ -2030,7 +2038,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer.IsNull)
@@ -2064,7 +2072,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer.IsNull)
@@ -2149,7 +2157,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer == null)
@@ -2176,7 +2184,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer == null)
@@ -2254,7 +2262,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer.IsNull)
@@ -2281,7 +2289,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig<T> customBitmapDataConfig)
+        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
             if (buffer.IsNull)

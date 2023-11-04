@@ -18,8 +18,9 @@
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security;
+
+using KGySoft.Collections;
 
 #endregion
 
@@ -142,19 +143,19 @@ namespace KGySoft.Drawing.Imaging
                 return (size, workingColorSpace) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
-                    int stride;
+                    Array2D<byte> newBuffer;
 
                     // original width: the original stride must be alright
                     if (size.Width == origWidth)
-                        stride = origStride;
+                        newBuffer = new Array2D<byte>(size.Height, origStride);
                     else
                     {
                         // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
-                        stride = pixelFormat.GetByteWidth(size.Width);
+                        int stride = pixelFormat.GetByteWidth(size.Width);
                         stride += 16 - stride % 16;
+                        newBuffer = new Array2D<byte>(size.Height, stride);
                     }
 
-                    IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
                     var cfg = new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormat,
@@ -173,10 +174,10 @@ namespace KGySoft.Drawing.Imaging
                         RowSetPColor64 = setPColor64,
                         RowSetColorF = setColorF,
                         RowSetPColorF = setPColorF,
-                        DisposeCallback = () => Marshal.FreeHGlobal(newBuffer)
+                        DisposeCallback = newBuffer.Dispose
                     };
 
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, cfg);
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, cfg);
                 };
             }
         }

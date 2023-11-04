@@ -271,11 +271,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // Clone with original or indexed pixel format
             using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone())
-                AssertAreEqual(bitmapDataNonDithered, clone, bitmapDataNonDithered.PixelFormat.Indexed);
+                AssertAreEqual(bitmapDataNonDithered, clone);
             using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, bitmapDataDitheredContentIndependent.PixelFormat.Indexed);
+                AssertAreEqual(bitmapDataDitheredContentIndependent, clone);
             using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentDependent, clone, bitmapDataDitheredContentDependent.PixelFormat.Indexed);
+                AssertAreEqual(bitmapDataDitheredContentDependent, clone);
 
             // Clone with known pixel format
             using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone(bitmapDataNonDithered.GetKnownPixelFormat()))
@@ -471,6 +471,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format48bppRgb)]
         [TestCase(KnownPixelFormat.Format64bppArgb)]
         [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
         public void SupportedFormatsConsistencyTest(KnownPixelFormat pixelFormat)
         {
             // 0.) Reference: native to self-allocating managed bitmap data
@@ -594,6 +597,19 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 SaveBitmapData($"{testName} Optimized palette {getQuantizer.Method.Name}", bitmapDataOptimizedPalette);
                 AssertAreEqual(optimizedReferenceBitmapData, bitmapDataOptimizedPalette, true);
             }
+        }
+
+        [Test]
+        public void ReadOnlyCustomBitmapDataTest()
+        {
+            // TODO:
+            // - NonIndexed
+            // - Indexed
+            // - For both above:
+            //   - Write attempt: throws
+            //   - Clone direct
+            //   - Clone with quantizer, Quantizer.FromBitmapData
+            throw new NotImplementedException();
         }
 
         #endregion

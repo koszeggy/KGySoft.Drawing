@@ -1623,8 +1623,9 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppRgb555 => Rgb555(bitmapData.BackColor.ToColor()),
                 KnownPixelFormat.Format16bppGrayScale => Grayscale(bitmapData.BackColor.ToColor()),
                 KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb => Rgb888(bitmapData.BackColor.ToColor()),
-                _ => bitmapData is ICustomBitmapData customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
-                    : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
+                _ => bitmapData is ICustomBitmapData customBitmapData ? new PredefinedColorsQuantizer(customBitmapData) // TODO: 3rd, if writable
+                        // TODO: 2nd: if IsGrayscale, FromPalette(Grayscale)
+                    : bitmapData.Palette is Palette palette ? FromCustomPalette(palette) // TODO: this is 1st
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor.ToColor())
             }).ConfigureColorSpace(bitmapData.GetPreferredColorSpaceOrDefault());

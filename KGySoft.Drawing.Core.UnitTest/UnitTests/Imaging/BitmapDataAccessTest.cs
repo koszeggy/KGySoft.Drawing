@@ -706,11 +706,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 int[] bufManaged = new int[size.Height * size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    new Array2D<int>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig<int>
+                    new Array2D<int>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColor32 = (r, x) => PColor32.FromArgb(r[x]),
-                        RowSetPColor32 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetPColor32 = (r, x) => PColor32.FromArgb(((ICustomBitmapDataRow<int>)r)[x]),
+                        RowSetPColor32 = (r, x, c) => ((ICustomBitmapDataRow<int>)r)[x] = c.ToArgb()
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -743,11 +743,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 int[,] bufManaged2D = new int[size.Height, size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    bufManaged2D, size.Width, new CustomBitmapDataConfig<int>
+                    bufManaged2D, size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColor32 = (r, x) => PColor32.FromArgb(r[x]),
-                        RowSetPColor32 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetPColor32 = (r, x) => r.GetRefAs<PColor32>(x),
+                        RowSetPColor32 = (r, x, c) => r.GetRefAs<PColor32>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -905,11 +905,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 long[] bufManaged = new long[size.Height * size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig<long>
+                    new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetColor64 = (r, x) => Color64.FromArgb(r[x]),
-                        RowSetColor64 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetColor64 = (r, x) => Color64.FromArgb(((ICustomBitmapDataRow<long>)r)[x]),
+                        RowSetColor64 = (r, x, c) => ((ICustomBitmapDataRow<long>)r)[x] = c.ToArgb()
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -942,11 +942,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 long[,] bufManaged2D = new long[size.Height, size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    bufManaged2D, size.Width, new CustomBitmapDataConfig<long>
+                    bufManaged2D, size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetColor64 = (r, x) => Color64.FromArgb(r[x]),
-                        RowSetColor64 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetColor64 = (r, x) => r.GetRefAs<Color64>(x),
+                        RowSetColor64 = (r, x, c) => r.GetRefAs<Color64>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1106,11 +1106,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 long[] bufManaged = new long[size.Height * size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig<long>
+                    new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColor64 = (r, x) => PColor64.FromArgb(r[x]),
-                        RowSetPColor64 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetPColor64 = (r, x) => PColor64.FromArgb(((ICustomBitmapDataRow<long>)r)[x]),
+                        RowSetPColor64 = (r, x, c) => ((ICustomBitmapDataRow<long>)r)[x] = c.ToArgb()
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1143,11 +1143,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 long[,] bufManaged2D = new long[size.Height, size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    bufManaged2D, size.Width, new CustomBitmapDataConfig<long>
+                    bufManaged2D, size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColor64 = (r, x) => PColor64.FromArgb(r[x]),
-                        RowSetPColor64 = (r, x, c) => r[x] = c.ToArgb()
+                        RowGetPColor64 = (r, x) => r.GetRefAs<PColor64>(x),
+                        RowSetPColor64 = (r, x, c) => r.GetRefAs<PColor64>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1302,11 +1302,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 var bufManaged = new (float, float, float, float)[size.Height * size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    new Array2D<(float, float, float, float)>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig<(float A, float R, float G, float B)>
+                    new Array2D<(float, float, float, float)>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetColorF = (r, x) => new ColorF(r[x].A, r[x].R, r[x].G, r[x].B),
-                        RowSetColorF = (r, x, c) => r[x] = (c.A, c.R, c.G, c.B)
+                        RowGetColorF = (r, x) => r.GetRefAs<ColorF>(x),
+                        RowSetColorF = (r, x, c) => r.GetRefAs<ColorF>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1339,11 +1339,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 var bufManaged2D = new (float, float, float, float)[size.Height, size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    bufManaged2D, size.Width, new CustomBitmapDataConfig<(float A, float R, float G, float B)>
+                    bufManaged2D, size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetColorF = (r, x) => new ColorF(r[x].A, r[x].R, r[x].G, r[x].B),
-                        RowSetColorF = (r, x, c) => r[x] = (c.A, c.R, c.G, c.B)
+                        RowGetColorF = (r, x) => r.GetRefAs<ColorF>(x),
+                        RowSetColorF = (r, x, c) => r.GetRefAs<ColorF>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1499,11 +1499,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 var bufManaged = new (float, float, float, float)[size.Height * size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    new Array2D<(float, float, float, float)>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig<(float A, float R, float G, float B)>
+                    new Array2D<(float, float, float, float)>(bufManaged, size.Height, size.Width), size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColorF = (r, x) => new PColorF(r[x].A, r[x].R, r[x].G, r[x].B),
-                        RowSetPColorF = (r, x, c) => r[x] = (c.A, c.R, c.G, c.B)
+                        RowGetPColorF = (r, x) => r.GetRefAs<PColorF>(x),
+                        RowSetPColorF = (r, x, c) => r.GetRefAs<PColorF>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1536,11 +1536,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 var bufManaged2D = new (float, float, float, float)[size.Height, size.Width];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                    bufManaged2D, size.Width, new CustomBitmapDataConfig<(float A, float R, float G, float B)>
+                    bufManaged2D, size.Width, new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormatInfo,
-                        RowGetPColorF = (r, x) => new PColorF(r[x].A, r[x].R, r[x].G, r[x].B),
-                        RowSetPColorF = (r, x, c) => r[x] = (c.A, c.R, c.G, c.B)
+                        RowGetPColorF = (r, x) => r.GetRefAs<PColorF>(x),
+                        RowSetPColorF = (r, x, c) => r.GetRefAs<PColorF>(x) = c
                     }))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
@@ -1610,6 +1610,70 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetPColorF(0));
                 }
             }
+        }
+
+        [Test]
+        public void InstanceIndependentPixelAccessTest()
+        {
+            Color32[,] buffer = new Color32[100, 100];
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(buffer, 10, new PixelFormatInfo(32) { HasAlpha = true },
+                       (r, x) => r[x], (r, x, c) => r[x] = c))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+            }
+
+            buffer = new Color32[100, 100];
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(buffer, 10, new CustomBitmapDataConfig
+            {
+                PixelFormat = new PixelFormatInfo(32) { HasAlpha = true },
+                //InstanceIndependentPixelAccess = true,
+                RowGetColor32 = (r, x) => r.GetRefAs<Color32>(x),
+                RowSetColor32 = (r, x, c) => r.GetRefAs<Color32>(x) = c,
+            }))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+            }
+
+            IntPtr mem = Marshal.AllocHGlobal(buffer.Length * 4);
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(mem, new Size(10, 10), 10 * 4, new CustomBitmapDataConfig
+            {
+                PixelFormat = new PixelFormatInfo(32) { HasAlpha = true },
+                //InstanceIndependentPixelAccess = true,
+                RowGetColor32 = (r, x) => r.GetRefAs<Color32>(x),
+                RowSetColor32 = (r, x, c) => r.GetRefAs<Color32>(x) = c
+            }))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+            }
+
+            throw new NotImplementedException("TODO: do also dependent version");
         }
 
         #endregion

@@ -123,16 +123,16 @@ namespace KGySoft.Drawing.Imaging
 
         private Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor32;
         private Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor32;
-        private Func<ICustomBitmapDataRow<T>, int, PColor32> rowGetPColor32;
-        private Action<ICustomBitmapDataRow<T>, int, PColor32> rowSetPColor32;
-        private Func<ICustomBitmapDataRow<T>, int, Color64> rowGetColor64;
-        private Action<ICustomBitmapDataRow<T>, int, Color64> rowSetColor64;
-        private Func<ICustomBitmapDataRow<T>, int, PColor64> rowGetPColor64;
-        private Action<ICustomBitmapDataRow<T>, int, PColor64> rowSetPColor64;
-        private Func<ICustomBitmapDataRow<T>, int, ColorF> rowGetColorF;
-        private Action<ICustomBitmapDataRow<T>, int, ColorF> rowSetColorF;
-        private Func<ICustomBitmapDataRow<T>, int, PColorF> rowGetPColorF;
-        private Action<ICustomBitmapDataRow<T>, int, PColorF> rowSetPColorF;
+        private Func<ICustomBitmapDataRow, int, PColor32> rowGetPColor32;
+        private Action<ICustomBitmapDataRow, int, PColor32> rowSetPColor32;
+        private Func<ICustomBitmapDataRow, int, Color64> rowGetColor64;
+        private Action<ICustomBitmapDataRow, int, Color64> rowSetColor64;
+        private Func<ICustomBitmapDataRow, int, PColor64> rowGetPColor64;
+        private Action<ICustomBitmapDataRow, int, PColor64> rowSetPColor64;
+        private Func<ICustomBitmapDataRow, int, ColorF> rowGetColorF;
+        private Action<ICustomBitmapDataRow, int, ColorF> rowSetColorF;
+        private Func<ICustomBitmapDataRow, int, PColorF> rowGetPColorF;
+        private Action<ICustomBitmapDataRow, int, PColorF> rowSetPColorF;
 
         #endregion
 
@@ -150,17 +150,17 @@ namespace KGySoft.Drawing.Imaging
 
                 // Creating locals for all used members so self reference will not be captured.
                 Func<ICustomBitmapDataRow<T>, int, Color32> getColor32 = rowGetColor32;
-                Func<ICustomBitmapDataRow<T>, int, PColor32> getPColor32 = rowGetPColor32;
-                Func<ICustomBitmapDataRow<T>, int, Color64> getColor64 = rowGetColor64;
-                Func<ICustomBitmapDataRow<T>, int, PColor64> getPColor64 = rowGetPColor64;
-                Func<ICustomBitmapDataRow<T>, int, ColorF> getColorF = rowGetColorF;
-                Func<ICustomBitmapDataRow<T>, int, PColorF> getPColorF = rowGetPColorF;
+                Func<ICustomBitmapDataRow, int, PColor32> getPColor32 = rowGetPColor32;
+                Func<ICustomBitmapDataRow, int, Color64> getColor64 = rowGetColor64;
+                Func<ICustomBitmapDataRow, int, PColor64> getPColor64 = rowGetPColor64;
+                Func<ICustomBitmapDataRow, int, ColorF> getColorF = rowGetColorF;
+                Func<ICustomBitmapDataRow, int, PColorF> getPColorF = rowGetPColorF;
                 Action<ICustomBitmapDataRow<T>, int, Color32> setColor32 = rowSetColor32;
-                Action<ICustomBitmapDataRow<T>, int, PColor32> setPColor32 = rowSetPColor32;
-                Action<ICustomBitmapDataRow<T>, int, Color64> setColor64 = rowSetColor64;
-                Action<ICustomBitmapDataRow<T>, int, PColor64> setPColor64 = rowSetPColor64;
-                Action<ICustomBitmapDataRow<T>, int, ColorF> setColorF = rowSetColorF;
-                Action<ICustomBitmapDataRow<T>, int, PColorF> setPColorF = rowSetPColorF;
+                Action<ICustomBitmapDataRow, int, PColor32> setPColor32 = rowSetPColor32;
+                Action<ICustomBitmapDataRow, int, Color64> setColor64 = rowSetColor64;
+                Action<ICustomBitmapDataRow, int, PColor64> setPColor64 = rowSetPColor64;
+                Action<ICustomBitmapDataRow, int, ColorF> setColorF = rowSetColorF;
+                Action<ICustomBitmapDataRow, int, PColorF> setPColorF = rowSetPColorF;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
                 PixelFormatInfo pixelFormat = PixelFormat;
@@ -184,19 +184,19 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new Array2D<T>(size.Height, stride / sizeof(T));
                     }
 
-                    var cfg = new CustomBitmapDataConfig<T>
+                    var cfg = new CustomBitmapDataConfig
                     {
                         PixelFormat = pixelFormat,
                         BackColor = backColor,
                         AlphaThreshold = alphaThreshold,
                         WorkingColorSpace = workingColorSpace,
-                        RowGetColor32 = getColor32,
+                        RowGetColor32 = getColor32 as Func<ICustomBitmapDataRow, int, Color32>,
                         RowGetPColor32 = getPColor32,
                         RowGetColor64 = getColor64,
                         RowGetPColor64 = getPColor64,
                         RowGetColorF = getColorF,
                         RowGetPColorF = getPColorF,
-                        RowSetColor32 = setColor32,
+                        RowSetColor32 = setColor32 as Action<ICustomBitmapDataRow, int, Color32>,
                         RowSetPColor32 = setPColor32,
                         RowSetColor64 = setColor64,
                         RowSetPColor64 = setPColor64,
@@ -214,23 +214,23 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapData(Array2D<T> buffer, in BitmapDataConfig cfg, CustomBitmapDataConfig<T> customConfig)
+        public ManagedCustomBitmapData(Array2D<T> buffer, in BitmapDataConfig cfg, CustomBitmapDataConfig customConfig)
             : base(buffer, cfg)
         {
             Debug.Assert(!cfg.PixelFormat.Indexed);
 
-            rowGetColor32 = customConfig.GetRowGetColor32();
-            rowSetColor32 = customConfig.GetRowSetColor32();
-            rowGetPColor32 = customConfig.GetRowGetPColor32();
-            rowSetPColor32 = customConfig.GetRowSetPColor32();
-            rowGetColor64 = customConfig.GetRowGetColor64();
-            rowSetColor64 = customConfig.GetRowSetColor64();
-            rowGetPColor64 = customConfig.GetRowGetPColor64();
-            rowSetPColor64 = customConfig.GetRowSetPColor64();
-            rowGetColorF = customConfig.GetRowGetColorF();
-            rowSetColorF = customConfig.GetRowSetColorF();
-            rowGetPColorF = customConfig.GetRowGetPColorF();
-            rowSetPColorF = customConfig.GetRowSetPColorF();
+            rowGetColor32 = customConfig.GetRowGetColor32<T>();
+            rowSetColor32 = customConfig.GetRowSetColor32<T>();
+            rowGetPColor32 = customConfig.GetRowGetPColor32<T>();
+            rowSetPColor32 = customConfig.GetRowSetPColor32<T>();
+            rowGetColor64 = customConfig.GetRowGetColor64<T>();
+            rowSetColor64 = customConfig.GetRowSetColor64<T>();
+            rowGetPColor64 = customConfig.GetRowGetPColor64<T>();
+            rowSetPColor64 = customConfig.GetRowSetPColor64<T>();
+            rowGetColorF = customConfig.GetRowGetColorF<T>();
+            rowSetColorF = customConfig.GetRowSetColorF<T>();
+            rowGetPColorF = customConfig.GetRowGetPColorF<T>();
+            rowSetPColorF = customConfig.GetRowSetPColorF<T>();
         }
 
         #endregion
