@@ -600,6 +600,31 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
+        /// Gets a <see cref="ColorF"/> instance that represents the matching gray shade of this <see cref="ColorF"/> instance based on human perception.
+        /// </summary>
+        /// <returns>A <see cref="ColorF"/> instance that represents the matching gray shade of this <see cref="ColorF"/> instance based on human perception.</returns>
+        public ColorF ToGray()
+        {
+            float br = this.GetBrightness();
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(new Vector4(new Vector3(br), A));
+#else
+            return new ColorF(A, br, br, br);
+#endif
+        }
+
+        /// <summary>
+        /// Gets a <see cref="ColorF"/> instance that represents this <see cref="ColorF"/> without alpha (transparency).
+        /// </summary>
+        /// <returns>A <see cref="ColorF"/> instance that represents this <see cref="ColorF"/> without alpha.</returns>
+        public ColorF ToOpaque() => A >= 1f ? this
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            : FromRgb(Rgb);
+#else
+            : new ColorF(1f, R, G, B);
+#endif
+
+        /// <summary>
         /// Gets the string representation of this <see cref="ColorF"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
