@@ -16,14 +16,17 @@
 #region Usings
 
 using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
+
+using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataIndexedBase<UnmanagedCustomBitmapDataIndexed.Row>
+    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataIndexedBase<UnmanagedCustomBitmapDataIndexed.Row>, ICustomBitmapData
     {
         #region Row class
 
@@ -81,6 +84,53 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public override bool IsCustomPixelFormat => true;
+        public bool CanWrite { get; }
+        public bool BackBufferIndependentPixelAccess { get; }
+
+        public Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        {
+            get
+            {
+                Debug.Assert(BackBufferIndependentPixelAccess);
+                if (IsDisposed)
+                    ThrowDisposed();
+
+                // Creating locals for all used members so self reference will not be captured.
+                Func<ICustomBitmapDataRow, int, int> getColorIndex = rowGetColorIndex;
+                Action<ICustomBitmapDataRow, int, int> setColorIndex = rowSetColorIndex;
+                Palette palette = Palette!;
+                PixelFormatInfo pixelFormat = PixelFormat;
+                int origWidth = Width;
+                int origStride = RowSize;
+                return (size, workingColorSpace) =>
+                {
+                    Debug.Assert(size.Width > 0 && size.Height > 0);
+                    Array2D<byte> newBuffer;
+
+                    // original width: the original stride must be alright
+                    if (size.Width == origWidth)
+                        newBuffer = new Array2D<byte>(size.Height, origStride);
+                    else
+                    {
+                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
+                        int stride = pixelFormat.GetByteWidth(size.Width);
+                        stride += 16 - stride % 16;
+                        newBuffer = new Array2D<byte>(size.Height, stride);
+                    }
+
+                    var cfg = new CustomIndexedBitmapDataConfig
+                    {
+                        PixelFormat = pixelFormat,
+                        RowGetColorIndex = getColorIndex,
+                        RowSetColorIndex = setColorIndex,
+                        Palette = palette.WorkingColorSpace == workingColorSpace ? palette : new Palette(palette, workingColorSpace, palette.BackColor, palette.AlphaThreshold),
+                        DisposeCallback = newBuffer.Dispose
+                    };
+
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, cfg);
+                };
+            }
+        }
 
         #endregion
 
@@ -94,6 +144,8 @@ namespace KGySoft.Drawing.Imaging
 
             rowGetColorIndex = customConfig.GetRowGetColorIndex();
             rowSetColorIndex = customConfig.GetRowSetColorIndex();
+            CanWrite = customConfig.CanWrite();
+            BackBufferIndependentPixelAccess = customConfig.BackBufferIndependentPixelAccess;
         }
 
         #endregion

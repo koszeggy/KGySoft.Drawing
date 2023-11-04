@@ -26,14 +26,12 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Properties
 
-        //bool InstanceIndependentPixelAccess { get; } // TODO
+        bool BackBufferIndependentPixelAccess { get; }
 
-        //bool CanRead { get; }
-        //bool CanWrite { get; }
+        bool CanWrite { get; }
 
         /// <summary>
         /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers or as a clone.
-        /// Note that custom indexed bitmaps do not implement <see cref="ICustomBitmapData"/> 
         /// </summary>
         Func<Size, WorkingColorSpace, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
 

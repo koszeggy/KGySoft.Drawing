@@ -114,11 +114,14 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public override bool IsCustomPixelFormat => true;
+        public bool CanWrite { get; }
+        public bool BackBufferIndependentPixelAccess { get; }
 
         public Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
         {
             get
             {
+                Debug.Assert(BackBufferIndependentPixelAccess);
                 if (IsDisposed)
                     ThrowDisposed();
 
@@ -203,6 +206,8 @@ namespace KGySoft.Drawing.Imaging
             rowSetColorF = customConfig.GetRowSetColorF();
             rowGetPColorF = customConfig.GetRowGetPColorF();
             rowSetPColorF = customConfig.GetRowSetPColorF();
+            CanWrite = customConfig.CanWrite();
+            BackBufferIndependentPixelAccess = customConfig.BackBufferIndependentPixelAccess;
         }
 
         #endregion

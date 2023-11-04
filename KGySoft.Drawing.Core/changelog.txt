@@ -21,11 +21,14 @@
   ! New SetColor32/SetColor64/SetColorF/SetPColor32/SetPColor64/SetPColorF methods
 ! IReadableBitmapDataRow interface: (breaking only if you implement it, which is normally not needed)
   ! New GetColor32/GetColor64/GetColorF/GetPColor32/GetPColor64/GetPColorF methods
+! BitmapDataFactory class:
+  ! The old CreateBitmapData overloads for custom pixel formats (the ones that have PixelFormatInfo parameter) no
+    longer assume that the delegates can work independently with any back buffer. To assume this use the new
+    overloads with Custom[Indexed]BitmapDataConfig parameters and set the BackBufferIndependentPixelAccess property.
+  + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
+    delegates for also other color types than Color32. You can use these for wide custom pixel formats.
 + New CustomBitmapDataConfig, CustomIndexedBitmapDataConfig types for configuring pixel access of bitmaps
   with custom pixel formats.
-+ BitmapDataFactory class:
-  + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
-    delegates for other color types than Color32.
 + KnownPixelFormat enum:
   + New Format96bppRgb, Format128bppRgba and Format128bppPRgba values
 + PColor32 struct:
@@ -34,6 +37,8 @@
   + New FromArgb overload
 + ColorF struct:
   + New FromArgb method
+  + New ToGray method
+  + New ToOpaque method
 + PColorF struct:
   + New FromArgb method
 - PixelFormatInfo struct:

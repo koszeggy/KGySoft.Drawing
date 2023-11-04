@@ -98,6 +98,8 @@ namespace KGySoft.Drawing.Imaging
             return setColorIndex ?? new Action<ICustomBitmapDataRow, int, int>((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
         }
 
+        internal override bool CanWrite() => (RowSetColorIndex ?? RowSetColorIndexLegacy) != null;
+
         #endregion
     }
 }

@@ -2680,7 +2680,7 @@ namespace KGySoft.Drawing.Imaging
             session.TargetRectangle = session.SourceRectangle;
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = source is ICustomBitmapData customBitmapData
+            session.Target = source is ICustomBitmapData { BackBufferIndependentPixelAccess: true } customBitmapData
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
                 : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
                     source.BackColor, source.AlphaThreshold, workingColorSpace, source.Palette);
@@ -2728,7 +2728,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
+            session.Target = source is ICustomBitmapData { BackBufferIndependentPixelAccess: true } customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
                 : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(),
                     backColor, alphaThreshold, workingColorSpace, palette);

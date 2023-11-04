@@ -426,6 +426,8 @@ namespace KGySoft.Drawing.Imaging
             return GetRowSetPColorF<_>();
         }
 
+        internal override bool CanWrite() => (RowSetColor32 ?? RowSetPColor32 ?? RowSetColor64 ?? RowSetPColor64 ?? RowSetColorF ?? RowSetPColorF ?? RowSetColorLegacy) != null;
+
         #endregion
     }
 }

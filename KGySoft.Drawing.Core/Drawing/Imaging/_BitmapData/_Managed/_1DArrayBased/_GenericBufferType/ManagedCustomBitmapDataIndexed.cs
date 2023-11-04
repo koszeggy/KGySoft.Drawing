@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -28,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a managed bitmap data wrapper with custom indexed pixel format for a 1D array (wrapped into an <see cref="Array2D{T}"/>).
     /// </summary>
-    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayIndexedBase<T, ManagedCustomBitmapDataIndexed<T>.Row>
+    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayIndexedBase<T, ManagedCustomBitmapDataIndexed<T>.Row>, ICustomBitmapData
         where T : unmanaged
     {
         #region Row class
@@ -108,6 +109,61 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public override bool IsCustomPixelFormat => true;
+        public bool CanWrite { get; }
+        public bool BackBufferIndependentPixelAccess { get; }
+
+        public unsafe Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        {
+            [SecuritySafeCritical]
+            get
+            {
+                Debug.Assert(BackBufferIndependentPixelAccess);
+                if (IsDisposed)
+                    ThrowDisposed();
+
+                // Creating locals for all used members so self reference will not be captured.
+                Func<ICustomBitmapDataRow<T>, int, int> getColorIndex = rowGetColorIndex;
+                Action<ICustomBitmapDataRow<T>, int, int> setColorIndex = rowSetColorIndex;
+                Palette palette = Palette!;
+                PixelFormatInfo pixelFormat = PixelFormat;
+                int origWidth = Width;
+                int origBufferWidth = Buffer.Width;
+                return (size, workingColorSpace) =>
+                {
+                    Debug.Assert(size.Width > 0 && size.Height > 0);
+                    Array2D<T> newBuffer;
+
+                    // original width: the original stride must be alright
+                    if (size.Width == origWidth)
+                        newBuffer = new Array2D<T>(size.Height, origBufferWidth);
+                    else
+                    {
+                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
+                        int stride = pixelFormat.GetByteWidth(size.Width);
+                        stride += 16 - stride % 16;
+                        if (16 % sizeof(T) != 0)
+                            stride += sizeof(T) - stride % sizeof(T);
+                        newBuffer = new Array2D<T>(size.Height, stride / sizeof(T));
+                    }
+
+                    var cfg = new CustomIndexedBitmapDataConfig
+                    {
+                        PixelFormat = pixelFormat,
+                        RowGetColorIndex = getColorIndex as Func<ICustomBitmapDataRow, int, int>,
+                        RowSetColorIndex = setColorIndex as Action<ICustomBitmapDataRow, int, int>,
+                        Palette = palette.WorkingColorSpace == workingColorSpace ? palette : new Palette(palette, workingColorSpace, palette.BackColor, palette.AlphaThreshold),
+                        DisposeCallback = newBuffer.Dispose
+                    };
+
+                    if (cfg.RowGetColorIndex == null)
+                        cfg.RowGetColorIndexLegacy = getColorIndex;
+                    if (cfg.RowSetColorIndex == null)
+                        cfg.RowSetColorIndexLegacy = setColorIndex;
+
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, cfg);
+                };
+            }
+        }
 
         #endregion
 
@@ -120,6 +176,8 @@ namespace KGySoft.Drawing.Imaging
 
             rowGetColorIndex = customConfig.GetRowGetColorIndex<T>();
             rowSetColorIndex = customConfig.GetRowSetColorIndex<T>();
+            CanWrite = customConfig.CanWrite();
+            BackBufferIndependentPixelAccess = customConfig.BackBufferIndependentPixelAccess;
         }
 
         #endregion

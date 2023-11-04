@@ -1613,9 +1613,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
-        public void InstanceIndependentPixelAccessTest()
+        public unsafe void InstanceDependencyPixelAccessTest()
         {
-            Color32[,] buffer = new Color32[100, 100];
+            // legacy access - implicitly dependent, even if an independent implementation
+            Color32[,] buffer = new Color32[3, 13];
             using (var bitmapData = BitmapDataFactory.CreateBitmapData(buffer, 10, new PixelFormatInfo(32) { HasAlpha = true },
                        (r, x) => r[x], (r, x, c) => r[x] = c))
             {
@@ -1625,17 +1626,21 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
 
                 using var clone = bitmapData.Clone();
+                Assert.IsFalse(clone.PixelFormat.IsCustomFormat);
                 clone.SetColor32(0, 0, Color.Green);
                 Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
                 clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
                 Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
             }
 
-            buffer = new Color32[100, 100];
-            using (var bitmapData = BitmapDataFactory.CreateBitmapData(buffer, 10, new CustomBitmapDataConfig
+            // from config, independent
+            buffer = new Color32[3, 2];
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(buffer, 2, new CustomBitmapDataConfig
             {
                 PixelFormat = new PixelFormatInfo(32) { HasAlpha = true },
-                //InstanceIndependentPixelAccess = true,
+                BackBufferIndependentPixelAccess = true,
                 RowGetColor32 = (r, x) => r.GetRefAs<Color32>(x),
                 RowSetColor32 = (r, x, c) => r.GetRefAs<Color32>(x) = c,
             }))
@@ -1646,19 +1651,46 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
 
                 using var clone = bitmapData.Clone();
+                Assert.IsTrue(clone.PixelFormat.IsCustomFormat);
                 clone.SetColor32(0, 0, Color.Green);
                 Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
                 clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
                 Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
             }
 
+            // unmanaged dependent (intentionally bad implementation)
+            using Bitmap bmp = new Bitmap(10, 10, PixelFormat.Format32bppArgb);
+            var bmpData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadWrite, bmp.PixelFormat);
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(bmpData.Scan0, new Size(bmpData.Width, bmpData.Height), bmpData.Stride, new PixelFormatInfo(32) { HasAlpha = true },
+                       (r, x) => ((Color32*)bmpData.Scan0)[r.Index * bmpData.Width + x], (r, x, c) => ((Color32*)bmpData.Scan0)[r.Index * bmpData.Width + x] = c,
+                       disposeCallback: () => bmp.UnlockBits(bmpData)))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                Assert.IsFalse(clone.PixelFormat.IsCustomFormat);
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
+            }
+
+            // unmanaged independent
             IntPtr mem = Marshal.AllocHGlobal(buffer.Length * 4);
-            using (var bitmapData = BitmapDataFactory.CreateBitmapData(mem, new Size(10, 10), 10 * 4, new CustomBitmapDataConfig
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(mem, new Size(2, 3), 2 * 4, new CustomBitmapDataConfig
             {
                 PixelFormat = new PixelFormatInfo(32) { HasAlpha = true },
-                //InstanceIndependentPixelAccess = true,
+                BackBufferIndependentPixelAccess = true,
                 RowGetColor32 = (r, x) => r.GetRefAs<Color32>(x),
-                RowSetColor32 = (r, x, c) => r.GetRefAs<Color32>(x) = c
+                RowSetColor32 = (r, x, c) => r.GetRefAs<Color32>(x) = c,
+                DisposeCallback = () => Marshal.FreeHGlobal(mem)
             }))
             {
                 bitmapData.SetColor32(0, 0, Color.Red);
@@ -1667,13 +1699,60 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
 
                 using var clone = bitmapData.Clone();
+                Assert.IsTrue(clone.PixelFormat.IsCustomFormat);
                 clone.SetColor32(0, 0, Color.Green);
                 Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
                 clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
                 Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
             }
 
-            throw new NotImplementedException("TODO: do also dependent version");
+            // legacy indexed - implicitly dependent, with intentionally bad implementation
+            byte[] buf = new byte[100];
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(buf, new Size(10, 10), 10, new PixelFormatInfo(8) { Indexed = true },
+                       (r, x) => buf[r.Index * r.BitmapData.Width + x], (r, x, i) => buf[r.Index * r.BitmapData.Width + x] = (byte)i))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                Assert.IsFalse(clone.PixelFormat.IsCustomFormat);
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
+            }
+
+            // indexed from config, independent
+            var array = new byte[32];
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(array, new Size(4, 3), 4, new CustomIndexedBitmapDataConfig
+            {
+                PixelFormat = new PixelFormatInfo(8) { Indexed = true },
+                BackBufferIndependentPixelAccess = true,
+                RowGetColorIndex = (r, x) => r.GetRefAs<byte>(x),
+                RowSetColorIndex = (r, x, i) => r.GetRefAs<byte>(x) = (byte)i,
+                Palette = Palette.SystemDefault4BppPalette()
+            }))
+            {
+                bitmapData.SetColor32(0, 0, Color.Red);
+                Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));
+                bitmapData.SetPColor32(1, 1, Color.Blue.ToPColor32());
+                Assert.AreEqual(Color.Blue.ToPColor32(), bitmapData.GetPColor32(1, 1));
+
+                using var clone = bitmapData.Clone();
+                Assert.IsTrue(clone.PixelFormat.IsCustomFormat);
+                clone.SetColor32(0, 0, Color.Green);
+                Assert.AreEqual(Color.Green.ToColor32(), clone.GetColor32(0, 0));
+                Assert.AreNotEqual(Color.Green.ToColor32(), bitmapData.GetColor32(0, 0));
+                clone.SetPColor32(1, 1, Color.Yellow.ToPColor32());
+                Assert.AreEqual(Color.Yellow.ToPColor32(), clone.GetPColor32(1, 1));
+                Assert.AreNotEqual(Color.Yellow.ToPColor32(), bitmapData.GetPColor32(1, 1));
+            }
         }
 
         #endregion
