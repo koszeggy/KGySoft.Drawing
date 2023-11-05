@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if NET46_OR_GREATER || NETCOREAPP
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorSpaceHelperPerformanceTest.cs
@@ -87,7 +88,7 @@ namespace KGySoft.Drawing.PerformanceTests
             // Verdict: My Pow is about 1.5x-2x slower, it MAY worth to vectorize it if at least 2 color components are in the Pow range.
             Console.WriteLine($"{x} ^ {p}: {MathF.Pow(x, p)} vs. {x.Pow(p)}");
             Assert.IsTrue(MathF.Pow(x, p).TolerantEquals(x.Pow(p)));
-            new PerformanceTest<float>{ TestName = "Pow", Iterations = 10_000_000, Repeat = 3 }
+            new PerformanceTest<float> { TestName = "Pow", Iterations = 10_000_000, Repeat = 3 }
                 .AddCase(() => MathF.Pow(x, p), "MathF.Pow")
                 .AddCase(() => x.Pow(p), "Pow")
                 .DoTest()
@@ -350,3 +351,4 @@ namespace KGySoft.Drawing.PerformanceTests
         #endregion
     }
 }
+#endif

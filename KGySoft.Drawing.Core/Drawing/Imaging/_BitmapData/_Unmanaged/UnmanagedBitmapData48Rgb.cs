@@ -52,9 +52,7 @@ namespace KGySoft.Drawing.Imaging
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetColor64(int x, Color64 c)
-                => ((Color48*)Row)[x] = c.A == UInt16.MaxValue
-                    ? new Color48(c)
-                    : new Color48(c.BlendWithBackground(((UnmanagedBitmapData48Rgb)BitmapData).backColor64, BitmapData.LinearWorkingColorSpace));
+                => ((Color48*)Row)[x] = new Color48(c.A == UInt16.MaxValue ? c : c.BlendWithBackground(((UnmanagedBitmapData48Rgb)BitmapData).backColor64, BitmapData.LinearWorkingColorSpace));
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -67,15 +65,18 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe ColorF DoGetColorF(int x) => ((Color48*)Row)[x].ToColor64().ToColorF();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorF(int x, ColorF c) => DoSetColor64(x, c.ToColor64());
+            public override unsafe void DoSetColorF(int x, ColorF c) => ((Color48*)Row)[x] = new Color48(c.A >= 1f ? c.ToColor64()
+                : BitmapData.LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()).ToColor64()
+                : c.ToColor64().BlendWithBackgroundSrgb(((UnmanagedBitmapData48Rgb)BitmapData).backColor64));
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe PColorF DoGetPColorF(int x) => ((Color48*)Row)[x].ToColor64().ToPColorF();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetPColorF(int x, PColorF c) => DoSetColor64(x, c.ToColor64());
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
 
             #endregion
         }
@@ -121,9 +122,7 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColor64(int x, int y, Color64 c)
-            => *GetPixelAddress<Color48>(y, x) = c.A == UInt16.MaxValue
-                ? new Color48(c)
-                : new Color48(c.BlendWithBackground(backColor64, LinearWorkingColorSpace));
+            => *GetPixelAddress<Color48>(y, x) = new Color48(c.A == UInt16.MaxValue ? c : c.BlendWithBackground(backColor64, LinearWorkingColorSpace));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -136,15 +135,18 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<Color48>(y, x)->ToColor64().ToColorF();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => DoSetColor64(x, y, c.ToColor64());
+        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color48>(y, x) = new Color48(c.A >= 1f ? c.ToColor64()
+            : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor64()
+            : c.ToColor64().BlendWithBackgroundSrgb(backColor64));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe PColorF DoGetPColorF(int x, int y) => GetPixelAddress<Color48>(y, x)->ToColor64().ToPColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColor64(x, y, c.ToColor64());
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

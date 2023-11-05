@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if NET46_OR_GREATER || NETCOREAPP
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Conversion_ColorF.cs
@@ -510,3 +511,4 @@ namespace KGySoft.Drawing.PerformanceTests
         #endregion
     }
 }
+#endif

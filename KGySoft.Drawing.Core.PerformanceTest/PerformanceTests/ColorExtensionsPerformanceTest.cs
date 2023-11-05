@@ -17,16 +17,19 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Numerics;
+#if NET46_OR_GREATER || NETCOREAPP
+using System.Numerics; 
+#endif
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics;
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
-using System.Security.Cryptography;
 
 #endregion
 
@@ -694,8 +697,12 @@ namespace KGySoft.Drawing.PerformanceTests
             if (c.R == c.G && c.R == c.B)
                 return c.R;
 
+#if NET46_OR_GREATER || NETCOREAPP
             var rgb = new Vector3(c.R, c.G, c.B) * new Vector3(RLumSrgb, GLumSrgb, BLumSrgb);
             return (byte)(rgb.X + rgb.Y + rgb.Z);
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -704,6 +711,7 @@ namespace KGySoft.Drawing.PerformanceTests
             if (c.R == c.G && c.R == c.B)
                 return c.R;
 
+#if NETCOREAPP3_0_OR_GREATER
             // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
             Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                 // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
@@ -713,6 +721,9 @@ namespace KGySoft.Drawing.PerformanceTests
 
             var result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb, GLumSrgb, RLumSrgb, default));
             return (byte)(result.GetElement(0) + result.GetElement(1) + result.GetElement(2));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
 #if NET7_0_OR_GREATER
@@ -764,7 +775,11 @@ namespace KGySoft.Drawing.PerformanceTests
             if (c.R.Equals(c.G) && c.R.Equals(c.B))
                 return c.R;
 
+#if NET46_OR_GREATER || NETCOREAPP
             return Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
+#else
+            throw new PlatformNotSupportedException();
+#endif
             //var rgb = c.Rgb * new Vector3(RLumLinear, GLumLinear, BLumLinear);
             //return rgb.X + rgb.Y + rgb.Z;
         }
@@ -775,11 +790,15 @@ namespace KGySoft.Drawing.PerformanceTests
             if (c.R.Equals(c.G) && c.R.Equals(c.B))
                 return c.R;
 
+#if NETCOREAPP3_0_OR_GREATER
             var result = Sse.Multiply(c.RgbaV128, Vector128.Create(RLumLinear, GLumLinear, BLumLinear, default));
 #if NET5_0_OR_GREATER
             return Vector128.Sum(result);
 #else
             return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);
+#endif
+#else
+            throw new PlatformNotSupportedException();
 #endif
         }
 
@@ -789,7 +808,11 @@ namespace KGySoft.Drawing.PerformanceTests
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF_1_Vector(this Color32 c)
+#if NET46_OR_GREATER || NETCOREAPP
             => Vector3.Dot(new Vector3(c.R, c.G, c.B), new Vector3(RLumSrgb / Byte.MaxValue, GLumSrgb / Byte.MaxValue, BLumSrgb / Byte.MaxValue));
+#else
+            => throw new PlatformNotSupportedException();
+#endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF_2_Intrinsics(this Color32 c)
@@ -819,7 +842,11 @@ namespace KGySoft.Drawing.PerformanceTests
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF_1_Vector(this Color64 c)
+#if NET46_OR_GREATER || NETCOREAPP
             => Vector3.Dot(new Vector3(c.R, c.G, c.B), new Vector3(RLumSrgb / UInt16.MaxValue, GLumSrgb / UInt16.MaxValue, BLumSrgb / UInt16.MaxValue));
+#else
+            => throw new PlatformNotSupportedException();
+#endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF_2_Intrinsics(this Color64 c)
@@ -1484,7 +1511,11 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             if (c.A <= 0)
                 return backColor;
+#if NET46_OR_GREATER || NETCOREAPP
             return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * (1f - c.A), 1f));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1505,7 +1536,11 @@ namespace KGySoft.Drawing.PerformanceTests
             }
 #endif
 
+#if NET46_OR_GREATER || NETCOREAPP
             return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * (1f - c.A), 1f));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1528,7 +1563,11 @@ namespace KGySoft.Drawing.PerformanceTests
             float inverseAlphaSrc = 1f - src.A;
             float alphaOut = src.A + dst.A * inverseAlphaSrc;
 
+#if NET46_OR_GREATER || NETCOREAPP
             return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1550,7 +1589,11 @@ namespace KGySoft.Drawing.PerformanceTests
             }
 #endif
 
+#if NET46_OR_GREATER || NETCOREAPP
             return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1566,7 +1609,11 @@ namespace KGySoft.Drawing.PerformanceTests
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColorF BlendWithLinear_1_Vector(this PColorF src, PColorF dst)
         {
+#if NET46_OR_GREATER || NETCOREAPP
             return new PColorF(src.Rgba + dst.Rgba * (1f - src.A));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1584,7 +1631,11 @@ namespace KGySoft.Drawing.PerformanceTests
                 return new PColorF(rgbaResultF);
             }
 #endif
+#if NET46_OR_GREATER || NETCOREAPP
             return new PColorF(src.Rgba + dst.Rgba * (1f - src.A));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1599,9 +1650,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 return new PColorF(rgbaResultF);
             }
 #endif
+#if NET46_OR_GREATER || NETCOREAPP
             return new PColorF(src.Rgba + dst.Rgba * (1f - src.A));
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
-        #endregion
+#endregion
     }
 }

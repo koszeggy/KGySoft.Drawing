@@ -40,12 +40,25 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColor32(int x, Color32 c)
                 => DoWriteRaw(x, new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearWorkingColorSpace)));
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorF(int x, ColorF c) => DoWriteRaw(x, new Color24(c.A >= 1f ? c.ToColor32()
+                : BitmapData.LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()).ToColor32()
+                : c.ToColor32().BlendWithBackgroundSrgb(BitmapData.BackColor)));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
+
             #endregion
         }
 
         #endregion
 
         #region Constructors
+
+        internal ManagedBitmapData24Rgb(in BitmapDataConfig cfg)
+            : base(cfg)
+        {
+        }
 
         internal ManagedBitmapData24Rgb(Array2D<T> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
@@ -62,6 +75,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColor32(int x, int y, Color32 c)
             => GetPixelRef<Color24>(y, x) = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<Color24>(y, x) = new Color24(c.A >= 1f ? c.ToColor32()
+            : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
+            : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

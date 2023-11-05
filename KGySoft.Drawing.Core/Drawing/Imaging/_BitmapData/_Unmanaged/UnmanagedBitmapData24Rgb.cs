@@ -40,6 +40,15 @@ namespace KGySoft.Drawing.Imaging
             public override unsafe void DoSetColor32(int x, Color32 c)
                 => ((Color24*)Row)[x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearWorkingColorSpace));
 
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe void DoSetColorF(int x, ColorF c) => ((Color24*)Row)[x] = new Color24(c.A >= 1f ? c.ToColor32()
+                : BitmapData.LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()).ToColor32()
+                : c.ToColor32().BlendWithBackgroundSrgb(BitmapData.BackColor));
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
+
             #endregion
         }
 
@@ -64,6 +73,15 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetColor32(int x, int y, Color32 c)
             => *GetPixelAddress<Color24>(y, x) = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace));
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color24>(y, x) = new Color24(c.A >= 1f ? c.ToColor32()
+            : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
+            : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

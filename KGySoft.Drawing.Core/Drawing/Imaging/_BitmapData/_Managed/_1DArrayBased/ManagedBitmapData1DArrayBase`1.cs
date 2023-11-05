@@ -53,8 +53,8 @@ namespace KGySoft.Drawing.Imaging
             : base(cfg)
         {
             Debug.Assert(!cfg.PixelFormat.IsCustomFormat, "In this overload known pixel format is expected");
-            Debug.Assert(!cfg.PixelFormat.Indexed || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
-            Buffer = new Array2D<T>(cfg.Size.Height, cfg.PixelFormat.BitsPerPixel <= 8 ? cfg.PixelFormat.GetByteWidth(cfg.Size.Width) : cfg.Size.Width);
+            Debug.Assert(cfg.DisposeCallback == null, "No dispose callback is expected from the self-allocating constructor");
+            Buffer = new Array2D<T>(cfg.Size.Height, typeof(T) == typeof(byte) ? cfg.PixelFormat.GetByteWidth(cfg.Size.Width) : cfg.Size.Width);
             ownsBuffer = true;
             RowSize = Buffer.Width * sizeof(T);
         }
@@ -110,6 +110,8 @@ namespace KGySoft.Drawing.Imaging
         {
             if (IsDisposed)
                 return;
+
+            base.Dispose(disposing);
             if (disposing)
             {
                 if (ownsBuffer)
@@ -117,8 +119,6 @@ namespace KGySoft.Drawing.Imaging
                 else
                     Buffer = default;
             }
-
-            base.Dispose(disposing);
         }
 
         #endregion

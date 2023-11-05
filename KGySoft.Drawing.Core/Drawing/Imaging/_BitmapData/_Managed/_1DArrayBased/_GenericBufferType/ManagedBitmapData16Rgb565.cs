@@ -47,6 +47,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        internal ManagedBitmapData16Rgb565(in BitmapDataConfig cfg)
+            : base(cfg)
+        {
+        }
+
+
         internal ManagedBitmapData16Rgb565(Array2D<T> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {

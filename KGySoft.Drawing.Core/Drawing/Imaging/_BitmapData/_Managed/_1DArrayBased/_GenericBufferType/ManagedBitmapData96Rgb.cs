@@ -85,6 +85,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        internal ManagedBitmapData96Rgb(in BitmapDataConfig cfg)
+            : base(cfg)
+        {
+            backColorF = BackColor.ToColorF();
+        }
+
         internal ManagedBitmapData96Rgb(Array2D<T> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {

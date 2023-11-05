@@ -63,13 +63,15 @@ namespace KGySoft.Drawing.Imaging
             public override ColorF DoGetColorF(int x) => DoReadRaw<Color16Gray>(x).ToColor64().ToColorF();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorF(int x, ColorF c) => DoSetColor64(x, c.ToColor64());
+            public override void DoSetColorF(int x, ColorF c) => DoWriteRaw(x, BitmapData.LinearWorkingColorSpace
+                ? new Color16Gray(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
+                : new Color16Gray(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(((ManagedBitmapData16Gray<T>)BitmapData).backColor64)));
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColorF DoGetPColorF(int x) => DoReadRaw<Color16Gray>(x).ToColor64().ToPColorF();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetPColorF(int x, PColorF c) => DoSetColor64(x, c.ToColor64());
+            public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
 
             #endregion
         }
@@ -83,6 +85,12 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
+
+        internal ManagedBitmapData16Gray(in BitmapDataConfig cfg)
+            : base(cfg)
+        {
+            backColor64 = BackColor.ToColor64();
+        }
 
         internal ManagedBitmapData16Gray(Array2D<T> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
@@ -124,13 +132,15 @@ namespace KGySoft.Drawing.Imaging
         protected override ColorF DoGetColorF(int x, int y) => GetPixelRef<Color16Gray>(y, x).ToColor64().ToColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => DoSetColor64(x, y, c.ToColor64());
+        protected override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<Color16Gray>(y, x) = LinearWorkingColorSpace
+            ? new Color16Gray(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BackColor.ToColorF()))
+            : new Color16Gray(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(backColor64));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override PColorF DoGetPColorF(int x, int y) => GetPixelRef<Color16Gray>(y, x).ToColor64().ToPColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColor64(x, y, c.ToColor64());
+        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

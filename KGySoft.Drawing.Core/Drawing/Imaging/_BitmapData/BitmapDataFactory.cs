@@ -1692,23 +1692,26 @@ namespace KGySoft.Drawing.Imaging
             var cfg = new BitmapDataConfig(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, workingColorSpace, palette);
             return pixelFormat switch
             {
+                // for types that have exact public color type using specific non-generic versions; otherwise, using a byte[] back buffer
                 KnownPixelFormat.Format32bppArgb => new ManagedBitmapData32Argb(cfg),
                 KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData32PArgb(cfg),
                 KnownPixelFormat.Format32bppRgb => new ManagedBitmapData32Rgb(cfg),
-                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb(cfg),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb<byte>(cfg),
                 KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData8I(cfg),
                 KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData4I(cfg),
                 KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData1I(cfg),
                 KnownPixelFormat.Format64bppArgb => new ManagedBitmapData64Argb(cfg),
                 KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData64PArgb(cfg),
-                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb(cfg),
-                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565(cfg),
-                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555(cfg),
-                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555(cfg),
-                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray(cfg),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb<byte>(cfg),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565<byte>(cfg),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555<byte>(cfg),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555<byte>(cfg),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray<byte>(cfg),
                 KnownPixelFormat.Format128bppRgba => new ManagedBitmapData128Rgba(cfg),
                 KnownPixelFormat.Format128bppPRgba => new ManagedBitmapData128PRgba(cfg),
-                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb(cfg),
+                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb<byte>(cfg),
+                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray<byte>(cfg),
+                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray<byte>(cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1735,9 +1738,7 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
                     ? new ManagedBitmapData32Rgb(buf, cfg)
                     : new ManagedBitmapData32Rgb<T>(buffer, cfg),
-                KnownPixelFormat.Format24bppRgb => buffer is Array2D<Color24> buf
-                    ? new ManagedBitmapData24Rgb(buf, cfg)
-                    : new ManagedBitmapData24Rgb<T>(buffer, cfg),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb<T>(buffer, cfg),
                 KnownPixelFormat.Format8bppIndexed => buffer is Array2D<byte> buf
                     ? new ManagedBitmapData8I(buf, cfg)
                     : new ManagedBitmapData8I<T>(buffer, cfg),
@@ -1753,30 +1754,20 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format64bppPArgb => buffer is Array2D<PColor64> buf
                     ? new ManagedBitmapData64PArgb(buf, cfg)
                     : new ManagedBitmapData64PArgb<T>(buffer, cfg),
-                KnownPixelFormat.Format48bppRgb => buffer is Array2D<Color48> buf
-                    ? new ManagedBitmapData48Rgb(buf, cfg)
-                    : new ManagedBitmapData48Rgb<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppRgb565 => buffer is Array2D<Color16Rgb565> buf
-                    ? new ManagedBitmapData16Rgb565(buf, cfg)
-                    : new ManagedBitmapData16Rgb565<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppRgb555 => buffer is Array2D<Color16Rgb555> buf
-                    ? new ManagedBitmapData16Rgb555(buf, cfg)
-                    : new ManagedBitmapData16Rgb555<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppArgb1555 => buffer is Array2D<Color16Argb1555> buf
-                    ? new ManagedBitmapData16Argb1555(buf, cfg)
-                    : new ManagedBitmapData16Argb1555<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppGrayScale => buffer is Array2D<Color16Gray> buf
-                    ? new ManagedBitmapData16Gray(buf, cfg)
-                    : new ManagedBitmapData16Gray<T>(buffer, cfg),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb<T>(buffer, cfg),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565<T>(buffer, cfg),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555<T>(buffer, cfg),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555<T>(buffer, cfg),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray<T>(buffer, cfg),
                 KnownPixelFormat.Format128bppRgba => buffer is Array2D<ColorF> buf
                     ? new ManagedBitmapData128Rgba(buf, cfg)
                     : new ManagedBitmapData128Rgba<T>(buffer, cfg),
                 KnownPixelFormat.Format128bppPRgba => buffer is Array2D<PColorF> buf
                     ? new ManagedBitmapData128PRgba(buf, cfg)
                     : new ManagedBitmapData128PRgba<T>(buffer, cfg),
-                KnownPixelFormat.Format96bppRgb => buffer is Array2D<RgbF> buf
-                    ? new ManagedBitmapData96Rgb(buf, cfg)
-                    : new ManagedBitmapData96Rgb<T>(buffer, cfg),
+                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb<T>(buffer, cfg),
+                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray<T>(buffer, cfg),
+                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray<T>(buffer, cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1830,6 +1821,8 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format128bppRgba => new ManagedBitmapData128Rgba2D<T>(buffer, cfg),
                 KnownPixelFormat.Format128bppPRgba => new ManagedBitmapData128PRgba2D<T>(buffer, cfg),
                 KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb2D<T>(buffer, cfg),
+                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray2D<T>(buffer, cfg),
+                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray2D<T>(buffer, cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1884,6 +1877,8 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format128bppRgba => new UnmanagedBitmapData128Rgba(buffer, stride, cfg),
                 KnownPixelFormat.Format128bppPRgba => new UnmanagedBitmapData128PRgba(buffer, stride, cfg),
                 KnownPixelFormat.Format96bppRgb => new UnmanagedBitmapData96Rgb(buffer, stride, cfg),
+                KnownPixelFormat.Format8bppGrayScale => new UnmanagedBitmapData8Gray(buffer, stride, cfg),
+                KnownPixelFormat.Format32bppGrayScale => new UnmanagedBitmapData32Gray(buffer, stride, cfg),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
             };
         }
