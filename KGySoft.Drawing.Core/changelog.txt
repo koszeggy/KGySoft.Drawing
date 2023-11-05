@@ -27,10 +27,14 @@
     overloads with Custom[Indexed]BitmapDataConfig parameters and set the BackBufferIndependentPixelAccess property.
   + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
     delegates for also other color types than Color32. You can use these for wide custom pixel formats.
+! PixelFormatInfo struct:
+  ! ToKnownPixelFormat method: It can return the new KnownPixelFormat values.
+  + New Prefers64BitColors and Prefers128BitColors properties
+  - LinearGamma property: setting it to false did not reset the value.
++ KnownPixelFormat enum:
+  + New Format96bppRgb, Format128bppRgba and Format128bppPRgba, Format8bppGrayScale, Format32bppGrayScale fields
 + New CustomBitmapDataConfig, CustomIndexedBitmapDataConfig types for configuring pixel access of bitmaps
   with custom pixel formats.
-+ KnownPixelFormat enum:
-  + New Format96bppRgb, Format128bppRgba and Format128bppPRgba values
 + PColor32 struct:
   + New FromArgb overload
 + PColor64 struct:
@@ -41,8 +45,6 @@
   + New ToOpaque method
 + PColorF struct:
   + New FromArgb method
-- PixelFormatInfo struct:
-  - LinearGamma property: setting it to false did not reset the value.
 
 
 ~~~~~~~~~

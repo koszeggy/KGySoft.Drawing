@@ -57,6 +57,8 @@ namespace KGySoft.Drawing.Imaging
         internal const int Format96bppRgb = 16 | (96 << 8) | prefersColorF | isLinear;
         internal const int Format128bppRgba = 17 | (128 << 8) | FlagHasAlpha | prefersColorF | isLinear;
         internal const int Format128bppPRgba = 18 | (128 << 8) | FlagHasAlpha | hasPAlpha | prefersColorF | isLinear;
+        internal const int Format8ppGrayScale = 19 | (8 << 8) | isGrayscale;
+        internal const int Format32bppGrayScale = 20 | (32 << 8) | prefersColorF | isLinear | isGrayscale;
         // ReSharper restore InconsistentNaming
 
         // The following constants have their corresponding values in System.Drawing.Imaging.PixelFormat.
@@ -238,6 +240,46 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
+        /// Gets or sets whether the represented pixel format prefers 64-bit colors (<see cref="Color64"/>, or <see cref="PColor64"/>
+        /// when <see cref="HasPremultipliedAlpha"/> is also set) when getting or setting pixels. Some operations may consider the value of this property.
+        /// Setting this property to <see langword="true"/> resets the <see cref="Prefers128BitColors"/> property.
+        /// </summary>
+        public bool Prefers64BitColors
+        {
+            readonly get => (value & prefersColor64) != 0;
+            set
+            {
+                if (value == Prefers64BitColors)
+                    return;
+                if (value)
+                    this.value = (this.value | prefersColor64) & ~prefersColorF;
+                else
+                    this.value &= ~prefersColor64;
+                this.value |= isCustomFormat;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the represented pixel format prefers 128-bit colors (<see cref="ColorF"/>, or <see cref="PColorF"/>
+        /// when <see cref="HasPremultipliedAlpha"/> is also set) when getting or setting pixels. Some operations may consider the value of this property.
+        /// Setting this property to <see langword="true"/> resets the <see cref="Prefers64BitColors"/> property.
+        /// </summary>
+        public bool Prefers128BitColors
+        {
+            readonly get => (value & prefersColorF) != 0;
+            set
+            {
+                if (value == Prefers128BitColors)
+                    return;
+                if (value)
+                    this.value = (this.value | prefersColorF) & ~prefersColor64;
+                else
+                    this.value &= ~prefersColorF;
+                this.value |= isCustomFormat;
+            }
+        }
+
+        /// <summary>
         /// Gets whether the represented pixel format is a custom one. That is, when this <see cref="PixelFormatInfo"/>
         /// was not instantiated by its <see cref="PixelFormatInfo(KnownPixelFormat)">constructor</see> with a <see cref="KnownPixelFormat"/> parameter
         /// or one of its properties have been set since then.
@@ -273,6 +315,8 @@ namespace KGySoft.Drawing.Imaging
             + $"{(HasAlpha ? $" | {nameof(HasAlpha)}" : null)}"
             + $"{(HasPremultipliedAlpha ? $" | {nameof(HasPremultipliedAlpha)}" : null)}"
             + $"{(HasSingleBitAlpha ? $" | {nameof(HasSingleBitAlpha)}" : null)}"
+            + $"{(Prefers64BitColors ? $" | {nameof(Prefers64BitColors)}" : null)}"
+            + $"{(Prefers128BitColors ? $" | {nameof(Prefers128BitColors)}" : null)}"
             + $"{(Grayscale ? $" | {nameof(Grayscale)}" : null)}"
             + $"{(LinearGamma ? $" | {nameof(LinearGamma)}" : null)}";
 
@@ -354,16 +398,26 @@ namespace KGySoft.Drawing.Imaging
             }
 
             int bpp = BitsPerPixel;
-            if (bpp > 32)
+            if (Prefers128BitColors || bpp > 64)
+                return HasPremultipliedAlpha ? KnownPixelFormat.Format128bppPRgba
+                    : HasAlpha ? KnownPixelFormat.Format128bppRgba
+                    : Grayscale ? KnownPixelFormat.Format32bppGrayScale
+                    : KnownPixelFormat.Format96bppRgb;
+
+            if (Prefers64BitColors || bpp > 32)
                 return HasPremultipliedAlpha ? KnownPixelFormat.Format64bppPArgb
                     : HasAlpha ? KnownPixelFormat.Format64bppArgb
                     : Grayscale ? KnownPixelFormat.Format16bppGrayScale
                     : KnownPixelFormat.Format48bppRgb;
+
             if (bpp > 8 || !Indexed)
                 return HasPremultipliedAlpha ? KnownPixelFormat.Format32bppPArgb
                     : HasAlpha || Indexed ? KnownPixelFormat.Format32bppArgb
-                    : Grayscale ? KnownPixelFormat.Format16bppGrayScale
+                    : Grayscale ? (bpp > 16 ? KnownPixelFormat.Format32bppGrayScale
+                        : bpp > 8 ? KnownPixelFormat.Format16bppGrayScale
+                        : KnownPixelFormat.Format8bppGrayScale)
                     : KnownPixelFormat.Format24bppRgb;
+            
             return bpp switch
             {
                 > 4 => KnownPixelFormat.Format8bppIndexed,
