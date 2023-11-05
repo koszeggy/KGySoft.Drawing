@@ -389,7 +389,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space
         /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
-        /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
+        /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with more than 32 bpp) without specifying a quantizer.</para>
         /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
         /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>
@@ -1592,7 +1592,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IBitmapData"/> to get a compatible quantizer for.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="bitmapData"/>.</returns>
         /// <remarks>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format32bppRgb"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format32bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format96bppRgb"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppArgb1555"/>,
         /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
@@ -1600,14 +1600,15 @@ namespace KGySoft.Drawing.Imaging
         /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppRgb555"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format8bppGrayScale"/>, <see cref="KnownPixelFormat.Format16bppGrayScale"/> or <see cref="KnownPixelFormat.Format32bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format,
         /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Imaging.Palette)"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
         /// <para>If none of above and the <paramref name="bitmapData"/> has been created by one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
-        /// that create bitmap data with custom pixel format, then a special quantizer is returned that produces exactly the same colors as the specified <paramref name="bitmapData"/>.</para>
-        /// <para>Otherwise, this method returns either the same quantizer as the <see cref="Argb8888">Argb8888</see> method (if the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> supports alpha);
-        /// otherwise, the same one as returned by the <see cref="Rgb888">Rgb888</see> method.</para>
+        /// that have a <see cref="CustomBitmapDataConfig"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameter where the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property is <see langword="true"/>,
+        /// then a special quantizer is returned that produces exactly the same colors as the specified <paramref name="bitmapData"/>.</para>
+        /// <para>Otherwise, this method returns either the same quantizer as the <see cref="Argb8888">Argb8888</see> method (if the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> supports alpha),
+        /// a grayscale quantizer for grayscale formats (with or without alpha support), or the same quantizer as returned by the <see cref="Rgb888">Rgb888</see> method.</para>
         /// <note>For examples see the <strong>Examples</strong> section of the mentioned methods above.</note>
         /// </remarks>
         public static PredefinedColorsQuantizer FromBitmapData(IBitmapData bitmapData)
@@ -1621,10 +1622,12 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppArgb1555 => Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold),
                 KnownPixelFormat.Format16bppRgb565 => Rgb565(bitmapData.BackColor.ToColor()),
                 KnownPixelFormat.Format16bppRgb555 => Rgb555(bitmapData.BackColor.ToColor()),
-                KnownPixelFormat.Format16bppGrayScale => Grayscale(bitmapData.BackColor.ToColor()),
-                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb => Rgb888(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format32bppArgb or KnownPixelFormat.Format32bppPArgb or KnownPixelFormat.Format64bppArgb or KnownPixelFormat.Format64bppPArgb
+                    or KnownPixelFormat.Format128bppRgba or KnownPixelFormat.Format128bppPRgba => Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold),
                 _ => bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
-                    : bitmapData is ICustomBitmapData { BackBufferIndependentPixelAccess: true, CanWrite: true } customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
+                    : bitmapData is ICustomBitmapData { BackBufferIndependentPixelAccess: true, CanReadWrite: true } customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
                     : bitmapData.IsGrayscale() ? (bitmapData.HasAlpha()
                         ? (FromCustomFunction(bitmapData.LinearBlending() ? c => c.ToColorF().ToGray().ToColor32() : c => c.ToGray()))
                         : Grayscale(bitmapData.BackColor.ToColor()))
@@ -1646,7 +1649,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         /// <remarks>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format32bppRgb"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format32bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format96bppRgb"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
         /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppArgb1555"/>,
         /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
@@ -1654,7 +1657,7 @@ namespace KGySoft.Drawing.Imaging
         /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
         /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppRgb555"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format8bppGrayScale"/>, <see cref="KnownPixelFormat.Format16bppGrayScale"/> or <see cref="KnownPixelFormat.Format32bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format8bppIndexed"/>,
         /// then this method returns the same quantizer as the <see cref="SystemDefault8BppPalette">SystemDefault8BppPalette</see> method.</para>
@@ -1677,8 +1680,8 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format16bppArgb1555 => Argb1555(backColor, alphaThreshold),
                 KnownPixelFormat.Format16bppRgb565 => Rgb565(backColor),
                 KnownPixelFormat.Format16bppRgb555 => Rgb555(backColor),
-                KnownPixelFormat.Format16bppGrayScale => Grayscale(backColor),
-                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format32bppRgb => Rgb888(backColor),
+                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(backColor),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(backColor),
                 _ => Argb8888(backColor, alphaThreshold)
             };
         }

@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
 
         bool BackBufferIndependentPixelAccess { get; }
 
-        bool CanWrite { get; }
+        bool CanReadWrite { get; }
 
         /// <summary>
         /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers or as a clone.

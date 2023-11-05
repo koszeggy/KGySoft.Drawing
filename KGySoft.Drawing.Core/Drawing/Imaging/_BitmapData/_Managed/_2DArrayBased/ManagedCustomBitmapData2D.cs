@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public override bool IsCustomPixelFormat => true;
-        public bool CanWrite { get; }
+        public bool CanReadWrite { get; }
         public bool BackBufferIndependentPixelAccess { get; }
 
         public unsafe Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
@@ -240,7 +240,7 @@ namespace KGySoft.Drawing.Imaging
             rowSetColorF = customConfig.GetRowSetColorF<T>();
             rowGetPColorF = customConfig.GetRowGetPColorF<T>();
             rowSetPColorF = customConfig.GetRowSetPColorF<T>();
-            CanWrite = customConfig.CanWrite();
+            CanReadWrite = customConfig.CanRead() && customConfig.CanWrite();
             BackBufferIndependentPixelAccess = customConfig.BackBufferIndependentPixelAccess;
         }
 

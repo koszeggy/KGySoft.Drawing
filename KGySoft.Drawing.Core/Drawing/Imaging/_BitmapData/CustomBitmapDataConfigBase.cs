@@ -51,6 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        internal abstract bool CanRead();
         internal abstract bool CanWrite();
 
         #endregion
