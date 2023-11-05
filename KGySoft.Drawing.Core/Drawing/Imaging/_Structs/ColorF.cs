@@ -485,7 +485,7 @@ namespace KGySoft.Drawing.Imaging
         /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
         /// </summary>
         /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
-        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
         public static ColorF FromRgba(Vector4 vector) => new ColorF(vector);
 
@@ -494,9 +494,22 @@ namespace KGySoft.Drawing.Imaging
         /// <see cref="Vector3.Y"/> to <see cref="G"/> and <see cref="Vector3.Z"/> to <see cref="B"/>. The <see cref="A"/> component of the result will be 1.
         /// </summary>
         /// <param name="vector">A <see cref="Vector3"/> representing the RGB color components. The parameter is not validated but
-        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure converted from the specified <see cref="Vector3"/>.</returns>
         public static ColorF FromRgb(Vector3 vector) => new ColorF(new Vector4(vector, 1f));
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="ColorF"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.
+        /// </summary>
+        /// <param name="brightness">The brightness of the gray color to be created where 0 represents the black color and 1 represents the white color.
+        /// The parameter is not validated but you can use the &lt;see cref="IsValid"/&gt; property or the &lt;see cref="Clip"&gt;Clip&lt;/see&gt; method on the created result.</param>
+        /// <returns>A <see cref="ColorF"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.</returns>
+        public static ColorF FromGray(float brightness)
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            => FromRgb(new Vector3(brightness));
+#else
+            => new ColorF(1f, brightness, brightness, brightness);
 #endif
 
         #endregion

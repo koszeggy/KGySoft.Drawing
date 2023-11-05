@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color16GrayTest.cs
+//  File: Gray16Test.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class Color16GrayTest
+    public class Gray16Test
     {
         #region Methods
 
@@ -33,16 +33,16 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             Color32 c = Color32.FromArgb(unchecked((int)0xFF112233));
 
-            Color16Gray c16 = new Color16Gray(c.ToColor64());
+            Gray16 c16 = new Gray16(c.ToColor64());
             Assert.AreEqual(new Color64(c).GetBrightness(), c16.Value);
         }
 
         [Test]
         public unsafe void SizeAndAlignmentTest()
         {
-            Assert.AreEqual(2, sizeof(Color16Gray));
+            Assert.AreEqual(2, sizeof(Gray16));
 
-            Color16Gray* p = stackalloc Color16Gray[2];
+            Gray16* p = stackalloc Gray16[2];
             Assert.AreEqual(2, (byte*)&p[1] - (byte*)&p[0]);
         }
 

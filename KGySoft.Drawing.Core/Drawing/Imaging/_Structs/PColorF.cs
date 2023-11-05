@@ -462,7 +462,7 @@ namespace KGySoft.Drawing.Imaging
         /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
         /// </summary>
         /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
-        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
         public static PColorF FromRgba(Vector4 vector) => new PColorF(vector);
 #endif

@@ -41,6 +41,7 @@
   + New FromArgb overload
 + ColorF struct:
   + New FromArgb method
+  + New FromGray method
   + New ToGray method
   + New ToOpaque method
 + PColorF struct:

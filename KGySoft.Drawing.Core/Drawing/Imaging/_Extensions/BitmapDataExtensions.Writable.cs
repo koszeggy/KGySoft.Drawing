@@ -324,8 +324,8 @@ namespace KGySoft.Drawing.Imaging
                         KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
                         KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
                         _ => (bitmapData.WorkingColorSpace == WorkingColorSpace.Linear
-                            ? new Color16Gray(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
-                            : new Color16Gray(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value
+                            ? new Gray16(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                            : new Gray16(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value
                     };
 
                     uint uintValue = (uint)((shortValue << 16) | shortValue);

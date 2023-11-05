@@ -304,7 +304,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
         /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
-        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
         public static PColor32 FromArgb(int argb) => new PColor32((uint)argb);
 
@@ -313,7 +313,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
         /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
-        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
         [CLSCompliant(false)]
         public static PColor32 FromArgb(uint argb) => new PColor32(argb);

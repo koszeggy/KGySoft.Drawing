@@ -3295,14 +3295,22 @@ namespace KGySoft.Drawing.Imaging
         {
             switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
             {
+                // The special cases just help to reduce space when counting and allow early finish
+                case KnownPixelFormat.Format8bppGrayScale:
+                    return bitmapData.RowSize >= bitmapData.Width
+                        ? GetColorCount<Gray8>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, Byte.MaxValue).Count;
                 case KnownPixelFormat.Format16bppGrayScale:
                     return bitmapData.RowSize >= bitmapData.Width << 1
-                        ? GetColorCount<Color16Gray>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, 0).Count;
+                        ? GetColorCount<Gray16>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, UInt16.MaxValue).Count;
                 case KnownPixelFormat.Format48bppRgb:
                     return bitmapData.RowSize >= bitmapData.Width * 6
                         ? GetColorCount<Color48>(context, bitmapData)
                         : DoGetColors(context, bitmapData, 0).Count;
+
+                // TODO: 24 (add IEquatable, too), other 16 bit formats (handle ignored bits or transparency), 96, gray32 (handle 0..1 bounds)
+
                 case KnownPixelFormat.Format64bppArgb:
                 case KnownPixelFormat.Format64bppPArgb:
                     return bitmapData.RowSize >= bitmapData.Width << 3
@@ -3345,7 +3353,9 @@ namespace KGySoft.Drawing.Imaging
                         if (color is ColorF cF && cF.A <= 0f)
                             color = default;
                         colors.Add(color);
-                        if (typeof(T) == typeof(Color16Gray) && colors.Count == UInt16.MaxValue)
+                        if (typeof(T) == typeof(Gray16) && colors.Count == UInt16.MaxValue)
+                            return colors.Count;
+                        if (typeof(T) == typeof(Gray8) && colors.Count == Byte.MaxValue)
                             return colors.Count;
                     }
 

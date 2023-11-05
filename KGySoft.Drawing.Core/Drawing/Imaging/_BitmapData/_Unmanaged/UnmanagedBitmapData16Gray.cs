@@ -33,48 +33,44 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe Color32 DoGetColor32(int x) => ((Color16Gray*)Row)[x].ToColor32();
+            public override unsafe Color32 DoGetColor32(int x) => ((Gray16*)Row)[x].ToColor32();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => DoSetColor64(x, new Color64(c));
-
-            [SecurityCritical]
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe PColor32 DoGetPColor32(int x) => PColor32.FromArgb(((Color16Gray*)Row)[x].ToColor32().ToArgbUInt32());
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor32(int x, PColor32 c) => DoSetColor64(x, c.ToColor64());
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe Color64 DoGetColor64(int x) => ((Color16Gray*)Row)[x].ToColor64();
+            public override unsafe Color64 DoGetColor64(int x) => ((Gray16*)Row)[x].ToColor64();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe void DoSetColor64(int x, Color64 c) => ((Color16Gray*)Row)[x] = BitmapData.LinearWorkingColorSpace
-                ? new Color16Gray(c.A == UInt16.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
-                : new Color16Gray(c.A == UInt16.MaxValue ? c : c.BlendWithBackgroundSrgb(((UnmanagedBitmapData16Gray)BitmapData).backColor64));
+            public override unsafe void DoSetColor64(int x, Color64 c) => ((Gray16*)Row)[x] = BitmapData.LinearWorkingColorSpace
+                ? new Gray16(c.A == UInt16.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
+                : new Gray16(c.A == UInt16.MaxValue ? c : c.BlendWithBackgroundSrgb(((UnmanagedBitmapData16Gray)BitmapData).backColor64));
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe PColor64 DoGetPColor64(int x) => PColor64.FromArgb(((Color16Gray*)Row)[x].ToColor64().ToArgbUInt64());
+            public override unsafe PColor64 DoGetPColor64(int x) => PColor64.FromArgb(((Gray16*)Row)[x].ToColor64().ToArgbUInt64());
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor64(int x, PColor64 c) => DoSetColor64(x, c.ToColor64());
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe ColorF DoGetColorF(int x) => ((Color16Gray*)Row)[x].ToColor64().ToColorF();
+            public override unsafe ColorF DoGetColorF(int x) => ((Gray16*)Row)[x].ToColor64().ToColorF();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe void DoSetColorF(int x, ColorF c) => ((Color16Gray*)Row)[x] = BitmapData.LinearWorkingColorSpace
-                ? new Color16Gray(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
-                : new Color16Gray(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(((UnmanagedBitmapData16Gray)BitmapData).backColor64));
+            public override unsafe void DoSetColorF(int x, ColorF c) => ((Gray16*)Row)[x] = BitmapData.LinearWorkingColorSpace
+                ? new Gray16(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
+                : new Gray16(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(((UnmanagedBitmapData16Gray)BitmapData).backColor64));
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe PColorF DoGetPColorF(int x) => ((Color16Gray*)Row)[x].ToColor64().ToPColorF();
+            public override unsafe PColorF DoGetPColorF(int x) => ((Gray16*)Row)[x].ToColor64().ToPColorF();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
@@ -104,48 +100,44 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Color16Gray>(y, x)->ToColor32();
+        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Gray16>(y, x)->ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColor32(int x, int y, Color32 c) => DoSetColor64(x, y, new Color64(c));
-
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe PColor32 DoGetPColor32(int x, int y) => PColor32.FromArgb(GetPixelAddress<Color16Gray>(y, x)->ToColor32().ToArgbUInt32());
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor64(x, y, c.ToColor64());
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color64 DoGetColor64(int x, int y) => GetPixelAddress<Color16Gray>(y, x)->ToColor64();
+        protected override unsafe Color64 DoGetColor64(int x, int y) => GetPixelAddress<Gray16>(y, x)->ToColor64();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<Color16Gray>(y, x) = LinearWorkingColorSpace
-            ? new Color16Gray(c.A == UInt16.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
-            : new Color16Gray(c.A == UInt16.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor64));
+        protected override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<Gray16>(y, x) = LinearWorkingColorSpace
+            ? new Gray16(c.A == UInt16.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
+            : new Gray16(c.A == UInt16.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor64));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe PColor64 DoGetPColor64(int x, int y) => PColor64.FromArgb(GetPixelAddress<Color16Gray>(y, x)->ToColor64().ToArgbUInt64());
+        protected override unsafe PColor64 DoGetPColor64(int x, int y) => PColor64.FromArgb(GetPixelAddress<Gray16>(y, x)->ToColor64().ToArgbUInt64());
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor64(x, y, c.ToColor64());
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<Color16Gray>(y, x)->ToColor64().ToColorF();
+        protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<Gray16>(y, x)->ToColor64().ToColorF();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color16Gray>(y, x) = LinearWorkingColorSpace
-            ? new Color16Gray(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BackColor.ToColorF()))
-            : new Color16Gray(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(backColor64));
+        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Gray16>(y, x) = LinearWorkingColorSpace
+            ? new Gray16(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BackColor.ToColorF()))
+            : new Gray16(c.A >= 1f ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(backColor64));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe PColorF DoGetPColorF(int x, int y) => GetPixelAddress<Color16Gray>(y, x)->ToColor64().ToPColorF();
+        protected override unsafe PColorF DoGetPColorF(int x, int y) => GetPixelAddress<Gray16>(y, x)->ToColor64().ToPColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());

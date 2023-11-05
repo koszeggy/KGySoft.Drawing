@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color16Gray.cs
+//  File: GrayF.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -23,29 +23,34 @@ using System.Collections.Generic;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 16-bit grayscale color.
-    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapDataExtensions.GetColorCount{T}"/>
+    /// Represents a 32-bit grayscale color.
     /// </summary>
-    internal readonly struct Color16Gray : IEquatable<Color16Gray>
+    internal readonly struct GrayF : IEquatable<GrayF>
     {
         #region Fields
 
-        internal readonly ushort Value;
+        internal readonly float Value;
 
         #endregion
 
         #region Constructors
 
-        internal Color16Gray(Color64 c)
+        internal GrayF(Color32 c)
         {
-            Debug.Assert(c.A == UInt16.MaxValue);
-            Value = c.GetBrightness();
+            Debug.Assert(c.A == Byte.MaxValue);
+            Value = ColorSpaceHelper.SrgbToLinear(c.GetBrightness());
         }
 
-        internal Color16Gray(ColorF c)
+        internal GrayF(Color64 c)
+        {
+            Debug.Assert(c.A == UInt16.MaxValue);
+            Value = ColorSpaceHelper.SrgbToLinear(c.GetBrightness());
+        }
+
+        internal GrayF(ColorF c)
         {
             Debug.Assert(c.A >= 1f);
-            Value = ColorSpaceHelper.LinearToSrgb16Bit(c.GetBrightness());
+            Value = c.GetBrightness();
         }
 
         #endregion
@@ -54,18 +59,19 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override int GetHashCode() => Value;
+        public override int GetHashCode() => Value.GetHashCode();
 
-        public bool Equals(Color16Gray other) => Value == other.Value;
+        public bool Equals(GrayF other) => Value.Equals(other.Value);
 
-        public override bool Equals(object? obj) => obj is Color16Gray other && Equals(other);
+        public override bool Equals(object? obj) => obj is GrayF other && Equals(other);
 
         #endregion
 
         #region Internal Methods
 
-        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.ToByte(Value));
-        internal Color64 ToColor64() => Color64.FromGray(Value);
+        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.LinearToSrgb8Bit(Value));
+        internal Color64 ToColor64() => Color64.FromGray(ColorSpaceHelper.LinearToSrgb16Bit(Value));
+        internal ColorF ToColorF() => ColorF.FromGray(Value);
 
         #endregion
 
