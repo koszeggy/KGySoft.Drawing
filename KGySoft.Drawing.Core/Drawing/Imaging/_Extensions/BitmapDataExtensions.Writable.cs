@@ -18,6 +18,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 #if !NET35
 using System.Threading.Tasks;
 #endif
@@ -291,12 +294,30 @@ namespace KGySoft.Drawing.Imaging
                 // writing as longs
                 if (longWidth > 0)
                 {
-                    uint argb = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
+                    uint argb;
+                    switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
                     {
-                        KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied().Value,
-                        KnownPixelFormat.Format32bppRgb => (color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending())).Value,
-                        _ => color.Value,
-                    };
+                        case KnownPixelFormat.Format32bppPArgb:
+                            argb = color.ToPremultiplied().Value;
+                            break;
+                        case KnownPixelFormat.Format32bppRgb:
+                            argb = (color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending())).Value;
+                            break;
+                        case KnownPixelFormat.Format32bppGrayScale:
+                            float f = (bitmapData.LinearBlending()
+                                ? new GrayF(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                                : new GrayF(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value;
+#if !NETCOREAPP3_0_OR_GREATER
+                            argb = Unsafe.As<float, uint>(ref f);
+#else
+                            unsafe { argb = *(uint*)&f; }
+#endif
+                            break;
+
+                        default:
+                            argb = color.Value;
+                            break;
+                    }
 
                     ClearRaw(context, bitmapData, longWidth, ((ulong)argb << 32) | argb);
                 }
@@ -323,11 +344,34 @@ namespace KGySoft.Drawing.Imaging
                             : default).Value,
                         KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
                         KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
-                        _ => (bitmapData.WorkingColorSpace == WorkingColorSpace.Linear
+                        _ => (bitmapData.LinearBlending()
                             ? new Gray16(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
                             : new Gray16(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value
                     };
 
+                    uint uintValue = (uint)((shortValue << 16) | shortValue);
+                    ClearRaw(context, bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
+                }
+
+                // handling the rest (or even the whole content if RowSize is 0)
+                int left = longWidth << 2;
+                if (left < width && !context.IsCancellationRequested)
+                    ClearDirectFallback(context, bitmapData, color, left);
+            }
+
+            static void Clear8Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
+            {
+                Debug.Assert(bitmapData.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format8bppGrayScale);
+                int longWidth = bitmapData.RowSize >> 3;
+
+                // writing as longs
+                if (longWidth > 0)
+                {
+                    byte byteValue = (bitmapData.LinearBlending()
+                        ? new Gray8(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                        : new Gray8(color.A == Byte.MaxValue ? color : color.BlendWithBackgroundSrgb(bitmapData.BackColor))).Value;
+
+                    ushort shortValue = (ushort)((byteValue << 8) | byteValue);
                     uint uintValue = (uint)((shortValue << 16) | shortValue);
                     ClearRaw(context, bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
                 }
@@ -399,7 +443,6 @@ namespace KGySoft.Drawing.Imaging
                 // parallel clear
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
-                    // ReSharper disable once VariableHidesOuterVariable
                     IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = left;
                     int w = width;
@@ -411,7 +454,6 @@ namespace KGySoft.Drawing.Imaging
 
             static void ClearDirectFallback(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int offsetLeft)
             {
-                // ReSharper disable once VariableHidesOuterVariable - false alarm, this is a static method so outer variables are invisible from here
                 int width = bitmapData.Width;
                 if (width - offsetLeft < parallelThreshold)
                 {
@@ -432,7 +474,6 @@ namespace KGySoft.Drawing.Imaging
                 // parallel clear
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
-                    // ReSharper disable once VariableHidesOuterVariable
                     IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = offsetLeft;
                     int w = width;
@@ -444,12 +485,14 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            if (bitmapData is { IsCustomPixelFormat: false })
+            if (!bitmapData.IsCustomPixelFormat && bitmapData.RowSize > 0)
             {
                 int bpp = bitmapData.PixelFormat.BitsPerPixel;
                 int width = bitmapData.Width;
                 switch (bpp)
                 {
+                    // note: not using a spacial case for 128 bpp because with 1 pixel already 16 bytes are written
+                    //       and since a Color32 is specified for clearing the fallback is just good enough
                     case 64:
                         Clear64Bpp(context, bitmapData, color, width);
                         return;
@@ -462,15 +505,17 @@ namespace KGySoft.Drawing.Imaging
                         Clear16Bpp(context, bitmapData, color, width);
                         return;
 
-                    case 8:
-                    case 4:
-                    case 1:
+                    case 8 when !bitmapData.PixelFormat.Indexed:
+                        Clear8Bpp(context, bitmapData, color, width);
+                        return;
+
+                    case <= 8 when bitmapData.PixelFormat.Indexed:
                         ClearIndexed(context, bitmapData, bpp, color, width);
                         return;
                 }
             }
 
-            // Direct color-based clear (24/48 bit formats as well as raw-inaccessible and custom bitmap data)
+            // Direct color-based clear (24/48/96/128 bit formats as well as raw-inaccessible and custom bitmap data)
             ClearDirectFallback(context, bitmapData, color, 0);
         }
 
