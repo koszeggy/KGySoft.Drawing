@@ -98,6 +98,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "96 bit RGB Blue", KnownPixelFormat.Format96bppRgb, Color.Lime, Color.Lime, 0x3F800000_00000000 },
             new object[] { "96 bit RGB White", KnownPixelFormat.Format96bppRgb, Color.White, Color.White, 0x3F800000_3F800000 },
             new object[] { "96 bit RGB Transparent", KnownPixelFormat.Format96bppRgb, Color.Transparent, Color.Black, 0x00000000_00000000 },
+            new object[] { "8 bit GrayScale White", KnownPixelFormat.Format8bppGrayScale, Color.White, Color.White, 0xFFFF },
+            new object[] { "8 bit GrayScale Blue", KnownPixelFormat.Format8bppGrayScale, Color.Blue, Color.FromArgb(0x1D, 0x1D, 0x1D), 0x1D2E },
+            new object[] { "32 bit GrayScale White", KnownPixelFormat.Format32bppGrayScale, Color.White, Color.White, 0xFFFF },
+            new object[] { "32 bit GrayScale Blue", KnownPixelFormat.Format32bppGrayScale, Color.Blue, Color.FromArgb(0x1D, 0x1D, 0x1D), 0x1D2E },
         };
 
         private static readonly object[][] blendingSetGetPixelTestSource =
@@ -124,6 +128,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "4 bit Indexed Linear", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Linear, 4 },
             new object[] { "1 bit Indexed sRGB", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), WorkingColorSpace.Srgb, 0 },
             new object[] { "1 bit Indexed Linear", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), WorkingColorSpace.Linear, 0 },
+            new object[] { "8 bit Gray sRGB", KnownPixelFormat.Format8bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), WorkingColorSpace.Srgb, 0x0EA6 },
+            new object[] { "8 bit Gray Linear", KnownPixelFormat.Format8bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(53, 53, 53), WorkingColorSpace.Linear, 0x35B5 },
+            new object[] { "32 bit Gray sRGB", KnownPixelFormat.Format32bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), WorkingColorSpace.Srgb, 0x0EA6 },
+            new object[] { "32 bit Gray Linear", KnownPixelFormat.Format32bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(53, 53, 53), WorkingColorSpace.Linear, 0x35B5 },
         };
 
         #endregion
@@ -618,7 +626,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format16bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format24bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format32bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format32bppPArgb)] // direct format, no loss is expected
@@ -819,6 +829,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format48bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format64bppArgb)] // direct format, no loss is expected
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
@@ -1018,6 +1031,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format32bppArgb)] // TODO: should not work, remove this after implementation is done
         [TestCase(KnownPixelFormat.Format48bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format64bppArgb)] // actually does not work for all possible values but in most cases it works
@@ -1219,6 +1235,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format128bppRgba)] // direct format, no loss is expected
         public void SetGetPixel128KnownTest(KnownPixelFormat pixelFormat)
@@ -1415,6 +1434,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)] // grayscale
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)] // grayscale
         [TestCase(KnownPixelFormat.Format96bppRgb)] // no alpha, after blending no loss is expected
         [TestCase(KnownPixelFormat.Format128bppRgba)] // should not work - TODO: but NaNs are not good...
         [TestCase(KnownPixelFormat.Format128bppPRgba)] // direct format, no loss is expected
