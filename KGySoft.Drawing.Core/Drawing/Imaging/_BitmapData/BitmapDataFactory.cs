@@ -2422,7 +2422,7 @@ namespace KGySoft.Drawing.Imaging
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
 
-            if (pixelFormat.ToBitsPerPixel() <= 8)
+            if (pixelFormat.IsIndexed())
             {
                 for (int y = 0; y < rect.Height; y++)
                 {
@@ -2502,10 +2502,59 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
 
-                for (int x = rect.Left; x < rect.Right; x++)
+                switch (pixelFormat)
                 {
-                    tempRow.DoSetColor32(0, row.DoGetColor32(x));
-                    writer.Write(buffer);
+                    case KnownPixelFormat.Format128bppRgba:
+                    case KnownPixelFormat.Format96bppRgb:
+                    case KnownPixelFormat.Format32bppGrayScale:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetColorF(0, row.DoGetColorF(x));
+                            writer.Write(buffer);
+                        }
+                        break;
+
+                    case KnownPixelFormat.Format128bppPRgba:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetPColorF(0, row.DoGetPColorF(x));
+                            writer.Write(buffer);
+                        }
+                        break;
+
+                    case KnownPixelFormat.Format64bppArgb:
+                    case KnownPixelFormat.Format48bppRgb:
+                    case KnownPixelFormat.Format16bppGrayScale:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetColor64(0, row.DoGetColor64(x));
+                            writer.Write(buffer);
+                        }
+                        break;
+
+                    case KnownPixelFormat.Format64bppPArgb:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetPColor64(0, row.DoGetPColor64(x));
+                            writer.Write(buffer);
+                        }
+                        break;
+
+                    case KnownPixelFormat.Format32bppPArgb:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetPColor32(0, row.DoGetPColor32(x));
+                            writer.Write(buffer);
+                        }
+                        break;
+
+                    default:
+                        for (int x = rect.Left; x < rect.Right; x++)
+                        {
+                            tempRow.DoSetColor32(0, row.DoGetColor32(x));
+                            writer.Write(buffer);
+                        }
+                        break;
                 }
 
                 row.MoveNextRow();
@@ -2685,8 +2734,7 @@ namespace KGySoft.Drawing.Imaging
                                 row.DoWriteRaw(x, reader.ReadInt64());
                             break;
                         case 128:
-                            int width = result.Width << 1;
-                            for (int x = 0; x < width; x += 2)
+                            for (int x = 0; x < result.Width; x++)
                             {
                                 row.DoWriteRaw(x << 1, reader.ReadInt64());
                                 row.DoWriteRaw((x << 1) + 1, reader.ReadInt64());
