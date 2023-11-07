@@ -17,7 +17,7 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal readonly struct Color16Argb1555
+    internal readonly struct Color16Argb1555 : IEquatable<Color16Argb1555>
     {
         #region Constants
 
@@ -36,10 +36,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        private byte A => (Value & alphaMask) == 0 ? (byte)0 : Byte.MaxValue;
-        private byte R => (byte)(((Value & redMask) >> 7) | ((Value & redMask) >> 12));
-        private byte G => (byte)(((Value & greenMask) >> 2) | ((Value & greenMask) >> 7));
-        private byte B => (byte)(((Value & blueMask) << 3) | ((Value & blueMask) >> 2));
+        internal byte A => (Value & alphaMask) == 0 ? (byte)0 : Byte.MaxValue;
+        internal byte R => (byte)(((Value & redMask) >> 7) | ((Value & redMask) >> 12));
+        internal byte G => (byte)(((Value & greenMask) >> 2) | ((Value & greenMask) >> 7));
+        internal byte B => (byte)(((Value & blueMask) << 3) | ((Value & blueMask) >> 2));
 
         #endregion
 
@@ -57,7 +57,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override int GetHashCode() => Value;
+
+        public bool Equals(Color16Argb1555 other) => Value == other.Value;
+
+        public override bool Equals(object? obj) => obj is Color16Argb1555 other && Equals(other);
+
+        #endregion
+
+        #region Internal Methods
+
         internal Color32 ToColor32() => new Color32(A, R, G, B);
+
+        #endregion
 
         #endregion
     }

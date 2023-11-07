@@ -35,6 +35,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        #region Internal Constructors
+        
         internal GrayF(Color32 c)
         {
             Debug.Assert(c.A == Byte.MaxValue);
@@ -55,6 +57,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Private Constructors
+
+        private GrayF(float value) => Value = value;
+
+        #endregion
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -69,6 +79,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        internal GrayF Clip() => new GrayF(Value.ClipF());
         internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.LinearToSrgb8Bit(Value));
         internal Color64 ToColor64() => Color64.FromGray(ColorSpaceHelper.LinearToSrgb16Bit(Value));
         internal ColorF ToColorF() => ColorF.FromGray(Value);

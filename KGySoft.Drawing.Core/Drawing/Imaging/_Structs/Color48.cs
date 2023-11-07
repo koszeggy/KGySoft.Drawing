@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override int GetHashCode() => new Color64(R, G, B).GetHashCode();
+        public override int GetHashCode() => ToColor64().GetHashCode();
         public bool Equals(Color48 other) => R == other.R && G == other.G && B == other.B;
         public override bool Equals(object? obj) => obj is Color48 other && Equals(other);
 

@@ -50,6 +50,19 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector3 ClipF(this Vector3 v)
+        {
+            // Vector*.Min/Max/Clamp are not reliable in handling NaN: https://github.com/dotnet/runtime/discussions/83683
+            // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f)).AsVector3();
+#endif
+            // The non-accelerated fallback version that returns 0f for NaN
+            return new Vector3(v.X.ClipF(), v.Y.ClipF(), v.Z.ClipF());
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector4 Clip(this Vector4 v, Vector4 min, Vector4 max)
         {
             // Vector*.Min/Max/Clamp are not reliable in handling NaN: https://github.com/dotnet/runtime/discussions/83683

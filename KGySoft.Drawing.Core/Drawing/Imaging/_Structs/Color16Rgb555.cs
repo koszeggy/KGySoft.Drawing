@@ -13,9 +13,11 @@
 
 #endregion
 
+using System;
+
 namespace KGySoft.Drawing.Imaging
 {
-    internal readonly struct Color16Rgb555
+    internal readonly struct Color16Rgb555 : IEquatable<Color16Rgb555>
     {
         #region Constants
 
@@ -52,7 +54,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override int GetHashCode() => Value;
+
+        public bool Equals(Color16Rgb555 other) => Value == other.Value;
+
+        public override bool Equals(object? obj) => obj is Color16Rgb555 other && Equals(other);
+
+        #endregion
+
+        #region Internal Methods
+
         internal Color32 ToColor32() => new Color32(R, G, B);
+
+        #endregion
 
         #endregion
     }

@@ -48,7 +48,6 @@ namespace KGySoft.Drawing.Imaging
 
         internal static readonly Color32 Black = FromGray(Byte.MinValue);
         internal static readonly Color32 White = FromGray(Byte.MaxValue);
-        internal static readonly Color32 Transparent = new Color32(Color.Transparent);
 
         #endregion
 

@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct Color24
+    internal readonly struct Color24 : IEquatable<Color24>
     {
         #region Fields
 
@@ -52,7 +52,19 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override int GetHashCode() => ToColor32().GetHashCode();
+        public bool Equals(Color24 other) => r == other.r && g == other.g && b == other.b;
+        public override bool Equals(object? obj) => obj is Color24 other && Equals(other);
+
+        #endregion
+
+        #region Internal Methods
+
         internal Color32 ToColor32() => new Color32(r, g, b);
+
+        #endregion
 
         #endregion
     }

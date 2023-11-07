@@ -235,6 +235,13 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal RgbF Clip() => new RgbF(Rgb.ClipF());
+#else
+        internal RgbF Clip() => new RgbF(R.ClipF(), G.ClipF(), B.ClipF());
+#endif
+
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         internal Color32 ToColor32() => ColorF.FromRgb(Rgb).ToColor32();
 #else
         internal Color32 ToColor32() => new Color32(ColorSpaceHelper.LinearToSrgb8Bit(R),
