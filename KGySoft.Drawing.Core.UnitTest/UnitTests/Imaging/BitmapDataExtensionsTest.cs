@@ -680,52 +680,74 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void GetColorsTest()
         {
-            // 32 bit ARGB
-            using var refBmpData = GenerateAlphaGradientBitmapData(new Size(512, 256));
+            // 128 bit reference
+            using var refBmpData = GenerateAlphaGradientBitmapData(new Size(512, 256), true);
             var colorCount = refBmpData.GetColorCount();
+            Console.WriteLine($"{refBmpData.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, refBmpData.Width * refBmpData.Height);
-            SaveBitmapData("32argb", refBmpData);
+            SaveBitmapData("128rgba", refBmpData);
+
+            // 96 bit
+            using var bmp96bpp = refBmpData.Clone(KnownPixelFormat.Format96bppRgb);
+            colorCount = bmp96bpp.GetColorCount();
+            Console.WriteLine($"{bmp96bpp.PixelFormat} - {colorCount}");
+            Assert.LessOrEqual(colorCount, bmp96bpp.Width * bmp96bpp.Height);
+            SaveBitmapData("96rgb", bmp96bpp);
+
+            // 32 bit
+            using var bmp32bpp = refBmpData.Clone(KnownPixelFormat.Format32bppArgb);
+            colorCount = bmp32bpp.GetColorCount();
+            Console.WriteLine($"{bmp32bpp.PixelFormat} - {colorCount}");
+            Assert.LessOrEqual(colorCount, bmp32bpp.Width * bmp32bpp.Height);
+            SaveBitmapData("32argb", bmp32bpp);
 
             // 24 bit
             using var bmp24bpp = refBmpData.Clone(KnownPixelFormat.Format24bppRgb);
             colorCount = bmp24bpp.GetColorCount();
+            Console.WriteLine($"{bmp24bpp.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
             SaveBitmapData("24rgb", bmp24bpp);
 
             // 48 bit
             using var bmp48bpp = refBmpData.Clone(KnownPixelFormat.Format48bppRgb);
             colorCount = bmp48bpp.GetColorCount();
+            Console.WriteLine($"{bmp48bpp.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
             SaveBitmapData("48rgb", bmp48bpp);
 
             // 64 bit
             using var bmp64bpp = refBmpData.Clone(KnownPixelFormat.Format64bppArgb);
             colorCount = bmp64bpp.GetColorCount();
+            Console.WriteLine($"{bmp64bpp.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
             SaveBitmapData("64argb", bmp64bpp);
-
-            // 96 bit
-            using var bmp96bpp = refBmpData.Clone(KnownPixelFormat.Format96bppRgb);
-            colorCount = bmp96bpp.GetColorCount();
-            Assert.LessOrEqual(colorCount, bmp96bpp.Width * bmp64bpp.Height);
-            SaveBitmapData("96argb", bmp96bpp);
-
-            // 128 bit
-            using var bmp128bpp = refBmpData.Clone(KnownPixelFormat.Format128bppRgba);
-            colorCount = bmp128bpp.GetColorCount();
-            Assert.LessOrEqual(colorCount, bmp128bpp.Width * bmp64bpp.Height);
-            SaveBitmapData("128argb", bmp64bpp);
 
             // 8 bit indexed: returning actual palette
             using var bmp8bpp = refBmpData.Clone(KnownPixelFormat.Format8bppIndexed);
             colorCount = bmp8bpp.GetColorCount();
+            Console.WriteLine($"{bmp8bpp.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, 256);
 
             // 8 bit gray
             using var bmp8bppGray = refBmpData.Clone(KnownPixelFormat.Format8bppGrayScale);
             colorCount = bmp8bppGray.GetColorCount();
+            Console.WriteLine($"{bmp8bppGray.PixelFormat} - {colorCount}");
             Assert.LessOrEqual(colorCount, 256);
-            SaveBitmapData("8gray", bmp8bpp);
+            SaveBitmapData("8gray", bmp8bppGray);
+
+            // 16 bit gray
+            using var bmp16bppGray = refBmpData.Clone(KnownPixelFormat.Format16bppGrayScale);
+            colorCount = bmp16bppGray.GetColorCount();
+            Console.WriteLine($"{bmp16bppGray.PixelFormat} - {colorCount}");
+            Assert.LessOrEqual(colorCount, 65536);
+            SaveBitmapData("16gray", bmp16bppGray);
+
+            // 32 bit gray
+            using var bmp32bppGray = refBmpData.Clone(KnownPixelFormat.Format32bppGrayScale);
+            colorCount = bmp32bppGray.GetColorCount();
+            Console.WriteLine($"{bmp32bppGray.PixelFormat} - {colorCount}");
+            Assert.LessOrEqual(colorCount, bmp32bppGray.Width * bmp32bppGray.Height);
+            SaveBitmapData("32gray", bmp32bppGray);
         }
 
         [Test]

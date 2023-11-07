@@ -1981,7 +1981,7 @@ namespace KGySoft.Drawing.Imaging
             if (!forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null)
                 return bitmapData.Palette.GetEntries();
 
-            return DoGetColors(AsyncHelper.DefaultContext, bitmapData, maxColors);
+            return DoGetColors<Color32>(AsyncHelper.DefaultContext, bitmapData, maxColors);
         }
 
         /// <summary>
@@ -2014,7 +2014,7 @@ namespace KGySoft.Drawing.Imaging
 
             return !forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null
                 ? AsyncHelper.FromResult(bitmapData.Palette.GetEntries(), Reflector.EmptyArray<Color32>(), asyncConfig)
-                : AsyncHelper.BeginOperation(ctx => DoGetColors(ctx, bitmapData, maxColors), Reflector.EmptyArray<Color32>(), asyncConfig);
+                : AsyncHelper.BeginOperation(ctx => DoGetColors<Color32>(ctx, bitmapData, maxColors), Reflector.EmptyArray<Color32>(), asyncConfig);
         }
 
         /// <summary>
@@ -2056,7 +2056,7 @@ namespace KGySoft.Drawing.Imaging
 
             return !forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null
                 ? AsyncHelper.FromResult((ICollection<Color32>)bitmapData.Palette.GetEntries(), Reflector.EmptyArray<Color32>(), asyncConfig)
-                : AsyncHelper.DoOperationAsync(ctx => DoGetColors(ctx, bitmapData, maxColors), Reflector.EmptyArray<Color32>(), asyncConfig);
+                : AsyncHelper.DoOperationAsync(ctx => DoGetColors<Color32>(ctx, bitmapData, maxColors), Reflector.EmptyArray<Color32>(), asyncConfig);
         }
 #endif
 
@@ -3248,14 +3248,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region GetColors
 
-        private static ICollection<Color32> DoGetColors(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
+        private static ICollection<T> DoGetColors<T>(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
+            where T : unmanaged
         {
             if (maxColors < 0)
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
             if (maxColors == 0)
                 maxColors = bitmapData.Palette?.Count ?? bitmapData.PixelFormat.GetColorsLimit();
 
-            var colors = new HashSet<Color32>();
+            var colors = new HashSet<T>();
             var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
 
             try
@@ -3266,11 +3267,43 @@ namespace KGySoft.Drawing.Imaging
                 do
                 {
                     if (context.IsCancellationRequested)
-                        return Reflector.EmptyArray<Color32>();
+                        return Reflector.EmptyArray<T>();
                     for (int x = 0; x < data.Width; x++)
                     {
-                        Color32 c = line.DoGetColor32(x);
-                        colors.Add(c.A == 0 ? Color32.Transparent : c);
+                        // The unnecessary branches are optimized away in Release build
+                        if (typeof(T) == typeof(Color32))
+                        {
+                            Color32 c = line.DoGetColor32(x);
+                            colors.Add((T)(object)(c.A == 0 ? default : c));
+                        }
+                        else if (typeof(T) == typeof(PColor32))
+                        {
+                            PColor32 c = line.DoGetPColor32(x);
+                            colors.Add((T)(object)(c.A == 0 ? default : c));
+                        }
+                        else if (typeof(T) == typeof(Color64))
+                        {
+                            Color64 c = line.DoGetColor64(x);
+                            colors.Add((T)(object)(c.A == 0 ? default : c));
+                        }
+                        else if (typeof(T) == typeof(PColor64))
+                        {
+                            PColor64 c = line.DoGetPColor64(x);
+                            colors.Add((T)(object)(c.A == 0 ? default : c));
+                        }
+                        else if (typeof(T) == typeof(ColorF))
+                        {
+                            ColorF c = line.DoGetColorF(x).Clip();
+                            colors.Add((T)(object)(c.A == 0f ? default : c));
+                        }
+                        else if (typeof(T) == typeof(PColorF))
+                        {
+                            PColorF c = line.DoGetPColorF(x).Clip();
+                            colors.Add((T)(object)(c.A == 0f ? default : c));
+                        }
+                        else
+                            throw new InvalidOperationException($"Unexpected T: {typeof(T)}");
+
                         if (colors.Count == maxColors)
                         {
                             context.Progress?.Complete();
@@ -3293,49 +3326,34 @@ namespace KGySoft.Drawing.Imaging
 
         private static int DoGetColorCount(IAsyncContext context, IReadableBitmapData bitmapData)
         {
-            switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
+            var pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.AsKnownPixelFormatInternal switch
             {
-                // The special cases just help to reduce space when counting and allow early finish
-                case KnownPixelFormat.Format8bppGrayScale:
-                    return bitmapData.RowSize >= bitmapData.Width
-                        ? GetColorCount<Gray8>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, Byte.MaxValue).Count;
-                case KnownPixelFormat.Format16bppGrayScale:
-                    return bitmapData.RowSize >= bitmapData.Width << 1
-                        ? GetColorCount<Gray16>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, UInt16.MaxValue).Count;
-                case KnownPixelFormat.Format48bppRgb:
-                    return bitmapData.RowSize >= bitmapData.Width * 6
-                        ? GetColorCount<Color48>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, 0).Count;
-
-                // TODO: 24 (add IEquatable, too), other 16 bit formats (handle ignored bits or transparency), 96, gray32 (handle 0..1 bounds)
-
-                case KnownPixelFormat.Format64bppArgb:
-                case KnownPixelFormat.Format64bppPArgb:
-                    return bitmapData.RowSize >= bitmapData.Width << 3
-                        ? GetColorCount<Color64>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, 0).Count;
-                case KnownPixelFormat.Format128bppRgba:
-                case KnownPixelFormat.Format128bppPRgba:
-                    return bitmapData.RowSize >= bitmapData.Width << 4
-                        ? GetColorCount<ColorF>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, 0).Count;
-                case KnownPixelFormat.Format96bppRgb:
-                    return bitmapData.RowSize >= bitmapData.Width * 12
-                        ? GetColorCount<RgbF>(context, bitmapData)
-                        : DoGetColors(context, bitmapData, 0).Count;
-                default:
-                    return DoGetColors(context, bitmapData, 0).Count;
-            }
+                // Special cases for possible compact counting (when the actual pixel format is smaller than the preferred color)
+                KnownPixelFormat.Format24bppRgb when bitmapData.RowSize >= bitmapData.Width * 3 => GetColorCount<Color24>(context, bitmapData),
+                KnownPixelFormat.Format16bppArgb1555 when bitmapData.RowSize >= bitmapData.Width << 1 => GetColorCount<Color16Argb1555>(context, bitmapData),
+                KnownPixelFormat.Format16bppRgb555 when bitmapData.RowSize >= bitmapData.Width << 1 => GetColorCount<Color16Rgb555>(context, bitmapData),
+                KnownPixelFormat.Format16bppRgb565 when bitmapData.RowSize >= bitmapData.Width << 1 => GetColorCount<Color16Rgb565>(context, bitmapData),
+                KnownPixelFormat.Format8bppGrayScale when bitmapData.RowSize >= bitmapData.Width => GetColorCount<Gray8>(context, bitmapData),
+                KnownPixelFormat.Format16bppGrayScale when bitmapData.RowSize >= bitmapData.Width << 1 => GetColorCount<Gray16>(context, bitmapData),
+                KnownPixelFormat.Format32bppGrayScale when bitmapData.RowSize >= bitmapData.Width << 2 => GetColorCount<GrayF>(context, bitmapData),
+                KnownPixelFormat.Format48bppRgb when bitmapData.RowSize >= bitmapData.Width * 6 => GetColorCount<Color48>(context, bitmapData),
+                KnownPixelFormat.Format96bppRgb when bitmapData.RowSize >= bitmapData.Width * 12 => GetColorCount<RgbF>(context, bitmapData),
+                _ => pixelFormat.Prefers128BitColors ? pixelFormat.HasPremultipliedAlpha ? DoGetColors<PColorF>(context, bitmapData, 0).Count : DoGetColors<ColorF>(context, bitmapData, 0).Count
+                    : pixelFormat.Prefers64BitColors ? pixelFormat.HasPremultipliedAlpha ? DoGetColors<PColor64>(context, bitmapData, 0).Count : DoGetColors<Color64>(context, bitmapData, 0).Count
+                    : pixelFormat.HasPremultipliedAlpha ? DoGetColors<PColor32>(context, bitmapData, 0).Count : DoGetColors<Color32>(context, bitmapData, 0).Count
+            };
         }
 
         private static int GetColorCount<T>(IAsyncContext context, IReadableBitmapData bitmapData) where T : unmanaged
         {
+            Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
+            Debug.Assert(typeof(IEquatable<T>).IsAssignableFrom(typeof(T)), "T should implement IEquatable<T>");
             var colors = new HashSet<T>();
             var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
             try
             {
+                int max = bitmapData.PixelFormat.GetColorsLimit();
                 context.Progress?.New(DrawingOperation.ProcessingPixels, data.Height);
                 IBitmapDataRowInternal line = data.GetRowCached(0);
 
@@ -3347,15 +3365,15 @@ namespace KGySoft.Drawing.Imaging
                     {
                         T color = line.DoReadRaw<T>(x);
 
-                        // The JIT compiler will optimize away these branches
-                        if (color is Color64 c64 && c64.A == 0)
+                        // The JIT compiler will optimize these branches in Release build
+                        if (color is Color16Argb1555 { A: 0 })
                             color = default;
-                        if (color is ColorF cF && cF.A <= 0f)
-                            color = default;
+                        if (color is RgbF rgbF)
+                            color = (T)(object)rgbF.Clip();
+                        if (color is GrayF grayF)
+                            color = (T)(object)grayF.Clip();
                         colors.Add(color);
-                        if (typeof(T) == typeof(Gray16) && colors.Count == UInt16.MaxValue)
-                            return colors.Count;
-                        if (typeof(T) == typeof(Gray8) && colors.Count == Byte.MaxValue)
+                        if (colors.Count == max)
                             return colors.Count;
                     }
 
