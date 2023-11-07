@@ -17,6 +17,8 @@
 
 using System.Drawing;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -92,23 +94,40 @@ namespace KGySoft.Drawing.Imaging
         internal static bool LinearBlending(this IBitmapData bitmapData)
             => bitmapData.WorkingColorSpace == WorkingColorSpace.Linear || bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma;
 
+        /// <summary>
+        /// Almost the same as <see cref="PixelFormatInfo.ToKnownPixelFormat"/> but can consider
+        /// HasAlpha and IsGrayscale also by the palette.
+        /// </summary>
         internal static KnownPixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
         {
             PixelFormatInfo info = bitmapData.PixelFormat;
             if (!info.IsCustomFormat)
+            {
+                Debug.Assert(info.AsKnownPixelFormatInternal.IsDefined());
                 return info.AsKnownPixelFormatInternal;
+            }
 
             int bpp = info.BitsPerPixel;
-            if (bpp > 32)
+            if (info.Prefers128BitColors || bpp > 64)
+                return info.HasPremultipliedAlpha ? KnownPixelFormat.Format128bppPRgba
+                    : info.HasAlpha ? KnownPixelFormat.Format128bppRgba
+                    : info.Grayscale ? KnownPixelFormat.Format32bppGrayScale
+                    : KnownPixelFormat.Format96bppRgb;
+     
+            if (info.Prefers64BitColors || bpp > 32)
                 return info.HasPremultipliedAlpha ? KnownPixelFormat.Format64bppPArgb
-                    : bitmapData.HasAlpha() ? KnownPixelFormat.Format64bppArgb
+                    : info.HasAlpha ? KnownPixelFormat.Format64bppArgb
                     : info.Grayscale ? KnownPixelFormat.Format16bppGrayScale
                     : KnownPixelFormat.Format48bppRgb;
+            
             if (bpp > 8 || !info.Indexed)
                 return info.HasPremultipliedAlpha ? KnownPixelFormat.Format32bppPArgb
                     : bitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb
-                    : bitmapData.IsGrayscale() ? KnownPixelFormat.Format16bppGrayScale
+                    : bitmapData.IsGrayscale() ? (bpp > 16 ? KnownPixelFormat.Format32bppGrayScale
+                        : bpp > 8 ? KnownPixelFormat.Format16bppGrayScale
+                        : KnownPixelFormat.Format8bppGrayScale)
                     : KnownPixelFormat.Format24bppRgb;
+
             return bpp switch
             {
                 > 4 => KnownPixelFormat.Format8bppIndexed,
