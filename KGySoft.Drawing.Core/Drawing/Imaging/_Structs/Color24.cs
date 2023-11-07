@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -41,6 +42,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color24(Color32 c)
         {
+            Debug.Assert(c.A == Byte.MaxValue);
             r = c.R;
             g = c.G;
             b = c.B;
@@ -51,8 +53,6 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         internal Color32 ToColor32() => new Color32(r, g, b);
-
-        internal int ToRgb() => ToColor32().ToRgb();
 
         #endregion
     }

@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void ConversionTest()
         {
-            Color32 c = Color32.FromArgb(0x11223344);
+            Color32 c = Color32.FromRgb(0x11223344);
 
             Color24 c24 = new Color24(c);
             Assert.AreEqual(c.ToOpaque(), c24.ToColor32());

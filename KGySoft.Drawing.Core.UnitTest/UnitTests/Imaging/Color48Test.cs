@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void ConversionTest()
         {
-            Color64 c = Color64.FromArgb(0x1111222233334444);
+            Color64 c = Color64.FromRgb(0x1111222233334444);
 
             Color48 c48 = new Color48(c);
             Assert.AreEqual(c.ToOpaque(), c48.ToColor64());
