@@ -329,25 +329,46 @@ namespace KGySoft.Drawing.Imaging
         /// Initializes a new instance of the <see cref="PColorF"/> struct from a <see cref="ColorF"/> instance.
         /// </summary>
         /// <param name="c">A <see cref="ColorF"/> structure to initialize a new instance of <see cref="PColorF"/> from.</param>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColorF(ColorF c)
-#if !NET5_0_OR_GREATER
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing ARGB fields
 #endif
         {
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            Rgba = new Vector4(c.Rgb * c.A, c.A);
-        }
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Rgba = c.A switch
+            {
+                >= 1f => c.Rgba,
+                <= 0f => default,
+                _ => new Vector4(c.Rgb * c.A, c.A)
+            };
 #else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public PColorF(ColorF c)
-            : this(c.A, c.R * c.A, c.G * c.A, c.B * c.A)
-        {
-        }
+            switch (c.A)
+            {
+                case >= 1f:
+                    R = c.R;
+                    G = c.G;
+                    B = c.B;
+                    A = c.A;
+                    break;
+
+                case <= 0f:
+                    this = default;
+                    break;
+
+                default:
+                    R = c.R * c.A;
+                    G = c.G * c.A;
+                    B = c.B * c.A;
+                    A = c.A;
+                    break;
+            }
 #endif
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColorF"/> struct from a <see cref="Color32"/> instance.
@@ -361,7 +382,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="c">A <see cref="Color64"/> structure to initialize a new instance of <see cref="PColorF"/> from.</param>
         public PColorF(Color64 c) => this = new ColorF(c).ToPremultiplied();
 
-        #endregion
+#endregion
 
         #region Internal Constructors
 
@@ -438,7 +459,7 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #endregion
+#endregion
 
         #region Methods
 
@@ -512,13 +533,19 @@ namespace KGySoft.Drawing.Imaging
         /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColorF)"/> method.
         /// </summary>
         /// <returns>A <see cref="ColorF"/> structure converted from this <see cref="PColorF"/> instance.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public ColorF ToColorF() => A switch
+        {
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public ColorF ToColorF() => new ColorF(new Vector4(Rgb / A, A));
+            >= 1f => new ColorF(Rgba),
+            <= 0f => default,
+            _ => new ColorF(new Vector4(Rgb / A, A))
 #else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public ColorF ToColorF() => new ColorF(A, R / A, G / A, B / A);
+            >= 1f => new ColorF(A, R, G, B),
+            <= 0f => default,
+            _ => new ColorF(A, R / A, G / A, B / A)
 #endif
+        };
 
         /// <summary>
         /// Gets the string representation of this <see cref="PColorF"/> instance.
