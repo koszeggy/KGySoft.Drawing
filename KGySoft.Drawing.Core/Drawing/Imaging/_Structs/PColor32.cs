@@ -254,6 +254,7 @@ namespace KGySoft.Drawing.Imaging
                         {
                             // Compressing 32-bit values to 8 bit ones and initializing value from the first 32 bit
                             value = Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, c.A), PackLowBytesMask).AsUInt32().ToScalar();
+                            return;
                         }
 
                         // Casting from the int results one by one. It's still faster than
@@ -262,6 +263,7 @@ namespace KGySoft.Drawing.Imaging
                         G = (byte)bgrxI32.GetElement(1);
                         R = (byte)bgrxI32.GetElement(2);
                         A = c.A;
+                        return;
                     }
 #endif
 
