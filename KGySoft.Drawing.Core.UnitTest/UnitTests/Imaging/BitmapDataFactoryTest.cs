@@ -88,7 +88,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int bits = row.UnsafeGetRefAs<byte>(bytePos) | (row.UnsafeGetRefAs<byte>(bytePos + 1) << 8);
                     int offset = bitPos % 8;
                     bits = (bits >> offset) & 511;
-                    return (bits & 256) == 0 ? Color32.Transparent : Color32.FromGray((byte)bits);
+                    return (bits & 256) == 0 ? default : Color32.FromGray((byte)bits);
                 }
 
                 static void SetColor9BppGray(ICustomBitmapDataRow row, int x, Color32 c)
