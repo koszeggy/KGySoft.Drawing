@@ -60,7 +60,7 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe ColorF DoGetColorF(int x) => ((GrayF*)Row)[x].ToColor64().ToColorF();
+            public override unsafe ColorF DoGetColorF(int x) => ((GrayF*)Row)[x].ToColorF();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -127,7 +127,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<GrayF>(y, x)->ToColor64().ToColorF();
+        protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<GrayF>(y, x)->ToColorF();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]

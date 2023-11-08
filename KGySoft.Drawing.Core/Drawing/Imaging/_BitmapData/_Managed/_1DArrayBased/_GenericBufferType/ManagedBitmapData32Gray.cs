@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetPColor64(int x, PColor64 c) => DoSetColor64(x, c.ToColor64());
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override ColorF DoGetColorF(int x) => DoReadRaw<GrayF>(x).ToColor64().ToColorF();
+            public override ColorF DoGetColorF(int x) => DoReadRaw<GrayF>(x).ToColorF();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorF(int x, ColorF c) => DoWriteRaw(x, BitmapData.LinearWorkingColorSpace
@@ -121,7 +121,7 @@ namespace KGySoft.Drawing.Imaging
         protected override void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor64(x, y, c.ToColor64());
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override ColorF DoGetColorF(int x, int y) => GetPixelRef<GrayF>(y, x).ToColor64().ToColorF();
+        protected override ColorF DoGetColorF(int x, int y) => GetPixelRef<GrayF>(y, x).ToColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<GrayF>(y, x) = LinearWorkingColorSpace
