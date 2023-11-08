@@ -21,12 +21,24 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents the base class of a bitmap data configuration for custom pixel formats.
+    /// </summary>
     public abstract class CustomBitmapDataConfigBase
     {
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the pixel format of the custom bitmap data to create. This property must be set to a nondefault value to create a valid custom bitmap data
+        /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> methods.
+        /// <br/>Default value: The default value of <see cref="PixelFormatInfo"/>, which represents the <see cref="KnownPixelFormat.Undefined"/> format.
+        /// </summary>
         public PixelFormatInfo PixelFormat { get; set; }
 
+        /// <summary>
+        /// Gets or sets a delegate that will be called when the created custom bitmap data is disposed.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action? DisposeCallback { get; set; }
 
         /// <summary>

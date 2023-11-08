@@ -71,19 +71,19 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Sets the color of the pixel at the specified coordinates.
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="Color"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
         /// <param name="y">The y-coordinate of the pixel to set.</param>
-        /// <param name="color">A <see cref="Color"/> structure that represents the color to assign to the specified pixel.</param>
+        /// <param name="color">A <see cref="Color"/> value that represents the color to assign to the specified pixel.</param>
         /// <remarks>
-        /// <para>Use the <see cref="SetColor32">SetColor32</see> method for a slightly better performance.</para>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// The <see cref="SetColor32">SetColor32</see> method works with the same range of colors as this one and has a slightly better performance.</para>
         /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
         /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
-        /// <para>The <paramref name="color"/> argument represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="IBitmapData.PixelFormat"/>. To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
         /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
-        /// <para>If the color to be set is not supported by owner <see cref="IReadWriteBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
@@ -93,31 +93,151 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="SetColor32"/>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetColor"/>
         void SetPixel(int x, int y, Color color);
 
         /// <summary>
-        /// Sets the color of the pixel at the specified coordinates using a <see cref="Color32"/> value.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SetPixel">SetPixel</see> method for details.
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="Color32"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
         /// <param name="y">The y-coordinate of the pixel to set.</param>
-        /// <param name="color">A <see cref="Color32"/> structure that represents the color to assign to the specified pixel.</param>
+        /// <param name="color">A <see cref="Color32"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IReadWriteBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
         /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
         /// <br/>-or-
         /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetColor32"/>
         void SetColor32(int x, int y, Color32 color);
 
+        /// <summary>
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="PColor32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="y">The y-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColor32"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetPColor32"/>
         void SetPColor32(int x, int y, PColor32 color);
-        
+
+        /// <summary>
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="y">The y-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="Color64"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetColor64"/>
         void SetColor64(int x, int y, Color64 color);
-        
+
+        /// <summary>
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="PColor64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="y">The y-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColor64"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetPColor64"/>
         void SetPColor64(int x, int y, PColor64 color);
 
+        /// <summary>
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="ColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="y">The y-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="ColorF"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetColorF"/>
         void SetColorF(int x, int y, ColorF color);
-        
+
+        /// <summary>
+        /// Sets the color of the pixel at the specified coordinates from a <see cref="PColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="y">The y-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColorF"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IWritableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetPColorF"/>
         void SetPColorF(int x, int y, PColorF color);
 
         /// <summary>

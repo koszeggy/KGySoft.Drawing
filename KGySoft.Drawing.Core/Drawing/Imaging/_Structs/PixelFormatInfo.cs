@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a pixel format in a technology-agnostic way. Can be used to specify custom pixel formats
     /// for the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method overloads
-    /// with a <see cref="PixelFormatInfo"/> parameter.
+    /// with a <see cref="PixelFormatInfo"/>, <see cref="CustomBitmapDataConfig"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameter.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerValue) + "}")]
     public struct PixelFormatInfo : IEquatable<PixelFormatInfo>

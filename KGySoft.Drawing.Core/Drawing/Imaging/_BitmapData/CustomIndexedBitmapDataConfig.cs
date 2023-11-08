@@ -16,23 +16,59 @@
 #region Usings
 
 using System;
+using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents the configuration of an indexed custom bitmap data that can be created by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see>
+    /// methods that have a <see cref="CustomIndexedBitmapDataConfig"/> parameter.
+    /// </summary>
+    /// <remarks>
+    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and and at least either the <see cref="GetRowGetColorIndex"/> or
+    /// the <see cref="RowSetColorIndex"/> property must be set to create a valid custom bitmap data.</para>
+    /// <para>If <see cref="RowSetColorIndex"/> is not set, then the custom bitmap data will be read-only.
+    /// And if <see cref="RowGetColorIndex"/> is not set, then the custom bitmap data will be write-only.</para>
+    /// <para>The delegates should not reference or capture the back buffer directly. Instead, they should use the <see cref="ICustomBitmapDataRow"/>
+    /// property of the accessor delegates to access the bitmap data. If this is true for both of the accessor delegates you can set
+    /// the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to provide better performance and quality in case of certain operations.</para>
+    /// </remarks>
     public sealed class CustomIndexedBitmapDataConfig : CustomBitmapDataConfigBase
     {
         #region Properties
-        
+
         #region Public Properties
 
+        /// <summary>
+        /// Gets or sets the desired <see cref="IBitmapData.Palette"/> of the created custom bitmap data.
+        /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.
+        /// It can contain less colors than the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/> can handle.
+        /// <br/>Default value: <see langword="null"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapDataFactory.CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> method for more details.
+        /// </summary>
         public Palette? Palette { get; set; }
 
+        /// <summary>
+        /// Gets or sets a delegate that will be invoked when the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> extension method is called.
+        /// If the bitmap data to create belongs to a bitmap of a 3rd party library, then this delegate can be used to update the actual palette of the actual bitmap.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<Palette, bool>? TrySetPaletteCallback { get; set; }
 
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a palette index.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, int>? RowGetColorIndex { get; set; }
 
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap from a palette index.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, int>? RowSetColorIndex { get; set; }
 
         #endregion

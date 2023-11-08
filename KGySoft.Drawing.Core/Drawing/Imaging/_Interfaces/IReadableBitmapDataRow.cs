@@ -34,19 +34,19 @@ namespace KGySoft.Drawing.Imaging
         #region Indexers
 
         /// <summary>
-        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="Color32"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color32"/> instance that represents the color of the specified pixel.</returns>
         /// <remarks>
-        /// <para>To return a <see cref="Color"/> structure you can use also the <see cref="GetColor">GetColor</see> method but this member has a slightly better performance.</para>
-        /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
-        /// use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <para>The returned value is a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// This member is practically the same as the <see cref="GetColor32">GetColor32</see> method.</para>
+        /// <para>To retrieve the color in other color formats use the <c>GetColor...</c>/<c>GetPColor...</c> methods.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
-        /// <seealso cref="GetColor"/>
+        /// <seealso cref="GetColor32"/>
         /// <seealso cref="GetColorIndex"/>
         /// <seealso cref="ReadRaw{T}"/>
         Color32 this[int x] { get; }
@@ -56,33 +56,102 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="Color"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color"/> instance that represents the color of the specified pixel.</returns>
         /// <remarks>
-        /// <para>If you don't really need to retrieve a 20 byte wide <see cref="Color"/> structure (16 bytes on 32-bit targets), then you can use the
-        /// <see cref="this">indexer</see> for a slightly better performance, which returns a more compact 4-byte <see cref="Color32"/> structure.</para>
-        /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
-        /// use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <para>The returned value is a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// The result of the <see cref="this">indexer</see> and the <see cref="GetColor32">GetColor32</see> method represent the same range of colors as <see cref="Color"/>
+        /// and have a slightly better performance than this method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="this"/>
+        /// <seealso cref="GetColor32"/>
+        /// <seealso cref="GetColorIndex"/>
+        /// <seealso cref="ReadRaw{T}"/>
+        Color GetColor(int x);
+
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="Color32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="Color32"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// This method is practically the same as the <see cref="this">indexer</see>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="this"/>
         /// <seealso cref="GetColorIndex"/>
         /// <seealso cref="ReadRaw{T}"/>
-        Color GetColor(int x);
-
         Color32 GetColor32(int x);
 
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="PColor32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColor32"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="ReadRaw{T}"/>
         PColor32 GetPColor32(int x);
 
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="Color64"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="ReadRaw{T}"/>
         Color64 GetColor64(int x);
 
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="PColor64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColor64"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="ReadRaw{T}"/>
         PColor64 GetPColor64(int x);
 
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="ColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="ColorF"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="ReadRaw{T}"/>
         ColorF GetColorF(int x);
 
+        /// <summary>
+        /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate as a <see cref="PColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColorF"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
+        /// <seealso cref="ReadRaw{T}"/>
         PColorF GetPColorF(int x);
 
         /// <summary>
@@ -91,11 +160,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="x">The x-coordinate of the color index to retrieve.</param>
         /// <returns>A palette index that represents the color of the specified pixel.</returns>
         /// <remarks>
-        /// <para>This method can be used only if the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IReadableBitmapData"/> returns an indexed format
-        /// (which are <see cref="KnownPixelFormat.Format8bppIndexed"/>, <see cref="KnownPixelFormat.Format4bppIndexed"/> and <see cref="KnownPixelFormat.Format1bppIndexed"/>).
+        /// <para>This method can be used only if <see cref="PixelFormatInfo.Indexed"/> is set in the <see cref="IBitmapData.PixelFormat"/> of the parent <see cref="IWritableBitmapData"/>.
         /// Otherwise, this method throws an <see cref="InvalidOperationException"/>.</para>
-        /// <para>To get the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <see cref="GetColor">GetColor</see> method,
-        /// the <see cref="this">indexer</see>, or you can call the <see cref="Palette.GetColor">Palette.GetColor</see> method with the return value of this method
+        /// <para>To set the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <c>GetColor...</c>/<c>GetPColor...</c>
+        /// methods or the <see cref="this">indexer</see>, or you can call the <see cref="Palette.GetColor">Palette.GetColor</see> method with the return value of this method
         /// on the <see cref="Palette"/> instance returned by the <see cref="IBitmapData.Palette"/> property of the parent <see cref="IReadableBitmapData"/>.</para>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>

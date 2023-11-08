@@ -34,20 +34,19 @@ namespace KGySoft.Drawing.Imaging
         #region Indexers
 
         /// <summary>
-        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="Color32"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
         /// <value>A <see cref="Color32"/> instance that represents the color of the specified pixel.</value>
         /// <remarks>
-        /// <para>To set the color from a <see cref="Color"/> structure you can use also the <see cref="SetColor">SetColor</see> method but this member has a slightly better performance.</para>
-        /// <para>The color value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw data
-        /// use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
-        /// <para>If the color to be set is not supported by owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
-        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// <para>The <paramref name="value"/> represents a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// This member is practically the same as the <see cref="SetColor32">SetColor32</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
-        /// <seealso cref="SetColor"/>
+        /// <seealso cref="SetColor32"/>
         /// <seealso cref="SetColorIndex"/>
         /// <seealso cref="WriteRaw{T}"/>
         Color32 this[int x] { set; }
@@ -57,34 +56,108 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="Color"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
-        /// <param name="color">A <see cref="Color"/> instance that represents the color of the specified pixel.</param>
+        /// <param name="color">A <see cref="Color"/> value that represents the color to assign to the specified pixel.</param>
         /// <remarks>
-        /// <para>If you don't really need to set the pixel color from a 20 byte wide <see cref="Color"/> structure (16 bytes on 32-bit targets), then you can use the
-        /// <see cref="this">indexer</see> for a slightly better performance, which uses the more compact 4-byte <see cref="Color32"/> structure.</para>
-        /// <para>The specified <paramref name="color"/> represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw data
-        /// use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
-        /// <para>If the color to be set is not supported by owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// The <see cref="this">indexer</see> and the <see cref="SetColor32">SetColor32</see> method work with the same range of colors and have a slightly better performance than this method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="this"/>
+        /// <seealso cref="SetColor32"/>
+        /// <seealso cref="SetColorIndex"/>
+        /// <seealso cref="WriteRaw{T}"/>
+        void SetColor(int x, Color color);
+
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="Color32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="Color32"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// This method is practically the same as the <see cref="this">indexer</see>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
         /// <seealso cref="this"/>
         /// <seealso cref="SetColorIndex"/>
         /// <seealso cref="WriteRaw{T}"/>
-        void SetColor(int x, Color color);
-
         void SetColor32(int x, Color32 color);
 
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="PColor32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColor32"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="WriteRaw{T}"/>
         void SetPColor32(int x, PColor32 color);
 
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="Color64"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="WriteRaw{T}"/>
         void SetColor64(int x, Color64 color);
 
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="PColor64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColor64"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="WriteRaw{T}"/>
         void SetPColor64(int x, PColor64 color);
 
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="ColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="ColorF"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a non-premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="WriteRaw{T}"/>
         void SetColorF(int x, ColorF color);
 
+        /// <summary>
+        /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate from a <see cref="PColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to set.</param>
+        /// <param name="color">A <see cref="PColorF"/> value that represents the color to assign to the specified pixel.</param>
+        /// <remarks>
+        /// <para>The <paramref name="color"/> parameter represents a premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
+        /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
+        /// <seealso cref="WriteRaw{T}"/>
         void SetPColorF(int x, PColorF color);
 
         /// <summary>
@@ -93,11 +166,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="x">The x-coordinate of the color index to set.</param>
         /// <param name="colorIndex">A palette index that represents the color to be set.</param>
         /// <remarks>
-        /// <para>This method can be used only if the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IWritableBitmapData"/> returns an indexed format
-        /// (which are <see cref="KnownPixelFormat.Format8bppIndexed"/>, <see cref="KnownPixelFormat.Format4bppIndexed"/> and <see cref="KnownPixelFormat.Format1bppIndexed"/>).
+        /// <para>This method can be used only if <see cref="PixelFormatInfo.Indexed"/> is set in the <see cref="IBitmapData.PixelFormat"/> of the parent <see cref="IWritableBitmapData"/>.
         /// Otherwise, this method throws an <see cref="InvalidOperationException"/>.</para>
-        /// <para>To set the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <see cref="SetColor">SetColor</see> method or
-        /// the <see cref="this">indexer</see>.</para>
+        /// <para>To set the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <c>SetColor...</c>/<c>SetPColor...</c>
+        /// methods or the <see cref="this">indexer</see>.</para>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
         /// <exception cref="InvalidOperationException">This <see cref="IWritableBitmapDataRow"/> does not belong to a row of an indexed <see cref="IWritableBitmapData"/>.</exception>

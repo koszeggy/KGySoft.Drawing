@@ -16,12 +16,28 @@
 #region Usings
 
 using System;
+using System.Drawing;
 
 #endregion
 
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents the configuration of a non-indexed custom bitmap data that can be created by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see>
+    /// methods that have a <see cref="CustomBitmapDataConfig"/> parameter.
+    /// </summary>
+    /// <remarks>
+    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and and at least one getter or setter delegate must be set
+    /// to create a valid custom bitmap data.</para>
+    /// <para>It is enough to set only one getter and/or setter with the best matching color type. For example, if you set the <see cref="CustomBitmapDataConfig.RowGetColor64"/> property only,
+    /// which returns the pixels as <see cref="Color64"/> values, then all of the other pixel-reading methods will use this delegate and will convert the result from <see cref="Color64"/>.</para>
+    /// <para>If none of the setter delegates are set, then the custom bitmap data will be read-only.
+    /// And if none of the getter delegates are set, then the custom bitmap data will be write-only.</para>
+    /// <para>The delegates should not reference or capture the back buffer directly. Instead, they should use the <see cref="ICustomBitmapDataRow"/>
+    /// property of the accessor delegates to access the bitmap data. If this is true for all of the delegates you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/>
+    /// property to provide better performance and quality in case of certain operations.</para>
+    /// </remarks>
     public sealed class CustomBitmapDataConfig : CustomBitmapDataConfigBase
     {
         #region Nested structs
@@ -34,21 +50,136 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public sProperties
 
+        /// <summary>
+        /// Gets or sets a <see cref="Color32"/> value for pixel formats without alpha gradient support that specifies the <see cref="IBitmapData.BackColor"/> value of the created bitmap data.
+        /// It does not affect the actual created bitmap content. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Imaging.WorkingColorSpace, Color32, byte)"/> method for details about back color and alpha threshold.
+        /// </summary>
         public Color32 BackColor { get; set; }
-        public byte AlphaThreshold { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value for pixel formats without alpha gradient support that specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the created bitmap data.
+        /// See the <strong>Remarks</strong> section for details.
+        /// <br/>Default value: <c>128</c>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Imaging.WorkingColorSpace, Color32, byte)"/> method for details about back color and alpha threshold.
+        /// </summary>
+        public byte AlphaThreshold { get; set; } = 128;
+
+        /// <summary>
+        /// Gets or sets the preferred color space that should be used when working with the result bitmap data.
+        /// <br/>Default value: <see cref="Imaging.WorkingColorSpace.Default"/>, which means the linear color space of <see cref="PixelFormatInfo.LinearGamma"/> is set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// and the sRGB color space otherwise.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for more details.
+        /// </summary>
         public WorkingColorSpace WorkingColorSpace { get; set; }
 
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="Color32"/> value.
+        /// An image processing operation may prefer this delegate by default.
+        /// If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, Color32>? RowGetColor32 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="Color32"/> value.
+        /// An image processing operation may prefer this delegate by default.
+        /// If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, Color32>? RowSetColor32 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="PColor32"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.HasPremultipliedAlpha"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, PColor32>? RowGetPColor32 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="PColor32"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.HasPremultipliedAlpha"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, PColor32>? RowSetPColor32 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="Color64"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers64BitColors"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, Color64>? RowGetColor64 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="Color64"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers64BitColors"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, Color64>? RowSetColor64 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="PColor64"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers64BitColors"/> and <see cref="PixelFormatInfo.HasPremultipliedAlpha"/>
+        /// are set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, PColor64>? RowGetPColor64 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="PColor64"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers64BitColors"/> and <see cref="PixelFormatInfo.HasPremultipliedAlpha"/>
+        /// are set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, PColor64>? RowSetPColor64 { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="ColorF"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers128BitColors"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, ColorF>? RowGetColorF { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="ColorF"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers128BitColors"/> is set
+        /// in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, ColorF>? RowSetColorF { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can retrieve a pixel of a row in the custom bitmap data as a <see cref="PColorF"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers128BitColors"/> and <see cref="PixelFormatInfo.HasPremultipliedAlpha"/>
+        /// are set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Func<ICustomBitmapDataRow, int, PColorF>? RowGetPColorF { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that can set a pixel of a row in the custom bitmap data from a <see cref="PColorF"/> value.
+        /// An image processing operation may prefer this delegate if <see cref="PixelFormatInfo.Prefers128BitColors"/> and <see cref="PixelFormatInfo.HasPremultipliedAlpha"/>
+        /// are set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>. If this property is not set, the other delegates tried to be used as a fallback.
+        /// Make sure you access the row content via the <see cref="ICustomBitmapDataRow"/> parameter of the delegate.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
         public Action<ICustomBitmapDataRow, int, PColorF>? RowSetPColorF { get; set; }
 
         #endregion

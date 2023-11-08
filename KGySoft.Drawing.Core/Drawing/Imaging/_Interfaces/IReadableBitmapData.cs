@@ -71,17 +71,17 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Gets the color of the pixel at the specified coordinates.
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="Color"/> value.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color"/> instance that represents the color of the specified pixel.</returns>
         /// <remarks>
-        /// <para>Use the <see cref="GetColor32">GetColor32</see> method for a slightly better performance.</para>
+        /// <para>The returned value is a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.
+        /// The result of the <see cref="GetColor32">GetColor32</see> method represents the same range of colors as <see cref="Color"/> and has a slightly better performance than this method.</para>
         /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
         /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
-        /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
-        /// regardless of the underlying <see cref="IBitmapData.PixelFormat"/>. To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
         /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
@@ -92,31 +92,145 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="GetColor32"/>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetColor"/>
         Color GetPixel(int x, int y);
 
         /// <summary>
         /// Gets the color of the pixel at the specified coordinates as a <see cref="Color32"/> value.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetPixel">GetPixel</see> method for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color32"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
         /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
         /// <br/>-or-
         /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetColor32"/>
         Color32 GetColor32(int x, int y);
 
+        /// <summary>
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="PColor32"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColor32"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 8 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetPColor32"/>
         PColor32 GetPColor32(int x, int y);
-        
+
+        /// <summary>
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="Color64"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetColor64"/>
         Color64 GetColor64(int x, int y);
 
+        /// <summary>
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="PColor64"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColor64"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 16 bits per channel in the sRGB color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetPColor64"/>
         PColor64 GetPColor64(int x, int y);
-        
+
+        /// <summary>
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="ColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="ColorF"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a non-premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetColorF"/>
         ColorF GetColorF(int x, int y);
-        
+
+        /// <summary>
+        /// Gets the color of the pixel at the specified coordinates as a <see cref="PColorF"/> value.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
+        /// <param name="y">The y-coordinate of the pixel to retrieve.</param>
+        /// <returns>A <see cref="PColorF"/> instance that represents the color of the specified pixel.</returns>
+        /// <remarks>
+        /// <para>The returned value is a premultiplied color with 32 bits per channel in the linear color space, regardless of the underlying <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
+        /// getting the pixels by the <see cref="IReadableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// </remarks>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadableBitmapData"/> has already been disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IReadableBitmapDataRow.GetPColorF"/>
         PColorF GetPColorF(int x, int y);
 
         /// <summary>

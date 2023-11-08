@@ -80,6 +80,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
+        /// <overloads>There are quite a few overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method but they can be grouped by multiple aspects:
+        /// <list type="bullet">
+        /// <item>The ones whose first parameter is <see cref="Size"/> are allocating the buffer for the created bitmap data by themselves, whereas the others use pre-allocated buffers.</item>
+        /// <item>The overloads whose first parameter name is <c>buffer</c> can be used to create a bitmap data for a preallocated buffer. This buffer can be a one or two dimensional array,
+        /// an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> or <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a>
+        /// value wrapping a one dimensional array that represents a section of the array as a one or two dimensional view, or it can be an <see cref="IntPtr"/> representing a potentially unmanaged buffer.</item>
+        /// <item>If an overload has a <see cref="KnownPixelFormat"/> parameter, then it can be used to create a bitmap data using one of the pixel formats with built-in support.</item>
+        /// <item>To create a bitmap data with a custom pixel format you can pick the overloads that have a <see cref="PixelFormatInfo"/> parameter along with a couple of delegates, or the ones
+        /// with a <see cref="CustomBitmapDataConfig"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameter for the best customization.</item>
+        /// <item>For indexed pixel formats look for the overloads that have a <see cref="Palette"/> or a <see cref="CustomIndexedBitmapDataConfig"/> parameter.</item>
+        /// </list></overloads>
         public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb,
             Color32 backColor = default, byte alphaThreshold = 128)
         {
@@ -103,7 +114,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.</returns>
         /// <remarks>
         /// <para>This method supports predefined pixel formats. To create a bitmap data with some custom pixel format use the overloads that have <see cref="PixelFormatInfo"/> parameters.</para>
-        /// <para>The <paramref name="backColor"/> parameter has no effect if <paramref name="pixelFormat"/> has alpha gradient support and it does not affect the actual content of the returned instance.
+        /// <para>The <paramref name="backColor"/> parameter has no practical effect if <paramref name="pixelFormat"/> has alpha gradient support, and it does not affect the actual content of the returned instance.
         /// To set all pixels to a color use the <see cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer?)">Clear</see> extension method.</para>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a fully transparent pixel in a bitmap data with indexed or single-bit-alpha pixel format
         /// will blend the pixel to set with <paramref name="backColor"/> even if the bitmap data can handle transparent pixels.</para>
@@ -278,7 +289,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated one dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -288,10 +300,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
@@ -303,18 +315,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <remarks>
-        /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with custom pixel format. You need to specify a <see cref="PixelFormatInfo"/>
-        /// and a pair of delegates that are called whenever a pixel is get or set.</para>
-        /// <note type="tip">If <paramref name="pixelFormatInfo"/> represents a wide format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/>
-        /// overload instead, where you can specify the getter/setter delegates for <see cref="Color64"/>, <see cref="ColorF"/> and many other color types.</note>
-        /// <para>A custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 128. A typical bits-per-pixel value is a power of two; however,
-        /// any other value can be used if you handle them in the provided delegates.</para>
-        /// <para>The <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> delegates are called whenever a pixel is needed to be get or set.
-        /// The delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.
-        /// <note type="implement">The delegates must not use the <paramref name="buffer"/> directly.
-        /// They must access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row.</note></para>
-        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.
         /// <br/>-or-
         /// <br/>Both <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> are <see langword="null"/>.</exception>
@@ -336,7 +336,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated one dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -346,10 +347,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
@@ -363,18 +364,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <remarks>
-        /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with custom pixel format. You need to specify a <see cref="PixelFormatInfo"/>
-        /// and a pair of delegates that are called whenever a pixel is get or set.</para>
-        /// <note type="tip">If <paramref name="pixelFormatInfo"/> represents a wide format it is recommended to use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig{T})"/>
-        /// overload instead, where you can specify the getter/setter delegates for <see cref="Color64"/>, <see cref="ColorF"/> and many other color types.</note>
-        /// <para>A custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 128. A typical bits-per-pixel value is a power of two; however,
-        /// any other value can be used if you handle them in the provided delegates.</para>
-        /// <para>The <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> delegates are called whenever a pixel is needed to be get or set.
-        /// The delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.
-        /// <note type="implement">The delegates must not use the <paramref name="buffer"/> directly.
-        /// They must access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row.</note></para>
-        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.
         /// <br/>-or-
         /// <br/>Both <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> are <see langword="null"/>.</exception>
@@ -393,12 +382,54 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColor, rowSetColor, workingColorSpace, backColor, alphaThreshold, disposeCallback);
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated one dimensional array with the specified parameters.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// It can be larger than it is required for the specified parameters.
+        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. At least one getter or setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <remarks>
+        /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with custom pixel format. You need to specify a <see cref="PixelFormatInfo"/>
+        /// and at least one delegate setter or getter delegate to be called whenever a pixel is get or set. In this overload these can be done by assigning a <see cref="CustomBitmapDataConfig"/>
+        /// instance to the <paramref name="customBitmapDataConfig"/> parameter. The desired <see cref="PixelFormatInfo"/> should be set in the <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// property, whereas for the getter and setter methods you can select the ones with the color types that fit the best for your pixel format.</para>
+        /// <note type="tip">It is enough to set only one getter and/or setter with the best matching color type. For example, if you set the <see cref="CustomBitmapDataConfig.RowGetColor64"/> property only,
+        /// which returns the pixels as <see cref="Color64"/> values, then all of the other pixel-reading methods will use this delegate and will convert the result from <see cref="Color64"/>.</note>
+        /// <para>A custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 128. A typical bits-per-pixel value is a power of two; however,
+        /// any other value can be used if you handle them in the provided delegates.</para>
+        /// <para>The getter and setter delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.</para>
+        /// <note type="implement">It is highly recommended that the delegates do not use the <paramref name="buffer"/> directly (they don't capture the <paramref name="buffer"/> instance).
+        /// Instead, they should access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row, independently
+        /// from any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to true in <paramref name="customBitmapDataConfig"/>,
+        /// which allows some operations work with better quality and performance.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfig.WorkingColorSpace"/> in <paramref name="customBitmapDataConfig"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <see cref="CustomBitmapDataConfigBase.PixelFormat"/> and <paramref name="stride"/>
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
+        /// <br/>-or-
+        /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, customBitmapDataConfig);
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated one dimensional array with the specified parameters.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -420,23 +451,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <remarks>
-        /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format. You need to specify a <see cref="PixelFormatInfo"/>
-        /// and a pair of delegates that are called whenever a pixel is get or set.</para>
-        /// <para>An indexed custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 16. A typical bits-per-pixel value is a power of two and is not greater than 8;
-        /// however, any other value can be used if you handle them in the provided delegates.</para>
-        /// <para>The <paramref name="rowGetColorIndex"/> and <paramref name="rowSetColorIndex"/> delegates are called whenever a pixel is needed to be get or set.
-        /// The delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.
-        /// <note type="implement">The delegates must not use the <paramref name="buffer"/> directly.
-        /// They must access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row.</note></para>
-        /// <para>If <paramref name="palette"/> is <see langword="null"/>, then the closest not larger system palette will be used, possibly completed with transparent entries.
-        /// For example, if <see cref="PixelFormatInfo.BitsPerPixel">PixelFormatInfo.BitsPerPixel</see> is 9 and <paramref name="palette"/> is <see langword="null"/>, then
-        /// a <see cref="Palette"/> with 512 colors will be created where the first 256 colors will be the same as in <see cref="Palette.SystemDefault8BppPalette(Color32, byte)">SystemDefault8BppPalette</see>.
-        /// <note>For that reason it is always recommended to set the <paramref name="palette"/> parameter, especially if it has fewer entries than the possible allowed maximum
-        /// because replacing the palette afterwards by the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> extension method allows only to set a palette that has no
-        /// fewer entries. It's because the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> method assumes that the underlying buffer might already have pixels whose
-        /// indices may turn invalid with a smaller palette.</note></para>
-        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.
         /// <br/>-or-
         /// <br/>Both <paramref name="rowGetColorIndex"/> and <paramref name="rowSetColorIndex"/> are <see langword="null"/>.</exception>
@@ -457,6 +471,52 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated one dimensional array with the specified parameters.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// It can be larger than it is required for the specified parameters.
+        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload instead.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. Either the getter or the setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <remarks>
+        /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with custom indexed pixel format. You need to specify a <see cref="PixelFormatInfo"/>
+        /// and at one or both pixel accessor delegates to be called whenever a pixel is get or set. In this overload these can be done by assigning a <see cref="CustomIndexedBitmapDataConfig"/>
+        /// instance to the <paramref name="customBitmapDataConfig"/> parameter. The desired indexed <see cref="PixelFormatInfo"/> should be set in the <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// property, whereas the getter and setter methods can be assigned to the <see cref="CustomIndexedBitmapDataConfig.RowGetColorIndex"/> and <see cref="CustomIndexedBitmapDataConfig.RowSetColorIndex"/> properties, respectively.</para>
+        /// <para>An indexed custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 16. A typical bits-per-pixel value is a power of two and is not greater than 8;
+        /// however, any other value can be used if you handle them in the provided delegates.</para>
+        /// <para>The getter and setter delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.</para>
+        /// <note type="implement">It is highly recommended that the delegates do not use the <paramref name="buffer"/> directly (they don't capture the <paramref name="buffer"/> instance).
+        /// Instead, they should access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row, independently
+        /// from any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to true in <paramref name="customBitmapDataConfig"/>,
+        /// which allows some operations work with better quality and performance.</note>
+        /// <para>If the <see cref="CustomIndexedBitmapDataConfig.Palette"/> property in <paramref name="customBitmapDataConfig"/> is <see langword="null"/> , then the closest not larger system palette will be used,
+        /// possibly completed with transparent entries. For example, if <see cref="PixelFormatInfo.BitsPerPixel">PixelFormatInfo.BitsPerPixel</see> is 9
+        /// and <see cref="CustomIndexedBitmapDataConfig.Palette"/> is <see langword="null"/>, then a <see cref="Palette"/> with 512 colors will be created where the first 256 colors will be the same
+        /// as in <see cref="Palette.SystemDefault8BppPalette(Color32, byte)">SystemDefault8BppPalette</see>.</para>
+        /// <note>For that reason it is always recommended to set the <see cref="CustomIndexedBitmapDataConfig.Palette"/> property, especially if it has fewer entries than the possible allowed maximum
+        /// because replacing the palette afterwards by the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> extension method allows only to set a palette that has no
+        /// fewer entries. It's because the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> method assumes that the underlying buffer might already have pixels whose
+        /// indices may turn invalid with a smaller palette.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <see cref="CustomBitmapDataConfigBase.PixelFormat"/> and <paramref name="stride"/>
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomIndexedBitmapDataConfig.Palette"/> in <paramref name="customBitmapDataConfig"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
+        /// <br/>-or-
+        /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, customBitmapDataConfig);
@@ -577,8 +637,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -587,10 +647,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
@@ -622,8 +682,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -632,10 +692,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
@@ -654,14 +714,14 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Both <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> are <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
-        /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>
+        /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0
-        /// <br/>-or-
-        /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32>? rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32>? rowSetColor,
             WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -687,6 +747,33 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// It can be larger than it is required for the specified parameters.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. At least one getter or setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>
+        /// <br/>-or-
+        /// <br/><paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfig.WorkingColorSpace"/> in <paramref name="customBitmapDataConfig"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <see cref="CustomBitmapDataConfigBase.PixelFormat"/> and <paramref name="stride"/>
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
+        /// <br/>-or-
+        /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -696,7 +783,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload for details.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, CustomIndexedBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -722,8 +810,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Both <paramref name="rowGetColorIndex"/> and <paramref name="rowSetColorIndex"/> are <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
-        /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>
-        /// </exception>
+        /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
@@ -755,6 +842,33 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// It can be larger than it is required for the specified parameters.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. Either the getter or the setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>
+        /// <br/>-or-
+        /// <br/><paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <see cref="CustomBitmapDataConfigBase.PixelFormat"/> and <paramref name="stride"/>
+        /// <br/>-or-
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomIndexedBitmapDataConfig.Palette"/> in <paramref name="customBitmapDataConfig"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
+        /// <br/>-or-
+        /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -864,18 +978,18 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}((T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}((T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
@@ -903,18 +1017,18 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}((T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}((T[,], int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
@@ -931,12 +1045,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.
         /// <br/>-or-
         /// <br/>Both <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> are <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
-        /// <br/>-or-
-        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.
         /// <br/>-or-
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32>? rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32>? rowSetColor,
             WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -962,6 +1076,25 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. At least one getter or setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfig.WorkingColorSpace"/> in <paramref name="customBitmapDataConfig"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
+        /// <br/>-or-
+        /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -969,17 +1102,10 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, customBitmapDataConfig);
         }
 
-        // TODO
-        //public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
-        //    where T : unmanaged
-        //{
-        //    ValidateArguments(buffer, pixelWidth, customBitmapDataConfig);
-        //    return CreateManagedCustomBitmapData(buffer, pixelWidth, customBitmapDataConfig);
-        //}
-
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two dimensional array with the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload for details.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomIndexedBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
@@ -1031,6 +1157,25 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. Either the getter or the setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><see cref="CustomIndexedBitmapDataConfig.Palette"/> in <paramref name="customBitmapDataConfig"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
+        /// <br/>-or-
+        /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -1136,18 +1281,18 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
@@ -1175,18 +1320,18 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the 32-bit color of a pixel in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be write-only (can be cast to <see cref="IWritableBitmapData"/>).</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel from a <see cref="Color32"/> value in a row of the bitmap data.
-        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig{T})"/> overload instead.
+        /// If <paramref name="pixelFormatInfo"/> represents a wider format it is recommended to use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomBitmapDataConfig)"/> overload instead.
         /// If <see langword="null"/>, then the returned instance will be read-only (can be cast to <see cref="IReadableBitmapData"/>).</param>
         /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
@@ -1203,12 +1348,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
         /// <br/>-or-
         /// <br/>Both <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> are <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
-        /// <br/>-or-
-        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.
         /// <br/>-or-
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32>? rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32>? rowSetColor,
             WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -1234,6 +1379,27 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. At least one getter or setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfig.WorkingColorSpace"/> in <paramref name="customBitmapDataConfig"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
+        /// <br/>-or-
+        /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -1243,7 +1409,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload for details.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(Array2D{T}, int, CustomIndexedBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
@@ -1295,6 +1462,27 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedCustomBitmapData(buffer, pixelWidth, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format wrapping the specified <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. Either the getter or the setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
+        /// <br/>-or-
+        /// <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
+        /// <br/>-or-
+        /// <br/><see cref="CustomIndexedBitmapDataConfig.Palette"/> in <paramref name="customBitmapDataConfig"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
+        /// <br/>-or-
+        /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, CustomIndexedBitmapDataConfig customBitmapDataConfig)
             where T : unmanaged
         {
@@ -1423,8 +1611,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping an unmanaged <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData(IntPtr, Size, int, CustomBitmapDataConfig)"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData(IntPtr, Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormatInfo"/>;
@@ -1466,8 +1654,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping an unmanaged <paramref name="buffer"/> and using the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
-        /// If other color types fit better for the custom format use the <see cref="CreateBitmapData(IntPtr, Size, int, CustomBitmapDataConfig)"/> overload instead.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
+        /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData(IntPtr, Size, int, CustomBitmapDataConfig)"/> overload instead.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormatInfo"/>;
@@ -1529,6 +1717,31 @@ namespace KGySoft.Drawing.Imaging
             return CreateUnmanagedCustomBitmapData(buffer, size, stride, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping an unmanaged <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>;
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
+        /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
+        /// It can be negative for bottom-up layout (ie. when <paramref name="buffer"/> points to the first pixel of the bottom row).</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. At least one getter or setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> or its owner object to make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see cref="IntPtr.Zero">IntPtr.Zero</see>
+        /// <br/>-or-
+        /// <br/><paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfig.WorkingColorSpace"/> in <paramref name="customBitmapDataConfig"/> is not one of the defined values.</exception>
+        /// <exception cref="ArgumentException"><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
+        /// <br/>-or-
+        /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
         {
             ValidateArguments(buffer, size, stride, customBitmapDataConfig);
@@ -1566,7 +1779,9 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
+        /// <exception cref="ArgumentException"><paramref name="palette"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
         [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow, int, int>? rowGetColorIndex, Action<ICustomBitmapDataRow, int, int>? rowSetColorIndex,
@@ -1591,6 +1806,31 @@ namespace KGySoft.Drawing.Imaging
             return CreateUnmanagedCustomBitmapData(buffer, size, stride, cfg);
         }
 
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format wrapping an unmanaged <paramref name="buffer"/> and using the specified parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
+        /// </summary>
+        /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>;
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
+        /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
+        /// <param name="size">The size of the bitmap data to create in pixels.</param>
+        /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
+        /// It can be negative for bottom-up layout (ie. when <paramref name="buffer"/> points to the first pixel of the bottom row).</param>
+        /// <param name="customBitmapDataConfig">The configuration for the custom pixel format. Either the getter or the setter delegate must be specified.
+        /// If you can ensure that the delegates don't capture <paramref name="buffer"/> or its owner object to make sure you set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> property to <see langword="true"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see cref="IntPtr.Zero">IntPtr.Zero</see>
+        /// <br/>-or-
+        /// <br/><paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
+        /// <br/>-or-
+        /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <see cref="CustomBitmapDataConfigBase.PixelFormat"/>.</exception>
+        /// <exception cref="ArgumentException"><see cref="CustomIndexedBitmapDataConfig.Palette"/> in <paramref name="customBitmapDataConfig"/> is too large for the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>-or-
+        /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
+        /// <br/>-or-
+        /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
         {
             ValidateArguments(buffer, size, stride, customBitmapDataConfig);
