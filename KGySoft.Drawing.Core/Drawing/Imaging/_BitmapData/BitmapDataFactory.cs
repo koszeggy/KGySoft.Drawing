@@ -2660,70 +2660,14 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
-
             if (pixelFormat.IsIndexed())
             {
-                for (int y = 0; y < rect.Height; y++)
-                {
-                    if (context.IsCancellationRequested)
-                        return;
-
-                    switch (pixelFormat)
-                    {
-                        case KnownPixelFormat.Format1bppIndexed:
-                            byte bits = 0;
-                            int x;
-                            for (x = 0; x < rect.Width; x++)
-                            {
-                                if (row.DoGetColorIndex(rect.Left + x) != 0)
-                                    bits |= (byte)(128 >> (x & 7));
-
-                                if ((x & 7) == 7)
-                                {
-                                    writer.Write(bits);
-                                    bits = 0;
-                                }
-                            }
-
-                            // columns are not multiple of 8: writing last byte
-                            if ((x & 7) != 0)
-                                writer.Write(bits);
-                            break;
-
-                        case KnownPixelFormat.Format4bppIndexed:
-                            bits = 0;
-                            for (x = 0; x < rect.Width; x++)
-                            {
-                                int colorIndex = row.DoGetColorIndex(rect.Left + x);
-                                if ((x & 1) == 0)
-                                    bits = (byte)(colorIndex << 4);
-                                else
-                                    writer.Write((byte)(bits | colorIndex));
-                            }
-
-                            // odd columns: writing last byte
-                            if ((x & 1) != 0)
-                                writer.Write(bits);
-                            break;
-
-                        case KnownPixelFormat.Format8bppIndexed:
-                            for (x = rect.Left; x < rect.Right; x++)
-                                writer.Write((byte)row.DoGetColorIndex(x));
-                            break;
-
-                        default:
-                            throw new InvalidOperationException(Res.InternalError($"Unexpected indexed format: {pixelFormat}"));
-                    }
-
-                    row.MoveNextRow();
-                    context.Progress?.Increment();
-                }
-
+                DoSaveCustomIndexed(context, bitmapData, pixelFormat, rect, writer);
                 return;
             }
 
             // using a temp 1x1 managed bitmap data for the conversion
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
             int byteLength = pixelFormat.ToBitsPerPixel() >> 3;
 #if NETCOREAPP3_0_OR_GREATER
             Span<byte> buffer = stackalloc byte[byteLength];
@@ -2795,6 +2739,66 @@ namespace KGySoft.Drawing.Imaging
                             writer.Write(buffer);
                         }
                         break;
+                }
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        private static void DoSaveCustomIndexed(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
+        {
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                switch (pixelFormat)
+                {
+                    case KnownPixelFormat.Format1bppIndexed:
+                        byte bits = 0;
+                        int x;
+                        for (x = 0; x < rect.Width; x++)
+                        {
+                            if (row.DoGetColorIndex(rect.Left + x) != 0)
+                                bits |= (byte)(128 >> (x & 7));
+
+                            if ((x & 7) == 7)
+                            {
+                                writer.Write(bits);
+                                bits = 0;
+                            }
+                        }
+
+                        // columns are not multiple of 8: writing last byte
+                        if ((x & 7) != 0)
+                            writer.Write(bits);
+                        break;
+
+                    case KnownPixelFormat.Format4bppIndexed:
+                        bits = 0;
+                        for (x = 0; x < rect.Width; x++)
+                        {
+                            int colorIndex = row.DoGetColorIndex(rect.Left + x);
+                            if ((x & 1) == 0)
+                                bits = (byte)(colorIndex << 4);
+                            else
+                                writer.Write((byte)(bits | colorIndex));
+                        }
+
+                        // odd columns: writing last byte
+                        if ((x & 1) != 0)
+                            writer.Write(bits);
+                        break;
+
+                    case KnownPixelFormat.Format8bppIndexed:
+                        for (x = rect.Left; x < rect.Right; x++)
+                            writer.Write((byte)row.DoGetColorIndex(x));
+                        break;
+
+                    default:
+                        throw new InvalidOperationException(Res.InternalError($"Unexpected indexed format: {pixelFormat}"));
                 }
 
                 row.MoveNextRow();

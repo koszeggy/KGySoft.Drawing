@@ -46,8 +46,6 @@ namespace KGySoft
             UseLanguageSettings = true,
         };
 
-        private static string? imagingCustomBitmapDataWriteOnly;
-
         #endregion
 
         #region Properties

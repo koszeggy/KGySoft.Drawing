@@ -3248,6 +3248,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region GetColors
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "False alarm, up to one of the typeof comparisons are left in the release build")]
         private static ICollection<T> DoGetColors<T>(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
             where T : unmanaged
         {
