@@ -54,6 +54,7 @@ namespace KGySoft.Drawing
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
             // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
             // or just calling the method to debug directly
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
 
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());

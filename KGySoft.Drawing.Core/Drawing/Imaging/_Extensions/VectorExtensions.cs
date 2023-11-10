@@ -32,7 +32,9 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
 #if NETCOREAPP3_0
+        internal static Vector128<float> AsVector128(this Vector3 v) => new Vector4(v, default).AsVector128();
         internal static Vector128<float> AsVector128(this Vector4 v) => Unsafe.As<Vector4, Vector128<float>>(ref v);
+        internal static Vector3 AsVector3(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector3>(ref v);
         internal static Vector4 AsVector4(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector4>(ref v);
 #endif
 

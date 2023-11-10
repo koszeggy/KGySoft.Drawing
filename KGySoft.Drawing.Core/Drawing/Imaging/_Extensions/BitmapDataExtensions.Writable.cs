@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
                             float f = (bitmapData.LinearBlending()
                                 ? new GrayF(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
                                 : new GrayF(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value;
-#if !NETCOREAPP3_0_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER
                             argb = Unsafe.As<float, uint>(ref f);
 #else
                             unsafe { argb = *(uint*)&f; }

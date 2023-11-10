@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core.PerformanceTest", "KGySoft.Drawing.Core.PerformanceTest\KGySoft.Drawing.Core.PerformanceTest.csproj", "{0C154C16-78C2-429F-BDDD-289062CB2124}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{2598BA6D-41FC-4C9C-B881-401AECDE97D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2598BA6D-41FC-4C9C-B881-401AECDE97D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2598BA6D-41FC-4C9C-B881-401AECDE97D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C154C16-78C2-429F-BDDD-289062CB2124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C154C16-78C2-429F-BDDD-289062CB2124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C154C16-78C2-429F-BDDD-289062CB2124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C154C16-78C2-429F-BDDD-289062CB2124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

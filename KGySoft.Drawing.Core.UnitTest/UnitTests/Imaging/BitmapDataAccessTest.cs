@@ -165,6 +165,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             _ => throw new InvalidOperationException($"Unexpected pixel size: {bpp}bpp")
         };
 
+        static void AreEqual(PColor32 c1, PColor32 c2) => Assert.IsTrue(c1.TolerantEquals(c2, 1), $"Expected: {c1}; Actual: {c2}");
+        static void AreEqual(Color64 c1, Color64 c2) => Assert.IsTrue(c1.TolerantEquals(c2, 2), $"Expected: {c1}; Actual: {c2}");
+        static void AreEqual(PColor64 c1, PColor64 c2) => Assert.IsTrue(c1.TolerantEquals(c2, 1), $"Expected: {c1}; Actual: {c2}");
+        static void AreEqual(ColorF c1, ColorF c2) => Assert.IsTrue(c1.TolerantEquals(c2, 1e-4f), $"Expected: {c1}; Actual: {c2}");
+        static void AreEqual(PColorF c1, PColorF c2) => Assert.IsTrue(c1.TolerantEquals(c2, 1e-4f), $"Expected: {c1}; Actual: {c2}");
+
         #endregion
 
         #region Instance Methods
@@ -208,7 +214,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), managedBitmapData.GetColor32(0, 0));
                 managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                 managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), managedBitmapData.GetColor64(0, 0).ToColor32());
                 managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
@@ -222,7 +228,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 row.SetColor32(0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), row.GetColor32(0));
                 row.SetPColor32(0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
                 row.SetColor64(0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), row.GetColor64(0).ToColor32());
                 row.SetPColor64(0, testColor.ToPColor64());
@@ -262,7 +268,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), managedBitmapData.GetColor32(0, 0));
                 managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                 managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), managedBitmapData.GetColor64(0, 0).ToColor32());
                 managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
@@ -276,7 +282,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 row.SetColor32(0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), row.GetColor32(0));
                 row.SetPColor32(0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
                 row.SetColor64(0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), row.GetColor64(0).ToColor32());
                 row.SetPColor64(0, testColor.ToPColor64());
@@ -314,7 +320,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), managedBitmapData.GetColor32(0, 0));
                 managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                 managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), managedBitmapData.GetColor64(0, 0).ToColor32());
                 managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
@@ -328,7 +334,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 row.SetColor32(0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), row.GetColor32(0));
                 row.SetPColor32(0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
                 row.SetColor64(0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), row.GetColor64(0).ToColor32());
                 row.SetPColor64(0, testColor.ToPColor64());
@@ -368,7 +374,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 unmanagedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), unmanagedBitmapData.GetColor32(0, 0));
                 unmanagedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), unmanagedBitmapData.GetPColor32(0, 0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), unmanagedBitmapData.GetPColor32(0, 0));
                 unmanagedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), unmanagedBitmapData.GetColor64(0, 0).ToColor32());
                 unmanagedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
@@ -382,7 +388,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 row.SetColor32(0, testColor.ToColor32());
                 Assert.AreEqual(expectedResult.ToColor32(), row.GetColor32(0));
                 row.SetPColor32(0, testColor.ToPColor32());
-                Assert.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
+                BitmapDataAccessTest.AreEqual(expectedResult.ToPColor32(), row.GetPColor32(0));
                 row.SetColor64(0, testColor.ToColor64());
                 Assert.AreEqual(expectedResult.ToColor64().ToColor32(), row.GetColor64(0).ToColor32());
                 row.SetPColor64(0, testColor.ToPColor64());
@@ -611,7 +617,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -625,7 +631,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -644,7 +650,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -658,7 +664,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -679,7 +685,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     unmanagedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), unmanagedBitmapData.GetColor64(0, 0));
                     unmanagedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
                     unmanagedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), unmanagedBitmapData.GetColorF(0, 0));
                     unmanagedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -693,7 +699,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -732,11 +738,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            default, 128, WorkingColorSpace.Default, null))
                 {
                     managedBitmapData.SetPColor32(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor32(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor32(0));
+                    AreEqual(testColor, row.GetPColor32(0));
                 }
 
                 int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
@@ -745,22 +751,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor32(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor32(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor32(0));
+                    AreEqual(testColor, row.GetPColor32(0));
                 }
 
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor32(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor32(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor32(0));
+                    AreEqual(testColor, row.GetPColor32(0));
                 }
 
                 int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
@@ -769,11 +775,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
                 {
                     unmanagedBitmapData.SetPColor32(0, 0, testColor);
-                    Assert.AreEqual(testColor, unmanagedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor, unmanagedBitmapData.GetPColor32(0, 0));
 
                     IReadWriteBitmapDataRow row = unmanagedBitmapData[0];
                     row.SetPColor32(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor32(0));
+                    AreEqual(testColor, row.GetPColor32(0));
                 }
             }
         }
@@ -1010,7 +1016,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1024,7 +1030,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1047,7 +1053,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1061,7 +1067,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1086,7 +1092,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     unmanagedBitmapData.SetColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, unmanagedBitmapData.GetColor64(0, 0));
                     unmanagedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
                     unmanagedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), unmanagedBitmapData.GetColorF(0, 0));
                     unmanagedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1100,7 +1106,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1138,11 +1144,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            default, 128, WorkingColorSpace.Default, null))
                 {
                     managedBitmapData.SetPColor64(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor64(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor64(0));
+                    AreEqual(testColor, row.GetPColor64(0));
                 }
 
                 int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
@@ -1151,22 +1157,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor64(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor64(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor64(0));
+                    AreEqual(testColor, row.GetPColor64(0));
                 }
 
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor64(0, 0, testColor);
-                    Assert.AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetPColor64(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor64(0));
+                    AreEqual(testColor, row.GetPColor64(0));
                 }
 
                 int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
@@ -1175,11 +1181,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                            disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
                 {
                     unmanagedBitmapData.SetPColor64(0, 0, testColor);
-                    Assert.AreEqual(testColor, unmanagedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor, unmanagedBitmapData.GetPColor64(0, 0));
 
                     IReadWriteBitmapDataRow row = unmanagedBitmapData[0];
                     row.SetPColor64(0, testColor);
-                    Assert.AreEqual(testColor, row.GetPColor64(0));
+                    AreEqual(testColor, row.GetPColor64(0));
                 }
             }
         }
@@ -1212,13 +1218,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
+                    AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
+                    AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), managedBitmapData.GetPColorF(0, 0));
+                    AreEqual(testColor.ToPColorF(), managedBitmapData.GetPColorF(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetColor32(0, testColor.ToColor32());
@@ -1226,13 +1232,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColor32(0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
+                    AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
+                    AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
+                    AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
                 }
 
                 long[,] bufManaged2D = new long[size.Height, size.Width];
@@ -1249,13 +1255,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
+                    AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
+                    AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), managedBitmapData.GetPColorF(0, 0));
+                    AreEqual(testColor.ToPColorF(), managedBitmapData.GetPColorF(0, 0));
 
                     IReadWriteBitmapDataRow row = managedBitmapData[0];
                     row.SetColor32(0, testColor.ToColor32());
@@ -1263,13 +1269,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColor32(0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
+                    AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
+                    AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
+                    AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
                 }
 
                 int stride = Math.Max(8, pixelFormatInfo.GetByteWidth(size.Width));
@@ -1288,13 +1294,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     unmanagedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), unmanagedBitmapData.GetPColor32(0, 0));
                     unmanagedBitmapData.SetColor64(0, 0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), unmanagedBitmapData.GetColor64(0, 0));
+                    AreEqual(testColor.ToColor64(), unmanagedBitmapData.GetColor64(0, 0));
                     unmanagedBitmapData.SetPColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, unmanagedBitmapData.GetPColor64(0, 0));
                     unmanagedBitmapData.SetColorF(0, 0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), unmanagedBitmapData.GetColorF(0, 0));
+                    AreEqual(testColor.ToColorF(), unmanagedBitmapData.GetColorF(0, 0));
                     unmanagedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), unmanagedBitmapData.GetPColorF(0, 0));
+                    AreEqual(testColor.ToPColorF(), unmanagedBitmapData.GetPColorF(0, 0));
 
                     IReadWriteBitmapDataRow row = unmanagedBitmapData[0];
                     row.SetColor32(0, testColor.ToColor32());
@@ -1302,13 +1308,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColor32(0, testColor.ToPColor32());
                     Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
-                    Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
+                    AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor);
                     Assert.AreEqual(testColor, row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
-                    Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
+                    AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
-                    Assert.AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
+                    AreEqual(testColor.ToPColorF(), row.GetPColorF(0));
                 }
             }
         }
@@ -1413,7 +1419,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1427,7 +1433,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor);
                     Assert.AreEqual(testColor, row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1450,7 +1456,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1464,7 +1470,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor);
                     Assert.AreEqual(testColor, row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1489,7 +1495,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     unmanagedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), unmanagedBitmapData.GetColor64(0, 0));
                     unmanagedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
                     unmanagedBitmapData.SetColorF(0, 0, testColor);
                     Assert.AreEqual(testColor, unmanagedBitmapData.GetColorF(0, 0));
                     unmanagedBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
@@ -1503,7 +1509,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor);
                     Assert.AreEqual(testColor, row.GetColorF(0));
                     row.SetPColorF(0, testColor.ToPColorF());
@@ -1609,11 +1615,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), managedBitmapData.GetColor32(0, 0));
                     managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor);
@@ -1623,11 +1629,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor32(0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), row.GetColor32(0));
                     row.SetPColor32(0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
+                    AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor);
@@ -1646,11 +1652,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     managedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), managedBitmapData.GetColor32(0, 0));
                     managedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor.ToPColor32(), managedBitmapData.GetPColor32(0, 0));
                     managedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), managedBitmapData.GetColor64(0, 0));
                     managedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), managedBitmapData.GetPColor64(0, 0));
                     managedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), managedBitmapData.GetColorF(0, 0));
                     managedBitmapData.SetPColorF(0, 0, testColor);
@@ -1660,11 +1666,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor32(0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), row.GetColor32(0));
                     row.SetPColor32(0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
+                    AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor);
@@ -1685,11 +1691,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     unmanagedBitmapData.SetColor32(0, 0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), unmanagedBitmapData.GetColor32(0, 0));
                     unmanagedBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), unmanagedBitmapData.GetPColor32(0, 0));
+                    AreEqual(testColor.ToPColor32(), unmanagedBitmapData.GetPColor32(0, 0));
                     unmanagedBitmapData.SetColor64(0, 0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), unmanagedBitmapData.GetColor64(0, 0));
                     unmanagedBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
+                    AreEqual(testColor.ToPColor64(), unmanagedBitmapData.GetPColor64(0, 0));
                     unmanagedBitmapData.SetColorF(0, 0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), unmanagedBitmapData.GetColorF(0, 0));
                     unmanagedBitmapData.SetPColorF(0, 0, testColor);
@@ -1699,11 +1705,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor32(0, testColor.ToColor32());
                     Assert.AreEqual(testColor.ToColor32().ToPColorF().ToColor32(), row.GetColor32(0));
                     row.SetPColor32(0, testColor.ToPColor32());
-                    Assert.AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
+                    AreEqual(testColor.ToPColor32(), row.GetPColor32(0));
                     row.SetColor64(0, testColor.ToColor64());
                     Assert.AreEqual(testColor.ToColor64().ToPColorF().ToColor64(), row.GetColor64(0));
                     row.SetPColor64(0, testColor.ToPColor64());
-                    Assert.AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
+                    AreEqual(testColor.ToPColor64(), row.GetPColor64(0));
                     row.SetColorF(0, testColor.ToColorF());
                     Assert.AreEqual(testColor.ToColorF(), row.GetColorF(0));
                     row.SetPColorF(0, testColor);
