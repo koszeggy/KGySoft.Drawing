@@ -6,6 +6,21 @@
 ===============================================================================
 
 ~~~~~~~~~
++ v8.0.0:
+~~~~~~~~~
+
+* Assembly changes:
+===================
+* Upgrading KGySoft.Drawing.Core dependency to 8.0.0.
+
++ KGySoft.Drawing.Uwp namespace
+===============================
++ ColorExtensions class:
+  + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods from Windows.UI.Color.
+  + New ToWindowsColor overloads to convert KGySoft color types to Windows.UI.Color.
+
+
+~~~~~~~~~
 * v7.2.0:
 ~~~~~~~~~
 
