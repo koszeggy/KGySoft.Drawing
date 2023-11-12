@@ -139,8 +139,17 @@ namespace KGySoft.Drawing
             if (pixelFormat == KnownPixelFormat.Undefined || !pixelFormat.IsDefined())
                 return PixelFormat.Undefined;
 
-            Debug.Assert(((int)pixelFormat & (int)PixelFormat.Max) != 0, "Unexpected known pixel format. Replace return expression to ((int)pixelFormat & (int)PixelFormat.Max) != 0 ? (PixelFormat)((int)pixelFormat & 0xFFFFFF) : pixelFormat switch {...}");
-            return (PixelFormat)((int)pixelFormat & 0xFFFFFF); // direct mapping: just clearing 24..31 bits
+            if (((int)pixelFormat & 0xFF) < (int)PixelFormat.Max)
+                return (PixelFormat)((int)pixelFormat & 0xFFFFFF); // direct mapping: just clearing 24..31 bits
+
+            return pixelFormat switch
+            {
+                KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => PixelFormat.Format16bppGrayScale,
+                KnownPixelFormat.Format96bppRgb => PixelFormat.Format48bppRgb,
+                KnownPixelFormat.Format128bppRgba => PixelFormat.Format64bppArgb,
+                KnownPixelFormat.Format128bppPRgba => PixelFormat.Format64bppPArgb,
+                _ => PixelFormat.Undefined
+            };
         }
 
         /// <summary>
@@ -166,9 +175,15 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be a valid format.</exception>
         public static PixelFormatInfo GetInfo(this PixelFormat pixelFormat) => pixelFormat switch
         {
-            PixelFormat.Format48bppRgb => new PixelFormatInfo(48) { LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
-            PixelFormat.Format64bppArgb => new PixelFormatInfo(64) { HasAlpha = true, LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
-            PixelFormat.Format64bppPArgb => new PixelFormatInfo(64) { HasPremultipliedAlpha = true, LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
+            PixelFormat.Format48bppRgb => ColorsHelper.LinearWideColors
+                ? new PixelFormatInfo(48) { LinearGamma = true, Prefers128BitColors = true }
+                : new PixelFormatInfo(KnownPixelFormat.Format48bppRgb),
+            PixelFormat.Format64bppArgb => ColorsHelper.LinearWideColors
+                ? new PixelFormatInfo(64) { HasAlpha = true, LinearGamma = true, Prefers128BitColors = true }
+                : new PixelFormatInfo(KnownPixelFormat.Format64bppArgb),
+            PixelFormat.Format64bppPArgb => ColorsHelper.LinearWideColors
+                ? new PixelFormatInfo(64) { HasPremultipliedAlpha = true, LinearGamma = true, Prefers128BitColors = true }
+                : new PixelFormatInfo(KnownPixelFormat.Format64bppPArgb),
             Format32bppCmyk => new PixelFormatInfo(32),
             _ => pixelFormat.IsValidFormat() ? pixelFormat.ToKnownPixelFormatInternal().GetInfo() : throw new ArgumentOutOfRangeException(Res.PixelFormatInvalid(pixelFormat))
         };
@@ -222,7 +237,7 @@ namespace KGySoft.Drawing
 
         private static bool HasLinearGamma(this PixelFormat pixelFormat)
             => (pixelFormat is PixelFormat.Format48bppRgb or PixelFormat.Format64bppArgb or PixelFormat.Format64bppPArgb)
-                && ColorsHelper.GetLookupTable8To16Bpp() != null;
+                && ColorsHelper.GetLookupTableSrgb8ToLinear16Bit() != null;
 
         #endregion
 

@@ -15,7 +15,9 @@
 
 #region Usings
 
-using System;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -40,6 +42,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal GdiPlusColor64(ushort a, ushort r, ushort g, ushort b)
         {
+            Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
             this.b = b;
             this.g = g;
             this.r = r;
@@ -49,15 +52,46 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal GdiPlusColor64(Color32 c)
         {
-            Debug.Assert(ColorsHelper.GetLookupTable8To16Bpp() != null);
-            ushort[] lookupTable = ColorsHelper.GetLookupTable8To16Bpp()!;
-            ushort max = ColorsHelper.Max16BppValue;
+            Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
+            ushort[] lookupTable = ColorsHelper.GetLookupTableSrgb8ToLinear16Bit()!;
 
             // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
             b = lookupTable[c.B];
             g = lookupTable[c.G];
             r = lookupTable[c.R];
-            a = c.A == Byte.MaxValue ? max : (ushort)((uint)ColorSpaceHelper.ToUInt16(c.A) * max / UInt16.MaxValue);
+            a = ColorsHelper.ToGdiPlusUInt16(c.A);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal GdiPlusColor64(Color64 c)
+        {
+            Debug.Assert( ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
+            ushort[] lookupTable = ColorsHelper.GetLookupTableSrgb16ToLinear16Bit();
+
+            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
+            b = lookupTable[c.B];
+            g = lookupTable[c.G];
+            r = lookupTable[c.R];
+            a = ColorsHelper.ToGdiPlusUInt16(c.A);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal GdiPlusColor64(ColorF c)
+        {
+            Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Vector4 scaled = c.Clip().ToRgba() * ColorsHelper.Max16BppValueF + new Vector4(0.5f);
+            b = (ushort)scaled.Z;
+            g = (ushort)scaled.Y;
+            r = (ushort)scaled.X;
+            a = (ushort)scaled.W;
+#else
+            b = ColorsHelper.ToGdiPlusUInt16(c.B);
+            g = ColorsHelper.ToGdiPlusUInt16(c.G);
+            r = ColorsHelper.ToGdiPlusUInt16(c.R);
+            a = ColorsHelper.ToGdiPlusUInt16(c.A);
+#endif
         }
 
         #endregion
@@ -67,15 +101,37 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32()
         {
-            Debug.Assert(ColorsHelper.GetLookupTable16To8Bpp() != null);
-            byte[] lookupTable = ColorsHelper.GetLookupTable16To8Bpp()!;
-            ushort max = ColorsHelper.Max16BppValue;
+            Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
+            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit();
 
             // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color32(a == max ? Byte.MaxValue : ColorSpaceHelper.ToByte((ushort)((uint)a * UInt16.MaxValue / max)),
+            return new Color32(ColorsHelper.ToByte(a),
                 lookupTable[r],
                 lookupTable[g],
                 lookupTable[b]);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal Color64 ToColor64()
+        {
+            Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
+            ushort[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb16Bit();
+
+            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
+            return new Color64(ColorsHelper.ToUInt16(a),
+                lookupTable[r],
+                lookupTable[g],
+                lookupTable[b]);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal ColorF ToColorF()
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return ColorF.FromRgba(new Vector4(r, g, b, a) * ColorsHelper.Max16BppInv);
+#else      
+            return new ColorF(ColorsHelper.ToFloat(a), ColorsHelper.ToFloat(r), ColorsHelper.ToFloat(g), ColorsHelper.ToFloat(b));
+#endif
         }
 
         #endregion

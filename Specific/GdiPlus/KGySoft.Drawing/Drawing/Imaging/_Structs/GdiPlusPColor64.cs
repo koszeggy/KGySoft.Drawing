@@ -46,8 +46,8 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            Debug.Assert(ColorsHelper.GetLookupTable8To16Bpp() != null);
-            ushort[] lookupTable = ColorsHelper.GetLookupTable8To16Bpp()!;
+            Debug.Assert(ColorsHelper.GetLookupTableSrgb8ToLinear16Bit() != null);
+            ushort[] lookupTable = ColorsHelper.GetLookupTableSrgb8ToLinear16Bit()!;
             ushort max = ColorsHelper.Max16BppValue;
 
             if (c.A == Byte.MaxValue)
@@ -75,8 +75,8 @@ namespace KGySoft.Drawing.Imaging
             if (a == 0)
                 return default;
 
-            Debug.Assert(ColorsHelper.GetLookupTable16To8Bpp() != null);
-            byte[] lookupTable = ColorsHelper.GetLookupTable16To8Bpp()!;
+            Debug.Assert(ColorsHelper.GetLookupTableLinear16ToSrgb8Bit() != null);
+            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit()!;
             ushort max = ColorsHelper.Max16BppValue;
 
             if (a == max)

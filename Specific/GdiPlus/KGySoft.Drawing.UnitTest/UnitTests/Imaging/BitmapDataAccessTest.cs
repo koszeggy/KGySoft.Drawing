@@ -183,6 +183,141 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData[0][0].ToArgb());
                     if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
+
+                    // as Color64
+                    nativeBitmapData.SetColor64(0, 0, testColor.ToColor64());
+                    Assert.AreEqual(expectedResult.ToColor64().ToColor32(), nativeBitmapData.GetColor64(0, 0).ToColor32());
+
+                    // as PColor64
+                    nativeBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
+                    Assert.AreEqual(expectedResult.ToPColor64().ToColor32(), nativeBitmapData.GetPColor64(0, 0).ToColor32());
+
+                    // as ColorF
+                    nativeBitmapData.SetColorF(0, 0, testColor.ToColorF());
+                    Assert.AreEqual(expectedResult.ToColorF().ToColor32(), nativeBitmapData.GetColorF(0, 0).ToColor32());
+
+                    // as PColorF
+                    nativeBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
+                    Assert.AreEqual(expectedResult.ToPColorF().ToColor32(), nativeBitmapData.GetPColorF(0, 0).ToColor32());
+                }
+            }
+        }
+
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        public void SetGetAlphaPixelTest(PixelFormat pixelFormat)
+        {
+            Console.WriteLine(pixelFormat);
+            var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
+
+            if (!pixelFormat.IsSupportedNatively())
+                Assert.Inconclusive($"PixelFormat {pixelFormat} not supported on current platform");
+
+            using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
+
+            foreach (byte a in new byte[] { 0, 1, 127, 128, 129, 254, 255 })
+            {
+                Color testColor = Color.FromArgb(a, baseColor);
+                Console.WriteLine();
+                Console.WriteLine($"Test color: {testColor}");
+
+                try
+                {
+                    Console.Write("Bitmap.SetPixel/GetPixel: ");
+                    bmp.SetPixel(0, 0, testColor);
+                    Color actualColor = bmp.GetPixel(0, 0);
+                    Console.WriteLine($"{testColor} vs. {actualColor} ({(testColor.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+
+                using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+                {
+                    // by Accessor Set/GetPixel
+                    Console.Write("BitmapData.SetPixel/GetPixel: ");
+                    bitmapData.SetPixel(0, 0, testColor);
+                    Color actualColor = bitmapData.GetPixel(0, 0);
+                    Console.WriteLine($"{testColor} vs. {actualColor} ({(testColor.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+                    Assert.AreEqual(testColor.ToArgb(), actualColor.ToArgb(), $"{testColor} vs. {actualColor}");
+
+                    IReadWriteBitmapDataRow row = bitmapData[0];
+
+                    // as Color32
+                    Console.Write("Color32: ");
+                    Color32 testColor32 = testColor;
+                    row[0] = testColor32;
+                    Color32 actualColor32 = row[0];
+                    Console.WriteLine($"{testColor32} vs. {actualColor32} ({(testColor32 == actualColor32 ? "OK" : "Fail")})");
+                    Assert.AreEqual(testColor32, actualColor32);
+
+                    // as Color64
+                    Console.Write("Color64: ");
+                    Color64 testColor64 = testColor.ToColor64();
+                    row.SetColor64(0, testColor64);
+                    Color64 actualColor64 = row.GetColor64(0);
+                    Console.WriteLine($"{testColor64} vs. {actualColor64} ({(testColor64 == actualColor64 ? "Same" : "Diff")})");
+                    Assert.AreEqual(testColor64.ToColor32(), actualColor64.ToColor32());
+
+                    // as PColor64
+                    Console.Write("PColor64: ");
+                    PColor64 testPColor64 = testColor.ToPColor64();
+                    row.SetPColor64(0, testPColor64);
+                    PColor64 actualPColor64 = row.GetPColor64(0);
+                    Console.WriteLine($"{testPColor64} vs. {actualPColor64} ({(testPColor64 == actualPColor64 ? "Same" : "Diff")})");
+                    Assert.IsTrue(testPColor64.ToColor32().TolerantEquals(actualPColor64.ToColor32(), 1), $"{testPColor64.ToColor32()} vs. {actualPColor64.ToColor32()}");
+
+                    // as ColorF
+                    Console.Write("ColorF: ");
+                    ColorF testColorF = testColor.ToColorF();
+                    row.SetColorF(0, testColorF);
+                    ColorF actualColorF = row.GetColorF(0);
+                    Console.WriteLine($"{testColorF} vs. {actualColorF} ({(testColorF == actualColorF ? "Same" : "Diff")})");
+                    Assert.AreEqual(testColorF.ToColor32(), actualColorF.ToColor32());
+
+                    // as PColorF
+                    Console.Write("PColorF: ");
+                    PColorF testPColorF = testColor.ToPColorF();
+                    row.SetPColorF(0, testPColorF);
+                    PColorF actualPColorF = row.GetPColorF(0);
+                    Console.WriteLine($"{testPColorF} vs. {actualPColorF} ({(testPColorF == actualPColorF ? "Same" : "Diff")})");
+                    Assert.AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32());
+                }
+            }
+        }
+
+        //[TestCase(PixelFormat.Format16bppGrayScale)]
+        //[TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format64bppArgb)]
+        public void SetGetPixel64KnownTest(PixelFormat pixelFormat)
+        {
+            Size size = new Size(1, 1);
+            var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
+
+            Console.WriteLine(pixelFormat);
+            using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
+
+            foreach (ushort a in new[] { 0, 1, 32767, 32768, 32769, 65534, 65535 })
+            {
+                Color64 testColor = Color64.FromArgb(a, baseColor.ToColor64());
+                if (pixelFormat.GetInfo().Grayscale)
+                    testColor = testColor.ToGray();
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.Blend(Color.Black.ToColor64());
+
+                Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
+
+                using (var bitmapData = bmp.GetReadWriteBitmapData())
+                {
+                    bitmapData.SetColor64(0, 0, testColor);
+                    Assert.AreEqual(testColor, bitmapData.GetColor64(0, 0));
+
+                    IReadWriteBitmapDataRow row = bitmapData[0];
+                    row.SetColor64(0, testColor);
+                    Assert.AreEqual(testColor, row.GetColor64(0));
                 }
             }
         }
