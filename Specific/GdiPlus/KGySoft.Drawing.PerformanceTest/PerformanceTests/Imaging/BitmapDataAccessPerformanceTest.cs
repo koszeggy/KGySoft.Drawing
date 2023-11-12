@@ -129,6 +129,20 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                         }
                     } while (row.MoveNextRow());
                 }, "IReadWriteBitmapDataRow.SetColorF/GetColorF")
+                .AddCase(() =>
+                {
+                    PColorF color = testColor.ToPColorF();
+                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
+                    IReadWriteBitmapDataRowMovable row = accessor.FirstRow;
+                    do
+                    {
+                        for (int x = 0; x < size.Width; x++)
+                        {
+                            row.SetPColorF(x, color);
+                            row.GetPColorF(x);
+                        }
+                    } while (row.MoveNextRow());
+                }, "IReadWriteBitmapDataRow.SetPColorF/GetPColorF")
                 .DoTest()
                 .DumpResults(Console.Out /*, dumpReturnValue: true*/);
         }

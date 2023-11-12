@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Imaging
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
                         : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new CustomBitmapDataConfig
                         {
-                            // Prefers64BitColors would be enough for precision but conversion form ColorF does not require a table for the better performance
+                            // Prefers64BitColors would be enough for precision but conversion from ColorF does not require a table for the better performance
                             PixelFormat = new PixelFormatInfo(64) { HasAlpha = true, Prefers128BitColors = true, LinearGamma = true },
                             BackColor = backColor,
                             AlphaThreshold = alphaThreshold,
@@ -121,14 +121,24 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format64bppPArgb:
                     return !ColorsHelper.LinearWideColors
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
-                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
+                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new CustomBitmapDataConfig
                         {
-                            HasPremultipliedAlpha = true,
-                            LinearGamma = true
-                        },
-                        (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
-                        workingColorSpace, backColor, alphaThreshold, dispose);
+                            // Prefers64BitColors would be enough for precision but conversion from PColorF does not require a table for the better performance
+                            PixelFormat = new PixelFormatInfo(64) { HasPremultipliedAlpha = true, Prefers128BitColors = true, LinearGamma = true },
+                            BackColor = backColor,
+                            AlphaThreshold = alphaThreshold,
+                            WorkingColorSpace = workingColorSpace,
+                            DisposeCallback = dispose,
+                            BackBufferIndependentPixelAccess = true,
+                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
+                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                            RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor64(),
+                            RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                            RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF().ToColorF(),
+                            RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c.ToPColorF()),
+                            RowGetPColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF(),
+                            RowSetPColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                        });
 
                 case PixelFormat.Format48bppRgb:
                     return !ColorsHelper.LinearWideColors

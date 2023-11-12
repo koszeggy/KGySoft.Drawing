@@ -209,6 +209,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(PixelFormat.Format64bppPArgb)]
         public void SetGetAlphaPixelTest(PixelFormat pixelFormat)
         {
+            #region Local Methods
+
+            static void AreEqual(Color32 c1, Color32 c2, byte tolerance = 0)
+            {
+                Assert.IsTrue(c1.A == 0 && c2.A == 0 || c1.TolerantEquals(c2, tolerance), $"{c1} vs. {c2}");
+            }
+
+            #endregion
+
             Console.WriteLine(pixelFormat);
             var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
 
@@ -222,6 +231,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Color testColor = Color.FromArgb(a, baseColor);
                 Console.WriteLine();
                 Console.WriteLine($"Test color: {testColor}");
+
+                if (a == 1 && pixelFormat.GetInfo().HasPremultipliedAlpha)
+                {
+                    Console.WriteLine($"Skipping a={a} because precision is too low for pixel format {pixelFormat}");
+                    continue;
+                }
 
                 try
                 {
@@ -242,7 +257,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     bitmapData.SetPixel(0, 0, testColor);
                     Color actualColor = bitmapData.GetPixel(0, 0);
                     Console.WriteLine($"{testColor} vs. {actualColor} ({(testColor.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
-                    Assert.AreEqual(testColor.ToArgb(), actualColor.ToArgb(), $"{testColor} vs. {actualColor}");
+                    AreEqual(testColor.ToColor32(), actualColor.ToColor32());
 
                     IReadWriteBitmapDataRow row = bitmapData[0];
 
@@ -252,7 +267,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row[0] = testColor32;
                     Color32 actualColor32 = row[0];
                     Console.WriteLine($"{testColor32} vs. {actualColor32} ({(testColor32 == actualColor32 ? "OK" : "Fail")})");
-                    Assert.AreEqual(testColor32, actualColor32);
+                    AreEqual(testColor32, actualColor32);
 
                     // as Color64
                     Console.Write("Color64: ");
@@ -260,7 +275,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor64);
                     Color64 actualColor64 = row.GetColor64(0);
                     Console.WriteLine($"{testColor64} vs. {actualColor64} ({(testColor64 == actualColor64 ? "Same" : "Diff")})");
-                    Assert.AreEqual(testColor64.ToColor32(), actualColor64.ToColor32());
+                    AreEqual(testColor64.ToColor32(), actualColor64.ToColor32());
 
                     // as PColor64
                     Console.Write("PColor64: ");
@@ -268,7 +283,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColor64(0, testPColor64);
                     PColor64 actualPColor64 = row.GetPColor64(0);
                     Console.WriteLine($"{testPColor64} vs. {actualPColor64} ({(testPColor64 == actualPColor64 ? "Same" : "Diff")})");
-                    Assert.IsTrue(testPColor64.ToColor32().TolerantEquals(actualPColor64.ToColor32(), 1), $"{testPColor64.ToColor32()} vs. {actualPColor64.ToColor32()}");
+                    AreEqual(testPColor64.ToColor32(), actualPColor64.ToColor32(), 1);
 
                     // as ColorF
                     Console.Write("ColorF: ");
@@ -276,7 +291,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColorF(0, testColorF);
                     ColorF actualColorF = row.GetColorF(0);
                     Console.WriteLine($"{testColorF} vs. {actualColorF} ({(testColorF == actualColorF ? "Same" : "Diff")})");
-                    Assert.AreEqual(testColorF.ToColor32(), actualColorF.ToColor32());
+                    AreEqual(testColorF.ToColor32(), actualColorF.ToColor32());
 
                     // as PColorF
                     Console.Write("PColorF: ");
@@ -284,7 +299,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColorF(0, testPColorF);
                     PColorF actualPColorF = row.GetPColorF(0);
                     Console.WriteLine($"{testPColorF} vs. {actualPColorF} ({(testPColorF == actualPColorF ? "Same" : "Diff")})");
-                    Assert.AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32());
+                    AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32());
                 }
             }
         }
