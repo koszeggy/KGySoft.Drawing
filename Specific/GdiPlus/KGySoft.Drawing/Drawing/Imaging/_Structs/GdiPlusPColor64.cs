@@ -40,6 +40,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
+        
+        #region Internal Constructors
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal GdiPlusPColor64(Color32 c)
@@ -117,7 +119,24 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Private Constructors
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal GdiPlusPColor64(ushort a, ushort r, ushort g, ushort b)
+        {
+            this.b = b;
+            this.g = g;
+            this.r = r;
+            this.a = a;
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
+
+        #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32()
@@ -127,16 +146,18 @@ namespace KGySoft.Drawing.Imaging
             if (a == 0)
                 return default;
 
-            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit()!;
+            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit();
+            GdiPlusPColor64 clipped = Clip();
             ushort max = ColorsHelper.Max16BppValue;
-            if (a == max)
-                return new Color32(Byte.MaxValue, lookupTable[r], lookupTable[g], lookupTable[b]);
+            if (clipped.a == max)
+                return new Color32(Byte.MaxValue, lookupTable[clipped.r], lookupTable[clipped.g], lookupTable[clipped.b]);
 
-            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color32(ColorsHelper.ToByte(a),
-                lookupTable[(uint)r * max / a],
-                lookupTable[(uint)g * max / a],
-                lookupTable[(uint)b * max / a]);
+            // Alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table.
+            // We must clip here because invalid values would cause exceptions.
+            return new Color32(ColorsHelper.ToByte(clipped.a),
+                lookupTable[(uint)clipped.r * max / clipped.a],
+                lookupTable[(uint)clipped.g * max / clipped.a],
+                lookupTable[(uint)clipped.b * max / clipped.a]);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -148,26 +169,42 @@ namespace KGySoft.Drawing.Imaging
                 return default;
 
             ushort[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb16Bit();
+            GdiPlusPColor64 clipped = Clip();
             ushort max = ColorsHelper.Max16BppValue;
-            if (a == max)
-                return new Color64(UInt16.MaxValue, lookupTable[r], lookupTable[g], lookupTable[b]);
+            if (clipped.a == max)
+                return new Color64(UInt16.MaxValue, lookupTable[clipped.r], lookupTable[clipped.g], lookupTable[clipped.b]);
 
-            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color64(ColorsHelper.ToUInt16(a),
-                lookupTable[(uint)r * max / a],
-                lookupTable[(uint)g * max / a],
-                lookupTable[(uint)b * max / a]);
+            // Alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table.
+            // We must clip here because invalid values would cause exceptions.
+            return new Color64(ColorsHelper.ToUInt16(clipped.a),
+                lookupTable[(uint)clipped.r * max / clipped.a],
+                lookupTable[(uint)clipped.g * max / clipped.a],
+                lookupTable[(uint)clipped.b * max / clipped.a]);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal PColorF ToPColorF()
         {
+            // Not clipping here because PColorF tolerates out-of-range values
+
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             return PColorF.FromRgba(new Vector4(r, g, b, a) * ColorsHelper.Max16BppInv);
 #else      
             return new PColorF(ColorsHelper.ToFloat(a), ColorsHelper.ToFloat(r), ColorsHelper.ToFloat(g), ColorsHelper.ToFloat(b));
 #endif
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private GdiPlusPColor64 Clip()
+        {
+            ushort aClipped = Math.Min(a, ColorsHelper.Max16BppValue);
+            return new GdiPlusPColor64(aClipped, Math.Min(r, aClipped), Math.Min(g, aClipped), Math.Min(b, aClipped));
+        }
+
+        #endregion
 
         #endregion
     }

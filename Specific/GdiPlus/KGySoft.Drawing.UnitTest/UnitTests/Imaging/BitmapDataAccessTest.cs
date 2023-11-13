@@ -204,6 +204,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
         [TestCase(PixelFormat.Format48bppRgb)]
         [TestCase(PixelFormat.Format64bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb)]
@@ -219,16 +223,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             #endregion
 
             Console.WriteLine(pixelFormat);
-            var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
 
             if (!pixelFormat.IsSupportedNatively())
                 Assert.Inconclusive($"PixelFormat {pixelFormat} not supported on current platform");
+
+            var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
 
             using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
 
             foreach (byte a in new byte[] { 0, 1, 127, 128, 129, 254, 255 })
             {
                 Color testColor = Color.FromArgb(a, baseColor);
+                if (!pixelFormat.HasAlpha())
+                    testColor = testColor.ToColor32().Blend(Color.Black);
+                if (pixelFormat.GetInfo().Grayscale)
+                    testColor = testColor.ToColor32().ToGray();
+
                 Console.WriteLine();
                 Console.WriteLine($"Test color: {testColor}");
 
@@ -257,7 +267,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     bitmapData.SetPixel(0, 0, testColor);
                     Color actualColor = bitmapData.GetPixel(0, 0);
                     Console.WriteLine($"{testColor} vs. {actualColor} ({(testColor.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
-                    AreEqual(testColor.ToColor32(), actualColor.ToColor32());
+                    AreEqual(testColor.ToColor32(), actualColor.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
 
                     IReadWriteBitmapDataRow row = bitmapData[0];
 
@@ -267,7 +277,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row[0] = testColor32;
                     Color32 actualColor32 = row[0];
                     Console.WriteLine($"{testColor32} vs. {actualColor32} ({(testColor32 == actualColor32 ? "OK" : "Fail")})");
-                    AreEqual(testColor32, actualColor32);
+                    AreEqual(testColor32, actualColor32, (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
 
                     // as Color64
                     Console.Write("Color64: ");
@@ -275,7 +285,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColor64(0, testColor64);
                     Color64 actualColor64 = row.GetColor64(0);
                     Console.WriteLine($"{testColor64} vs. {actualColor64} ({(testColor64 == actualColor64 ? "Same" : "Diff")})");
-                    AreEqual(testColor64.ToColor32(), actualColor64.ToColor32());
+                    AreEqual(testColor64.ToColor32(), actualColor64.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
 
                     // as PColor64
                     Console.Write("PColor64: ");
@@ -283,7 +293,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColor64(0, testPColor64);
                     PColor64 actualPColor64 = row.GetPColor64(0);
                     Console.WriteLine($"{testPColor64} vs. {actualPColor64} ({(testPColor64 == actualPColor64 ? "Same" : "Diff")})");
-                    AreEqual(testPColor64.ToColor32(), actualPColor64.ToColor32(), 1);
+                    AreEqual(testPColor64.ToColor32(), actualPColor64.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 2 : 1));
 
                     // as ColorF
                     Console.Write("ColorF: ");
@@ -291,7 +301,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetColorF(0, testColorF);
                     ColorF actualColorF = row.GetColorF(0);
                     Console.WriteLine($"{testColorF} vs. {actualColorF} ({(testColorF == actualColorF ? "Same" : "Diff")})");
-                    AreEqual(testColorF.ToColor32(), actualColorF.ToColor32());
+                    AreEqual(testColorF.ToColor32(), actualColorF.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
 
                     // as PColorF
                     Console.Write("PColorF: ");
@@ -299,7 +309,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     row.SetPColorF(0, testPColorF);
                     PColorF actualPColorF = row.GetPColorF(0);
                     Console.WriteLine($"{testPColorF} vs. {actualPColorF} ({(testPColorF == actualPColorF ? "Same" : "Diff")})");
-                    AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32());
+                    AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
                 }
             }
         }
