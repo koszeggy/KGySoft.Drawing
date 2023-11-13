@@ -142,12 +142,31 @@ namespace KGySoft.Drawing.Imaging
 
                 case PixelFormat.Format48bppRgb:
                     return !ColorsHelper.LinearWideColors
-                        ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
-                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48) { LinearGamma = true },
-                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) =
-                            new GdiPlusColor48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace.GetValueOrLinear())),
-                        workingColorSpace, backColor, alphaThreshold, dispose);
+                        ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride,
+                            knownPixelFormat, backColor, alphaThreshold, dispose)
+                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new CustomBitmapDataConfig
+                        {
+                            // A bit more complicated than the known 48 bit format because the color space is linear so we can spare some conversions if the blending is
+                            // already performed in the linear color space (similarly to the grayscale formats but there this is required because of the brightness calculation)
+                            PixelFormat = new PixelFormatInfo(48) { LinearGamma = true, Prefers128BitColors = true },
+                            BackColor = backColor,
+                            AlphaThreshold = alphaThreshold,
+                            WorkingColorSpace = workingColorSpace,
+                            DisposeCallback = dispose,
+                            BackBufferIndependentPixelAccess = true,
+                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
+                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == Byte.MaxValue ? new GdiPlusColor48(c)
+                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
+                                : new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64())),
+                            RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor64(),
+                            RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == UInt16.MaxValue ? new GdiPlusColor48(c)
+                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
+                                : new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColor64())),
+                            RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColorF(),
+                            RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A >= 1f ? new GdiPlusColor48(c)
+                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColorF()))
+                                : new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64())),
+                        });
 
                 case PixelFormat.Format16bppRgb565:
                     return pixelFormat == bitmapDataPixelFormat

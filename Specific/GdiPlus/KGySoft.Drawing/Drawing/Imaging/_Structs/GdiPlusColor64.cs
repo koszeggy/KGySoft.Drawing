@@ -18,6 +18,7 @@
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
 #endif
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -97,6 +98,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32()
@@ -104,11 +107,13 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
             byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit();
 
-            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color32(ColorsHelper.ToByte(a),
-                lookupTable[r],
-                lookupTable[g],
-                lookupTable[b]);
+            // Alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table.
+            // We must clip here because invalid values would cause exceptions.
+            GdiPlusColor64 clipped = Clip();
+            return new Color32(ColorsHelper.ToByte(clipped.a),
+                lookupTable[clipped.r],
+                lookupTable[clipped.g],
+                lookupTable[clipped.b]);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -117,22 +122,38 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(ColorsHelper.LinearWideColors, "This type is not expected to be used when wide formats are the same as KnowPixelFormats on the current platform");
             ushort[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb16Bit();
 
-            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color64(ColorsHelper.ToUInt16(a),
-                lookupTable[r],
-                lookupTable[g],
-                lookupTable[b]);
+            // Alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table.
+            // We must clip here because invalid values would cause exceptions.
+            GdiPlusColor64 clipped = Clip();
+            return new Color64(ColorsHelper.ToUInt16(clipped.a),
+                lookupTable[clipped.r],
+                lookupTable[clipped.g],
+                lookupTable[clipped.b]);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal ColorF ToColorF()
         {
+            // Not clipping here because ColorF tolerates out-of-range values
+
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             return ColorF.FromRgba(new Vector4(r, g, b, a) * ColorsHelper.Max16BppInv);
 #else      
             return new ColorF(ColorsHelper.ToFloat(a), ColorsHelper.ToFloat(r), ColorsHelper.ToFloat(g), ColorsHelper.ToFloat(b));
 #endif
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private GdiPlusColor64 Clip()
+        {
+            ushort max = ColorsHelper.Max16BppValue;
+            return new GdiPlusColor64(Math.Min(a, max), Math.Min(r, max), Math.Min(g, max), Math.Min(b, max));
+        }
+
+        #endregion
 
         #endregion
     }
