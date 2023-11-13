@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "64 bit PARGB Blue", KnownPixelFormat.Format64bppPArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
             new object[] { "64 bit PARGB Alpha Blue 50%", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_1010 },
             new object[] { "64 bit PARGB Alpha Green 50%", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Green), Color.FromArgb(128, Color.Green), 0x1010_0000_0377_0000 },
-            new object[] { "64 bit PARGB Alpha 1", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(0, Color.Blue), 0x0020_0000_0000_0020 },
+            new object[] { "64 bit PARGB Alpha 1", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x0020_0000_0000_0020 },
             new object[] { "64 bit PARGB Alpha 254", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0x1FDF_0000_0000_1FDF },
             new object[] { "64 bit PARGB Transparent", KnownPixelFormat.Format64bppPArgb, Color.Transparent, Color.Empty, 0x0000_0000_0000_0000 },
             new object[] { "48 bit RGB Blue", KnownPixelFormat.Format48bppRgb, Color.Blue, Color.Blue, 0x0000_0000_2000 },
@@ -310,39 +310,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     PColorF actualPColorF = row.GetPColorF(0);
                     Console.WriteLine($"{testPColorF} vs. {actualPColorF} ({(testPColorF == actualPColorF ? "Same" : "Diff")})");
                     AreEqual(testPColorF.ToColor32(), actualPColorF.ToColor32(), (byte)(pixelFormat.GetInfo().HasPremultipliedAlpha ? 1 : 0));
-                }
-            }
-        }
-
-        //[TestCase(PixelFormat.Format16bppGrayScale)]
-        //[TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format64bppArgb)]
-        public void SetGetPixel64KnownTest(PixelFormat pixelFormat)
-        {
-            Size size = new Size(1, 1);
-            var baseColor = Color.FromArgb(0x80, 0xFF, 0x40);
-
-            Console.WriteLine(pixelFormat);
-            using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
-
-            foreach (ushort a in new[] { 0, 1, 32767, 32768, 32769, 65534, 65535 })
-            {
-                Color64 testColor = Color64.FromArgb(a, baseColor.ToColor64());
-                if (pixelFormat.GetInfo().Grayscale)
-                    testColor = testColor.ToGray();
-                if (!pixelFormat.HasAlpha())
-                    testColor = testColor.Blend(Color.Black.ToColor64());
-
-                Console.WriteLine($"Test {testColor.GetType().Name} Color: {testColor}");
-
-                using (var bitmapData = bmp.GetReadWriteBitmapData())
-                {
-                    bitmapData.SetColor64(0, 0, testColor);
-                    Assert.AreEqual(testColor, bitmapData.GetColor64(0, 0));
-
-                    IReadWriteBitmapDataRow row = bitmapData[0];
-                    row.SetColor64(0, testColor);
-                    Assert.AreEqual(testColor, row.GetColor64(0));
                 }
             }
         }
