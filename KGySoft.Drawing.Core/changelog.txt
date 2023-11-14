@@ -35,6 +35,9 @@
   ! ToKnownPixelFormat method: It can return the new KnownPixelFormat values.
   + New Prefers64BitColors and Prefers128BitColors properties
   - LinearGamma property: setting it to false did not reset the value.
+! PredefinedColorsQuantizer class:
+  ! FromBitmapData and FromPalette methods: The PixelFormatHint property of the returned quantizer can return one
+    of the new pixel formats.
 + KnownPixelFormat enum:
   + New Format96bppRgb, Format128bppRgba and Format128bppPRgba, Format8bppGrayScale, Format32bppGrayScale fields
 + New CustomBitmapDataConfig, CustomIndexedBitmapDataConfig types for configuring pixel access of bitmaps

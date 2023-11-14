@@ -318,7 +318,9 @@ namespace KGySoft.Drawing.Imaging
             isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count switch
             {
-                > 256 => palette.HasAlpha ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb,
+                > 256 => palette.HasAlpha ? KnownPixelFormat.Format32bppArgb
+                    : palette.IsGrayscale ? KnownPixelFormat.Format8bppGrayScale
+                    : KnownPixelFormat.Format24bppRgb,
                 > 16 => KnownPixelFormat.Format8bppIndexed,
                 > 2 => KnownPixelFormat.Format4bppIndexed,
                 _ => KnownPixelFormat.Format1bppIndexed
@@ -343,9 +345,12 @@ namespace KGySoft.Drawing.Imaging
 
         private PredefinedColorsQuantizer(ICustomBitmapData customBitmapData)
         {
+            Debug.Assert(customBitmapData.Palette == null, "If the custom bitmap data has a palette, then FromPalette should be used");
             compatibleBitmapDataFactory = customBitmapData.CreateCompatibleBitmapDataFactory;
             isGrayscale = customBitmapData.IsGrayscale();
-            PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
+            PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb
+                : isGrayscale ? KnownPixelFormat.Format8bppGrayScale
+                : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
             WorkingColorSpace = customBitmapData.WorkingColorSpace;
