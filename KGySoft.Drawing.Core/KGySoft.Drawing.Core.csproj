@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0</TargetFrameworks>
-    <!--<TargetFrameworks>net7.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>-->
+    <TargetFrameworks>net7.0</TargetFrameworks>
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -19,8 +19,11 @@
     <Authors>György Kőszeg</Authors>
     <Nullable>enable</Nullable>
 
-    <!--Suppression NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp2.1'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!--Suppressions
+      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp2.1'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
+      - NU1903: netcoreapp2.0 has known vulnerabilities - it's a targeted plartform and not a referenced package. A consumer of this library can also pick newer supported platforms.
+      -->
+    <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,8 +37,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.CoreLibraries" Version="7.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
+    <PackageReference Include="KGySoft.CoreLibraries" Version="8.0.0-rc.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0-preview.23472.1 ">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
