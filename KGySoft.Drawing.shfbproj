@@ -35,7 +35,7 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>7.2.0</HelpFileVersion>
+    <HelpFileVersion>8.0.0-preview.1</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -1409,13 +1409,13 @@
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
        Just the PackageReference is not enough. The direct .dll references are enough, left the package reference for auto restoring. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.26 " />
+    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.24" />
     <Reference Include="Microsoft.Windows.SDK.NET, Version=10.0.22621.24, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.26\lib\Microsoft.Windows.SDK.NET.dll</HintPath>
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.27\lib\net6.0\Microsoft.Windows.SDK.NET.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WinRT.Runtime, Version=1.6.0.0, Culture=neutral, PublicKeyToken=99ea127f02d97709">
-      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.26\lib\WinRT.Runtime.dll</HintPath>
+    <Reference Include="WinRT.Runtime, Version=2.0.0.0, Culture=neutral, PublicKeyToken=99ea127f02d97709">
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.27\lib\net6.0\WinRT.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
