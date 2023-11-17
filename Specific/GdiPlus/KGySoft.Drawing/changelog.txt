@@ -17,7 +17,7 @@
 ===========================
 ! PixelFormatExtensions class:
   ! GetInfo method: For pixel formats with linear gamma the Prefers128BitColors property is now set in the result.
-  + ToPixelFormat method: Supporting the new KnowPixelFormat values of v8.0.0
+  + ToPixelFormat method: Supporting the new KnownPixelFormat values of v8.0.0
 * BitmapExtensions class:
   * GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods:
     + They support getting/setting pixels using wide colors without quantizing the color information to the 32-bit
