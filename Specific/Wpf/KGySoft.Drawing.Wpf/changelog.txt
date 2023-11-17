@@ -6,11 +6,15 @@
 ===============================================================================
 
 ~~~~~~~~~
-+ v8.0.0:
+! v8.0.0:
 ~~~~~~~~~
 
-+ KGySoft.Drawing.Wpf namespace
+! KGySoft.Drawing.Wpf namespace
 ===============================
+! PixelFormatExtensions class:
+  ! GetInfo method: The new Prefers128BitColors or Prefers64BitColors property is now set for some pixel formats.
+  ! ToKnownPixelFormat method: The result can be one of the new known pixel formats of v8.0.0.
+  + ToPixelFormat method: Supporting the new KnownPixelFormat values of v8.0.0
 + ColorExtensions class:
   + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods from Windows.Media.Color.
   + New ToWindowsColor overloads to convert KGySoft color types to Windows.Media.Color.

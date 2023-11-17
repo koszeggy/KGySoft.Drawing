@@ -59,15 +59,20 @@ namespace KGySoft.Drawing.Wpf
             var result = new PixelFormatInfo((byte)pixelFormat.BitsPerPixel);
             if (pixelFormat.IsIndexed())
                 result.Indexed = true;
-            else if (pixelFormat.In(PixelFormats.BlackWhite, PixelFormats.Gray2, PixelFormats.Gray4, PixelFormats.Gray8, PixelFormats.Gray32Float))
+            else if (pixelFormat.In(PixelFormats.BlackWhite, PixelFormats.Gray2, PixelFormats.Gray4))
                 result.Grayscale = true;
-            else if (pixelFormat.In(PixelFormats.Rgba64, PixelFormats.Rgba128Float))
+            else if (pixelFormat == PixelFormats.Rgba64)
                 result.HasAlpha = true;
-            else if (pixelFormat.In(PixelFormats.Prgba64, PixelFormats.Prgba128Float))
+            else if (pixelFormat == PixelFormats.Prgba64)
                 result.HasPremultipliedAlpha = true;
 
             if (pixelFormat.HasLinearGamma())
+            {
                 result.LinearGamma = true;
+                result.Prefers128BitColors = true;
+            }
+            else if (pixelFormat.In(PixelFormats.Bgr101010, PixelFormats.Rgb48, PixelFormats.Rgba64, PixelFormats.Prgba64))
+                result.Prefers64BitColors = true;
 
             return result;
         }
@@ -122,6 +127,7 @@ namespace KGySoft.Drawing.Wpf
             KnownPixelFormat.Format1bppIndexed => PixelFormats.Indexed1,
             KnownPixelFormat.Format4bppIndexed => PixelFormats.Indexed4,
             KnownPixelFormat.Format8bppIndexed => PixelFormats.Indexed8,
+            KnownPixelFormat.Format8bppGrayScale => PixelFormats.Gray8,
             KnownPixelFormat.Format16bppGrayScale => PixelFormats.Gray16,
             KnownPixelFormat.Format16bppRgb555 => PixelFormats.Bgr555,
             KnownPixelFormat.Format16bppRgb565 => PixelFormats.Bgr565,
@@ -130,9 +136,13 @@ namespace KGySoft.Drawing.Wpf
             KnownPixelFormat.Format32bppRgb => PixelFormats.Bgr32,
             KnownPixelFormat.Format32bppArgb => PixelFormats.Bgra32,
             KnownPixelFormat.Format32bppPArgb => PixelFormats.Pbgra32,
+            KnownPixelFormat.Format32bppGrayScale => PixelFormats.Gray32Float,
             KnownPixelFormat.Format48bppRgb => PixelFormats.Rgb48,
             KnownPixelFormat.Format64bppArgb => PixelFormats.Rgba64,
             KnownPixelFormat.Format64bppPArgb => PixelFormats.Prgba64,
+            KnownPixelFormat.Format96bppRgb => PixelFormats.Rgb128Float,
+            KnownPixelFormat.Format128bppRgba => PixelFormats.Rgba128Float,
+            KnownPixelFormat.Format128bppPRgba => PixelFormats.Prgba128Float,
             _ => PixelFormats.Default
         };
 
@@ -150,7 +160,11 @@ namespace KGySoft.Drawing.Wpf
              : pixelFormat == PixelFormats.Indexed8 ? KnownPixelFormat.Format8bppIndexed
              : pixelFormat == PixelFormats.Bgr555 ? KnownPixelFormat.Format16bppRgb555
              : pixelFormat == PixelFormats.Bgr565 ? KnownPixelFormat.Format16bppRgb565
+             : pixelFormat == PixelFormats.Gray8 ? KnownPixelFormat.Format8bppGrayScale
              : pixelFormat == PixelFormats.Gray16 ? KnownPixelFormat.Format16bppGrayScale
+             : pixelFormat == PixelFormats.Gray32Float ? KnownPixelFormat.Format32bppGrayScale
+             : pixelFormat == PixelFormats.Rgba128Float ? KnownPixelFormat.Format128bppRgba
+             : pixelFormat == PixelFormats.Prgba128Float ? KnownPixelFormat.Format128bppPRgba
              : KnownPixelFormat.Undefined;
 
         internal static bool CanBeDithered(this PixelFormat dstFormat)
