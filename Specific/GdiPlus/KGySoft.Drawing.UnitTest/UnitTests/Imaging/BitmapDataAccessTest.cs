@@ -178,11 +178,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, actualRawValue);
 
-                    // by indexer
+                    // by indexer (Color32)
                     nativeBitmapData[0][0] = new Color32(testColor);
                     Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData[0][0].ToArgb());
                     if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
+
+                    // as PColor32
+                    nativeBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
+                    Assert.AreEqual(expectedResult.ToPColor32().ToColor32(), nativeBitmapData.GetPColor32(0, 0).ToColor32());
 
                     // as Color64
                     nativeBitmapData.SetColor64(0, 0, testColor.ToColor64());
