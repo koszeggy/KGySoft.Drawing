@@ -3,8 +3,8 @@
   <PropertyGroup>
     <!-- Targeting even .NET Framework 4.6 is supported by KGySoft.Drawing.Core and would reference the .NET Standard 1.3 version of SkiaSharp but it may
          cause BadImageFormatException in SkiaSharp static constructors if the consumer must reference at least .NET Standard 2.0 (eg. the UnitTest project). -->
-    <TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>
-    <!--<TargetFrameworks>net7.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
+    <TargetFrameworks>net7.0</TargetFrameworks>
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -35,8 +35,8 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.88.3" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
