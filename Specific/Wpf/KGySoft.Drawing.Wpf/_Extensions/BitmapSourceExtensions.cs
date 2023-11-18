@@ -136,115 +136,154 @@ namespace KGySoft.Drawing.Wpf
                         bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose)
                     : BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat, workingColorSpace, backColor32, alphaThreshold, dispose);
 
+            // NOTE: For custom formats that can be dithered and have no palette we set RoSetColor* so PredefinedColorsQuantizer.FromBitmapData can work correctly
+
             // Custom pixel formats
             if (sourceFormat == PixelFormats.Rgb24)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(24),
-                    (row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb24>(x) =
-                        new ColorRgb24(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(24),
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    DisposeCallback = dispose,
+                    BackBufferIndependentPixelAccess = true,
+                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
+                });
 
             if (sourceFormat == PixelFormats.Indexed2)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(2) { Indexed = true },
-                    IndexedFormatsHelper.GetColorIndexI2, IndexedFormatsHelper.SetColorIndexI2, 
-                    bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomIndexedBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(2) { Indexed = true },
+                    Palette = bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold),
+                    TrySetPaletteCallback = IndexedFormatsHelper.TrySetPalette,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColorIndex = IndexedFormatsHelper.GetColorIndexI2,
+                });
 
             if (sourceFormat == PixelFormats.BlackWhite)
             {
                 Palette colors = Palette.BlackAndWhite(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(1) { Grayscale = true },
-                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI1(row, x)),
-                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI1(row, x, colors.GetNearestColorIndex(c)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(1) { Grayscale = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI1(row, x)),
+                    RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI1(row, x, colors.GetNearestColorIndex(c)),
+                });
             }
 
             if (sourceFormat == PixelFormats.Gray2)
             {
                 Palette colors = Palette.Grayscale4(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(2) { Grayscale = true },
-                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI2(row, x)),
-                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(2) { Grayscale = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI2(row, x)),
+                    RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
+                });
             }
 
             if (sourceFormat == PixelFormats.Gray4)
             {
                 Palette colors = Palette.Grayscale16(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(4) { Grayscale = true },
-                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI4(row, x)),
-                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(4) { Grayscale = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI4(row, x)),
+                    RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
+                });
             }
 
-            if (sourceFormat == PixelFormats.Gray8)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(8) { Grayscale = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorGray8>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorGray8>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear
-                        ? new ColorGray8(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
-                        : new ColorGray8(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
-
-            if (sourceFormat == PixelFormats.Gray32Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32) { Grayscale = true, LinearGamma = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorGrayF>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorGrayF>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
-                        ? new ColorGrayF(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor))
-                        : new ColorGrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
-
             if (sourceFormat == PixelFormats.Bgr101010)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
-                    (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) = c.A == Byte.MaxValue
-                        ? new ColorBgr101010(c)
-                        : new ColorBgr101010(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(32) { Prefers64BitColors = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
+                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor64(),
+                });
 
             if (sourceFormat == PixelFormats.Rgb48)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(48),
-                    (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb48>(x) =
-                        new ColorRgb48(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(48) { Prefers64BitColors = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor64(),
+                });
 
             if (sourceFormat == PixelFormats.Rgba64)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(64) { HasAlpha = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba64>(x) = new ColorRgba64(c),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(64) { HasAlpha = true, Prefers64BitColors = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor64(),
+                });
 
             if (sourceFormat == PixelFormats.Prgba64)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorPrgba64>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorPrgba64>(x) = new ColorPrgba64(c),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
-
-            if (sourceFormat == PixelFormats.Rgba128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasAlpha = true, LinearGamma = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorF>(x) = new ColorF(c),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
-
-            if (sourceFormat == PixelFormats.Prgba128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasPremultipliedAlpha = true, LinearGamma = true },
-                    (row, x) => row.UnsafeGetRefAs<PColorF>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<PColorF>(x) = new PColorF(c),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(64) { HasPremultipliedAlpha = true, Prefers64BitColors = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba64>(x).ToPColor64(),
+                });
 
             if (sourceFormat == PixelFormats.Rgb128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { LinearGamma = true },
-                    (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToColor32().ToOpaque(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorF>(x) = c.A == Byte.MaxValue ? c.ToColorF()
-                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()).ToColorF()
-                        : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(128) { LinearGamma = true, Prefers128BitColors = true },
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToOpaque(),
+                });
 
             if (sourceFormat == PixelFormats.Cmyk32)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
-                    (row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
-                        new ColorCmyk32(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
-                    workingColorSpace, backColor32, alphaThreshold, dispose);
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(32),
+                    BackColor = backColor.ToColor32(),
+                    AlphaThreshold = alphaThreshold,
+                    WorkingColorSpace = workingColorSpace,
+                    BackBufferIndependentPixelAccess = true,
+                    DisposeCallback = dispose,
+                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
+                    RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
+                        new ColorCmyk32(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace))
+                });
 
             throw new InvalidOperationException(Res.InternalError($"Unexpected PixelFormat {sourceFormat}"));
         }

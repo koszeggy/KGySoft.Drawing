@@ -18,6 +18,13 @@
 + ColorExtensions class:
   + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods from Windows.Media.Color.
   + New ToWindowsColor overloads to convert KGySoft color types to Windows.Media.Color.
+* WriteableBitmapExtensions class:
+  * GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods:
+    * They support getting/setting pixels using wide colors without quantizing the color information to the 32-bit
+      ARGB color space.
+* BitmapSourceExtensions class:
+  * GetReadableBitmapData methods: They support getting pixels using wide colors without quantizing the color
+    information to the 32-bit ARGB color space.
 
 
 ~~~~~~~~~

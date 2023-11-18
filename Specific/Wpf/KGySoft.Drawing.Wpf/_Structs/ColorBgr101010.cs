@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Wpf
     {
         #region Constants
 
-        private const int redMask = 0x3F_F0_00_00;
+        private const int redMask = 0b00111111_11110000_00000000_00000000;
         private const int greenMask = 0x00_0F_FC_00;
         private const int blueMask = 0x00_00_03_FF;
 
@@ -50,14 +50,6 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorBgr101010(Color32 c)
-        {
-            Debug.Assert(c.A == Byte.MaxValue);
-            value = (uint)(((c.R << 2) | (c.R >> 6)) << 20)
-                | (uint)(((c.G << 2) | (c.G >> 6)) << 10)
-                | (uint)((c.B << 2) | (c.B >> 6));
-        }
-
         internal ColorBgr101010(Color64 c)
         {
             Debug.Assert(c.A == UInt16.MaxValue);
@@ -71,6 +63,14 @@ namespace KGySoft.Drawing.Wpf
         #region Methods
 
         internal Color32 ToColor32() => new Color32((byte)(R >> 2), (byte)(G >> 2), (byte)(B >> 2));
+        
+        internal Color64 ToColor64()
+        {
+            uint r = R << 6;
+            uint g = G << 6;
+            uint b = B << 6;
+            return new Color64((ushort)(r | (r >> 10)), (ushort)(g | (g >> 10)), (ushort)(b | (b >> 10)));
+        }
 
         #endregion
     }

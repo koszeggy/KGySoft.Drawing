@@ -42,26 +42,19 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorPrgba64(Color32 c)
+        internal ColorPrgba64(PColor64 c)
         {
-            if (c.A == 0)
-            {
-                this = default;
-                return;
-            }
-
-            var pc64 = c.ToPColor64();
-            r = pc64.R;
-            g = pc64.G;
-            b = pc64.B;
-            a = pc64.A;
+            r = c.R;
+            g = c.G;
+            b = c.B;
+            a = c.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => a == 0 ? default : new PColor64(a, r, g, b).ToColor32();
+        internal PColor64 ToPColor64() => new PColor64(a, r, g, b);
 
         #endregion
     }

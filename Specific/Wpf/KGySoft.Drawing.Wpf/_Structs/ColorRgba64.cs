@@ -42,20 +42,19 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorRgba64(Color32 c)
+        internal ColorRgba64(Color64 c)
         {
-            Color64 c64 = c.ToColor64();
-            r = c64.R;
-            g = c64.G;
-            b = c64.B;
-            a = c64.A;
+            r = c.R;
+            g = c.G;
+            b = c.B;
+            a = c.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color64(a, r, g, b).ToColor32();
+        internal Color64 ToColor64() => new Color64(a, r, g, b);
 
         #endregion
     }

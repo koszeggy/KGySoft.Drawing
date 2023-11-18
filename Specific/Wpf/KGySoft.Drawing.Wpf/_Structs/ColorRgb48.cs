@@ -52,7 +52,7 @@ namespace KGySoft.Drawing.Wpf
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(r), ColorSpaceHelper.ToByte(g), ColorSpaceHelper.ToByte(b));
+        internal Color64 ToColor64() => new Color64(r, g, b);
 
         #endregion
     }
