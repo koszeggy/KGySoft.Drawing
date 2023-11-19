@@ -121,7 +121,6 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte ToByte(float value)
         {
-            // Not using Math.Clamp because that does not convert NaN
             value = value * Byte.MaxValue + 0.5f;
             return value < Byte.MinValue ? Byte.MinValue
                 : value > Byte.MaxValue ? Byte.MaxValue
@@ -148,7 +147,6 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ushort ToUInt16(float value)
         {
-            // Not using Math.Clamp because that does not convert NaN
             value = value * UInt16.MaxValue + 0.5f;
             return value < UInt16.MinValue ? UInt16.MinValue
                 : value > UInt16.MaxValue ? UInt16.MaxValue

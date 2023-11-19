@@ -643,7 +643,7 @@ namespace KGySoft.Drawing.Imaging
                             if (colorF.A <= 0f)
                                 continue;
 
-                            PColor32 colorSrc = colorF.ToPColor32(false);
+                            PColor32 colorSrc = colorF.ToPColor32NoColorSpaceChange();
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -694,7 +694,7 @@ namespace KGySoft.Drawing.Imaging
                     else
                     {
                         for (int x = 0; x < sourceRectangle.Width; x++)
-                            sourceRowBuffer.GetElementReference(x) = new PColorF(sourceRow.DoGetPColor32(x + sourceRectangle.Left));
+                            sourceRowBuffer.GetElementReference(x) = PColorF.FromPColor32NoColorSpaceChange(sourceRow.DoGetPColor32(x + sourceRectangle.Left));
                     }
 
                     int firstPassBaseIndex = y - currentWindow.Top;

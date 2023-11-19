@@ -80,25 +80,18 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 ToColor32(this Color color) => new Color32(color);
 
         /// <summary>
-        /// Converts this <see cref="Color"/> to a <see cref="Color64"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color"/> to convert.</param>
-        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="Color"/> instance.</returns>
-        public static Color64 ToColor64(this Color color) => new Color64(color);
-
-        /// <summary>
-        /// Converts this <see cref="Color"/> to a <see cref="ColorF"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color"/> to convert.</param>
-        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color"/> instance.</returns>
-        public static ColorF ToColorF(this Color color) => new ColorF(color);
-
-        /// <summary>
         /// Converts this <see cref="Color"/> to a <see cref="PColor32"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="Color"/> to convert.</param>
         /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="Color"/> instance.</returns>
         public static PColor32 ToPColor32(this Color color) => new PColor32(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to convert.</param>
+        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="Color"/> instance.</returns>
+        public static Color64 ToColor64(this Color color) => new Color64(color);
 
         /// <summary>
         /// Converts this <see cref="Color"/> to a <see cref="PColor64"/> instance.
@@ -108,31 +101,40 @@ namespace KGySoft.Drawing.Imaging
         public static PColor64 ToPColor64(this Color color) => new PColor64(color);
 
         /// <summary>
+        /// Converts this <see cref="Color"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to convert.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color"/> instance.</returns>
+        public static ColorF ToColorF(this Color color) => new ColorF(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color"/> instance.</returns>
+        public static ColorF ToColorF(this Color color, bool adjustColorSpace) => adjustColorSpace ? new ColorF(color) : ColorF.FromColor32NoColorSpaceChange(color);
+
+        /// <summary>
         /// Converts this <see cref="Color"/> to a <see cref="PColorF"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="Color"/> to convert.</param>
         /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color"/> instance.</returns>
         public static PColorF ToPColorF(this Color color) => new PColorF(color);
 
+        /// <summary>
+        /// Converts this <see cref="Color"/> to a <see cref="PColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color"/> instance.</returns>
+        public static PColorF ToPColorF(this Color color, bool adjustColorSpace) => adjustColorSpace ? new PColorF(color) : ColorF.FromColor32NoColorSpaceChange(color).ToPColorF();
+
         #endregion
 
         #region Color32
-        
-        /// <summary>
-        /// Converts this <see cref="Color32"/> to a <see cref="Color64"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color32"/> to convert.</param>
-        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="Color32"/> instance.</returns>
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Color64 ToColor64(this Color32 color) => new Color64(color);
-
-        /// <summary>
-        /// Converts this <see cref="Color32"/> to a <see cref="ColorF"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color32"/> to convert.</param>
-        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color32"/> instance.</returns>
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static ColorF ToColorF(this Color32 color) => new ColorF(color);
 
         /// <summary>
         /// Converts this <see cref="Color32"/> to a <see cref="PColor32"/> instance.
@@ -144,12 +146,37 @@ namespace KGySoft.Drawing.Imaging
         public static PColor32 ToPColor32(this Color32 color) => new PColor32(color);
 
         /// <summary>
+        /// Converts this <see cref="Color32"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color32"/> to convert.</param>
+        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="Color32"/> instance.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color64 ToColor64(this Color32 color) => new Color64(color);
+
+        /// <summary>
         /// Converts this <see cref="Color32"/> to a <see cref="PColor64"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="Color32"/> to convert.</param>
         /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="Color32"/> instance.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColor64 ToPColor64(this Color32 color) => new PColor64(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color32"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color32"/> to convert.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color32"/> instance.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ColorF ToColorF(this Color32 color) => new ColorF(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color32"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color32"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color32"/> instance.</returns>
+        public static ColorF ToColorF(this Color32 color, bool adjustColorSpace) => adjustColorSpace ? new ColorF(color) : ColorF.FromColor32NoColorSpaceChange(color);
 
         /// <summary>
         /// Converts this <see cref="Color32"/> to a <see cref="PColorF"/> instance.
@@ -159,78 +186,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColorF ToPColorF(this Color32 color) => new PColorF(color);
 
-        #endregion
-
-        #region Color64
-
         /// <summary>
-        /// Converts this <see cref="Color64"/> to a <see cref="Color"/> instance.
+        /// Converts this <see cref="Color32"/> to a <see cref="PColorF"/> instance.
         /// </summary>
-        /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="Color"/> instance converted from this <see cref="Color64"/> instance.</returns>
-        public static Color ToColor(this Color64 color) => color.ToColor32().ToColor();
-
-        /// <summary>
-        /// Converts this <see cref="Color64"/> to a <see cref="ColorF"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
-        public static ColorF ToColorF(this Color64 color) => new ColorF(color);
-
-        /// <summary>
-        /// Converts this <see cref="Color64"/> to a <see cref="PColor32"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="Color64"/> instance.</returns>
-        public static PColor32 ToPColor32(this Color64 color) => new PColor32(color.ToColor32());
-
-        /// <summary>
-        /// Converts this <see cref="Color64"/> to a <see cref="PColor64"/> instance.
-        /// It's practically the same as calling the <see cref="ToPremultiplied(Color64)"/> method.
-        /// </summary>
-        /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="Color64"/> instance.</returns>
-        public static PColor64 ToPColor64(this Color64 color) => new PColor64(color);
-
-        /// <summary>
-        /// Converts this <see cref="Color64"/> to a <see cref="PColorF"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="Color64"/> to convert.</param>
-        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
-        public static PColorF ToPColorF(this Color64 color) => new ColorF(color).ToPremultiplied();
-
-        #endregion
-
-        #region ColorF
-
-        /// <summary>
-        /// Converts this <see cref="ColorF"/> to a <see cref="Color"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
-        /// <returns>A <see cref="Color"/> instance converted from this <see cref="ColorF"/> instance.</returns>
-        public static Color ToColor(this ColorF color) => color.ToColor32().ToColor();
-
-        /// <summary>
-        /// Converts this <see cref="ColorF"/> to a <see cref="PColor32"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
-        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="ColorF"/> instance.</returns>
-        public static PColor32 ToPColor32(this ColorF color) => color.ToColor32().ToPremultiplied();
-
-        /// <summary>
-        /// Converts this <see cref="ColorF"/> to a <see cref="PColor64"/> instance.
-        /// </summary>
-        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
-        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="ColorF"/> instance.</returns>
-        public static PColor64 ToPColor64(this ColorF color) => color.ToColor64().ToPremultiplied();
-
-        /// <summary>
-        /// Converts this <see cref="ColorF"/> to a <see cref="PColorF"/> instance.
-        /// It's practically the same as calling the <see cref="ToPremultiplied(ColorF)"/> method.
-        /// </summary>
-        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
-        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="ColorF"/> instance.</returns>
-        public static PColorF ToPColorF(this ColorF color) => new PColorF(color);
+        /// <param name="color">The <see cref="Color32"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color32"/> instance.</returns>
+        public static PColorF ToPColorF(this Color32 color, bool adjustColorSpace) => adjustColorSpace ? new PColorF(color) : ColorF.FromColor32NoColorSpaceChange(color).ToPremultiplied();
 
         #endregion
 
@@ -258,6 +221,15 @@ namespace KGySoft.Drawing.Imaging
         public static ColorF ToColorF(this PColor32 color) => new ColorF(color.ToStraight());
 
         /// <summary>
+        /// Converts this <see cref="PColor32"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor32"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="PColor32"/> instance.</returns>
+        public static ColorF ToColorF(this PColor32 color, bool adjustColorSpace) => adjustColorSpace ? color.ToColorF() : ColorF.FromColor32NoColorSpaceChange(color.ToStraight());
+
+        /// <summary>
         /// Converts this <see cref="PColor32"/> to a <see cref="PColor64"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="PColor32"/> to convert.</param>
@@ -270,6 +242,73 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="color">The <see cref="PColor32"/> to convert.</param>
         /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="PColor32"/> instance.</returns>
         public static PColorF ToPColorF(this PColor32 color) => new PColorF(color.ToStraight());
+
+        /// <summary>
+        /// Converts this <see cref="PColor32"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor32"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="PColor32"/> instance.</returns>
+        public static PColorF ToPColorF(this PColor32 color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColorF() : PColorF.FromPColor32NoColorSpaceChange(color);
+
+        #endregion
+
+        #region Color64
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <returns>A <see cref="Color"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static Color ToColor(this Color64 color) => color.ToColor32().ToColor();
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static PColor32 ToPColor32(this Color64 color) => new PColor32(color.ToColor32());
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="PColor64"/> instance.
+        /// It's practically the same as calling the <see cref="ToPremultiplied(Color64)"/> method.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static PColor64 ToPColor64(this Color64 color) => new PColor64(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static ColorF ToColorF(this Color64 color) => new ColorF(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static ColorF ToColorF(this Color64 color, bool adjustColorSpace) => adjustColorSpace ? new ColorF(color) : ColorF.FromColor64NoColorSpaceChange(color);
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="PColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static PColorF ToPColorF(this Color64 color) => new ColorF(color).ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="Color64"/> to a <see cref="PColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="Color64"/> instance.</returns>
+        public static PColorF ToPColorF(this Color64 color, bool adjustColorSpace) => adjustColorSpace ? new PColorF(color) : ColorF.FromColor64NoColorSpaceChange(color).ToPremultiplied();
 
         #endregion
 
@@ -290,11 +329,107 @@ namespace KGySoft.Drawing.Imaging
         public static ColorF ToColorF(this PColor64 color) => new ColorF(color.ToStraight());
 
         /// <summary>
+        /// Converts this <see cref="PColor64"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor64"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="PColor64"/> instance.</returns>
+        public static ColorF ToColorF(this PColor64 color, bool adjustColorSpace) => adjustColorSpace ? color.ToColorF() : ColorF.FromColor64NoColorSpaceChange(color.ToStraight());
+
+        /// <summary>
         /// Converts this <see cref="PColor64"/> to a <see cref="PColorF"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="PColor64"/> to convert.</param>
         /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="PColor64"/> instance.</returns>
         public static PColorF ToPColorF(this PColor64 color) => new PColorF(color.ToStraight());
+
+        /// <summary>
+        /// Converts this <see cref="PColor64"/> to a <see cref="ColorF"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor64"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from sRGB to linear; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="ColorF"/> instance converted from this <see cref="PColor64"/> instance.</returns>
+        public static PColorF ToPColorF(this PColor64 color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColorF() : PColorF.FromPColor64NoColorSpaceChange(color);
+
+        #endregion
+
+        #region ColorF
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <returns>A <see cref="Color"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static Color ToColor(this ColorF color) => color.ToColor32().ToColor();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="Color"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static Color ToColor(this ColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor32().ToColor() : color.ToColor32NoColorSpaceChange().ToColor();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="Color32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the <see cref="ColorF.ToColor32">ColorF.ToColor32</see> method for a slightly better performance.</param>
+        /// <returns>A <see cref="Color32"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static Color32 ToColor32(this ColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor32() : color.ToColor32NoColorSpaceChange();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static PColor32 ToPColor32(this ColorF color) => color.ToColor32().ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static PColor32 ToPColor32(this ColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColor32() : color.ToColor32NoColorSpaceChange().ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the <see cref="ColorF.ToColor64">ColorF.ToColor64</see> method for a slightly better performance.</param>
+        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static Color64 ToColor64(this ColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor64() : color.ToColor64NoColorSpaceChange();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="PColor64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static PColor64 ToPColor64(this ColorF color) => color.ToColor64().ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="PColor64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static PColor64 ToPColor64(this ColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColor64() : color.ToColor64NoColorSpaceChange().ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="ColorF"/> to a <see cref="PColorF"/> instance.
+        /// It's practically the same as calling the <see cref="ToPremultiplied(ColorF)"/> method.
+        /// </summary>
+        /// <param name="color">The <see cref="ColorF"/> to convert.</param>
+        /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="ColorF"/> instance.</returns>
+        public static PColorF ToPColorF(this ColorF color) => new PColorF(color);
 
         #endregion
 
@@ -308,6 +443,15 @@ namespace KGySoft.Drawing.Imaging
         public static Color ToColor(this PColorF color) => color.ToStraight().ToColor32().ToColor();
 
         /// <summary>
+        /// Converts this <see cref="PColorF"/> to a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="Color"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static Color ToColor(this PColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor() : color.ToPColor32NoColorSpaceChange().ToStraight().ToColor();
+
+        /// <summary>
         /// Converts this <see cref="PColorF"/> to a <see cref="Color32"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="PColorF"/> to convert.</param>
@@ -315,11 +459,13 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 ToColor32(this PColorF color) => color.ToStraight().ToColor32();
 
         /// <summary>
-        /// Converts this <see cref="PColorF"/> to a <see cref="Color64"/> instance.
+        /// Converts this <see cref="PColorF"/> to a <see cref="Color32"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="PColorF"/> to convert.</param>
-        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="PColorF"/> instance.</returns>
-        public static Color64 ToColor64(this PColorF color) => color.ToStraight().ToColor64();
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="Color32"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static Color32 ToColor32(this PColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor32() : color.ToPColor32NoColorSpaceChange().ToStraight();
 
         /// <summary>
         /// Converts this <see cref="PColorF"/> to a <see cref="PColor32"/> instance.
@@ -329,11 +475,45 @@ namespace KGySoft.Drawing.Imaging
         public static PColor32 ToPColor32(this PColorF color) => color.ToStraight().ToColor32().ToPremultiplied();
 
         /// <summary>
+        /// Converts this <see cref="PColorF"/> to a <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColor32"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static PColor32 ToPColor32(this PColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColor32() : color.ToPColor32NoColorSpaceChange();
+
+        /// <summary>
+        /// Converts this <see cref="PColorF"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColorF"/> to convert.</param>
+        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static Color64 ToColor64(this PColorF color) => color.ToStraight().ToColor64();
+
+        /// <summary>
+        /// Converts this <see cref="PColorF"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="Color64"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static Color64 ToColor64(this PColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToColor64() : color.ToPColor64NoColorSpaceChange().ToStraight();
+
+        /// <summary>
         /// Converts this <see cref="PColorF"/> to a <see cref="PColor64"/> instance.
         /// </summary>
         /// <param name="color">The <see cref="PColorF"/> to convert.</param>
         /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="PColorF"/> instance.</returns>
         public static PColor64 ToPColor64(this PColorF color) => color.ToStraight().ToColor64().ToPremultiplied();
+
+        /// <summary>
+        /// Converts this <see cref="PColorF"/> to a <see cref="PColor64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="PColorF"/> to convert.</param>
+        /// <param name="adjustColorSpace"><see langword="true"/> to adjust the color space from linear to sRGB; otherwise, <see langword="false"/>.
+        /// If you would just pass a <see langword="true"/> constant to this parameter, then use the overload without this parameter for a slightly better performance.</param>
+        /// <returns>A <see cref="PColor64"/> instance converted from this <see cref="PColorF"/> instance.</returns>
+        public static PColor64 ToPColor64(this PColorF color, bool adjustColorSpace) => adjustColorSpace ? color.ToPColor64() : color.ToPColor64NoColorSpaceChange();
 
         #endregion
 

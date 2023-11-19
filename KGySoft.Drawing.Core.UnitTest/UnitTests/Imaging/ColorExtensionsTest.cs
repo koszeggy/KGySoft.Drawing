@@ -70,11 +70,29 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.AreEqual(p32,  p32.ToPColor64().ToPColor32());
 
             // No gamma adjust
-            ColorF sFSrgb = new ColorF(s32, false);
+            ColorF sFSrgb = s32.ToColorF(false);
             Assert.AreEqual(s32, sFSrgb.ToColor32(false));
+            
+            sFSrgb = p32.ToColorF(false);
+            Assert.AreEqual(p32, sFSrgb.ToPColor32(false));
+            
+            sFSrgb = s64.ToColorF(false);
+            Assert.AreEqual(s64, sFSrgb.ToColor64(false));
 
-            PColorF pFSrgb = new PColorF(p32);
+            sFSrgb = p64.ToColorF(false);
+            Assert.AreEqual(p64, sFSrgb.ToPColor64(false));
+
+            PColorF pFSrgb = p32.ToPColorF(false);
             Assert.AreEqual(p32, pFSrgb.ToPColor32(false));
+
+            pFSrgb = s32.ToPColorF(false);
+            Assert.AreEqual(s32, pFSrgb.ToColor32(false));
+
+            pFSrgb = p64.ToPColorF(false);
+            Assert.AreEqual(p64, pFSrgb.ToPColor64(false));
+
+            pFSrgb = s64.ToPColorF(false);
+            Assert.AreEqual(s32, pFSrgb.ToColor64(false).ToColor32());
         }
 
         [Test]
