@@ -6,6 +6,25 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v8.0.0:
+~~~~~~~~~
+
+! Assembly changes
+==================
+! Upgrading SkiaSharp package from 2.88.3 to 2.88.6. This is required due to a SkiaSharp vulnerability between
+  versions 2.0.0 to 2.88.5: https://security.snyk.io/vuln/SNYK-DOTNET-SKIASHARP-5922114. Marked as a breaking change
+  because version 2.88.6 contains several new bugs, including some encoder issues, which cause previously correctly
+  saved images to get corrupted: https://github.com/mono/SkiaSharp/issues?q=label%3Atype%2Fbug+2.88.6+
+
+
++ KGySoft.Drawing.SkiaSharp namespace
+=====================================
++ ColorExtensions class:
+  + New conversion methods also for SKColorF and SKPMColor types.
+  + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods for SkiaSharp color types.
+
+
+~~~~~~~~~
 + v7.2.0:
 ~~~~~~~~~
 
