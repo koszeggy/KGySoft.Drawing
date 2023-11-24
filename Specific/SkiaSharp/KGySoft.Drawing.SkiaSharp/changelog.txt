@@ -22,6 +22,8 @@
 + ColorExtensions class:
   + New conversion methods also for SKColorF and SKPMColor types.
   + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods for SkiaSharp color types.
+! SKImageInfoExtensions class:
+  ! GetInfo method: The new Prefers128BitColors or Prefers64BitColors property is now set for some pixel formats.
 
 
 ~~~~~~~~~

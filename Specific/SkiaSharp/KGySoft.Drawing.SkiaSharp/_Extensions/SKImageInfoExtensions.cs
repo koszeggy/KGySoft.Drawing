@@ -84,6 +84,21 @@ namespace KGySoft.Drawing.SkiaSharp
             if (imageInfo.ColorSpace.IsDefaultLinear())
                 info.LinearGamma = true;
 
+            // [P]ColorF preference: always if the range demands it (RgbaF32) or it's simpler (AlphaF16 is just a float -> half conversion with no extra division)
+            if (imageInfo.ColorType is SKColorType.RgbaF32 or SKColorType.AlphaF16
+                // or when precision could be lost otherwise (16 bits per channel but in linear color space)
+                || info.LinearGamma && imageInfo.ColorType is SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Rg1616 or SKColorType.Rgba16161616)
+            {
+                info.Prefers128BitColors = true;
+            }
+            // [P]Color64 preference: when the range demands it (>8 bit color channels)
+            else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x
+                // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha
+                || info.LinearGamma && imageInfo.ColorType is not SKColorType.Alpha8)
+            {
+                info.Prefers64BitColors = true;
+            }
+
             return info;
         }
 
@@ -176,21 +191,38 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static KnownPixelFormat AsKnownPixelFormat(this SKImageInfo imageInfo)
         {
-            if (imageInfo.ColorSpace?.IsDefaultSrgb() == false)
-                return KnownPixelFormat.Undefined;
-
-            return imageInfo.ColorType switch
+            if (imageInfo.ColorSpace?.IsDefaultSrgb() != false)
             {
-                SKColorType.Bgra8888 => imageInfo.AlphaType switch
+                return imageInfo.ColorType switch
                 {
-                    SKAlphaType.Unpremul => KnownPixelFormat.Format32bppArgb,
-                    SKAlphaType.Premul => KnownPixelFormat.Format32bppPArgb,
-                    SKAlphaType.Opaque => KnownPixelFormat.Format32bppRgb,
+                    SKColorType.Bgra8888 => imageInfo.AlphaType switch
+                    {
+                        SKAlphaType.Unpremul => KnownPixelFormat.Format32bppArgb,
+                        SKAlphaType.Premul => KnownPixelFormat.Format32bppPArgb,
+                        SKAlphaType.Opaque => KnownPixelFormat.Format32bppRgb,
+                        _ => KnownPixelFormat.Undefined
+                    },
+                    SKColorType.Rgb565 => (uint)imageInfo.AlphaType <= (uint)ColorExtensions.MaxAlphaType ? KnownPixelFormat.Format16bppRgb565 : KnownPixelFormat.Undefined,
+                    SKColorType.Gray8 => (uint)imageInfo.AlphaType <= (uint)ColorExtensions.MaxAlphaType ? KnownPixelFormat.Format8bppGrayScale : KnownPixelFormat.Undefined,
                     _ => KnownPixelFormat.Undefined
-                },
-                SKColorType.Rgb565 => (uint)imageInfo.AlphaType <= (uint)ColorExtensions.MaxAlphaType ? KnownPixelFormat.Format16bppRgb565 : KnownPixelFormat.Undefined,
-                _ => KnownPixelFormat.Undefined
-            };
+                };
+            }
+
+            if (imageInfo.ColorSpace.IsDefaultLinear())
+            {
+                return imageInfo.ColorType switch
+                {
+                    SKColorType.RgbaF32 => imageInfo.AlphaType switch
+                    {
+                        SKAlphaType.Unpremul => KnownPixelFormat.Format128bppRgba,
+                        SKAlphaType.Premul => KnownPixelFormat.Format128bppPRgba,
+                        _ => KnownPixelFormat.Undefined
+                    },
+                    _ => KnownPixelFormat.Undefined
+                };
+            }
+
+            return KnownPixelFormat.Undefined;
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
