@@ -29,8 +29,8 @@ namespace KGySoft.Drawing.Wpf
         #region Constants
 
         private const int redMask = 0b00111111_11110000_00000000_00000000;
-        private const int greenMask = 0x00_0F_FC_00;
-        private const int blueMask = 0x00_00_03_FF;
+        private const uint greenMask = 0b00001111_11111100_00000000;
+        private const uint blueMask = 0b00000011_11111111;
 
         #endregion
 
