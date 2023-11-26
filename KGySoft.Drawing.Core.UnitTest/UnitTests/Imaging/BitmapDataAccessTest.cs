@@ -18,11 +18,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -155,9 +153,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         private static unsafe long GetRawValueNative(int bpp, IntPtr ptr) => bpp switch
         {
             64 or 96 or 128 => *(long*)ptr,
-            48 => *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32),
+            48 => *(uint*)ptr | ((long)(((ushort*)ptr)![2]) << 32),
             32 => *(uint*)ptr,
-            24 => *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16),
+            24 => *(ushort*)ptr | (long)(((byte*)ptr)![2] << 16),
             16 => *(ushort*)ptr,
             8 => *(byte*)ptr,
             4 => *(byte*)ptr >> 4,
@@ -184,6 +182,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
 
+            // ReSharper disable once LocalFunctionHidesMethod
             bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
@@ -409,6 +408,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
 
+            // ReSharper disable once LocalFunctionHidesMethod
             bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 

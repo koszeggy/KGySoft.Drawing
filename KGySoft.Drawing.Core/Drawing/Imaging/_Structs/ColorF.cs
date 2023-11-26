@@ -532,7 +532,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    // Cannot do the conversion in one step. 4x byte to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
+                    // Cannot do the conversion in one step. 4x ushort to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
                     result = Sse2.ConvertToVector128Single(Vector128.Create(c.R, c.G, c.B, c.A));
                 }
 
