@@ -156,16 +156,16 @@ namespace KGySoft.Drawing.Imaging
                             BackBufferIndependentPixelAccess = true,
                             RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
                             RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == Byte.MaxValue ? new GdiPlusColor48(c)
-                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
-                                : new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64())),
+                                : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
+                                : new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                             RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor64(),
                             RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == UInt16.MaxValue ? new GdiPlusColor48(c)
-                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
-                                : new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColor64())),
+                                : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColor64()))
+                                : new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                             RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColorF(),
                             RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A >= 1f ? new GdiPlusColor48(c)
-                                : row.BitmapData.WorkingColorSpace.GetValueOrLinear() == WorkingColorSpace.Linear ? new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColorF()))
-                                : new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64())),
+                                : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
+                                : new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColorF())),
                         });
 
                 case PixelFormat.Format16bppRgb565:
