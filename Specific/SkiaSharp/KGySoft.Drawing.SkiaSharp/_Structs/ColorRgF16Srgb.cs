@@ -43,6 +43,8 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
+        #region Internal Constructors
+
         internal ColorRgF16Srgb(Color32 c)
         {
             Debug.Assert(c.A == Byte.MaxValue);
@@ -57,11 +59,42 @@ namespace KGySoft.Drawing.SkiaSharp
             g = (Half)ColorSpaceHelper.ToFloat(c.G);
         }
 
+        internal ColorRgF16Srgb(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            r = (Half)ColorSpaceHelper.LinearToSrgb(c.R);
+            g = (Half)ColorSpaceHelper.LinearToSrgb(c.G);
+        }
+
+        #endregion
+
+        #region Private Constructors
+
+        private ColorRgF16Srgb(Half r, Half g)
+        {
+            this.r = r;
+            this.g = g;
+        }
+
+        #endregion
+
         #endregion
 
         #region Methods
 
+        #region Static Methods
+
+        internal static ColorRgF16Srgb FromSrgb(ColorF c) => new ColorRgF16Srgb((Half)c.R, (Half)c.G);
+
+        #endregion
+
+        #region Instance Methods
+
         internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), 0);
+        internal Color64 ToColor64() => new Color64(ColorSpaceHelper.ToUInt16(R), ColorSpaceHelper.ToUInt16(G), 0);
+        internal ColorF ToColorF() => new ColorF(ColorSpaceHelper.SrgbToLinear(R), ColorSpaceHelper.SrgbToLinear(G), 0);
+
+        #endregion
 
         #endregion
     }

@@ -5,7 +5,9 @@
 #if !NET5_0_OR_GREATER
 #region Usings
 
+#if NETCOREAPP3_0_OR_GREATER
 using System.Numerics;
+#endif
 using System.Runtime.InteropServices;
 
 #endregion
@@ -149,7 +151,7 @@ namespace System
 
         private static ushort RoundPackToHalf(bool sign, short exp, ushort sig)
         {
-            const int RoundIncrement = 0x8; // Depends on rounding mode but it's always towards closest / ties to even
+            const int roundIncrement = 0x8; // Depends on rounding mode but it's always towards closest / ties to even
             int roundBits = sig & 0xF;
 
             if ((uint)exp >= 0x1D)
@@ -160,13 +162,13 @@ namespace System
                     exp = 0;
                     roundBits = sig & 0xF;
                 }
-                else if (exp > 0x1D || sig + RoundIncrement >= 0x8000) // Overflow
+                else if (exp > 0x1D || sig + roundIncrement >= 0x8000) // Overflow
                 {
                     return sign ? negativeInfinityBits : positiveInfinityBits;
                 }
             }
 
-            sig = (ushort)((sig + RoundIncrement) >> 4);
+            sig = (ushort)((sig + roundIncrement) >> 4);
             sig &= (ushort)~(((roundBits ^ 8) != 0 ? 0 : 1) & 1);
 
             if (sig == 0)

@@ -37,20 +37,19 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorPrgba8888Srgb(Color32 c)
+        internal ColorPrgba8888Srgb(PColor32 c)
         {
-            var pc32 = new PColor32(c);
-            r = pc32.R;
-            g = pc32.G;
-            b = pc32.B;
-            a = pc32.A;
+            r = c.R;
+            g = c.G;
+            b = c.B;
+            a = c.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new PColor32(a, r, g, b).ToColor32();
+        internal PColor32 ToPColor32() => new PColor32(a, r, g, b);
 
         #endregion
     }

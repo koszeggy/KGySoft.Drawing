@@ -47,53 +47,58 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorPrgbaF16Srgb(Color32 c)
+        internal ColorPrgbaF16Srgb(PColor32 c)
         {
-            if (c.A == Byte.MinValue)
-            {
-                this = default;
-                return;
-            }
+            PColorF srgbF = c.ToPColorF(false);
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
+        }
 
-            float aF = ColorSpaceHelper.ToFloat(c.A);
-            a = (Half)aF;
-            if (c.A == Byte.MaxValue)
-            {
-                r = (Half)ColorSpaceHelper.ToFloat(c.R);
-                g = (Half)ColorSpaceHelper.ToFloat(c.G);
-                b = (Half)ColorSpaceHelper.ToFloat(c.B);
-                return;
-            }
+        internal ColorPrgbaF16Srgb(PColor64 c)
+        {
+            PColorF srgbF = c.ToPColorF(false);
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
+        }
 
-            r = (Half)(ColorSpaceHelper.ToFloat(c.R) * aF);
-            g = (Half)(ColorSpaceHelper.ToFloat(c.G) * aF);
-            b = (Half)(ColorSpaceHelper.ToFloat(c.B) * aF); 
+        /// <summary>
+        /// Note that this ctor is from ColorF and not PColorF because the color space change must be performed with straight colors
+        /// so if the parameter was PColorF, then for getting/setting ColorF instances an unnecessary extra conversion would be performed.
+        /// </summary>
+        internal ColorPrgbaF16Srgb(ColorF c)
+        {
+            PColorF srgbF = c.ToSrgb().ToPremultiplied();
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32()
-        {
-            if (A >= 1f)
-            {
-                return new Color32(ColorSpaceHelper.ToByte(A),
-                    ColorSpaceHelper.ToByte(R),
-                    ColorSpaceHelper.ToByte(G),
-                    ColorSpaceHelper.ToByte(B));
-            }
+        internal PColor32 ToPColor32() => new PColorF(A, R, G, B).ToPColor32(false);
+        internal PColor64 ToPColor64() => new PColorF(A, R, G, B).ToPColor64(false);
 
-            if (A >= 0f)
-            {
-                return new Color32(ColorSpaceHelper.ToByte(A),
-                    ColorSpaceHelper.ToByte(R / A),
-                    ColorSpaceHelper.ToByte(G / A),
-                    ColorSpaceHelper.ToByte(B / A));
-            }
-
-            return default;
-        }
+        /// <summary>
+        /// Note that this method converts to ColorF instead of PColorF.
+        /// It's to spare an unnecessary back-and-forth conversion if ColorF is requested.
+        /// </summary>
+        internal ColorF ToColorF() =>
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(new PColorF(A, R, G, B).ToStraight().ToRgba()));
+#else
+            new PColorF(A,
+                    ColorSpaceHelper.SrgbToLinear(R),
+                    ColorSpaceHelper.SrgbToLinear(G),
+                    ColorSpaceHelper.SrgbToLinear(B))
+                .ToStraight();
+#endif
 
         #endregion
     }

@@ -21,11 +21,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 using SkiaSharp;
 
@@ -100,6 +102,17 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
+            #region Local Methods
+
+            static void AssertEqual(Expression<Func<Color32>> getExpected, Expression<Func<Color32>> getActual, byte tolerance)
+            {
+                Color32 expected = getExpected.Compile().Invoke();
+                Color32 actual = getActual.Compile().Invoke();
+                Assert.IsTrue(expected.TolerantEquals(actual, (byte)tolerance), $"{getExpected} vs. {getActual}: {expected} vs. {actual}");
+            }
+
+            #endregion
+
             foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear(), })
             {
                 var info = new SKImageInfo(2, 2, colorType, alphaType, colorSpace);
@@ -109,7 +122,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 if (info.GetInfo().Grayscale)
                     testColor = testColor.ToGray();
                 bool linear = colorSpace.GammaIsLinear;
-                var expectedResult = testColor;
+                Color32 expectedResult = testColor;
                 if (colorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16)
                     expectedResult = Color32.FromArgb(expectedResult.A, Color.Black);
                 else if (alphaType == SKAlphaType.Opaque)
@@ -132,9 +145,9 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 bitmap.SetPixel(0, 0, testColor.ToSKColor());
                 var actualNative = bitmap.GetPixel(0, 0);
 
-                using var bitmapData = bitmap.GetReadWriteBitmapData();
+                using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
                 bitmapData.SetPixel(1, 1, testColor);
-                var actual = bitmapData.GetPixel(1, 1);
+                Color actual = bitmapData.GetPixel(1, 1);
                 byte tolerance = (byte)(colorSpace.IsSrgb
                     ? colorType switch { SKColorType.Argb4444 => 17, SKColorType.Rgb565 => 5, _ => 1 } // allowing 1 shade difference
                     : colorType switch { SKColorType.Argb4444 => 64, SKColorType.Rgb565 => 45, _ => 2 }); // for 5 bit linear colors the first non-black shade is 48, for 4 bit it's 70
@@ -155,7 +168,35 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 // - if colorType supports alpha but alphaType is Opaque, Skia uses premultiplied pixel write and gets the raw value
                 // - For non-sRGB color spaces GetPixel does not work: https://github.com/mono/SkiaSharp/issues/2354
 
-                Assert.IsTrue(expectedResult.TolerantEquals(actual.ToColor32(), tolerance), $"KGySoft: {expectedResult} vs. {actual.ToColor32()}");
+                AssertEqual(() => expectedResult, () => actual.ToColor32(), tolerance);
+
+                // Setting/getting all color types, comparing result to the actual Color result
+                expectedResult = actual.ToColor32();
+                tolerance = (byte)(alphaType is SKAlphaType.Premul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 ? 1 : 0);
+
+                // as Color32
+                bitmapData.SetColor32(0, 0, testColor);
+                AssertEqual(() => expectedResult, () => bitmapData.GetColor32(0, 0), tolerance);
+
+                // as PColor32
+                bitmapData.SetPColor32(0, 0, testColor.ToPColor32());
+                AssertEqual(() => expectedResult.ToPColor32().ToColor32(), () => bitmapData.GetPColor32(0, 0).ToColor32(), tolerance);
+
+                // as Color64
+                bitmapData.SetColor64(0, 0, testColor.ToColor64());
+                AssertEqual(() => expectedResult.ToColor64().ToColor32(), () => bitmapData.GetColor64(0, 0).ToColor32(), tolerance);
+
+                // as PColor64
+                bitmapData.SetPColor64(0, 0, testColor.ToPColor64());
+                AssertEqual(() => expectedResult.ToPColor64().ToColor32(), () => bitmapData.GetPColor64(0, 0).ToColor32(), tolerance);
+
+                // as ColorF
+                bitmapData.SetColorF(0, 0, testColor.ToColorF());
+                AssertEqual(() => expectedResult.ToColorF().ToColor32(), () => bitmapData.GetColorF(0, 0).ToColor32(), tolerance);
+
+                // as PColorF
+                bitmapData.SetPColorF(0, 0, testColor.ToPColorF());
+                AssertEqual(() => expectedResult.ToPColorF().ToColor32(), () => bitmapData.GetPColorF(0, 0).ToColor32(), tolerance);
             }
         }
 
@@ -213,7 +254,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         {
                             if (!skiaSaved)
                             {
-                                // saving an example by SkiaSharp, only once because it has no different working color spaces
                                 // saving an example by SkiaSharp, only once because it has no different working color spaces
                                 if (fileName == null)
                                     GenerateAlphaGradient(bitmap);

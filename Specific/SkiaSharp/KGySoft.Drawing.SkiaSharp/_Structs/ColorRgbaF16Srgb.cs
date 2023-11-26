@@ -46,39 +46,76 @@ namespace KGySoft.Drawing.SkiaSharp
         #endregion
 
         #region Constructors
+        
+        #region Internal Constructors
 
         internal ColorRgbaF16Srgb(Color32 c)
         {
-            r = (Half)ColorSpaceHelper.ToFloat(c.R);
-            g = (Half)ColorSpaceHelper.ToFloat(c.G);
-            b = (Half)ColorSpaceHelper.ToFloat(c.B);
-            a = (Half)ColorSpaceHelper.ToFloat(c.A);
+            ColorF srgbF = c.ToColorF(false);
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
         }
 
         internal ColorRgbaF16Srgb(Color64 c)
         {
-            r = (Half)ColorSpaceHelper.ToFloat(c.R);
-            g = (Half)ColorSpaceHelper.ToFloat(c.G);
-            b = (Half)ColorSpaceHelper.ToFloat(c.B);
-            a = (Half)ColorSpaceHelper.ToFloat(c.A);
+            ColorF srgbF = c.ToColorF(false);
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
         }
 
         internal ColorRgbaF16Srgb(ColorF c)
         {
-            r = (Half)ColorSpaceHelper.LinearToSrgb(c.R);
-            g = (Half)ColorSpaceHelper.LinearToSrgb(c.G);
-            b = (Half)ColorSpaceHelper.LinearToSrgb(c.B);
-            a = (Half)c.A;
+            ColorF srgbF = c.ToSrgb();
+            r = (Half)srgbF.R;
+            g = (Half)srgbF.G;
+            b = (Half)srgbF.B;
+            a = (Half)srgbF.A;
         }
+
+        #endregion
+
+        #region Private Constructors
+
+        private ColorRgbaF16Srgb(Half a, Half r, Half g, Half b)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        #endregion
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(A),
-            ColorSpaceHelper.ToByte(R),
-            ColorSpaceHelper.ToByte(G),
-            ColorSpaceHelper.ToByte(B));
+        #region Static Methods
+
+        internal static ColorRgbaF16Srgb FromSrgb(ColorF c) => new ColorRgbaF16Srgb((Half)c.A, (Half)c.R, (Half)c.G, (Half)c.B);
+
+        #endregion
+
+        #region Instance Methods
+
+        internal Color32 ToColor32() => new ColorF(A, R, G, B).ToColor32(false);
+        internal Color64 ToColor64() => new ColorF(A, R, G, B).ToColor64(false);
+
+        internal ColorF ToColorF() =>
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(new ColorF(A, R, G, B).ToRgba()));
+#else
+            new ColorF(A,
+                ColorSpaceHelper.SrgbToLinear(R),
+                ColorSpaceHelper.SrgbToLinear(G),
+                ColorSpaceHelper.SrgbToLinear(B));
+#endif
+
+        #endregion
 
         #endregion
     }

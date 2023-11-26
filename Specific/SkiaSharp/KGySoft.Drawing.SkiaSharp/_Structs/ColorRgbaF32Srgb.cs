@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -37,38 +38,27 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorRgbaF32Srgb(Color32 c)
-        {
-            r = ColorSpaceHelper.ToFloat(c.R);
-            g = ColorSpaceHelper.ToFloat(c.G);
-            b = ColorSpaceHelper.ToFloat(c.B);
-            a = ColorSpaceHelper.ToFloat(c.A);
-        }
-
-        internal ColorRgbaF32Srgb(Color64 c)
-        {
-            r = ColorSpaceHelper.ToFloat(c.R);
-            g = ColorSpaceHelper.ToFloat(c.G);
-            b = ColorSpaceHelper.ToFloat(c.B);
-            a = ColorSpaceHelper.ToFloat(c.A);
-        }
-
-        internal ColorRgbaF32Srgb(ColorF c)
-        {
-            r = ColorSpaceHelper.LinearToSrgb(c.R);
-            g = ColorSpaceHelper.LinearToSrgb(c.G);
-            b = ColorSpaceHelper.LinearToSrgb(c.B);
-            a = c.A;
-        }
+        internal ColorRgbaF32Srgb(Color32 c) => this = Unsafe.As<ColorF, ColorRgbaF32Srgb>(ref Unsafe.AsRef(c.ToColorF(false)));
+        internal ColorRgbaF32Srgb(Color64 c) => this = Unsafe.As<ColorF, ColorRgbaF32Srgb>(ref Unsafe.AsRef(c.ToColorF(false)));
+        internal ColorRgbaF32Srgb(ColorF c) => this = Unsafe.As<ColorF, ColorRgbaF32Srgb>(ref Unsafe.AsRef(c.ToSrgb()));
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(a),
-            ColorSpaceHelper.ToByte(r),
-            ColorSpaceHelper.ToByte(g),
-            ColorSpaceHelper.ToByte(b));
+        #region Static Methods
+
+        internal static ColorRgbaF32Srgb FromSrgb(ColorF c) => Unsafe.As<ColorF, ColorRgbaF32Srgb>(ref c);
+
+        #endregion
+
+        #region Instance Methods
+
+        internal Color32 ToColor32() => Unsafe.As<ColorRgbaF32Srgb, ColorF>(ref Unsafe.AsRef(this)).ToColor32(false);
+        internal Color64 ToColor64() => Unsafe.As<ColorRgbaF32Srgb, ColorF>(ref Unsafe.AsRef(this)).ToColor64(false);
+        internal ColorF ToColorF() => new ColorF(a, r, g, b).ToLinear();
+
+        #endregion
 
         #endregion
     }

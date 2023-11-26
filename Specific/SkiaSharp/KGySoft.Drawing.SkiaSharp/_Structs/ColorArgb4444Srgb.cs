@@ -30,50 +30,38 @@ namespace KGySoft.Drawing.SkiaSharp
         private const ushort greenMask = 0x0F_00;
         private const ushort blueMask = 0x00_F0;
 
-        private const int maxArgb = 15;
-
         #endregion
 
         #region Fields
 
-        internal readonly ushort Value;
+        private readonly ushort value;
 
         #endregion
 
         #region Properties
 
-        internal byte A => (byte)(Value & alphaMask);
-        internal byte R => (byte)((Value & redMask) >> 12);
-        internal byte G => (byte)((Value & greenMask) >> 8);
-        internal byte B => (byte)((Value & blueMask) >> 4);
+        internal byte A => (byte)(value & alphaMask);
+        internal byte R => (byte)((value & redMask) >> 12);
+        internal byte G => (byte)((value & greenMask) >> 8);
+        internal byte B => (byte)((value & blueMask) >> 4);
 
         #endregion
 
         #region Constructors
 
-        internal ColorArgb4444Srgb(Color32 c) => Value =
+        internal ColorArgb4444Srgb(Color32 c) => value =
             (ushort)((c.A >> 4)
                 | ((c.R >> 4) << 12)
                 | ((c.G >> 4) << 8)
                 | ((c.B >> 4) << 4));
 
-        internal ColorArgb4444Srgb(byte a, byte r, byte g, byte b)
-        {
-            Debug.Assert(a <= maxArgb && r <= maxArgb && g <= maxArgb && b <= maxArgb);
-            Value = (ushort)(a
-                | r << 12
-                | g << 8
-                | b << 4);
-        }
-
-        internal ColorArgb4444Srgb(ushort value) => Value = value;
-
         #endregion
 
         #region Methods
         
-        // value * 17 is the same as (value | (value << 4))
-        internal Color32 ToColor32() => new Color32((byte)(A * 17), (byte)(R * 17), (byte)(G * 17), (byte)(B * 17));
+        internal Color32 ToColor32()
+            // value * 17 is the same as (value | (value << 4))
+            => new Color32((byte)(A * 17), (byte)(R * 17), (byte)(G * 17), (byte)(B * 17));
 
         #endregion
     }

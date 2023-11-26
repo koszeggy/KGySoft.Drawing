@@ -156,7 +156,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Argb4444, SKAlphaType.Unpremul, _)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Premul, _)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Srgb(c).ToColor32(), backColor32, alphaThreshold, false),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Srgb(c.ToPremultiplied()).ToPColor32().ToStraight(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Opaque, _)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32),
 

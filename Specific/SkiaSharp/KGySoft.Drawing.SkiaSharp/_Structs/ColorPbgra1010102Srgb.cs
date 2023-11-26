@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
 
@@ -50,22 +51,16 @@ namespace KGySoft.Drawing.SkiaSharp
         private uint G => (value & greenMask) >> 10;
         private uint B => value & blueMask;
 
-        // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
-        // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
-        private ushort A16 => (ushort)(A * (85 * 257));
-        private ushort R16 => (ushort)((R << 6) | (R >> 2));
-        private ushort G16 => (ushort)((G << 6) | (G >> 2));
-        private ushort B16 => (ushort)((B << 6) | (B >> 2));
-
         #endregion
 
         #region Constructors
 
         #region Internal Constructors
 
-        internal ColorPbgra1010102Srgb(Color32 c)
+        internal ColorPbgra1010102Srgb(Color64 c)
         {
-            if (c.A == Byte.MinValue)
+            // We can't do a similar initialization from PColor64 as in ColorBgra1010102Srgb because A has smaller depth than RGB.
+            if (c.A == UInt16.MinValue)
             {
                 value = 0u;
                 return;
@@ -74,7 +69,7 @@ namespace KGySoft.Drawing.SkiaSharp
             var straight = new ColorBgra1010102Srgb(c);
             if (straight.A == maxAlpha)
             {
-                value = straight.Value;
+                this = Unsafe.As<ColorBgra1010102Srgb, ColorPbgra1010102Srgb>(ref straight);
                 return;
             }
 
@@ -83,7 +78,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 straight.R * a / maxAlpha,
                 straight.G * a / maxAlpha,
                 straight.B * a / maxAlpha);
-            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
+
+            Debug.Assert(ToPColor64().IsValid);
         }
 
         #endregion
@@ -97,7 +93,6 @@ namespace KGySoft.Drawing.SkiaSharp
                 | r << 20
                 | g << 10
                 | b;
-            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
         }
 
         #endregion
@@ -106,18 +101,18 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Methods
 
-        internal Color32 ToColor32()
+        internal PColor64 ToPColor64()
         {
-            uint a = A;
-            return a switch
-            {
-                0u => default,
-                maxAlpha => new ColorBgra1010102Srgb(value).ToColor32(),
-                _ => new ColorBgra1010102Srgb(a,
-                    Math.Min(maxRgb, R * maxAlpha / a),
-                    Math.Min(maxRgb, G * maxAlpha / a),
-                    Math.Min(maxRgb, B * maxAlpha / a)).ToColor32()
-            };
+            uint r = R << 6;
+            uint g = G << 6;
+            uint b = B << 6;
+
+            // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
+            // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
+            return new PColor64((ushort)(A * (85 * 257)),
+                (ushort)(r | (r >> 10)),
+                (ushort)(g | (g >> 10)),
+                (ushort)(b | (b >> 10)));
         }
 
         #endregion

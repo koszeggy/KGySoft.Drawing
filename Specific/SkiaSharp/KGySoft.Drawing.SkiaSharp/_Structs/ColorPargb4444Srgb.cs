@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -31,8 +29,6 @@ namespace KGySoft.Drawing.SkiaSharp
         private const ushort redMask = 0xF0_00;
         private const ushort greenMask = 0x0F_00;
         private const ushort blueMask = 0x00_F0;
-
-        private const int maxArgb = 15;
 
         #endregion
 
@@ -53,66 +49,19 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        #region Internal Constructors
-
-        internal ColorPargb4444Srgb(Color32 c)
-        {
-            PColor32 pc32 = c.ToPremultiplied();
-            this = new ColorPargb4444Srgb((byte)(pc32.A >> 4), (byte)(pc32.R >> 4), (byte)(pc32.G >> 4), (byte)(pc32.B >> 4));
-
-            //// Premultiplication after quantization (results are more like the non-premultiplied format):
-            //if (c.A == Byte.MinValue)
-            //{
-            //    value = 0;
-            //    return;
-            //}
-
-            //var straight = new ColorArgb4444Srgb(c);
-            //if (c.A == Byte.MaxValue)
-            //{
-            //    value = straight.Value;
-            //    return;
-            //}
-
-            //byte a = straight.A;
-            //this = new ColorPargb4444Srgb(a,
-            //    (byte)(straight.R * a / maxArgb),
-            //    (byte)(straight.G * a / maxArgb),
-            //    (byte)(straight.B * a / maxArgb));
-        }
-
-        #endregion
-
-        #region Private Constructors
-
-        private ColorPargb4444Srgb(byte a, byte r, byte g, byte b)
-        {
-            Debug.Assert(a <= maxArgb && r <= a && g <= a && b <= a);
-            value = (ushort)(a
-                | r << 12
-                | g << 8
-                | b << 4);
-        }
-
-        #endregion
+        internal ColorPargb4444Srgb(PColor32 c) => value =
+            (ushort)((c.A >> 4)
+                | ((c.R >> 4) << 12)
+                | ((c.G >> 4) << 8)
+                | ((c.B >> 4) << 4));
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32()
-        {
-            byte a = A;
-            return a switch
-            {
-                0 => default,
-                maxArgb => new ColorArgb4444Srgb(value).ToColor32(),
-                _ => new ColorArgb4444Srgb(a,
-                    (byte)(R * maxArgb / a),
-                    (byte)(G * maxArgb / a),
-                    (byte)(B * maxArgb / a)).ToColor32()
-            };
-        }
+        internal PColor32 ToPColor32()
+            // value * 17 is the same as (value | (value << 4))
+            => new PColor32((byte)(A * 17), (byte)(R * 17), (byte)(G * 17), (byte)(B * 17));
 
         #endregion
     }

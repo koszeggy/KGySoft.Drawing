@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => false;
+        protected static bool SaveToFile => true;
 
         #endregion
 

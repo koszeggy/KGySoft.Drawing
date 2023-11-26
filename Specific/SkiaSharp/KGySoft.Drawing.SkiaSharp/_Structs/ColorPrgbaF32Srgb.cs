@@ -15,7 +15,10 @@
 
 #region Usings
 
-using System;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Numerics;
+#endif
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -38,51 +41,50 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorPrgbaF32Srgb(Color32 c)
+        internal ColorPrgbaF32Srgb(PColor32 c) => this = Unsafe.As<PColorF, ColorPrgbaF32Srgb>(ref Unsafe.AsRef(c.ToPColorF(false)));
+        internal ColorPrgbaF32Srgb(PColor64 c) => this = Unsafe.As<PColorF, ColorPrgbaF32Srgb>(ref Unsafe.AsRef(c.ToPColorF(false)));
+
+        /// <summary>
+        /// Note that this ctor is from ColorF and not PColorF because the color space change must be performed with straight colors
+        /// so if the parameter was PColorF, then for getting/setting ColorF instances an unnecessary extra conversion would be performed.
+        /// </summary>
+        internal ColorPrgbaF32Srgb(ColorF c)
         {
-            if (c.A == Byte.MinValue)
-            {
-                this = default;
-                return;
-            }
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            PColorF srgbF = ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba())).ToPremultiplied();
+#else
+            PColorF srgbF = new ColorF(c.A,
+                ColorSpaceHelper.LinearToSrgb(c.R),
+                ColorSpaceHelper.LinearToSrgb(c.G),
+                ColorSpaceHelper.LinearToSrgb(c.B))
+                .ToPremultiplied();
+#endif
 
-            a = ColorSpaceHelper.ToFloat(c.A);
-            if (c.A == Byte.MaxValue)
-            {
-                r = ColorSpaceHelper.ToFloat(c.R);
-                g = ColorSpaceHelper.ToFloat(c.G);
-                b = ColorSpaceHelper.ToFloat(c.B);
-                return;
-            }
-
-            r = ColorSpaceHelper.ToFloat(c.R) * a;
-            g = ColorSpaceHelper.ToFloat(c.G) * a;
-            b = ColorSpaceHelper.ToFloat(c.B) * a;
+            this = Unsafe.As<PColorF, ColorPrgbaF32Srgb>(ref srgbF);
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32()
+        internal PColor32 ToPColor32() => Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToPColor32(false);
+        internal PColor64 ToPColor64() => Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToPColor64(false);
+
+        /// <summary>
+        /// Note that this method converts to ColorF instead of PColorF.
+        /// It's to spare an unnecessary back-and-forth conversion if ColorF is requested.
+        /// </summary>
+        internal ColorF ToColorF()
         {
-            if (a >= 1f)
-            {
-                return new Color32(ColorSpaceHelper.ToByte(a),
-                    ColorSpaceHelper.ToByte(r),
-                    ColorSpaceHelper.ToByte(g),
-                    ColorSpaceHelper.ToByte(b));
-            }
-
-            if (a > 0f)
-            {
-                return new Color32(ColorSpaceHelper.ToByte(a),
-                    ColorSpaceHelper.ToByte(r / a),
-                    ColorSpaceHelper.ToByte(g / a),
-                    ColorSpaceHelper.ToByte(b / a));
-            }
-
-            return default;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToStraight().ToRgba()));
+#else
+            ColorF srgbF = Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToStraight();
+            return new ColorF(srgbF.A,
+                ColorSpaceHelper.SrgbToLinear(srgbF.R),
+                ColorSpaceHelper.SrgbToLinear(srgbF.G),
+                ColorSpaceHelper.SrgbToLinear(srgbF.B));
+#endif
         }
 
         #endregion
