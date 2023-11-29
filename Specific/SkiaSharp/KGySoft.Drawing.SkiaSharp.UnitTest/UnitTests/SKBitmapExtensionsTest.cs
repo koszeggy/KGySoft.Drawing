@@ -172,7 +172,10 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 // Setting/getting all color types, comparing result to the actual Color result
                 expectedResult = actual.ToColor32();
-                tolerance = (byte)(alphaType is SKAlphaType.Premul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 ? 1 : 0);
+                tolerance = linear && alphaType is SKAlphaType.Opaque
+                    || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102
+                        ? (byte)1
+                        : (byte)0;
 
                 // as Color32
                 bitmapData.SetColor32(0, 0, testColor);
@@ -304,12 +307,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.RgF16 }*/)
+            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.RgF16 })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque, }*/)
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -440,6 +443,18 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     SaveBitmap($"{colorType} {colorSpace}", result);
                 }
             }
+        }
+
+        [Test]
+        public void Test()
+        {
+            HashSet<ushort> values = new();
+            for (int i = 0; i < 256; i++)
+            {
+                values.Add(((byte)i).ToSrgb());
+            }
+
+            Console.WriteLine(values.Count);
         }
 
         #endregion

@@ -36,11 +36,6 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorRg1616Linear(Color32 c)
-            : this(new Color64(c))
-        {
-        }
-
         internal ColorRg1616Linear(Color64 c)
         {
             Debug.Assert(c.A == UInt16.MaxValue);
@@ -59,7 +54,8 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(r.ToSrgbByte(), g.ToSrgbByte(), 0);
+        internal Color64 ToColor64() => new Color64(r.ToSrgb(), g.ToSrgb(), 0);
+        internal ColorF ToColorF() => new Color64(r, g, 0).ToColorF(false);
 
         #endregion
     }

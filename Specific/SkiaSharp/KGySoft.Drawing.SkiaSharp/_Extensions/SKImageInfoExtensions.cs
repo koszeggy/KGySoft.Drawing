@@ -93,8 +93,8 @@ namespace KGySoft.Drawing.SkiaSharp
             }
             // [P]Color64 preference: when the range demands it (>8 bit color channels)
             else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x
-                // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha
-                || info.LinearGamma && imageInfo.ColorType is not SKColorType.Alpha8)
+                // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha and < 8 channel per color formats
+                || info.LinearGamma && imageInfo.ColorType is not (SKColorType.Alpha8 or SKColorType.Rgb565 or SKColorType.Argb4444))
             {
                 info.Prefers64BitColors = true;
             }
@@ -150,7 +150,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Argb4444, SKAlphaType.Unpremul, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Premul, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Linear(c).ToColor32(), backColor32, alphaThreshold, false),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Linear(c.ToPColorF()).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Opaque, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32(), backColor32),
                 (SKColorType.Argb4444, SKAlphaType.Unpremul, _)
@@ -168,7 +168,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Unpremul, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Premul, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPbgra8888Linear(c).ToColor32(), backColor32, alphaThreshold, false),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPbgra8888Linear(c.ToPColorF()).ToColor32(), backColor32, alphaThreshold, false),
 
                 // Opaque RG[B] 8bpp/channel color types with linear color spaces: like above
                 // NOTE: using the same quantizer for RG88 so no extra compensation will occur for the blue channel

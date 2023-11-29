@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -53,19 +54,15 @@ namespace KGySoft.Drawing.SkiaSharp
             a = ColorSpaceHelper.ToByte(c.A);
         }
 
-        internal ColorBgra8888Linear(ColorF c)
-        {
-            b = ColorSpaceHelper.ToByte(c.B);
-            g = ColorSpaceHelper.ToByte(c.G);
-            r = ColorSpaceHelper.ToByte(c.R);
-            a = ColorSpaceHelper.ToByte(c.A);
-        }
+        internal ColorBgra8888Linear(ColorF c) => this = Unsafe.As<Color32, ColorBgra8888Linear>(ref Unsafe.AsRef(c.ToColor32(false)));
 
         #endregion
 
         #region Methods
 
         internal Color32 ToColor32() => new Color32(a, r.ToSrgb(), g.ToSrgb(), b.ToSrgb());
+        internal Color64 ToColor64() => new Color64(ColorSpaceHelper.ToUInt16(a), r.ToSrgbUInt16(), g.ToSrgbUInt16(), b.ToSrgbUInt16());
+        internal ColorF ToColorF() => Unsafe.As<ColorBgra8888Linear, Color32>(ref Unsafe.AsRef(this)).ToColorF(false);
 
         #endregion
     }

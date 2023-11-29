@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
 
@@ -50,22 +51,16 @@ namespace KGySoft.Drawing.SkiaSharp
         private uint G => (value & greenMask) >> 10;
         private uint R => value & redMask;
 
-        // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
-        // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
-        private ushort A16 => (ushort)(A * (85 * 257));
-        private ushort R16 => (ushort)((R << 6) | (R >> 2));
-        private ushort G16 => (ushort)((G << 6) | (G >> 2));
-        private ushort B16 => (ushort)((B << 6) | (B >> 2));
-
         #endregion
 
         #region Constructors
 
         #region Internal Constructors
 
-        internal ColorPrgba1010102Linear(Color32 c)
+        internal ColorPrgba1010102Linear(Color64 c)
         {
-            if (c.A == Byte.MinValue)
+            // We can't do a similar initialization from PColor64 as in ColorRgba1010102Linear because A has smaller depth than RGB.
+            if (c.A == UInt16.MinValue)
             {
                 value = 0u;
                 return;
@@ -74,7 +69,7 @@ namespace KGySoft.Drawing.SkiaSharp
             var straight = new ColorRgba1010102Linear(c);
             if (straight.A == maxAlpha)
             {
-                value = straight.Value;
+                this = Unsafe.As<ColorRgba1010102Linear, ColorPrgba1010102Linear>(ref straight);
                 return;
             }
 
@@ -83,7 +78,31 @@ namespace KGySoft.Drawing.SkiaSharp
                 straight.R * a / maxAlpha,
                 straight.G * a / maxAlpha,
                 straight.B * a / maxAlpha);
-            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
+            Debug.Assert(ToPColorF().IsValid);
+        }
+
+        internal ColorPrgba1010102Linear(ColorF c)
+        {
+            // We can't do a similar initialization from PColorF as in ColorBgra1010102Linear because A has smaller depth than RGB.
+            if (c.A <= 0f)
+            {
+                value = 0u;
+                return;
+            }
+
+            var straight = new ColorRgba1010102Linear(c);
+            if (straight.A == maxAlpha)
+            {
+                this = Unsafe.As<ColorRgba1010102Linear, ColorPrgba1010102Linear>(ref straight);
+                return;
+            }
+
+            uint a = straight.A;
+            this = new ColorPrgba1010102Linear(a,
+                straight.R * a / maxAlpha,
+                straight.G * a / maxAlpha,
+                straight.B * a / maxAlpha);
+            Debug.Assert(ToPColorF().IsValid);
         }
 
         #endregion
@@ -97,7 +116,6 @@ namespace KGySoft.Drawing.SkiaSharp
                 | b << 20
                 | g << 10
                 | r;
-            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
         }
 
         #endregion
@@ -106,12 +124,35 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Methods
 
-        internal Color32 ToColor32()
+        #region Internal Methods
+
+        internal Color64 ToColor64()
         {
-            // Cheating: the temp PColor64/Color64 instances are actually in the linear color space
-            Color64 straight = new PColor64(A16, R16, G16, B16).Clip().ToStraight();
-            return new Color32(ColorSpaceHelper.ToByte(straight.A), straight.R.ToSrgbByte(), straight.G.ToSrgbByte(), straight.B.ToSrgbByte());
+            Color64 linear64 = ToLinear64().ToStraight();
+            return new Color64(linear64.A, linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
         }
+
+        internal PColorF ToPColorF() => ToLinear64().ToPColorF(false);
+
+        #endregion
+
+        #region Private Methods
+
+        private PColor64 ToLinear64()
+        {
+            uint r = R << 6;
+            uint g = G << 6;
+            uint b = B << 6;
+
+            // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
+            // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
+            return new PColor64((ushort)(A * (85 * 257)),
+                (ushort)(r | (r >> 10)),
+                (ushort)(g | (g >> 10)),
+                (ushort)(b | (b >> 10)));
+        }
+
+        #endregion
 
         #endregion
     }

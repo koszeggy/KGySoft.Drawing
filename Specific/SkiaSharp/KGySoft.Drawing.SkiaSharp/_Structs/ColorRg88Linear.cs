@@ -62,6 +62,8 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Methods
 
         internal Color32 ToColor32() => new Color32(r.ToSrgb(), g.ToSrgb(), 0);
+        internal Color64 ToColor64() => new Color64(r.ToSrgbUInt16(), g.ToSrgbUInt16(), 0);
+        internal ColorF ToColorF() => new Color32(r, g, 0).ToColorF(false);
 
         #endregion
     }

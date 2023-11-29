@@ -43,16 +43,6 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorRgF16Linear(Color32 c)
-            : this(c.ToColorF())
-        {
-        }
-
-        internal ColorRgF16Linear(Color64 c)
-            : this(c.ToColorF())
-        {
-        }
-
         internal ColorRgF16Linear(ColorF c)
         {
             Debug.Assert(c.A >= 1f);
@@ -64,7 +54,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Methods
 
-        internal Color32 ToColor32() => new ColorF(R, G, 0f).ToColor32();
+        internal ColorF ToColorF() => new ColorF(R, G, 0f);
 
         #endregion
     }

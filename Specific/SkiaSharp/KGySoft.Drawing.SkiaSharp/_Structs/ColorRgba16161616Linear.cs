@@ -37,11 +37,6 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorRgba16161616Linear(Color32 c)
-            : this(new Color64(c))
-        {
-        }
-
         internal ColorRgba16161616Linear(Color64 c)
         {
             r = c.R.ToLinear();
@@ -52,17 +47,19 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal ColorRgba16161616Linear(ColorF c)
         {
-            r = ColorSpaceHelper.ToUInt16(c.R);
-            g = ColorSpaceHelper.ToUInt16(c.G);
-            b = ColorSpaceHelper.ToUInt16(c.B);
-            a = ColorSpaceHelper.ToUInt16(c.A);
+            Color64 linear64 = c.ToColor64(false);
+            r = linear64.R;
+            g = linear64.G;
+            b = linear64.B;
+            a = linear64.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(a), r.ToSrgbByte(), g.ToSrgbByte(), b.ToSrgbByte());
+        internal Color64 ToColor64() => new Color64(a, r.ToSrgb(), g.ToSrgb(), b.ToSrgb());
+        internal ColorF ToColorF() => new Color64(a, r, g, b).ToColorF(false);
 
         #endregion
     }

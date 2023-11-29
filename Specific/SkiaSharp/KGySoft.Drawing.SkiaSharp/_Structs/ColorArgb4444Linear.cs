@@ -30,60 +30,64 @@ namespace KGySoft.Drawing.SkiaSharp
         private const ushort greenMask = 0x0F_00;
         private const ushort blueMask = 0x00_F0;
 
-        private const int maxArgb = 15;
-
         #endregion
 
         #region Fields
 
-        internal readonly ushort Value;
+        private readonly ushort value;
 
         #endregion
 
         #region Properties
 
-        internal byte A => (byte)(Value & alphaMask);
-        internal byte R => (byte)((Value & redMask) >> 12);
-        internal byte G => (byte)((Value & greenMask) >> 8);
-        internal byte B => (byte)((Value & blueMask) >> 4);
+        internal byte A => (byte)(value & alphaMask);
+        internal byte R => (byte)((value & redMask) >> 12);
+        internal byte G => (byte)((value & greenMask) >> 8);
+        internal byte B => (byte)((value & blueMask) >> 4);
 
         #endregion
 
         #region Constructors
 
-        internal ColorArgb4444Linear(Color32 c) => Value =
-            (ushort)((c.A >> 4)
-                | ((c.R.ToLinear() >> 4) << 12)
-                | ((c.G.ToLinear() >> 4) << 8)
-                | ((c.B.ToLinear() >> 4) << 4));
+        internal ColorArgb4444Linear(Color32 c) => value = (ushort)((c.A >> 4)
+            | ((c.R.ToLinear() >> 4) << 12)
+            | ((c.G.ToLinear() >> 4) << 8)
+            | ((c.B.ToLinear() >> 4) << 4));
 
-        internal ColorArgb4444Linear(ColorF c) => Value =
-            (ushort)((ColorSpaceHelper.ToByte(c.A) >> 4)
-                | ((ColorSpaceHelper.ToByte(c.R) >> 4) << 12)
-                | ((ColorSpaceHelper.ToByte(c.G) >> 4) << 8)
-                | ((ColorSpaceHelper.ToByte(c.B) >> 4) << 4));
-
-        internal ColorArgb4444Linear(byte a, byte r, byte g, byte b)
+        internal ColorArgb4444Linear(ColorF c)
         {
-            Debug.Assert(a <= maxArgb && r <= maxArgb && g <= maxArgb && b <= maxArgb);
-            Value = (ushort)(a
-                | r << 12
-                | g << 8
-                | b << 4);
+            Color32 linear32 = c.ToColor32(false);
+            value = (ushort)((linear32.A >> 4)
+                | ((linear32.R >> 4) << 12)
+                | ((linear32.G >> 4) << 8)
+                | ((linear32.B >> 4) << 4));
         }
-
-        internal ColorArgb4444Linear(ushort value) => Value = value;
 
         #endregion
 
         #region Methods
 
-        // value * 17 is the same as (value | (value << 4))
+        #region Internal Methods
+        
         internal Color32 ToColor32()
-            => new Color32((byte)(A * 17),
-                ((byte)(R * 17)).ToSrgb(),
-                ((byte)(G * 17)).ToSrgb(),
-                ((byte)(B * 17)).ToSrgb());
+        {
+            Color32 linear32 = ToLinear32();
+            return new Color32(linear32.A, linear32.R.ToSrgb(), linear32.G.ToSrgb(), linear32.B.ToSrgb());
+        }
+
+        internal ColorF ToColorF() => ToLinear32().ToColorF(false);
+
+        #endregion
+
+        #region Private Methods
+
+        // value * 17 is the same as (value | (value << 4))
+        private Color32 ToLinear32() => new Color32((byte)(A * 17),
+            ((byte)(R * 17)),
+            ((byte)(G * 17)),
+            ((byte)(B * 17)));
+
+        #endregion
 
         #endregion
     }

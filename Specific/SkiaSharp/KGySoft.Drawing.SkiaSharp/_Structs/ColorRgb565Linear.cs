@@ -61,9 +61,10 @@ namespace KGySoft.Drawing.SkiaSharp
         internal ColorRgb565Linear(ColorF c)
         {
             Debug.Assert(c.A >= 1f);
-            value = (ushort)((((uint)ColorSpaceHelper.ToByte(c.R) << 8) & redMask)
-                | (((uint)ColorSpaceHelper.ToByte(c.G) << 3) & greenMask)
-                | ((uint)ColorSpaceHelper.ToByte(c.B) >> 3));
+            Color32 linear32 = c.ToColor32(false);
+            value = (ushort)((((uint)linear32.R << 8) & redMask)
+                | (((uint)linear32.G << 3) & greenMask)
+                | ((uint)linear32.B >> 3));
         }
 
         #endregion
@@ -71,6 +72,7 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Methods
 
         internal Color32 ToColor32() => new Color32(R.ToSrgb(), G.ToSrgb(), B.ToSrgb());
+        internal ColorF ToColorF() => new Color32(R, G, B).ToColorF(false);
 
         #endregion
     }

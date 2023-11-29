@@ -34,42 +34,22 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Fields
 
-        internal readonly uint Value;
+        private readonly uint value;
 
         #endregion
 
         #region Properties
 
-        #region Internal Properties
-
-        internal uint A => (Value & alphaMask) >> 30;
-        internal uint B => (Value & blueMask) >> 20;
-        internal uint G => (Value & greenMask) >> 10;
-        internal uint R => Value & redMask;
-
-        #endregion
-
-        #region Private Properties
-
-        // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
-        // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
-        private ushort A16 => (ushort)(A * (85 * 257));
-        private ushort R16 => (ushort)((R << 6) | (R >> 2));
-        private ushort G16 => (ushort)((G << 6) | (G >> 2));
-        private ushort B16 => (ushort)((B << 6) | (B >> 2));
-
-        #endregion
+        internal uint A => (value & alphaMask) >> 30;
+        internal uint B => (value & blueMask) >> 20;
+        internal uint G => (value & greenMask) >> 10;
+        internal uint R => value & redMask;
 
         #endregion
 
         #region Constructors
 
-        internal ColorRgba1010102Linear(Color32 c)
-            : this(new Color64(c))
-        {
-        }
-
-        internal ColorRgba1010102Linear(Color64 c) => Value =
+        internal ColorRgba1010102Linear(Color64 c) => value =
             ((uint)(c.A >> 14) << 30)
             | (uint)((c.B.ToLinear() >> 6) << 20)
             | (uint)((c.G.ToLinear() >> 6) << 10)
@@ -77,21 +57,46 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal ColorRgba1010102Linear(ColorF c)
         {
-            uint r = ColorSpaceHelper.ToUInt16(c.R);
-            uint g = ColorSpaceHelper.ToUInt16(c.G);
-            uint b = ColorSpaceHelper.ToUInt16(c.B);
-            uint a = ColorSpaceHelper.ToUInt16(c.A);
-            Value = (a >> 14 << 30)
-                | (b >> 6) << 20
-                | (g >> 6) << 10
-                | r >> 6;
+            Color64 linear64 = c.ToColor64(false);
+            value = ((uint)linear64.A >> 14 << 30)
+                | ((uint)linear64.B >> 6) << 20
+                | ((uint)linear64.G >> 6) << 10
+                | (uint)linear64.R >> 6;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color64(A16, R16.ToSrgb(), G16.ToSrgb(), B16.ToSrgb()).ToColor32();
+        #region Internal Methods
+
+        internal Color64 ToColor64()
+        {
+            Color64 linear64 = ToLinear64();
+            return new Color64(linear64.A, linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
+        }
+
+        internal ColorF ToColorF() => ToLinear64().ToColorF(false);
+
+        #endregion
+
+        #region Private Methods
+
+        private Color64 ToLinear64()
+        {
+            uint r = R << 6;
+            uint g = G << 6;
+            uint b = B << 6;
+
+            // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
+            // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
+            return new Color64((ushort)(A * (85 * 257)),
+                (ushort)(r | (r >> 10)),
+                (ushort)(g | (g >> 10)),
+                (ushort)(b | (b >> 10)));
+        }
+
+        #endregion
 
         #endregion
     }

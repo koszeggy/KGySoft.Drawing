@@ -37,33 +37,26 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorPrgba16161616Linear(Color32 c)
+        internal ColorPrgba16161616Linear(PColorF c)
         {
-            // This would be the solution without floating-point operations but it's quantizing the result too heavily
-            // and it's not even faster on targets where vectorization can be used:
-            //PColor32 premultiplied = new Color32(c.A, c.R.ToLinear(), c.G.ToLinear(), c.B.ToLinear()).ToPremultiplied();
-            //r = premultiplied.R;
-            //g = premultiplied.G;
-            //b = premultiplied.B;
-            //a = premultiplied.A;
-
-            PColorF result = c.ToPColorF();
-            r = ColorSpaceHelper.ToUInt16(result.R);
-            g = ColorSpaceHelper.ToUInt16(result.G);
-            b = ColorSpaceHelper.ToUInt16(result.B);
-            a = ColorSpaceHelper.ToUInt16(c.A);
+            PColor64 linear64 = c.ToPColor64(false);
+            r = linear64.R;
+            g = linear64.G;
+            b = linear64.B;
+            a = linear64.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32()
+        internal Color64 ToColor64()
         {
-            // Cheating: the temp PColor64/Color64 instances are actually in the linear color space
-            Color64 straight = new PColor64(a, r, g, b).ToStraight();
-            return new Color32(ColorSpaceHelper.ToByte(a), straight.R.ToSrgbByte(), straight.G.ToSrgbByte(), straight.B.ToSrgbByte());
+            Color64 linear64 = new PColor64(a, r, g, b).ToStraight();
+            return new Color64(a, linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
         }
+
+        internal PColorF ToPColorF() => new PColor64(a, r, g, b).ToPColorF(false);
 
         #endregion
     }

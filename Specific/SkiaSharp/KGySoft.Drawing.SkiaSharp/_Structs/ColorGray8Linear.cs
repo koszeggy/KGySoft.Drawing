@@ -41,6 +41,12 @@ namespace KGySoft.Drawing.SkiaSharp
             value = c.GetBrightnessF().ToLinearByte();
         }
 
+        internal ColorGray8Linear(Color64 c)
+        {
+            Debug.Assert(c.A == UInt16.MaxValue);
+            value = c.GetBrightnessF().ToLinearByte();
+        }
+
         internal ColorGray8Linear(ColorF c)
         {
             Debug.Assert(c.A >= 1f);
@@ -52,6 +58,8 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Methods
 
         internal Color32 ToColor32() => Color32.FromGray(value.ToSrgb());
+        internal Color64 ToColor64() => Color64.FromGray(value.ToSrgbUInt16());
+        internal ColorF ToColorF() => ColorF.FromGray(ColorSpaceHelper.ToFloat(value));
 
         #endregion
     }

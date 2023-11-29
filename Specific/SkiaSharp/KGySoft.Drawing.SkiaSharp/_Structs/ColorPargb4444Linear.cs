@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -31,8 +29,6 @@ namespace KGySoft.Drawing.SkiaSharp
         private const ushort redMask = 0xF0_00;
         private const ushort greenMask = 0x0F_00;
         private const ushort blueMask = 0x00_F0;
-
-        private const int maxArgb = 15;
 
         #endregion
 
@@ -53,69 +49,41 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        #region Internal Constructors
-
-        internal ColorPargb4444Linear(Color32 c)
+        internal ColorPargb4444Linear(PColorF c)
         {
-            PColorF pF = c.ToPColorF();
-            this = new ColorPargb4444Linear((byte)(c.A >> 4),
-                (byte)(ColorSpaceHelper.ToByte(pF.R) >> 4),
-                (byte)(ColorSpaceHelper.ToByte(pF.G) >> 4),
-                (byte)(ColorSpaceHelper.ToByte(pF.B) >> 4));
-
-            //// Premultiplication after quantization (results are more like the non-premultiplied format):
-            //if (c.A == Byte.MinValue)
-            //{
-            //    value = 0;
-            //    return;
-            //}
-
-            //var straight = new ColorArgb4444Linear(c);
-            //if (c.A == Byte.MaxValue)
-            //{
-            //    value = straight.Value;
-            //    return;
-            //}
-
-            //byte a = straight.A;
-            //this = new ColorPargb4444Linear(a,
-            //    (byte)(straight.R * a / maxArgb),
-            //    (byte)(straight.G * a / maxArgb),
-            //    (byte)(straight.B * a / maxArgb));
+            PColor32 linear32 = c.ToPColor32(false);
+            value = (ushort)((linear32.A >> 4)
+                | ((linear32.R >> 4) << 12)
+                | ((linear32.G >> 4) << 8)
+                | ((linear32.B >> 4) << 4));
         }
-
-        #endregion
-
-        #region Private Constructors
-
-        private ColorPargb4444Linear(byte a, byte r, byte g, byte b)
-        {
-            Debug.Assert(a <= maxArgb && r <= a && g <= a && b <= a);
-            value = (ushort)(a
-                | r << 12
-                | g << 8
-                | b << 4);
-        }
-
-        #endregion
 
         #endregion
 
         #region Methods
+        
+        #region Internal Methods
 
         internal Color32 ToColor32()
         {
-            byte a = A;
-            return a switch
-            {
-                0 => default,
-                maxArgb => new ColorArgb4444Linear(value).ToColor32(),
-                _ => new ColorArgb4444Linear(a,
-                    (byte)(R * maxArgb / a),
-                    (byte)(G * maxArgb / a),
-                    (byte)(B * maxArgb / a)).ToColor32()
-            };
+            // value * 17 is the same as (value | (value << 4))
+            Color32 linear32 = ToLinear32().ToStraight();
+            return new Color32(linear32.A, linear32.R.ToSrgb(), linear32.G.ToSrgb(), linear32.B.ToSrgb());
         }
+
+        internal PColorF ToPColorF() => ToLinear32().ToPColorF(false);
+
+        #endregion
+
+        #region Pivate Methods
+
+        // value * 17 is the same as (value | (value << 4))
+        private PColor32 ToLinear32() => new PColor32((byte)(A * 17),
+            ((byte)(R * 17)),
+            ((byte)(G * 17)),
+            ((byte)(B * 17)));
+
+        #endregion
 
         #endregion
     }

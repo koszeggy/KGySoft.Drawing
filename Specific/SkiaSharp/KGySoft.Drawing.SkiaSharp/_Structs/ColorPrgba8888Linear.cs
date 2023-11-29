@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorPrgba8888Linear(Color32 c)
+        internal ColorPrgba8888Linear(PColorF c)
         {
             // This would be the solution without floating-point operations but it's quantizing the result too heavily
             // and it's not even faster on targets where vectorization can be used:
@@ -47,11 +47,11 @@ namespace KGySoft.Drawing.SkiaSharp
             //b = premultiplied.B;
             //a = premultiplied.A;
 
-            PColorF result = c.ToPColorF();
-            r = ColorSpaceHelper.ToByte(result.R);
-            g = ColorSpaceHelper.ToByte(result.G);
-            b = ColorSpaceHelper.ToByte(result.B);
-            a = c.A;
+            PColor32 linear32 = c.ToPColor32(false);
+            r = linear32.R;
+            g = linear32.G;
+            b = linear32.B;
+            a = linear32.A;
         }
 
         #endregion
@@ -60,10 +60,17 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal Color32 ToColor32()
         {
-            // Cheating: the temp PColor32/Color32 instances are actually in the linear color space
-            Color32 straight = new PColor32(a, r, g, b).ToStraight();
-            return new Color32(a, straight.R.ToSrgb(), straight.G.ToSrgb(), straight.B.ToSrgb());
+            Color32 linear32 = new PColor32(a, r, g, b).ToStraight();
+            return new Color32(a, linear32.R.ToSrgb(), linear32.G.ToSrgb(), linear32.B.ToSrgb());
         }
+
+        internal Color64 ToColor64()
+        {
+            Color64 linear64 = new PColor32(a, r, g, b).ToPColor64().ToStraight();
+            return new Color64(ColorSpaceHelper.ToUInt16(a), linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
+        }
+
+        internal PColorF ToPColorF() => new PColor32(a, r, g, b).ToPColorF(false);
 
         #endregion
     }
