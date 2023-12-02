@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security;
 
 #endregion
 
@@ -62,6 +63,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [SecuritySafeCritical]
         internal unsafe Color32 ToColor32()
         {
             // The same trick as in Color64.ToColor32()

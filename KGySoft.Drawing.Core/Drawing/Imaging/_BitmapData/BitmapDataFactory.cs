@@ -1742,6 +1742,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.
         /// <br/>-or-
         /// <be/>None of the pixel getter/setter delegates are specified in <paramref name="customBitmapDataConfig"/>.</exception>
+        [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, CustomBitmapDataConfig customBitmapDataConfig)
         {
             ValidateArguments(buffer, size, stride, customBitmapDataConfig);
@@ -1831,6 +1832,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see cref="CustomBitmapDataConfigBase.PixelFormat"/> in <paramref name="customBitmapDataConfig"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.
         /// <br/>-or-
         /// <be/>Neither the getter nor the setter delegate is specified in <paramref name="customBitmapDataConfig"/>.</exception>
+        [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, CustomIndexedBitmapDataConfig customBitmapDataConfig)
         {
             ValidateArguments(buffer, size, stride, customBitmapDataConfig);

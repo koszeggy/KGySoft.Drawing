@@ -113,6 +113,7 @@ namespace KGySoft.Drawing.Imaging
         private static Vector4 Half { get; } = new Vector4(0.5f);
 #if NETCOREAPP3_0_OR_GREATER
         private static Vector128<byte> PackRgbaAsPColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        private static Vector128<byte> PackRgbaAsPColor64Mask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 #endif
 #endif
 
