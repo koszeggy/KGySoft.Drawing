@@ -1,4 +1,4 @@
-﻿#if NET46_OR_GREATER || NETCOREAPP
+﻿#if NETCOREAPP3_0_OR_GREATER
 #region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,10 +20,8 @@ using System;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86; 
-#endif
+using System.Runtime.Intrinsics.X86;
 
 using KGySoft.Drawing.Imaging;
 
@@ -173,7 +171,7 @@ namespace KGySoft.Drawing.PerformanceTests
     {
         #region Properties
 
-#if NETCOREAPP3_0_OR_GREATER && !NET7_0_OR_GREATER
+#if !NET7_0_OR_GREATER
 #if NET5_0_OR_GREATER
         private static Vector128<ulong> AllBitsSet => Vector128<ulong>.AllBitsSet;
 #else
@@ -184,7 +182,7 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NET5_0_OR_GREATER
         private static Vector128<byte> PackRgbaAsColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsColor64Mask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
+#else
         private static Vector128<byte> PackRgbaAsColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsColor64Mask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 #endif
@@ -257,7 +255,6 @@ namespace KGySoft.Drawing.PerformanceTests
         }
 #endif
 
-#if NETCOREAPP3_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ColorF ToSrgb_2_Intrinsics(this ColorF c)
         {
@@ -306,7 +303,6 @@ namespace KGySoft.Drawing.PerformanceTests
 
             return c.ToSrgb_0_Vanilla();
         }
-#endif
 
         internal static ColorF ToColorF_0_VanillaUncached(this Color32 c)
             => new ColorF(c.A / 255f,
@@ -355,7 +351,6 @@ namespace KGySoft.Drawing.PerformanceTests
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToColor32_2_IntrinsicAll(this ColorF c)
         {
-#if NETCOREAPP3_0_OR_GREATER
             if (Sse2.IsSupported)
             {
                 Vector128<float> rgbx = c.RgbaV128.WithElement(3, 1f);
@@ -414,7 +409,6 @@ namespace KGySoft.Drawing.PerformanceTests
                     ? new Color32(Ssse3.Shuffle(result, PackRgbaAsColor32Mask).AsUInt32().ToScalar())
                     : new Color32(result.GetElement(12), result.GetElement(0), result.GetElement(4), result.GetElement(8));
             }
-#endif
 
             return new Color32(ColorSpaceHelper.ToByte(c.A),
                 ColorSpaceHelper.LinearToSrgb8Bit(c.R),

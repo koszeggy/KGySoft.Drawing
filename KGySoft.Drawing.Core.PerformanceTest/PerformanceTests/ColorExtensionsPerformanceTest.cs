@@ -792,7 +792,7 @@ namespace KGySoft.Drawing.PerformanceTests
 
 #if NETCOREAPP3_0_OR_GREATER
             var result = Sse.Multiply(c.RgbaV128, Vector128.Create(RLumLinear, GLumLinear, BLumLinear, default));
-#if NET5_0_OR_GREATER
+#if NET7_0_OR_GREATER
             return Vector128.Sum(result);
 #else
             return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);

@@ -1,4 +1,4 @@
-﻿#if NET46_OR_GREATER || NETCOREAPP
+﻿#if NETCOREAPP3_0_OR_GREATER
 #region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,10 +22,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using KGySoft.CoreLibraries;
-#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-#endif
 
 using KGySoft.Drawing.Imaging;
 
@@ -167,7 +165,6 @@ namespace KGySoft.Drawing.PerformanceTests
         }
 #endif
 
-#if NETCOREAPP3_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector128<float> ToSrgb_2_Intrinsics(this Vector128<float> c)
         {
@@ -221,8 +218,6 @@ namespace KGySoft.Drawing.PerformanceTests
             // The non-accelerated version.
             return c.ToSrgb_0_Vanilla();
         }
-#endif
-
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static float PowI(float value, int power)
