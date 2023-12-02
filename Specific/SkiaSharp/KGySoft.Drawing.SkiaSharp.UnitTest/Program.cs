@@ -24,6 +24,7 @@ using KGySoft.CoreLibraries;
 using NUnit.Framework.Api;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+
 #if NETCOREAPP
 #elif !NETFRAMEWORK
 using System.Runtime.InteropServices;
@@ -55,7 +56,9 @@ namespace KGySoft.Drawing.SkiaSharp
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
             // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
             // or just calling the method to debug directly
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
+
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");

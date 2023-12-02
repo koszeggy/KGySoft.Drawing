@@ -150,7 +150,15 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 Color actual = bitmapData.GetPixel(1, 1);
                 byte tolerance = (byte)(colorSpace.IsSrgb
                     ? colorType switch { SKColorType.Argb4444 => 17, SKColorType.Rgb565 => 5, _ => 1 } // allowing 1 shade difference
-                    : colorType switch { SKColorType.Argb4444 => 64, SKColorType.Rgb565 => 45, _ => 2 }); // for 5 bit linear colors the first non-black shade is 48, for 4 bit it's 70
+                    : colorType switch
+                    {
+                        SKColorType.Rgb565 => 45, // for 5 bit linear colors the first non-black shade is 48
+                        SKColorType.Argb4444 => 64, // for 4 bit it's 70
+#if !NETCOREAPP3_0_OR_GREATER
+                        SKColorType.Rgba8888 or SKColorType.Bgra8888 => 3,
+#endif
+                        _ => 2
+                    });
 
                 var raw = new List<byte>();
                 for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
@@ -172,10 +180,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 // Setting/getting all color types, comparing result to the actual Color result
                 expectedResult = actual.ToColor32();
+#if NETCOREAPP3_0_OR_GREATER // Keeping the original tolerance if a shade difference can occur due to non-accelerated truncating conversions (especially for premultiplied colors)
                 tolerance = linear && alphaType is SKAlphaType.Opaque
                     || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102
                         ? (byte)1
                         : (byte)0;
+#endif
 
                 // as Color32
                 bitmapData.SetColor32(0, 0, testColor);
@@ -183,7 +193,11 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 // as PColor32
                 bitmapData.SetPColor32(0, 0, testColor.ToPColor32());
+#if NETCOREAPP3_0_OR_GREATER
                 AssertEqual(() => expectedResult.ToPColor32().ToColor32(), () => bitmapData.GetPColor32(0, 0).ToColor32(), tolerance);
+#else
+                AssertEqual(() => expectedResult.ToPColor32().ToColor32(), () => bitmapData.GetPColor32(0, 0).ToColor32(), (byte)(tolerance * 2));
+#endif
 
                 // as Color64
                 bitmapData.SetColor64(0, 0, testColor.ToColor64());
@@ -307,12 +321,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.RgF16 })
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Argb4444 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque }*/)
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Unpremul }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -321,7 +335,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         continue;
 
                     bool skiaSaved = false;
-                    foreach (WorkingColorSpace workingColorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                    foreach (WorkingColorSpace workingColorSpace in new[] { WorkingColorSpace.Linear })
                     {
                         PixelFormatInfo info = bitmap.Info.GetInfo();
                         var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();

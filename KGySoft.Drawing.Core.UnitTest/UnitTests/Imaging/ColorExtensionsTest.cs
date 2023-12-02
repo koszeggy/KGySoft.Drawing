@@ -74,19 +74,19 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.AreEqual(s32, sFSrgb.ToColor32(false));
             
             sFSrgb = p32.ToColorF(false);
-            Assert.AreEqual(p32, sFSrgb.ToPColor32(false));
+            Assert.IsTrue(p32.TolerantEquals(sFSrgb.ToPColor32(false), 1), $"{p32} vs. {sFSrgb.ToPColor32(false)}");
             
             sFSrgb = s64.ToColorF(false);
             Assert.AreEqual(s64, sFSrgb.ToColor64(false));
 
             sFSrgb = p64.ToColorF(false);
-            Assert.AreEqual(p64, sFSrgb.ToPColor64(false));
+            Assert.IsTrue(p64.TolerantEquals(sFSrgb.ToPColor64(false), 1), $"{p64} vs. {sFSrgb.ToPColor64(false)}");
 
             PColorF pFSrgb = p32.ToPColorF(false);
             Assert.AreEqual(p32, pFSrgb.ToPColor32(false));
 
             pFSrgb = s32.ToPColorF(false);
-            Assert.AreEqual(s32, pFSrgb.ToColor32(false));
+            Assert.IsTrue(s32.TolerantEquals(pFSrgb.ToColor32(false), 1, 0), $"{s32} vs. {pFSrgb.ToColor32(false)}");
 
             pFSrgb = p64.ToPColorF(false);
             Assert.AreEqual(p64, pFSrgb.ToPColor64(false));

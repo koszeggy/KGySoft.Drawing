@@ -1662,7 +1662,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance)
         {
-            Debug.Assert(c1.A == 255 && c2.A == 255);
+            Debug.Assert(c1.A == 255 && c2.A == 255, "If alpha can be nonzero use the public overload instead");
             if (c1 == c2)
                 return true;
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance;

@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Imaging
         internal static ushort ClipToUInt16(this float value) => value switch
         {
             >= UInt16.MaxValue => UInt16.MaxValue,
-            >= UInt16.MinValue => (byte)value,
+            >= UInt16.MinValue => (ushort)value,
             _ => UInt16.MinValue
         };
 

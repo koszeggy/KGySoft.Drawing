@@ -89,16 +89,18 @@ namespace KGySoft.Drawing.SkiaSharp
         /// Note that this method converts to ColorF instead of PColorF.
         /// It's to spare an unnecessary back-and-forth conversion if ColorF is requested.
         /// </summary>
-        internal ColorF ToColorF() =>
+        internal ColorF ToColorF()
+        {
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(new PColorF(A, R, G, B).ToStraight().ToRgba()));
+            return ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(new PColorF(A, R, G, B).ToStraight().ToRgba()));
 #else
-            new PColorF(A,
-                    ColorSpaceHelper.SrgbToLinear(R),
-                    ColorSpaceHelper.SrgbToLinear(G),
-                    ColorSpaceHelper.SrgbToLinear(B))
-                .ToStraight();
+            ColorF srgbF = new PColorF(A, R, G, B).ToStraight();
+            return new ColorF(srgbF.A,
+                ColorSpaceHelper.SrgbToLinear(srgbF.R),
+                ColorSpaceHelper.SrgbToLinear(srgbF.G),
+                ColorSpaceHelper.SrgbToLinear(srgbF.B));
 #endif
+        }
 
         #endregion
     }
