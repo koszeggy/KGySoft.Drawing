@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 7.2.0
+﻿Thank you for installing KGy SOFT Drawing Libraries 8.0.0-rc.1
 KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
 ⚠️ Warning: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and

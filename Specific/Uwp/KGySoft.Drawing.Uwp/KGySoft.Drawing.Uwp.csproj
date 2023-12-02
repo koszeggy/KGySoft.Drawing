@@ -47,10 +47,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.13</Version>
+      <Version>6.2.14</Version>
     </PackageReference>
     <PackageReference Include="KGySoft.Drawing.Core">
-      <Version>8.0.0-preview.1</Version>
+      <Version>8.0.0-rc.1</Version>
     </PackageReference>
   </ItemGroup>
   <!--Debug-only references-->

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>-->
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>
+    <!--<TargetFrameworks>net8.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
@@ -21,8 +21,11 @@
     <OutputType>Exe</OutputType>
     <GenerateProgramFile>false</GenerateProgramFile>
 
-    <!--Suppression NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp2.1'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!--Suppressions
+      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - the unit test requires to target the supported versions
+      - NU1903: netcoreapp2.0 has known vulnerabilities - the unit test requires to target the supported versions
+      -->
+    <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
@@ -31,9 +34,9 @@
 
   <!-- Common NuGet references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
   </ItemGroup>

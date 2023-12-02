@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>-->
-    <TargetFrameworks>net7.0-windows</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>
+    <!--<TargetFrameworks>net8.0-windows</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -24,9 +24,9 @@
 
   <!-- Common NuGet references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
   </ItemGroup>

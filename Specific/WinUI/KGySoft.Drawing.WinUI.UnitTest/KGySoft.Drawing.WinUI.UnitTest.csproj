@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <!--<TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>-->
-    <TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>
+    <!--<TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>-->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>KGySoft.Drawing.WinUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -13,6 +13,9 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+
+    <!--Suppression NETSDK1138: The target framework 'net5.0' is out of support - the unit test requires to target the supported versions -->
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +31,7 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
 
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>-->
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>
+    <!--<TargetFrameworks>net8.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
@@ -22,8 +22,11 @@
     <Authors>György Kőszeg</Authors>
     <Nullable>enable</Nullable>
 
-    <!--Suppression NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!--Suppressions
+      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
+      - NU1903: netcoreapp2.0 has known vulnerabilities - it's a targeted platform and not a referenced package. A consumer of this library can also pick newer supported platforms.
+      -->
+    <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,12 +53,12 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="8.0.0-preview.1" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="8.0.0-rc.1" />
   </ItemGroup>
 
   <!-- .NET 7.0 or newer references: Unix is no longer supported -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
@@ -67,7 +70,7 @@
   <!-- Note for .NET Standard targets: They are theoretically supported by 6.0.0 but in practice that causes a .dll hell even just from unit tests
        because if targeting .NET Core 2.0/3.0 from test project (to be able to test the .NET Standard 2.0 versions, then version conflicts
        and package downgrade errors are appearing) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>
 
