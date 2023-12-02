@@ -105,7 +105,6 @@ namespace KGySoft.Drawing.SkiaSharp
                 return pixels.GetBitmapDataInternal(true, workingColorSpace, backColor, alphaThreshold, disposeCallback: disposeCallback);
 
             // Other image: converting it to a bitmap
-            // TODO: test if this works for GPU/vector images
             SKImageInfo imageInfo = image.Info;
             var bitmap = new SKBitmap(imageInfo);
             if (!image.ReadPixels(imageInfo, bitmap.GetPixels()))

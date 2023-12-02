@@ -16,14 +16,28 @@
   because version 2.88.6 contains several new bugs, including some encoder issues, which cause previously correctly
   saved images to get corrupted: https://github.com/mono/SkiaSharp/issues?q=label%3Atype%2Fbug+2.88.6+
 
-
-+ KGySoft.Drawing.SkiaSharp namespace
+! KGySoft.Drawing.SkiaSharp namespace
 =====================================
+! SKImageInfoExtensions class:
+  ! GetInfo method: The new Prefers128BitColors or Prefers64BitColors property is now set for some pixel formats.
 + ColorExtensions class:
   + New conversion methods also for SKColorF and SKPMColor types.
   + New ToPColor32, ToColor64, ToPColor64, ToColorF and ToPColorF conversion methods for SkiaSharp color types.
-! SKImageInfoExtensions class:
-  ! GetInfo method: The new Prefers128BitColors or Prefers64BitColors property is now set for some pixel formats.
++ SKBitmapExtensions class:
+  + GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods:
+    + They support getting/setting pixels using wide colors without quantizing the color information to the 32-bit
+      ARGB color space.
++ SKPixmapExtensions class:
+  + GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods:
+    + They support getting/setting pixels using wide colors without quantizing the color information to the 32-bit
+      ARGB color space.
++ SKImageExtensions class:
+  + GetReadableBitmapData method overloads: They support getting/setting pixels using wide colors without quantizing
+    the color information to the 32-bit ARGB color space.
++ SKSurfaceExtensions class:
+  + GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods:
+    + They support getting/setting pixels using wide colors without quantizing the color information to the 32-bit
+      ARGB color space.
 
 
 ~~~~~~~~~
