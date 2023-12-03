@@ -85,9 +85,12 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             PixelFormatInfo pixelFormat = Target.PixelFormat;
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
-                if (pixelFormat.HasPremultipliedAlpha)
+                // Using PColorF only if the actual pixel format really has linear gamma to prevent performance issues
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
                     PerformCopyPColorF();
                 else
                     PerformCopyColorF();
@@ -284,7 +287,24 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
+            bool linearBlending = target.LinearBlending();
 
+            // Taking always the target pixel format for the best quality/performance.
+            // For targets with linear gamma (when linear blending is used) assuming
+            // the best performance with [P]ColorF even if the preferred color type is smaller.
+            PixelFormatInfo targetPixelFormat = target.PixelFormat;
+            Action<int> processRow = targetPixelFormat.Prefers128BitColors || linearBlending && targetPixelFormat.LinearGamma
+                ? linearBlending && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
+                    ? ProcessRowPColorF
+                    : ProcessRowColorF
+                : targetPixelFormat.Prefers64BitColors
+                    ? !linearBlending && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                        ? ProcessRowPColor64
+                        : ProcessRowColor64
+                    : !linearBlending && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                        ? ProcessRowPColor32
+                        : ProcessRowColor32;
+            
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
             {
@@ -295,50 +315,26 @@ namespace KGySoft.Drawing.Imaging
                     {
                         if (context.IsCancellationRequested)
                             return;
-                        ProcessRowLinear(y);
+                        processRow.Invoke(y);
                         context.Progress?.Increment();
                     }
                 }
-                else if (target.IsFastPremultiplied())
-                {
-                    for (int y = 0; y < SourceRectangle.Height; y++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        ProcessRowPremultipliedSrgb(y);
-                        context.Progress?.Increment();
-                    }
-                }
-                else
-                {
-                    for (int y = 0; y < SourceRectangle.Height; y++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        ProcessRowStraightSrgb(y);
-                        context.Progress?.Increment();
-                    }
-                }
-
                 return;
             }
 
             // Parallel processing
-            Action<int> processRow = target.LinearBlending() ? ProcessRowLinear
-                : target.IsFastPremultiplied() ? ProcessRowPremultipliedSrgb
-                : ProcessRowStraightSrgb;
-
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
 
-            void ProcessRowStraightSrgb(int y)
+            void ProcessRowColor32(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                bool linear = linearBlending;
                 int width = sourceWidth;
 
                 for (int x = 0; x < width; x++)
@@ -365,9 +361,9 @@ namespace KGySoft.Drawing.Imaging
                     {
                         colorSrc = colorDst.A == Byte.MaxValue
                             // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackgroundSrgb(colorDst)
+                            ? colorSrc.BlendWithBackground(colorDst, linear)
                             // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWithSrgb(colorDst);
+                            : colorSrc.BlendWith(colorDst, linear);
                     }
 
                     // overwriting target color only if blended color has high enough alpha
@@ -378,8 +374,10 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            void ProcessRowPremultipliedSrgb(int y)
+            void ProcessRowPColor32(int y)
             {
+                Debug.Assert(!linearBlending && !target.PixelFormat.LinearGamma);
+
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
@@ -413,23 +411,24 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            void ProcessRowLinear(int y)
+            void ProcessRowColor64(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
-                byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                ushort alphaThreshold = ColorSpaceHelper.ToUInt16(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                bool linear = linearBlending;
                 int width = sourceWidth;
 
                 for (int x = 0; x < width; x++)
                 {
-                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+                    Color64 colorSrc = rowSrc.DoGetColor64(x + offsetSrc);
 
                     // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
+                    if (colorSrc.A == UInt16.MaxValue)
                     {
-                        rowDst.DoSetColor32(x + offsetDst, colorSrc);
+                        rowDst.DoSetColor64(x + offsetDst, colorSrc);
                         continue;
                     }
 
@@ -439,23 +438,144 @@ namespace KGySoft.Drawing.Imaging
 
                     // source here has a partial transparency: we need to read the target color
                     int pos = x + offsetDst;
-                    Color32 colorDst = rowDst.DoGetColor32(pos);
+                    Color64 colorDst = rowDst.DoGetColor64(pos);
 
                     // non-transparent target: blending
                     if (colorDst.A != 0)
                     {
-                        colorSrc = colorDst.A == Byte.MaxValue
+                        colorSrc = colorDst.A == UInt16.MaxValue
                             // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackgroundLinear(colorDst)
+                            ? colorSrc.BlendWithBackground(colorDst, linear)
                             // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWithLinear(colorDst);
+                            : colorSrc.BlendWith(colorDst, linear);
                     }
 
                     // overwriting target color only if blended color has high enough alpha
                     if (colorSrc.A < alphaThreshold)
                         continue;
 
-                    rowDst.DoSetColor32(pos, colorSrc);
+                    rowDst.DoSetColor64(pos, colorSrc);
+                }
+            }
+
+            void ProcessRowPColor64(int y)
+            {
+                Debug.Assert(!linearBlending && !target.PixelFormat.LinearGamma);
+       
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    PColor64 colorSrc = rowSrc.DoGetPColor64(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == UInt16.MaxValue)
+                    {
+                        rowDst.DoSetPColor64(x + offsetDst, colorSrc);
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    PColor64 colorDst = rowDst.DoGetPColor64(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A != 0)
+                        colorSrc = colorSrc.BlendWithSrgb(colorDst);
+
+                    rowDst.DoSetPColor64(pos, colorSrc);
+                }
+            }
+
+            void ProcessRowColorF(int y)
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                float alphaThreshold = ColorSpaceHelper.ToFloat(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                bool linear = linearBlending;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    ColorF colorSrc = rowSrc.DoGetColorF(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A >= 1f)
+                    {
+                        rowDst.DoSetColorF(x + offsetDst, colorSrc);
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A <= 0f)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    ColorF colorDst = rowDst.DoGetColorF(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A > 0f)
+                    {
+                        colorSrc = colorDst.A >= 1f
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst, linear)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst, linear);
+                    }
+
+                    // overwriting target color only if blended color has high enough alpha
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColorF(pos, colorSrc);
+                }
+            }
+
+            void ProcessRowPColorF(int y)
+            {
+                Debug.Assert(linearBlending && target.PixelFormat.LinearGamma);
+
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    PColorF colorSrc = rowSrc.DoGetPColorF(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A >= 1f)
+                    {
+                        rowDst.DoSetPColorF(x + offsetDst, colorSrc);
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A <= 0f)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    PColorF colorDst = rowDst.DoGetPColorF(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A != 0)
+                        colorSrc = colorSrc.BlendWithLinear(colorDst);
+
+                    rowDst.DoSetPColorF(pos, colorSrc);
                 }
             }
 
@@ -493,7 +613,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // for indexed images we need some further checks
-            // palette must be the same (only a reference check for better performance)
+            // palette must be the same
             if (Source.Palette?.Equals(Target.Palette) != true)
                 return false;
 

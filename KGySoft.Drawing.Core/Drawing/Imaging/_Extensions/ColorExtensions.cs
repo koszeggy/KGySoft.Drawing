@@ -1365,8 +1365,16 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWith(this Color64 src, Color64 dst, bool linear)
+            => linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color64 BlendWith(this Color64 src, Color64 dst, WorkingColorSpace colorSpace)
             => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ColorF BlendWith(this ColorF src, ColorF dst, bool linear)
+            => linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ColorF BlendWith(this ColorF src, ColorF dst, WorkingColorSpace colorSpace)
@@ -1379,10 +1387,6 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColor64 BlendWith(this PColor64 src, PColor64 dst, WorkingColorSpace colorSpace)
             => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static PColor64 BlendWith(this PColor64 src, PColor64 dst, bool isLinear)
-            => isLinear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColorF BlendWith(this PColorF src, PColorF dst, WorkingColorSpace colorSpace)

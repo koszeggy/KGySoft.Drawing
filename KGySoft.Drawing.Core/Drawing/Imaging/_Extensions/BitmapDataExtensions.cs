@@ -92,7 +92,8 @@ namespace KGySoft.Drawing.Imaging
             => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.Grayscale;
 
         internal static bool LinearBlending(this IBitmapData bitmapData)
-            => bitmapData.WorkingColorSpace == WorkingColorSpace.Linear || bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma;
+            => bitmapData.WorkingColorSpace == WorkingColorSpace.Linear
+                || bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma;
 
         /// <summary>
         /// Almost the same as <see cref="PixelFormatInfo.ToKnownPixelFormat"/> but can consider
