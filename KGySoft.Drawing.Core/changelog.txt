@@ -15,6 +15,27 @@
 
 ! KGySoft.Drawing.Imaging namespace
 ===================================
+! BitmapDataFactory class:
+  ! The old CreateBitmapData overloads for custom pixel formats (the ones that have PixelFormatInfo parameter) no
+    longer assume that the delegates can work independently with any back buffer. To assume this use the new
+    overloads with Custom[Indexed]BitmapDataConfig parameters and set the BackBufferIndependentPixelAccess property.
+  + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
+    delegates for also other color types than Color32. You can use these for wide custom pixel formats.
+! BitmapDataExtensions class:
+  ! GetColorCount/BeginGetColorCount/ColorCountAsync methods: For custom pixel formats or when the raw data was not
+    accessible the counting quantized the possibly wide colors to 32 bit. From now on the real number of colors are
+    returned even for such cases. Though it counts as a breaking change, this is actually an improvement.
+  ! Clone/BeginClone/CloneAsync methods: When the target pixel format was a different wide format than that of the
+    source, then the colors were quantized to 32 bit during the operation even without a specified quantizer.
+    From now on the cloning can preserve the original color depth between different wide formats. Marked as a
+    breaking change but this is actually an improvement.
+! PixelFormatInfo struct:
+  ! ToKnownPixelFormat method: It can return the new KnownPixelFormat values.
+  + New Prefers64BitColors and Prefers128BitColors properties
+  - LinearGamma property: setting it to false did not reset the value.
+! PredefinedColorsQuantizer class:
+  ! FromBitmapData and FromPalette methods: The PixelFormatHint property of the returned quantizer can return one
+    of the new pixel formats.
 ! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
   ! SetColor32 method: it no longer has default implementation (.NET Core 3.0/.NET Standard 2.1 and above)
   ! New SetColor64/SetColorF/SetPColor32/SetPColor64/SetPColorF methods
@@ -25,19 +46,6 @@
   ! New SetColor32/SetColor64/SetColorF/SetPColor32/SetPColor64/SetPColorF methods
 ! IReadableBitmapDataRow interface: (breaking only if you implement it, which is normally not needed)
   ! New GetColor32/GetColor64/GetColorF/GetPColor32/GetPColor64/GetPColorF methods
-! BitmapDataFactory class:
-  ! The old CreateBitmapData overloads for custom pixel formats (the ones that have PixelFormatInfo parameter) no
-    longer assume that the delegates can work independently with any back buffer. To assume this use the new
-    overloads with Custom[Indexed]BitmapDataConfig parameters and set the BackBufferIndependentPixelAccess property.
-  + New CreateBitmapData overloads with Custom[Indexed]BitmapDataConfig parameters for custom pixel format with
-    delegates for also other color types than Color32. You can use these for wide custom pixel formats.
-! PixelFormatInfo struct:
-  ! ToKnownPixelFormat method: It can return the new KnownPixelFormat values.
-  + New Prefers64BitColors and Prefers128BitColors properties
-  - LinearGamma property: setting it to false did not reset the value.
-! PredefinedColorsQuantizer class:
-  ! FromBitmapData and FromPalette methods: The PixelFormatHint property of the returned quantizer can return one
-    of the new pixel formats.
 + KnownPixelFormat enum:
   + New Format96bppRgb field
   + New Format128bppRgba field

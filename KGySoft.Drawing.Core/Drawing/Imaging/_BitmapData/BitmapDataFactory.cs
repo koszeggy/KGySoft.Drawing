@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
-        /// <overloads>There are quite a few overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method but they can be grouped by multiple aspects:
+        /// <overloads>There are quite a few overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method but they can be grouped into different categories:
         /// <list type="bullet">
         /// <item>The ones whose first parameter is <see cref="Size"/> are allocating the buffer for the created bitmap data by themselves, whereas the others use pre-allocated buffers.</item>
         /// <item>The overloads whose first parameter name is <c>buffer</c> can be used to create a bitmap data for a preallocated buffer. This buffer can be a one or two dimensional array,

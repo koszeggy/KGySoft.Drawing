@@ -81,13 +81,28 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal void PerformCopy()
         {
-            if (!TryPerformRawCopy())
+            if (TryPerformRawCopy())
+                return;
+
+            PixelFormatInfo pixelFormat = Target.PixelFormat;
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
-                if (Target.IsFastPremultiplied())
-                    PerformCopyDirectPremultiplied();
+                if (pixelFormat.HasPremultipliedAlpha)
+                    PerformCopyPColorF();
                 else
-                    PerformCopyDirectStraight();
+                    PerformCopyColorF();
             }
+            else if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat.HasPremultipliedAlpha)
+                    PerformCopyPColor64();
+                else
+                    PerformCopyColor64();
+            }
+            else if (pixelFormat.HasPremultipliedAlpha)
+                PerformCopyPColor32();
+            else
+                PerformCopyColor32();
         }
 
         internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
@@ -586,7 +601,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectStraight()
+        private void PerformCopyColor32()
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
@@ -626,7 +641,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectPremultiplied()
+        private void PerformCopyPColor32()
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
@@ -663,6 +678,166 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetPColor32(x + offsetDst, rowSrc.DoGetPColor32(x + offsetSrc));
+            });
+        }
+
+        private void PerformCopyColor64()
+        {
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                        rowDst.DoSetColor64(x + TargetRectangle.X, rowSrc.DoGetColor64(x + SourceRectangle.X));
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                for (int x = 0; x < width; x++)
+                    rowDst.DoSetColor64(x + offsetDst, rowSrc.DoGetColor64(x + offsetSrc));
+            });
+        }
+
+        private void PerformCopyPColor64()
+        {
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                        rowDst.DoSetPColor64(x + TargetRectangle.X, rowSrc.DoGetPColor64(x + SourceRectangle.X));
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                for (int x = 0; x < width; x++)
+                    rowDst.DoSetPColor64(x + offsetDst, rowSrc.DoGetPColor64(x + offsetSrc));
+            });
+        }
+
+        private void PerformCopyColorF()
+        {
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                        rowDst.DoSetColorF(x + TargetRectangle.X, rowSrc.DoGetColorF(x + SourceRectangle.X));
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                for (int x = 0; x < width; x++)
+                    rowDst.DoSetColorF(x + offsetDst, rowSrc.DoGetColorF(x + offsetSrc));
+            });
+        }
+
+        private void PerformCopyPColorF()
+        {
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                        rowDst.DoSetPColorF(x + TargetRectangle.X, rowSrc.DoGetPColorF(x + SourceRectangle.X));
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                for (int x = 0; x < width; x++)
+                    rowDst.DoSetPColorF(x + offsetDst, rowSrc.DoGetPColorF(x + offsetSrc));
             });
         }
 

@@ -250,6 +250,43 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        public void CloneDirectTest(KnownPixelFormat sourceFormat)
+        {
+            Console.WriteLine(sourceFormat);
+            var size = new Size(2048, 256);
+            using IReadWriteBitmapData source = BitmapDataFactory.CreateBitmapData(size, sourceFormat);
+            GenerateAlphaGradientLinear(source);
+
+            int baselineColors;
+
+            // baseline: 8 bpp PARGB
+            using (var bmp32 = source.Clone(KnownPixelFormat.Format32bppPArgb))
+            {
+                baselineColors = bmp32.GetColorCount();
+                Console.WriteLine($"As {bmp32.PixelFormat}: {baselineColors} colors");
+                SaveBitmapData($"{sourceFormat}_to_{bmp32.PixelFormat}", bmp32);
+            }
+
+            foreach (KnownPixelFormat targetFormat in new[] { KnownPixelFormat.Format32bppArgb, KnownPixelFormat.Format64bppArgb, KnownPixelFormat.Format64bppPArgb, KnownPixelFormat.Format128bppRgba, KnownPixelFormat.Format128bppPRgba })
+            {
+                using (var target = source.Clone(targetFormat))
+                {
+                    int count = target.GetColorCount();
+                    Console.WriteLine($"As {target.PixelFormat}: {count} colors");
+                    SaveBitmapData($"{sourceFormat}_to_{target.PixelFormat}", target);
+                    Assert.GreaterOrEqual(count, baselineColors);
+                }
+            }
+        }
+
         [Test]
         public void CopyToSameInstanceOverlappingTest()
         {
