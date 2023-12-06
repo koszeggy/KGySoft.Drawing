@@ -29,6 +29,14 @@
     source, then the colors were quantized to 32 bit during the operation even without a specified quantizer.
     From now on the cloning can preserve the original color depth between different wide formats. Marked as a
     breaking change but this is actually an improvement.
+  ! CopyTo/BeginCopyTo/CopyToAsync methods: When the target pixel format was a different wide format than that of
+    the source, then the colors were quantized to 32 bit during the operation even without a specified quantizer.
+    From now on the copying can preserve the original color depth between different wide formats. Marked as a
+    breaking change but this is actually an improvement.
+  ! DrawInto/BeginDrawInto/DrawIntoAsync methods: When the target pixel format was a different wide format than that
+    of the source, then the colors were quantized to 32 bit during the operation even without a specified quantizer.
+    From now on the drawing can preserve the original color depth between different wide formats. Marked as a
+    breaking change but this is actually an improvement.
 ! PixelFormatInfo struct:
   ! ToKnownPixelFormat method: It can return the new KnownPixelFormat values.
   + New Prefers64BitColors and Prefers128BitColors properties
