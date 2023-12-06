@@ -123,9 +123,24 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.IsFastPremultiplied() && !useLinearColorSpace
-                    ? ProcessRowPremultipliedSrgb
-                    : ProcessRowStraight;
+                var scalingFactor = new SizeF(sourceRectangle.Width / (float)targetRectangle.Width,
+                    sourceRectangle.Height / (float)targetRectangle.Height);
+
+                // Taking always the target pixel format for the best quality/performance.
+                // For targets with linear gamma (when linear blending is used) assuming
+                // the best performance with [P]ColorF even if the preferred color type is smaller.
+                PixelFormatInfo targetPixelFormat = target.PixelFormat;
+                Action<int> processRow = targetPixelFormat.Prefers128BitColors || useLinearColorSpace && targetPixelFormat.LinearGamma
+                    ? useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
+                        ? ProcessRowPColorF
+                        : ProcessRowColorF
+                    : targetPixelFormat.Prefers64BitColors
+                        ? !useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                            ? ProcessRowPColor64
+                            : ProcessRowColor64
+                        : !useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                            ? ProcessRowPColor32
+                            : ProcessRowColor32;
 
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold)
@@ -147,11 +162,10 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Local Methods
 
-                void ProcessRowStraight(int y)
+                void ProcessRowColor32(int y)
                 {
-                    // Scaling factors
-                    float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-                    float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
 
                     IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
                     IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
@@ -198,11 +212,13 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                void ProcessRowPremultipliedSrgb(int y)
+                void ProcessRowPColor32(int y)
                 {
+                    Debug.Assert(!useLinearColorSpace && !target.PixelFormat.LinearGamma);
+
                     // Scaling factors
-                    float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-                    float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
 
                     IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
                     IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
@@ -234,6 +250,188 @@ namespace KGySoft.Drawing.Imaging
                             colorSrc = colorSrc.BlendWithSrgb(colorDst);
 
                         rowDst.DoSetPColor32(pos, colorSrc);
+                    }
+                }
+
+                void ProcessRowColor64(int y)
+                {
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
+
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    ushort alphaThreshold = ColorSpaceHelper.ToUInt16(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                    bool linearBlending = useLinearColorSpace;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        Color64 colorSrc = rowSrc.DoGetColor64((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == UInt16.MaxValue)
+                        {
+                            rowDst.DoSetColor64(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        Color64 colorDst = rowDst.DoGetColor64(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                        {
+                            colorSrc = colorDst.A == UInt16.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst, linearBlending);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor64(pos, colorSrc);
+                    }
+                }
+
+                void ProcessRowPColor64(int y)
+                {
+                    Debug.Assert(!useLinearColorSpace && !target.PixelFormat.LinearGamma);
+
+                    // Scaling factors
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
+
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        PColor64 colorSrc = rowSrc.DoGetPColor64((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == UInt16.MaxValue)
+                        {
+                            rowDst.DoSetPColor64(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        PColor64 colorDst = rowDst.DoGetPColor64(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                            colorSrc = colorSrc.BlendWithSrgb(colorDst);
+
+                        rowDst.DoSetPColor64(pos, colorSrc);
+                    }
+                }
+
+                void ProcessRowColorF(int y)
+                {
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
+
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    float alphaThreshold = ColorSpaceHelper.ToFloat(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                    bool linearBlending = useLinearColorSpace;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        ColorF colorSrc = rowSrc.DoGetColorF((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A >= 1f)
+                        {
+                            rowDst.DoSetColorF(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A <= 0f)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        ColorF colorDst = rowDst.DoGetColorF(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A > 0f)
+                        {
+                            colorSrc = colorDst.A >= 1f
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst, linearBlending);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColorF(pos, colorSrc);
+                    }
+                }
+
+                void ProcessRowPColorF(int y)
+                {
+                    Debug.Assert(useLinearColorSpace && target.PixelFormat.LinearGamma);
+
+                    // Scaling factors
+                    float widthFactor = scalingFactor.Width;
+                    float heightFactor = scalingFactor.Height;
+
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        PColorF colorSrc = rowSrc.DoGetPColorF((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A >= 1f)
+                        {
+                            rowDst.DoSetPColorF(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A <= 0f)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        PColorF colorDst = rowDst.DoGetPColorF(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A > 0f)
+                            colorSrc = colorSrc.BlendWithLinear(colorDst);
+
+                        rowDst.DoSetPColorF(pos, colorSrc);
                     }
                 }
 
@@ -357,7 +555,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
-                    bool lienarBlending = quantizingSession.WorkingColorSpace == WorkingColorSpace.Linear;
+                    bool linearBlending = quantizingSession.WorkingColorSpace == WorkingColorSpace.Linear;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -382,9 +580,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst, lienarBlending)
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst, lienarBlending);
+                                : colorSrc.BlendWith(colorDst, linearBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
