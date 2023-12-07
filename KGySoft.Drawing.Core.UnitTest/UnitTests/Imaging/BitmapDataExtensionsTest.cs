@@ -501,56 +501,55 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData($"{scalingMode}", bitmapData);
         }
 
-        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format8bppGrayScale, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format8bppGrayScale, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format32bppPArgb, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format64bppArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format64bppArgb, ScalingMode.Auto)]
-        [TestCase(KnownPixelFormat.Format64bppPArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(KnownPixelFormat.Format64bppPArgb, ScalingMode.Auto)]
-        public void DrawIntoWithResizeDirectTest(KnownPixelFormat pixelFormat, ScalingMode scalingMode)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        public void DrawIntoWithResizeDirectTest(KnownPixelFormat pixelFormat)
         {
-            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+            foreach (ScalingMode scalingMode in new[] { ScalingMode.NearestNeighbor, ScalingMode.Auto })
             {
-                // target and sources
-                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, colorSpace, new Color32(Color.Silver));
-                using var icon16 = GetInfoIcon16();
-                using var icon256 = GetInfoIcon256();
-                using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
+                foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                {
+                    // target and sources
+                    using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, colorSpace, new Color32(Color.Silver));
+                    using var icon16 = GetInfoIcon16();
+                    using var icon256 = GetInfoIcon256();
+                    using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
 
-                // enlarge solid source
-                var targetRect = new Rectangle(0, 0, 100, 100);
-                icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Black))
-                    .DrawInto(target, targetRect, scalingMode);
+                    // enlarge solid source
+                    var targetRect = new Rectangle(0, 0, 100, 100);
+                    icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Black))
+                        .DrawInto(target, targetRect, scalingMode);
 
-                // enlarge alpha source
-                targetRect = new Rectangle(160, 160, 100, 100);
-                icon16.DrawInto(target, targetRect, scalingMode);
+                    // enlarge alpha source
+                    targetRect = new Rectangle(160, 160, 100, 100);
+                    icon16.DrawInto(target, targetRect, scalingMode);
 
-                // shrink single bit alpha source
-                targetRect = new Rectangle(Point.Empty, target.Size);
-                targetRect.Inflate(-32, -32);
-                icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
-                    .DrawInto(target, targetRect, scalingMode);
+                    // shrink single bit alpha source
+                    targetRect = new Rectangle(Point.Empty, target.Size);
+                    targetRect.Inflate(-32, -32);
+                    icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
+                        .DrawInto(target, targetRect, scalingMode);
 
-                // shrink alpha source (gradient overlay)
-                targetRect.Inflate(-10, -10);
-                gradient.DrawInto(target, targetRect, scalingMode);
+                    // shrink alpha source (gradient overlay)
+                    targetRect.Inflate(-10, -10);
+                    gradient.DrawInto(target, targetRect, scalingMode);
 
-                SaveBitmapData($"{pixelFormat} {scalingMode} {colorSpace}", target); 
+                    SaveBitmapData($"{pixelFormat} {scalingMode} {colorSpace}", target);
+                } 
             }
         }
 

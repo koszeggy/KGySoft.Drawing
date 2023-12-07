@@ -805,7 +805,7 @@ namespace KGySoft.Drawing.Imaging
                             Color32 colorSrc = resultF.ToColor32(linear);
 
                             // fully solid source: overwrite
-                            if (resultF.A >= 1f)
+                            if (colorSrc.A == Byte.MaxValue)
                             {
                                 row.DoSetColor32(x + targetLeft, colorSrc);
                                 continue;
@@ -863,7 +863,7 @@ namespace KGySoft.Drawing.Imaging
                             if (srgbF.A <= 0f)
                                 continue;
 
-                            PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange();
+                            PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange().Clip();
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -877,7 +877,6 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
-                            Debug.Assert(colorSrc == colorSrc.Clip());
                             int targetX = x + targetLeft;
                             PColor32 colorDst = row.DoGetPColor32(targetX);
 
@@ -918,7 +917,7 @@ namespace KGySoft.Drawing.Imaging
                             Color64 colorSrc = resultF.ToColor64(linear);
 
                             // fully solid source: overwrite
-                            if (resultF.A >= 1f)
+                            if (colorSrc.A == UInt16.MaxValue)
                             {
                                 row.DoSetColor64(x + targetLeft, colorSrc);
                                 continue;
@@ -976,7 +975,7 @@ namespace KGySoft.Drawing.Imaging
                             if (srgbF.A <= 0f)
                                 continue;
 
-                            PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange();
+                            PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange().Clip();
 
                             // fully solid source: overwrite
                             if (colorSrc.A == UInt16.MaxValue)
@@ -990,7 +989,6 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
-                            Debug.Assert(colorSrc == colorSrc.Clip());
                             int targetX = x + targetLeft;
                             PColor64 colorDst = row.DoGetPColor64(targetX);
 

@@ -177,7 +177,7 @@ namespace KGySoft.Drawing.Imaging
         public static ColorF operator *(ColorF left, float right)
         {
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new ColorF(left.Rgba * new Vector4(right));
+            return new ColorF(left.Rgba * right);
 #else
             return new ColorF(left.A * right, left.R * right, left.G * right, left.B * right);
 #endif

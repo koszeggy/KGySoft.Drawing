@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.Imaging
         Format96bppRgb = PixelFormatInfo.Format96bppRgb,
 
         /// <summary>
-        /// <para>Represents a 128 bit per pixel ARGB color format where alpha, red, green and blue channels use 32 bits per pixel.</para>
+        /// <para>Represents a 128 bit per pixel RGBA color format where alpha, red, green and blue channels use 32 bits per pixel.</para>
         /// <para>Bit order from LSB to MSB: 32 red, 32 green, 32 blue and 32 alpha bits.
         /// The color components are floating point values between 0 and 1 in the linear color space.</para>
         /// <para>The matching color type that represents this pixel format directly is <see cref="ColorF"/>.</para>
@@ -166,7 +166,7 @@ namespace KGySoft.Drawing.Imaging
         Format128bppRgba = PixelFormatInfo.Format128bppRgba,
 
         /// <summary>
-        /// <para>Represents a 128 bit per pixel ARGB color format where alpha, red, green and blue channels use 32 bits per pixel.
+        /// <para>Represents a 128 bit per pixel RGBA color format where alpha, red, green and blue channels use 32 bits per pixel.
         /// The red, green, and blue components are premultiplied, according to the alpha component.</para>
         /// <para>Bit order from LSB to MSB: 32 red, 32 green, 32 blue and 32 alpha bits.
         /// The color components are floating point values between 0 and 1 in the linear color space.</para>
