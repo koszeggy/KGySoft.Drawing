@@ -62,8 +62,9 @@
   + New Format32bppGrayScale field
 + New CustomBitmapDataConfig, CustomIndexedBitmapDataConfig types for configuring pixel access of bitmaps with
   custom pixel formats.
-+ ColorExtensions class:
+* ColorExtensions class:
   + New ToColor* overloads between sRGB and linear color formats with adjustColorSpace parameter.
+  - Fixing Blend(ColorF, ColorF, WorkingColorSpace) method for the sRGB color space.
 + PColor32 struct:
   + New FromArgb overload
 + PColor64 struct:

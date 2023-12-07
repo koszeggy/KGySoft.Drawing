@@ -309,16 +309,14 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                if (target.LinearBlending())
+                for (int y = 0; y < SourceRectangle.Height; y++)
                 {
-                    for (int y = 0; y < SourceRectangle.Height; y++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        processRow.Invoke(y);
-                        context.Progress?.Increment();
-                    }
+                    if (context.IsCancellationRequested)
+                        return;
+                    processRow.Invoke(y);
+                    context.Progress?.Increment();
                 }
+
                 return;
             }
 

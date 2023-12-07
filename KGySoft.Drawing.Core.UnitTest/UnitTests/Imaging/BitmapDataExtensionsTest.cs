@@ -407,10 +407,18 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format4bppIndexed)]
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
         [TestCase(KnownPixelFormat.Format8bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555)]
         [TestCase(KnownPixelFormat.Format32bppArgb)]
         [TestCase(KnownPixelFormat.Format32bppPArgb)]
         [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
         public void DrawIntoNoResizeDirectTest(KnownPixelFormat pixelFormat)
         {
             foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })

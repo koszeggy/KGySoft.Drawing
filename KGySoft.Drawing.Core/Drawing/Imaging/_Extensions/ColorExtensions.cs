@@ -1315,7 +1315,7 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ColorF BlendWithBackgroundSrgb(this ColorF c, ColorF backColor)
-            => c.A <= 0f ? backColor : c.ToSrgb().BlendWithBackgroundLinear(backColor).ToLinear();
+            => c.A <= 0f ? backColor : c.ToSrgb().BlendWithBackgroundLinear(backColor.ToSrgb()).ToLinear();
 
         internal static Color32 BlendWithBackgroundLinear(this Color32 c, Color32 backColor)
             => c.A == 0 ? backColor : c.ToColorF().BlendWithBackgroundLinear(backColor.ToColorF()).ToColor32();
@@ -1498,7 +1498,7 @@ namespace KGySoft.Drawing.Imaging
         internal static ColorF BlendWithSrgb(this ColorF src, ColorF dst)
         {
             Debug.Assert(src.A is > 0f and < 1f && dst.A is > 0f and < 1f, "Partially transparent colors are expected");
-            return src.ToSrgb().BlendWithLinear(dst).ToLinear();
+            return src.ToSrgb().BlendWithLinear(dst.ToSrgb()).ToLinear();
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1603,7 +1603,6 @@ namespace KGySoft.Drawing.Imaging
             float inverseAlphaSrc = 1f - src.A;
             float alphaOut = src.A + dst.A * inverseAlphaSrc;
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 #if NETCOREAPP3_0_OR_GREATER
             // Using native vectorization if possible.
             if (Sse.IsSupported)
@@ -1618,8 +1617,15 @@ namespace KGySoft.Drawing.Imaging
                 return new ColorF(Sse.Divide(rgbaResultF, Vector128.Create(alphaOut)).WithElement(3, alphaOut));
             }
 #endif
-            // The possibly still accelerated auto vectorization
+
+#if !NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            // The possibly still accelerated auto vectorization.
             return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
+#elif NETCOREAPP || NET46_OR_GREATER
+            // The possibly still accelerated auto vectorization.
+            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
+            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite values.
+            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / new Vector3(alphaOut), alphaOut));
 #else
             // The non-accelerated version
             float alphaDst = dst.A * inverseAlphaSrc;
