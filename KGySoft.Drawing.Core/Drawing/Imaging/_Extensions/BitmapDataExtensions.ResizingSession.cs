@@ -121,6 +121,8 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal void PerformResizeDirect()
             {
                 var scalingFactor = new SizeF(sourceRectangle.Width / (float)targetRectangle.Width,
@@ -750,6 +752,8 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal void PerformResizeDirect()
             {
                 PixelFormatInfo targetPixelFormat = target.PixelFormat;
