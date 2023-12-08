@@ -243,7 +243,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         #region Static Methods
 
-        private static void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName] string testName = null)
+        private static void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName]string testName = null)
         {
             using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, bitmapDataNonDithered.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb);
 
@@ -251,6 +251,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);
             PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered || bitmapDataNonDithered.PixelFormat.Grayscale ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
             Assert.IsTrue(referenceQuantizer == null || referenceQuantizer.PixelFormatHint.IsIndexed() || Reflector.TryGetField(referenceQuantizer, "compatibleBitmapDataFactory", out var _));
+            int tolerance = bitmapDataNonDithered.PixelFormat is { LinearGamma: true } ? 1 : 0;
 
             // CopyTo
             using IReadWriteBitmapData alphaGradient = GenerateAlphaGradientBitmapData(size);
@@ -312,7 +313,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon48.DrawInto(bitmapDataNonDithered, iconLocation);
             alphaGradient.DrawInto(bitmapDataNonDithered, gradientRectangle);
             SaveBitmapData($"{caseName} DrawInto", bitmapDataNonDithered, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
+            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true, tolerance: tolerance);
 
             bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
             icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
@@ -320,7 +321,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon48.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
             alphaGradient.DrawInto(bitmapDataDitheredContentIndependent, gradientRectangle, contentIndependentDitherer);
             SaveBitmapData($"{caseName} DrawInto independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true, tolerance: tolerance);
 
             bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
             icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);

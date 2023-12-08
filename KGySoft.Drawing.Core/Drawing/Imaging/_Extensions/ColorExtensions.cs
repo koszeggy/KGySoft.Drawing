@@ -1618,7 +1618,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 
-#if !NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             // The possibly still accelerated auto vectorization.
             return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
 #elif NETCOREAPP || NET46_OR_GREATER

@@ -1273,7 +1273,7 @@ namespace KGySoft.Drawing.Imaging
                         if (colorF.A <= 0f)
                             continue;
 
-                        Color32 colorSrc = colorF.ToStraight().ToColor32(linear);
+                        Color32 colorSrc = colorF.ToColor32(linear);
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
@@ -1347,7 +1347,7 @@ namespace KGySoft.Drawing.Imaging
                         if (colorF.A <= 0f)
                             continue;
 
-                        Color32 colorSrc = colorF.ToStraight().ToColor32(linear);
+                        Color32 colorSrc = colorF.ToColor32(linear);
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
