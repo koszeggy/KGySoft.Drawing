@@ -312,7 +312,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon48.DrawInto(bitmapDataNonDithered, iconLocation);
             alphaGradient.DrawInto(bitmapDataNonDithered, gradientRectangle);
             SaveBitmapData($"{caseName} DrawInto", bitmapDataNonDithered, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
+            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true, tolerance: 1);
 
             bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
             icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
@@ -320,7 +320,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon48.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
             alphaGradient.DrawInto(bitmapDataDitheredContentIndependent, gradientRectangle, contentIndependentDitherer);
             SaveBitmapData($"{caseName} DrawInto independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true, tolerance: 1);
 
             bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
             icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);

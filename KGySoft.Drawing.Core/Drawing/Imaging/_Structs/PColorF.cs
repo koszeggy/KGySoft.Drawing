@@ -98,11 +98,11 @@ namespace KGySoft.Drawing.Imaging
 
 #if NET5_0_OR_GREATER
         // In .NET 5.0 and above these perform better as inlined rather than caching a static field
-        private static Vector4 Max8Bit => Vector128.Create(255f).AsVector4();
-        private static Vector4 Max8BitRecip => Vector128.Create(1f / 255f).AsVector4();
-        private static Vector4 Max16Bit => Vector128.Create(65535f).AsVector4();
-        private static Vector4 Max16BitRecip => Vector128.Create(1f / 65535f).AsVector4();
-        private static Vector4 Half => Vector128.Create(0.5f).AsVector4();
+        private static Vector4 Max8Bit => new Vector4(255f);
+        private static Vector4 Max8BitRecip => new Vector4(1f / 255f);
+        private static Vector4 Max16Bit => new Vector4(65535f);
+        private static Vector4 Max16BitRecip => new Vector4(1f / 65535f);
+        private static Vector4 Half => new Vector4(0.5f);
         private static Vector128<byte> PackRgbaAsPColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsPColor64Mask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 #elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
