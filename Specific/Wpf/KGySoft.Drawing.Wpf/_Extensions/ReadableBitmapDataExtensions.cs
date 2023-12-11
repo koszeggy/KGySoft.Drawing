@@ -156,7 +156,7 @@ namespace KGySoft.Drawing.Wpf
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndToWriteableBitmap">EndToWriteableBitmap</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">If <paramref name="quantizer"/> is not a <see cref="PredefinedColorsQuantizer"/>, then the result <see cref="WriteableBitmap"/> is created by a synchronized callback
-        /// using the dispatcher of the thread this method was called from. The caller thread must have a running dispatcher and and must not be blocked; otherwise, a deadlock may occur.</note>
+        /// using the dispatcher of the thread this method was called from. The caller thread must have a running dispatcher and must not be blocked; otherwise, a deadlock may occur.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
@@ -229,7 +229,7 @@ namespace KGySoft.Drawing.Wpf
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">If <paramref name="quantizer"/> is not a <see cref="PredefinedColorsQuantizer"/>, then the result <see cref="WriteableBitmap"/> is created by a synchronized callback
-        /// using the dispatcher of the thread this method was called from. The caller thread must have a running dispatcher and and must not be blocked; otherwise, a deadlock may occur.</note>
+        /// using the dispatcher of the thread this method was called from. The caller thread must have a running dispatcher and must not be blocked; otherwise, a deadlock may occur.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>

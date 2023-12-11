@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// methods that have a <see cref="CustomBitmapDataConfig"/> parameter.
     /// </summary>
     /// <remarks>
-    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and and at least one getter or setter delegate must be set
+    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and at least one getter or setter delegate must be set
     /// to create a valid custom bitmap data.</para>
     /// <para>It is enough to set only one getter and/or setter with the best matching color type. For example, if you set the <see cref="CustomBitmapDataConfig.RowGetColor64"/> property only,
     /// which returns the pixels as <see cref="Color64"/> values, then all of the other pixel-reading methods will use this delegate and will convert the result from <see cref="Color64"/>.</para>
@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets the preferred color space that should be used when working with the result bitmap data.
-        /// <br/>Default value: <see cref="Imaging.WorkingColorSpace.Default"/>, which means the linear color space of <see cref="PixelFormatInfo.LinearGamma"/> is set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
+        /// <br/>Default value: <see cref="Imaging.WorkingColorSpace.Default"/>, which means the linear color space if <see cref="PixelFormatInfo.LinearGamma"/> is set in <see cref="CustomBitmapDataConfigBase.PixelFormat"/>
         /// and the sRGB color space otherwise.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for more details.
         /// </summary>

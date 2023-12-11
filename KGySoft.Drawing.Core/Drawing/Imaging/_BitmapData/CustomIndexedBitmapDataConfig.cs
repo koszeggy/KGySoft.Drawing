@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// methods that have a <see cref="CustomIndexedBitmapDataConfig"/> parameter.
     /// </summary>
     /// <remarks>
-    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and and at least either the <see cref="GetRowGetColorIndex"/> or
+    /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and at least either the <see cref="RowGetColorIndex"/> or
     /// the <see cref="RowSetColorIndex"/> property must be set to create a valid custom bitmap data.</para>
     /// <para>If <see cref="RowSetColorIndex"/> is not set, then the custom bitmap data will be read-only.
     /// And if <see cref="RowGetColorIndex"/> is not set, then the custom bitmap data will be write-only.</para>
