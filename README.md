@@ -274,25 +274,38 @@ bitmap.Unlock();
 The previous example demonstrated how we can create a managed accessor for a `WriteableBitmap`. But it worked only because we used a pixel format that happens to have built-in support also in KGy SOFT Drawing Libraries. In fact, the libraries provide support for any custom pixel format. The [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) methods have several overloads that allow you to specify a custom pixel format along with a couple of delegates to be called when pixels are read or written:
 
 ```cs
-// Gray8 format has no built-in support in KGySoft.Drawing.Core
+// Though Gray8 format also has built-in support in KGySoft.Drawing.Core
+// (see KnownPixelFormat.Format8bppGrayScale) here we pretend as if it was no supported natively.
+// So this is our bitmap with the custom pixel format:
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
 
-// But we can specify how to use it
-var customPixelFormat = new PixelFormatInfo { BitsPerPixel = 8, Grayscale = true };
-Func<ICustomBitmapDataRow, int, Color32> getPixel =
-    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
-Action<ICustomBitmapDataRow, int, Color32> setPixel =
-    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness();
+// We need to specify a configuration that tells some info about the pixel format
+// and how pixels can be got/set from known color formats.
+var customConfig = new CustomBitmapDataConfig
+{
+    PixelFormat = new PixelFormatInfo { BitsPerPixel = 8, Grayscale = true },
+    BackBufferIndependentPixelAccess = true,
+    BackColor = Color.Silver.ToColor32(), // black if not specified
 
-// Now we specify also a dispose callback to be executed when the returned instance is disposed:
-return BitmapDataFactory.CreateBitmapData(
-    bitmap.BackBuffer, new Size(bitmap.PixelWidth, bitmap.PixelHeight), bitmap.BackBufferStride,
-    customPixelFormat, getPixel, setPixel,
-    disposeCallback: () =>
+    // In this example we specify Color32 access but you can use other color types
+    // if they fit better for the format (eg. Color64, ColorF or their premultiplied counterparts).
+    // Note that the setter blends possible alpha colors with the back color.
+    RowGetColor32 = (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)),
+    RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
+        c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace).GetBrightness(),
+
+    // Now we specify also a dispose callback to be executed when the returned instance is disposed:
+    DisposeCallback = () =>
     {
         bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
         bitmap.Unlock();
-    });
+    }
+};
+
+// Returning an IReadWriteBitmapData instance that wraps our native bitmap with the custom format:
+return BitmapDataFactory.CreateBitmapData(
+    bitmap.BackBuffer, new Size(bitmap.PixelWidth, bitmap.PixelHeight), bitmap.BackBufferStride,
+    customConfig); 
 ```
 
 > 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/8ac1a38317660a954ac6cf416c55d1fc3108c2fc/Examples/Maui/Extensions/SKBitmapExtensions.cs#L85) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.

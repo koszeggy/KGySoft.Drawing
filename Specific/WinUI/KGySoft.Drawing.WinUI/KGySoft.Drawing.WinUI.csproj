@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>
-    <!--<TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -47,7 +47,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="8.0.0-rc.1" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="8.0.0" />
   </ItemGroup>
 
   <!--<ItemGroup>

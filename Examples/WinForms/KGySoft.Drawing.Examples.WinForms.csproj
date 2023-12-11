@@ -4,14 +4,14 @@
     <OutputType>WinExe</OutputType>
 
     <!--You can use the .NET Framework 4.7 build to execute the application on Linux/Mono--> 
-    <TargetFrameworks>net6.0-windows;net47</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows;net47</TargetFrameworks>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="7.2.0" />
+    <PackageReference Include="KGySoft.Drawing" Version="8.0.0-rc.2" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
