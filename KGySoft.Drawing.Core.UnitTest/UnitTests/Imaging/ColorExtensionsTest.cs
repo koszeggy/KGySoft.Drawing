@@ -131,7 +131,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             ColorF validF = cF.Clip();
             Assert.IsTrue(validF.IsValid);
-            Assert.AreEqual(new ColorF(0.5f, 1f, 0f, 0f), validF);
+#if !(NETCOREAPP3_0 || NET5_0) // known issue: .NET Core 3.0 and .NET 5 Release build return max instead of min for NaN (which is still valid, btw.)
+            Assert.AreEqual(new ColorF(0.5f, 1f, 0f, 0f), validF); 
+#endif
         }
 
         [Test]

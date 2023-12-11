@@ -418,10 +418,16 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
         }
 
+        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format48bppRgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format24bppRgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format48bppRgb, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format32bppArgb, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format24bppRgb, ScalingMode.Auto)]
