@@ -570,11 +570,11 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in SkiaSharp =====
 
-                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to SKBitmap in the end.
-                // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear working color space is selected
-                // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
+                // Creating the temp bitmap data to work with. Will be converted back to SKBitmap in the end.
+                // The Format128bppPRgba format is optimized for alpha blending in the linear color space, whereas Format64bppPArgb in the sRGB color space.
+                // Any other format with enough colors would be alright, though.
                 using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source!.Width, cfg.Source.Height),
-                    workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                    workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format64bppPArgb,
                     workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
 
                 // b.1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any SKBitmap with any actual pixel format.

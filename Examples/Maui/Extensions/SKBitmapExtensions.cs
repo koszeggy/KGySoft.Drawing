@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Examples.Maui.Extensions
 
             #region Methods
 
-            internal Color32 ToColor32() => new PColor32(a, r, g, b).ToColor32();
+            internal PColor32 ToPColor32() => new PColor32(a, r, g, b);
 
             #endregion
         }
@@ -100,9 +100,14 @@ namespace KGySoft.Drawing.Examples.Maui.Extensions
 
             // Custom format example: Rgba8888 (used eg. on Android) is not a known format but we can simply specify a couple of delegates to tell how to use it
             return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes,
-                new PixelFormatInfo(32) { HasPremultipliedAlpha = true },
-                (row, x) => row.UnsafeGetRefAs<ColorPrgba8888>(x).ToColor32(),
-                (row, x, c) => row.UnsafeGetRefAs<ColorPrgba8888>(x) = new ColorPrgba8888(c.ToPColor32()), workingColorSpace);
+                new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(32) { HasPremultipliedAlpha = true },
+                    BackBufferIndependentPixelAccess = true,
+                    WorkingColorSpace = workingColorSpace,
+                    RowGetPColor32 = (row, x) => row.UnsafeGetRefAs<ColorPrgba8888>(x).ToPColor32(),
+                    RowSetPColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorPrgba8888>(x) = new ColorPrgba8888(c)
+                });
         }
 
         #endregion
