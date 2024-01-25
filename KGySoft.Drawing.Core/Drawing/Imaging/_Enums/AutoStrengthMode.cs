@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
     {
         /// <summary>
         /// The auto strength mode is determined by the <see cref="IQuantizingSession.WorkingColorSpace"/> property
-        /// of the corresponding quantizing session. if it returns <see cref="WorkingColorSpace.Linear"/>, then the
+        /// of the corresponding quantizing session. If it returns <see cref="WorkingColorSpace.Linear"/>, then the
         /// default strategy is <see cref="Interpolated"/>; otherwise, it is <see cref="Constant"/>.
         /// </summary>
         Default,

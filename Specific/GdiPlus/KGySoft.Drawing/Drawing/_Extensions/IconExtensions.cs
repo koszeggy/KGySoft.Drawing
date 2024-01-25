@@ -48,7 +48,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="icon"/> to a <see cref="Bitmap"/>. While <see cref="Icon.ToBitmap">Icon.ToBitmap</see> may return a wrong result
-        /// when icon contains semi-transparent pixels, this method returns an image, in which alpha channel
+        /// when <paramref name="icon"/> contains semi-transparent pixels, this method returns an image, in which alpha channel
         /// is always correctly applied for the image.
         /// </summary>
         /// <param name="icon">The icon optionally with transparency.</param>

@@ -289,7 +289,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
-        /// Gets the Information icon displaying a white "i" a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
+        /// Gets the Information icon displaying a white "i" in a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
