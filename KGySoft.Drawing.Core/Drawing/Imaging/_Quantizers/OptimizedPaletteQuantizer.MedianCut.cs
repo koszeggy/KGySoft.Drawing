@@ -20,7 +20,9 @@ using System;
 using System.Buffers;
 #endif
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 using KGySoft.Collections;
 using KGySoft.Threading;
@@ -88,6 +90,12 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
+                #region Constants
+
+                private const int insertionSortThreshold = 16;
+
+                #endregion
+
                 #region Fields
 
                 #region Static Fields
@@ -127,7 +135,7 @@ namespace KGySoft.Drawing.Imaging
                 #region Constructors
 
                 #region Internal Constructors
-                
+
                 internal ColorBucket(Color32[] buf)
                 {
                     colors = buf;
@@ -137,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
                 #endregion
 
                 #region Private Constructors
-                
+
                 private ColorBucket(Color32[] buf, int startIndex, int count)
                 {
                     Debug.Assert(startIndex >= 0 && startIndex < buf.Length && count > 0 && count < buf.Length, "A valid subrange is expected");
@@ -157,7 +165,95 @@ namespace KGySoft.Drawing.Imaging
                 #endregion
 
                 #region Methods
-                
+
+                #region Static Methods
+
+                [SuppressMessage("ReSharper", "SwapViaDeconstruction",
+                    Justification = "Performance. The deconstruction would create additional locals and references.")]
+                private static int Partition(Color32[] array, int startIndex, int count, IComparer<Color32> comparer)
+                {
+                    #region Local Methods
+                    
+                    static void Swap(Color32[] array, int i, int j)
+                    {
+                        var temp = array[i];
+                        array[i] = array[j];
+                        array[j] = temp;
+                    }
+
+                    #endregion
+
+                    Debug.Assert(count > 1);
+
+                    if (count == 2)
+                    {
+                        if (comparer.Compare(array[startIndex], array[startIndex + 1]) > 0)
+                            Swap(array, startIndex, startIndex + 1);
+
+                        return 1;
+                    }
+
+                    // taking the pivot from the middle
+                    int pivotIndex = startIndex + count / 2;
+                    Color32 pivotValue = array[pivotIndex];
+                    int endIndex = startIndex + count - 1;
+
+                    int left = startIndex;
+                    int right = endIndex;
+
+                    while (left <= right)
+                    {
+                        while (left <= right && comparer.Compare(array[left], pivotValue) <= 0)
+                            left += 1;
+                        while (left < right && comparer.Compare(pivotValue, array[right]) < 0)
+                            right -= 1;
+                        if (left >= right)
+                            break;
+
+                        Swap(array, left, right);
+
+                        if (pivotIndex == right)
+                            pivotIndex = left;
+
+                        left++;
+                        right--;
+                    }
+
+                    // left - 1 is now the new place of the pivot
+                    if (pivotIndex != left - 1)
+                    {
+                        Swap(array, pivotIndex, left - 1);
+                        pivotIndex = left - 1;
+                    }
+
+#if DEBUG
+                    for (int i = startIndex; i < pivotIndex; i++)
+                        Debug.Assert(comparer.Compare(array[i], pivotValue) <= 0);
+                    for (int i = pivotIndex + 1; i < endIndex + 1; i++)
+                        Debug.Assert(comparer.Compare(array[i], pivotValue) > 0);
+#endif
+                    return pivotIndex - startIndex;
+                }
+
+                private static void InsertionSort(Color32[] array, int startIndex, int count, IComparer<Color32> comparer)
+                {
+                    int endIndex = startIndex + count - 1;
+                    for (int i = startIndex; i < endIndex; i++)
+                    {
+                        var t = array[i + 1];
+                        int j = i;
+                        while (j >= startIndex && comparer.Compare(t, array[j]) < 0)
+                        {
+                            array[j + 1] = array[j];
+                            j--;
+                        }
+
+                        array[j + 1] = t;
+                    }
+                }
+
+                #endregion
+
                 #region Internal Methods
 
                 internal void AddColor(Color32 c)
@@ -191,23 +287,19 @@ namespace KGySoft.Drawing.Imaging
                         (byte)(bSum / count));
                 }
 
-                internal void Split(ColorComponent component, ColorBucketCollection buckets, ref int bucketIndex)
+                internal void Split(IAsyncContext context, ColorComponent component, ColorBucketCollection buckets, ref int bucketIndex, ref int buckedEndIndex)
                 {
                     Debug.Assert(Count > 1);
-                    switch (component)
+                    var sorter = component switch
                     {
-                        case ColorComponent.R:
-                            Array.Sort(colors, start, Count, redSorter);
-                            break;
+                        ColorComponent.R => redSorter,
+                        ColorComponent.G => greenSorter,
+                        _ => blueSorter,
+                    };
 
-                        case ColorComponent.G:
-                            Array.Sort(colors, start, Count, greenSorter);
-                            break;
-
-                        case ColorComponent.B:
-                            Array.Sort(colors, start, Count, blueSorter);
-                            break;
-                    }
+                    Sort(context, sorter);
+                    if (context.IsCancellationRequested)
+                        return;
 
                     int medianIndex = Count >> 1;
 
@@ -226,7 +318,7 @@ namespace KGySoft.Drawing.Imaging
                         {
                             buckets.AddFinalColor(colors[start + medianIndex]);
                             buckets.RemoveBucket(bucketIndex);
-
+                            buckedEndIndex -= 1;
                             return;
                         }
 
@@ -271,6 +363,106 @@ namespace KGySoft.Drawing.Imaging
                         bMin = c.B;
                     if (c.B > bMax)
                         bMax = c.B;
+                }
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                private void Sort(IAsyncContext context, IComparer<Color32> comparer)
+                {
+                    // We could just use Array.Sort(colors, start, Count, comparer) here but that's surprisingly slow even in .NET8
+                    int maxTasks = context.MaxDegreeOfParallelism;
+                    if (maxTasks <= 0)
+                        maxTasks = EnvironmentHelper.CoreCount;
+
+                    // Due to the recursive binary branching the allowed subtask count is logarithmic, eg. 3 if there are 8 cores.
+                    DoSort(context, start, Count, comparer, (int)Math.Ceiling(Math.Log2(maxTasks)));
+                }
+
+                /// <summary>
+                /// A special quick sort that is faster than Array.Sort even on single core but is able to use more cores when allowed.
+                /// </summary>
+                private void DoSort(IAsyncContext context, int startIndex, int count, IComparer<Color32> comparer, int freeDepth)
+                {
+                    // Using a stack to avoid recursion if no new thread is needed. In practice more than 24 recursion depth is very rare.
+                    var sortTasks = new Stack<(int Start, int Count)>(24);
+                    sortTasks.Push((startIndex, count));
+                    while (sortTasks.TryPop(out var sortTask))
+                    {
+                        (startIndex, count) = sortTask;
+                        Debug.Assert(count > 1);
+                        if (count <= 1) // cannot happen if insertionSortThreshold > 1
+                            continue;
+
+                        if (context.IsCancellationRequested)
+                            return;
+
+                        // For short sequences this is simpler and prevents recursion/spawning threads for too small tasks
+                        if (count < insertionSortThreshold)
+                        {
+                            InsertionSort(colors, startIndex, count, comparer);
+                            continue;
+                        }
+
+                        // Using quicksort here: we just do a partitioning and then sorting the halves recursively.
+                        // Pivot is a middle index, always between 0 and count.
+                        int pivot = Partition(colors, startIndex, count, comparer);
+                        Debug.Assert(pivot < count);
+
+                        // Left half has <= 1 element: doing the right half only
+                        if (pivot <= 1)
+                        {
+                            // right one has only 1 element, too (actually cannot happen if insertionSortThreshold is > 1)
+                            if (count - pivot <= 1)
+                                continue;
+
+                            // Recursion with the right half only so depth (remainingTasks) does not change
+                            sortTasks.Push((startIndex + pivot, count - pivot));
+                            continue;
+                        }
+
+                        // Right half has <= 1 element
+                        if (count - pivot <= 1)
+                        {
+                            // Recursion with the right half only so depth (remainingTasks) does not change
+                            sortTasks.Push((startIndex, pivot));
+                            continue;
+                        }
+
+                        // Here we have two partitions that we can sort independently. If we have enough free depth we spawn a new thread.
+                        if (freeDepth > 0)
+                        {
+                            // We do a couple of real recursions here because we need to await them after they are done.
+                            // Only one of them is spawned on a new thread because the current thread just do one of the jobs.
+                            // Always the smaller half is assigned to the new thread because of the overhead and to prevent the wait handle
+                            // from starting sleeping if possible.
+                            var handle = new ManualResetEventSlim(false);
+                            var taskCopy = sortTask;
+                            if (pivot <= count >> 1)
+                            {
+                                ThreadPool.UnsafeQueueUserWorkItem(_ =>
+                                {
+                                    DoSort(context, taskCopy.Start, pivot, comparer, freeDepth - 1);
+                                    handle.Set();
+                                }, null);
+                                DoSort(context, startIndex + pivot, count - pivot, comparer, freeDepth - 1);
+                            }
+                            else
+                            {
+                                ThreadPool.UnsafeQueueUserWorkItem(_ =>
+                                {
+                                    DoSort(context, taskCopy.Start + pivot, taskCopy.Count - pivot, comparer, freeDepth - 1);
+                                    handle.Set();
+                                }, null);
+                                DoSort(context, startIndex, pivot, comparer, freeDepth - 1);
+                            }
+
+                            handle.Wait();
+                            continue;
+                        }
+
+                        // Otherwise, doing the "recursion" on the current thread. Note that we push the tasks in the stack in reversed order.
+                        sortTasks.Push((startIndex + pivot, count - pivot)); // right
+                        sortTasks.Push((startIndex, pivot)); // left
+                    }
                 }
 
                 #endregion
@@ -354,11 +546,11 @@ namespace KGySoft.Drawing.Imaging
 
                         // on equal distance splitting on the green range in the first place because of human perception
                         if (currentBucket.RangeG >= currentBucket.RangeR && currentBucket.RangeG >= currentBucket.RangeB)
-                            currentBucket.Split(ColorComponent.G, this, ref bucketIndex);
+                            currentBucket.Split(context, ColorComponent.G, this, ref bucketIndex, ref endIndex);
                         else if (currentBucket.RangeR >= currentBucket.RangeB)
-                            currentBucket.Split(ColorComponent.R, this, ref bucketIndex);
+                            currentBucket.Split(context, ColorComponent.R, this, ref bucketIndex, ref endIndex);
                         else
-                            currentBucket.Split(ColorComponent.B, this, ref bucketIndex);
+                            currentBucket.Split(context, ColorComponent.B, this, ref bucketIndex, ref endIndex);
 
                         context.Progress?.SetProgressValue(ColorsCount);
 
@@ -420,7 +612,7 @@ namespace KGySoft.Drawing.Imaging
                 else
                     root.AddColor(color);
             }
-
+            
             public Color32[]? GeneratePalette(IAsyncContext context)
             {
                 // Occurs when bitmap is completely transparent

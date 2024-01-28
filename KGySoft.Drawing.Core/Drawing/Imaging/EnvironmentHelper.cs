@@ -15,9 +15,8 @@
 
 #region Usings
 
-#if !(NET35 || NET40)
 using System;
-#else
+#if NET35 || NET40
 using System.Threading;
 #endif
 
@@ -27,13 +26,21 @@ namespace KGySoft.Drawing.Imaging
 {
     internal static class EnvironmentHelper
     {
-        #region Methods
+        #region Fields
+
+        private static int? coreCount;
+
+        #endregion
+
+        #region Properties
 
 #if NET35 || NET40
         internal static int CurrentThreadId => Thread.CurrentThread.ManagedThreadId;
 #else
         internal static int CurrentThreadId => Environment.CurrentManagedThreadId;
 #endif
+
+        internal static int CoreCount => coreCount ??= Environment.ProcessorCount;
 
         #endregion
     }
