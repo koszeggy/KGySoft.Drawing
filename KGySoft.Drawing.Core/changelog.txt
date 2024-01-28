@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v8.1.0:
+~~~~~~~~~
+
+* KGySoft.Drawing.Imaging namespace
+===================================
+* OptimizedPaletteQuantizer class:
+  * MedianCut method: Improved memory usage and performance. Supports parallel processing.
+
+
+~~~~~~~~~
 ! v8.0.0:
 ~~~~~~~~~
 

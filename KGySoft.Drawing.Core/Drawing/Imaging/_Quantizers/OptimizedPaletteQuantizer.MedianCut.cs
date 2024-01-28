@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constants
 
-                private const int insertionSortThreshold = 16;
+                private const int parallelThreshold = 16;
 
                 #endregion
 
@@ -184,7 +184,6 @@ namespace KGySoft.Drawing.Imaging
                     #endregion
 
                     Debug.Assert(count > 1);
-
                     if (count == 2)
                     {
                         if (comparer.Compare(array[startIndex], array[startIndex + 1]) > 0)
@@ -194,14 +193,13 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // taking the pivot from the middle
-                    int pivotIndex = startIndex + count / 2;
+                    int pivotIndex = startIndex + (count >> 1);
                     Color32 pivotValue = array[pivotIndex];
-                    int endIndex = startIndex + count - 1;
 
                     int left = startIndex;
-                    int right = endIndex;
+                    int right = startIndex + count - 1;
 
-                    while (left <= right)
+                    do
                     {
                         while (left <= right && comparer.Compare(array[left], pivotValue) <= 0)
                             left += 1;
@@ -211,13 +209,12 @@ namespace KGySoft.Drawing.Imaging
                             break;
 
                         Swap(array, left, right);
-
                         if (pivotIndex == right)
                             pivotIndex = left;
 
                         left++;
                         right--;
-                    }
+                    } while (left <= right);
 
                     // left - 1 is now the new place of the pivot
                     if (pivotIndex != left - 1)
@@ -227,6 +224,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
 #if DEBUG
+                    int endIndex = startIndex + count - 1;
                     for (int i = startIndex; i < pivotIndex; i++)
                         Debug.Assert(comparer.Compare(array[i], pivotValue) <= 0);
                     for (int i = pivotIndex + 1; i < endIndex + 1; i++)
@@ -382,87 +380,93 @@ namespace KGySoft.Drawing.Imaging
                 /// </summary>
                 private void DoSort(IAsyncContext context, int startIndex, int count, IComparer<Color32> comparer, int freeDepth)
                 {
-                    // Using a stack to avoid recursion if no new thread is needed. In practice more than 24 recursion depth is very rare.
-                    var sortTasks = new Stack<(int Start, int Count)>(24);
-                    sortTasks.Push((startIndex, count));
-                    while (sortTasks.TryPop(out var sortTask))
-                    {
-                        (startIndex, count) = sortTask;
-                        Debug.Assert(count > 1);
-                        if (count <= 1) // cannot happen if insertionSortThreshold > 1
-                            continue;
+                    // pivot index relative to startIndex, it's always between 0 and count
+                    int pivotIndex;
 
+                    // This is to prevent real recursion in trivial cases. We could use a stack to avoid real recursion,
+                    // but in practice that is slower and due to the nature of colors sorting no more than 128 depth is possible,
+                    // though in practice more than 24 recursion depth is very rare.
+                    while (true)
+                    {
+                        Debug.Assert(count > 1);
                         if (context.IsCancellationRequested)
                             return;
 
-                        // For short sequences this is simpler and prevents recursion/spawning threads for too small tasks
-                        if (count < insertionSortThreshold)
-                        {
-                            InsertionSort(colors, startIndex, count, comparer);
-                            continue;
-                        }
-
-                        // Using quicksort here: we just do a partitioning and then sorting the halves recursively.
-                        // Pivot is a middle index, always between 0 and count.
-                        int pivot = Partition(colors, startIndex, count, comparer);
-                        Debug.Assert(pivot < count);
+                        // Separating two partitions and then sorting the halves recursively.
+                        pivotIndex = Partition(colors, startIndex, count, comparer);
+                        Debug.Assert(pivotIndex < count);
 
                         // Left half has <= 1 element: doing the right half only
-                        if (pivot <= 1)
+                        if (pivotIndex <= 1)
                         {
-                            // right one has only 1 element, too (actually cannot happen if insertionSortThreshold is > 1)
-                            if (count - pivot <= 1)
-                                continue;
+                            // Narrowing from the left if possible. Can happen if the values are the same according to the comparer.
+                            int endIndex = count - 1;
+                            while (pivotIndex < endIndex && comparer.Compare(colors[startIndex + pivotIndex], colors[startIndex + pivotIndex + 1]) == 0)
+                                pivotIndex += 1;
 
-                            // Recursion with the right half only so depth (remainingTasks) does not change
-                            sortTasks.Push((startIndex + pivot, count - pivot));
+                            // there is nothing left to sort
+                            if (count - pivotIndex <= 1)
+                                return;
+
+                            // "Recursion" with the right half only so free depth can remain the same
+                            startIndex += pivotIndex;
+                            count -= pivotIndex;
                             continue;
                         }
 
                         // Right half has <= 1 element
-                        if (count - pivot <= 1)
+                        if (count - pivotIndex <= 1)
                         {
-                            // Recursion with the right half only so depth (remainingTasks) does not change
-                            sortTasks.Push((startIndex, pivot));
+                            // Narrowing from the right if possible. Can happen if the values are the same according to the comparer.
+                            while (pivotIndex > 1 && comparer.Compare(colors[startIndex + pivotIndex], colors[startIndex + pivotIndex - 1]) == 0)
+                                pivotIndex -= 1;
+
+                            // there is nothing left to sort
+                            if (pivotIndex <= 1)
+                                return;
+
+                            // "Recursion" with the left half only so free depth can remain the same
+                            count = pivotIndex;
                             continue;
                         }
 
-                        // Here we have two partitions that we can sort independently. If we have enough free depth we spawn a new thread.
-                        if (freeDepth > 0)
-                        {
-                            // We do a couple of real recursions here because we need to await them after they are done.
-                            // Only one of them is spawned on a new thread because the current thread just do one of the jobs.
-                            // Always the smaller half is assigned to the new thread because of the overhead and to prevent the wait handle
-                            // from starting sleeping if possible.
-                            var handle = new ManualResetEventSlim(false);
-                            var taskCopy = sortTask;
-                            if (pivot <= count >> 1)
-                            {
-                                ThreadPool.UnsafeQueueUserWorkItem(_ =>
-                                {
-                                    DoSort(context, taskCopy.Start, pivot, comparer, freeDepth - 1);
-                                    handle.Set();
-                                }, null);
-                                DoSort(context, startIndex + pivot, count - pivot, comparer, freeDepth - 1);
-                            }
-                            else
-                            {
-                                ThreadPool.UnsafeQueueUserWorkItem(_ =>
-                                {
-                                    DoSort(context, taskCopy.Start + pivot, taskCopy.Count - pivot, comparer, freeDepth - 1);
-                                    handle.Set();
-                                }, null);
-                                DoSort(context, startIndex, pivot, comparer, freeDepth - 1);
-                            }
-
-                            handle.Wait();
-                            continue;
-                        }
-
-                        // Otherwise, doing the "recursion" on the current thread. Note that we push the tasks in the stack in reversed order.
-                        sortTasks.Push((startIndex + pivot, count - pivot)); // right
-                        sortTasks.Push((startIndex, pivot)); // left
+                        // Only real recursions from here so breaking the loop.
+                        break;
                     }
+
+                    // Here we have two partitions that we can sort independently. If we have free depth we can spawn a new thread.
+                    if (freeDepth > 0 && Math.Min(pivotIndex, count - pivotIndex) >= parallelThreshold)
+                    {
+                        // Only one of them is spawned on a new thread because the current thread can do one of the jobs just fine.
+                        // Always the smaller half is assigned to the new thread because of the overhead and to prevent the wait handle
+                        // from starting sleeping if possible.
+                        var handle = new ManualResetEventSlim(false);
+                        if (pivotIndex <= count >> 1)
+                        {
+                            ThreadPool.UnsafeQueueUserWorkItem(_ =>
+                            {
+                                DoSort(context, startIndex, pivotIndex, comparer, freeDepth - 1);
+                                handle.Set();
+                            }, null);
+                            DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth - 1);
+                        }
+                        else
+                        {
+                            ThreadPool.UnsafeQueueUserWorkItem(_ =>
+                            {
+                                DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth - 1);
+                                handle.Set();
+                            }, null);
+                            DoSort(context, startIndex, pivotIndex, comparer, freeDepth - 1);
+                        }
+
+                        handle.Wait();
+                        return;
+                    }
+
+                    // Otherwise, doing the recursions on the current thread. Note that we push the tasks in the stack in reversed order.
+                    DoSort(context, startIndex, pivotIndex, comparer, freeDepth);
+                    DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth);
                 }
 
                 #endregion
