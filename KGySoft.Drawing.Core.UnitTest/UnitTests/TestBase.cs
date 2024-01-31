@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => false;
+        protected static bool SaveToFile => false;
 
         #endregion
 
@@ -61,14 +61,14 @@ namespace KGySoft.Drawing.UnitTests
             if (!SaveToFile)
                 return;
 
-            if (source.PixelFormat.Indexed && source.PixelFormat.BitsPerPixel <= 8)
+            if (source.PixelFormat.Indexed && source.PixelFormat.BitsPerPixel <= 8 && !source.Palette!.HasMultiLevelAlpha)
             {
                 SaveGif(imageName, source, testName);
                 return;
             }
 
             using var bmp = new Bitmap(source.Width, source.Height,
-                source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
+                source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
 
             // copying content
             BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);

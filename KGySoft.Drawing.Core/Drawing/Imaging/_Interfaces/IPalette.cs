@@ -36,10 +36,9 @@ namespace KGySoft.Drawing.Imaging
         int Count { get; }
 
         /// <summary>
-        /// Gets the background color. If a lookup operation
-        /// is performed with a color whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <see cref="AlphaThreshold"/>,
-        /// and there is no exact match among the entries of this <see cref="IPalette"/>,
-        /// then the color will be blended with this color before performing the lookup.
+        /// Gets the background color. Relevant only if this <see cref="IPalette"/> does not contain partially transparent colors.
+        /// If a lookup operation is performed with a color whose <see cref="Color32.A">Color32.A</see> field is equal to or greater
+        /// than <see cref="AlphaThreshold"/>, then the color will be blended with this color before performing the lookup.
         /// </summary>
         Color32 BackColor { get; }
 

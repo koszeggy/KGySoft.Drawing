@@ -40,12 +40,12 @@ namespace KGySoft.Drawing.Imaging
     /// the <see cref="GetEntries">GetEntries</see> method.</para>
     /// <para>The <see cref="Palette"/> class supports performing quick lookup operations (see <see cref="GetNearestColor">GetNearestColor</see>
     /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods) to find the closest matching palette entry to any color.</para>
-    /// <note>The palette entries represent colors in the sRGB color space and nearest color lookup is also performed in the sRGB color space by default
+    /// <note>The palette entries represent colors in the sRGB color space and nearest color lookup is also performed in the sRGB color space by default,
     /// but you can create a <see cref="Palette"/> instance that performs looking up for nearest colors in the linear color space
     /// by the <see cref="Palette(Palette, Imaging.WorkingColorSpace, Color32, byte)"/> constructor or the factory methods that have <see cref="Imaging.WorkingColorSpace"/> parameter.
     /// See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/>
     /// enumeration for details and image examples about using the different color spaces in various operations.</note>
-    /// <para>By default the lookup is performed by a slightly modified euclidean-like search but if the <see cref="Palette"/> contains grayscale entries only,
+    /// <para>By default, the lookup is performed by a slightly modified euclidean-like search but if the <see cref="Palette"/> contains grayscale entries only,
     /// then it is optimized for finding the best matching gray shade based on human perception. To override this logic a custom lookup routine can be passed to the constructors.</para>
     /// <para>If the <see cref="Palette"/> instance is created without a custom lookup logic, then the search results for non-palette-entry colors are cached.
     /// The cache is optimized for parallel processing. The theoretical maximum of cache size (apart from the actual palette entries) is 2 x 2<sup>18</sup> but
@@ -94,7 +94,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly Func<Color32, IPalette, int>? customGetNearestColorIndex;
 
         private IThreadSafeCacheAccessor<Color32, int>? cache;
-        private ColorF[]? entriesF;
+        private Array? entriesSpecialized;
 
         #endregion
 
@@ -219,8 +219,9 @@ namespace KGySoft.Drawing.Imaging
         public int Count => Entries.Length;
 
         /// <summary>
-        /// Gets the background color. If a lookup operation (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>)
-        /// is performed with a color whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <see cref="AlphaThreshold"/>, and there is no exact match among the entries of this <see cref="Palette"/>,
+        /// Gets the background color. Relevant only if this <see cref="Palette"/> does not contain partially transparent colors.
+        /// If a lookup operation (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>)
+        /// is performed with a color whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <see cref="AlphaThreshold"/>,
         /// then the color will be blended with this color before performing the lookup.
         /// </summary>
         public Color32 BackColor { get; }
@@ -295,7 +296,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
         /// </summary>
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.</param>
         /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
@@ -318,7 +320,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
         /// </summary>
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -351,7 +354,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
         /// If <paramref name="customGetNearestColorIndex"/> is set, then it depends on the custom lookup function whether it respects the value of this parameter.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -382,7 +386,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
         /// </summary>
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored.</param>
         /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
@@ -407,7 +412,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
         /// </summary>
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -435,7 +441,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
         /// If <paramref name="customGetNearestColorIndex"/> is set, then it depends on the custom lookup function whether it respects the value of this parameter.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// <param name="backColor">If <paramref name="entries"/> does not contain partially transparent colors, then specifies the background color for
+        /// lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -526,7 +533,7 @@ namespace KGySoft.Drawing.Imaging
             for (int i = 0; i < entries.Length; i++)
             {
                 Color32 c = entries[i];
-                if (!color32ToIndex.ContainsKey(c) && !(AlphaThreshold == 0 && c.A == 0))
+                if (!color32ToIndex.ContainsKey(c) && !(AlphaThreshold == 0 && c.A == 0 && !HasMultiLevelAlpha))
                     color32ToIndex[c] = i;
 
                 if (c.A != Byte.MaxValue)
@@ -924,8 +931,13 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The result can be customized by passing a non-<see langword="null"/> delegate to one of the <see cref="Palette"/> constructors.</para>
         /// <note>For more details see the <strong>Remarks</strong> section of the <see cref="Palette"/> class.</note>
         /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public int GetNearestColorIndex(Color32 c)
         {
+            // mapping alpha to full transparency
+            if (c.A < AlphaThreshold && HasTransparent)
+                return TransparentIndex;
+
             // exact match: from the palette
             if (color32ToIndex.TryGetValue(c, out int result))
                 return result;
@@ -936,8 +948,13 @@ namespace KGySoft.Drawing.Imaging
 
             // from the lock-free cache
             if (cache == null)
-                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(
-                    WorkingColorSpace == WorkingColorSpace.Linear ? FindNearestColorIndexLinear : FindNearestColorIndexSrgb, cacheOptions), null);
+            {
+                Func<Color32, int> method = WorkingColorSpace == WorkingColorSpace.Linear
+                    ? HasMultiLevelAlpha ? FindNearestColorIndexAlphaLinear : FindNearestColorIndexLinear
+                    : HasMultiLevelAlpha ? FindNearestColorIndexAlphaSrgb : FindNearestColorIndexSrgb;
+                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create(method, cacheOptions), null);
+            }
+
             return cache[c];
         }
 
@@ -1002,22 +1019,21 @@ namespace KGySoft.Drawing.Imaging
 
         private int FindNearestColorIndexSrgb(Color32 color)
         {
-            // mapping alpha to full transparency
-            if (color.A < AlphaThreshold && TransparentIndex != -1)
-                return TransparentIndex;
+            Debug.Assert(!HasMultiLevelAlpha);
+            Debug.Assert(color.A >= AlphaThreshold || !HasTransparent);
 
             int minDiff = Int32.MaxValue;
             int resultIndex = 0;
 
-            // blending the color with background and checking if there is an exact match now
             if (color.A != Byte.MaxValue)
             {
+                // blending the color with background and checking if there is an exact match now
                 color = color.BlendWithBackgroundSrgb(BackColor);
                 if (color32ToIndex.TryGetValue(color, out resultIndex))
                     return resultIndex;
             }
 
-            // The two similar lookups could be merged but it is faster to separate them even if some parts are duplicated
+            // The two similar lookups could be merged, but it is faster to separate them even if some parts are duplicated
             int len = Entries.Length;
             if (IsGrayscale)
             {
@@ -1029,21 +1045,13 @@ namespace KGySoft.Drawing.Imaging
                     // Palette color with alpha
                     if (current.A != Byte.MaxValue)
                     {
-                        // Skipping fully transparent palette colors because they were handled above
-                        if (current.A == 0)
-                            continue;
-
-                        // Blending also the current palette color
-                        current = current.BlendWithBackgroundSrgb(BackColor);
-
-                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
-                        if (current == color)
-                            return i;
+                        // Skipping fully transparent palette colors because they were handled in GetNearestColorIndex
+                        Debug.Assert(current.A == 0, $"If palette has partially transparent entries the {nameof(FindNearestColorIndexAlphaSrgb)} method should be used");
+                        continue;
                     }
 
-                    // If the palette is grayscale, then distance is measured by perceived brightness;
-                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
-                    int diff = Math.Abs(Entries[i].GetBrightness() - brightness);
+                    // If the palette is grayscale, then distance is measured by perceived brightness.
+                    int diff = Math.Abs(current.GetBrightness() - brightness);
 
                     if (diff >= minDiff)
                         continue;
@@ -1064,41 +1072,91 @@ namespace KGySoft.Drawing.Imaging
                     // Palette color with alpha
                     if (current.A != Byte.MaxValue)
                     {
-                        // Skipping fully transparent palette colors because they were handled above
-                        if (current.A == 0)
-                            continue;
-
-                        // Blending also the current palette color
-                        current = current.BlendWithBackgroundSrgb(BackColor);
-
-                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
-                        if (current == color)
-                            return i;
+                        // Skipping fully transparent palette colors because they were handled in GetNearestColorIndex
+                        Debug.Assert(current.A == 0, $"If palette has partially transparent entries the {nameof(FindNearestColorIndexAlphaSrgb)} method should be used");
+                        continue;
                     }
 
-                    // If the palette is grayscale, then distance is measured by perceived brightness;
-                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
+                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components.
                     int diff = Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
 
                     Debug.Assert(diff != 0, "Exact match should have been returned earlier");
 
+                    if (diff >= minDiff)
+                        continue;
+
                     // new closest match
-                    if (diff < minDiff)
-                    {
-                        minDiff = diff;
-                        resultIndex = i;
-                    }
+                    minDiff = diff;
+                    resultIndex = i;
                 }
             }
 
             return resultIndex;
         }
 
+        private int FindNearestColorIndexAlphaSrgb(Color32 color)
+        {
+            Debug.Assert(HasMultiLevelAlpha);
+            Debug.Assert(color.A >= AlphaThreshold || !HasTransparent);
+
+            int minDiff = Int32.MaxValue;
+            int resultIndex = 0;
+
+            // The two similar lookups could be merged, but it is faster to separate them even if some parts are duplicated
+            int len = Entries.Length;
+            if (IsGrayscale)
+            {
+                byte brightness = color.GetBrightness();
+                for (int i = 0; i < len; i++)
+                {
+                    Color32 current = Entries[i];
+
+                    // If the palette is grayscale, then distance is measured by perceived brightness
+                    // while magnifying the difference by alpha so brightness should match in the fist place.
+                    int diff = Math.Abs(current.GetBrightness() - brightness) + (Math.Abs(current.A - color.A) << 2);
+                    if (diff >= minDiff)
+                        continue;
+
+                    // new closest match
+                    minDiff = diff;
+                    resultIndex = i;
+                    if (diff == 0)
+                        break;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    Color32 current = Entries[i];
+
+                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components
+                    // while magnifying the difference by alpha so RGB should match in the fist place.
+                    // Using premultiplied colors would be more precise (eg. when alpha is 0, RGB differences should not matter)
+                    // but in the sRGB color space it would cause too much distortion.
+                    int diff = (Math.Abs(current.A - color.A) << 2) + Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
+
+                    if (diff >= minDiff)
+                        continue;
+
+                    // new closest match
+                    minDiff = diff;
+                    resultIndex = i;
+                    if (diff == 0)
+                        break;
+                }
+            }
+
+            if (Entries[resultIndex].A < AlphaThreshold && HasTransparent)
+                return TransparentIndex;
+
+            return resultIndex;
+        }
+
         private int FindNearestColorIndexLinear(Color32 color)
         {
-            // mapping alpha to full transparency
-            if (color.A < AlphaThreshold && TransparentIndex != -1)
-                return TransparentIndex;
+            Debug.Assert(!HasMultiLevelAlpha);
+            Debug.Assert(color.A >= AlphaThreshold || !HasTransparent);
 
             int resultIndex = 0;
 
@@ -1114,10 +1172,9 @@ namespace KGySoft.Drawing.Imaging
             float minDiff = Single.MaxValue;
 
             ColorF colorF = color.ToColorF();
-            ColorF? backColor = null;
-            entriesF ??= Entries.Select(c => c.ToColorF()).ToArray();
+            var entriesF = (ColorF[])(entriesSpecialized ??= Entries.Select(c => c.ToColorF()).ToArray());
 
-            // The two similar lookups could be merged but it is faster to separate them even if some parts are duplicated
+            // The two similar lookups could be merged, but it is faster to separate them even if some parts are duplicated
             int len = Entries.Length;
             if (IsGrayscale)
             {
@@ -1129,21 +1186,13 @@ namespace KGySoft.Drawing.Imaging
                     // Palette color with alpha
                     if (current.A < 1f)
                     {
-                        // Skipping fully transparent palette colors because they were handled above
-                        if (current.A == 0f)
-                            continue;
-
-                        // Blending also the current palette color
-                        current = current.BlendWithBackgroundLinear(backColor ??= BackColor.ToColorF());
-
-                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
-                        if (current == colorF)
-                            return i;
+                        // Skipping fully transparent palette colors because they were handled in GetNearestColorIndex
+                        Debug.Assert(current.A == 0f, $"If palette has partially transparent entries the {nameof(FindNearestColorIndexAlphaLinear)} method should be used");
+                        continue;
                     }
 
-                    // If the palette is grayscale, then distance is measured by linear brightness;
-                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
-                    float diff = Math.Abs(entriesF[i].GetBrightness() - brightness);
+                    // If the palette is grayscale, then distance is measured by linear brightness.
+                    float diff = Math.Abs(current.GetBrightness() - brightness);
 
                     if (diff >= minDiff)
                         continue;
@@ -1165,31 +1214,85 @@ namespace KGySoft.Drawing.Imaging
                     if (current.A < 1f)
                     {
                         // Skipping fully transparent palette colors because they were handled above
-                        if (current.A == 0f)
-                            continue;
-
-                        // Blending also the current palette color
-                        current = current.BlendWithBackgroundLinear(backColor ??= BackColor.ToColorF());
-
-                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
-                        if (current == colorF)
-                            return i;
+                        Debug.Assert(current.A == 0f, $"If palette has partially transparent entries the {nameof(FindNearestColorIndexAlphaLinear)} method should be used");
+                        continue;
                     }
 
-                    // If the palette is grayscale, then distance is measured by linear brightness;
-                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
+                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components.
                     float diff = Math.Abs(current.R - colorF.R) + Math.Abs(current.G - colorF.G) + Math.Abs(current.B - colorF.B);
 
-                    Debug.Assert(diff != 0, "Exact match should have been returned earlier");
+                    if (!(diff < minDiff))
+                        continue;
 
                     // new closest match
-                    if (diff < minDiff)
-                    {
-                        minDiff = diff;
-                        resultIndex = i;
-                    }
+                    if (diff == 0f)
+                        return i;
+                    minDiff = diff;
+                    resultIndex = i;
                 }
             }
+
+            return resultIndex;
+        }
+
+        private int FindNearestColorIndexAlphaLinear(Color32 color)
+        {
+            Debug.Assert(HasMultiLevelAlpha);
+            Debug.Assert(color.A >= AlphaThreshold || !HasTransparent);
+
+            int resultIndex = 0;
+            float minDiff = Single.MaxValue;
+
+            // Measuring the distance by premultiplied colors. It helps decreasing the distance of RGB components with lower alpha.
+            PColorF colorPf = color.ToPColorF();
+            var entriesPf = (PColorF[])(entriesSpecialized ??= Entries.Select(c => c.ToPColorF()).ToArray());
+
+            // The two similar lookups could be merged, but it is faster to separate them even if some parts are duplicated
+            int len = Entries.Length;
+            if (IsGrayscale)
+            {
+                float brightness = color.ToColorF().GetBrightness();
+                for (int i = 0; i < len; i++)
+                {
+                    PColorF current = entriesPf[i];
+
+                    // If the palette is grayscale, then distance is measured by perceived brightness
+                    // while magnifying the difference by alpha so brightness should match in the fist place.
+                    float diff = Math.Abs(ColorF.FromRgba(current.ToRgba()).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
+
+                    if (diff >= minDiff)
+                        continue;
+
+                    // new closest match
+                    if (diff == 0f)
+                        break;
+                    minDiff = diff;
+                    resultIndex = i;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    PColorF current = entriesPf[i];
+
+                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on ARGB components.
+                    // Alpha difference is automatically stronger than RGB difference because of the premultiplication.
+                    float diff = Math.Abs(current.A - colorPf.A) + Math.Abs(current.R - colorPf.R) + Math.Abs(current.G - colorPf.G) + Math.Abs(current.B - colorPf.B);
+
+                    // new closest match
+                    if (!(diff < minDiff))
+                        continue;
+
+                    minDiff = diff;
+                    resultIndex = i;
+                    if (diff == 0f)
+                        break;
+                }
+            }
+
+            if (Entries[resultIndex].A < AlphaThreshold && HasTransparent)
+                return TransparentIndex;
 
             return resultIndex;
         }
