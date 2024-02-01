@@ -82,10 +82,11 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
         /// <overloads>There are quite a few overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method but they can be grouped into different categories:
         /// <list type="bullet">
-        /// <item>The ones whose first parameter is <see cref="Size"/> are allocating the buffer for the created bitmap data by themselves, whereas the others use pre-allocated buffers.</item>
-        /// <item>The overloads whose first parameter name is <c>buffer</c> can be used to create a bitmap data for a preallocated buffer. This buffer can be a one or two dimensional array,
+        /// <item>The ones whose first parameter is <see cref="Size"/>, or the first couple of parameters are integers for width and height,
+        /// are allocating the buffer for the created bitmap data by themselves, whereas the others use pre-allocated buffers.</item>
+        /// <item>The overloads whose first parameter name is <c>buffer</c> can be used to create a bitmap data for a preallocated buffer. This buffer can be a one or two-dimensional array,
         /// an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> or <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a>
-        /// value wrapping a one dimensional array that represents a section of the array as a one or two dimensional view, or it can be an <see cref="IntPtr"/> representing a potentially unmanaged buffer.</item>
+        /// value wrapping a one dimensional array that represents a section of the array as a one or two-dimensional view, or it can be an <see cref="IntPtr"/> representing a potentially unmanaged buffer.</item>
         /// <item>If an overload has a <see cref="KnownPixelFormat"/> parameter, then it can be used to create a bitmap data using one of the pixel formats with built-in support.</item>
         /// <item>To create a bitmap data with a custom pixel format you can pick the overloads that have a <see cref="PixelFormatInfo"/> parameter along with a couple of delegates, or the ones
         /// with a <see cref="CustomBitmapDataConfig"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameter for the best customization.</item>
@@ -173,6 +174,81 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(size, pixelFormat, WorkingColorSpace.Default, palette);
             return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.WorkingColorSpace ?? WorkingColorSpace.Default, palette);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with the specified <paramref name="width"/>, <paramref name="height"/> and <paramref name="pixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create in pixels.</param>
+        /// <param name="pixelFormat">The desired pixel format of the bitmap data to create. This parameter is optional.
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
+        /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
+        /// See the <strong>Remarks</strong> section for details. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// See the <strong>Remarks</strong> section for details. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance with the specified dimensions and <paramref name="pixelFormat"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> is zero or negative
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
+        /// <seealso cref="CreateBitmapData(int, int, KnownPixelFormat, Palette)"/>
+        public static IReadWriteBitmapData CreateBitmapData(int width, int height, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb,
+            Color32 backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateArguments(width, height, pixelFormat);
+            return CreateManagedBitmapData(new Size(width, height), pixelFormat, backColor, alphaThreshold, WorkingColorSpace.Default, null);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with the specified <paramref name="width"/>, <paramref name="height"/> and <paramref name="pixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create in pixels.</param>
+        /// <param name="pixelFormat">The desired pixel format of the bitmap data to create.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
+        /// See the <strong>Remarks</strong> section for details. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// See the <strong>Remarks</strong> section for details. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance with the specified dimensions and <paramref name="pixelFormat"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> is zero or negative
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.
+        /// <br/>-or-
+        /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
+        public static IReadWriteBitmapData CreateBitmapData(int width, int height, KnownPixelFormat pixelFormat,
+            WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateArguments(width, height, pixelFormat, workingColorSpace);
+            return CreateManagedBitmapData(new Size(width, height), pixelFormat, backColor, alphaThreshold, workingColorSpace, null);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with the specified <paramref name="width"/>, <paramref name="height"/>, <paramref name="pixelFormat"/> and <paramref name="palette"/>.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create in pixels.</param>
+        /// <param name="pixelFormat">The desired pixel format of the bitmap data to create.</param>
+        /// <param name="palette">If <paramref name="pixelFormat"/> represents an indexed format, then specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance with the specified dimensions, <paramref name="pixelFormat"/> and <paramref name="palette"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> is zero or negative
+        /// <br/>-or-
+        /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
+        /// <exception cref="ArgumentException"><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
+        public static IReadWriteBitmapData CreateBitmapData(int width, int height, KnownPixelFormat pixelFormat, Palette? palette)
+        {
+            ValidateArguments(width, height, pixelFormat, WorkingColorSpace.Default, palette);
+            return CreateManagedBitmapData(new Size(width, height), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.WorkingColorSpace ?? WorkingColorSpace.Default, palette);
         }
 
         #endregion
@@ -881,7 +957,7 @@ namespace KGySoft.Drawing.Imaging
         #region Managed Wrapper for 2D Arrays
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two-dimensional array with the specified parameters.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
@@ -910,7 +986,7 @@ namespace KGySoft.Drawing.Imaging
             => CreateBitmapData(buffer, pixelWidth, pixelFormat, WorkingColorSpace.Default, backColor, alphaThreshold, disposeCallback);
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two-dimensional array with the specified parameters.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
@@ -945,7 +1021,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two-dimensional array with the specified parameters.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
@@ -976,7 +1052,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two-dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
         /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
@@ -1015,7 +1091,7 @@ namespace KGySoft.Drawing.Imaging
             => CreateBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColor, rowSetColor, WorkingColorSpace.Default, backColor, alphaThreshold, disposeCallback);
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two-dimensional array with the specified parameters.
         /// By this overload you can specify a pair of custom getter/setter delegates using the <see cref="Color32"/> color type.
         /// If other color types fit better for the custom format or you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomBitmapDataConfig)"/> overload instead.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
@@ -1077,7 +1153,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated two-dimensional array with the specified parameters.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
@@ -1103,7 +1179,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two-dimensional array with the specified parameters.
         /// If you can ensure that the delegates don't capture <paramref name="buffer"/> use the <see cref="CreateBitmapData{T}(T[,], int, CustomIndexedBitmapDataConfig)"/> overload instead.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
@@ -1158,7 +1234,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two dimensional array with the specified parameters.
+        /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated two-dimensional array with the specified parameters.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
@@ -2201,6 +2277,24 @@ namespace KGySoft.Drawing.Imaging
         {
             if (size.Width < 1 || size.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+            if (!pixelFormat.IsIndexed() || palette == null)
+                return;
+            int maxColors = 1 << pixelFormat.ToBitsPerPixel();
+            if (palette.Count > maxColors)
+                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat.ToBitsPerPixel()), nameof(palette));
+        }
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
+        private static void ValidateArguments(int width, int height, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Palette? palette = null)
+        {
+            if (width < 1)
+                throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentOutOfRange);
+            if (height < 1)
+                throw new ArgumentOutOfRangeException(nameof(height), PublicResources.ArgumentOutOfRange);
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)

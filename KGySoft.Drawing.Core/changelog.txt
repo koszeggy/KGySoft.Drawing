@@ -11,6 +11,8 @@
 
 * KGySoft.Drawing.Imaging namespace
 ===================================
++ BitmapDataFactory class:
+  + New CreateBitmapData overloads.
 * OptimizedPaletteQuantizer class:
   * MedianCut method: Improved memory usage and performance. Supports parallel processing.
 - Palette class:
