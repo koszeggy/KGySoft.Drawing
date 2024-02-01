@@ -18,7 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
@@ -736,7 +736,7 @@ namespace KGySoft.Drawing.Imaging
         public static float GetBrightness(this ColorF c)
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                 : Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
 #else
                 : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
@@ -1343,7 +1343,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             // The possibly still accelerated auto vectorization
             return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * (1f - c.A), 1f));
 #else
@@ -1654,7 +1654,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColorF BlendWithLinear(this PColorF src, PColorF dst)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             // The possibly accelerated auto vectorization.
             // Note: not using native vectorization here because according to the performance tests
             //       this can be perfectly optimized by auto vectorization
@@ -1734,7 +1734,7 @@ namespace KGySoft.Drawing.Imaging
         private static float GetBrightnessSrgb(this ColorF c)
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                 : Vector3.Dot(c.Rgb, new Vector3(RLumSrgb, GLumSrgb, BLumSrgb));
 #else
                 : c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb;

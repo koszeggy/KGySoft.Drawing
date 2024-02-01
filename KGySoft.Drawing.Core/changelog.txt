@@ -13,6 +13,15 @@
 ===================================
 + BitmapDataFactory class:
   + New CreateBitmapData overloads.
++ ColorF struct:
+  + FromRgb(Vector3), FromRgba(Vector4), ToRgba, ToRgb methods: Now they are available also for .NET Framework 4.5
+    and .NET Standard 2.0 targets.
++ PColorF struct:
+  + FromRgba(Vector4), ToRgba methods: Now they are available also for .NET Framework 4.5 and .NET Standard 2.0
+    targets.
++ ColorSpaceHelper class:
+  + SrgbToLinearVectorRgba and LinearToSrgbVectorRgba methods: Now they are available also for .NET Framework 4.5
+    and .NET Standard 2.0 targets.
 * OptimizedPaletteQuantizer class:
   * MedianCut method: Improved memory usage and performance. Supports parallel processing.
 - Palette class:

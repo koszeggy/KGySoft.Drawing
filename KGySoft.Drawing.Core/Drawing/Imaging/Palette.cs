@@ -1258,7 +1258,12 @@ namespace KGySoft.Drawing.Imaging
 
                     // If the palette is grayscale, then distance is measured by perceived brightness
                     // while magnifying the difference by alpha so brightness should match in the fist place.
+                    // The PColorF -> ColorF direct mapping instead of real conversion is intended so the more transparent a color is, the less brightness it has.
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                     float diff = Math.Abs(ColorF.FromRgba(current.ToRgba()).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
+#else
+                    float diff = Math.Abs(new ColorF(current.A, current.R, current.G, current.B).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
+#endif
 
                     if (diff >= minDiff)
                         continue;

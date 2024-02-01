@@ -16,10 +16,10 @@
 #region Usings
 
 using System;
-#if !(NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
-using System.Diagnostics.CodeAnalysis; 
+#if !(NETCOREAPP || NET45_OR_GREATER || NETSTANDARD)
+using System.Diagnostics.CodeAnalysis;
 #endif
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Internal Fields
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 
         [FieldOffset(0)]
         [NonSerialized]
@@ -105,7 +105,7 @@ namespace KGySoft.Drawing.Imaging
         private static Vector4 Half => new Vector4(0.5f);
         private static Vector128<byte> PackRgbaAsColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsColor64Mask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         private static Vector4 Max8Bit { get; } = new Vector4(Byte.MaxValue);
         private static Vector4 Max8BitRecip { get; } = new Vector4(1f / Byte.MaxValue);
         private static Vector4 Max16Bit { get; } = new Vector4(UInt16.MaxValue);
@@ -127,7 +127,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets whether this <see cref="ColorF"/> instance represents a valid color.
         /// That is, when <see cref="A"/>, <see cref="R"/>, <see cref="G"/> and <see cref="B"/> fields are all between 0 and 1.
         /// </summary>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public bool IsValid => Clip().Rgba == Rgba;
 #else
         public bool IsValid => Clip() == this;
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         internal RgbF RgbF => new RgbF(Rgb);
 #else
         internal RgbF RgbF => new RgbF(R, G, B);
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-#endregion
+        #endregion
 
         #region Operators
 
@@ -176,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator *(ColorF left, float right)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(left.Rgba * right);
 #else
             return new ColorF(left.A * right, left.R * right, left.G * right, left.B * right);
@@ -194,7 +194,7 @@ namespace KGySoft.Drawing.Imaging
         {
 #if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             return new ColorF(left.Rgba / right);
-#elif NETCOREAPP || NET46_OR_GREATER
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD2_0
             // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
             // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite results
             return new ColorF(left.Rgba / new Vector4(right));
@@ -212,7 +212,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator +(ColorF left, ColorF right)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(left.Rgba + right.Rgba);
 #else
             return new ColorF(left.A + right.A, left.R + right.R, left.G + right.G, left.B + right.B);
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator +(ColorF left, float right)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(left.Rgba * new Vector4(right));
 #else
             return new ColorF(left.A + right, left.R + right, left.G + right, left.B + right);
@@ -244,7 +244,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator -(ColorF left, ColorF right)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(left.Rgba - right.Rgba);
 #else
             return new ColorF(left.A - right.A, left.R - right.R, left.G - right.G, left.B - right.B);
@@ -260,7 +260,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator -(ColorF left, float right)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(left.Rgba - new Vector4(right));
 #else
             return new ColorF(left.A - right, left.R - right, left.G - right, left.B - right);
@@ -285,7 +285,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="b">The blue component.</param>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public ColorF(float a, float r, float g, float b)
-#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+#if (NETCOREAPP || NET45_OR_GREATER || NETSTANDARD) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing the other fields
 #endif
         {
@@ -294,7 +294,7 @@ namespace KGySoft.Drawing.Imaging
 #endif
 #if NETCOREAPP3_0_OR_GREATER
             RgbaV128 = Vector128.Create(r, g, b, a);
-#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Rgba = new Vector4(r, g, b, a);
 #else
             R = r;
@@ -355,7 +355,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="c">A <see cref="Color32"/> structure to initialize a new instance of <see cref="ColorF"/> from.</param>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public ColorF(Color32 c)
-#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+#if (NETCOREAPP || NET45_OR_GREATER || NETSTANDARD) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value field
 #endif
         {
@@ -374,7 +374,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="c">A <see cref="Color64"/> structure to initialize a new instance of <see cref="ColorF"/> from.</param>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public ColorF(Color64 c)
-#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+#if (NETCOREAPP || NET45_OR_GREATER || NETSTANDARD) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value field
 #endif
         {
@@ -391,7 +391,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal ColorF(Vector4 vector)
 #if !NET5_0_OR_GREATER
@@ -438,13 +438,13 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="baseColor">The <see cref="ColorF"/> instance from which to create the new one.</param>
         /// <returns>A <see cref="ColorF"/> instance from the specified <see cref="ColorF"/> structure and alpha value.</returns>
         public static ColorF FromArgb(float a, ColorF baseColor) =>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             new ColorF(new Vector4(baseColor.Rgb, a));
 #else
             new ColorF(a, baseColor.R, baseColor.G, baseColor.B);
 #endif
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         /// <summary>
         /// Creates a <see cref="ColorF"/> structure from a <see cref="Vector4"/> instance mapping <see cref="Vector4.X"/> to <see cref="R"/>,
         /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
@@ -471,7 +471,7 @@ namespace KGySoft.Drawing.Imaging
         /// The parameter is not validated but you can use the &lt;see cref="IsValid"/&gt; property or the &lt;see cref="Clip"&gt;Clip&lt;/see&gt; method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.</returns>
         public static ColorF FromGray(float brightness)
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             => FromRgb(new Vector3(brightness));
 #else
             => new ColorF(1f, brightness, brightness, brightness);
@@ -507,7 +507,7 @@ namespace KGySoft.Drawing.Imaging
                 return new ColorF(Sse.Multiply(result, Vector128.Create(1f / 255f)));
             }
 #endif
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(new Vector4(c.R, c.G, c.B, c.A) * Max8BitRecip);
 #else
             return new ColorF(ColorSpaceHelper.ToFloat(c.A),
@@ -543,7 +543,7 @@ namespace KGySoft.Drawing.Imaging
                 return new ColorF(Sse.Multiply(result, Vector128.Create(1f / 65535f)));
             }
 #endif
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(new Vector4(c.R, c.G, c.B, c.A) * Max16BitRecip);
 #else
             return new ColorF(ColorSpaceHelper.ToFloat(c.A),
@@ -573,13 +573,13 @@ namespace KGySoft.Drawing.Imaging
         /// If <see cref="IsValid"/> returns <see langword="true"/>, then the result is the same as the original instance.
         /// </summary>
         /// <returns>A valid <see cref="ColorF"/> instance by clipping the possibly exceeding ARGB values.</returns>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public ColorF Clip() => new ColorF(Rgba.ClipF());
 #else
         public ColorF Clip() => new ColorF(A.ClipF(), R.ClipF(), G.ClipF(), B.ClipF());
 #endif
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         /// <summary>
         /// Converts this <see cref="ColorF"/> instance to a <see cref="Vector4"/> structure
         /// mapping <see cref="R"/> to <see cref="Vector4.X"/>, <see cref="G"/> to <see cref="Vector4.Y"/>,
@@ -660,7 +660,7 @@ namespace KGySoft.Drawing.Imaging
         public ColorF ToGray()
         {
             float br = this.GetBrightness();
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(new Vector4(new Vector3(br), A));
 #else
             return new ColorF(A, br, br, br);
@@ -672,7 +672,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A <see cref="ColorF"/> instance that represents this <see cref="ColorF"/> without alpha.</returns>
         public ColorF ToOpaque() => A >= 1f ? this
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             : FromRgb(Rgb);
 #else
             : new ColorF(1f, R, G, B);
@@ -689,7 +689,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="other">A <see cref="ColorF"/> structure to compare with this <see cref="ColorF"/> instance.</param>
         /// <returns><see langword="true"/>, if the current <see cref="ColorF"/> instance is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public bool Equals(ColorF other) => other.Rgba == Rgba;
 #else
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "It is intended in Equals")]
@@ -707,7 +707,7 @@ namespace KGySoft.Drawing.Imaging
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public override int GetHashCode() => Rgba.GetHashCode();
 #else
         public override int GetHashCode() => (R, G, B, A).GetHashCode();
@@ -720,7 +720,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32NoColorSpaceChange()
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Vector4 result = (Rgba * Max8Bit + Half).Clip(Vector4.Zero, Max8Bit);
 
 #if NETCOREAPP3_0_OR_GREATER
@@ -747,7 +747,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color64 ToColor64NoColorSpaceChange()
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Vector4 result = (Rgba * Max16Bit + Half).Clip(Vector4.Zero, Max16Bit);
 
 #if NETCOREAPP3_0_OR_GREATER
@@ -776,7 +776,7 @@ namespace KGySoft.Drawing.Imaging
         {
 #if NETCOREAPP3_0_OR_GREATER
             return new ColorF(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128));
-#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(ColorSpaceHelper.LinearToSrgbVectorRgba(Rgba));
 #else
             return new ColorF(A.ClipF(),
@@ -791,7 +791,7 @@ namespace KGySoft.Drawing.Imaging
         {
 #if NETCOREAPP3_0_OR_GREATER
             return new ColorF(ColorSpaceHelper.SrgbToLinearVectorRgba(RgbaV128));
-#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new ColorF(ColorSpaceHelper.SrgbToLinearVectorRgba(Rgba));
 #else
             return new ColorF(A.ClipF(),

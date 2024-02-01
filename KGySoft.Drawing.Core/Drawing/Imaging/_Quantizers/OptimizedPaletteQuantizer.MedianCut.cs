@@ -233,23 +233,6 @@ namespace KGySoft.Drawing.Imaging
                     return pivotIndex - startIndex;
                 }
 
-                private static void InsertionSort(Color32[] array, int startIndex, int count, IComparer<Color32> comparer)
-                {
-                    int endIndex = startIndex + count - 1;
-                    for (int i = startIndex; i < endIndex; i++)
-                    {
-                        var t = array[i + 1];
-                        int j = i;
-                        while (j >= startIndex && comparer.Compare(t, array[j]) < 0)
-                        {
-                            array[j + 1] = array[j];
-                            j--;
-                        }
-
-                        array[j + 1] = t;
-                    }
-                }
-
                 #endregion
 
                 #region Internal Methods
@@ -372,7 +355,11 @@ namespace KGySoft.Drawing.Imaging
                         maxTasks = EnvironmentHelper.CoreCount;
 
                     // Due to the recursive binary branching the allowed subtask count is logarithmic, eg. 3 if there are 8 cores.
+#if NETCOREAPP3_0_OR_GREATER
                     DoSort(context, start, Count, comparer, (int)Math.Ceiling(Math.Log2(maxTasks)));
+#else
+                    DoSort(context, start, Count, comparer, (int)Math.Ceiling(Math.Log(maxTasks, 2)));
+#endif
                 }
 
                 /// <summary>

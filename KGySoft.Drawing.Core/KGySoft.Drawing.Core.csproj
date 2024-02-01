@@ -36,12 +36,18 @@
     <None Include=".nuspec\readme.md" />
   </ItemGroup>
 
+  <!--Common references-->
   <ItemGroup>
     <PackageReference Include="KGySoft.CoreLibraries" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!--.NET Framework 4.5 / .NET Standard 2.0 only references-->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

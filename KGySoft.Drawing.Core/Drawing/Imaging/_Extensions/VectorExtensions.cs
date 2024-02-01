@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+﻿#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 #region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////

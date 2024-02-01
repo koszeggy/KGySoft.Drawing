@@ -16,7 +16,7 @@
 #region Usings
 
 using System;
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
@@ -197,7 +197,7 @@ namespace KGySoft.Drawing.Imaging
             _ => 0f // <= 0 or NaN
         };
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         /// <summary>
         /// Converts a vector of four floating-point values representing RGBA color components in the sRGB color space
         /// to a vector representing linear color components.
@@ -261,7 +261,7 @@ namespace KGySoft.Drawing.Imaging
             _ => 0 // <= 0 or NaN
         };
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         /// <summary>
         /// Converts a vector of four floating-point values representing RGBA color components in the linear color space
         /// to a vector representing sRGB color components.

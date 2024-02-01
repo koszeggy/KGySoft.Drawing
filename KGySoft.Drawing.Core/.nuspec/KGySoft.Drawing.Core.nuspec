@@ -46,12 +46,14 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
       </group>
       <group targetFramework=".NETFramework4.5">
         <dependency id="KGySoft.CoreLibraries" version="8.0.0" />
+        <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework=".NETFramework4.6">
         <dependency id="KGySoft.CoreLibraries" version="8.0.0" />
       </group>
       <group targetFramework="netstandard2.0" >
         <dependency id="KGySoft.CoreLibraries" version="8.0.0" />
+        <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework="netstandard2.1" >
         <dependency id="KGySoft.CoreLibraries" version="8.0.0" />
