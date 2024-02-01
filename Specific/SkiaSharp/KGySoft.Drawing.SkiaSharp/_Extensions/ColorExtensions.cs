@@ -17,14 +17,20 @@
 
 using System;
 using System.Drawing;
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
-#endif
 using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
 
 using SkiaSharp;
+
+#endregion
+
+#region Suppressions
+
+#if NET8_0_OR_GREATER
+#pragma warning disable CS9193 // Argument should be a variable because it is passed to a 'ref readonly' parameter - false alarm
+#endif
 
 #endregion
 
@@ -470,20 +476,10 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <returns>The result of the conversion.</returns>
         public static SKColorF ToSKColorF(this ColorF color, WorkingColorSpace targetColorSpace)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             Vector4 result = color.ToRgba();
             if (targetColorSpace == WorkingColorSpace.Srgb)
                 result = ColorSpaceHelper.LinearToSrgbVectorRgba(result);
-
             return Unsafe.As<Vector4, SKColorF>(ref result);
-#else
-            return targetColorSpace == WorkingColorSpace.Srgb
-                ? new SKColorF(ColorSpaceHelper.LinearToSrgb(color.R),
-                    ColorSpaceHelper.LinearToSrgb(color.G),
-                    ColorSpaceHelper.LinearToSrgb(color.B),
-                    ColorSpaceHelper.LinearToSrgb(color.A))
-                : new SKColorF(color.R, color.G, color.B, color.A);
-#endif
         }
 
         /// <summary>
@@ -563,19 +559,9 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
         /// <returns>The result of the conversion.</returns>
         public static ColorF ToColorF(this SKColorF color, WorkingColorSpace sourceColorSpace = WorkingColorSpace.Default)
-        {
-            if (sourceColorSpace != WorkingColorSpace.Srgb)
-                return Unsafe.As<SKColorF, ColorF>(ref color);
-
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(Unsafe.As<SKColorF, ColorF>(ref color).ToRgba()));
-#else
-            return new ColorF(color.Alpha,
-                ColorSpaceHelper.SrgbToLinear(color.Red),
-                ColorSpaceHelper.SrgbToLinear(color.Green),
-                ColorSpaceHelper.SrgbToLinear(color.Blue));
-#endif
-        }
+            => sourceColorSpace != WorkingColorSpace.Srgb
+                ? Unsafe.As<SKColorF, ColorF>(ref color)
+                : ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(Unsafe.As<SKColorF, ColorF>(ref color).ToRgba()));
 
         /// <summary>
         /// Converts an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolorf">SKColorF</a> struct to <see cref="ColorF"/>.
@@ -604,27 +590,8 @@ namespace KGySoft.Drawing.SkiaSharp
         internal static ushort ToLinear(this ushort b) => Cache16Bpp.LookupTableSrgbToLinear[b];
         internal static ushort ToSrgb(this ushort b) => Cache16Bpp.LookupTableLinearToSrgb[b];
         internal static ushort ToSrgbUInt16(this byte b) => Cache16Bpp.LookupTableLinearToSrgb[ColorSpaceHelper.ToUInt16(b)];
-
-        internal static ColorF ToSrgb(this ColorF c) =>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba()));
-#else
-            new ColorF(c.A,
-                ColorSpaceHelper.LinearToSrgb(c.R),
-                ColorSpaceHelper.LinearToSrgb(c.G),
-                ColorSpaceHelper.LinearToSrgb(c.B));
-
-#endif
-
-        internal static ColorF ToLinear(this ColorF c) =>
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(c.ToRgba()));
-#else
-            new ColorF(c.A,
-                ColorSpaceHelper.SrgbToLinear(c.R),
-                ColorSpaceHelper.SrgbToLinear(c.G),
-                ColorSpaceHelper.SrgbToLinear(c.B));
-#endif
+        internal static ColorF ToSrgb(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba()));
+        internal static ColorF ToLinear(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(c.ToRgba()));
 
         #endregion
 

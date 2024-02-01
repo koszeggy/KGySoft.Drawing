@@ -15,13 +15,19 @@
 
 #region Usings
 
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-using System.Numerics;
-#endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
+
+#endregion
+
+#region Suppressions
+
+#if NET8_0_OR_GREATER
+#pragma warning disable CS9193 // Argument should be a variable because it is passed to a 'ref readonly' parameter - false alarm
+#pragma warning disable CS9195 // Argument should be passed with the 'in' keyword - false alarm
+#endif
 
 #endregion
 
@@ -50,16 +56,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// </summary>
         internal ColorPrgbaF32Srgb(ColorF c)
         {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             PColorF srgbF = ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba())).ToPremultiplied();
-#else
-            PColorF srgbF = new ColorF(c.A,
-                ColorSpaceHelper.LinearToSrgb(c.R),
-                ColorSpaceHelper.LinearToSrgb(c.G),
-                ColorSpaceHelper.LinearToSrgb(c.B))
-                .ToPremultiplied();
-#endif
-
             this = Unsafe.As<PColorF, ColorPrgbaF32Srgb>(ref srgbF);
         }
 
@@ -75,17 +72,9 @@ namespace KGySoft.Drawing.SkiaSharp
         /// It's to spare an unnecessary back-and-forth conversion if ColorF is requested.
         /// </summary>
         internal ColorF ToColorF()
-        {
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToStraight().ToRgba()));
-#else
-            ColorF srgbF = Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this)).ToStraight();
-            return new ColorF(srgbF.A,
-                ColorSpaceHelper.SrgbToLinear(srgbF.R),
-                ColorSpaceHelper.SrgbToLinear(srgbF.G),
-                ColorSpaceHelper.SrgbToLinear(srgbF.B));
-#endif
-        }
+            => ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(Unsafe.As<ColorPrgbaF32Srgb, PColorF>(ref Unsafe.AsRef(this))
+            .ToStraight()
+            .ToRgba()));
 
         #endregion
     }

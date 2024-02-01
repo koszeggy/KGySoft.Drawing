@@ -22,6 +22,15 @@ using KGySoft.Drawing.Imaging;
 
 #endregion
 
+#region Suppressions
+
+#if NET8_0_OR_GREATER
+#pragma warning disable CS9193 // Argument should be a variable because it is passed to a 'ref readonly' parameter - false alarm
+#pragma warning disable CS9195 // Argument should be passed with the 'in' keyword - false alarm
+#endif
+
+#endregion
+
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit)]
