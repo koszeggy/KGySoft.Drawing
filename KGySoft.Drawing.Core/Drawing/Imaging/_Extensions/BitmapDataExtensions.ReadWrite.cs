@@ -414,7 +414,7 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
@@ -533,7 +533,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
         public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
@@ -634,7 +634,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
         public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
@@ -923,7 +923,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
         {
@@ -1021,7 +1021,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
         /// <seealso cref="ToGrayscale"/>
         public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
@@ -1116,7 +1116,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1270,7 +1270,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1419,7 +1419,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
