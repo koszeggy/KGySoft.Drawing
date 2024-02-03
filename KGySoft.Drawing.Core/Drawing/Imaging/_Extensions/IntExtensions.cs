@@ -66,6 +66,14 @@ namespace KGySoft.Drawing.Imaging
 
         internal static int GetMask(this BitVector32.Section section) => section.Mask << section.Offset;
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static int Abs(this int i)
+        {
+            // Math.Abs is still slower, even after the fix in https://github.com/dotnet/runtime/issues/24626
+            Debug.Assert(i != Int32.MinValue);
+            return i >= 0 ? i : -i;
+        }
+
         #endregion
     }
 }

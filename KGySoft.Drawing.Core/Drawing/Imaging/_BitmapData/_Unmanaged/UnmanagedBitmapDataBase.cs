@@ -38,11 +38,11 @@ namespace KGySoft.Drawing.Imaging
             : base(cfg)
         {
             Debug.Assert(buffer != IntPtr.Zero);
-            Debug.Assert(Math.Abs(stride) >= cfg.PixelFormat.GetByteWidth(cfg.Size.Width));
+            Debug.Assert(stride.Abs() >= cfg.PixelFormat.GetByteWidth(cfg.Size.Width));
 
             Scan0 = buffer;
             Stride = stride;
-            RowSize = Math.Abs(stride);
+            RowSize = stride.Abs();
         }
 
         #endregion

@@ -2661,7 +2661,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+            if (stride.Abs() < pixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
@@ -2685,7 +2685,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
             if (pixelFormat.Indexed && bpp > 16)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+            if (stride.Abs() < pixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
@@ -2711,7 +2711,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan($"{nameof(customBitmapDataConfig.PixelFormat)}.{nameof(customBitmapDataConfig.PixelFormat.BitsPerPixel)}", 0), nameof(customBitmapDataConfig));
             if (pixelFormat.Indexed)
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(customBitmapDataConfig.PixelFormat), Res.ImagingNonIndexedPixelFormatExpected), nameof(customBitmapDataConfig));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+            if (stride.Abs() < pixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             if (customBitmapDataConfig.WorkingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(customBitmapDataConfig.WorkingColorSpace), PublicResources.EnumOutOfRange<WorkingColorSpace>()), nameof(customBitmapDataConfig));
@@ -2738,7 +2738,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(customBitmapDataConfig.PixelFormat), Res.ImagingIndexedPixelFormatExpected), nameof(customBitmapDataConfig));
             if (bpp > 16)
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(customBitmapDataConfig.PixelFormat), Res.ImagingIndexedPixelFormatTooLarge), nameof(customBitmapDataConfig));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+            if (stride.Abs() < pixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             if (customBitmapDataConfig.RowGetColorIndex == null && customBitmapDataConfig.RowSetColorIndex == null)
                 throw new ArgumentException(Res.ImagingNoPixelAccessSpecified, nameof(customBitmapDataConfig));

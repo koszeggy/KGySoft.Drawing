@@ -1080,7 +1080,7 @@ namespace KGySoft.Drawing.Imaging
                 return true;
             if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
                 return false;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+            return (c1.R - c2.R).Abs() <= tolerance && (c1.G - c2.G).Abs() <= tolerance && (c1.B - c2.B).Abs() <= tolerance && (c1.A - c2.A).Abs() <= tolerance;
         }
 
         /// <summary>
@@ -1102,7 +1102,7 @@ namespace KGySoft.Drawing.Imaging
                 return true;
             if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
                 return false;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+            return (c1.R - c2.R).Abs() <= tolerance && (c1.G - c2.G).Abs() <= tolerance && (c1.B - c2.B).Abs() <= tolerance && (c1.A - c2.A).Abs() <= tolerance;
         }
 
         /// <summary>
@@ -1150,7 +1150,7 @@ namespace KGySoft.Drawing.Imaging
                 return true;
             if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
                 return false;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+            return (c1.R - c2.R).Abs() <= tolerance && (c1.G - c2.G).Abs() <= tolerance && (c1.B - c2.B).Abs() <= tolerance && (c1.A - c2.A).Abs() <= tolerance;
         }
 
         /// <summary>
@@ -1172,7 +1172,7 @@ namespace KGySoft.Drawing.Imaging
                 return true;
             if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
                 return false;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+            return (c1.R - c2.R).Abs() <= tolerance && (c1.G - c2.G).Abs() <= tolerance && (c1.B - c2.B).Abs() <= tolerance && (c1.A - c2.A).Abs() <= tolerance;
         }
 
         /// <summary>
@@ -1675,7 +1675,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(c1.A == 255 && c2.A == 255, "If alpha can be nonzero use the public overload instead");
             if (c1 == c2)
                 return true;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance;
+            return (c1.R - c2.R).Abs() <= tolerance && (c1.G - c2.G).Abs() <= tolerance && (c1.B - c2.B).Abs() <= tolerance;
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
