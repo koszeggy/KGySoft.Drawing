@@ -29,18 +29,27 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     [TestFixture]
     public class PaletteTest : TestBase
     {
-        #region Fields
-
-        private static Color32[] paletteArgb4444;
-        private static Color32[] paletteArgb2222;
-        private static Color32[] paletteGray8Alpha;
-
-        #endregion
-
         #region Properties
 
         private static object[][] PaletteLookupTestSource { get; } =
         [
+            ["RGB565 sRGB", new CustomIndexedBitmapDataConfig
+            {
+                PixelFormat = new PixelFormatInfo(16) { Indexed = true },
+                BackBufferIndependentPixelAccess = true,
+                RowGetColorIndex = (r, x) => r.UnsafeGetRefAs<ushort>(x),
+                RowSetColorIndex = (r, x, i) => r.UnsafeGetRefAs<ushort>(x) = (ushort)i,
+                Palette = new Palette(PaletteRgb565, WorkingColorSpace.Srgb, Color.Silver)
+            }],
+            ["RGB565 linear", new CustomIndexedBitmapDataConfig
+            {
+                PixelFormat = new PixelFormatInfo(16) { Indexed = true },
+                BackBufferIndependentPixelAccess = true,
+                RowGetColorIndex = (r, x) => r.UnsafeGetRefAs<ushort>(x),
+                RowSetColorIndex = (r, x, i) => r.UnsafeGetRefAs<ushort>(x) = (ushort)i,
+                Palette = new Palette(PaletteRgb565, WorkingColorSpace.Linear, Color.Silver)
+            }],
+
             ["ARGB4444 direct", new CustomIndexedBitmapDataConfig
             {
                 PixelFormat = new PixelFormatInfo(16) { Indexed = true },
@@ -163,61 +172,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }],
         ];
 
-        private static Color32[] PaletteArgb4444
-        {
-            get
-            {
-                if (paletteArgb4444 == null)
-                {
-                    var colors = new Color32[65536];
-                    for (int a = 15; a >= 0; a--)
-                    for (int r = 0; r < 16; r++)
-                    for (int g = 0; g < 16; g++)
-                    for (int b = 0; b < 16; b++)
-                        colors[((15 - a) << 12) | (r << 8) | (g << 4) | b] = new Color32((byte)(a * 17), (byte)(r * 17), (byte)(g * 17), (byte)(b * 17));
-                    paletteArgb4444 = colors;
-                }
-
-                return paletteArgb4444;
-            }
-        }
-
-        private static Color32[] PaletteArgb2222
-        {
-            get
-            {
-                if (paletteArgb2222 == null)
-                {
-                    var colors = new Color32[256];
-                    for (int a = 3; a >= 0; a--)
-                    for (int r = 0; r < 4; r++)
-                    for (int g = 0; g < 4; g++)
-                    for (int b = 0; b < 4; b++)
-                        colors[((3 - a) << 6) | (r << 4) | (g << 2) | b] = new Color32((byte)(a * 85), (byte)(r * 85), (byte)(g * 85), (byte)(b * 85));
-                    paletteArgb2222 = colors;
-                }
-
-                return paletteArgb2222;
-            }
-        }
-
-        private static Color32[] PaletteGray8Alpha
-        {
-            get
-            {
-                if (paletteGray8Alpha == null)
-                {
-                    var colors = new Color32[256];
-                    for (int a = 15; a >= 0; a--)
-                    for (int br = 0; br < 16; br++)
-                        colors[((15 - a) << 4) | br] = Color32.FromArgb((byte)(a * 17), Color32.FromGray((byte)(br * 17)));
-                    paletteGray8Alpha = colors;
-                }
-
-                return paletteGray8Alpha;
-            }
-        }
-
         #endregion
 
         #region Methods
@@ -228,8 +182,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             if (!SaveToFile)
                 Assert.Inconclusive($"This is a visual test. You need to enable {nameof(SaveToFile)} and check the generated results.");
 
-            using var source = GetShieldIcon256();
-            //using var source = GenerateAlphaGradientBitmapData(new Size(512, 256));
+            //using var source = GetShieldIcon256();
+            //using var source = GetInfoIcon256();
+            using var source = GenerateAlphaGradientBitmapData(new Size(512, 256));
             var size = source.Size;
 
             var buffer = new byte[size.Height, (size.Width * cfg.PixelFormat.BitsPerPixel + 7) >> 3];

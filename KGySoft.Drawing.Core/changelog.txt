@@ -24,8 +24,9 @@
     and .NET Standard 2.0 targets.
 * OptimizedPaletteQuantizer class:
   * MedianCut method: Improved memory usage and performance. Supports parallel processing.
-- Palette class:
-  - GetNearestColor and GetNearestColorIndex methods:
+* Palette class:
+  * GetNearestColor and GetNearestColorIndex methods:
+    * Improving performance
     - AlphaThreshold was not considered for partially transparent colors with an exact match in the palette.
     - The result was not always correct if the palette contained partially transparent colors.
 

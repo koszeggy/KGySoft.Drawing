@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
             _ => Byte.MinValue
         };
 
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
+#if NET35 || NET40
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ushort ClipToUInt16(this float value) => value switch
         {
@@ -48,6 +48,9 @@ namespace KGySoft.Drawing.Imaging
             => value >= max ? max
                 : value >= 0 ? (byte)value
                 : (byte)0;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float Sqr(this float value) => value * value;
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

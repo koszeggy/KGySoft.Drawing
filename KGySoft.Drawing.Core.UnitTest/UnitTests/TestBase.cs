@@ -33,9 +33,98 @@ namespace KGySoft.Drawing.UnitTests
 {
     public abstract class TestBase
     {
+        #region Fields
+
+        private static Color32[] paletteRgb565;
+        private static Color32[] paletteArgb4444;
+        private static Color32[] paletteArgb2222;
+        private static Color32[] paletteGray8Alpha;
+
+        #endregion
+
         #region Properties
 
-        protected static bool SaveToFile => false;
+        protected static bool SaveToFile => true;
+
+        protected static Color32[] PaletteArgb4444
+        {
+            get
+            {
+                if (paletteArgb4444 == null)
+                {
+                    var colors = new Color32[65536];
+                    for (int a = 15; a >= 0; a--)
+                        for (int r = 0; r < 16; r++)
+                            for (int g = 0; g < 16; g++)
+                                for (int b = 0; b < 16; b++)
+                                    colors[((15 - a) << 12) | (r << 8) | (g << 4) | b] = new Color32((byte)(a * 17), (byte)(r * 17), (byte)(g * 17), (byte)(b * 17));
+                    paletteArgb4444 = colors;
+                }
+
+                return paletteArgb4444;
+            }
+        }
+
+        protected static Color32[] PaletteRgb565
+        {
+            get
+            {
+                if (paletteRgb565 == null)
+                {
+                    var colors = new Color32[65536];
+                    for (int i = 0; i < 65536; i++)
+                    {
+                        byte r = (byte)((i & 0b11111000_00000000) >> 8);
+                        r |= (byte)(r >> 5);
+                        byte g = (byte)((i & 0b00000111_11100000) >> 3);
+                        g |= (byte)(g >> 6);
+                        byte b = (byte)((i & 0b00011111) << 3);
+                        b |= (byte)(b >> 5);
+                        colors[i] = new Color32(r, g, b);
+                    }
+
+                    paletteRgb565 = colors;
+                }
+
+                return paletteRgb565;
+            }
+        }
+
+        protected static Color32[] PaletteArgb2222
+        {
+            get
+            {
+                if (paletteArgb2222 == null)
+                {
+                    var colors = new Color32[256];
+                    for (int a = 3; a >= 0; a--)
+                        for (int r = 0; r < 4; r++)
+                            for (int g = 0; g < 4; g++)
+                                for (int b = 0; b < 4; b++)
+                                    colors[((3 - a) << 6) | (r << 4) | (g << 2) | b] = new Color32((byte)(a * 85), (byte)(r * 85), (byte)(g * 85), (byte)(b * 85));
+                    paletteArgb2222 = colors;
+                }
+
+                return paletteArgb2222;
+            }
+        }
+
+        protected static Color32[] PaletteGray8Alpha
+        {
+            get
+            {
+                if (paletteGray8Alpha == null)
+                {
+                    var colors = new Color32[256];
+                    for (int a = 15; a >= 0; a--)
+                        for (int br = 0; br < 16; br++)
+                            colors[((15 - a) << 4) | br] = Color32.FromArgb((byte)(a * 17), Color32.FromGray((byte)(br * 17)));
+                    paletteGray8Alpha = colors;
+                }
+
+                return paletteGray8Alpha;
+            }
+        }
 
         #endregion
 

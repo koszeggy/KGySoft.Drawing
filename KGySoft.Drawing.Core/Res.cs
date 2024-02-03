@@ -169,7 +169,7 @@ namespace KGySoft
         /// <summary>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</summary>
         internal static string ImagingBufferLengthTooSmall(int minSize) => Get("Imaging_BufferLengthTooSmallFormat", minSize);
 
-        /// <summary>Palette index {0} is invalid. It must be less than palette count {1}.</summary>
+        /// <summary>Palette index {0} is invalid. It must be greater than or equal to 0 and less than palette count {1}.</summary>
         internal static string ImagingInvalidPaletteIndex(int index, int count) => Get("Imaging_InvalidPaletteIndexFormat", index, count);
 
         #endregion

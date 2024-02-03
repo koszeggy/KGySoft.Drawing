@@ -222,8 +222,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     return new Palette(result);
                 }
 
-                static int GetColorIndex16Bpp(ICustomBitmapDataRow row, int x) => row.UnsafeGetRefAs<short>(x);
-                static void SetColorIndex16Bpp(ICustomBitmapDataRow row, int x, int c) => row.UnsafeGetRefAs<short>(x) = (short)c;
+                static int GetColorIndex16Bpp(ICustomBitmapDataRow row, int x) => row.UnsafeGetRefAs<ushort>(x);
+                static void SetColorIndex16Bpp(ICustomBitmapDataRow row, int x, int c) => row.UnsafeGetRefAs<ushort>(x) = (ushort)c;
 
                 #endregion
 
@@ -232,7 +232,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     new object[] { "1bpp Indexed", new PixelFormatInfo(1) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex1Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex1Bpp), Palette.SystemDefault1BppPalette() },
                     new object[] { "3bpp Indexed", new PixelFormatInfo(3) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex3Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex3Bpp), GetPalette3Bpp() },
                     new object[] { "9bpp Indexed", new PixelFormatInfo(9) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex9Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex9Bpp), GetPalette9Bpp() },
-                    new object[] { "16bpp Indexed", new PixelFormatInfo(16) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex16Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex16Bpp), Palette.SystemDefault8BppPalette() },
+                    new object[] { "16bpp Indexed", new PixelFormatInfo(16) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex16Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex16Bpp), new Palette(PaletteArgb4444, Color.Silver, 16) },
                 };
             }
         }

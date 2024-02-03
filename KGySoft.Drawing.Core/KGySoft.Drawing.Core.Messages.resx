@@ -154,7 +154,7 @@
     <value>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</value>
   </data>
   <data name="Imaging_InvalidPaletteIndexFormat" xml:space="preserve">
-    <value>Palette index {0} is invalid. It must be less than palette count {1}.</value>
+    <value>Palette index {0} is invalid. It must be greater than or equal to 0 and less than palette count {1}.</value>
   </data>
   <data name="Imaging_NonIndexedPixelFormatExpected" xml:space="preserve">
     <value>A non-indexed pixel format is expected.</value>

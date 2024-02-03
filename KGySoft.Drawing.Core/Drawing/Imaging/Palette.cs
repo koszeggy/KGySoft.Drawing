@@ -23,6 +23,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 using System.Threading;
 
 using KGySoft.Collections;
@@ -1051,8 +1055,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // If the palette is grayscale, then distance is measured by perceived brightness.
-                    int diff = Math.Abs(current.GetBrightness() - brightness);
-
+                    int diff = (current.GetBrightness() - brightness).Abs();
                     if (diff >= minDiff)
                         continue;
 
@@ -1065,6 +1068,9 @@ namespace KGySoft.Drawing.Imaging
             }
             else
             {
+#if NETCOREAPP3_0_OR_GREATER
+                Vector128<byte> vColor = Sse2.IsSupported ? Vector128.CreateScalar(color.Value).AsByte() : default;
+#endif
                 for (int i = 0; i < len; i++)
                 {
                     Color32 current = Entries[i];
@@ -1078,10 +1084,19 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components.
-                    int diff = Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
+                    // Euclidean distance squared would provide a slightly different result in some cases but there is no good accelerated
+                    // version for it using integers (DotProduct is available for floating point arguments only)
+                    int diff;
+#if NETCOREAPP3_0_OR_GREATER
+                    if (Sse2.IsSupported)
+                        diff = Sse2.SumAbsoluteDifferences(Vector128.CreateScalar(current.Value).AsByte(), vColor).GetElement(0);
+                    else
+#endif
+                    {
+                        diff = (current.R - color.R).Abs() + (current.G - color.G).Abs() + (current.B - color.B).Abs();
+                    }
 
                     Debug.Assert(diff != 0, "Exact match should have been returned earlier");
-
                     if (diff >= minDiff)
                         continue;
 
@@ -1113,7 +1128,7 @@ namespace KGySoft.Drawing.Imaging
 
                     // If the palette is grayscale, then distance is measured by perceived brightness
                     // while magnifying the difference by alpha so brightness should match in the fist place.
-                    int diff = Math.Abs(current.GetBrightness() - brightness) + (Math.Abs(current.A - color.A) << 2);
+                    int diff = (current.GetBrightness() - brightness).Abs() + ((current.A - color.A).Abs() << 2);
                     if (diff >= minDiff)
                         continue;
 
@@ -1126,15 +1141,25 @@ namespace KGySoft.Drawing.Imaging
             }
             else
             {
+#if NETCOREAPP3_0_OR_GREATER
+                Vector128<byte> vColor = Sse2.IsSupported ? Vector128.CreateScalar(color.Value).AsByte() : default;
+#endif
                 for (int i = 0; i < len; i++)
                 {
                     Color32 current = Entries[i];
 
-                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components
-                    // while magnifying the difference by alpha so RGB should match in the fist place.
+                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on ARGB components.
                     // Using premultiplied colors would be more precise (eg. when alpha is 0, RGB differences should not matter)
                     // but in the sRGB color space it would cause too much distortion.
-                    int diff = (Math.Abs(current.A - color.A) << 2) + Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
+                    int diff;
+#if NETCOREAPP3_0_OR_GREATER
+                    if (Sse2.IsSupported)
+                        diff = Sse2.SumAbsoluteDifferences(Vector128.CreateScalar(current.Value).AsByte(), vColor).GetElement(0);
+                    else
+#endif
+                    {
+                        diff = (current.A - color.A).Abs() + (current.R - color.R).Abs() + (current.G - color.G).Abs() + (current.B - color.B).Abs();
+                    }
 
                     if (diff >= minDiff)
                         continue;
@@ -1218,8 +1243,15 @@ namespace KGySoft.Drawing.Imaging
                         continue;
                     }
 
-                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on RGB components.
-                    float diff = Math.Abs(current.R - colorF.R) + Math.Abs(current.G - colorF.G) + Math.Abs(current.B - colorF.B);
+                    // If the palette is not grayscale, then distance is measured by Euclidean distance (squared) based on RGB components.
+                    // Unlike in the sRGB namespace we don't use Manhattan distance because SumAbsoluteDifferences is not available for
+                    // floats and the equivalent SIMD instructions using Sse.AndNot (for absolute value), Subtract and HorizontalAdd
+                    // is slower than Vector3.LengthSquared (which is basically DotProduct with itself).
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    float diff = (current.Rgb - colorF.Rgb).LengthSquared();
+#else
+                    float diff = (current.R - colorF.R).Sqr() + (current.G - colorF.G).Sqr() + (current.B - colorF.B).Sqr();
+#endif
 
                     if (!(diff < minDiff))
                         continue;
@@ -1260,7 +1292,7 @@ namespace KGySoft.Drawing.Imaging
                     // while magnifying the difference by alpha so brightness should match in the fist place.
                     // The PColorF -> ColorF direct mapping instead of real conversion is intended so the more transparent a color is, the less brightness it has.
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                    float diff = Math.Abs(ColorF.FromRgba(current.ToRgba()).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
+                    float diff = Math.Abs(new ColorF(current.Rgba).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
 #else
                     float diff = Math.Abs(new ColorF(current.A, current.R, current.G, current.B).GetBrightness() - brightness) + Math.Abs(current.A - colorPf.A) * 2;
 #endif
@@ -1280,10 +1312,16 @@ namespace KGySoft.Drawing.Imaging
                 for (int i = 0; i < len; i++)
                 {
                     PColorF current = entriesPf[i];
-
-                    // If the palette is not grayscale, then distance is measured by Manhattan distance based on ARGB components.
-                    // Alpha difference is automatically stronger than RGB difference because of the premultiplication.
-                    float diff = Math.Abs(current.A - colorPf.A) + Math.Abs(current.R - colorPf.R) + Math.Abs(current.G - colorPf.G) + Math.Abs(current.B - colorPf.B);
+                    
+                    // If the palette is not grayscale, then distance is measured by Euclidean distance (squared) based on RGBA components.
+                    // Unlike in the sRGB namespace we don't use Manhattan distance because SumAbsoluteDifferences is not available for
+                    // floats and the equivalent SIMD instructions using Sse.AndNot (for absolute value), Subtract and HorizontalAdd
+                    // is slower than Vector4.LengthSquared (which is basically DotProduct with itself).
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    float diff = (current.Rgba - colorPf.Rgba).LengthSquared();
+#else
+                    float diff = (current.A - colorPf.A).Sqr() + (current.R - colorPf.R).Sqr() + (current.G - colorPf.G).Sqr() + (current.B - colorPf.B).Sqr();
+#endif
 
                     // new closest match
                     if (!(diff < minDiff))
