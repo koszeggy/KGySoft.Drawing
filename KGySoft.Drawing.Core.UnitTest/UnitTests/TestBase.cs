@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Properties
 
-        protected static bool SaveToFile => true;
+        protected static bool SaveToFile => false;
 
         protected static Color32[] PaletteArgb4444
         {
@@ -54,10 +54,10 @@ namespace KGySoft.Drawing.UnitTests
                 {
                     var colors = new Color32[65536];
                     for (int a = 15; a >= 0; a--)
-                        for (int r = 0; r < 16; r++)
-                            for (int g = 0; g < 16; g++)
-                                for (int b = 0; b < 16; b++)
-                                    colors[((15 - a) << 12) | (r << 8) | (g << 4) | b] = new Color32((byte)(a * 17), (byte)(r * 17), (byte)(g * 17), (byte)(b * 17));
+                    for (int r = 0; r < 16; r++)
+                    for (int g = 0; g < 16; g++)
+                    for (int b = 0; b < 16; b++)
+                        colors[((15 - a) << 12) | (r << 8) | (g << 4) | b] = new Color32((byte)(a * 17), (byte)(r * 17), (byte)(g * 17), (byte)(b * 17));
                     paletteArgb4444 = colors;
                 }
 
@@ -98,10 +98,10 @@ namespace KGySoft.Drawing.UnitTests
                 {
                     var colors = new Color32[256];
                     for (int a = 3; a >= 0; a--)
-                        for (int r = 0; r < 4; r++)
-                            for (int g = 0; g < 4; g++)
-                                for (int b = 0; b < 4; b++)
-                                    colors[((3 - a) << 6) | (r << 4) | (g << 2) | b] = new Color32((byte)(a * 85), (byte)(r * 85), (byte)(g * 85), (byte)(b * 85));
+                    for (int r = 0; r < 4; r++)
+                    for (int g = 0; g < 4; g++)
+                    for (int b = 0; b < 4; b++)
+                        colors[((3 - a) << 6) | (r << 4) | (g << 2) | b] = new Color32((byte)(a * 85), (byte)(r * 85), (byte)(g * 85), (byte)(b * 85));
                     paletteArgb2222 = colors;
                 }
 
@@ -117,8 +117,8 @@ namespace KGySoft.Drawing.UnitTests
                 {
                     var colors = new Color32[256];
                     for (int a = 15; a >= 0; a--)
-                        for (int br = 0; br < 16; br++)
-                            colors[((15 - a) << 4) | br] = Color32.FromArgb((byte)(a * 17), Color32.FromGray((byte)(br * 17)));
+                    for (int br = 0; br < 16; br++)
+                        colors[((15 - a) << 4) | br] = Color32.FromArgb((byte)(a * 17), Color32.FromGray((byte)(br * 17)));
                     paletteGray8Alpha = colors;
                 }
 
