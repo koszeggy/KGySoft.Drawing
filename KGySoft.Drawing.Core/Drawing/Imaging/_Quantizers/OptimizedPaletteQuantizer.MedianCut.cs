@@ -427,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
                         // Only one of them is spawned on a new thread because the current thread can do one of the jobs just fine.
                         // Always the smaller half is assigned to the new thread because of the overhead and to prevent the wait handle
                         // from starting sleeping if possible.
-                        var handle = new ManualResetEventSlim(false);
+                        using var handle = new ManualResetEventSlim(false);
                         if (pivotIndex <= count >> 1)
                         {
                             ThreadPool.UnsafeQueueUserWorkItem(_ =>
