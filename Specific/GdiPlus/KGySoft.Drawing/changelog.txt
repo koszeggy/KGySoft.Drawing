@@ -6,6 +6,22 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v8.1.0:
+~~~~~~~~~
+
+! KGySoft.Drawing.Imaging namespace
+===================================
+! ReadableBitmapDataExtensions class:
+  ! ToBitmap, BeginToBitmap, ToBitmapAsync methods:
+    ! When target pixel format is not specified, these method no longer return a Bitmap with Format16bppGrayScale
+      pixel format because it is basically supported by this library only but not by the native GDI+ operations.
+      Instead, a Bitmap with Format8bppIndexed format with a gray-scale palette is returned, even though it may end
+      up in loss of information. If you need the original behavior you still can specify the pixel format.
+    - When the target pixel format is an indexed one but there is no target palette specified and the source also
+      has no palette, then the back color, alpha threshold and working color space of the source are now respected.
+
+
+~~~~~~~~~
 ! v8.0.0:
 ~~~~~~~~~
 

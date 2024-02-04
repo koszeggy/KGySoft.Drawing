@@ -387,7 +387,12 @@ namespace KGySoft.Drawing.Imaging
 
         private static PixelFormat GetCompatiblePixelFormat(IReadableBitmapData source)
         {
-            var pixelFormat = source.PixelFormat.ToKnownPixelFormat().ToPixelFormat();
+            // Though Format16bppGrayScale is "supported" on Windows (can be created but actually none of the GDI+ operations handle it),
+            // returning the 8-bit indexed format for it, even it may mean loss of information.
+            // This method is used only when no pixel format is specified so the Format16bppGrayScale format still can be used explicitly.
+            PixelFormatInfo info = source.PixelFormat;
+            var knownPixelFormat = info.Grayscale ? KnownPixelFormat.Format8bppIndexed : info.ToKnownPixelFormat();
+            var pixelFormat = knownPixelFormat.ToPixelFormat();
             return pixelFormat.IsSupportedNatively() ? pixelFormat
                 : pixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb
                 : PixelFormat.Format24bppRgb;
@@ -405,13 +410,16 @@ namespace KGySoft.Drawing.Imaging
                 return sourcePalette;
 
             if (palette == null || palette.Count == 0)
+            {
+                bool isGray = source.PixelFormat.Grayscale;
                 return pixelFormat switch
                 {
-                    PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(),
-                    PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(),
-                    PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(),
+                    PixelFormat.Format8bppIndexed => isGray ? Palette.Grayscale256(source.WorkingColorSpace, source.BackColor) : Palette.SystemDefault8BppPalette(source.WorkingColorSpace, source.BackColor, source.AlphaThreshold),
+                    PixelFormat.Format4bppIndexed => isGray ? Palette.Grayscale16(source.WorkingColorSpace, source.BackColor) : Palette.SystemDefault4BppPalette(source.WorkingColorSpace, source.BackColor),
+                    PixelFormat.Format1bppIndexed => Palette.BlackAndWhite(source.WorkingColorSpace, source.BackColor),
                     _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
                 };
+            }
 
             // there is a desired palette to apply
             if (palette.Count > maxColors)
