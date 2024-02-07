@@ -33,9 +33,10 @@ namespace KGySoft.Drawing.Imaging
     /// <para>The <see cref="OptimizedPaletteQuantizer"/> class can be used to reduce colors of an <see cref="IReadableBitmapData"/> using a
     /// palette of up to 65536 colors where the palette entries are optimized for the quantized image.
     /// <note>Though more than 256 colors are supported, the typical goal of palette optimization is to adjust the colors for an indexed pixel format.
-    /// Natively supported indexed formats cannot have more than 256 colors, though you are allowed to create images with custom pixel format
+    /// Natively supported indexed formats cannot have more than 256 colors, though you are allowed to create images with a custom pixel format
     /// by using the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods that
-    /// have <see cref="PixelFormatInfo"/> parameters. Please note though that a large palette may have impact on both memory usage and performance.</note></para>
+    /// have <see cref="PixelFormatInfo"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameters. Please note though that a large palette may have impact
+    /// on both memory usage and performance.</note></para>
     /// <para>This class supports palette optimization by three different algorithms (see the
     /// <see cref="Octree">Octree</see>, <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> methods)</para>
     /// <para>The following table compares the algorithms supported by the <see cref="OptimizedPaletteQuantizer"/> class:
@@ -43,10 +44,11 @@ namespace KGySoft.Drawing.Imaging
     /// <listheader><term></term><term><see cref="Octree">Octree</see></term><term><see cref="MedianCut">MedianCut</see></term><term><see cref="Wu">Wu</see></term></listheader>
     /// <item>
     /// <term><strong>Speed</strong></term>
-    /// <term>With default settings usually slower than the <see cref="Wu">Wu</see>'s algorithm but faster than <see cref="MedianCut">MedianCut</see>.
+    /// <term>With default settings usually slower than the <see cref="Wu">Wu</see>'s algorithm and has a similar speed as <see cref="MedianCut">MedianCut</see>.
     /// When using high <see cref="ConfigureBitLevel">bit levels</see> and the source is a true color image, then it is generally faster for high requested colors,
     /// and can be faster even than <see cref="Wu">Wu</see>'s algorithm using the same bit level.</term>
-    /// <term>In most cases this is the slowest one of the three algorithms, especially for larger images.</term>
+    /// <term>When using a low bit level or just a few colors, this one is the slowest one of the three algorithms, especially for larger images.
+    /// When producing 256 or more colors its speed is similar to the <see cref="Octree">Octree</see> algorithm.</term>
     /// <term>With default settings this is almost always the fastest one of the three algorithms
     /// (still much slower though than the quantizers of the <see cref="PredefinedColorsQuantizer"/> class).
     /// When using high <see cref="ConfigureBitLevel">bit levels</see> it can be the slowest one for small images and gets to be the fastest one for larger image sizes.</term>
@@ -57,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
     /// of the source image and the requested color count. The memory is continuously allocated on demand and in extreme cases it may consume a huge amount of memory.
     /// The memory usage can be limited by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
     /// <term>The memory usage mainly depends on the image size and somewhat on the requested color count. Quantizing a large image may consume a large amount of memory
-    /// even if the image itself consist of just a few colors.</term>
+    /// even if the image itself consist of just a few colors. It uses array pooling on platforms that support it.</term>
     /// <term>This quantizer consumes a fairly large fix amount of memory, even if the source has few colors and the requested color count is small.
     /// Most of the memory is allocated at once, regardless of the image size or its actual colors, and a smaller portion is allocated dynamically, which depends on the number of requested colors.
     /// On platforms where available, array pooling is used, which releases the used memory only after a while if the buffers are not re-used within a time interval.
@@ -88,7 +90,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para><sup>*</sup>Memory consumption mentioned in the table affects palette generation only.
     /// That occurs when the <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method of an <see cref="OptimizedPaletteQuantizer"/> instance
     /// is called. As soon as this method returns with an <see cref="IQuantizingSession"/> instance, the memory mentioned in the table can be reclaimed
-    /// (which does not necessarily happen immediately on platforms that support array pooling, which is utilized by the <see cref="Wu">Wu</see>'s algorithm).</para>
+    /// (which does not necessarily happen immediately on platforms that support array pooling, which is utilized by the <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> algorithms).</para>
     /// <para>On the other hand, the <see cref="IQuantizingSession"/> can also consume a large amount of memory during the quantization
     /// because its <see cref="Palette"/> caches the quantization results of the source image pixels, though this caching does not
     /// depend on the chosen algorithm and the used memory can also be reclaimed when the <see cref="IQuantizingSession"/> is disposed.</para>
