@@ -157,7 +157,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="left">The <see cref="ColorF"/> instance that is to the left of the equality operator.</param>
         /// <param name="right">The <see cref="ColorF"/> instance that is to the right of the equality operator.</param>
         /// <returns><see langword="true"/> if the two <see cref="ColorF"/> structures are equal; otherwise, <see langword="false"/>.</returns>
-        public static bool operator ==(ColorF left, ColorF right) => Equals(left, right);
+        public static bool operator ==(ColorF left, ColorF right) => left.Equals(right);
 
         /// <summary>
         /// Gets whether two <see cref="ColorF"/> structures are different.
@@ -611,6 +611,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sse2.ConvertToVector128Int32 performs actual rounding
                 // so we can spare the additional operation +0.5 of the non-accelerated version.
                 Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), Vector128.Create(255f));
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), Vector128.Create(255f));
                 Vector128<byte> rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsByte();
                 return Ssse3.IsSupported
                     ? new Color32(Ssse3.Shuffle(rgbaI32, PackRgbaAsColor32Mask).AsUInt32().ToScalar())
@@ -639,6 +640,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sse2.ConvertToVector128Int32 performs actual rounding
                 // so we can spare the additional operation +0.5 of the non-accelerated version.
                 Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), Vector128.Create(65535f));
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), Vector128.Create(65535f));
                 Vector128<ushort> rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsUInt16();
                 return Ssse3.IsSupported
                     ? new Color64(Ssse3.Shuffle(rgbaI32.AsByte(), PackRgbaAsColor64Mask).AsUInt64().ToScalar())

@@ -867,7 +867,8 @@ namespace KGySoft.Drawing.Imaging
                             if (srgbF.A <= 0f)
                                 continue;
 
-                            PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange().Clip();
+                            PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange();
+                            Debug.Assert(colorSrc.IsValid);
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -979,7 +980,8 @@ namespace KGySoft.Drawing.Imaging
                             if (srgbF.A <= 0f)
                                 continue;
 
-                            PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange().Clip();
+                            PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange();
+                            Debug.Assert(colorSrc.IsValid);
 
                             // fully solid source: overwrite
                             if (colorSrc.A == UInt16.MaxValue)

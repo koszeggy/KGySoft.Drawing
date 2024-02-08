@@ -50,6 +50,12 @@ namespace KGySoft.Drawing.Imaging
                 : (byte)0;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ushort ClipToUInt16(this float value, ushort max)
+            => value >= max ? max
+                : value >= 0 ? (ushort)value
+                : (ushort)0;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static float Sqr(this float value) => value * value;
 #endif
 

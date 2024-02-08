@@ -143,7 +143,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="left">The <see cref="PColorF"/> instance that is to the left of the equality operator.</param>
         /// <param name="right">The <see cref="PColorF"/> instance that is to the right of the equality operator.</param>
         /// <returns><see langword="true"/> if the two <see cref="PColorF"/> structures are equal; otherwise, <see langword="false"/>.</returns>
-        public static bool operator ==(PColorF left, PColorF right) => Equals(left, right);
+        public static bool operator ==(PColorF left, PColorF right) => left.Equals(right);
 
         /// <summary>
         /// Gets whether two <see cref="PColorF"/> structures are different.
@@ -664,7 +664,8 @@ namespace KGySoft.Drawing.Imaging
         internal PColor64 ToPColor64NoColorSpaceChange()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector4 result = (Rgba * Max16Bit + Half).Clip(Vector4.Zero, Max16Bit);
+            Vector4 result = Rgba * Max16Bit + Half;
+            result = result.Clip(Vector4.Zero, new Vector4(result.W.Clip(0f, UInt16.MaxValue)));
 
 #if NETCOREAPP3_0_OR_GREATER
             // Using vectorization also for the float -> int conversion if possible.
@@ -680,10 +681,11 @@ namespace KGySoft.Drawing.Imaging
             return new PColor64((ushort)result.W, (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
 #else
             PColorF result = this * UInt16.MaxValue + 0.5f;
-            return new PColor64(result.A.ClipToUInt16(),
-                result.R.ClipToUInt16(),
-                result.G.ClipToUInt16(),
-                result.B.ClipToUInt16());
+            ushort a = result.A.ClipToUInt16();
+            return new PColor64(a,
+                result.R.ClipToUInt16(a),
+                result.G.ClipToUInt16(a),
+                result.B.ClipToUInt16(a));
 #endif
         }
 
