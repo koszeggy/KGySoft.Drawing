@@ -34,16 +34,15 @@ namespace KGySoft.Drawing.Wpf
         [OneTimeSetUp]
         public void Initialize()
         {
-            Console.WriteLine($"Referenced runtime by KGySoft.Drawing.Core: {typeof(DrawingCoreModule).Assembly.GetReferencedAssemblies()[0]}");
+            if (Program.ConsoleWriter != null)
+                Console.SetOut(Program.ConsoleWriter);
 #if NET35
             if (typeof(object).Assembly.GetName().Version != new Version(2, 0, 0, 0))
                 Assert.Inconclusive($"mscorlib version does not match to .NET 3.5: {typeof(object).Assembly.GetName().Version}. Change the executing framework to .NET 2.0 or execute the tests as a console application.");
 #elif NETFRAMEWORK
             if (typeof(object).Assembly.GetName().Version != new Version(4, 0, 0, 0))
                 Assert.Inconclusive($"mscorlib version does not match to .NET 4.x: {typeof(object).Assembly.GetName().Version}. Change the executing framework to .NET 4.x");
-#elif NETCOREAPP
-            Console.WriteLine($"Tests executed on .NET Core version {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))}");
-#else
+#elif !NETCOREAPP
 #error unknown .NET version
 #endif
         }
