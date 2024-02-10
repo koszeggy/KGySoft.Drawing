@@ -9,6 +9,12 @@
 ! v8.1.0:
 ~~~~~~~~~
 
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v8.1.0, which improves performance, especially regarding Palette operations,
+  optimized quantizers and vector operations.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
 ! KGySoft.Drawing.Imaging namespace
 ===================================
 ! ReadableBitmapDataExtensions class:
