@@ -182,9 +182,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             if (!SaveToFile)
                 Assert.Inconclusive($"This is a visual test. You need to enable {nameof(SaveToFile)} and check the generated results.");
 
-            //using var source = GetShieldIcon256();
-            //using var source = GetInfoIcon256();
-            using var source = GenerateAlphaGradientBitmapData(new Size(512, 256));
+            using var source = GetShieldIcon256();
+            //using var source = GenerateAlphaGradientBitmapData(new Size(512, 256));
             var size = source.Size;
 
             var buffer = new byte[size.Height, (size.Width * cfg.PixelFormat.BitsPerPixel + 7) >> 3];
