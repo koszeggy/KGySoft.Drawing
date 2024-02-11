@@ -53,8 +53,6 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         [TestCaseSource(nameof(setGetPixelTestSource))]
         public Task SetGetPixelTest(string testName, Color testColor, Color expectedColor, uint expectedRawValue) => ExecuteTest(() =>
         {
-            Console.WriteLine($"{testName}: {testColor} => {expectedColor} (0x{expectedRawValue:X8})");
-
             var bmp = new WriteableBitmap(1, 1);
             using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             {

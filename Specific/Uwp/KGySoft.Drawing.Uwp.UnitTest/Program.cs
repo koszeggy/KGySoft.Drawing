@@ -21,6 +21,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Uwp.UnitTest.Controls;
 
 using NUnit.Framework.Api;
@@ -37,6 +38,68 @@ namespace KGySoft.Drawing.Uwp.UnitTest
 {
     public class Program : Application
     {
+        #region Nested Classes
+
+        private class ConsoleTestReporter : ITestListener
+        {
+            #region Methods
+
+            public void TestStarted(ITest test)
+            {
+                if (test.HasChildren)
+                    return;
+
+                console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write($"{test.Name}...");
+                console.ForegroundColor = ConsoleColor.DarkGray;
+            }
+
+            public void TestFinished(ITestResult result)
+            {
+                if (result.HasChildren)
+                    return;
+
+                ResultState state = result.ResultState;
+                TestStatus status = state.Status;
+                if (status == TestStatus.Skipped && state.Site == FailureSite.Parent)
+                    return;
+
+                string? message = result.Message;
+                ConsoleColor origColor = console.ForegroundColor;
+                console.ForegroundColor = status switch
+                {
+                    TestStatus.Failed => ConsoleColor.Red,
+                    TestStatus.Passed => ConsoleColor.Green,
+                    TestStatus.Skipped => ConsoleColor.DarkCyan,
+                    _ => ConsoleColor.Yellow
+                };
+
+                Console.WriteLine(status);
+                if (!String.IsNullOrEmpty(message))
+                    Console.WriteLine($"Message: {message}");
+
+                console.ForegroundColor = origColor;
+            }
+
+            public void TestOutput(TestOutput output)
+            {
+            }
+
+            public void SendMessage(TestMessage message)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Fields
+
+        private static ConsoleRenderer console;
+
+        #endregion
+
         #region Properties
 
         #region Internal Properties
@@ -74,10 +137,13 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 if (child.FailCount == 0)
                     continue;
 
+                console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine();
                 Console.WriteLine("====================================");
+                console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{child.Name}: {child.Message}");
                 Console.WriteLine(child.StackTrace);
-                if (!String.IsNullOrEmpty(child.Output))
+                if (!child.Output.IsNullOrEmpty())
                     Console.WriteLine($"Output: {child.Output}");
 
                 for (int i = 0; i < child.AssertionResults.Count; i++)
@@ -97,7 +163,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             base.OnLaunched(args);
             Dispatcher = Window.Current.Dispatcher;
 
-            var console = new ConsoleRenderer();
+            console = new ConsoleRenderer();
             ConsoleWriter = console.Writer;
             Window.Current.Content = console;
             Window.Current.Activate();
@@ -106,16 +172,19 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             {
                 // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
                 // or just calling the method to debug directly
+                console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(FrameworkVersion);
 
                 var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
                 runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
                 Console.WriteLine("Executing tests...");
-                ITestResult result = runner.Run(null, TestFilter.Empty);
+                ConsoleWriter = Console.Out;
+                ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
                 console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
-                    : result.SkipCount > 0 ? ConsoleColor.Yellow
+                    : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                     : ConsoleColor.Green;
-                Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Skipped: {result.SkipCount}");
+
+                Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Inconclusive: {result.InconclusiveCount}; Skipped: {result.SkipCount}");
                 if (!String.IsNullOrEmpty(result.Message))
                     Console.WriteLine($"Message: {result.Message}");
                 ProcessChildren(result.Children);

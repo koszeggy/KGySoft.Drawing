@@ -90,7 +90,6 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         [TestCaseSource(nameof(convertWithQuantizingTestSource))]
         public Task ToWriteableBitmapWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTest(() =>
         {
-            Console.WriteLine(name);
             var size = new Size(32, 16);
             using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
             var result = src.ToWriteableBitmap(quantizer, ditherer);
@@ -104,7 +103,6 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         [TestCaseSource(nameof(convertWithQuantizingTestSource))]
         public Task ToWriteableBitmapAsyncWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTestAsync(async () =>
         {
-            Console.WriteLine(name);
             var size = new Size(32, 16);
             using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
             WriteableBitmap result = (await src.ToWriteableBitmapAsync(quantizer, ditherer))!;
