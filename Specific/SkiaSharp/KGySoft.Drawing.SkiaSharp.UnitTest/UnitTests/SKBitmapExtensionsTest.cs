@@ -133,10 +133,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 else if (colorType is SKColorType.Rg88 or SKColorType.Rg1616 or SKColorType.RgF16)
                     expectedResult = new Color32(expectedResult.R, expectedResult.G, 0);
 
-#pragma warning disable CS0618
-                Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{colorSpace.NamedGamma}");
-                Console.WriteLine($"{$"{colorType}/{alphaType}/{colorSpace.NamedGamma}",-32}- {testColor}");
-#pragma warning restore CS0618
+                Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{(colorSpace.GammaIsLinear ? nameof(WorkingColorSpace.Linear) : nameof(WorkingColorSpace.Srgb))}");
+                Console.WriteLine($"{$"{colorType}/{alphaType}/{(colorSpace.GammaIsLinear ? nameof(WorkingColorSpace.Linear) : nameof(WorkingColorSpace.Srgb))}",-32}- {testColor}");
                 Console.WriteLine($"{"Expected result",-32}- {expectedResult}");
                 using var bitmap = new SKBitmap(info, info.RowBytes);
                 Assert.AreEqual(colorType, bitmap.ColorType);
