@@ -36,7 +36,71 @@ namespace KGySoft.Drawing.SkiaSharp
 {
     internal static class Program
     {
+        #region Nested Classes
+
+        private class ConsoleTestReporter : ITestListener
+        {
+            #region Methods
+
+            public void TestStarted(ITest test)
+            {
+                if (test.HasChildren)
+                    return;
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.Write($"{test.Name}...");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+            }
+
+            public void TestFinished(ITestResult result)
+            {
+                if (result.HasChildren)
+                    return;
+
+                ResultState state = result.ResultState;
+                TestStatus status = state.Status;
+                if (status == TestStatus.Skipped && state.Site == FailureSite.Parent)
+                    return;
+
+                string? message = result.Message;
+                ConsoleColor origColor = Console.ForegroundColor;
+                Console.ForegroundColor = status switch
+                {
+                    TestStatus.Failed => ConsoleColor.Red,
+                    TestStatus.Passed => ConsoleColor.Green,
+                    TestStatus.Skipped => ConsoleColor.DarkCyan,
+                    _ => ConsoleColor.Yellow
+                };
+
+                Console.WriteLine(status);
+                if (!String.IsNullOrEmpty(message))
+                    Console.WriteLine($"Message: {message}");
+
+                Console.ForegroundColor = origColor;
+            }
+
+            public void TestOutput(TestOutput output)
+            {
+            }
+
+            public void SendMessage(TestMessage message)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Properties
+
+        #region Internal Properties
+
+        internal static TextWriter? ConsoleWriter { get; private set; }
+
+        #endregion
+
+        #region Private Properties
 
         private static string FrameworkVersion =>
 #if NETFRAMEWORK
@@ -46,6 +110,8 @@ namespace KGySoft.Drawing.SkiaSharp
 #else
             $"{RuntimeInformation.FrameworkDescription}";
 #endif
+
+        #endregion
 
         #endregion
 
@@ -62,12 +128,15 @@ namespace KGySoft.Drawing.SkiaSharp
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
-            ITestResult result = runner.Run(null, TestFilter.Empty);
+            ConsoleWriter = Console.Out;
+            ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
             Console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
-                : result.SkipCount > 0 ? ConsoleColor.Yellow
+                : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                 : ConsoleColor.Green;
-            Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Skipped: {result.SkipCount}");
-            Console.WriteLine($"Message: {result.Message}");
+
+            Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Inconclusive: {result.InconclusiveCount}; Skipped: {result.SkipCount}");
+            if (!String.IsNullOrEmpty(result.Message))
+                Console.WriteLine($"Message: {result.Message}");
             ProcessChildren(result.Children);
         }
 
@@ -84,7 +153,10 @@ namespace KGySoft.Drawing.SkiaSharp
                 if (child.FailCount == 0)
                     continue;
 
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine();
                 Console.WriteLine("====================================");
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{child.Name}: {child.Message}");
                 Console.WriteLine(child.StackTrace);
                 if (!child.Output.IsNullOrEmpty())
