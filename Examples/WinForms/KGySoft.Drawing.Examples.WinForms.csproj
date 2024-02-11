@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="8.0.0" />
+    <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
