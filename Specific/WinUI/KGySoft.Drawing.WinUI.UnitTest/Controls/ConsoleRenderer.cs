@@ -177,7 +177,7 @@ namespace KGySoft.Drawing.WinUI.Controls
         public ConsoleRenderer()
         {
             var textBlock = new RichTextBlock { FontFamily = new FontFamily("Consolas") };
-            Content = textBlock;
+            Content = new ScrollViewer { Content = textBlock };
             writer = new ConsoleWriter(textBlock);
             Console.SetOut(writer);
         }
