@@ -275,7 +275,7 @@ The previous example demonstrated how we can create a managed accessor for a `Wr
 
 ```cs
 // Though Gray8 format also has built-in support in KGySoft.Drawing.Core
-// (see KnownPixelFormat.Format8bppGrayScale) here we pretend as if it was no supported natively.
+// (see KnownPixelFormat.Format8bppGrayScale) here we pretend as if it was not supported natively.
 // So this is our bitmap with the custom pixel format:
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
 
