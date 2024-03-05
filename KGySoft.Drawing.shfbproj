@@ -35,7 +35,7 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>8.0.0</HelpFileVersion>
+    <HelpFileVersion>8.1.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -86,6 +86,8 @@
       <Argument Key="BaseSourceCodeUrl" Value="" xmlns="" />
       <Argument Key="RequestExampleUrl" Value="" xmlns="" />
     </TransformComponentArguments>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -1407,9 +1409,12 @@
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
-       Just the PackageReference is not enough. The direct .dll references are enough, left the package reference for auto restoring. -->
+       Just the PackageReference is not enough. The direct .dll references are enough, left the package reference for auto restoring.
+       If auto restore does not happen execute the following command:
+       nuget install Microsoft.Windows.SDK.NET.Ref -Version 10.0.22621.27
+  -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.24" />
+    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.27" />
     <Reference Include="Microsoft.Windows.SDK.NET, Version=10.0.22621.24, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.27\lib\net6.0\Microsoft.Windows.SDK.NET.dll</HintPath>
       <Private>True</Private>
