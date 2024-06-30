@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Drawing;
+
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -28,6 +30,17 @@ namespace KGySoft.Drawing.Shapes
     internal abstract class Brush // TODO: public when it can fill any path, IEquatable, ICloneable
     {
         #region Methods
+
+        internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
+        {
+            RawPath rawPath = path/*TODO .AsClosed()*/.RawPath;
+            Rectangle region = Rectangle.Intersect(path.Bounds, new Rectangle(Point.Empty, bitmapData.Size));
+
+            if (region.IsEmpty)
+                return;
+
+
+        }
 
         internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
 

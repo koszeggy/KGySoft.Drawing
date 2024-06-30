@@ -79,6 +79,19 @@ namespace KGySoft.Drawing.Imaging
             return context?.IsCancellationRequested != true;
         }
 
+        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null)
+        {
+
+            // TODO: make public when path contains every possible shapes
+
+            //ValidateArguments(...);
+
+            // TODO: fast shortcut when possible (solid non-AA brush with no quantizer)
+
+            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions);
+            return context?.IsCancellationRequested != true;
+        }
+
         #endregion
 
         #endregion
@@ -91,6 +104,21 @@ namespace KGySoft.Drawing.Imaging
             IReadableBitmapData? region = path.GetRegion(context, pen, drawingOptions);
             if (region != null)
                 pen.Brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
+        }
+
+        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions)
+        {
+            if (Rectangle.Intersect(path.Bounds, new Rectangle(Point.Empty, bitmapData.Size)).IsEmpty)
+                return;
+
+            drawingOptions ??= DrawingOptions.Default;
+
+            // TODO: if possible, do without region (eg. there is no dithering) to spare memory, though it will be slower, unless only a small portion is drawn, in which case we don't scan the whole region
+            brush.ApplyPath(context, bitmapData, path, drawingOptions);
+
+            //IReadableBitmapData? region = path.GetRegion(context, brush, drawingOptions);
+            //if (region != null)
+            //    brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
         }
 
         #endregion

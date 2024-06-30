@@ -18,6 +18,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 
+using KGySoft.Reflection;
+
 #endregion
 
 namespace KGySoft.Drawing.Shapes
@@ -32,7 +34,25 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-            private readonly List<PathSegment> segments = new List<PathSegment>();
+            private readonly List<PathSegment> segments;
+
+            #endregion
+
+            #region Properties
+
+            internal bool IsClosed { get; set; }
+
+            #endregion
+
+            #region Constructors
+
+            internal Figure() => segments = new List<PathSegment>();
+
+            internal Figure(Figure other, bool close)
+            {
+                segments = new List<PathSegment>(other.segments);
+                IsClosed = close || other.IsClosed;
+            }
 
             #endregion
 
@@ -41,6 +61,22 @@ namespace KGySoft.Drawing.Shapes
             internal void AddSegment(PathSegment segment)
             {
                 segments.Add(segment);
+            }
+
+            internal IList<PointF> GetPoints()
+            {
+                switch (segments.Count)
+                {
+                    case 0:
+                        return Reflector.EmptyArray<PointF>();
+                    case 1:
+                        return segments[0].GetPoints();
+                    default:
+                        var result = new List<PointF>();
+                        foreach (PathSegment segment in segments)
+                            result.AddRange(segment.GetPoints());
+                        return result;
+                }
             }
 
             #endregion
@@ -52,6 +88,11 @@ namespace KGySoft.Drawing.Shapes
 
         private abstract class PathSegment
         {
+            #region Methods
+            
+            internal abstract IList<PointF> GetPoints();
+
+            #endregion
         }
 
         #endregion
@@ -73,6 +114,12 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(points != null! && points.Length >= 2, "points.Length should be >= 2");
                 this.points = points!;
             }
+
+            #endregion
+
+            #region Methods
+
+            internal override IList<PointF> GetPoints() => points;
 
             #endregion
         }
