@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -34,9 +35,18 @@ namespace KGySoft.Drawing.Shapes
 
         private sealed class RawFigure
         {
+            #region Constants
+
+            private const float toleranceEquality = 0.001f;
+            private const float tolerancePointDistance = 0.1f;
+
+            #endregion
+
             #region Fields
 
             internal readonly PointF[] Vertices;
+
+            internal Rectangle Bounds;
 
             #endregion
 
@@ -70,7 +80,7 @@ namespace KGySoft.Drawing.Shapes
                             Vertices = result.ToArray();
                             return;
                         }
-                    } while (points[0].TolerantEquals(points[prev], 0.1f));
+                    } while (points[0].TolerantEquals(points[prev], tolerancePointDistance));
 
                     count = prev + 1;
                     lastPoint = points[prev];
@@ -103,6 +113,25 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Vertices = result.ToArray();
+
+                float minX = Single.MaxValue;
+                float minY = Single.MaxValue;
+                float maxX = Single.MinValue;
+                float maxY = Single.MinValue;
+                foreach (PointF vertex in Vertices)
+                {
+                    if (vertex.X < minX)
+                        minX = vertex.X;
+                    if (vertex.X > maxX)
+                        maxX = vertex.X;
+                    if (vertex.Y < minY)
+                        minY = vertex.Y;
+                    if (vertex.Y > maxY)
+                        maxY = vertex.Y;
+                }
+
+                Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(toleranceEquality), (int)minY.TolerantFloor(toleranceEquality), 
+                    (int)maxX.TolerantCeiling(toleranceEquality), (int)maxY.TolerantCeiling(toleranceEquality));
             }
 
             #endregion
@@ -115,11 +144,10 @@ namespace KGySoft.Drawing.Shapes
                 Vector2 slope1 = p2.ToVector2() - p1.ToVector2();
                 Vector2 slope2 = p3.ToVector2() - p2.ToVector2();
                 float result = (slope1.Y * slope2.X) - (slope1.X * slope2.Y);
-                return (sbyte)(result.TolerantIsZero(0.001f) ? 0
+                return (sbyte)(result.TolerantIsZero(toleranceEquality) ? 0
                     : result > 0f ? 1
                     : -1);
             }
-
 
             #endregion
         }
@@ -129,6 +157,14 @@ namespace KGySoft.Drawing.Shapes
         #region Fields
 
         private readonly List<RawFigure> figures;
+
+        private Rectangle bounds;
+
+        #endregion
+
+        #region Properties
+
+        internal Rectangle Bounds => bounds;
 
         #endregion
 
@@ -146,7 +182,7 @@ namespace KGySoft.Drawing.Shapes
                 return;
             var figure = new RawFigure(points, isClosed);
             figures.Add(figure);
-            // TODO Adjust Bounds
+            bounds = Rectangle.Union(bounds, figure.Bounds);
         }
 
         #endregion

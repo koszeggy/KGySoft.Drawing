@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 
 using KGySoft.Drawing.Imaging;
@@ -33,13 +34,29 @@ namespace KGySoft.Drawing.Shapes
 
         internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
-            RawPath rawPath = path/*TODO .AsClosed()*/.RawPath;
-            Rectangle region = Rectangle.Intersect(path.Bounds, new Rectangle(Point.Empty, bitmapData.Size));
 
-            if (region.IsEmpty)
+            RawPath rawPath = path/*TODO .AsClosed() - if needed, cache it, too */.RawPath;
+            // TODO: if rawPath.TryGetRegion(this, bitmapData, drawingOptions, out region) -> ApplyRegion... - important: if [Row]Path is not disposable, cached regions should not use ArrayPool or unmanaged buffers
+            Rectangle bounds = Rectangle.Intersect(rawPath.Bounds, new Rectangle(Point.Empty, bitmapData.Size));
+
+            if (bounds.IsEmpty)
                 return;
 
+            using FillPathSession session = CreateSession(bitmapData, bounds, drawingOptions);
+            RegionScanner scanner = GetScanner(/*closed*/path, bounds, drawingOptions);
+            Array scanlineMask = session.GetMask(); // byte/ushort/float
+            bool isMaskDirty = false;
 
+            // TODO: parallel
+            while (scanner.MoveNextRow())
+            {
+                if (isMaskDirty)
+                    Array.Clear(scanlineMask);
+
+                isMaskDirty = scanner.ScanCurrentRow(scanlineMask);
+                if (isMaskDirty)
+                    session.ApplyRow(scanlineMask);
+            }
         }
 
         internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
