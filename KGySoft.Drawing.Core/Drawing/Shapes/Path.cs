@@ -151,6 +151,7 @@ namespace KGySoft.Drawing.Shapes
             foreach (Figure figure in figures ?? [currentFigure])
                 result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
 
+            result.EnsureSingleFigurePositiveOrientation();
             return result;
         }
 

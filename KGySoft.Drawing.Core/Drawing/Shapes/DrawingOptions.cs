@@ -43,6 +43,8 @@ namespace KGySoft.Drawing.Shapes
 
         public IDitherer? Ditherer { get; set; }
 
+        public ShapeFillMode FillMode { get; set; }
+
         #endregion
 
         #region Constructors

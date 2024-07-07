@@ -108,17 +108,16 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions)
         {
-            if (Rectangle.Intersect(path.Bounds, new Rectangle(Point.Empty, bitmapData.Size)).IsEmpty)
-                return;
-
             drawingOptions ??= DrawingOptions.Default;
 
-            // TODO: if possible, do without region (eg. there is no dithering) to spare memory, though it will be slower, unless only a small portion is drawn, in which case we don't scan the whole region
-            brush.ApplyPath(context, bitmapData, path, drawingOptions);
-
+            // TODO: apply already built region from cache if possible
             //IReadableBitmapData? region = path.GetRegion(context, brush, drawingOptions);
             //if (region != null)
             //    brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
+
+            // TODO: tell if region should be generated to cache (takes more memory). The Path could contain a ToCache = true if it was created by a public constructor so it wasn't created indirectly
+            brush.ApplyPath(context, bitmapData, path, drawingOptions);
+
         }
 
         #endregion
