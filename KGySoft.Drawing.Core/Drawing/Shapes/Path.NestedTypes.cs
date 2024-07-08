@@ -41,6 +41,7 @@ namespace KGySoft.Drawing.Shapes
             #region Properties
 
             internal bool IsClosed { get; set; }
+            internal bool IsEmpty => segments.Count == 0;
 
             #endregion
 

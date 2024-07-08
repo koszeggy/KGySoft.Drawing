@@ -15,7 +15,7 @@
         Alternate,
 
         /// <summary>
-        /// Specifies the nonzero sill mode. It considers the direction of the path segments at each intersection.
+        /// Specifies the nonzero fill mode. It considers the direction of the path segments at each intersection.
         /// It adds one for every clockwise intersection, and subtracts one for every counterclockwise intersection.
         /// If the result is nonzero, the point is considered inside the fill area. A zero count means that the point lies outside the fill area.
         /// This strategy is slower than the <see cref="Alternate"/> mode, though it makes a difference in the result only

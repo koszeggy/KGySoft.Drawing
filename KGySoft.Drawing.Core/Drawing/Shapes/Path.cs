@@ -34,8 +34,7 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Fields
 
-        private readonly List<Figure>? figures;
-
+        private List<Figure>? figures;
         private Figure currentFigure;
         private RawPath? rawPath;
 
@@ -99,6 +98,30 @@ namespace KGySoft.Drawing.Shapes
         // TODO: AddPolygon (same as AddLines but closed)
         // TODO: AddRoundedRectangle
 
+        public Path CloseFigure()
+        {
+            // not closing if empty because it would be skipped anyway
+            if (currentFigure.IsClosed || currentFigure.IsEmpty)
+                return this;
+
+            Invalidate();
+            currentFigure.IsClosed = true;
+            return this;
+        }
+
+        public Path StartFigure()
+        {
+            if (currentFigure.IsEmpty)
+            {
+                currentFigure.IsClosed = false;
+                return this;
+            }
+
+            figures ??= new List<Figure>(2) { currentFigure };
+            figures.Add(currentFigure = new Figure());
+            return this;
+        }
+
         public Path AsClosed()
         {
             if (figures == null)
@@ -140,6 +163,8 @@ namespace KGySoft.Drawing.Shapes
         private void AddSegment(PathSegment segment)
         {
             Invalidate();
+            if (currentFigure.IsClosed)
+                StartFigure();
             currentFigure.AddSegment(segment);
         }
 
@@ -148,8 +173,13 @@ namespace KGySoft.Drawing.Shapes
         private RawPath InitRawPath()
         {
             var result = new RawPath(figures?.Count ?? 1);
-            foreach (Figure figure in figures ?? [currentFigure])
-                result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
+            if (figures == null)
+                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed);
+            else
+            {
+                foreach (Figure figure in figures)
+                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
+            }
 
             result.EnsureSingleFigurePositiveOrientation();
             return result;

@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Shapes
 
         public bool AntiAliasing { get; set; }
 
-        public bool AlphaBlending { get; set; } // docs: target's WorkingColorSpace or Quantizer
+        public bool AlphaBlending { get; set; } // If false, alpha is written directly, which is usually not quite good with AntiAliasing also enabled, except for already transparent background docs: color space: target's WorkingColorSpace or Quantizer
 
         public IQuantizer? Quantizer { get; set; }
 
