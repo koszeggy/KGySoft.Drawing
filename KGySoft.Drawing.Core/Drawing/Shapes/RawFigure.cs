@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        internal RawFigure(IList<PointF> points, bool isClosed)
+        internal RawFigure(IList<PointF> points, bool optimize)
         {
             Debug.Assert(points.Count > 0);
 
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Shapes
             var lastPoint = points[0];
 
             int count = points.Count;
-            if (!isClosed)
+            if (!optimize)
             {
                 result.Add(points[0]);
                 orientations.Add(0);
@@ -97,7 +97,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // removing points lying on the same line from the end
-            if (isClosed)
+            if (optimize)
             {
                 count = result.Count;
                 while (count > 2 && orientations[count - 1] == 0)
@@ -122,8 +122,9 @@ namespace KGySoft.Drawing.Shapes
                     maxY = vertex.Y;
             }
 
-            // Adding the first point after last, even if after the elimination above it is very close to the last one.
-            result.Add(result[0]);
+            // Auto closing if not already closed
+            if (!result[0].TolerantEquals(result[result.Count - 1], toleranceEquality))
+                result.Add(result[0]);
 
             Vertices = result.ToArray();
             Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(toleranceEquality), (int)minY.TolerantFloor(toleranceEquality),

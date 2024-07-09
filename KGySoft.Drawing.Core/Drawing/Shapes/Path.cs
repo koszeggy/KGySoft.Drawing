@@ -174,11 +174,11 @@ namespace KGySoft.Drawing.Shapes
         {
             var result = new RawPath(figures?.Count ?? 1);
             if (figures == null)
-                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed);
+                result.AddRawFigure(currentFigure.GetPoints(), true);
             else
             {
                 foreach (Figure figure in figures)
-                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
+                    result.AddRawFigure(figure.GetPoints(), true);
             }
 
             result.EnsureSingleFigurePositiveOrientation();

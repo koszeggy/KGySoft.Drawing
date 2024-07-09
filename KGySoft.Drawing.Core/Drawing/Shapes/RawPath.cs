@@ -55,11 +55,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        internal void AddRawFigure(IList<PointF> points, bool isClosed)
+        internal void AddRawFigure(IList<PointF> points, bool optimize)
         {
             if (points.Count == 0)
                 return;
-            var figure = new RawFigure(points, isClosed);
+            var figure = new RawFigure(points, optimize);
             bounds = figures.Count == 0 ? figure.Bounds : Rectangle.Union(bounds, figure.Bounds);
             figures.Add(figure);
             totalVertices += figure.Vertices.Length - 1;

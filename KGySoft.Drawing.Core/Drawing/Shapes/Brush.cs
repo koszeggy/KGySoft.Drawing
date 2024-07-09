@@ -275,7 +275,7 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 if (isScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(currentY, left, scanlineBuffer, startMin, endMax));
+                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(currentY, left, scanlineBuffer, Math.Max(0, startMin), Math.Min(scanlineBuffer.Length - 1, endMax)));
             }
 
             #endregion
@@ -327,7 +327,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     int i = sortedIndexYStart[yStartIndex];
                     if (edges[i].YStart > currentSubpixelY)
-                        return;
+                        break;
 
                     activeEdges.EnterEdge(i);
                     yStartIndex += 1;
@@ -337,7 +337,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     int i = sortedIndexYEnd[yEndIndex];
                     if (edges[i].YEnd > currentSubpixelY)
-                        return;
+                        break;
 
                     activeEdges.LeaveEdge(i);
                     yEndIndex += 1;
@@ -731,7 +731,7 @@ namespace KGySoft.Drawing.Shapes
                 foreach (RawFigure figure in path.Figures)
                 {
                     PointF[] vertices = figure.Vertices;
-                    if (vertices.Length < 3)
+                    if (vertices.Length <= 3)
                         continue;
 
                     for (int i = 0; i < vertices.Length; i++)
@@ -831,10 +831,10 @@ namespace KGySoft.Drawing.Shapes
                         edge2.StartEmitCount = 1;
                         break;
                     case (EdgeKind.Descending, EdgeKind.HorizontalLeft):
-                        edge1.EndEmitCount = 2;
+                        edge1.EndEmitCount = 1;
                         break;
                     case (EdgeKind.Descending, EdgeKind.HorizontalRight):
-                        edge2.StartEmitCount = 1;
+                        edge1.EndEmitCount = 2;
                         break;
 
                     case (EdgeKind.HorizontalLeft, EdgeKind.Ascending):
@@ -884,12 +884,13 @@ namespace KGySoft.Drawing.Shapes
         /// The slope of the edge can be defined as y = mx + b, where m is the slope and b = y - intercept.
         /// From this, the reciprocal slope can be defined as x = py + q where p and q are analogue to m and b.
         /// </summary>
+        
         private readonly struct EdgeEntry
         {
             #region Fields
 
             #region Internal Fields
-            
+
             internal readonly float YStart;
             internal readonly float YEnd;
             internal readonly byte StartEmitCount;

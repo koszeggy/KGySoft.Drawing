@@ -85,11 +85,21 @@ namespace KGySoft.Drawing.Shapes
 
         private sealed class SolidFillSessionWithBlending : FillPathSession
         {
+            #region Fields
+
+            private readonly Color32 color;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly WorkingColorSpace workingColorSpace;
+
+            #endregion
+
             #region Constructors
 
             internal SolidFillSessionWithBlending(SolidBrush owner, IReadWriteBitmapData bitmapData)
             {
-                throw new NotImplementedException();
+                color = owner.Color32;
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                workingColorSpace = bitmapData.GetPreferredColorSpace();
             }
 
             #endregion
@@ -98,7 +108,28 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanlineAntiAliasing scanline)
             {
-                throw new NotImplementedException();
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                var colorSpace = workingColorSpace;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    float value = scanline.Scanline[x];
+                    switch (value)
+                    {
+                        case <= 0f:
+                            continue;
+                        case >= 1f:
+                            row.DoSetColor32(x + left, c);
+                            continue;
+                        default:
+                            int pos = x + left;
+                            Color32 backColor = row.DoGetColor32(pos);
+                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                            continue;
+                    }
+                }
             }
 
             #endregion
@@ -149,7 +180,9 @@ namespace KGySoft.Drawing.Shapes
         }
 
         private protected override FillPathSession CreateSession(IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
-            => drawingOptions.AlphaBlending && HasAlpha ? new SolidFillSessionWithBlending(this, bitmapData) : new SolidFillSessionNoBlending(this, bitmapData);
+            => drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing)
+                ? new SolidFillSessionWithBlending(this, bitmapData)
+                : new SolidFillSessionNoBlending(this, bitmapData);
 
         #endregion
     }
