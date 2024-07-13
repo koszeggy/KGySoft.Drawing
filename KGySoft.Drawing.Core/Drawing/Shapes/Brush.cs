@@ -1030,11 +1030,23 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
+        #region Public Methods
+
+        public static Brush CreateSolid(Color32 color) => new SolidBrush(color);
+        public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
+        public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
+
+        #endregion
+
+        #region Private Methods
+
         private static RegionScanner CreateScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
         {
             // TODO from cache if possible
             return drawingOptions.AntiAliasing ? new AntiAliasingRegionScanner(path, bounds, drawingOptions) : new SolidRegionScanner(path, bounds, drawingOptions);
         }
+
+        #endregion
 
         #endregion
 

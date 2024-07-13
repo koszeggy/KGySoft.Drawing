@@ -164,11 +164,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        public SolidBrush(Color32 color) => colorSrgb = color.ToColor64();
-
-        public SolidBrush(Color64 color) => colorSrgb = color;
-
-        public SolidBrush(ColorF color) => colorLinear = color;
+        internal SolidBrush(Color32 color) => colorSrgb = color.ToColor64();
+        internal SolidBrush(Color64 color) => colorSrgb = color;
+        internal SolidBrush(ColorF color) => colorLinear = color;
 
         #endregion
 
