@@ -153,10 +153,8 @@ namespace KGySoft.Drawing.Shapes
             private readonly ActiveEdgeTable activeEdges;
             private readonly float subpixelSize;
             private readonly float subpixelArea;
-            private readonly float[] intersections; // todo: into ActiveEdgeTable?
-            private readonly int[] sortedIndexYStart; // todo: into ActiveEdgeTable/base?
-            private readonly int[] sortedIndexYEnd; // todo: into ActiveEdgeTable/base?
-            private readonly IntersectionType[]? intersectionTypes; // todo: into ActiveEdgeTableNonZero? (along with IntersectionType enum)
+            private readonly int[] sortedIndexYStart;
+            private readonly int[] sortedIndexYEnd;
             private readonly ArraySection<float> scanlineBuffer;
 
             private ArraySection<EdgeEntry> edges; // todo: into ActiveEdgeTable?
@@ -180,11 +178,7 @@ namespace KGySoft.Drawing.Shapes
 
                 edges = new EdgeTable(path, subpixelCount).Edges;
                 int edgeCount = edges.Length;
-                activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount /*TODO: path.MaxVertices*/);
-                intersections = new float[maxIntersectionCount];
-                if (drawingOptions.FillMode == ShapeFillMode.NonZero)
-                    intersectionTypes = new IntersectionType[maxIntersectionCount];
-
+                activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
                 currentY = bounds.Top - 1;
 
                 // TODO perf: stackalloc, Span.Sort
@@ -232,7 +226,7 @@ namespace KGySoft.Drawing.Shapes
                 int endMax = Int32.MinValue;
                 while (MoveNextSubpixelRow())
                 {
-                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, edges, intersections, intersectionTypes);
+                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, edges);
                     if (points.Length == 0)
                         continue;
 
@@ -386,13 +380,13 @@ namespace KGySoft.Drawing.Shapes
 
             #region Private Fields
             
-            // TODO: to section?
-            private readonly (int Index, Flags Flags)[] edgeTable;
+            private readonly (int Index, Flags Flags)[] activeEdges;
 
             #endregion
 
             #region Private Protected Fields
-            
+
+            private protected ArraySection<float> Intersections;
             private protected int Count;
 
             #endregion
@@ -401,16 +395,17 @@ namespace KGySoft.Drawing.Shapes
 
             #region Properties
 
-            private protected ArraySection<(int Index, Flags Flags)> ActiveEdges => edgeTable.AsSection(0, Count);
+            private protected ArraySection<(int Index, Flags Flags)> ActiveEdges => activeEdges.AsSection(0, Count);
 
             #endregion
 
             #region Constructors
 
-            protected ActiveEdgeTable(int edgeCount)
+            protected ActiveEdgeTable(int edgeCount, int maxIntersectionCount)
             {
-                edgeTable = new (int, Flags)[edgeCount];
+                activeEdges = new (int, Flags)[edgeCount];
                 Count = 0;
+                Intersections = new float[maxIntersectionCount];
             }
 
             #endregion
@@ -419,10 +414,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Static Methods
 
-            internal static ActiveEdgeTable Create(ShapeFillMode fillMode, int edgeCount) => fillMode switch
+            internal static ActiveEdgeTable Create(ShapeFillMode fillMode, int edgeCount, int maxIntersectionCount) => fillMode switch
             {
-                ShapeFillMode.Alternate => new ActiveEdgeTableAlternate(edgeCount),
-                ShapeFillMode.NonZero => new ActiveEdgeTableNonZero(edgeCount),
+                ShapeFillMode.Alternate => new ActiveEdgeTableAlternate(edgeCount, maxIntersectionCount),
+                ShapeFillMode.NonZero => new ActiveEdgeTableNonZero(edgeCount, maxIntersectionCount),
                 _ => throw new ArgumentOutOfRangeException(nameof(fillMode), PublicResources.EnumOutOfRange(fillMode))
             };
 
@@ -432,7 +427,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal void EnterEdge(int enterIndex)
             {
-                ref var entry = ref edgeTable[Count];
+                ref var entry = ref activeEdges[Count];
                 entry.Index = enterIndex;
                 entry.Flags = Flags.Entering;
                 Count += 1;
@@ -440,7 +435,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal void LeaveEdge(int leaveIndex)
             {
-                var table = edgeTable;
+                var table = activeEdges;
                 int len = Count;
                 for (int i = 0; i < len; i++)
                 {
@@ -455,7 +450,7 @@ namespace KGySoft.Drawing.Shapes
             internal void RemoveLeavingEdges()
             {
                 int removed = 0;
-                var table = edgeTable;
+                var table = activeEdges;
                 int len = Count;
                 for (int i = 0; i < len; i++)
                 {
@@ -469,7 +464,7 @@ namespace KGySoft.Drawing.Shapes
                 Count -= removed;
             }
 
-            internal abstract ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes);
+            internal abstract ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges);
 
             #endregion
 
@@ -484,8 +479,8 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Constructors
             
-            internal ActiveEdgeTableAlternate(int edgeCount)
-                : base(edgeCount)
+            internal ActiveEdgeTableAlternate(int edgeCount, int maxIntersectionCount)
+                : base(edgeCount, maxIntersectionCount)
             {
             }
 
@@ -493,7 +488,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes)
+            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges)
             {
                 #region Local Methods
 
@@ -525,16 +520,16 @@ namespace KGySoft.Drawing.Shapes
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
                     if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.StartEmitCount, intersections, ref intersectionsCount);
+                        AddIntersection(x, edge.StartEmitCount, Intersections, ref intersectionsCount);
                     else if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EndEmitCount, intersections, ref intersectionsCount);
+                        AddIntersection(x, edge.EndEmitCount, Intersections, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
                     else
                     {
-                        intersections[intersectionsCount] = x;
+                        Intersections[intersectionsCount] = x;
                         intersectionsCount += 1;
                     }
 
@@ -542,8 +537,8 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Count -= removed;
-                Array.Sort(intersections.UnderlyingArray!, 0, intersectionsCount);
-                return intersections.Slice(0, intersectionsCount);
+                Array.Sort(Intersections.UnderlyingArray!, 0, intersectionsCount);
+                return Intersections.Slice(0, intersectionsCount);
             }
 
             #endregion
@@ -565,11 +560,18 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
 
+            #region Fields
+
+            private ArraySection<IntersectionType> intersectionTypes;
+
+            #endregion
+
             #region Constructors
 
-            internal ActiveEdgeTableNonZero(int edgeCount)
-                : base(edgeCount)
+            internal ActiveEdgeTableNonZero(int edgeCount, int maxIntersectionCount)
+                : base(edgeCount, maxIntersectionCount)
             {
+                intersectionTypes = new IntersectionType[maxIntersectionCount];
             }
 
             #endregion
@@ -625,11 +627,13 @@ namespace KGySoft.Drawing.Shapes
 
             #region Instance Methods
 
-            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes)
+            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges)
             {
                 int intersectionsCount = 0;
                 int removed = 0;
                 var activeEdges = ActiveEdges;
+                var intersections = Intersections;
+                var types = intersectionTypes;
                 int len = activeEdges.Length;
                 for (int i = 0; i < len; i++)
                 {
@@ -637,10 +641,10 @@ namespace KGySoft.Drawing.Shapes
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
                     if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.StartEmitCount, edge.IsAscending, intersections, intersectionTypes!, ref intersectionsCount);
+                        AddIntersection(x, edge.StartEmitCount, edge.IsAscending, intersections, types, ref intersectionsCount);
                     else if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EndEmitCount, edge.IsAscending, intersections, intersectionTypes!, ref intersectionsCount);
+                        AddIntersection(x, edge.EndEmitCount, edge.IsAscending, intersections, types, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
@@ -648,12 +652,12 @@ namespace KGySoft.Drawing.Shapes
                     {
                         if (edge.IsAscending)
                         {
-                            intersectionTypes![intersectionsCount] = IntersectionType.Ascending;
+                            types[intersectionsCount] = IntersectionType.Ascending;
                             intersections[intersectionsCount] = x + sortStabilizerDelta;
                         }
                         else
                         {
-                            intersectionTypes![intersectionsCount] = IntersectionType.Descending;
+                            types[intersectionsCount] = IntersectionType.Descending;
                             intersections[intersectionsCount] = x - sortStabilizerDelta;
                         }
 
@@ -664,17 +668,17 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Count -= removed;
-                Array.Sort(intersections.UnderlyingArray!, intersectionTypes.UnderlyingArray, 0, intersectionsCount);
+                Array.Sort(intersections.UnderlyingArray!, types.UnderlyingArray, 0, intersectionsCount);
                 intersections = intersections.Slice(0, intersectionsCount);
-                intersectionTypes = intersectionTypes.Slice(0, intersectionsCount);
+                types = types.Slice(0, intersectionsCount);
 
                 // Counting the winding number and applying the nonzero winding rule. See details here: https://en.wikipedia.org/wiki/Point_in_polygon#Winding_number_algorithm
                 removed = 0;
                 int windingNumber = 0;
-                len = intersectionTypes.Length;
+                len = types.Length;
                 for (int i = 0; i < len; i++)
                 {
-                    IntersectionType type = intersectionTypes[i];
+                    IntersectionType type = types[i];
                     switch (type)
                     {
                         // it's always followed by a Corner, where it's processed
