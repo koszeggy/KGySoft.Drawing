@@ -37,8 +37,8 @@ namespace KGySoft.Drawing.Imaging
         private IBitmapDataRowInternal? cachedRowByIndex;
 
         // This cache is not exposed to public access, only to the internal GetCachedRowByThreadId method.
-        // Its consumers must always use the result in a local scope where no context switch is possible between threads.
-        // The array contains up to 8 entries even if the CPU has more cores. Possible hijack: Parallel.For(Get/SetPixel) on a custom bitmap data.
+        // Its consumers must always use the result in a local scope where the code runs on the same thread.
+        // The array contains at least 8 entries, or a power of 2 entries based on the number of CPU cores. Possible hijack: Parallel.For(Get/SetPixel) on a custom bitmap data.
         private volatile StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>?[]? cachedRowByThreadId;
         private int hashMask; // non-volatile because always the volatile cachedRowByThreadId is accessed first
 
@@ -505,7 +505,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void InitThreadIdCache()
         {
-            var result = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>[Math.Max(8, ((uint)Environment.ProcessorCount << 1).RoundUpToPowerOf2())];
+            var result = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>[EnvironmentHelper.GetThreadBasedCacheSize()];
             hashMask = result.Length - 1;
             cachedRowByThreadId = result;
         }

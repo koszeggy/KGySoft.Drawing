@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void InitThreadIdCache()
         {
-            var result = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>[Math.Max(8, ((uint)Environment.ProcessorCount << 1).RoundUpToPowerOf2())];
+            var result = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>[EnvironmentHelper.GetThreadBasedCacheSize()];
             hashMask = result.Length - 1;
             cachedRows = result;
         }

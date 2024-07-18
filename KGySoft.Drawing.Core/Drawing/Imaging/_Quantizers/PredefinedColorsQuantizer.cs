@@ -147,8 +147,8 @@ namespace KGySoft.Drawing.Imaging
 #if NET35 || NET40
             private static readonly LockFreeCacheOptions cacheOptions = new()
             {
-                InitialCapacity = Environment.ProcessorCount,
-                ThresholdCapacity = Environment.ProcessorCount,
+                InitialCapacity = EnvironmentHelper.CoreCount,
+                ThresholdCapacity = EnvironmentHelper.CoreCount,
                 HashingStrategy = HashingStrategy.Modulo,
             };
 #endif
@@ -189,7 +189,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 this.quantizer = quantizer;
 #if NET35 || NET40
-                bitmapDataList = new List<IBitmapData>(Environment.ProcessorCount);
+                bitmapDataList = new List<IBitmapData>(EnvironmentHelper.CoreCount);
                 Func<int, IBitmapDataRowInternal> createRowFactory = _ =>
                 {
                     var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1), WorkingColorSpace).GetRowUncached(0);

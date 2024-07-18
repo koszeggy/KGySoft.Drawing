@@ -447,12 +447,10 @@ namespace KGySoft.Drawing.Shapes
                 mainContext = new RegionScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
 
-                // TODO: reset
-                bool isMultiThreaded = bounds.Width > parallelThreshold && context.MaxDegreeOfParallelism != 1 && EnvironmentHelper.CoreCount > 1;
-                if (!isMultiThreaded)
+                if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
                     return;
 
-                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize()];
+                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
                 hashMask = threadContextCache.Length - 1;
             }
 
