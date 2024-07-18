@@ -16,13 +16,20 @@
 #region Usings
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Reflection;
 using KGySoft.Threading;
 
 #endregion
@@ -86,7 +93,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Properties
 
-            internal bool IsSingleThreaded { get; private protected set; }
+            internal abstract bool IsSingleThreaded { get; }
 
             #endregion
 
@@ -119,7 +126,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            //internal abstract void ProcessScanline(int y, FillPathSession session);
+            internal abstract void ProcessScanline(int y, FillPathSession session);
             internal abstract void ProcessNextScanline(FillPathSession session);
 
             #endregion
@@ -140,9 +147,20 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
 
+            #region Properties
+
+            internal override bool IsSingleThreaded => throw new NotImplementedException();
+
+            #endregion
+
             #region Methods
 
             internal override void ProcessNextScanline(FillPathSession session)
+            {
+                throw new NotImplementedException();
+            }
+
+            internal override void ProcessScanline(int y, FillPathSession session)
             {
                 throw new NotImplementedException();
             }
@@ -202,13 +220,22 @@ namespace KGySoft.Drawing.Shapes
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
-                    CurrentY = scanner.Top - 1;
                     ScanlineBuffer = new float[scanner.Width]; // TODO: allocate
 
                     if (scanner.edges.Length == 0)
                         return;
 
                     currentSubpixelY = scanner.edges[scanner.sortedIndexYStart[0]].YStart;
+                }
+
+                internal RegionScannerContext(in RegionScannerContext other, int top)
+                {
+                    Debug.Assert(top > other.CurrentY);
+                    this = other;
+                    activeEdges = other.activeEdges.Clone();
+                    ScanlineBuffer = new float[other.ScanlineBuffer.Length]; // TODO: allocate
+                    IsScanlineDirty = false;
+                    SkipEdgesAbove(top);
                 }
 
                 #endregion
@@ -219,6 +246,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void SkipEdgesAbove(int rowIndex)
                 {
+                    CurrentY = rowIndex - 1;
                     float top = rowIndex;
                     var edges = scanner.edges;
                     var sortedIndexYStart = scanner.sortedIndexYStart;
@@ -364,18 +392,27 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const float subpixelCount = 16f;
+            private const int parallelThreshold = 1; // TODO: measure and adjust
 
             #endregion
-            
+
             #region Fields
 
             private readonly float subpixelSize;
             private readonly float subpixelArea;
             private readonly int[] sortedIndexYStart;
             private readonly int[] sortedIndexYEnd;
+            private readonly StrongBox<(int ThreadId, RegionScannerContext Context)>?[]? threadContextCache;
+            private readonly int hashMask;
 
             private RegionScannerContext mainContext;
             private ArraySection<EdgeEntry> edges;
+
+            #endregion
+
+            #region Properties
+
+            internal override bool IsSingleThreaded => threadContextCache == null;
 
             #endregion
 
@@ -410,26 +447,131 @@ namespace KGySoft.Drawing.Shapes
                 mainContext = new RegionScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
 
-                IsSingleThreaded = true;
+                // TODO: reset
+                bool isMultiThreaded = bounds.Width > parallelThreshold && context.MaxDegreeOfParallelism != 1 && EnvironmentHelper.CoreCount > 1;
+                if (!isMultiThreaded)
+                    return;
+
+                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize()];
+                hashMask = threadContextCache.Length - 1;
             }
 
             #endregion
 
             #region Methods
 
-            //internal override void ProcessScanline(int y, FillPathSession session) // TODO - parallelize
+            #region Internal Methods
+
+#if DEBUG
+            // TODO: remove
+            private SortedList<int, string> debugInfo = new();
+            private static string Dump(object? o)
+            {
+                if (o == null)
+                    return "<null>";
+
+                if (o is IConvertible convertible)
+                    return convertible.ToString(CultureInfo.InvariantCulture);
+
+                if (o is ActiveEdgeTable t)
+                    o = Reflector.GetProperty(t, "ActiveEdges");
+
+                if (o is IEnumerable enumerable)
+                    return $"[{enumerable.Cast<object>().Select(Dump).Join(", ")}]";
+
+                return $"{{{o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(f => f.Name != "scanner")
+                    .Select(f => $"{f.Name} = {Dump(f.GetValue(o))}")
+                    .Join(", ")}}}";
+            }
+#endif
+
             internal override void ProcessNextScanline(FillPathSession session)
             {
-                // TODO: parallelize - MoveToRow(y)
+                Debug.Assert(IsSingleThreaded);
                 if (!mainContext.MoveNextRow())
                     return;
 
                 while (mainContext.MoveNextSubpixelRow())
                     mainContext.ScanCurrentSubpixelRow();
+#if DEBUG
+                // TODO: remove
+                debugInfo.Add(mainContext.CurrentY, Dump(mainContext));
+                if (mainContext.CurrentY == Bottom - 1)
+                    File.WriteAllLines(@"D:\temp\Images\ref\ref.txt", debugInfo.Select(l => $"{l.Key}:{l.Value}"));
+#endif
 
                 if (mainContext.IsScanlineDirty)
                     session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
+
+            internal override void ProcessScanline(int y, FillPathSession session)
+            {
+                Debug.Assert(!IsSingleThreaded);
+
+                ref RegionScannerContext context = ref GetThreadContext(y);
+                context.MoveNextRow();
+
+                while (context.MoveNextSubpixelRow())
+                    context.ScanCurrentSubpixelRow();
+
+#if DEBUG
+                // TODO: remove
+                lock (debugInfo)
+                {
+                    if (debugInfo.Count == 0)
+                    {
+                        foreach (var line in File.ReadLines(@"D:\temp\Images\ref\ref.txt"))
+                        {
+                            int pos = line.IndexOf(':');
+                            debugInfo.Add(Int32.Parse(line.Substring(0, pos), CultureInfo.InvariantCulture), line.Substring(pos + 1));
+                        }
+                    } 
+                }
+
+                string expected = debugInfo[context.CurrentY];
+                string actual = Dump(context);
+                Debug.Assert(expected == actual, $"Expected vs actual:{Environment.NewLine}{expected}{Environment.NewLine}{actual}");
+#endif
+
+                if (context.IsScanlineDirty)
+                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+            }
+
+            #endregion
+
+            #region Private Methods
+            
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            private ref RegionScannerContext GetThreadContext(int y)
+            {
+                // Note that cache item access is not volatile, because it's even better if a thread sees its own last cached value.
+                int threadId = EnvironmentHelper.CurrentThreadId;
+                int hash = threadId & hashMask;
+                // TODO: reset
+                StrongBox<(int ThreadId, RegionScannerContext Context)>? cacheEntry = threadContextCache![hash];
+                if (cacheEntry != null)
+                {
+                    ref var value = ref cacheEntry.Value;
+                    if (value.ThreadId == threadId)
+                    {
+                        ref RegionScannerContext context = ref value.Context;
+                        if (context.CurrentY < y)
+                        {
+                            context.SkipEdgesAbove(y);
+                            return ref context;
+                        }
+                    }
+
+                    //value.Context.Dispose(); // TODO: release dropped entry's active edge table buffer and scanline buffer
+                }
+
+                var result = new StrongBox<(int ThreadId, RegionScannerContext Context)>((threadId, new RegionScannerContext(mainContext, y)));
+                threadContextCache[hash] = result;
+                return ref result.Value.Context;
+            }
+
+            #endregion
 
             #endregion
         }
@@ -455,15 +597,19 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             #region Private Fields
-            
+
             private readonly (int Index, Flags Flags)[] activeEdges;
 
             #endregion
 
             #region Private Protected Fields
 
+            #region Private Protected Fields
+
             private protected ArraySection<float> Intersections;
             private protected int Count;
+
+            #endregion
 
             #endregion
 
@@ -482,6 +628,15 @@ namespace KGySoft.Drawing.Shapes
                 activeEdges = new (int, Flags)[edgeCount];
                 Count = 0;
                 Intersections = new float[maxIntersectionCount];
+            }
+
+            protected ActiveEdgeTable(ActiveEdgeTable other)
+                : this(other.activeEdges.Length, other.Intersections.UnderlyingArray.Length)
+            {
+                Count = other.Count;
+                //Array.Copy(other.activeEdges, 0, activeEdges, 0, Count); // TODO
+                other.activeEdges.CopyTo(activeEdges, 0);
+                other.Intersections.CopyTo(Intersections);
             }
 
             #endregion
@@ -542,6 +697,8 @@ namespace KGySoft.Drawing.Shapes
 
             internal abstract ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges);
 
+            internal abstract ActiveEdgeTable Clone();
+
             #endregion
 
             #endregion
@@ -554,11 +711,24 @@ namespace KGySoft.Drawing.Shapes
         private sealed class ActiveEdgeTableAlternate : ActiveEdgeTable
         {
             #region Constructors
-            
+
+            #region Internal Constructors
+
             internal ActiveEdgeTableAlternate(int edgeCount, int maxIntersectionCount)
                 : base(edgeCount, maxIntersectionCount)
             {
             }
+
+            #endregion
+
+            #region Private Constructors
+            
+            private ActiveEdgeTableAlternate(ActiveEdgeTableAlternate other)
+                : base(other)
+            {
+            }
+
+            #endregion
 
             #endregion
 
@@ -617,6 +787,8 @@ namespace KGySoft.Drawing.Shapes
                 return Intersections.Slice(0, intersectionsCount);
             }
 
+            internal override ActiveEdgeTable Clone() => new ActiveEdgeTableAlternate(this);
+
             #endregion
         }
 
@@ -644,11 +816,26 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
+            #region Internal Constructors
+
             internal ActiveEdgeTableNonZero(int edgeCount, int maxIntersectionCount)
                 : base(edgeCount, maxIntersectionCount)
             {
                 intersectionTypes = new IntersectionType[maxIntersectionCount];
             }
+
+            #endregion
+
+            #region Private Constructors
+
+            private ActiveEdgeTableNonZero(ActiveEdgeTableNonZero other)
+                : base(other)
+            {
+                intersectionTypes = new IntersectionType[other.intersectionTypes.Length];
+                other.intersectionTypes.CopyTo(intersectionTypes);
+            }
+
+            #endregion
 
             #endregion
 
@@ -779,6 +966,8 @@ namespace KGySoft.Drawing.Shapes
 
                 return intersections.Slice(0, intersections.Length - removed);
             }
+
+            internal override ActiveEdgeTable Clone() => new ActiveEdgeTableNonZero(this);
 
             #endregion
 
@@ -1160,11 +1349,8 @@ namespace KGySoft.Drawing.Shapes
                 return;
             }
 
-            // TODO
-            //ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom, y =>
-            //{
-            //    scanner.ProcessScanline(y, session);
-            //});
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom,
+                y => scanner.ProcessScanline(y, session));
         }
 
         internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
