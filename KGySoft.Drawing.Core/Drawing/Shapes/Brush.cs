@@ -84,11 +84,24 @@ namespace KGySoft.Drawing.Shapes
 
             #region Properties
 
+            #region Internal Properties
+
+            internal bool IsSingleThreaded { get; private protected set; }
+
+            #endregion
+
+            #region Protected Properties
+
             protected int Top => bounds.Top;
             protected int Bottom => bounds.Bottom;
             protected int Left => bounds.Left;
-            protected RawPath Path { get; }
-            protected DrawingOptions DrawingOptions { get; }
+            protected int Width => bounds.Width;
+
+            // TODO: remove
+            //protected RawPath Path { get; }
+            //protected DrawingOptions DrawingOptions { get; }
+
+            #endregion
 
             #endregion
 
@@ -96,16 +109,17 @@ namespace KGySoft.Drawing.Shapes
 
             protected RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
             {
-                Path = path;
                 this.bounds = bounds;
-                DrawingOptions = drawingOptions;
+                // TODO: remove
+                //Path = path;
+                //DrawingOptions = drawingOptions;
             }
 
             #endregion
 
             #region Methods
 
-            //internal abstract void ProcessScanline(int y, FillPathSession session) // TODO - parallelize
+            //internal abstract void ProcessScanline(int y, FillPathSession session);
             internal abstract void ProcessNextScanline(FillPathSession session);
 
             #endregion
@@ -119,7 +133,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Constructors
 
-            public SolidRegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+            public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
                 : base(path, bounds, drawingOptions)
             {
             }
@@ -142,6 +156,211 @@ namespace KGySoft.Drawing.Shapes
 
         private class AntiAliasingRegionScanner : RegionScanner
         {
+            #region Nested Structs
+
+            /// <summary>
+            /// Contains thread-specific data for region scanning
+            /// </summary>
+            private struct RegionScannerContext
+            {
+                #region Fields
+
+                #region Internal Fields
+
+                internal int CurrentY;
+                internal ArraySection<float> ScanlineBuffer;
+                internal bool IsScanlineDirty;
+
+                #endregion
+
+                #region Private Fields
+
+                private readonly AntiAliasingRegionScanner scanner;
+                private readonly ActiveEdgeTable activeEdges;
+
+                private int yStartIndex;
+                private int yEndIndex;
+                private int rowStartMin;
+                private int rowEndMax;
+                private float nextY;
+                private float currentSubpixelY;
+
+                #endregion
+
+                #endregion
+
+                #region Properties
+
+                internal int StartX => Math.Max(0, rowStartMin);
+                internal int EndX => Math.Min(ScanlineBuffer.Length - 1, rowEndMax);
+
+                #endregion
+
+                #region Constructors
+
+                internal RegionScannerContext(AntiAliasingRegionScanner scanner, ActiveEdgeTable activeEdges)
+                {
+                    this.scanner = scanner;
+                    this.activeEdges = activeEdges;
+                    CurrentY = scanner.Top - 1;
+                    ScanlineBuffer = new float[scanner.Width]; // TODO: allocate
+
+                    if (scanner.edges.Length == 0)
+                        return;
+
+                    currentSubpixelY = scanner.edges[scanner.sortedIndexYStart[0]].YStart;
+                }
+
+                #endregion
+
+                #region Methods
+
+                #region Internal Methods
+
+                internal void SkipEdgesAbove(int rowIndex)
+                {
+                    float top = rowIndex;
+                    var edges = scanner.edges;
+                    var sortedIndexYStart = scanner.sortedIndexYStart;
+                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+
+                    int startIndex = yStartIndex + 1;
+                    int endIndex = yEndIndex;
+
+                    while (currentSubpixelY < top)
+                    {
+                        VisitEdges();
+                        activeEdges.RemoveLeavingEdges();
+
+                        bool startFinished = startIndex >= sortedIndexYStart.Length;
+                        bool endFinished = endIndex >= sortedIndexYEnd.Length;
+                        if (startFinished && endFinished)
+                            return;
+
+                        float startY = startFinished ? Single.MaxValue : edges[sortedIndexYStart[startIndex]].YStart;
+                        float endY = endFinished ? Single.MaxValue : edges[sortedIndexYEnd[endIndex]].YEnd;
+
+                        if (startY < endY)
+                        {
+                            currentSubpixelY = startY;
+                            startIndex += 1;
+                            continue;
+                        }
+
+                        currentSubpixelY = endY;
+                        endIndex += 1;
+                    }
+                }
+
+                internal bool MoveNextRow()
+                {
+                    CurrentY += 1;
+                    nextY = CurrentY + 1;
+                    currentSubpixelY = CurrentY - scanner.subpixelSize;
+                    if (CurrentY >= scanner.Bottom)
+                        return false;
+
+                    if (IsScanlineDirty)
+                        Array.Clear(ScanlineBuffer.UnderlyingArray!, ScanlineBuffer.Offset, ScanlineBuffer.Length);
+                    IsScanlineDirty = false;
+
+                    rowStartMin = Int32.MaxValue;
+                    rowEndMax = Int32.MinValue;
+
+                    return true;
+                }
+
+                internal bool MoveNextSubpixelRow()
+                {
+                    currentSubpixelY += scanner.subpixelSize;
+                    VisitEdges();
+                    return currentSubpixelY < nextY;
+                }
+
+                internal void ScanCurrentSubpixelRow()
+                {
+                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, scanner.edges);
+                    if (points.Length == 0)
+                        return;
+
+                    float minX = scanner.Left;
+                    float subpixelSize = scanner.subpixelSize;
+                    float subpixelArea = scanner.subpixelArea;
+                    for (int point = 0; point < points.Length - 1; point += 2)
+                    {
+                        float scanStart = points[point] - minX;
+                        float scanEnd = points[point + 1] - minX;
+                        int startX = (int)MathF.Floor(scanStart);
+                        int endX = (int)MathF.Floor(scanEnd);
+
+                        if (startX >= 0 && startX < ScanlineBuffer.Length)
+                        {
+                            float subpixelWidth = (startX + 1 - scanStart) / subpixelSize;
+                            ScanlineBuffer[startX] += subpixelWidth * subpixelArea;
+                            IsScanlineDirty |= subpixelWidth > 0;
+                        }
+
+                        if (endX >= 0 && endX < ScanlineBuffer.Length)
+                        {
+                            float subpixelWidth = (scanEnd - endX) / subpixelSize;
+                            ScanlineBuffer[endX] += subpixelWidth * subpixelArea;
+                            IsScanlineDirty |= subpixelWidth > 0;
+                        }
+
+                        int nextX = startX + 1;
+                        endX = Math.Min(endX, ScanlineBuffer.Length);
+                        nextX = Math.Max(nextX, 0);
+
+                        if (endX > nextX)
+                        {
+                            // TODO: vectorization if possible
+                            for (int i = nextX; i < endX; i++)
+                                ScanlineBuffer[i] += subpixelSize;
+                            IsScanlineDirty = true;
+                        }
+
+                        rowStartMin = Math.Min(rowStartMin, startX);
+                        rowEndMax = Math.Max(rowEndMax, endX);
+                    }
+                }
+
+                #endregion
+
+                #region Private Methods
+
+                private void VisitEdges()
+                {
+                    var edges = scanner.edges;
+                    var sortedIndexYStart = scanner.sortedIndexYStart;
+                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    while (yStartIndex < sortedIndexYStart.Length)
+                    {
+                        int i = sortedIndexYStart[yStartIndex];
+                        if (edges[i].YStart > currentSubpixelY)
+                            break;
+
+                        activeEdges.EnterEdge(i);
+                        yStartIndex += 1;
+                    }
+
+                    while (yEndIndex < sortedIndexYEnd.Length)
+                    {
+                        int i = sortedIndexYEnd[yEndIndex];
+                        if (edges[i].YEnd > currentSubpixelY)
+                            break;
+
+                        activeEdges.LeaveEdge(i);
+                        yEndIndex += 1;
+                    }
+                }
+
+                #endregion
+
+                #endregion
+            }
+
+            #endregion
+
             #region Constants
 
             private const float subpixelCount = 16f;
@@ -150,26 +369,19 @@ namespace KGySoft.Drawing.Shapes
             
             #region Fields
 
-            private readonly ActiveEdgeTable activeEdges;
             private readonly float subpixelSize;
             private readonly float subpixelArea;
             private readonly int[] sortedIndexYStart;
             private readonly int[] sortedIndexYEnd;
-            private readonly ArraySection<float> scanlineBuffer;
 
-            private ArraySection<EdgeEntry> edges; // todo: into ActiveEdgeTable?
-            private int yStartIndex;
-            private int yEndIndex;
-            private float nextY;
-            private int currentY;
-            private float currentSubpixelY;
-            private bool isScanlineDirty;
+            private RegionScannerContext mainContext;
+            private ArraySection<EdgeEntry> edges;
 
             #endregion
 
             #region Constructors
 
-            public AntiAliasingRegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+            public AntiAliasingRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
                 : base(path, bounds, drawingOptions)
             {
                 subpixelSize = 1f / subpixelCount;
@@ -178,8 +390,7 @@ namespace KGySoft.Drawing.Shapes
 
                 edges = new EdgeTable(path, subpixelCount).Edges;
                 int edgeCount = edges.Length;
-                activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
-                currentY = bounds.Top - 1;
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
 
                 // TODO perf: stackalloc, Span.Sort
                 sortedIndexYStart = new int[edgeCount];
@@ -196,164 +407,29 @@ namespace KGySoft.Drawing.Shapes
 
                 Array.Sort(sortedIndexYStartKeys, sortedIndexYStart);
                 Array.Sort(sortedIndexYEndKeys, sortedIndexYEnd);
+                mainContext = new RegionScannerContext(this, activeEdges);
+                mainContext.SkipEdgesAbove(bounds.Top);
 
-                SkipEdgesAboveTop();
-                scanlineBuffer = new float[bounds.Width];
+                IsSingleThreaded = true;
             }
 
             #endregion
 
             #region Methods
 
-            #region Internal Methods
-            
             //internal override void ProcessScanline(int y, FillPathSession session) // TODO - parallelize
             internal override void ProcessNextScanline(FillPathSession session)
             {
                 // TODO: parallelize - MoveToRow(y)
-                if (!MoveNextRow())
+                if (!mainContext.MoveNextRow())
                     return;
 
-                // TODO: handle this in MoveToRow, including when region is cached so it just returns a row from an Array2D, which is already clean
-                if (isScanlineDirty)
-                    Array.Clear(scanlineBuffer.UnderlyingArray!, scanlineBuffer.Offset, scanlineBuffer.Length);
+                while (mainContext.MoveNextSubpixelRow())
+                    mainContext.ScanCurrentSubpixelRow();
 
-                isScanlineDirty = false;
-
-                int left = Left;
-                float minX = left;
-                int startMin = Int32.MaxValue;
-                int endMax = Int32.MinValue;
-                while (MoveNextSubpixelRow())
-                {
-                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, edges);
-                    if (points.Length == 0)
-                        continue;
-
-                    for (int point = 0; point < points.Length - 1; point += 2)
-                    {
-                        float scanStart = points[point] - minX;
-                        float scanEnd = points[point + 1] - minX;
-                        int startX = (int)MathF.Floor(scanStart);
-                        int endX = (int)MathF.Floor(scanEnd);
-
-                        if (startX >= 0 && startX < scanlineBuffer.Length)
-                        {
-                            float subpixelWidth = (startX + 1 - scanStart) / subpixelSize;
-                            scanlineBuffer[startX] += subpixelWidth * subpixelArea;
-                            isScanlineDirty |= subpixelWidth > 0;
-                        }
-
-                        if (endX >= 0 && endX < scanlineBuffer.Length)
-                        {
-                            float subpixelWidth = (scanEnd - endX) / subpixelSize;
-                            scanlineBuffer[endX] += subpixelWidth * subpixelArea;
-                            isScanlineDirty |= subpixelWidth > 0;
-                        }
-
-                        int nextX = startX + 1;
-                        endX = Math.Min(endX, scanlineBuffer.Length);
-                        nextX = Math.Max(nextX, 0);
-
-                        if (endX > nextX)
-                        {
-                            // TODO: vectorization if possible
-                            for (int i = nextX; i < endX; i++)
-                                scanlineBuffer[i] += subpixelSize;
-                            isScanlineDirty = true;
-                        }
-
-                        startMin = Math.Min(startMin, startX);
-                        endMax = Math.Max(endMax, endX);
-                    }
-                }
-
-                if (isScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(currentY, left, scanlineBuffer, Math.Max(0, startMin), Math.Min(scanlineBuffer.Length - 1, endMax)));
+                if (mainContext.IsScanlineDirty)
+                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
-
-            #endregion
-
-            #region Private Methods
-
-            /// <summary>
-            /// Skips the edges above <see cref="RegionScanner.Top"/>. It does not perform full scans, just at start/end Y positions.
-            /// </summary>
-            private void SkipEdgesAboveTop()
-            {
-                if (edges.Length == 0)
-                    return;
-
-                currentSubpixelY = edges[sortedIndexYStart[0]].YStart;
-
-                int startIndex = 1;
-                int endIndex = 0;
-
-                float top = Top;
-                while (currentSubpixelY < top)
-                {
-                    VisitEdges();
-                    activeEdges.RemoveLeavingEdges();
-
-                    bool startFinished = startIndex >= sortedIndexYStart.Length;
-                    bool endFinished = endIndex >= sortedIndexYEnd.Length;
-                    if (startFinished && endFinished)
-                        return;
-
-                    float startY = startFinished ? Single.MaxValue : edges[sortedIndexYStart[startIndex]].YStart;
-                    float endY = endFinished ? Single.MaxValue : edges[sortedIndexYEnd[endIndex]].YEnd;
-
-                    if (startY < endY)
-                    {
-                        currentSubpixelY = startY;
-                        startIndex += 1;
-                        continue;
-                    }
-
-                    currentSubpixelY = endY;
-                    endIndex++;
-                }
-            }
-
-            private void VisitEdges()
-            {
-                while (yStartIndex < sortedIndexYStart.Length)
-                {
-                    int i = sortedIndexYStart[yStartIndex];
-                    if (edges[i].YStart > currentSubpixelY)
-                        break;
-
-                    activeEdges.EnterEdge(i);
-                    yStartIndex += 1;
-                }
-
-                while (yEndIndex < sortedIndexYEnd.Length)
-                {
-                    int i = sortedIndexYEnd[yEndIndex];
-                    if (edges[i].YEnd > currentSubpixelY)
-                        break;
-
-                    activeEdges.LeaveEdge(i);
-                    yEndIndex += 1;
-                }
-            }
-
-            private bool MoveNextRow()
-            {
-                currentY += 1;
-                nextY = currentY + 1;
-                currentSubpixelY = currentY - subpixelSize;
-                return currentY < Bottom;
-            }
-
-            private bool MoveNextSubpixelRow()
-            {
-                currentSubpixelY += subpixelSize;
-                VisitEdges();
-                return currentSubpixelY < nextY;
-            }
-
-            #endregion
 
             #endregion
         }
@@ -1044,10 +1120,10 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private static RegionScanner CreateScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+        private static RegionScanner CreateScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
         {
             // TODO from cache if possible
-            return drawingOptions.AntiAliasing ? new AntiAliasingRegionScanner(path, bounds, drawingOptions) : new SolidRegionScanner(path, bounds, drawingOptions);
+            return drawingOptions.AntiAliasing ? new AntiAliasingRegionScanner(context, path, bounds, drawingOptions) : new SolidRegionScanner(context, path, bounds, drawingOptions);
         }
 
         #endregion
@@ -1068,20 +1144,26 @@ namespace KGySoft.Drawing.Shapes
                 return;
 
             FillPathSession session = CreateSession(bitmapData, bounds, drawingOptions);
-            RegionScanner scanner = CreateScanner(rawPath, bounds, drawingOptions);
+            RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
 
-            for (int y = bounds.Top; y < bounds.Bottom; y++)
+            if (scanner.IsSingleThreaded)
             {
-                if (context.IsCancellationRequested)
-                    return;
-                scanner.ProcessNextScanline(session);
+                context.Progress?.New(DrawingOperation.ProcessingPixels, bounds.Height);
+                for (int y = bounds.Top; y < bounds.Bottom; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    scanner.ProcessNextScanline(session);
+                    context.Progress?.Increment();
+                }
+
+                return;
             }
 
             // TODO
             //ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom, y =>
             //{
-            //    if (scanner.TryGetRowScanline(y, out var scanline))
-            //        session.ApplyScanline(scanline);
+            //    scanner.ProcessScanline(y, session);
             //});
         }
 
