@@ -53,13 +53,26 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanlineAntiAliasing scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
-                for (int x = scanline.MinIndex; x < scanline.MaxIndex; x++)
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline[x >> 3], x) == 1)
+                        row.DoSetColor32(x + left, c);
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     float value = scanline.Scanline[x];
                     switch (value)
@@ -106,13 +119,57 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanlineAntiAliasing scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert(color.A < Byte.MaxValue);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                var colorSpace = workingColorSpace;
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline[x >> 3], x) == 1)
+                    {
+                        int pos = x + left;
+                        Color32 backColor = row.DoGetColor32(pos);
+                        row.DoSetColor32(pos, c.Blend(backColor, colorSpace));
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
                 var colorSpace = workingColorSpace;
+
+                if (c.A == Byte.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        float value = scanline.Scanline[x];
+                        switch (value)
+                        {
+                            case <= 0f:
+                                continue;
+                            case >= 1f:
+                                row.DoSetColor32(x + left, c);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                Color32 backColor = row.DoGetColor32(pos);
+                                row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     float value = scanline.Scanline[x];
@@ -121,12 +178,14 @@ namespace KGySoft.Drawing.Shapes
                         case <= 0f:
                             continue;
                         case >= 1f:
-                            row.DoSetColor32(x + left, c);
-                            continue;
-                        default:
                             int pos = x + left;
                             Color32 backColor = row.DoGetColor32(pos);
-                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                            row.DoSetColor32(pos, c.Blend(backColor, colorSpace));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetColor32(pos);
+                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * c.A), c).Blend(backColor, colorSpace));
                             continue;
                     }
                 }

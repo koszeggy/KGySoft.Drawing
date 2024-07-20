@@ -72,7 +72,8 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Methods
 
-            internal abstract void ApplyScanlineAntiAliasing(in RegionScanlineAntiAliasing scanline);
+            internal abstract void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline);
+            internal abstract void ApplyScanlineSolid(in RegionScanline<byte> scanline);
 
             #endregion
         }
@@ -138,32 +139,341 @@ namespace KGySoft.Drawing.Shapes
 
         private class SolidRegionScanner : RegionScanner
         {
-            #region Constructors
+            #region Nested Structs
 
-            public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(path, bounds, drawingOptions)
+            /// <summary>
+            /// Contains thread-specific data for region scanning
+            /// </summary>
+            private struct RegionScannerContext
             {
+                #region Fields
+
+                #region Internal Fields
+
+                internal int CurrentY;
+                internal ArraySection<byte> ScanlineBuffer;
+                internal bool IsScanlineDirty;
+
+                #endregion
+
+                #region Private Fields
+
+                private readonly SolidRegionScanner scanner;
+                private readonly ActiveEdgeTable activeEdges;
+                private readonly int scanlinePixelWidth;
+
+                private int yStartIndex;
+                private int yEndIndex;
+                private int rowStartMin;
+                private int rowEndMax;
+                private int currentVisitedY;
+
+                #endregion
+
+                #endregion
+
+                #region Properties
+
+                internal int StartX => Math.Max(0, rowStartMin);
+                internal int EndX => Math.Min(scanner.Width - 1, rowEndMax);
+
+                #endregion
+
+                #region Constructors
+
+                internal RegionScannerContext(SolidRegionScanner scanner, ActiveEdgeTable activeEdges)
+                {
+                    this.scanner = scanner;
+                    this.activeEdges = activeEdges;
+                    scanlinePixelWidth = scanner.Width;
+                    ScanlineBuffer = new byte[KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth)]; // TODO: allocate
+
+                    if (scanner.edges.Length == 0)
+                        return;
+
+                    currentVisitedY = (int)scanner.edges[scanner.sortedIndexYStart[0]].YStart;
+                }
+
+                internal RegionScannerContext(in RegionScannerContext other, int top)
+                {
+                    Debug.Assert(top > other.CurrentY);
+                    this = other;
+                    activeEdges = other.activeEdges.Clone();
+                    ScanlineBuffer = new byte[other.ScanlineBuffer.Length]; // TODO: allocate
+                    IsScanlineDirty = false;
+                    SkipEdgesAbove(top);
+                }
+
+                #endregion
+
+                #region Methods
+
+                #region Internal Methods
+
+                internal void SkipEdgesAbove(int rowIndex)
+                {
+                    CurrentY = rowIndex - 1;
+                    var edges = scanner.edges;
+                    var sortedIndexYStart = scanner.sortedIndexYStart;
+                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+
+                    int startIndex = yStartIndex + 1;
+                    int endIndex = yEndIndex;
+
+                    while (currentVisitedY < rowIndex)
+                    {
+                        VisitEdges();
+                        activeEdges.RemoveLeavingEdges();
+
+                        bool startFinished = startIndex >= sortedIndexYStart.Length;
+                        bool endFinished = endIndex >= sortedIndexYEnd.Length;
+                        if (startFinished && endFinished)
+                            return;
+
+                        float startY = startFinished ? Single.MaxValue : edges[sortedIndexYStart[startIndex]].YStart;
+                        float endY = endFinished ? Single.MaxValue : edges[sortedIndexYEnd[endIndex]].YEnd;
+
+                        if (startY < endY)
+                        {
+                            currentVisitedY = (int)startY;
+                            startIndex += 1;
+                            continue;
+                        }
+
+                        currentVisitedY = (int)endY;
+                        endIndex += 1;
+                    }
+                }
+
+                internal bool MoveNextRow()
+                {
+                    CurrentY += 1;
+                    currentVisitedY = CurrentY;
+                    if (CurrentY >= scanner.Bottom)
+                        return false;
+
+                    if (IsScanlineDirty)
+                        Array.Clear(ScanlineBuffer.UnderlyingArray!, ScanlineBuffer.Offset, ScanlineBuffer.Length);
+                    IsScanlineDirty = false;
+
+                    rowStartMin = Int32.MaxValue;
+                    rowEndMax = Int32.MinValue;
+                    VisitEdges();
+
+                    return true;
+                }
+
+                internal void ScanCurrentRow()
+                {
+                    ArraySection<float> points = activeEdges.ScanLine(currentVisitedY, scanner.edges);
+                    if (points.Length == 0)
+                        return;
+
+                    float minX = scanner.Left;
+                    for (int point = 0; point < points.Length - 1; point += 2)
+                    {
+                        float scanStart = points[point] - minX;
+                        float scanEnd = points[point + 1] - minX;
+                        int startX = (int)MathF.Floor(scanStart);
+                        int endX = (int)MathF.Floor(scanEnd);
+
+                        if (startX >= 0 && startX < scanlinePixelWidth)
+                        {
+                            if (startX + 1 - scanStart >= 0.5f)
+                            {
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(startX >> 3), startX, 1);
+                                IsScanlineDirty = true;
+                            }
+                        }
+
+                        if (endX >= 0 && endX < scanlinePixelWidth)
+                        {
+                            if (scanEnd - endX >= 0.5f || endX == startX + 1 && scanEnd - scanStart >= 0.5f)
+                            {
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(endX >> 3), endX, 1);
+                                IsScanlineDirty = true;
+                            }
+                        }
+
+                        int nextX = startX + 1;
+                        endX = Math.Min(endX, scanlinePixelWidth);
+                        nextX = Math.Max(nextX, 0);
+
+                        if (endX > nextX)
+                        {
+                            // TODO: vectorization if possible - or at least combine byte changes
+                            for (int i = nextX; i < endX; i++)
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(i >> 3), i, 1);
+                            IsScanlineDirty = true;
+                        }
+
+                        rowStartMin = Math.Min(rowStartMin, startX);
+                        rowEndMax = Math.Max(rowEndMax, endX);
+                    }
+                }
+
+                #endregion
+
+                #region Private Methods
+
+                private void VisitEdges()
+                {
+                    var edges = scanner.edges;
+                    var sortedIndexYStart = scanner.sortedIndexYStart;
+                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    while (yStartIndex < sortedIndexYStart.Length)
+                    {
+                        int i = sortedIndexYStart[yStartIndex];
+                        if (edges[i].YStart > currentVisitedY)
+                            break;
+
+                        activeEdges.EnterEdge(i);
+                        yStartIndex += 1;
+                    }
+
+                    while (yEndIndex < sortedIndexYEnd.Length)
+                    {
+                        int i = sortedIndexYEnd[yEndIndex];
+                        if (edges[i].YEnd > currentVisitedY)
+                            break;
+
+                        activeEdges.LeaveEdge(i);
+                        yEndIndex += 1;
+                    }
+                }
+
+                #endregion
+
+                #endregion
             }
+
+            #endregion
+
+            #region Constants
+
+            private const float roundingUnit = 0.25f;
+            private const int parallelThreshold = 64;
+
+            #endregion
+
+            #region Fields
+
+            private readonly int[] sortedIndexYStart;
+            private readonly int[] sortedIndexYEnd;
+            private readonly StrongBox<(int ThreadId, RegionScannerContext Context)>?[]? threadContextCache;
+            private readonly int hashMask;
+
+            private RegionScannerContext mainContext;
+            private ArraySection<EdgeEntry> edges;
 
             #endregion
 
             #region Properties
 
-            internal override bool IsSingleThreaded => throw new NotImplementedException();
+            internal override bool IsSingleThreaded => threadContextCache == null;
+
+            #endregion
+
+            #region Constructors
+
+            public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+                : base(path, bounds, drawingOptions)
+            {
+                var maxIntersectionCount = path.MaxVertices << 1;
+
+                edges = new EdgeTable(path, roundingUnit).Edges;
+                int edgeCount = edges.Length;
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
+
+                // TODO perf: stackalloc, Span.Sort
+                sortedIndexYStart = new int[edgeCount];
+                sortedIndexYEnd = new int[edgeCount];
+                var sortedIndexYStartKeys = new float[edgeCount];
+                var sortedIndexYEndKeys = new float[edgeCount];
+                for (int i = 0; i < edgeCount; i++)
+                {
+                    ref EdgeEntry edge = ref edges.GetElementReference(i);
+                    sortedIndexYStartKeys[i] = edge.YStart;
+                    sortedIndexYEndKeys[i] = edge.YEnd;
+                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
+                }
+
+                Array.Sort(sortedIndexYStartKeys, sortedIndexYStart);
+                Array.Sort(sortedIndexYEndKeys, sortedIndexYEnd);
+                mainContext = new RegionScannerContext(this, activeEdges);
+                mainContext.SkipEdgesAbove(bounds.Top);
+
+                if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
+                    return;
+
+                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
+                hashMask = threadContextCache.Length - 1;
+            }
 
             #endregion
 
             #region Methods
+            
+            #region Internal Methods
 
             internal override void ProcessNextScanline(FillPathSession session)
             {
-                throw new NotImplementedException();
+                Debug.Assert(IsSingleThreaded);
+                if (!mainContext.MoveNextRow())
+                    return;
+
+                mainContext.ScanCurrentRow();
+
+                if (mainContext.IsScanlineDirty)
+                    session.ApplyScanlineSolid(new RegionScanline<byte>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
             internal override void ProcessScanline(int y, FillPathSession session)
             {
-                throw new NotImplementedException();
+                Debug.Assert(!IsSingleThreaded);
+
+                ref RegionScannerContext context = ref GetThreadContext(y);
+                context.MoveNextRow();
+                context.ScanCurrentRow();
+
+                if (context.IsScanlineDirty)
+                    session.ApplyScanlineSolid(new RegionScanline<byte>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
+
+            #endregion
+
+            #region Private Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            private ref RegionScannerContext GetThreadContext(int y)
+            {
+                // Note that cache item access is not volatile, because it's even better if a thread sees its own last cached value.
+                int threadId = EnvironmentHelper.CurrentThreadId;
+                int hash = threadId & hashMask;
+                StrongBox<(int ThreadId, RegionScannerContext Context)>? cacheEntry = threadContextCache![hash];
+
+                if (cacheEntry != null)
+                {
+                    ref var value = ref cacheEntry.Value;
+                    if (value.ThreadId == threadId)
+                    {
+                        ref RegionScannerContext context = ref value.Context;
+                        if (context.CurrentY < y)
+                        {
+                            context.SkipEdgesAbove(y);
+                            return ref context;
+                        }
+                    }
+
+                    //value.Context.Dispose(); // TODO: release dropped entry's active edge table buffer and scanline buffer
+                }
+
+                var result = new StrongBox<(int ThreadId, RegionScannerContext Context)>((threadId, new RegionScannerContext(mainContext, y)));
+                threadContextCache[hash] = result;
+                return ref result.Value.Context;
+            }
+
+            #endregion
 
             #endregion
         }
@@ -392,7 +702,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const float subpixelCount = 16f;
-            private const int parallelThreshold = 1; // TODO: measure and adjust
+            private const int parallelThreshold = 64;
 
             #endregion
 
@@ -423,9 +733,9 @@ namespace KGySoft.Drawing.Shapes
             {
                 subpixelSize = 1f / subpixelCount;
                 subpixelArea = 1f / (subpixelCount * subpixelCount);
-                var maxIntersectionCount = path.MaxVertices << 1;
+                var maxIntersectionCount = path.TotalVertices << 1;
 
-                edges = new EdgeTable(path, subpixelCount).Edges;
+                edges = new EdgeTable(path, subpixelSize).Edges;
                 int edgeCount = edges.Length;
                 var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
 
@@ -500,7 +810,7 @@ namespace KGySoft.Drawing.Shapes
 #endif
 
                 if (mainContext.IsScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
+                    session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
             internal override void ProcessScanline(int y, FillPathSession session)
@@ -533,7 +843,7 @@ namespace KGySoft.Drawing.Shapes
 #endif
 
                 if (context.IsScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanlineAntiAliasing(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+                    session.ApplyScanlineAntiAliasing(new RegionScanline<float>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
             #endregion
@@ -546,8 +856,8 @@ namespace KGySoft.Drawing.Shapes
                 // Note that cache item access is not volatile, because it's even better if a thread sees its own last cached value.
                 int threadId = EnvironmentHelper.CurrentThreadId;
                 int hash = threadId & hashMask;
-                // TODO: reset
                 StrongBox<(int ThreadId, RegionScannerContext Context)>? cacheEntry = threadContextCache![hash];
+
                 if (cacheEntry != null)
                 {
                     ref var value = ref cacheEntry.Value;
@@ -990,7 +1300,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public EdgeTable(RawPath path, float snappingFactor)
+            public EdgeTable(RawPath path, float roundingUnit)
             {
                 var edges = new EdgeEntry[path.TotalVertices];
                 var snappedYCoords = new float[path.MaxVertices + 1];
@@ -1002,7 +1312,7 @@ namespace KGySoft.Drawing.Shapes
                         continue;
 
                     for (int i = 0; i < vertices.Length; i++)
-                        snappedYCoords[i] = MathF.Round(vertices[i].Y * snappingFactor, MidpointRounding.AwayFromZero) / snappingFactor;
+                        snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
 
                     enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
                         new EdgeInfo(vertices, snappedYCoords, 0),
@@ -1259,9 +1569,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region RegionScanlineAntiAliasing struct
+        #region RegionScanline<T> struct
 
-        private protected ref struct RegionScanlineAntiAliasing
+        private protected ref struct RegionScanline<T>
         {
             #region Fields
 
@@ -1269,13 +1579,13 @@ namespace KGySoft.Drawing.Shapes
             internal readonly int Left;
             internal readonly int MinIndex;
             internal readonly int MaxIndex;
-            internal ArraySection<float> Scanline;
+            internal ArraySection<T> Scanline;
 
             #endregion
 
             #region Constructors
 
-            internal RegionScanlineAntiAliasing(int y, int left, ArraySection<float> scanline, int startX, int endX)
+            internal RegionScanline(int y, int left, ArraySection<T> scanline, int startX, int endX)
             {
                 RowIndex = y;
                 Left = left;

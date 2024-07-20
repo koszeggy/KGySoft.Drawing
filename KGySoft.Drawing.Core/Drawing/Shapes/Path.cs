@@ -42,14 +42,24 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
+        #region Public Properties
+
+        public Rectangle Bounds => RawPath.Bounds;
+
+        #endregion
+
+        #region Internal Properties
+
         internal RawPath RawPath => rawPath ??= InitRawPath();
+
+        #endregion
 
         #endregion
 
         #region Constructors
 
         #region Public Constructors
-        
+
         public Path()
         {
             currentFigure = new Figure();

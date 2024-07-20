@@ -73,6 +73,10 @@ namespace KGySoft.Drawing.Imaging
                 : value >= 0f ? value
                 : 0f;
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float RoundTo(this float value, float smallestUnit) 
+            => MathF.Round(value / smallestUnit, MidpointRounding.AwayFromZero) * smallestUnit;
+
         #endregion
     }
 }
