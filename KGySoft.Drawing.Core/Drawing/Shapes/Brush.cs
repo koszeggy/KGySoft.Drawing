@@ -759,30 +759,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-#if DEBUG
-            // TODO: remove
-            private SortedList<int, string> debugInfo = new();
-            private static string Dump(object? o)
-            {
-                if (o == null)
-                    return "<null>";
-
-                if (o is IConvertible convertible)
-                    return convertible.ToString(CultureInfo.InvariantCulture);
-
-                if (o is ActiveEdgeTable t)
-                    o = Reflector.GetProperty(t, "ActiveEdges");
-
-                if (o is IEnumerable enumerable)
-                    return $"[{enumerable.Cast<object>().Select(Dump).Join(", ")}]";
-
-                return $"{{{o.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Where(f => f.Name != "scanner")
-                    .Select(f => $"{f.Name} = {Dump(f.GetValue(o))}")
-                    .Join(", ")}}}";
-            }
-#endif
-
             internal override void ProcessNextScanline(FillPathSession session)
             {
                 Debug.Assert(IsSingleThreaded);
@@ -791,12 +767,6 @@ namespace KGySoft.Drawing.Shapes
 
                 while (mainContext.MoveNextSubpixelRow())
                     mainContext.ScanCurrentSubpixelRow();
-#if DEBUG
-                // TODO: remove
-                debugInfo.Add(mainContext.CurrentY, Dump(mainContext));
-                if (mainContext.CurrentY == Bottom - 1)
-                    File.WriteAllLines(@"D:\temp\Images\ref\ref.txt", debugInfo.Select(l => $"{l.Key}:{l.Value}"));
-#endif
 
                 if (mainContext.IsScanlineDirty)
                     session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
@@ -811,25 +781,6 @@ namespace KGySoft.Drawing.Shapes
 
                 while (context.MoveNextSubpixelRow())
                     context.ScanCurrentSubpixelRow();
-
-#if DEBUG
-                // TODO: remove
-                lock (debugInfo)
-                {
-                    if (debugInfo.Count == 0)
-                    {
-                        foreach (var line in File.ReadLines(@"D:\temp\Images\ref\ref.txt"))
-                        {
-                            int pos = line.IndexOf(':');
-                            debugInfo.Add(Int32.Parse(line.Substring(0, pos), CultureInfo.InvariantCulture), line.Substring(pos + 1));
-                        }
-                    } 
-                }
-
-                string expected = debugInfo[context.CurrentY];
-                string actual = Dump(context);
-                Debug.Assert(expected == actual, $"Expected vs actual:{Environment.NewLine}{expected}{Environment.NewLine}{actual}");
-#endif
 
                 if (context.IsScanlineDirty)
                     session.ApplyScanlineAntiAliasing(new RegionScanline<float>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
