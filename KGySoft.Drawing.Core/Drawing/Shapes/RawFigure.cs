@@ -135,8 +135,6 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        #region Static Methods
-
         private static sbyte GetOrientation(PointF p1, PointF p2, PointF p3)
         {
             // https://www.tutorialspoint.com/how-to-check-orientation-of-3-ordered-points-in-java
@@ -147,36 +145,6 @@ namespace KGySoft.Drawing.Shapes
                 : result > 0f ? 1
                 : -1);
         }
-
-        private static sbyte GetOrientation(PointF[] points)
-        {
-            float sum = 0f;
-            for (int i = 0; i < points.Length - 1; i++)
-            {
-                PointF curr = points[i];
-                PointF next = points[i + 1];
-                sum += curr.X * next.Y - next.X * curr.Y;
-            }
-
-            return sum switch
-            {
-                > 0f => 1,
-                < 0f => -1,
-                _ => 0,
-            };
-        }
-
-        #endregion
-
-        #region Instance Methods
-
-        internal void EnsurePositiveOrientation()
-        {
-            if (GetOrientation(Vertices) < 0)
-                Array.Reverse(Vertices);
-        }
-
-        #endregion
 
         #endregion
     }

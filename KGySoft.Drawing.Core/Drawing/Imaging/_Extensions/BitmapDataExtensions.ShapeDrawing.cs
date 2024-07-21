@@ -117,7 +117,6 @@ namespace KGySoft.Drawing.Imaging
 
             // TODO: tell if region should be generated to cache (takes more memory). The Path could contain a ToCache = true if it was created by a public constructor so it wasn't created indirectly
             brush.ApplyPath(context, bitmapData, path, drawingOptions);
-
         }
 
         #endregion

@@ -191,7 +191,6 @@ namespace KGySoft.Drawing.Shapes
                     result.AddRawFigure(figure.GetPoints(), true);
             }
 
-            result.EnsureSingleFigurePositiveOrientation();
             return result;
         }
 

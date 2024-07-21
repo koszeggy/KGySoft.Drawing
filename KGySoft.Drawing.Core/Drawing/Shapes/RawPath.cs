@@ -66,12 +66,6 @@ namespace KGySoft.Drawing.Shapes
             maxVertices = Math.Max(maxVertices, figure.Vertices.Length - 1);
         }
 
-        internal void EnsureSingleFigurePositiveOrientation()
-        {
-            if (figures.Count == 1)
-                figures[0].EnsurePositiveOrientation();
-        }
-
         #endregion
     }
 }

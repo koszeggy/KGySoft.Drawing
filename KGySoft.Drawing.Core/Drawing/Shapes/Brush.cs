@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -51,15 +52,6 @@ namespace KGySoft.Drawing.Shapes
             Descending,
             HorizontalRight,
             HorizontalLeft
-        }
-
-        // TODO: move to ActiveEdgeTableNonZero
-        private enum IntersectionType : byte
-        {
-            Ascending,
-            Descending,
-            Corner,
-            CornerPlaceholder
         }
 
         #endregion
@@ -352,7 +344,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const float roundingUnit = 0.25f;
-            private const int parallelThreshold = 64;
+            private const int parallelThreshold = 256;
 
             #endregion
 
@@ -379,11 +371,9 @@ namespace KGySoft.Drawing.Shapes
             public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
                 : base(path, bounds, drawingOptions)
             {
-                var maxIntersectionCount = path.MaxVertices << 1;
-
                 edges = new EdgeTable(path, roundingUnit).Edges;
                 int edgeCount = edges.Length;
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, path.TotalVertices);
 
                 // TODO perf: stackalloc, Span.Sort
                 sortedIndexYStart = new int[edgeCount];
@@ -733,11 +723,10 @@ namespace KGySoft.Drawing.Shapes
             {
                 subpixelSize = 1f / subpixelCount;
                 subpixelArea = 1f / (subpixelCount * subpixelCount);
-                var maxIntersectionCount = path.TotalVertices << 1;
 
                 edges = new EdgeTable(path, subpixelSize).Edges;
                 int edgeCount = edges.Length;
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, maxIntersectionCount);
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, path.TotalVertices);
 
                 // TODO perf: stackalloc, Span.Sort
                 sortedIndexYStart = new int[edgeCount];
@@ -1046,20 +1035,13 @@ namespace KGySoft.Drawing.Shapes
             {
                 #region Local Methods
 
-                static void AddIntersection(float x, int emitCount, ArraySection<float> intersections, ref int count)
+                static void AddIntersection(float x, bool emit, ArraySection<float> intersections, ref int count)
                 {
-                    switch (emitCount)
-                    {
-                        case 2:
-                            intersections[count] = x;
-                            intersections[count + 1] = x;
-                            count += 2;
-                            break;
-                        case 1:
-                            intersections[count] = x;
-                            count += 1;
-                            break;
-                    }
+                    if (!emit)
+                        return;
+
+                    intersections[count] = x;
+                    count += 1;
                 }
 
                 #endregion
@@ -1074,10 +1056,10 @@ namespace KGySoft.Drawing.Shapes
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
                     if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.StartEmitCount, Intersections, ref intersectionsCount);
+                        AddIntersection(x, edge.EmitStart, Intersections, ref intersectionsCount);
                     else if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EndEmitCount, Intersections, ref intersectionsCount);
+                        AddIntersection(x, edge.EmitEnd, Intersections, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
@@ -1106,6 +1088,17 @@ namespace KGySoft.Drawing.Shapes
 
         private sealed class ActiveEdgeTableNonZero : ActiveEdgeTable
         {
+            #region Nested Types
+
+            private enum IntersectionType : byte
+            {
+                Ascending,
+                Descending,
+                Corner
+            }
+
+            #endregion
+            
             #region Constants
 
             /// <summary>
@@ -1152,21 +1145,9 @@ namespace KGySoft.Drawing.Shapes
             #region Static Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static void AddIntersection(float x, int emitCount, bool isAscending, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes, ref int count)
+            private static void AddIntersection(float x, bool emit, bool isAscending, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes, ref int count)
             {
-                if (emitCount == 2)
-                {
-                    // for corners emitting two points, making sure that the placeholder is a bit smaller than the actual corner to prevent sorting from replace them
-                    intersectionTypes[count] = IntersectionType.CornerPlaceholder;
-                    intersections[count] = x - sortStabilizerDelta;
-                    count += 1;
-                    intersectionTypes[count] = IntersectionType.Corner;
-                    intersections[count] = x;
-                    count += 1;
-                    return;
-                }
-
-                if (emitCount != 1)
+                if (!emit)
                     return;
 
                 if (isAscending)
@@ -1212,10 +1193,10 @@ namespace KGySoft.Drawing.Shapes
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
                     if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.StartEmitCount, edge.IsAscending, intersections, types, ref intersectionsCount);
+                        AddIntersection(x, edge.EmitStart, edge.IsAscending, intersections, types, ref intersectionsCount);
                     else if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EndEmitCount, edge.IsAscending, intersections, types, ref intersectionsCount);
+                        AddIntersection(x, edge.EmitEnd, edge.IsAscending, intersections, types, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
@@ -1252,11 +1233,6 @@ namespace KGySoft.Drawing.Shapes
                     IntersectionType type = types[i];
                     switch (type)
                     {
-                        // it's always followed by a Corner, where it's processed
-                        case IntersectionType.CornerPlaceholder:
-                            removed += 1;
-                            break;
-
                         case IntersectionType.Corner:
                             AddIntersectionWhenToggles(intersections, i, -1, intersections[i], ref windingNumber, ref removed);
                             removed -= 1;
@@ -1315,24 +1291,18 @@ namespace KGySoft.Drawing.Shapes
                         snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
 
                     enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
-                        new EdgeInfo(vertices, snappedYCoords, 0),
-                        new EdgeInfo(vertices, snappedYCoords, 1));
+                        new EdgeInfo(vertices, snappedYCoords, 0));
 
-                    enumerator.MoveNextEdge(false);
+                    enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords, 1));
 
                     for (int i = 1; i < vertices.Length - 2; i++)
-                    {
-                        enumerator.Next = new EdgeInfo(vertices, snappedYCoords, i + 1);
-                        enumerator.MoveNextEdge(true);
-                    }
+                        enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, i + 1));
 
                     // 1st edge
-                    enumerator.Next = new EdgeInfo(vertices, snappedYCoords, 0);
-                    enumerator.MoveNextEdge(true);
+                    enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, 0));
 
                     // 2nd edge
-                    enumerator.Next = new EdgeInfo(vertices, snappedYCoords, 1);
-                    enumerator.MoveNextEdge(true);
+                    enumerator.MoveNextEdge(true, default);
                 }
 
                 Edges = edges.AsSection(0, enumerator.Count);
@@ -1352,16 +1322,19 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
+            internal readonly EdgeKind Kind;
+
             internal PointF Start;
             internal PointF End;
-            internal EdgeKind Kind;
-            internal int StartEmitCount;
-            internal int EndEmitCount;
+            internal bool EmitStart;
+            internal bool EmitEnd;
 
             #endregion
 
             #region Constructors
 
+            [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
+                Justification = "False alarm, these coordinates are already snapped (rounded) to a fraction of 2.")]
             internal EdgeInfo(PointF[] vertices, float[] snappedYCoords, int index)
             {
                 Start = new PointF(vertices[index].X, snappedYCoords[index]);
@@ -1369,8 +1342,8 @@ namespace KGySoft.Drawing.Shapes
                 Kind = Start.Y == End.Y
                     ? Start.X < End.X ? EdgeKind.HorizontalRight : EdgeKind.HorizontalLeft
                     : Start.Y < End.Y ? EdgeKind.Descending : EdgeKind.Ascending;
-                StartEmitCount = 0;
-                EndEmitCount = 0;
+                EmitStart = false;
+                EmitEnd = false;
             }
 
             #endregion
@@ -1379,53 +1352,40 @@ namespace KGySoft.Drawing.Shapes
 
             #region Static Methods
 
-            internal static void InitEmitCount(ref EdgeInfo edge1, ref EdgeInfo edge2)
+            internal static void ConfigureEdgeRelation(ref EdgeInfo edge1, ref EdgeInfo edge2)
             {
-                // A vertex can be emitted multiple times (0 to 2), depending on the relation of its edges.
-                // For example, emitting a vertex 0 times if the edges are collinear, but emitting 2 times
-                // if one of the edges are horizontal, or the corner is concave.
+                // A vertex can be emitted at be beginning and/or at the end of the edge, depending on the relation of its edges.
+                // For example, not emitting a vertex at all if the edges are collinear, or when the another end is already emitted.
+                // This configuration ensures that relevant vertices are emitted exactly once in any configuration.
                 switch ((edge1.Kind, edge2.Kind))
                 {
                     case (EdgeKind.Ascending, EdgeKind.Ascending):
-                        edge2.StartEmitCount = 1;
+                        edge2.EmitStart = true;
                         break;
                     case (EdgeKind.Ascending, EdgeKind.Descending):
-                        edge1.EndEmitCount = 1;
-                        edge2.StartEmitCount = 1;
+                        edge1.EmitEnd = true;
+                        edge2.EmitStart = true;
                         break;
                     case (EdgeKind.Ascending, EdgeKind.HorizontalLeft):
-                        edge1.EndEmitCount = 2;
+                        edge1.EmitEnd = true;
                         break;
                     case (EdgeKind.Ascending, EdgeKind.HorizontalRight):
-                        edge1.EndEmitCount = 1;
+                        edge1.EmitEnd = true;
                         break;
 
                     case (EdgeKind.Descending, EdgeKind.Ascending):
-                        edge1.EndEmitCount = 1;
-                        edge2.StartEmitCount = 1;
+                        edge1.EmitEnd = true;
+                        edge2.EmitStart = true;
                         break;
                     case (EdgeKind.Descending, EdgeKind.Descending):
-                        edge2.StartEmitCount = 1;
-                        break;
-                    case (EdgeKind.Descending, EdgeKind.HorizontalLeft):
-                        edge1.EndEmitCount = 1;
-                        break;
-                    case (EdgeKind.Descending, EdgeKind.HorizontalRight):
-                        edge1.EndEmitCount = 2;
+                        edge2.EmitStart = true;
                         break;
 
-                    case (EdgeKind.HorizontalLeft, EdgeKind.Ascending):
-                        edge2.StartEmitCount = 1;
-                        break;
                     case (EdgeKind.HorizontalLeft, EdgeKind.Descending):
-                        edge2.StartEmitCount = 2;
-                        break;
-
-                    case (EdgeKind.HorizontalRight, EdgeKind.Ascending):
-                        edge2.StartEmitCount = 2;
+                        edge2.EmitStart = true;
                         break;
                     case (EdgeKind.HorizontalRight, EdgeKind.Descending):
-                        edge2.StartEmitCount = 1;
+                        edge2.EmitStart = true;
                         break;
                 }
             }
@@ -1434,17 +1394,27 @@ namespace KGySoft.Drawing.Shapes
 
             #region Instance Methods
 
+            #region Public Methods
+
+            public override string ToString() => $"{Start} -> {End} ({Kind}) - Emit start/end: [{EmitStart};{EmitEnd}]";
+
+            #endregion
+
+            #region Internal Methods
+
             internal EdgeEntry ToEdge()
             {
                 bool isAscending = Kind == EdgeKind.Ascending;
                 if (isAscending)
                 {
                     (Start, End) = (End, Start);
-                    (StartEmitCount, EndEmitCount) = (EndEmitCount, StartEmitCount);
+                    (EmitStart, EmitEnd) = (EmitEnd, EmitStart);
                 }
 
                 return new EdgeEntry(this);
             }
+
+            #endregion
 
             #endregion
 
@@ -1470,8 +1440,8 @@ namespace KGySoft.Drawing.Shapes
 
             internal readonly float YStart;
             internal readonly float YEnd;
-            internal readonly byte StartEmitCount;
-            internal readonly byte EndEmitCount;
+            internal readonly bool EmitStart;
+            internal readonly bool EmitEnd;
             internal readonly bool IsAscending;
 
             #endregion
@@ -1492,8 +1462,8 @@ namespace KGySoft.Drawing.Shapes
                 YEnd = edgeInfo.End.Y;
                 float height = YEnd - YStart;
                 IsAscending = edgeInfo.Kind is EdgeKind.Ascending;
-                StartEmitCount = (byte)edgeInfo.StartEmitCount;
-                EndEmitCount = (byte)edgeInfo.EndEmitCount;
+                EmitStart = edgeInfo.EmitStart;
+                EmitEnd = edgeInfo.EmitEnd;
 
                 // calculating p and q adjusted to the origin for better accuracy
                 Vector2 pStart = edgeInfo.Start.ToVector2();
@@ -1509,7 +1479,17 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            #region Public Methods
+
+            public override string ToString() => $"Y: {YStart}->{YEnd} ({(IsAscending ? "" : "non-")}ascending); Emit start/end: [{EmitStart}; {EmitEnd}]; p={p}; q={q}";
+
+            #endregion
+
+            #region Internal Methods
+
             internal float GetX(float y) => p * y + q;
+
+            #endregion
 
             #endregion
         }
@@ -1522,46 +1502,40 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-            internal readonly EdgeEntry[] Edges;
+            private readonly EdgeEntry[] edges;
 
             internal int Count;
-            internal EdgeInfo Previous;
-            internal EdgeInfo Current;
-            internal EdgeInfo Next;
+            private EdgeInfo previous;
+            private EdgeInfo current;
 
             #endregion
 
             #region Constructors
 
-            internal EdgeEnumerator(EdgeEntry[] edges)
-            {
-                Edges = edges;
-            }
+            internal EdgeEnumerator(EdgeEntry[] edges) => this.edges = edges;
 
             #endregion
 
             #region Methods
 
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal void StartNextFigure(EdgeInfo previous, EdgeInfo current, EdgeInfo next)
+            internal void StartNextFigure(EdgeInfo previous, EdgeInfo current)
             {
-                Previous = previous;
-                Current = current;
-                Next = next;
+                this.previous = previous;
+                this.current = current;
             }
 
-            internal void MoveNextEdge(bool addPrevious)
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal void MoveNextEdge(bool addPrevious, EdgeInfo next)
             {
-                EdgeInfo.InitEmitCount(ref Previous, ref Current);
-                EdgeInfo.InitEmitCount(ref Current, ref Next);
-                if (addPrevious && Previous.Kind is EdgeKind.Ascending or EdgeKind.Descending)
+                EdgeInfo.ConfigureEdgeRelation(ref previous, ref current);
+                if (addPrevious && previous.Kind is EdgeKind.Ascending or EdgeKind.Descending)
                 {
-                    Edges[Count] = Previous.ToEdge();
+                    edges[Count] = previous.ToEdge();
                     Count += 1;
                 }
 
-                Previous = Current;
-                Current = Next;
+                previous = current;
+                current = next;
             }
 
             #endregion
