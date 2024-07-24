@@ -31,41 +31,6 @@ namespace KGySoft.Drawing.Imaging
     {
         private sealed class LayersEnumerator : IDisposable
         {
-            #region Nested Classes
-
-            private sealed class SuppressProgressContext : IAsyncContext
-            {
-                #region Properties
-
-                public int MaxDegreeOfParallelism => asyncContext.MaxDegreeOfParallelism;
-                public bool IsCancellationRequested => asyncContext.IsCancellationRequested;
-                public bool CanBeCanceled => asyncContext.CanBeCanceled;
-                public IAsyncProgress? Progress => null;
-                public object? State => asyncContext.State;
-
-                #endregion
-
-                #region Fields
-
-                private readonly IAsyncContext asyncContext;
-
-                #endregion
-
-                #region Constructors
-
-                internal SuppressProgressContext(IAsyncContext asyncContext) => this.asyncContext = asyncContext;
-
-                #endregion
-
-                #region Methods
-
-                public void ThrowIfCancellationRequested() => asyncContext.ThrowIfCancellationRequested();
-
-                #endregion
-            }
-
-            #endregion
-
             #region Fields
 
             private readonly IAsyncContext asyncContext;
@@ -100,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
             internal LayersEnumerator(IAsyncContext asyncContext, IReadableBitmapData imageData, Color32 backColor, byte alphaThreshold, bool fullScan)
             {
                 this.asyncContext = asyncContext;
-                subContext = asyncContext.Progress != null ? new SuppressProgressContext(asyncContext) : asyncContext;
+                subContext = asyncContext.Progress != null ? new AsyncContextWrapper(asyncContext, asyncContext.MaxDegreeOfParallelism, false) : asyncContext;
                 this.imageData = imageData;
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
