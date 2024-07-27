@@ -22,7 +22,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
 #if !NET35
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.Imaging
         #region Sync
 
         #region DefaultContext
-        
+
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size.
         /// </summary>
@@ -58,7 +58,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData,TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <overloads>The overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> method can be grouped into the following categories:
@@ -98,7 +98,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, WorkingColorSpace, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
         /// Alternatively, use the <see cref="BeginClone(IReadableBitmapData, WorkingColorSpace, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, WorkingColorSpace, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace)
@@ -117,7 +117,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, Rectangle, AsyncConfig?)"/> or <see cref="CloneAsync(IReadableBitmapData, Rectangle, TaskConfig?)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, Color32, byte, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -185,7 +185,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, WorkingColorSpace, Color32, byte, ParallelConfig)"/> overload to force synchronous execution on a single thread. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -224,7 +224,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -267,7 +267,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, WorkingColorSpace, Color32, byte, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -303,7 +303,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, Palette, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -337,7 +337,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -373,7 +373,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
@@ -404,7 +404,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -433,7 +433,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -468,7 +468,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
@@ -512,7 +512,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData,TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for performing the operation asynchronously.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, ParallelConfig? parallelConfig)
@@ -537,7 +537,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginClone(IReadableBitmapData, WorkingColorSpace, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, WorkingColorSpace, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace, ParallelConfig? parallelConfig)
@@ -563,7 +563,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/>
         /// parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, Rectangle, AsyncConfig?)"/> or <see cref="CloneAsync(IReadableBitmapData, Rectangle, TaskConfig?)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
@@ -596,7 +596,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -641,7 +641,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -685,7 +685,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -733,7 +733,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -776,7 +776,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -817,7 +817,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth can be preserved if the target format can represent the colors of the source format without losing information.</para>
@@ -859,7 +859,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
@@ -901,7 +901,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
-        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
@@ -1605,6 +1605,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Sync
 
+        #region DefaultContext
+
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
@@ -1621,8 +1623,9 @@ namespace KGySoft.Drawing.Imaging
         /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginCopyTo">BeginCopyTo</see>
-        /// or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="CopyTo(IReadableBitmapData, IWritableBitmapData, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -1644,8 +1647,9 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginCopyTo">BeginCopyTo</see>
-        /// or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="CopyTo(IReadableBitmapData, IWritableBitmapData, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -1666,8 +1670,9 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginCopyTo">BeginCopyTo</see>
-        /// or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="CopyTo(IReadableBitmapData, IWritableBitmapData, Rectangle, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -1692,8 +1697,9 @@ namespace KGySoft.Drawing.Imaging
         /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginCopyTo">BeginCopyTo</see>
-        /// or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="CopyTo(IReadableBitmapData, IWritableBitmapData, Rectangle, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -1704,9 +1710,88 @@ namespace KGySoft.Drawing.Imaging
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => source.CopyTo(target, AsyncHelper.DefaultContext, sourceRectangle, targetLocation, quantizer, ditherer);
 
+        #endregion
+
+        #region ParallelConfig/IAsyncContext
+        // NOTE: The overloads with ParallelConfig have no default parameters to prevent auto switching to these instead of the original ones.
+        // Even though it would be compile-compatible, these overloads have bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
-        /// without scaling and blending, inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used. If not specified, then the copying operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. </param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        public static bool CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, ParallelConfig? parallelConfig)
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            => CopyTo(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer, parallelConfig);
+
+        /// <summary>
+        /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be copied into the <paramref name="target"/>.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used. If not specified, then the copying operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. </param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        public static bool CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(source, target);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCopy(ctx, source, target, sourceRectangle, targetLocation, quantizer, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
+        /// without scaling and blending, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1735,9 +1820,10 @@ namespace KGySoft.Drawing.Imaging
         public static bool CopyTo(this IReadableBitmapData source, IWritableBitmapData target, IAsyncContext? context, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             ValidateArguments(source, target);
-            DoCopy(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            return context?.IsCancellationRequested != true;
-        }
+            return DoCopy(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+        } 
+
+        #endregion
 
         #endregion
 
@@ -1784,7 +1870,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndCopyTo(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginCopyTo));
+        public static void EndCopyTo(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginCopyTo));
 
         #endregion
 
@@ -1821,6 +1909,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static Task CopyToAsync(this IReadableBitmapData source, IWritableBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target);
             return AsyncHelper.DoOperationAsync(ctx => DoCopy(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
@@ -1835,6 +1924,8 @@ namespace KGySoft.Drawing.Imaging
         #region Without resize
 
         #region Sync
+
+        #region DefaultContext
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -1853,8 +1944,10 @@ namespace KGySoft.Drawing.Imaging
         /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/> or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
@@ -1879,8 +1972,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
@@ -1904,8 +1999,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
@@ -1933,8 +2030,10 @@ namespace KGySoft.Drawing.Imaging
         /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Point, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
@@ -1947,9 +2046,94 @@ namespace KGySoft.Drawing.Imaging
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => source.DrawInto(target, AsyncHelper.DefaultContext, sourceRectangle, targetLocation, quantizer, ditherer);
 
+        #endregion
+
+        #region ParallelConfig/IAsyncContext
+        // NOTE: The overloads with ParallelConfig have no default parameters to prevent auto switching to these instead of the original ones.
+        // Even though it would be compile-compatible, these overloads have bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// without scaling, using blending inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used for the drawing. If not specified, then the drawing operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/> or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, ParallelConfig? parallelConfig)
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer, parallelConfig);
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used for the drawing. If not specified, then the drawing operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/> or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(source, target);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetLocation, quantizer, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
+        /// without scaling, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1978,9 +2162,10 @@ namespace KGySoft.Drawing.Imaging
         public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, IAsyncContext? context, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             ValidateArguments(source, target);
-            DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            return context?.IsCancellationRequested != true;
+            return DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
         }
+
+        #endregion
 
         #endregion
 
@@ -2028,7 +2213,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndDrawInto(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginDrawInto));
+        public static void EndDrawInto(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginDrawInto));
 
         #endregion
 
@@ -2066,12 +2253,9 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target);
-            Rectangle srcRect = sourceRectangle ?? new Rectangle(Point.Empty, source.Size);
-            Point dstLoc = targetLocation ?? Point.Empty;
-            return source.HasAlpha()
-                ? AsyncHelper.DoOperationAsync(ctx => DoDrawWithoutResize(ctx, source, target, srcRect, dstLoc, quantizer, ditherer), asyncConfig)
-                : AsyncHelper.DoOperationAsync(ctx => DoCopy(ctx, source, target, srcRect, dstLoc, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
 
 #endif
@@ -2082,6 +2266,8 @@ namespace KGySoft.Drawing.Imaging
         #region With resize
 
         #region Sync
+
+        #region DefaultContext
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -2100,8 +2286,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -2130,8 +2318,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -2156,8 +2346,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -2182,8 +2374,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -2210,8 +2404,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -2243,8 +2439,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
-        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -2260,9 +2458,106 @@ namespace KGySoft.Drawing.Imaging
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
             => source.DrawInto(target, AsyncHelper.DefaultContext, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
 
+        #endregion
+
+        #region ParallelConfig/IAsyncContext
+        // NOTE: The overloads with ParallelConfig have no default parameters to prevent auto switching to these instead of the original ones.
+        // Even though it would be compile-compatible, these overloads have bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending, inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used for the drawing. If not specified, then the drawing operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
+        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
+        /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
+        /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
+        /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
+        public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode, ParallelConfig? parallelConfig)
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, quantizer, ditherer, scalingMode, parallelConfig);
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used for the drawing. If not specified, then the drawing operation might automatically
+        /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
+        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
+        /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
+        /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
+        /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
+        /// <para><paramref name="target"/> must be an <see cref="IReadWriteBitmapData"/> because it must be readable if blending is necessary. For write-only <see cref="IWritableBitmapData"/> instances
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
+        /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
+        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
+        public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(source, target, scalingMode);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), parallelConfig);
+        }
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
+        /// with scaling and blending, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2294,9 +2589,10 @@ namespace KGySoft.Drawing.Imaging
         public static bool DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, IAsyncContext? context, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
         {
             ValidateArguments(source, target, scalingMode);
-            DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-            return context?.IsCancellationRequested != true;
+            return DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
         }
+
+        #endregion
 
         #endregion
 
@@ -2336,16 +2632,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginDrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, target, scalingMode);
-
-            // no scaling is necessary
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                return source.HasAlpha()
-                    ? AsyncHelper.BeginOperation(ctx => DoDrawWithoutResize(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig)
-                    : AsyncHelper.BeginOperation(ctx => DoCopy(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig);
-            }
-
-            return AsyncHelper.BeginOperation(ctx => DoDrawWithResize(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
         }
 
         #endregion
@@ -2384,17 +2671,9 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target, scalingMode);
-
-            // no scaling is necessary
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                return source.HasAlpha()
-                    ? AsyncHelper.DoOperationAsync(ctx => DoDrawWithoutResize(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig)
-                    : AsyncHelper.DoOperationAsync(ctx => DoCopy(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig);
-            }
-
-            return AsyncHelper.DoOperationAsync(ctx => DoDrawWithResize(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
         }
 
 #endif
@@ -3330,7 +3609,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static void DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target,
+        private static bool DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false)
         {
             var session = new CopySession(context);
@@ -3341,7 +3620,7 @@ namespace KGySoft.Drawing.Imaging
 
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
             if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
-                return;
+                return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
 
@@ -3350,7 +3629,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 // same area without quantizing: nothing to do
                 if (quantizer == null && session.SourceRectangle == session.TargetRectangle)
-                    return;
+                    return !context.IsCancellationRequested;
 
                 // overlap: clone source
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
@@ -3360,7 +3639,7 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                     {
                         session.Source?.Dispose();
-                        return;
+                        return false;
                     }
 
                     session.SourceRectangle.Location = Point.Empty;
@@ -3377,7 +3656,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(!skipTransparent, "Skipping transparent source pixels is not expected without quantizing. Handle it if really needed.");
                     session.PerformCopy();
-                    return;
+                    return !context.IsCancellationRequested;
                 }
 
                 // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
@@ -3391,7 +3670,7 @@ namespace KGySoft.Drawing.Imaging
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
                         if (context.IsCancellationRequested)
-                            return;
+                            return false;
                         if (quantizingSession == null)
                             throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
 
@@ -3399,7 +3678,7 @@ namespace KGySoft.Drawing.Imaging
                         if (ditherer == null)
                         {
                             session.PerformCopyWithQuantizer(quantizingSession, skipTransparent);
-                            return;
+                            return !context.IsCancellationRequested;
                         }
 
                         // quantization with dithering
@@ -3407,7 +3686,7 @@ namespace KGySoft.Drawing.Imaging
                         using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
                         {
                             if (context.IsCancellationRequested)
-                                return;
+                                return false;
                             if (ditheringSession == null)
                                 throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
                             session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent);
@@ -3427,6 +3706,8 @@ namespace KGySoft.Drawing.Imaging
                 if (!ReferenceEquals(session.Target, target))
                     session.Target.Dispose();
             }
+
+            return !context.IsCancellationRequested;
         }
 
         #endregion
@@ -3434,33 +3715,28 @@ namespace KGySoft.Drawing.Imaging
         #region Draw
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+        private static bool DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
-        {
-            if (source.HasAlpha())
-                DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            else
-                DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-        }
+            => source.HasAlpha()
+                ? DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer)
+                : DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+        private static bool DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
             {
-                if (source.HasAlpha())
-                    DoDrawWithoutResize(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                else
-                    DoCopy(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                return;
+                return source.HasAlpha()
+                    ? DoDrawWithoutResize(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer)
+                    : DoCopy(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
             }
 
-            DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+            return DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
         }
 
-        private static void DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+        private static bool DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Debug.Assert(source.HasAlpha(), "DoCopy could have been called");
@@ -3472,7 +3748,7 @@ namespace KGySoft.Drawing.Imaging
 
             (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
             if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
-                return;
+                return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
 
@@ -3490,7 +3766,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
-                    return;
+                    return false;
                 }
 
                 Debug.Assert(sessionTarget != null);
@@ -3507,7 +3783,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 // same area without quantizing: nothing to do
                 if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
-                    return;
+                    return !context.IsCancellationRequested;
 
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
@@ -3517,7 +3793,7 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
-                        return;
+                        return false;
                     }
 
                     actualSourceRectangle.Location = Point.Empty;
@@ -3532,14 +3808,16 @@ namespace KGySoft.Drawing.Imaging
                 if (!isTwoPass)
                 {
                     session.PerformDraw(quantizer, ditherer);
-                    return;
+                    return !context.IsCancellationRequested;
                 }
 
                 // first pass: performing blending into transient result
                 session.PerformDrawDirect();
 
                 // second pass: copying the blended transient result to the actual target
-                DoCopy(context, sessionTarget!, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
+                if (context.IsCancellationRequested)
+                    return false;
+                return DoCopy(context, sessionTarget!, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
             }
             finally
             {
@@ -3552,7 +3830,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth the refactoring")]
-        private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+        private static bool DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
@@ -3564,7 +3842,7 @@ namespace KGySoft.Drawing.Imaging
 
             (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetRectangle);
             if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
-                return;
+                return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
 
@@ -3588,7 +3866,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
-                    return;
+                    return false;
                 }
 
                 Debug.Assert(sessionTarget != null);
@@ -3605,7 +3883,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 // same area without quantizing: nothing to do
                 if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
-                    return;
+                    return !context.IsCancellationRequested;
 
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
@@ -3615,7 +3893,7 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
-                        return;
+                        return false;
                     }
 
                     actualSourceRectangle.Location = Point.Empty;
@@ -3632,7 +3910,7 @@ namespace KGySoft.Drawing.Imaging
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
-                        return;
+                        return !context.IsCancellationRequested;
                     }
 
                     // first pass: performing resizing into a transient result
@@ -3642,12 +3920,12 @@ namespace KGySoft.Drawing.Imaging
                 {
                     using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
                     if (context.IsCancellationRequested)
-                        return;
+                        return false;
 
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
-                        return;
+                        return !context.IsCancellationRequested;
                     }
 
                     // first pass: performing blending into transient result
@@ -3655,10 +3933,11 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 if (context.IsCancellationRequested)
-                    return;
+                    return false;
 
                 // second pass: copying the possibly blended transient result to the actual target with quantizing/dithering
                 DoCopy(context, sessionTarget!, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
+                return !context.IsCancellationRequested;
             }
             finally
             {
