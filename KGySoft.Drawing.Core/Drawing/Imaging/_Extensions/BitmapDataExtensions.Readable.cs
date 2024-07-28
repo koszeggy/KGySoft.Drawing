@@ -72,7 +72,7 @@ namespace KGySoft.Drawing.Imaging
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the format would allow more colors.</item>
         /// <item>If the result pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
-        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> parameter.</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item>
         /// <item>Some overloads have an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
         /// These methods are special ones and designed to be used from your custom asynchronous methods where cloning is just one step of potentially multiple operations.
         /// But you can also use these overloads to force synchronous execution on a single thread.
@@ -1633,6 +1633,25 @@ namespace KGySoft.Drawing.Imaging
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <overloads>The overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> method can be grouped into the following categories:
+        /// <list type="bullet">
+        /// <item>The overloads with a <see cref="Rectangle"/> parameter allow to copy only a portion of the source bitmap.</item>
+        /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
+        /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
+        /// overloads that have an <see cref="IDitherer"/> parameter.</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item>
+        /// <item>One overload has an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
+        /// That method is a special one and designed to be used from your custom asynchronous methods where copying a bitmap is just one step of potentially multiple operations.
+        /// But you can also use that overload to force synchronous execution on a single thread.
+        /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</item>
+        /// <item>All of these methods block the caller on the current thread. For asynchronous call
+        /// you can use the <see cref="CopyToAsync">CopyToAsync</see> method (on .NET Framework 4.0 and above),
+        /// or the old-fashioned <see cref="BeginCopyTo">BeginCopyTo</see> method that works on every platform target.</item>
+        /// </list>
+        /// <note>Note that these methods preserve the original size of the source bitmap, and copy even the alpha pixels without alpha blending.
+        /// To draw a bitmap data into another one with blending and potential resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.</note>
+        /// </overloads>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => CopyTo(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer);
@@ -1957,6 +1976,29 @@ namespace KGySoft.Drawing.Imaging
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <overloads>The overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> method can be grouped into the following categories:
+        /// <list type="bullet">
+        /// <item>The ones that have a <see cref="Point"/> parameter for target location preserve the original size of the source bitmap.</item>
+        /// <item>The overloads with a <see cref="Rectangle"/> and <see cref="Point"/> parameter allow to draw only a portion of the source bitmap, while they still preserve the original size.</item>
+        /// <item>There are overloads that allow resizing. These either have no <see cref="Point"/> parameter but one <see cref="Rectangle"/> argument to allow drawing the whole source bitmap into the specified target rectangle;
+        /// or, they have two <see cref="Rectangle"/> parameters to allow drawing a portion of the source bitmap into the specified target rectangle. All of these methods have also
+        /// a <see cref="ScalingMode"/> parameter that specifies the behavior of the potential shrinking or enlarging.</item>
+        /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
+        /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
+        /// overloads that have an <see cref="IDitherer"/> parameter.</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item> 
+        /// <item>A couple of overloads have an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
+        /// These methods are special ones and designed to be used from your custom asynchronous methods where drawing one bitmap into another one is just one step of potentially multiple operations.
+        /// But you can also use these overloads to force synchronous execution on a single thread.
+        /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</item>
+        /// <item>All of these methods block the caller on the current thread. For asynchronous call
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> overloads (on .NET Framework 4.0 and above),
+        /// or the old-fashioned <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginDrawInto">BeginDrawInto</see> methods that work on every platform target.</item>
+        /// </list>
+        /// <note>Note that these methods always perform an alpha blending (respecting the <see cref="IBitmapData.WorkingColorSpace"/> of the target bitmap) if the source contains alpha pixels.
+        /// To copy a bitmap data into another one without blending and resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.</note>
+        /// </overloads>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer);
