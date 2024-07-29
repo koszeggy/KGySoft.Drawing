@@ -99,15 +99,47 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClear">BeginClear</see>
-        /// or <see cref="ClearAsync">ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="Clear(IWritableBitmapData, Color32, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginClear">BeginClear</see> or <see cref="ClearAsync">ClearAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
             => bitmapData.Clear(AsyncHelper.DefaultContext, color, ditherer);
 
         /// <summary>
-        /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>
-        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
+        /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
+        /// If it has transparency, which is not supported by <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/>, then the result might be either
+        /// completely transparent (depends also on <see cref="IBitmapData.AlphaThreshold"/>), or the color will be blended with <see cref="IBitmapData.BackColor"/>.
+        /// </param>
+        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginClear">BeginClear</see> or <see cref="ClearAsync">ClearAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// </remarks>
+        public static bool Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overload but that would have been a breaking change.
+            // This overload has no default parameters to prevent auto switching the callers to this one instead of the original one.
+            // Even though it would be compile-compatible, it's still breaking. Also, this one has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoClear(ctx, bitmapData, color, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -131,8 +163,7 @@ namespace KGySoft.Drawing.Imaging
         public static bool Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
-            DoClear(context ?? AsyncHelper.DefaultContext, bitmapData, color, ditherer);
-            return context?.IsCancellationRequested != true;
+            return DoClear(context ?? AsyncHelper.DefaultContext, bitmapData, color, ditherer);
         }
 
         /// <summary>
@@ -167,7 +198,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ClearAsync">ClearAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndClear(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginClear));
+        public static void EndClear(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginClear));
 
 #if !NET35
         /// <summary>
@@ -191,6 +224,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData);
             return AsyncHelper.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
@@ -243,7 +277,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
         }
 
-        private static void DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer)
+        private static bool DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
             try
@@ -252,6 +286,7 @@ namespace KGySoft.Drawing.Imaging
                     ClearDirect(context, accessor, color);
                 else
                     ClearWithDithering(context, accessor, color, ditherer);
+                return !context.IsCancellationRequested;
             }
             finally
             {
