@@ -16,6 +16,7 @@
   + New CopyTo overloads with ParallelConfig parameter.
   + New DrawInto overloads with ParallelConfig parameter.
   + New Clear overload with ParallelConfig parameter.
+  + New Quantize overload with ParallelConfig parameter.
 + BitmapDataFactory class:
   + New CreateBitmapData overloads.
 + ColorF struct:
