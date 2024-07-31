@@ -18,6 +18,7 @@
   + New Clear overload with ParallelConfig parameter.
   + New Quantize overload with ParallelConfig parameter.
   + New Dither overload with ParallelConfig parameter.
+  + New TransformColors overload with ParallelConfig parameter.
 + BitmapDataFactory class:
   + New CreateBitmapData overloads.
 + ColorF struct:
