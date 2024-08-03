@@ -6,10 +6,10 @@
 ===============================================================================
 
 ~~~~~~~~~
-* v8.1.0:
++ v8.2.0:
 ~~~~~~~~~
 
-* KGySoft.Drawing.Imaging namespace
++ KGySoft.Drawing.Imaging namespace
 ===================================
 + BitmapDataExtensions class:
   + New Clone overloads with ParallelConfig parameter.
@@ -19,6 +19,14 @@
   + New Quantize overload with ParallelConfig parameter.
   + New Dither overload with ParallelConfig parameter.
   + New TransformColors overload with ParallelConfig parameter.
+
+
+~~~~~~~~~
+* v8.1.0:
+~~~~~~~~~
+
+* KGySoft.Drawing.Imaging namespace
+===================================
 + BitmapDataFactory class:
   + New CreateBitmapData overloads.
 + ColorF struct:
