@@ -72,9 +72,10 @@ namespace KGySoft.Drawing.Imaging
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the format would allow more colors.</item>
         /// <item>If the result pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
-        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item>
         /// <item>Some overloads have an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
-        /// These methods are special ones and designed to be used from your custom asynchronous methods where cloning is just one step of potentially multiple operations.
+        /// These methods are special ones and are designed to be used from your custom asynchronous methods where cloning is just one step of potentially multiple operations.
         /// But you can also use these overloads to force synchronous execution on a single thread.
         /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</item>
@@ -1639,9 +1640,10 @@ namespace KGySoft.Drawing.Imaging
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
         /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
-        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item>
         /// <item>One overload has an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
-        /// That method is a special one and designed to be used from your custom asynchronous methods where copying a bitmap is just one step of potentially multiple operations.
+        /// That method is a special one and is designed to be used from your custom asynchronous methods where copying a bitmap is just one step of potentially multiple operations.
         /// But you can also use that overload to force synchronous execution on a single thread.
         /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</item>
@@ -1990,9 +1992,10 @@ namespace KGySoft.Drawing.Imaging
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
         /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
-        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is a <see cref="ParallelConfig"/> instance.</item> 
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item> 
         /// <item>A couple of overloads have an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
-        /// These methods are special ones and designed to be used from your custom asynchronous methods where drawing one bitmap into another one is just one step of potentially multiple operations.
+        /// These methods are special ones and are designed to be used from your custom asynchronous methods where drawing one bitmap into another one is just one step of potentially multiple operations.
         /// But you can also use these overloads to force synchronous execution on a single thread.
         /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</item>
