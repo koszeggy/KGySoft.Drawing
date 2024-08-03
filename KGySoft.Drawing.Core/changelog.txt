@@ -6,6 +6,22 @@
 ===============================================================================
 
 ~~~~~~~~~
++ v8.2.0:
+~~~~~~~~~
+
++ KGySoft.Drawing.Imaging namespace
+===================================
++ BitmapDataExtensions class:
+  + New Clone overloads with ParallelConfig parameter.
+  + New CopyTo overloads with ParallelConfig parameter.
+  + New DrawInto overloads with ParallelConfig parameter.
+  + New Clear overload with ParallelConfig parameter.
+  + New Quantize overload with ParallelConfig parameter.
+  + New Dither overload with ParallelConfig parameter.
+  + New TransformColors overload with ParallelConfig parameter.
+
+
+~~~~~~~~~
 * v8.1.0:
 ~~~~~~~~~
 

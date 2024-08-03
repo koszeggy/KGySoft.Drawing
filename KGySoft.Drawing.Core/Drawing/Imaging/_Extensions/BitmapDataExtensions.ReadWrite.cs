@@ -110,18 +110,17 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Quantizing/Dithering
+        #region Quantizing
 
         /// <summary>
         /// Quantizes an <see cref="IReadWriteBitmapData"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
         /// </summary>
         /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginQuantize">BeginQuantize</see>
-        /// or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="Quantize(IReadWriteBitmapData, IQuantizer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginQuantize">BeginQuantize</see> or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
         /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -134,11 +133,56 @@ namespace KGySoft.Drawing.Imaging
         /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer) => bitmapData.Quantize(AsyncHelper.DefaultContext, quantizer);
 
         /// <summary>
-        /// Quantizes an <see cref="IReadWriteBitmapData"/> using the specified <paramref name="quantizer"/> (reduces the number of colors)
-        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginQuantize">BeginQuantize</see> or <see cref="QuantizeAsync">QuantizeAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
+        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)">Clone</see> extension method instead.</para>
+        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
+        /// the result may not be correct.</para>
+        /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
+        /// that calling this method does not change the <paramref name="bitmapData"/> at all.</para>
+        /// <note type="tip"><list type="bullet">
+        /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
+        /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
+        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
+        /// </list></note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
+        public static bool Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, ParallelConfig? parallelConfig)
+        {
+            // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overload but that would have been a breaking change.
+            // Also, this overload has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoQuantize(ctx, bitmapData, quantizer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> with the specified <paramref name="quantizer"/> (reduces the number of colors),
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -148,7 +192,11 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
-        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
@@ -164,74 +212,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
-            return context?.IsCancellationRequested != true;
-        }
-
-        /// <summary>
-        /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering (reduces the number of colors while trying to preserve details)
-        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// </summary>
-        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
-        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
-        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
-        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDither">BeginDither</see>
-        /// or <see cref="DitherAsync">DitherAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
-        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
-        /// the result may not be correct.</para>
-        /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
-        /// that calling this method does not change <paramref name="bitmapData"/> at all.</para>
-        /// <note type="tip"><list type="bullet">
-        /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
-        /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
-        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
-        /// <item>For some built-in dithering solutions see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/>
-        /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
-        /// </list></note>
-        /// </remarks>
-        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncHelper.DefaultContext, quantizer, ditherer);
-
-        /// <summary>
-        /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering (reduces the number of colors while trying to preserve details)
-        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>
-        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
-        /// </summary>
-        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
-        /// that contains information for asynchronous processing about the current operation.</param>
-        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
-        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
-        /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
-        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
-        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
-        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
-        /// class for details about how to create a context for possibly async top level methods.</note>
-        /// <note>See the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/> overload for more details about the other parameters.</note>
-        /// </remarks>
-        public static bool Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
-        {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-            if (ditherer == null)
-                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
-
-            DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
-            return context?.IsCancellationRequested != true;
+            return DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
         }
 
         /// <summary>
@@ -268,7 +249,162 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndQuantize(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginQuantize));
+        public static void EndQuantize(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginQuantize));
+
+#if !NET35
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> asynchronously, using the specified <paramref name="quantizer"/> (reduces the number of colors).
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize(IReadWriteBitmapData, IQuantizer)">Quantize</see> method for more details.</note>
+        /// </remarks>
+        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
+        {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncHelper.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region Dithering
+
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering (reduces the number of colors while trying to preserve details)
+        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="BeginDither">BeginDither</see> or <see cref="DitherAsync">DitherAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
+        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
+        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
+        /// the result may not be correct.</para>
+        /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
+        /// that calling this method does not change <paramref name="bitmapData"/> at all.</para>
+        /// <note type="tip"><list type="bullet">
+        /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
+        /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
+        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
+        /// <item>For some built-in dithering solutions see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/>
+        /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
+        /// </list></note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
+        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
+        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncHelper.DefaultContext, quantizer, ditherer);
+
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering (reduces the number of colors while trying to preserve details)
+        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginDither">BeginDither</see> or <see cref="DitherAsync">DitherAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
+        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, ParallelConfig)">Clone</see> extension method instead.</para>
+        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
+        /// the result may not be correct.</para>
+        /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
+        /// that calling this method does not change <paramref name="bitmapData"/> at all.</para>
+        /// <note type="tip"><list type="bullet">
+        /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
+        /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
+        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
+        /// <item>For some built-in dithering solutions see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/>
+        /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
+        /// </list></note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
+        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
+        public static bool Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, ParallelConfig? parallelConfig)
+        {
+            // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overload but that would have been a breaking change.
+            // Also, this overload has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+            if (ditherer == null)
+                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> with the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
+        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        public static bool Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+            if (ditherer == null)
+                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
+
+            return DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
+        }
 
         /// <summary>
         /// Begins to quantize an <see cref="IReadWriteBitmapData"/> with dithering asynchronously (reduces the number of colors while trying to preserve details)
@@ -307,36 +443,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndDither(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginDither));
+        public static void EndDither(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginDither));
 
 #if !NET35
-        /// <summary>
-        /// Quantizes an <see cref="IReadWriteBitmapData"/> asynchronously, using the specified <paramref name="quantizer"/> (reduces the number of colors).
-        /// </summary>
-        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
-        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
-        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize(IReadWriteBitmapData, IQuantizer)">Quantize</see> method for more details.</note>
-        /// </remarks>
-        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
-        {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
-            return AsyncHelper.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
-        }
-
         /// <summary>
         /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering asynchronously (reduces the number of colors while trying to preserve details)
         /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
@@ -359,6 +470,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (quantizer == null)
@@ -377,10 +489,10 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
-        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -389,6 +501,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmapData"/>, or you want to transform the actual
         /// pixels of an indexed <paramref name="bitmapData"/> instead of modifying the palette, then use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32},IDitherer)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             ValidateArguments(bitmapData, transformFunction);
@@ -402,10 +515,10 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
         /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
-        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -417,12 +530,53 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
             => bitmapData.TransformColors(AsyncHelper.DefaultContext, transformFunction, ditherer);
 
         /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
+        /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
+        /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
+        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overloads but that would have been a breaking change.
+            // This overload has no default parameters to prevent auto switching the callers to this one instead of the original one.
+            // Even though it would be compile-compatible, it's still breaking. Also, this one has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), parallelConfig);
+        }
+
+        /// <summary>
         /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate
-        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -435,7 +589,11 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
-        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
@@ -445,8 +603,7 @@ namespace KGySoft.Drawing.Imaging
         public static bool TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             ValidateArguments(bitmapData, transformFunction);
-            DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction, ditherer);
-            return context?.IsCancellationRequested != true;
+            return DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction, ditherer);
         }
 
         /// <summary>
@@ -481,7 +638,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginTransformColors));
+        public static void EndTransformColors(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
         /// <summary>
@@ -505,6 +664,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, transformFunction);
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
@@ -1557,46 +1717,44 @@ namespace KGySoft.Drawing.Imaging
         #region Quantizing/Dithering
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
+        private static bool DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
             try
             {
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                using (IQuantizingSession session = quantizer.Initialize(bitmapData, context))
+                using IQuantizingSession session = quantizer.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                    return false;
+                if (session == null)
+                    throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold >> quantizingScale)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    if (session == null)
-                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                    // Sequential processing
-                    if (bitmapData.Width < parallelThreshold >> quantizingScale)
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    int width = bitmapData.Width;
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
+                    do
                     {
-                        context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.GetRowCached(0);
-                        do
-                        {
-                            if (context.IsCancellationRequested)
-                                return;
-                            for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                            context.Progress?.Increment();
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // Parallel processing
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                    {
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                        if (context.IsCancellationRequested)
+                            return false;
                         for (int x = 0; x < width; x++)
                             row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                    });
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
+
+                    return true;
                 }
+
+                // Parallel processing
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                {
+                    int width = bitmapData.Width;
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                    for (int x = 0; x < width; x++)
+                        row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                });
             }
             finally
             {
@@ -1606,57 +1764,54 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
+        private static bool DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
 
             try
             {
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
+                using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                    return false;
+                if (quantizingSession == null)
+                    throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+               
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                using IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+                if (context.IsCancellationRequested)
+                    return false;
+                if (ditheringSession == null)
+                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                // Sequential processing
+                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    if (quantizingSession == null)
-                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-                    context.Progress?.New(DrawingOperation.InitializingDitherer);
-                    using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    int width = bitmapData.Width;
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
+                    int y = 0;
+                    do
                     {
                         if (context.IsCancellationRequested)
-                            return;
-                        if (ditheringSession == null)
-                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                            return false;
+                        for (int x = 0; x < width; x++)
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
+                        y += 1;
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
 
-                        // Sequential processing
-                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
-                        {
-                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
-                            int y = 0;
-                            do
-                            {
-                                if (context.IsCancellationRequested)
-                                    return;
-                                for (int x = 0; x < width; x++)
-                                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-                                y += 1;
-                                context.Progress?.Increment();
-                            } while (row.MoveNextRow());
-
-                            return;
-                        }
-
-                        // Parallel processing
-                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                        {
-                            int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
-                            for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-                        });
-                    }
+                    return true;
                 }
+
+                // Parallel processing
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                {
+                    int width = bitmapData.Width;
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                    for (int x = 0; x < width; x++)
+                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
+                });
             }
             finally
             {
@@ -1670,7 +1825,7 @@ namespace KGySoft.Drawing.Imaging
         #region Color Transformations
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
+        private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             // Indexed format: processing the palette entries when possible
             if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
@@ -1684,14 +1839,14 @@ namespace KGySoft.Drawing.Imaging
                 if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, null)))
                 {
                     context.Progress?.Complete();
-                    return;
+                    return !context.IsCancellationRequested;
                 }
 
                 Debug.Fail("Setting the palette of the same size should work if CanSetPalette is true");
             }
 
             if (bitmapData.Height < 1)
-                return;
+                return !context.IsCancellationRequested;
 
             // Non-indexed format or palette cannot be set: processing the pixels
             var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -1705,17 +1860,17 @@ namespace KGySoft.Drawing.Imaging
                     do
                     {
                         if (context.IsCancellationRequested)
-                            return;
+                            return false;
                         for (int x = 0; x < bitmapData.Width; x++)
                             row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                         context.Progress?.Increment();
                     } while (row.MoveNextRow());
 
-                    return;
+                    return true;
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
@@ -1730,13 +1885,10 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
+        private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             if (ditherer == null || !bitmapData.PixelFormat.CanBeDithered)
-            {
-                DoTransformColors(context, bitmapData, transformFunction);
-                return;
-            }
+                return DoTransformColors(context, bitmapData, transformFunction);
 
             // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
             if (ditherer.InitializeReliesOnContent)
@@ -1745,66 +1897,61 @@ namespace KGySoft.Drawing.Imaging
                 using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
                     KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
-                    return;
+                    return false;
 
                 Debug.Assert(tempClone != null);
-                DoTransformColors(context, tempClone!, transformFunction);
-                if (context.IsCancellationRequested)
-                    return;
-
-                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
-                return;
+                return DoTransformColors(context, tempClone!, transformFunction)
+                    && DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
             }
 
             if (bitmapData.Height < 1)
-                return;
+                return !context.IsCancellationRequested;
 
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
             try
             {
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
+                
                 context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
+                using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                    return false;
+
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                using IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+                if (context.IsCancellationRequested)
+                    return false;
+                
+                if (ditheringSession == null)
+                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                // sequential processing
+                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    context.Progress?.New(DrawingOperation.InitializingDitherer);
-                    using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
+                    int y = 0;
+                    do
                     {
                         if (context.IsCancellationRequested)
-                            return;
-                        if (ditheringSession == null)
-                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                            return false;
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+                        y += 1;
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
 
-                        // sequential processing
-                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-                        {
-                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
-                            int y = 0;
-                            do
-                            {
-                                if (context.IsCancellationRequested)
-                                    return;
-                                for (int x = 0; x < bitmapData.Width; x++)
-                                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                                y += 1;
-                                context.Progress?.Increment();
-                            } while (row.MoveNextRow());
-
-                            return;
-                        }
-
-                        // parallel processing
-                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                        {
-                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
-                            for (int x = 0; x < bitmapData.Width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                        });
-                    }
+                    return true;
                 }
+
+                // parallel processing
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                {
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+                });
             }
             finally
             {
