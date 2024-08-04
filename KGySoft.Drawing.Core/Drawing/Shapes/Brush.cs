@@ -74,10 +74,15 @@ namespace KGySoft.Drawing.Shapes
 
         #region RegionScanner class
 
-        private abstract class RegionScanner
+        private abstract class RegionScanner : IDisposable
         {
             #region Fields
 
+            private ArraySection<EdgeEntry> edgesBuffer;
+            private ArraySection<int> intBuffer;
+
+            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
+                Justification = "Preventing creating defensive copy for older platforms where the properties are not readonly.")]
             private Rectangle bounds;
 
             #endregion
@@ -87,19 +92,17 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Properties
 
             internal abstract bool IsSingleThreaded { get; }
+            protected ArraySection<int> SortedIndexYStart { get; }
+            protected ArraySection<int> SortedIndexYEnd { get; }
 
             #endregion
 
             #region Protected Properties
 
-            protected int Top => bounds.Top;
             protected int Bottom => bounds.Bottom;
             protected int Left => bounds.Left;
             protected int Width => bounds.Width;
-
-            // TODO: remove
-            //protected RawPath Path { get; }
-            //protected DrawingOptions DrawingOptions { get; }
+            protected ArraySection<EdgeEntry> Edges { get; }
 
             #endregion
 
@@ -107,20 +110,59 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+            protected RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
             {
                 this.bounds = bounds;
-                // TODO: remove
-                //Path = path;
-                //DrawingOptions = drawingOptions;
+                edgesBuffer = new ArraySection<EdgeEntry>(path.TotalVertices, false);
+
+                Edges = new EdgeTable(edgesBuffer.UnderlyingArray!, path, roundingUnit).Edges;
+                int edgeCount = Edges.Length;
+
+                intBuffer = new ArraySection<int>(edgeCount << 1, false);
+
+                var floatBuffer = new ArraySection<float>(edgeCount << 1, false);
+                var sortedIndexYStart = intBuffer.Slice(0, edgeCount);
+                var sortedIndexYEnd = intBuffer.Slice(edgeCount);
+                var sortedIndexYStartKeys = floatBuffer.Slice(0, edgeCount);
+                var sortedIndexYEndKeys = floatBuffer.Slice(edgeCount);
+                for (int i = 0; i < edgeCount; i++)
+                {
+                    ref EdgeEntry edge = ref Edges.GetElementReference(i);
+                    sortedIndexYStartKeys[i] = edge.YStart;
+                    sortedIndexYEndKeys[i] = edge.YEnd;
+                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
+                }
+
+                Array.Sort(sortedIndexYStartKeys.UnderlyingArray!, sortedIndexYStart.UnderlyingArray, 0, edgeCount);
+                Array.Sort(sortedIndexYEndKeys.UnderlyingArray!, sortedIndexYEnd.UnderlyingArray, edgeCount, edgeCount);
+                floatBuffer.Release();
+
+                SortedIndexYStart = sortedIndexYStart;
+                SortedIndexYEnd = sortedIndexYEnd;
             }
 
             #endregion
 
             #region Methods
 
+            #region Public Methods
+
+            public virtual void Dispose()
+            {
+                // Not the usual dispose pattern to make it a bit more performant,
+                // and because we know that we don't need protection against multiple disposals, etc.
+                edgesBuffer.Release();
+                intBuffer.Release();
+            }
+
+            #endregion
+
+            #region Internal Methods
+
             internal abstract void ProcessScanline(int y, FillPathSession session);
             internal abstract void ProcessNextScanline(FillPathSession session);
+
+            #endregion
 
             #endregion
         }
@@ -129,14 +171,14 @@ namespace KGySoft.Drawing.Shapes
 
         #region SolidRegionScanner class
 
-        private class SolidRegionScanner : RegionScanner
+        private sealed class SolidRegionScanner : RegionScanner
         {
             #region Nested Structs
 
             /// <summary>
             /// Contains thread-specific data for region scanning
             /// </summary>
-            private struct RegionScannerContext
+            private struct SolidScannerContext : IDisposable
             {
                 #region Fields
 
@@ -173,25 +215,25 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Constructors
 
-                internal RegionScannerContext(SolidRegionScanner scanner, ActiveEdgeTable activeEdges)
+                internal SolidScannerContext(SolidRegionScanner scanner, ActiveEdgeTable activeEdges)
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
                     scanlinePixelWidth = scanner.Width;
-                    ScanlineBuffer = new byte[KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth)]; // TODO: allocate
+                    ScanlineBuffer = new ArraySection<byte>(KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth));
 
-                    if (scanner.edges.Length == 0)
+                    if (scanner.Edges.Length == 0)
                         return;
 
-                    currentVisitedY = (int)scanner.edges[scanner.sortedIndexYStart[0]].YStart;
+                    currentVisitedY = (int)scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
                 }
 
-                internal RegionScannerContext(in RegionScannerContext other, int top)
+                internal SolidScannerContext(in SolidScannerContext other, int top)
                 {
                     Debug.Assert(top > other.CurrentY);
                     this = other;
                     activeEdges = other.activeEdges.Clone();
-                    ScanlineBuffer = new byte[other.ScanlineBuffer.Length]; // TODO: allocate
+                    ScanlineBuffer = new ArraySection<byte>(other.ScanlineBuffer.Length);
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -200,14 +242,28 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Methods
 
+                #region Public Methods
+
+                public void Dispose()
+                {
+                    // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
+                    if (activeEdges == null) // when this is a default instance
+                        return;
+
+                    ScanlineBuffer.Release();
+                    activeEdges.Dispose();
+                }
+
+                #endregion
+
                 #region Internal Methods
 
                 internal void SkipEdgesAbove(int rowIndex)
                 {
                     CurrentY = rowIndex - 1;
-                    var edges = scanner.edges;
-                    var sortedIndexYStart = scanner.sortedIndexYStart;
-                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    var edges = scanner.Edges;
+                    var sortedIndexYStart = scanner.SortedIndexYStart;
+                    var sortedIndexYEnd = scanner.SortedIndexYEnd;
 
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
@@ -257,7 +313,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentRow()
                 {
-                    ArraySection<float> points = activeEdges.ScanLine(currentVisitedY, scanner.edges);
+                    ArraySection<float> points = activeEdges.ScanLine(currentVisitedY, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
@@ -310,9 +366,9 @@ namespace KGySoft.Drawing.Shapes
 
                 private void VisitEdges()
                 {
-                    var edges = scanner.edges;
-                    var sortedIndexYStart = scanner.sortedIndexYStart;
-                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    var edges = scanner.Edges;
+                    var sortedIndexYStart = scanner.SortedIndexYStart;
+                    var sortedIndexYEnd = scanner.SortedIndexYEnd;
                     while (yStartIndex < sortedIndexYStart.Length)
                     {
                         int i = sortedIndexYStart[yStartIndex];
@@ -350,13 +406,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Fields
 
-            private readonly int[] sortedIndexYStart;
-            private readonly int[] sortedIndexYEnd;
-            private readonly StrongBox<(int ThreadId, RegionScannerContext Context)>?[]? threadContextCache;
+            private readonly StrongBox<(int ThreadId, SolidScannerContext Context)>?[]? threadContextCache;
             private readonly int hashMask;
 
-            private RegionScannerContext mainContext;
-            private ArraySection<EdgeEntry> edges;
+            private SolidScannerContext mainContext;
 
             #endregion
 
@@ -369,41 +422,39 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(path, bounds, drawingOptions)
+                : base(path, bounds, drawingOptions, roundingUnit)
             {
-                edges = new EdgeTable(path, roundingUnit).Edges;
-                int edgeCount = edges.Length;
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
-                // TODO perf: stackalloc, Span.Sort
-                sortedIndexYStart = new int[edgeCount];
-                sortedIndexYEnd = new int[edgeCount];
-                var sortedIndexYStartKeys = new float[edgeCount];
-                var sortedIndexYEndKeys = new float[edgeCount];
-                for (int i = 0; i < edgeCount; i++)
-                {
-                    ref EdgeEntry edge = ref edges.GetElementReference(i);
-                    sortedIndexYStartKeys[i] = edge.YStart;
-                    sortedIndexYEndKeys[i] = edge.YEnd;
-                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
-                }
-
-                Array.Sort(sortedIndexYStartKeys, sortedIndexYStart);
-                Array.Sort(sortedIndexYEndKeys, sortedIndexYEnd);
-                mainContext = new RegionScannerContext(this, activeEdges);
+                mainContext = new SolidScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
 
                 if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
                     return;
 
-                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
+                threadContextCache = new StrongBox<(int ThreadId, SolidScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
                 hashMask = threadContextCache.Length - 1;
             }
 
             #endregion
 
             #region Methods
-            
+
+            #region Public Methods
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                mainContext.Dispose();
+                if (threadContextCache == null)
+                    return;
+
+                for (int i = 0; i < threadContextCache.Length; i++)
+                    threadContextCache[i]?.Value.Context.Dispose();
+            }
+
+            #endregion
+
             #region Internal Methods
 
             internal override void ProcessNextScanline(FillPathSession session)
@@ -422,7 +473,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 Debug.Assert(!IsSingleThreaded);
 
-                ref RegionScannerContext context = ref GetThreadContext(y);
+                ref SolidScannerContext context = ref GetThreadContext(y);
                 context.MoveNextRow();
                 context.ScanCurrentRow();
 
@@ -435,19 +486,19 @@ namespace KGySoft.Drawing.Shapes
             #region Private Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private ref RegionScannerContext GetThreadContext(int y)
+            private ref SolidScannerContext GetThreadContext(int y)
             {
                 // Note that cache item access is not volatile, because it's even better if a thread sees its own last cached value.
                 int threadId = EnvironmentHelper.CurrentThreadId;
                 int hash = threadId & hashMask;
-                StrongBox<(int ThreadId, RegionScannerContext Context)>? cacheEntry = threadContextCache![hash];
+                StrongBox<(int ThreadId, SolidScannerContext Context)>? cacheEntry = threadContextCache![hash];
 
                 if (cacheEntry != null)
                 {
                     ref var value = ref cacheEntry.Value;
                     if (value.ThreadId == threadId)
                     {
-                        ref RegionScannerContext context = ref value.Context;
+                        ref SolidScannerContext context = ref value.Context;
                         if (context.CurrentY < y)
                         {
                             context.SkipEdgesAbove(y);
@@ -455,10 +506,10 @@ namespace KGySoft.Drawing.Shapes
                         }
                     }
 
-                    //value.Context.Dispose(); // TODO: release dropped entry's active edge table buffer and scanline buffer
+                    value.Context.Dispose();
                 }
 
-                var result = new StrongBox<(int ThreadId, RegionScannerContext Context)>((threadId, new RegionScannerContext(mainContext, y)));
+                var result = new StrongBox<(int ThreadId, SolidScannerContext Context)>((threadId, new SolidScannerContext(mainContext, y)));
                 threadContextCache[hash] = result;
                 return ref result.Value.Context;
             }
@@ -472,14 +523,14 @@ namespace KGySoft.Drawing.Shapes
 
         #region AntiAliasingRegionScanner class
 
-        private class AntiAliasingRegionScanner : RegionScanner
+        private sealed class AntiAliasingRegionScanner : RegionScanner
         {
             #region Nested Structs
 
             /// <summary>
             /// Contains thread-specific data for region scanning
             /// </summary>
-            private struct RegionScannerContext
+            private struct AntiAliasingScannerContext : IDisposable
             {
                 #region Fields
 
@@ -516,24 +567,24 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Constructors
 
-                internal RegionScannerContext(AntiAliasingRegionScanner scanner, ActiveEdgeTable activeEdges)
+                internal AntiAliasingScannerContext(AntiAliasingRegionScanner scanner, ActiveEdgeTable activeEdges)
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
-                    ScanlineBuffer = new float[scanner.Width]; // TODO: allocate
+                    ScanlineBuffer = new ArraySection<float>(scanner.Width);
 
-                    if (scanner.edges.Length == 0)
+                    if (scanner.Edges.Length == 0)
                         return;
 
-                    currentSubpixelY = scanner.edges[scanner.sortedIndexYStart[0]].YStart;
+                    currentSubpixelY = scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
                 }
 
-                internal RegionScannerContext(in RegionScannerContext other, int top)
+                internal AntiAliasingScannerContext(in AntiAliasingScannerContext other, int top)
                 {
                     Debug.Assert(top > other.CurrentY);
                     this = other;
                     activeEdges = other.activeEdges.Clone();
-                    ScanlineBuffer = new float[other.ScanlineBuffer.Length]; // TODO: allocate
+                    ScanlineBuffer = new ArraySection<float>(other.ScanlineBuffer.Length);
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -542,15 +593,29 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Methods
 
+                #region Public Methods
+
+                public void Dispose()
+                {
+                    // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
+                    if (activeEdges == null) // when this is a default instance
+                        return;
+
+                    ScanlineBuffer.Release();
+                    activeEdges.Dispose();
+                }
+
+                #endregion
+
                 #region Internal Methods
 
                 internal void SkipEdgesAbove(int rowIndex)
                 {
                     CurrentY = rowIndex - 1;
                     float top = rowIndex;
-                    var edges = scanner.edges;
-                    var sortedIndexYStart = scanner.sortedIndexYStart;
-                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    var edges = scanner.Edges;
+                    var sortedIndexYStart = scanner.SortedIndexYStart;
+                    var sortedIndexYEnd = scanner.SortedIndexYEnd;
 
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
@@ -607,7 +672,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentSubpixelRow()
                 {
-                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, scanner.edges);
+                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
@@ -658,9 +723,9 @@ namespace KGySoft.Drawing.Shapes
 
                 private void VisitEdges()
                 {
-                    var edges = scanner.edges;
-                    var sortedIndexYStart = scanner.sortedIndexYStart;
-                    var sortedIndexYEnd = scanner.sortedIndexYEnd;
+                    var edges = scanner.Edges;
+                    var sortedIndexYStart = scanner.SortedIndexYStart;
+                    var sortedIndexYEnd = scanner.SortedIndexYEnd;
                     while (yStartIndex < sortedIndexYStart.Length)
                     {
                         int i = sortedIndexYStart[yStartIndex];
@@ -700,13 +765,10 @@ namespace KGySoft.Drawing.Shapes
 
             private readonly float subpixelSize;
             private readonly float subpixelArea;
-            private readonly int[] sortedIndexYStart;
-            private readonly int[] sortedIndexYEnd;
-            private readonly StrongBox<(int ThreadId, RegionScannerContext Context)>?[]? threadContextCache;
+            private readonly StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>?[]? threadContextCache;
             private readonly int hashMask;
 
-            private RegionScannerContext mainContext;
-            private ArraySection<EdgeEntry> edges;
+            private AntiAliasingScannerContext mainContext;
 
             #endregion
 
@@ -719,43 +781,41 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             public AntiAliasingRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(path, bounds, drawingOptions)
+                : base(path, bounds, drawingOptions, 1f / subpixelCount)
             {
                 subpixelSize = 1f / subpixelCount;
                 subpixelArea = 1f / (subpixelCount * subpixelCount);
 
-                edges = new EdgeTable(path, subpixelSize).Edges;
-                int edgeCount = edges.Length;
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, edgeCount, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
-                // TODO perf: stackalloc, Span.Sort
-                sortedIndexYStart = new int[edgeCount];
-                sortedIndexYEnd = new int[edgeCount];
-                var sortedIndexYStartKeys = new float[edgeCount];
-                var sortedIndexYEndKeys = new float[edgeCount];
-                for (int i = 0; i < edgeCount; i++)
-                {
-                    ref EdgeEntry edge = ref edges.GetElementReference(i);
-                    sortedIndexYStartKeys[i] = edge.YStart;
-                    sortedIndexYEndKeys[i] = edge.YEnd;
-                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
-                }
-
-                Array.Sort(sortedIndexYStartKeys, sortedIndexYStart);
-                Array.Sort(sortedIndexYEndKeys, sortedIndexYEnd);
-                mainContext = new RegionScannerContext(this, activeEdges);
+                mainContext = new AntiAliasingScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
 
                 if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
                     return;
 
-                threadContextCache = new StrongBox<(int ThreadId, RegionScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
+                threadContextCache = new StrongBox<(int ThreadId, AntiAliasingScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
                 hashMask = threadContextCache.Length - 1;
             }
 
             #endregion
 
             #region Methods
+
+            #region Public Methods
+
+            public override void Dispose()
+            {
+                base.Dispose();
+                mainContext.Dispose();
+                if (threadContextCache == null)
+                    return;
+
+                for (int i = 0; i < threadContextCache.Length; i++)
+                    threadContextCache[i]?.Value.Context.Dispose();
+            }
+
+            #endregion
 
             #region Internal Methods
 
@@ -776,7 +836,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 Debug.Assert(!IsSingleThreaded);
 
-                ref RegionScannerContext context = ref GetThreadContext(y);
+                ref AntiAliasingScannerContext context = ref GetThreadContext(y);
                 context.MoveNextRow();
 
                 while (context.MoveNextSubpixelRow())
@@ -791,19 +851,19 @@ namespace KGySoft.Drawing.Shapes
             #region Private Methods
             
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private ref RegionScannerContext GetThreadContext(int y)
+            private ref AntiAliasingScannerContext GetThreadContext(int y)
             {
                 // Note that cache item access is not volatile, because it's even better if a thread sees its own last cached value.
                 int threadId = EnvironmentHelper.CurrentThreadId;
                 int hash = threadId & hashMask;
-                StrongBox<(int ThreadId, RegionScannerContext Context)>? cacheEntry = threadContextCache![hash];
+                StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>? cacheEntry = threadContextCache![hash];
 
                 if (cacheEntry != null)
                 {
                     ref var value = ref cacheEntry.Value;
                     if (value.ThreadId == threadId)
                     {
-                        ref RegionScannerContext context = ref value.Context;
+                        ref AntiAliasingScannerContext context = ref value.Context;
                         if (context.CurrentY < y)
                         {
                             context.SkipEdgesAbove(y);
@@ -811,10 +871,10 @@ namespace KGySoft.Drawing.Shapes
                         }
                     }
 
-                    //value.Context.Dispose(); // TODO: release dropped entry's active edge table buffer and scanline buffer
+                    value.Context.Dispose();
                 }
 
-                var result = new StrongBox<(int ThreadId, RegionScannerContext Context)>((threadId, new RegionScannerContext(mainContext, y)));
+                var result = new StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>((threadId, new AntiAliasingScannerContext(mainContext, y)));
                 threadContextCache[hash] = result;
                 return ref result.Value.Context;
             }
@@ -828,7 +888,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region ActiveEdgeTable class
 
-        private abstract class ActiveEdgeTable
+        private abstract class ActiveEdgeTable : IDisposable
         {
             #region Nested Types
 
@@ -875,15 +935,14 @@ namespace KGySoft.Drawing.Shapes
             {
                 activeEdges = new (int, Flags)[edgeCount];
                 Count = 0;
-                Intersections = new float[maxIntersectionCount];
+                Intersections = new ArraySection<float>(maxIntersectionCount, false);
             }
 
             protected ActiveEdgeTable(ActiveEdgeTable other)
-                : this(other.activeEdges.Length, other.Intersections.UnderlyingArray.Length)
+                : this(other.activeEdges.Length, other.Intersections.UnderlyingArray!.Length)
             {
                 Count = other.Count;
-                //Array.Copy(other.activeEdges, 0, activeEdges, 0, Count); // TODO
-                other.activeEdges.CopyTo(activeEdges, 0);
+                Array.Copy(other.activeEdges, 0, activeEdges, 0, Count);
                 other.Intersections.CopyTo(Intersections);
             }
 
@@ -903,6 +962,18 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             #region Instance Methods
+
+            #region Public Methods
+
+            public virtual void Dispose()
+            {
+                // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
+                Intersections.Release();
+            }
+
+            #endregion
+
+            #region Internal Methods
 
             internal void EnterEdge(int enterIndex)
             {
@@ -943,9 +1014,11 @@ namespace KGySoft.Drawing.Shapes
                 Count -= removed;
             }
 
-            internal abstract ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges);
+            internal abstract ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges);
 
             internal abstract ActiveEdgeTable Clone();
+
+            #endregion
 
             #endregion
 
@@ -982,11 +1055,11 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges)
+            internal override ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges)
             {
                 #region Local Methods
 
-                static void AddIntersection(float x, bool emit, ArraySection<float> intersections, ref int count)
+                static void AddIntersection(float x, bool emit, in ArraySection<float> intersections, ref int count)
                 {
                     if (!emit)
                         return;
@@ -1073,7 +1146,7 @@ namespace KGySoft.Drawing.Shapes
             internal ActiveEdgeTableNonZero(int edgeCount, int maxIntersectionCount)
                 : base(edgeCount, maxIntersectionCount)
             {
-                intersectionTypes = new IntersectionType[maxIntersectionCount];
+                intersectionTypes = new ArraySection<IntersectionType>(maxIntersectionCount, false);
             }
 
             #endregion
@@ -1083,7 +1156,7 @@ namespace KGySoft.Drawing.Shapes
             private ActiveEdgeTableNonZero(ActiveEdgeTableNonZero other)
                 : base(other)
             {
-                intersectionTypes = new IntersectionType[other.intersectionTypes.Length];
+                intersectionTypes = new ArraySection<IntersectionType>(other.intersectionTypes.Length, false);
                 other.intersectionTypes.CopyTo(intersectionTypes);
             }
 
@@ -1096,7 +1169,7 @@ namespace KGySoft.Drawing.Shapes
             #region Static Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static void AddIntersection(float x, bool emit, bool isAscending, ArraySection<float> intersections, ArraySection<IntersectionType> intersectionTypes, ref int count)
+            private static void AddIntersection(float x, bool emit, bool isAscending, in ArraySection<float> intersections, in ArraySection<IntersectionType> intersectionTypes, ref int count)
             {
                 if (!emit)
                     return;
@@ -1128,9 +1201,19 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
 
+            #region Public Methods
+
+            public override void Dispose()
+            {
+                intersectionTypes.Release();
+                base.Dispose();
+            }
+
+            #endregion
+
             #region Instance Methods
 
-            internal override ArraySection<float> ScanLine(float y, ArraySection<EdgeEntry> edges)
+            internal override ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges)
             {
                 int intersectionsCount = 0;
                 int removed = 0;
@@ -1227,11 +1310,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public EdgeTable(RawPath path, float roundingUnit)
+            public EdgeTable(EdgeEntry[] buffer, RawPath path, float roundingUnit)
             {
-                var edges = new EdgeEntry[path.TotalVertices];
-                var snappedYCoords = new float[path.MaxVertices + 1];
-                var enumerator = new EdgeEnumerator(edges);
+                var snappedYCoords = new ArraySection<float>(path.MaxVertices + 1);
+                var enumerator = new EdgeEnumerator(buffer);
                 foreach (RawFigure figure in path.Figures)
                 {
                     PointF[] vertices = figure.Vertices;
@@ -1241,22 +1323,23 @@ namespace KGySoft.Drawing.Shapes
                     for (int i = 0; i < vertices.Length; i++)
                         snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
 
-                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
-                        new EdgeInfo(vertices, snappedYCoords, 0));
+                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, vertices.Length - 2),
+                        new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 0));
 
-                    enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords, 1));
+                    enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 1));
 
                     for (int i = 1; i < vertices.Length - 2; i++)
-                        enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, i + 1));
+                        enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, i + 1));
 
                     // 1st edge
-                    enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, 0));
+                    enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 0));
 
                     // 2nd edge
                     enumerator.MoveNextEdge(true, default);
                 }
 
-                Edges = edges.AsSection(0, enumerator.Count);
+                Edges = buffer.AsSection(0, enumerator.Count);
+                snappedYCoords.Release();
             }
 
             #endregion
@@ -1556,6 +1639,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure",
+            Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
         internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
             RawPath rawPath = path/*TODO .AsClosed() - if needed, cache it, too */.RawPath;
@@ -1566,7 +1651,7 @@ namespace KGySoft.Drawing.Shapes
                 return;
 
             FillPathSession session = CreateSession(bitmapData, bounds, drawingOptions);
-            RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
+            using RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
 
             if (scanner.IsSingleThreaded)
             {
