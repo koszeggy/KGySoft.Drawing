@@ -42,6 +42,10 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+#if (NETCOREAPP || NET45_OR_GREATER || NETSTANDARD) && !NET6_0_OR_GREATER
+        internal static Vector2 ToVector2(this PointF point) => new Vector2(point.X, point.Y);
+#endif
+
         #endregion
     }
 }

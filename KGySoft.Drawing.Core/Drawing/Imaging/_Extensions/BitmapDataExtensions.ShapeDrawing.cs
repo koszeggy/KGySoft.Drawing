@@ -17,13 +17,19 @@
 
 using System.Drawing;
 
-using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
+    #region Usings
+
+    // Should be inside namespace so Pen is not ambiguous between System.Drawing and KGySoft.Drawing.Shapes
+    using KGySoft.Drawing.Shapes;
+
+    #endregion
+    
     partial class BitmapDataExtensions
     {
         #region Methods

@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             figures = new List<Figure>(other.figures.Select(f => new Figure(f, close)));
-            currentFigure = figures[^1];
+            currentFigure = figures[figures.Count - 1];
         }
 
         #endregion

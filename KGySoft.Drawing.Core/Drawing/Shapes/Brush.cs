@@ -26,6 +26,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -78,8 +79,13 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            private ArraySection<byte> primaryBuffer; // allocated by the known number of vertices
+            private ArraySection<byte> secondaryBuffer; // allocated after determining the number of edges
+#else
             private ArraySection<EdgeEntry> edgesBuffer;
             private ArraySection<int> intBuffer;
+#endif
 
             [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
                 Justification = "Preventing creating defensive copy for older platforms where the properties are not readonly.")]
@@ -92,8 +98,8 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Properties
 
             internal abstract bool IsSingleThreaded { get; }
-            protected ArraySection<int> SortedIndexYStart { get; }
-            protected ArraySection<int> SortedIndexYEnd { get; }
+            protected CastArray<byte, int> SortedIndexYStart { get; }
+            protected CastArray<byte, int> SortedIndexYEnd { get; }
 
             #endregion
 
@@ -102,7 +108,11 @@ namespace KGySoft.Drawing.Shapes
             protected int Bottom => bounds.Bottom;
             protected int Left => bounds.Left;
             protected int Width => bounds.Width;
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            protected CastArray<byte, EdgeEntry> Edges { get; }
+#else
             protected ArraySection<EdgeEntry> Edges { get; }
+#endif
 
             #endregion
 
@@ -110,14 +120,56 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            protected unsafe RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
+            {
+                #region Local Methods
+
+                static int GetActiveTableBufferSize(ShapeFillMode fillMode, int edgeCount, int maxIntersectionCount)
+                    => sizeof((int, byte)) * edgeCount // active edges
+                        + sizeof(float) * maxIntersectionCount // intersections
+                        + (fillMode is ShapeFillMode.NonZero ? sizeof(byte) * maxIntersectionCount : 0); // intersection types
+
+                #endregion
+
+                this.bounds = bounds;
+                int len = sizeof(EdgeEntry) * path.TotalVertices
+                    + sizeof(float) * (path.MaxVertices + 1);
+                primaryBuffer = new ArraySection<byte>(len, false);
+
+                Edges = new EdgeTable(primaryBuffer, path, roundingUnit).Edges;
+                int edgeCount = Edges.Length;
+
+                len = sizeof(int) * 2 * edgeCount
+                    + Math.Max(sizeof(float) * 2 * edgeCount, GetActiveTableBufferSize(drawingOptions.FillMode, edgeCount, path.TotalVertices)); // Max: the floats are needed locally only, then they can be re-used
+                var buffer = secondaryBuffer = new ArraySection<byte>(len, false);
+                var sortedIndexYStart = buffer.Allocate<int>(edgeCount);
+                var sortedIndexYEnd = buffer.Allocate<int>(edgeCount);
+                var sortedIndexYStartKeys = buffer.Allocate<float>(edgeCount);
+                var sortedIndexYEndKeys = buffer.Allocate<float>(edgeCount);
+                for (int i = 0; i < edgeCount; i++)
+                {
+                    ref EdgeEntry edge = ref Edges.GetElementReference(i);
+                    sortedIndexYStartKeys[i] = edge.YStart;
+                    sortedIndexYEndKeys[i] = edge.YEnd;
+                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
+                }
+
+                sortedIndexYStartKeys.AsSpan.Sort(sortedIndexYStart.AsSpan);
+                sortedIndexYEndKeys.AsSpan.Sort(sortedIndexYEnd.AsSpan);
+
+                SortedIndexYStart = sortedIndexYStart;
+                SortedIndexYEnd = sortedIndexYEnd;
+            }
+
+            protected ArraySection<byte> GetActiveTableBuffer() => secondaryBuffer.Slice(sizeof(int) * 2 * Edges.Length);
+#else
             protected RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
             {
                 this.bounds = bounds;
                 edgesBuffer = new ArraySection<EdgeEntry>(path.TotalVertices, false);
-
-                Edges = new EdgeTable(edgesBuffer.UnderlyingArray!, path, roundingUnit).Edges;
+                Edges = new EdgeTable(edgesBuffer, path, roundingUnit).Edges;
                 int edgeCount = Edges.Length;
-
                 intBuffer = new ArraySection<int>(edgeCount << 1, false);
 
                 var floatBuffer = new ArraySection<float>(edgeCount << 1, false);
@@ -140,6 +192,7 @@ namespace KGySoft.Drawing.Shapes
                 SortedIndexYStart = sortedIndexYStart;
                 SortedIndexYEnd = sortedIndexYEnd;
             }
+#endif
 
             #endregion
 
@@ -151,8 +204,12 @@ namespace KGySoft.Drawing.Shapes
             {
                 // Not the usual dispose pattern to make it a bit more performant,
                 // and because we know that we don't need protection against multiple disposals, etc.
-                edgesBuffer.Release();
+                primaryBuffer.Release();
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                secondaryBuffer.Release();
+#else
                 intBuffer.Release();
+#endif
             }
 
             #endregion
@@ -233,7 +290,9 @@ namespace KGySoft.Drawing.Shapes
                     Debug.Assert(top > other.CurrentY);
                     this = other;
                     activeEdges = other.activeEdges.Clone();
-                    ScanlineBuffer = new ArraySection<byte>(other.ScanlineBuffer.Length);
+
+                    // not pooling from here because colliding cache items might be overwritten while they are still in use
+                    ScanlineBuffer = new byte[other.ScanlineBuffer.Length];
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -247,11 +306,10 @@ namespace KGySoft.Drawing.Shapes
                 public void Dispose()
                 {
                     // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
-                    if (activeEdges == null) // when this is a default instance
+                    if (scanner == null) // when this is a default instance
                         return;
 
                     ScanlineBuffer.Release();
-                    activeEdges.Dispose();
                 }
 
                 #endregion
@@ -301,7 +359,7 @@ namespace KGySoft.Drawing.Shapes
                         return false;
 
                     if (IsScanlineDirty)
-                        Array.Clear(ScanlineBuffer.UnderlyingArray!, ScanlineBuffer.Offset, ScanlineBuffer.Length);
+                        ScanlineBuffer.Clear();
                     IsScanlineDirty = false;
 
                     rowStartMin = Int32.MaxValue;
@@ -313,15 +371,15 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentRow()
                 {
-                    ArraySection<float> points = activeEdges.ScanLine(currentVisitedY, scanner.Edges);
+                    CastArray<byte, float> points = activeEdges.ScanLine(currentVisitedY, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
                     float minX = scanner.Left;
                     for (int point = 0; point < points.Length - 1; point += 2)
                     {
-                        float scanStart = points[point] - minX;
-                        float scanEnd = points[point + 1] - minX;
+                        float scanStart = points.GetElementUnsafe(point) - minX;
+                        float scanEnd = points.GetElementUnsafe(point + 1) - minX;
                         int startX = (int)MathF.Floor(scanStart);
                         int endX = (int)MathF.Floor(scanEnd);
 
@@ -329,7 +387,7 @@ namespace KGySoft.Drawing.Shapes
                         {
                             if (startX + 1 - scanStart >= 0.5f)
                             {
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(startX >> 3), startX, 1);
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(startX >> 3), startX, 1);
                                 IsScanlineDirty = true;
                             }
                         }
@@ -338,7 +396,7 @@ namespace KGySoft.Drawing.Shapes
                         {
                             if (scanEnd - endX >= 0.5f || endX == startX + 1 && scanEnd - scanStart >= 0.5f)
                             {
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(endX >> 3), endX, 1);
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(endX >> 3), endX, 1);
                                 IsScanlineDirty = true;
                             }
                         }
@@ -351,7 +409,7 @@ namespace KGySoft.Drawing.Shapes
                         {
                             // TODO: vectorization if possible - or at least combine byte changes
                             for (int i = nextX; i < endX; i++)
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReference(i >> 3), i, 1);
+                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(i >> 3), i, 1);
                             IsScanlineDirty = true;
                         }
 
@@ -424,7 +482,7 @@ namespace KGySoft.Drawing.Shapes
             public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
                 : base(path, bounds, drawingOptions, roundingUnit)
             {
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, Edges.Length, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
                 mainContext = new SolidScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
@@ -449,6 +507,7 @@ namespace KGySoft.Drawing.Shapes
                 if (threadContextCache == null)
                     return;
 
+                // cache entries don't use pooling so their disposal just nullifies the backing array
                 for (int i = 0; i < threadContextCache.Length; i++)
                     threadContextCache[i]?.Value.Context.Dispose();
             }
@@ -506,7 +565,7 @@ namespace KGySoft.Drawing.Shapes
                         }
                     }
 
-                    value.Context.Dispose();
+                    // Here there is a collision so the old entry will be overwritten. Not disposing the old one though as it may still be used.
                 }
 
                 var result = new StrongBox<(int ThreadId, SolidScannerContext Context)>((threadId, new SolidScannerContext(mainContext, y)));
@@ -537,7 +596,7 @@ namespace KGySoft.Drawing.Shapes
                 #region Internal Fields
 
                 internal int CurrentY;
-                internal ArraySection<float> ScanlineBuffer;
+                internal CastArray<byte, float> ScanlineBuffer;
                 internal bool IsScanlineDirty;
 
                 #endregion
@@ -547,6 +606,7 @@ namespace KGySoft.Drawing.Shapes
                 private readonly AntiAliasingRegionScanner scanner;
                 private readonly ActiveEdgeTable activeEdges;
 
+                private ArraySection<byte> scanlineBuffer;
                 private int yStartIndex;
                 private int yEndIndex;
                 private int rowStartMin;
@@ -571,7 +631,8 @@ namespace KGySoft.Drawing.Shapes
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
-                    ScanlineBuffer = new ArraySection<float>(scanner.Width);
+                    scanlineBuffer = new ArraySection<byte>(sizeof(float) * scanner.Width);
+                    ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
 
                     if (scanner.Edges.Length == 0)
                         return;
@@ -584,7 +645,10 @@ namespace KGySoft.Drawing.Shapes
                     Debug.Assert(top > other.CurrentY);
                     this = other;
                     activeEdges = other.activeEdges.Clone();
-                    ScanlineBuffer = new ArraySection<float>(other.ScanlineBuffer.Length);
+
+                    // not pooling from here because colliding cache items might be overwritten while they are still in use
+                    scanlineBuffer = new byte[other.scanlineBuffer.Length];
+                    ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -598,11 +662,10 @@ namespace KGySoft.Drawing.Shapes
                 public void Dispose()
                 {
                     // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
-                    if (activeEdges == null) // when this is a default instance
+                    if (scanner == null) // when this is a default instance
                         return;
 
-                    ScanlineBuffer.Release();
-                    activeEdges.Dispose();
+                    scanlineBuffer.Release();
                 }
 
                 #endregion
@@ -654,7 +717,7 @@ namespace KGySoft.Drawing.Shapes
                         return false;
 
                     if (IsScanlineDirty)
-                        Array.Clear(ScanlineBuffer.UnderlyingArray!, ScanlineBuffer.Offset, ScanlineBuffer.Length);
+                        ScanlineBuffer.Clear();
                     IsScanlineDirty = false;
 
                     rowStartMin = Int32.MaxValue;
@@ -672,7 +735,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentSubpixelRow()
                 {
-                    ArraySection<float> points = activeEdges.ScanLine(currentSubpixelY, scanner.Edges);
+                    CastArray<byte, float> points = activeEdges.ScanLine(currentSubpixelY, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
@@ -681,22 +744,22 @@ namespace KGySoft.Drawing.Shapes
                     float subpixelArea = scanner.subpixelArea;
                     for (int point = 0; point < points.Length - 1; point += 2)
                     {
-                        float scanStart = points[point] - minX;
-                        float scanEnd = points[point + 1] - minX;
+                        float scanStart = points.GetElementUnsafe(point) - minX;
+                        float scanEnd = points.GetElementUnsafe(point + 1) - minX;
                         int startX = (int)MathF.Floor(scanStart);
                         int endX = (int)MathF.Floor(scanEnd);
 
                         if (startX >= 0 && startX < ScanlineBuffer.Length)
                         {
                             float subpixelWidth = (startX + 1 - scanStart) / subpixelSize;
-                            ScanlineBuffer[startX] += subpixelWidth * subpixelArea;
+                            ScanlineBuffer.GetElementReferenceUnsafe(startX) += subpixelWidth * subpixelArea;
                             IsScanlineDirty |= subpixelWidth > 0;
                         }
 
                         if (endX >= 0 && endX < ScanlineBuffer.Length)
                         {
                             float subpixelWidth = (scanEnd - endX) / subpixelSize;
-                            ScanlineBuffer[endX] += subpixelWidth * subpixelArea;
+                            ScanlineBuffer.GetElementReferenceUnsafe(endX) += subpixelWidth * subpixelArea;
                             IsScanlineDirty |= subpixelWidth > 0;
                         }
 
@@ -706,9 +769,9 @@ namespace KGySoft.Drawing.Shapes
 
                         if (endX > nextX)
                         {
-                            // TODO: vectorization if possible
+                            // TODO: vectorization if possible (or indirectly: ScanlineBuffer.Slice(nextX, endX - nextX).Clear/Fill(subpixelSize))
                             for (int i = nextX; i < endX; i++)
-                                ScanlineBuffer[i] += subpixelSize;
+                                ScanlineBuffer.GetElementReferenceUnsafe(i) += subpixelSize;
                             IsScanlineDirty = true;
                         }
 
@@ -786,7 +849,7 @@ namespace KGySoft.Drawing.Shapes
                 subpixelSize = 1f / subpixelCount;
                 subpixelArea = 1f / (subpixelCount * subpixelCount);
 
-                var activeEdges = ActiveEdgeTable.Create(drawingOptions.FillMode, Edges.Length, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
                 mainContext = new AntiAliasingScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(bounds.Top);
@@ -811,6 +874,7 @@ namespace KGySoft.Drawing.Shapes
                 if (threadContextCache == null)
                     return;
 
+                // cache entries don't use pooling so their disposal just nullifies the backing array
                 for (int i = 0; i < threadContextCache.Length; i++)
                     threadContextCache[i]?.Value.Context.Dispose();
             }
@@ -871,7 +935,7 @@ namespace KGySoft.Drawing.Shapes
                         }
                     }
 
-                    value.Context.Dispose();
+                    // Here there is a collision so the old entry will be overwritten. Not disposing the old one though as it may still be used.
                 }
 
                 var result = new StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>((threadId, new AntiAliasingScannerContext(mainContext, y)));
@@ -888,7 +952,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region ActiveEdgeTable class
 
-        private abstract class ActiveEdgeTable : IDisposable
+        private abstract class ActiveEdgeTable
         {
             #region Nested Types
 
@@ -906,7 +970,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Private Fields
 
-            private readonly (int Index, Flags Flags)[] activeEdges;
+            private readonly CastArray<byte, (int Index, Flags Flags)> activeEdges;
 
             #endregion
 
@@ -914,7 +978,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Private Protected Fields
 
-            private protected ArraySection<float> Intersections;
+            private protected readonly CastArray<byte, float> Intersections;
+
             private protected int Count;
 
             #endregion
@@ -925,24 +990,31 @@ namespace KGySoft.Drawing.Shapes
 
             #region Properties
 
-            private protected ArraySection<(int Index, Flags Flags)> ActiveEdges => activeEdges.AsSection(0, Count);
+            private protected CastArray<byte, (int Index, Flags Flags)> ActiveEdges => activeEdges.Slice(0, Count);
 
             #endregion
 
             #region Constructors
 
-            protected ActiveEdgeTable(int edgeCount, int maxIntersectionCount)
+            protected ActiveEdgeTable(ref ArraySection<byte> buffer, int edgeCount, int maxIntersectionCount)
             {
-                activeEdges = new (int, Flags)[edgeCount];
+                activeEdges = buffer.Allocate<(int, Flags)>(edgeCount);
                 Count = 0;
-                Intersections = new ArraySection<float>(maxIntersectionCount, false);
+                Intersections = buffer.Allocate<float>(maxIntersectionCount);
             }
 
-            protected ActiveEdgeTable(ActiveEdgeTable other)
-                : this(other.activeEdges.Length, other.Intersections.UnderlyingArray!.Length)
+            protected unsafe ActiveEdgeTable(ActiveEdgeTable other)
             {
+                // not pooling from here because colliding cache items might be overwritten while they are still in use
+#if NET5_0_OR_GREATER
+                Intersections = GC.AllocateUninitializedArray<byte>(sizeof(float) * other.Intersections.Length);
+                activeEdges = GC.AllocateUninitializedArray<byte>(sizeof((int, Flags)) * other.activeEdges.Length);
+#else
+                Intersections = new byte[sizeof(float) * other.Intersections.Length];
+                activeEdges = new byte[sizeof((int, Flags)) * other.activeEdges.Length];
+#endif
                 Count = other.Count;
-                Array.Copy(other.activeEdges, 0, activeEdges, 0, Count);
+                other.activeEdges.Slice(0, Count).CopyTo(activeEdges);
                 other.Intersections.CopyTo(Intersections);
             }
 
@@ -952,10 +1024,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Static Methods
 
-            internal static ActiveEdgeTable Create(ShapeFillMode fillMode, int edgeCount, int maxIntersectionCount) => fillMode switch
+            internal static ActiveEdgeTable Create(ArraySection<byte> buffer, ShapeFillMode fillMode, int edgeCount, int maxIntersectionCount) => fillMode switch
             {
-                ShapeFillMode.Alternate => new ActiveEdgeTableAlternate(edgeCount, maxIntersectionCount),
-                ShapeFillMode.NonZero => new ActiveEdgeTableNonZero(edgeCount, maxIntersectionCount),
+                ShapeFillMode.Alternate => new ActiveEdgeTableAlternate(ref buffer, edgeCount, maxIntersectionCount),
+                ShapeFillMode.NonZero => new ActiveEdgeTableNonZero(ref buffer, edgeCount, maxIntersectionCount),
                 _ => throw new ArgumentOutOfRangeException(nameof(fillMode), PublicResources.EnumOutOfRange(fillMode))
             };
 
@@ -963,21 +1035,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Instance Methods
 
-            #region Public Methods
-
-            public virtual void Dispose()
-            {
-                // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
-                Intersections.Release();
-            }
-
-            #endregion
-
-            #region Internal Methods
-
             internal void EnterEdge(int enterIndex)
             {
-                ref var entry = ref activeEdges[Count];
+                Debug.Assert(activeEdges.Length > Count);
+                ref var entry = ref activeEdges.GetElementReferenceUnsafe(Count);
                 entry.Index = enterIndex;
                 entry.Flags = Flags.Entering;
                 Count += 1;
@@ -985,13 +1046,15 @@ namespace KGySoft.Drawing.Shapes
 
             internal void LeaveEdge(int leaveIndex)
             {
+                Debug.Assert(activeEdges.Length >= Count);
                 var table = activeEdges;
                 int len = Count;
                 for (int i = 0; i < len; i++)
                 {
-                    if (table[i].Index == leaveIndex)
+                    ref var entry = ref table.GetElementReferenceUnsafe(i);
+                    if (entry.Index == leaveIndex)
                     {
-                        table[i].Flags |= Flags.Leaving;
+                        entry.Flags |= Flags.Leaving;
                         return;
                     }
                 }
@@ -999,26 +1062,25 @@ namespace KGySoft.Drawing.Shapes
 
             internal void RemoveLeavingEdges()
             {
+                Debug.Assert(activeEdges.Length >= Count);
                 int removed = 0;
                 var table = activeEdges;
                 int len = Count;
                 for (int i = 0; i < len; i++)
                 {
-                    ref var entry = ref table[i];
+                    ref var entry = ref table.GetElementReferenceUnsafe(i);
                     if ((entry.Flags & Flags.Leaving) != Flags.None)
                         removed += 1;
                     else
-                        table[i - removed] = (entry.Index, Flags.None);
+                        table.GetElementReferenceUnsafe(i - removed) = (entry.Index, Flags.None);
                 }
 
                 Count -= removed;
             }
 
-            internal abstract ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges);
+            internal abstract CastArray<byte, float> ScanLine(float y, in CastArray<byte, EdgeEntry> edges);
 
             internal abstract ActiveEdgeTable Clone();
-
-            #endregion
 
             #endregion
 
@@ -1035,8 +1097,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Constructors
 
-            internal ActiveEdgeTableAlternate(int edgeCount, int maxIntersectionCount)
-                : base(edgeCount, maxIntersectionCount)
+            internal ActiveEdgeTableAlternate(ref ArraySection<byte> buffer, int edgeCount, int maxIntersectionCount)
+                : base(ref buffer, edgeCount, maxIntersectionCount)
             {
             }
 
@@ -1055,16 +1117,17 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges)
+            internal override CastArray<byte, float> ScanLine(float y, in CastArray<byte, EdgeEntry> edges)
             {
                 #region Local Methods
 
-                static void AddIntersection(float x, bool emit, in ArraySection<float> intersections, ref int count)
+                static void AddIntersection(float x, bool emit, in CastArray<byte, float> intersections, ref int count)
                 {
                     if (!emit)
                         return;
 
-                    intersections[count] = x;
+                    Debug.Assert(intersections.Length >= count);
+                    intersections.SetElementUnsafe(count, x);
                     count += 1;
                 }
 
@@ -1076,7 +1139,7 @@ namespace KGySoft.Drawing.Shapes
                 int len = activeEdges.Length;
                 for (int i = 0; i < len; i++)
                 {
-                    ref var entry = ref activeEdges.GetElementReference(i);
+                    ref var entry = ref activeEdges.GetElementReferenceUnsafe(i);
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
                     if ((entry.Flags & Flags.Entering) != Flags.None)
@@ -1089,16 +1152,19 @@ namespace KGySoft.Drawing.Shapes
                     }
                     else
                     {
-                        Intersections[intersectionsCount] = x;
+                        Debug.Assert(Intersections.Length > intersectionsCount);
+                        Intersections.SetElementUnsafe(intersectionsCount, x);
                         intersectionsCount += 1;
                     }
 
-                    activeEdges[i - removed] = (entry.Index, Flags.None);
+                    activeEdges.GetElementReferenceUnsafe(i - removed) = (entry.Index, Flags.None);
                 }
 
                 Count -= removed;
-                Array.Sort(Intersections.UnderlyingArray!, 0, intersectionsCount);
-                return Intersections.Slice(0, intersectionsCount);
+
+                CastArray<byte, float> result = Intersections.Slice(0, intersectionsCount);
+                result.AsSpan.Sort();
+                return result;
             }
 
             internal override ActiveEdgeTable Clone() => new ActiveEdgeTableAlternate(this);
@@ -1135,7 +1201,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Fields
 
-            private ArraySection<IntersectionType> intersectionTypes;
+            private CastArray<byte, IntersectionType> intersectionTypes;
 
             #endregion
 
@@ -1143,10 +1209,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Constructors
 
-            internal ActiveEdgeTableNonZero(int edgeCount, int maxIntersectionCount)
-                : base(edgeCount, maxIntersectionCount)
+            internal ActiveEdgeTableNonZero(ref ArraySection<byte> buffer, int edgeCount, int maxIntersectionCount)
+                : base(ref buffer, edgeCount, maxIntersectionCount)
             {
-                intersectionTypes = new ArraySection<IntersectionType>(maxIntersectionCount, false);
+                intersectionTypes = buffer.Allocate<IntersectionType>(sizeof(IntersectionType) * maxIntersectionCount);
             }
 
             #endregion
@@ -1156,7 +1222,12 @@ namespace KGySoft.Drawing.Shapes
             private ActiveEdgeTableNonZero(ActiveEdgeTableNonZero other)
                 : base(other)
             {
-                intersectionTypes = new ArraySection<IntersectionType>(other.intersectionTypes.Length, false);
+                // not pooling from here because colliding cache items might be overwritten while they are still in use
+#if NET5_0_OR_GREATER
+                intersectionTypes = GC.AllocateArray<byte>(sizeof(IntersectionType) * other.intersectionTypes.Length);
+#else
+                intersectionTypes = new byte[sizeof(IntersectionType) * other.intersectionTypes.Length];
+#endif
                 other.intersectionTypes.CopyTo(intersectionTypes);
             }
 
@@ -1169,51 +1240,46 @@ namespace KGySoft.Drawing.Shapes
             #region Static Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static void AddIntersection(float x, bool emit, bool isAscending, in ArraySection<float> intersections, in ArraySection<IntersectionType> intersectionTypes, ref int count)
+            private static void AddIntersection(float x, bool emit, bool isAscending, in CastArray<byte, float> intersections, in CastArray<byte, IntersectionType> intersectionTypes, ref int count)
             {
                 if (!emit)
                     return;
 
+                Debug.Assert(intersectionTypes.Length > count);
+                Debug.Assert(intersections.Length > count);
                 if (isAscending)
                 {
-                    intersectionTypes[count] = IntersectionType.Ascending;
-                    intersections[count] = x + sortStabilizerDelta;
+                    intersectionTypes.SetElementUnsafe(count, IntersectionType.Ascending);
+                    intersections.SetElementUnsafe(count, x + sortStabilizerDelta);
                     count += 1;
                     return;
                 }
 
-                intersectionTypes[count] = IntersectionType.Descending;
-                intersections[count] = x - sortStabilizerDelta;
+                intersectionTypes.SetElementUnsafe(count, IntersectionType.Descending);
+                intersections.SetElementUnsafe(count, x - sortStabilizerDelta);
                 count += 1;
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static void AddIntersectionWhenToggles(ArraySection<float> intersections, int i, int diff, float value, ref int windingNumber, ref int removed)
+            private static void AddIntersectionWhenToggles(in CastArray<byte, float> intersections, int i, int diff, float value, ref int windingNumber, ref int removed)
             {
                 bool add = (windingNumber == 0 && diff != 0) || windingNumber * diff == -1;
                 windingNumber += diff;
 
                 if (add)
-                    intersections[i - removed] = value;
+                {
+                    Debug.Assert(intersections.Length > i - removed);
+                    intersections.SetElementUnsafe(i - removed, value);
+                }
                 else
                     removed += 1;
             }
 
             #endregion
 
-            #region Public Methods
-
-            public override void Dispose()
-            {
-                intersectionTypes.Release();
-                base.Dispose();
-            }
-
-            #endregion
-
             #region Instance Methods
 
-            internal override ArraySection<float> ScanLine(float y, in ArraySection<EdgeEntry> edges)
+            internal override CastArray<byte, float> ScanLine(float y, in CastArray<byte, EdgeEntry> edges)
             {
                 int intersectionsCount = 0;
                 int removed = 0;
@@ -1238,25 +1304,25 @@ namespace KGySoft.Drawing.Shapes
                     {
                         if (edge.IsAscending)
                         {
-                            types[intersectionsCount] = IntersectionType.Ascending;
-                            intersections[intersectionsCount] = x + sortStabilizerDelta;
+                            types.SetElementUnsafe(intersectionsCount, IntersectionType.Ascending);
+                            intersections.SetElementUnsafe(intersectionsCount, x + sortStabilizerDelta);
                         }
                         else
                         {
-                            types[intersectionsCount] = IntersectionType.Descending;
-                            intersections[intersectionsCount] = x - sortStabilizerDelta;
+                            types.SetElementUnsafe(intersectionsCount, IntersectionType.Descending);
+                            intersections.SetElementUnsafe(intersectionsCount, x - sortStabilizerDelta);
                         }
 
                         intersectionsCount += 1;
                     }
 
-                    activeEdges[i - removed] = (entry.Index, Flags.None);
+                    activeEdges.GetElementReferenceUnsafe(i - removed) = (entry.Index, Flags.None);
                 }
 
                 Count -= removed;
-                Array.Sort(intersections.UnderlyingArray!, types.UnderlyingArray, 0, intersectionsCount);
                 intersections = intersections.Slice(0, intersectionsCount);
                 types = types.Slice(0, intersectionsCount);
+                intersections.AsSpan.Sort(types.AsSpan);
 
                 // Counting the winding number and applying the nonzero winding rule. See details here: https://en.wikipedia.org/wiki/Point_in_polygon#Winding_number_algorithm
                 removed = 0;
@@ -1264,18 +1330,18 @@ namespace KGySoft.Drawing.Shapes
                 len = types.Length;
                 for (int i = 0; i < len; i++)
                 {
-                    IntersectionType type = types[i];
+                    IntersectionType type = types.GetElementUnsafe(i);
                     switch (type)
                     {
                         case IntersectionType.Corner:
-                            AddIntersectionWhenToggles(intersections, i, -1, intersections[i], ref windingNumber, ref removed);
+                            AddIntersectionWhenToggles(intersections, i, -1, intersections.GetElementUnsafe(i), ref windingNumber, ref removed);
                             removed -= 1;
-                            AddIntersectionWhenToggles(intersections, i, 1, intersections[i], ref windingNumber, ref removed);
+                            AddIntersectionWhenToggles(intersections, i, 1, intersections.GetElementUnsafe(i), ref windingNumber, ref removed);
                             break;
                         default:
                             {
                                 int diff = type == IntersectionType.Ascending ? 1 : -1;
-                                float emitVal = intersections[i] + -(sortStabilizerDelta * diff);
+                                float emitVal = intersections.GetElementUnsafe(i) + -(sortStabilizerDelta * diff);
                                 AddIntersectionWhenToggles(intersections, i, diff, emitVal, ref windingNumber, ref removed);
                                 break;
                             }
@@ -1300,6 +1366,52 @@ namespace KGySoft.Drawing.Shapes
 
         #region EdgeTable struct
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        private ref struct EdgeTable
+        {
+            #region Properties
+
+            internal CastArray<byte, EdgeEntry> Edges { get; }
+
+            #endregion
+
+            #region Constructors
+
+            public EdgeTable(ArraySection<byte> buffer, RawPath path, float roundingUnit)
+            {
+                var edgesBuffer = buffer.Allocate<EdgeEntry>(path.TotalVertices);
+                var snappedYCoords = buffer.Allocate<float>(path.MaxVertices + 1);
+                var enumerator = new EdgeEnumerator(edgesBuffer);
+                foreach (RawFigure figure in path.Figures)
+                {
+                    PointF[] vertices = figure.Vertices;
+                    if (vertices.Length <= 3)
+                        continue;
+
+                    for (int i = 0; i < vertices.Length; i++)
+                        snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
+
+                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
+                        new EdgeInfo(vertices, snappedYCoords, 0));
+
+                    enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords, 1));
+
+                    for (int i = 1; i < vertices.Length - 2; i++)
+                        enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, i + 1));
+
+                    // 1st edge
+                    enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, 0));
+
+                    // 2nd edge
+                    enumerator.MoveNextEdge(true, default);
+                }
+
+                Edges = edgesBuffer.Slice(0, enumerator.Count);
+            }
+
+            #endregion
+        }
+#else
         private ref struct EdgeTable
         {
             #region Properties
@@ -1310,7 +1422,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public EdgeTable(EdgeEntry[] buffer, RawPath path, float roundingUnit)
+            public EdgeTable(ArraySection<EdgeEntry> buffer, RawPath path, float roundingUnit)
             {
                 var snappedYCoords = new ArraySection<float>(path.MaxVertices + 1);
                 var enumerator = new EdgeEnumerator(buffer);
@@ -1338,12 +1450,13 @@ namespace KGySoft.Drawing.Shapes
                     enumerator.MoveNextEdge(true, default);
                 }
 
-                Edges = buffer.AsSection(0, enumerator.Count);
+                Edges = buffer.Slice(0, enumerator.Count);
                 snappedYCoords.Release();
             }
 
             #endregion
         }
+#endif
 
         #endregion
 
@@ -1369,10 +1482,11 @@ namespace KGySoft.Drawing.Shapes
 
             [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
                 Justification = "False alarm, these coordinates are already snapped (rounded) to a fraction of 2.")]
-            internal EdgeInfo(PointF[] vertices, float[] snappedYCoords, int index)
+            internal EdgeInfo(PointF[] vertices, CastArray<byte, float> snappedYCoords, int index)
             {
-                Start = new PointF(vertices[index].X, snappedYCoords[index]);
-                End = new PointF(vertices[index + 1].X, snappedYCoords[index + 1]);
+                Debug.Assert(index < vertices.Length - 1 && index < snappedYCoords.Length - 1);
+                Start = new PointF(vertices[index].X, snappedYCoords.GetElementUnsafe(index));
+                End = new PointF(vertices[index + 1].X, snappedYCoords.GetElementUnsafe(index + 1));
                 Kind = Start.Y == End.Y
                     ? Start.X < End.X ? EdgeKind.HorizontalRight : EdgeKind.HorizontalLeft
                     : Start.Y < End.Y ? EdgeKind.Descending : EdgeKind.Ascending;
@@ -1500,6 +1614,7 @@ namespace KGySoft.Drawing.Shapes
                 EmitEnd = edgeInfo.EmitEnd;
 
                 // calculating p and q adjusted to the origin for better accuracy
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                 Vector2 pStart = edgeInfo.Start.ToVector2();
                 Vector2 pEnd = edgeInfo.End.ToVector2();
                 Vector2 center = (pStart + pEnd) * 0.5f;
@@ -1507,6 +1622,19 @@ namespace KGySoft.Drawing.Shapes
                 pEnd -= center;
                 p = (pEnd.X - pStart.X) / height;
                 q = ((pStart.X * pEnd.Y) - (pEnd.X * pStart.Y)) / height + (center.X - p * center.Y);
+#else
+                PointF pStart = edgeInfo.Start;
+                PointF pEnd = edgeInfo.End;
+                PointF center = (pStart + new SizeF(pEnd));
+                center.X *= 0.05f;
+                center.Y *= 0.05f;
+                pStart.X -= center.X;
+                pStart.Y -= center.Y;
+                pEnd.X -= center.X;
+                pEnd.Y -= center.Y;
+                p = (pEnd.X - pStart.X) / height;
+                q = ((pStart.X * pEnd.Y) - (pEnd.X * pStart.Y)) / height + (center.X - p * center.Y);
+#endif
             }
 
             #endregion
@@ -1536,7 +1664,11 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            private readonly Span<EdgeEntry> edges;
+#else
             private readonly EdgeEntry[] edges;
+#endif
 
             internal int Count;
             private EdgeInfo previous;
@@ -1546,7 +1678,11 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            internal EdgeEnumerator(CastArray<byte, EdgeEntry> edges) => this.edges = edges;
+#else
             internal EdgeEnumerator(EdgeEntry[] edges) => this.edges = edges;
+#endif
 
             #endregion
 
@@ -1579,7 +1715,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region RegionScanline<T> struct
 
-        private protected ref struct RegionScanline<T>
+        private protected ref struct RegionScanline<T> where T : unmanaged
         {
             #region Fields
 
@@ -1587,13 +1723,13 @@ namespace KGySoft.Drawing.Shapes
             internal readonly int Left;
             internal readonly int MinIndex;
             internal readonly int MaxIndex;
-            internal ArraySection<T> Scanline;
+            internal CastArray<byte, T> Scanline;
 
             #endregion
 
             #region Constructors
 
-            internal RegionScanline(int y, int left, ArraySection<T> scanline, int startX, int endX)
+            internal RegionScanline(int y, int left, CastArray<byte, T> scanline, int startX, int endX)
             {
                 RowIndex = y;
                 Left = left;

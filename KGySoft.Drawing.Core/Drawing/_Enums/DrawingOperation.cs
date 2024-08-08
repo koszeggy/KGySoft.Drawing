@@ -42,7 +42,7 @@ namespace KGySoft.Drawing
         GeneratingPalette,
 
         /// <summary>
-        /// Represents an operation that processes pixels. An more complex async method may perform multiple processing operations one after another.
+        /// Represents an operation that processes pixels. A more complex async method may perform multiple processing operations one after another.
         /// </summary>
         ProcessingPixels,
 

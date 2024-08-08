@@ -7,6 +7,9 @@ namespace System
         #region Methods
 
         public static float Round(float x) => (float)Math.Round(x);
+        public static float Round(float x, MidpointRounding mode) => (float)Math.Round(x, mode);
+        
+        public static float Floor(float x) => (float)Math.Floor(x);
 
         public static float Pow(float x, float y) => (float)Math.Pow(x, y);
 

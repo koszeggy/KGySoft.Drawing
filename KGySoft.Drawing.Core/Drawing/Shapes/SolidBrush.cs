@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.Shapes
                 int left = scanline.Left;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline[x >> 3], x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
                         row.DoSetColor32(x + left, c);
                 }
             }
@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.Shapes
                 int left = scanline.Left;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline[x];
+                    float value = scanline.Scanline.GetElementUnsafe(x);
                     switch (value)
                     {
                         case <= 0f:
@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline[x >> 3], x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
                     {
                         int pos = x + left;
                         Color32 backColor = row.DoGetColor32(pos);
@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline[x];
+                        float value = scanline.Scanline.GetElementUnsafe(x);
                         switch (value)
                         {
                             case <= 0f:
@@ -172,7 +172,7 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline[x];
+                    float value = scanline.Scanline.GetElementUnsafe(x);
                     switch (value)
                     {
                         case <= 0f:

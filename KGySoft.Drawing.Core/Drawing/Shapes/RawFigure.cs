@@ -138,8 +138,13 @@ namespace KGySoft.Drawing.Shapes
         private static sbyte GetOrientation(PointF p1, PointF p2, PointF p3)
         {
             // https://www.tutorialspoint.com/how-to-check-orientation-of-3-ordered-points-in-java
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Vector2 slope1 = p2.ToVector2() - p1.ToVector2();
             Vector2 slope2 = p3.ToVector2() - p2.ToVector2();
+#else
+            PointF slope1 = p2 - new SizeF(p1);
+            PointF slope2 = p3 - new SizeF(p2);
+#endif
             float result = (slope1.Y * slope2.X) - (slope1.X * slope2.Y);
             return (sbyte)(result.TolerantIsZero(toleranceEquality) ? 0
                 : result > 0f ? 1
