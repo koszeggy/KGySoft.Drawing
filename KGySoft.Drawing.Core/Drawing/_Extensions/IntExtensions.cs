@@ -24,7 +24,7 @@ using System.Runtime.CompilerServices;
 
 #endregion
 
-namespace KGySoft.Drawing.Imaging
+namespace KGySoft.Drawing
 {
     /// <summary>
     /// In fact, Int32, UInt32, UInt64, BitVector32
@@ -35,8 +35,8 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte ClipToByte(this int value)
-            => value < Byte.MinValue ? Byte.MinValue
-                : value > Byte.MaxValue ? Byte.MaxValue
+            => value < byte.MinValue ? byte.MinValue
+                : value > byte.MaxValue ? byte.MaxValue
                 : (byte)value;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Imaging
         internal static int Abs(this int i)
         {
             // Math.Abs is still slower, even after the fix in https://github.com/dotnet/runtime/issues/24626
-            Debug.Assert(i != Int32.MinValue);
+            Debug.Assert(i != int.MinValue);
             return i >= 0 ? i : -i;
         }
 

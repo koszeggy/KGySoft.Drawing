@@ -20,7 +20,7 @@ using System.Runtime.CompilerServices;
 
 #endregion
 
-namespace KGySoft.Drawing.Imaging
+namespace KGySoft.Drawing
 {
     internal static class FloatExtensions
     {

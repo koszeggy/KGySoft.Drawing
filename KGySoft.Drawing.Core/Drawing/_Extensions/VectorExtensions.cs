@@ -25,7 +25,7 @@ using System.Runtime.Intrinsics.X86;
 
 #endregion
 
-namespace KGySoft.Drawing.Imaging
+namespace KGySoft.Drawing
 {
     internal static class VectorExtensions
     {

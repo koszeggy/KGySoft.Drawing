@@ -16,12 +16,15 @@
 #region Usings
 
 using System;
+
 #if !NET6_0_OR_GREATER
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Security;
 #endif
 #if NET35 || NET40
 using System.Threading;
+
 #endif
 
 #endregion
@@ -67,6 +70,8 @@ namespace KGySoft.Drawing.Imaging
         private static int GetCoreCount() => Environment.ProcessorCount;
 #else
         [SecuritySafeCritical]
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+            Justification = "The type initializer must not throw anything. Cannot really happen, maybe only partially trusted domains in .NET Framework.")]
         private static int GetCoreCount()
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT) // TODO: extract to IsWindows if needed somewhere else, too
@@ -88,7 +93,7 @@ namespace KGySoft.Drawing.Imaging
                 nint affinity = Process.GetCurrentProcess().ProcessorAffinity;
                 return affinity == 0 ? Environment.ProcessorCount : ((ulong)affinity).GetFlagsCount();
             }
-            catch (Exception) // Not letting the type initializer to throw anything. Cannot really happen, maybe only partially trusted domains in .NET Framework.
+            catch (Exception)
             {
                 return Environment.ProcessorCount;
             }

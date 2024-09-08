@@ -16,7 +16,9 @@
 #region Usings
 
 using System;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
+#endif
 #if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif

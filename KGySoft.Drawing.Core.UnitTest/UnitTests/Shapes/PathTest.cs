@@ -13,7 +13,11 @@
 
 #endregion
 
+#nullable enable
+
 #region Usings
+
+using System.Drawing.Imaging;
 
 #region Used Namespaces
 
@@ -40,35 +44,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
     [TestFixture]
     public class PathTest : TestBase
     {
-        #region Nested classes
-
-        #region CustomContext class
-
-        private sealed class CustomContext(int maxDegree) : IAsyncContext
-        {
-            #region Properties
-
-            public int MaxDegreeOfParallelism => maxDegree;
-            public bool IsCancellationRequested => false;
-            public bool CanBeCanceled => false;
-            public IAsyncProgress? Progress => (IAsyncProgress)null;
-            public object State => null;
-
-            #endregion
-
-            #region Methods
-
-            public void ThrowIfCancellationRequested()
-            {
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #endregion
-
         #region Methods
 
         [Test]
@@ -76,9 +51,9 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         {
             var options = new DrawingOptions
             {
-                AntiAliasing = false,
-                FillMode = ShapeFillMode.Alternate,
-                AlphaBlending = false,
+                AntiAliasing = true,
+                //FillMode = ShapeFillMode.NonZero,
+                //AlphaBlending = false,
             };
 
             var path = new Path();
@@ -104,7 +79,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             using var bitmapData = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(path.Bounds.Location));
 
-            var singleThreadContext = new CustomContext(1);
+            var singleThreadContext = new SimpleContext(1);
             //var twoThreadContext = new CustomContext(2);
 
             //new PerformanceTest { TestName = $"{path.Bounds.Size}" /*Iterations = 10_000*/ }
@@ -127,8 +102,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //    .DumpResults(Console.Out);
 
             bitmapData.Clear(Color.Cyan);
-            bitmapData.FillPath(singleThreadContext, path, Brush.CreateSolid(Color.Blue), options);
-
+            bitmapData.FillPath(null, path, Brush.CreateSolid(Color.Blue), options);
             //AssertAreEqual(bitmapData, BitmapDataFactory.Load(File.OpenRead(@"D:\temp\Images\ref\ref.raw")));
         }
 

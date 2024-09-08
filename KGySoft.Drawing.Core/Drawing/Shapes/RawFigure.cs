@@ -18,7 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
+#endif
 
 using KGySoft.CoreLibraries;
 

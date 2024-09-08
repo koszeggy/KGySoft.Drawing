@@ -1995,7 +1995,7 @@ namespace KGySoft.Drawing.Imaging
         /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item> 
         /// <item>A couple of overloads have an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
-        /// These methods are special ones and are designed to be used from your custom asynchronous methods where drawing one bitmap into another one is just one step of potentially multiple operations.
+        /// These methods are special ones and are designed to be used from your custom asynchronous methods where drawing a bitmap into another one is just one step of potentially multiple operations.
         /// But you can also use these overloads to force synchronous execution on a single thread.
         /// See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</item>

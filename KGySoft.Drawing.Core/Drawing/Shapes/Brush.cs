@@ -16,22 +16,15 @@
 #region Usings
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
-using System.Reflection;
+#endif
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
-using KGySoft.Reflection;
 using KGySoft.Threading;
 
 #endregion
@@ -79,13 +72,8 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             private ArraySection<byte> primaryBuffer; // allocated by the known number of vertices
             private ArraySection<byte> secondaryBuffer; // allocated after determining the number of edges
-#else
-            private ArraySection<EdgeEntry> edgesBuffer;
-            private ArraySection<int> intBuffer;
-#endif
 
             [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
                 Justification = "Preventing creating defensive copy for older platforms where the properties are not readonly.")]
@@ -108,11 +96,7 @@ namespace KGySoft.Drawing.Shapes
             protected int Bottom => bounds.Bottom;
             protected int Left => bounds.Left;
             protected int Width => bounds.Width;
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             protected CastArray<byte, EdgeEntry> Edges { get; }
-#else
-            protected ArraySection<EdgeEntry> Edges { get; }
-#endif
 
             #endregion
 
@@ -120,7 +104,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             protected unsafe RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
             {
                 #region Local Methods
@@ -155,44 +138,14 @@ namespace KGySoft.Drawing.Shapes
                     sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
                 }
 
-                sortedIndexYStartKeys.AsSpan.Sort(sortedIndexYStart.AsSpan);
-                sortedIndexYEndKeys.AsSpan.Sort(sortedIndexYEnd.AsSpan);
+                sortedIndexYStartKeys.Sort(sortedIndexYStart);
+                sortedIndexYEndKeys.Sort(sortedIndexYEnd);
 
                 SortedIndexYStart = sortedIndexYStart;
                 SortedIndexYEnd = sortedIndexYEnd;
             }
 
             protected ArraySection<byte> GetActiveTableBuffer() => secondaryBuffer.Slice(sizeof(int) * 2 * Edges.Length);
-#else
-            protected RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
-            {
-                this.bounds = bounds;
-                edgesBuffer = new ArraySection<EdgeEntry>(path.TotalVertices, false);
-                Edges = new EdgeTable(edgesBuffer, path, roundingUnit).Edges;
-                int edgeCount = Edges.Length;
-                intBuffer = new ArraySection<int>(edgeCount << 1, false);
-
-                var floatBuffer = new ArraySection<float>(edgeCount << 1, false);
-                var sortedIndexYStart = intBuffer.Slice(0, edgeCount);
-                var sortedIndexYEnd = intBuffer.Slice(edgeCount);
-                var sortedIndexYStartKeys = floatBuffer.Slice(0, edgeCount);
-                var sortedIndexYEndKeys = floatBuffer.Slice(edgeCount);
-                for (int i = 0; i < edgeCount; i++)
-                {
-                    ref EdgeEntry edge = ref Edges.GetElementReference(i);
-                    sortedIndexYStartKeys[i] = edge.YStart;
-                    sortedIndexYEndKeys[i] = edge.YEnd;
-                    sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
-                }
-
-                Array.Sort(sortedIndexYStartKeys.UnderlyingArray!, sortedIndexYStart.UnderlyingArray, 0, edgeCount);
-                Array.Sort(sortedIndexYEndKeys.UnderlyingArray!, sortedIndexYEnd.UnderlyingArray, edgeCount, edgeCount);
-                floatBuffer.Release();
-
-                SortedIndexYStart = sortedIndexYStart;
-                SortedIndexYEnd = sortedIndexYEnd;
-            }
-#endif
 
             #endregion
 
@@ -205,11 +158,7 @@ namespace KGySoft.Drawing.Shapes
                 // Not the usual dispose pattern to make it a bit more performant,
                 // and because we know that we don't need protection against multiple disposals, etc.
                 primaryBuffer.Release();
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 secondaryBuffer.Release();
-#else
-                intBuffer.Release();
-#endif
             }
 
             #endregion
@@ -1163,7 +1112,7 @@ namespace KGySoft.Drawing.Shapes
                 Count -= removed;
 
                 CastArray<byte, float> result = Intersections.Slice(0, intersectionsCount);
-                result.AsSpan.Sort();
+                result.Sort();
                 return result;
             }
 
@@ -1322,7 +1271,7 @@ namespace KGySoft.Drawing.Shapes
                 Count -= removed;
                 intersections = intersections.Slice(0, intersectionsCount);
                 types = types.Slice(0, intersectionsCount);
-                intersections.AsSpan.Sort(types.AsSpan);
+                intersections.Sort(types);
 
                 // Counting the winding number and applying the nonzero winding rule. See details here: https://en.wikipedia.org/wiki/Point_in_polygon#Winding_number_algorithm
                 removed = 0;
@@ -1366,7 +1315,6 @@ namespace KGySoft.Drawing.Shapes
 
         #region EdgeTable struct
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         private ref struct EdgeTable
         {
             #region Properties
@@ -1411,52 +1359,6 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
         }
-#else
-        private ref struct EdgeTable
-        {
-            #region Properties
-
-            internal ArraySection<EdgeEntry> Edges { get; }
-
-            #endregion
-
-            #region Constructors
-
-            public EdgeTable(ArraySection<EdgeEntry> buffer, RawPath path, float roundingUnit)
-            {
-                var snappedYCoords = new ArraySection<float>(path.MaxVertices + 1);
-                var enumerator = new EdgeEnumerator(buffer);
-                foreach (RawFigure figure in path.Figures)
-                {
-                    PointF[] vertices = figure.Vertices;
-                    if (vertices.Length <= 3)
-                        continue;
-
-                    for (int i = 0; i < vertices.Length; i++)
-                        snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
-
-                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, vertices.Length - 2),
-                        new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 0));
-
-                    enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 1));
-
-                    for (int i = 1; i < vertices.Length - 2; i++)
-                        enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, i + 1));
-
-                    // 1st edge
-                    enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords.UnderlyingArray!, 0));
-
-                    // 2nd edge
-                    enumerator.MoveNextEdge(true, default);
-                }
-
-                Edges = buffer.Slice(0, enumerator.Count);
-                snappedYCoords.Release();
-            }
-
-            #endregion
-        }
-#endif
 
         #endregion
 
@@ -1664,11 +1566,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            private readonly Span<EdgeEntry> edges;
-#else
-            private readonly EdgeEntry[] edges;
-#endif
+            private readonly CastArray<byte, EdgeEntry> edges;
 
             internal int Count;
             private EdgeInfo previous;
@@ -1678,11 +1576,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             internal EdgeEnumerator(CastArray<byte, EdgeEntry> edges) => this.edges = edges;
-#else
-            internal EdgeEnumerator(EdgeEntry[] edges) => this.edges = edges;
-#endif
 
             #endregion
 
@@ -1700,7 +1594,8 @@ namespace KGySoft.Drawing.Shapes
                 EdgeInfo.ConfigureEdgeRelation(ref previous, ref current);
                 if (addPrevious && previous.Kind is EdgeKind.Ascending or EdgeKind.Descending)
                 {
-                    edges[Count] = previous.ToEdge();
+                    Debug.Assert(edges.Length > Count);
+                    edges.SetElementUnsafe(Count, previous.ToEdge());
                     Count += 1;
                 }
 
