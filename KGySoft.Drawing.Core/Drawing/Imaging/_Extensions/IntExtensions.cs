@@ -17,6 +17,9 @@
 
 using System;
 using System.Collections.Specialized;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -24,7 +27,7 @@ using System.Runtime.CompilerServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// In fact, Int32, UInt32, BitVector32
+    /// In fact, Int32, UInt32, UInt64, BitVector32
     /// </summary>
     internal static class IntExtensions
     {
@@ -72,6 +75,24 @@ namespace KGySoft.Drawing.Imaging
             // Math.Abs is still slower, even after the fix in https://github.com/dotnet/runtime/issues/24626
             Debug.Assert(i != Int32.MinValue);
             return i >= 0 ? i : -i;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static int GetFlagsCount(this ulong value)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            return BitOperations.PopCount(value);
+#else
+            // There are actually better general solutions than this but the callers cache the result.
+            int result = 0;
+            while (value != 0)
+            {
+                result++;
+                value &= value - 1;
+            }
+
+            return result;
+#endif
         }
 
         #endregion

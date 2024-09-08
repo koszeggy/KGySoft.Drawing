@@ -16,6 +16,10 @@
 #region Usings
 
 using System;
+#if !NET6_0_OR_GREATER
+using System.Diagnostics;
+using System.Security;
+#endif
 #if NET35 || NET40
 using System.Threading;
 #endif
@@ -26,12 +30,6 @@ namespace KGySoft.Drawing.Imaging
 {
     internal static class EnvironmentHelper
     {
-        #region Fields
-
-        private static int? coreCount;
-
-        #endregion
-
         #region Properties
 
 #if NET35 || NET40
@@ -40,12 +38,13 @@ namespace KGySoft.Drawing.Imaging
         internal static int CurrentThreadId => Environment.CurrentManagedThreadId;
 #endif
 
-        // Needed because on some platforms this is re-evaluated on each call. TODO: Under .NET 6 this ignores CPU affinity of the process
-        internal static int CoreCount { get; } = Environment.ProcessorCount;
+        internal static int CoreCount { get; } = GetCoreCount();
 
         #endregion
 
         #region Methods
+        
+        #region Internal Methods
 
         internal static int GetThreadBasedCacheSize() => GetThreadBasedCacheSize(CoreCount);
 
@@ -59,6 +58,44 @@ namespace KGySoft.Drawing.Imaging
             size = size <= 32 ? size << 1 : (int)(size * 1.125f);
             return size <= 8 ? 8 : ((uint)size).RoundUpToPowerOf2();
         }
+
+        #endregion
+
+        #region Private Methods
+
+#if NET6_0_OR_GREATER
+        private static int GetCoreCount() => Environment.ProcessorCount;
+#else
+        [SecuritySafeCritical]
+        private static int GetCoreCount()
+        {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT) // TODO: extract to IsWindows if needed somewhere else, too
+                return Environment.ProcessorCount;
+
+            // Here we are on Windows, targeting .NET 5 or earlier, where Environment.ProcessorCount doesn't respect affinity or CPU limit:
+            // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/environment-processorcount-on-windows
+
+            try
+            {
+                // We check if DOTNET_PROCESSOR_COUNT is set because it has a priority over any other settings
+                string? var = Environment.GetEnvironmentVariable("DOTNET_PROCESSOR_COUNT");
+                if (var is not null && Int32.TryParse(var, out int result))
+                    return result;
+
+                // Using CPU affinity
+                // NOTE: Unlike the latest Environment.ProcessorCount implementations, not checking if multiple CPU groups are available
+                // because it's supported on Windows 11+ only, which was released after .NET 5 anyway.
+                nint affinity = Process.GetCurrentProcess().ProcessorAffinity;
+                return affinity == 0 ? Environment.ProcessorCount : ((ulong)affinity).GetFlagsCount();
+            }
+            catch (Exception) // Not letting the type initializer to throw anything. Cannot really happen, maybe only partially trusted domains in .NET Framework.
+            {
+                return Environment.ProcessorCount;
+            }
+        }
+#endif
+
+        #endregion
 
         #endregion
     }
