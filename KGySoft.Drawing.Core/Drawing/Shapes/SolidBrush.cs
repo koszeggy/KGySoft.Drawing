@@ -185,7 +185,7 @@ namespace KGySoft.Drawing.Shapes
                         default:
                             pos = x + left;
                             backColor = row.DoGetColor32(pos);
-                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * c.A), c).Blend(backColor, colorSpace));
+                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor, colorSpace));
                             continue;
                     }
                 }
@@ -230,7 +230,7 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Methods
-        
+
         internal override void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions)
         {
             throw new NotImplementedException();
