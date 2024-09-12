@@ -149,22 +149,23 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal IReadableBitmapData? GetRegion(IAsyncContext context, Pen pen, DrawingOptions drawingOptions)
-        {
-            // TODO: try get from a small locking cache that can dispose the dropped items
-            // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
-            throw new NotImplementedException();
-        }
+        // TODO
+        //internal IReadableBitmapData? GetRegion(IAsyncContext context, Pen pen, DrawingOptions drawingOptions)
+        //{
+        //    // TODO: try get from a small locking cache that can dispose the dropped items
+        //    // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
+        //    throw new NotImplementedException();
+        //}
 
-        internal IReadableBitmapData? GetRegion(IAsyncContext context, Brush pen, DrawingOptions drawingOptions)
-        {
-            // TODO: trivial shortcut for a simple filled rectangle (SolidBitmapData) - or just assert if that should be handled earlier
+        //internal IReadableBitmapData? GetRegion(IAsyncContext context, Brush pen, DrawingOptions drawingOptions)
+        //{
+        //    // TODO: trivial shortcut for a simple filled rectangle (SolidBitmapData) - or just assert if that should be handled earlier
 
 
-            // TODO: try get from a small locking cache that can dispose the dropped items
-            // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
-            throw new NotImplementedException();
-        }
+        //    // TODO: try get from a small locking cache that can dispose the dropped items
+        //    // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
 

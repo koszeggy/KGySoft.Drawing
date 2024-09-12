@@ -54,12 +54,41 @@ namespace KGySoft.Drawing.Shapes
 
         #region FillPathSession class
 
-        private protected abstract class FillPathSession
+        private protected abstract class FillPathSession : IDisposable
         {
             #region Methods
 
+            #region Public Methods
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            #endregion
+
+            #region Internal Methods
+
             internal abstract void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline);
             internal abstract void ApplyScanlineSolid(in RegionScanline<byte> scanline);
+
+            /// <summary>
+            /// Completing the session if it wasn't canceled and there were no errors. Unlike Dispose, this executes only on success.
+            /// </summary>
+            internal virtual void FinalizeSession(IAsyncContext context)
+            {
+            }
+
+            #endregion
+
+            #region Protected Methods
+
+            protected virtual void Dispose(bool disposing)
+            {
+            }
+
+            #endregion
 
             #endregion
         }
@@ -1681,7 +1710,7 @@ namespace KGySoft.Drawing.Shapes
             if (bounds.IsEmpty || context.IsCancellationRequested)
                 return;
 
-            FillPathSession session = CreateSession(bitmapData, bounds, drawingOptions);
+            using FillPathSession session = CreateSession(context, bitmapData, bounds, drawingOptions);
             using RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
 
             if (scanner.IsSingleThreaded)
@@ -1695,20 +1724,23 @@ namespace KGySoft.Drawing.Shapes
                     context.Progress?.Increment();
                 }
 
+                session.FinalizeSession(context);
                 return;
             }
 
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom,
                 y => scanner.ProcessScanline(y, session));
+            session.FinalizeSession(context);
         }
 
-        internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
+        // TODO
+        //internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
 
         #endregion
 
         #region Private Protected Methods
 
-        private protected abstract FillPathSession CreateSession(IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions);
+        private protected abstract FillPathSession CreateSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions);
 
         #endregion
 

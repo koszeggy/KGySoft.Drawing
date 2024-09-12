@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 
 using KGySoft.Threading;
@@ -106,10 +107,12 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions? drawingOptions)
         {
-            drawingOptions ??= DrawingOptions.Default;
-            IReadableBitmapData? region = path.GetRegion(context, pen, drawingOptions);
-            if (region != null)
-                pen.Brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
+            // TODO
+            //drawingOptions ??= DrawingOptions.Default;
+            //IReadableBitmapData? region = path.GetRegion(context, pen, drawingOptions);
+            //if (region != null)
+            //    pen.Brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
+            throw new NotImplementedException();
         }
 
         private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions)

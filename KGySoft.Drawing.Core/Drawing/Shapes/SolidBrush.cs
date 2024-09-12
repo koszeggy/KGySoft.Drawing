@@ -72,6 +72,7 @@ namespace KGySoft.Drawing.Shapes
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
+
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     float value = scanline.Scanline.GetElementUnsafe(x);
@@ -83,7 +84,7 @@ namespace KGySoft.Drawing.Shapes
                             row.DoSetColor32(x + left, c);
                             continue;
                         default:
-                            row.DoSetColor32(x + left, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c));
+                            row.DoSetColor32(x + left, Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c));
                             continue;
                     }
                 }
@@ -196,6 +197,321 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region SolidFillSessionWithQuntizing class
+
+        private sealed class SolidFillSessionWithQuantizing : FillPathSession
+        {
+            #region Fields
+
+            private readonly Color32 color;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly bool blend;
+            private readonly IQuantizingSession quantizingSession;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionWithQuantizing(IAsyncContext context, SolidBrush owner, IReadWriteBitmapData bitmapData, IQuantizer quantizer, bool blend)
+            {
+                this.blend = blend;
+                color = owner.Color32;
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                IQuantizingSession session = quantizingSession;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                            row.DoSetColor32(x + left, session.GetQuantizedColor(c));
+                    }
+                }
+
+                var colorSpace = session.WorkingColorSpace;
+                byte alphaThreshold = session.AlphaThreshold;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        Color32 quantizedColor = session.GetQuantizedColor(c.Blend(row.DoGetColor32(pos), colorSpace));
+                        if (quantizedColor.A >= alphaThreshold)
+                            row.DoSetColor32(pos, quantizedColor);
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                IQuantizingSession session = quantizingSession;
+
+                // no blending: writing even transparent result pixels
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        switch (value)
+                        {
+                            case <= 0f:
+                                continue;
+                            case >= 1f:
+                                row.DoSetColor32(x + left, session.GetQuantizedColor(c));
+                                continue;
+                            default:
+                                row.DoSetColor32(x + left, session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c)));
+                                continue;
+                        }
+                    }
+                }
+
+                // blending: skipping too transparent pixels
+                var colorSpace = session.WorkingColorSpace;
+                byte alphaThreshold = session.AlphaThreshold;
+                if (c.A == Byte.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        switch (value)
+                        {
+                            case <= 0f:
+                                continue;
+                            case >= 1f:
+                                Color32 quantizedColor = session.GetQuantizedColor(c);
+                                if (quantizedColor.A >= alphaThreshold)
+                                    row.DoSetColor32(x + left, quantizedColor);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                quantizedColor = session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace));
+                                if (quantizedColor.A >= alphaThreshold)
+                                    row.DoSetColor32(pos, quantizedColor);
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    switch (value)
+                    {
+                        case <= 0f:
+                            continue;
+                        case >= 1f:
+                            int pos = x + left;
+                            Color32 quantizedColor = session.GetQuantizedColor(c.Blend(row.DoGetColor32(pos), colorSpace));
+                            if (quantizedColor.A >= alphaThreshold)
+                                row.DoSetColor32(pos, quantizedColor);
+                            continue;
+                        default:
+                            pos = x + left;
+                            quantizedColor = session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace));
+                            if (quantizedColor.A >= alphaThreshold)
+                                row.DoSetColor32(pos, quantizedColor);
+                            continue;
+                    }
+                }
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                quantizingSession.Dispose();
+                base.Dispose(disposing);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionWithDithering class
+
+        private sealed class SolidFillSessionWithDithering : FillPathSession
+        {
+            #region Fields
+
+            private readonly Color32 color;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly bool blend;
+            private readonly IQuantizingSession quantizingSession;
+            private readonly IDitheringSession? ditheringSession;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionWithDithering(IAsyncContext context, SolidBrush owner, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, bool blend)
+            {
+                this.blend = blend;
+                color = owner.Color32;
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                    return;
+                ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IDitheringSession? session = ditheringSession;
+                if (session == null)
+                {
+                    Debug.Fail("Dithering session is not expected to be null here");
+                    return;
+                }
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                            row.DoSetColor32(x + left, session.GetDitheredColor(c, x, scanline.RowIndex));
+                    }
+                }
+
+                var colorSpace = quantizingSession.WorkingColorSpace;
+                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                        if (ditheredColor.A >= alphaThreshold)
+                            row.DoSetColor32(pos, ditheredColor);
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            {
+                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                IDitheringSession? session = ditheringSession;
+                if (session == null)
+                {
+                    Debug.Fail("Dithering session is not expected to be null here");
+                    return;
+                }
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                int left = scanline.Left;
+                var colorSpace = quantizingSession.WorkingColorSpace;
+
+                // no blending: writing even transparent result pixels
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        switch (value)
+                        {
+                            case <= 0f:
+                                continue;
+                            case >= 1f:
+                                row.DoSetColor32(x + left, session.GetDitheredColor(c, x, scanline.RowIndex));
+                                continue;
+                            default:
+                                row.DoSetColor32(x + left, session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c), x, scanline.RowIndex));
+                                continue;
+                        }
+                    }
+                }
+
+                // blending: skipping too transparent pixels
+                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                if (c.A == Byte.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        switch (value)
+                        {
+                            case <= 0f:
+                                continue;
+                            case >= 1f:
+                                Color32 ditheredColor = session.GetDitheredColor(c, x, scanline.RowIndex);
+                                if (ditheredColor.A >= alphaThreshold)
+                                    row.DoSetColor32(x + left, ditheredColor);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                                if (ditheredColor.A >= alphaThreshold)
+                                    row.DoSetColor32(x + left, ditheredColor);
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    switch (value)
+                    {
+                        case <= 0f:
+                            continue;
+                        case >= 1f:
+                            int pos = x + left;
+                            Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                            if (ditheredColor.A >= alphaThreshold)
+                                row.DoSetColor32(pos, ditheredColor);
+                            continue;
+                        default:
+                            pos = x + left;
+                            ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                            if (ditheredColor.A >= alphaThreshold)
+                                row.DoSetColor32(pos, ditheredColor);
+                            continue;
+                    }
+                }
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                ditheringSession?.Dispose();
+                quantizingSession.Dispose();
+                base.Dispose(disposing);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #endregion
 
         #region Fields
@@ -231,15 +547,33 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        internal override void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions)
+        private protected override FillPathSession CreateSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
         {
-            throw new NotImplementedException();
-        }
+            IQuantizer? quantizer = drawingOptions.Quantizer;
+            IDitherer? ditherer = drawingOptions.Ditherer;
+            bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
-        private protected override FillPathSession CreateSession(IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
-            => drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing)
+            bool isTwoPass = quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true;
+            if (isTwoPass)
+            {
+                throw new NotImplementedException("TwoPassSolidFillSession");
+                //var workingColorSpace = quantizer.WorkingColorSpace();
+                //var firstSessionTarget = BitmapDataFactory.CreateBitmapData(bounds.Size, bitmapData.GetPreferredFirstPassPixelFormat(workingColorSpace));
+                //return new TwoPassSolidFillSession(this, bitmapData, firstSessionTarget, quantizer, ditherer);
+            }
+
+            bool blend = drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing);
+            if (ditherer != null)
+                return new SolidFillSessionWithDithering(context, this, bitmapData, quantizer, ditherer, blend);
+
+            if (quantizer != null)
+                return new SolidFillSessionWithQuantizing(context, this, bitmapData, quantizer, blend);
+
+            // TODO: && bitmapData.PixelFormat/WorkingColorSpace prefers Color32...
+            return blend
                 ? new SolidFillSessionWithBlending(this, bitmapData)
                 : new SolidFillSessionNoBlending(this, bitmapData);
+        }
 
         #endregion
     }

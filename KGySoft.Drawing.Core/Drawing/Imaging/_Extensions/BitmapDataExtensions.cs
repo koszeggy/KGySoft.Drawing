@@ -132,6 +132,17 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
+        internal static void AdjustQuantizerAndDitherer(this IBitmapData target, ref IQuantizer? quantizer, ref IDitherer? ditherer)
+        {
+            if (quantizer != null || ditherer == null)
+                return;
+
+            if (target.PixelFormat.CanBeDithered)
+                quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
+            else
+                ditherer = null;
+        }
+
         #endregion
 
         #region Private Methods
@@ -157,17 +168,6 @@ namespace KGySoft.Drawing.Imaging
                         return;
                 }
             }
-        }
-
-        private static void AdjustQuantizerAndDitherer(IBitmapData target, ref IQuantizer? quantizer, ref IDitherer? ditherer)
-        {
-            if (quantizer != null || ditherer == null)
-                return;
-
-            if (target.PixelFormat.CanBeDithered)
-                quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
-            else
-                ditherer = null;
         }
 
         private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, WorkingColorSpace quantizerWorkingColorSpace)
