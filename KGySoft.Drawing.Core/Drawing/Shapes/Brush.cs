@@ -56,6 +56,12 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract class FillPathSession : IDisposable
         {
+            #region Properties
+
+            internal virtual bool IsSingleThreaded => false;
+
+            #endregion
+
             #region Methods
 
             #region Public Methods
@@ -76,7 +82,7 @@ namespace KGySoft.Drawing.Shapes
             /// <summary>
             /// Completing the session if it wasn't canceled and there were no errors. Unlike Dispose, this executes only on success.
             /// </summary>
-            internal virtual void FinalizeSession(IAsyncContext context)
+            internal virtual void FinalizeSession()
             {
             }
 
@@ -496,7 +502,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ProcessNextScanline(FillPathSession session)
             {
-                Debug.Assert(IsSingleThreaded);
+                Debug.Assert(IsSingleThreaded || session.IsSingleThreaded);
                 if (!mainContext.MoveNextRow())
                     return;
 
@@ -1713,7 +1719,7 @@ namespace KGySoft.Drawing.Shapes
             using FillPathSession session = CreateSession(context, bitmapData, bounds, drawingOptions);
             using RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
 
-            if (scanner.IsSingleThreaded)
+            if (scanner.IsSingleThreaded || session.IsSingleThreaded)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, bounds.Height);
                 for (int y = bounds.Top; y < bounds.Bottom; y++)
@@ -1724,13 +1730,13 @@ namespace KGySoft.Drawing.Shapes
                     context.Progress?.Increment();
                 }
 
-                session.FinalizeSession(context);
+                session.FinalizeSession();
                 return;
             }
 
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom,
                 y => scanner.ProcessScanline(y, session));
-            session.FinalizeSession(context);
+            session.FinalizeSession();
         }
 
         // TODO

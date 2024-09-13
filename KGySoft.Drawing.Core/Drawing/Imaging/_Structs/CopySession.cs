@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
+using KGySoft.Collections;
 using KGySoft.Threading;
 
 #endregion
@@ -108,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
                 PerformCopyColor32();
         }
 
-        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
+        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
@@ -116,19 +117,12 @@ namespace KGySoft.Drawing.Imaging
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
-                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
                         return;
                     for (int x = 0; x < SourceRectangle.Width; x++)
-                    {
-                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
-                        if (skipTransparent && colorSrc.A < alphaThreshold)
-                            continue;
-
-                        rowDst.DoSetColor32(x + TargetRectangle.X, quantizingSession.GetQuantizedColor(colorSrc));
-                    }
+                        rowDst.DoSetColor32(x + TargetRectangle.X, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x + SourceRectangle.X)));
 
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
@@ -151,20 +145,30 @@ namespace KGySoft.Drawing.Imaging
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
-                byte alphaThreshold = Math.Max(session.AlphaThreshold, (byte)1);
-                bool skip = skipTransparent;
                 for (int x = 0; x < width; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
-                    if (skip && colorSrc.A < alphaThreshold)
-                        continue;
-
-                    rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
-                }
+                    rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(rowSrc.DoGetColor32(x + offsetSrc)));
             });
         }
 
-        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask)
+        {
+            if (!mask.IsNull)
+            {
+                PerformCopyWithQuantizerMasked(quantizingSession, skipTransparent, mask);
+                return;
+            }
+
+            if (skipTransparent)
+            {
+                PerformCopyWithQuantizerSkipTransparent(quantizingSession);
+                return;
+            }
+
+            PerformCopyWithQuantizer(quantizingSession);
+        }
+
+        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
         {
             // Sequential processing
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
@@ -172,7 +176,6 @@ namespace KGySoft.Drawing.Imaging
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
-                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -180,13 +183,7 @@ namespace KGySoft.Drawing.Imaging
 
                     // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                     for (int x = 0; x < SourceRectangle.Width; x++)
-                    {
-                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
-                        if (skipTransparent && colorSrc.A < alphaThreshold)
-                            continue;
-
-                        rowDst.DoSetColor32(x + TargetRectangle.X, ditheringSession.GetDitheredColor(colorSrc, x, y));
-                    }
+                        rowDst.DoSetColor32(x + TargetRectangle.X, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x + SourceRectangle.X), x, y));
 
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
@@ -210,19 +207,29 @@ namespace KGySoft.Drawing.Imaging
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
-                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
-                bool skip = skipTransparent;
 
                 // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                 for (int x = 0; x < width; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
-                    if (skip && colorSrc.A < alphaThreshold)
-                        continue;
-
-                    rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
-                }
+                    rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(rowSrc.DoGetColor32(x + offsetSrc), x, y));
             });
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask)
+        {
+            if (!mask.IsNull)
+            {
+                PerformCopyWithDitheringMasked(quantizingSession, ditheringSession, skipTransparent, mask);
+                return;
+            }
+
+            if (skipTransparent)
+            {
+                PerformCopyWithDitheringSkipTransparent(quantizingSession, ditheringSession);
+                return;
+            }
+
+            PerformCopyWithQuantizer(quantizingSession);
         }
 
         internal void PerformDraw(IQuantizer? quantizer, IDitherer? ditherer)
@@ -956,6 +963,258 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetPColorF(x + offsetDst, rowSrc.DoGetPColorF(x + offsetSrc));
+            });
+        }
+
+        private void PerformCopyWithQuantizerSkipTransparent(IQuantizingSession quantizingSession)
+        {
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(x + TargetRectangle.X, quantizingSession.GetQuantizedColor(colorSrc));
+                    }
+
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IQuantizingSession session = quantizingSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                byte alphaThreshold = Math.Max(session.AlphaThreshold, (byte)1);
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
+                }
+            });
+        }
+
+        private void PerformCopyWithQuantizerMasked(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask)
+        {
+            Debug.Assert(mask.Height == SourceRectangle.Height && mask.Width * 8 >= SourceRectangle.Width && mask.Width * 7 < SourceRectangle.Width);
+
+            // Sequential processing
+            if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+
+                    ArraySection<byte> maskRow = mask[y];
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                            continue;
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
+                        if (skipTransparent && colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(x + TargetRectangle.X, quantizingSession.GetQuantizedColor(colorSrc));
+                    }
+
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            var maskLocal = mask;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IQuantizingSession session = quantizingSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                byte alphaThreshold = Math.Max(session.AlphaThreshold, (byte)1);
+                bool skip = skipTransparent;
+                ArraySection<byte> maskRow = maskLocal[y];
+                for (int x = 0; x < width; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                        continue;
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+                    if (skip && colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
+                }
+            });
+        }
+
+        private void PerformCopyWithDitheringSkipTransparent(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
+        {
+            // Sequential processing
+            if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+
+                    // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(x + TargetRectangle.X, ditheringSession.GetDitheredColor(colorSrc, x, y));
+                    }
+
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IDitheringSession session = ditheringSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+
+                // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
+                }
+            });
+        }
+
+        private void PerformCopyWithDitheringMasked(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask)
+        {
+            Debug.Assert(mask.Height == SourceRectangle.Height && mask.Width * 8 >= SourceRectangle.Width && mask.Width * 7 < SourceRectangle.Width);
+
+            // Sequential processing
+            if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+                for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+
+                    ArraySection<byte> maskRow = mask[y];
+
+                    // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                    for (int x = 0; x < SourceRectangle.Width; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                            continue;
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
+                        if (skipTransparent && colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(x + TargetRectangle.X, ditheringSession.GetDitheredColor(colorSrc, x, y));
+                    }
+
+                    rowSrc.MoveNextRow();
+                    rowDst.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
+
+            // Parallel processing
+            IBitmapDataInternal source = Source;
+            IBitmapDataInternal target = Target;
+            Array2D<byte> maskLocal = mask;
+            Point sourceLocation = SourceRectangle.Location;
+            Point targetLocation = TargetRectangle.Location;
+            int sourceWidth = SourceRectangle.Width;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            {
+                IDitheringSession session = ditheringSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                ArraySection<byte> maskRow = maskLocal[y];
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                int width = sourceWidth;
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
+                bool skip = skipTransparent;
+
+                // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                for (int x = 0; x < width; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                        continue;
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+                    if (skip && colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
+                }
             });
         }
 

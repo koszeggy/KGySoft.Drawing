@@ -21,6 +21,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
+
+using KGySoft.Collections;
 #if !NET35
 using System.Threading.Tasks;
 #endif
@@ -3420,6 +3422,9 @@ namespace KGySoft.Drawing.Imaging
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, bool skipTransparent = false)
             => DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, null, skipTransparent);
 
+        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer quantizer, IDitherer? ditherer, bool skipTransparent, in Array2D<byte> mask)
+            => DoCopy(context, source, target, new Rectangle(Point.Empty, source.Size), targetLocation, quantizer, ditherer, skipTransparent, mask);
+
         internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle targetRectangle)
             => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.Size), targetRectangle, null, null, ScalingMode.Auto);
 
@@ -3635,7 +3640,7 @@ namespace KGySoft.Drawing.Imaging
 
                     // quantizing without dithering
                     if (ditherer == null)
-                        session.PerformCopyWithQuantizer(quantizingSession, false);
+                        session.PerformCopyWithQuantizer(quantizingSession);
                     else
                     {
                         // quantizing with dithering
@@ -3645,7 +3650,7 @@ namespace KGySoft.Drawing.Imaging
                             return null;
                         if (ditheringSession == null)
                             throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
+                        session.PerformCopyWithDithering(quantizingSession, ditheringSession);
                     }
 
                     return (canceled = context.IsCancellationRequested) ? null : session.Target;
@@ -3667,7 +3672,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private static bool DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target,
-            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false)
+            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false, in Array2D<byte> mask = default)
         {
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.Size);
@@ -3711,7 +3716,7 @@ namespace KGySoft.Drawing.Imaging
                 // processing without using a quantizer
                 if (quantizer == null)
                 {
-                    Debug.Assert(!skipTransparent, "Skipping transparent source pixels is not expected without quantizing. Handle it if really needed.");
+                    Debug.Assert(!skipTransparent && mask.IsNull, "Skipping transparent source pixels or applying a mask is not expected without quantizing. Handle it if really needed.");
                     session.PerformCopy();
                     return !context.IsCancellationRequested;
                 }
@@ -3734,7 +3739,7 @@ namespace KGySoft.Drawing.Imaging
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent);
+                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent, mask);
                             return !context.IsCancellationRequested;
                         }
 
@@ -3746,7 +3751,7 @@ namespace KGySoft.Drawing.Imaging
                                 return false;
                             if (ditheringSession == null)
                                 throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent);
+                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent, mask);
                         }
                     }
                 }

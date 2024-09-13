@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System.Drawing.Imaging;
-
 #region Used Namespaces
 
 using System.Drawing;
@@ -51,9 +49,13 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         {
             var options = new DrawingOptions
             {
-                AntiAliasing = true,
+                //AntiAliasing = true,
                 //FillMode = ShapeFillMode.NonZero,
                 //AlphaBlending = false,
+                //Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.Silver, 96).ConfigureColorSpace(WorkingColorSpace.Linear),
+                Quantizer = OptimizedPaletteQuantizer.Wu(256, Color.Silver, 96),
+                //Ditherer = OrderedDitherer.Bayer8x8,
+                Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
             };
 
             var path = new Path();
@@ -77,9 +79,9 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             path.CloseFigure();
             path.AddLines(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
 
-            using var bitmapData = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(path.Bounds.Location));
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(path.Bounds.Location), KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear);
 
-            var singleThreadContext = new SimpleContext(1);
+            //var singleThreadContext = new SimpleContext(1);
             //var twoThreadContext = new CustomContext(2);
 
             //new PerformanceTest { TestName = $"{path.Bounds.Size}" /*Iterations = 10_000*/ }
@@ -101,8 +103,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //    .DoTest()
             //    .DumpResults(Console.Out);
 
-            bitmapData.Clear(Color.Cyan);
-            bitmapData.FillPath(null, path, Brush.CreateSolid(Color.Blue), options);
+            //bitmapData.Clear(Color.Cyan);
+            GenerateAlphaGradient(bitmapData);
+            bitmapData.FillPath(null, path, Brush.CreateSolid(Color.FromArgb(32, Color.Blue)), options);
+            //var bmp = bitmapData.ToBitmap();
             //AssertAreEqual(bitmapData, BitmapDataFactory.Load(File.OpenRead(@"D:\temp\Images\ref\ref.raw")));
         }
 
