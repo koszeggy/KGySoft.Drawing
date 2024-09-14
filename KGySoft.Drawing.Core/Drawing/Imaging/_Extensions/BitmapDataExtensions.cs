@@ -147,6 +147,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
+        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, WorkingColorSpace quantizerWorkingColorSpace)
+            // Multi pass processing is only for quantizers or ditherers that require initialization with the actual image.
+            // Therefore, it is always enough to use a 32bpp temp 1st pass buffer because a quantizer is based on Color32 colors.
+            // To optimize blending/processing speed we use straight colors if the target is also straight or when blending
+            // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
+            => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
+                ? KnownPixelFormat.Format32bppArgb
+                : quantizerWorkingColorSpace.GetPreferredFirstPassPixelFormat();
+
         private static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
         {
@@ -169,15 +178,6 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
         }
-
-        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, WorkingColorSpace quantizerWorkingColorSpace)
-            // Multi pass processing is only for quantizers or ditherers that require initialization with the actual image.
-            // Therefore it is always enough to use a 32bpp temp 1st pass buffer because a quantizer is based on Color32 colors.
-            // To optimize blending/processing speed we use straight colors if the target is also straight or when blending
-            // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
-            => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
-                ? KnownPixelFormat.Format32bppArgb
-                : quantizerWorkingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
 
         #endregion
 
