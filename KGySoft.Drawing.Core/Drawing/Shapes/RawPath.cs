@@ -18,6 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
+
+using KGySoft.Collections;
 
 #endregion
 
@@ -28,6 +31,18 @@ namespace KGySoft.Drawing.Shapes
     /// </summary>
     internal sealed class RawPath
     {
+        #region Nested Types
+
+        [Flags]
+        private enum RegionsCacheKey
+        {
+            None,
+            NonZeroFillMode = 1,
+            AntiAliasing = 1 << 1,
+        }
+
+        #endregion
+
         #region Fields
 
         private readonly List<RawFigure> figures;
@@ -35,6 +50,8 @@ namespace KGySoft.Drawing.Shapes
         private Rectangle bounds;
         private int totalVertices;
         private int maxVertices;
+        private IThreadSafeCacheAccessor<int, Region>? regionsCache;
+
 
         #endregion
 
@@ -55,6 +72,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
+        #region Internal Methods
+        
         internal void AddRawFigure(IList<PointF> points, bool optimize)
         {
             if (points.Count == 0)
@@ -64,7 +83,41 @@ namespace KGySoft.Drawing.Shapes
             figures.Add(figure);
             totalVertices += figure.Vertices.Length - 1;
             maxVertices = Math.Max(maxVertices, figure.Vertices.Length - 1);
+            regionsCache = null;
         }
+
+        internal Region GetCreateCachedRegion(DrawingOptions drawingOptions)
+        {
+            #region Local Methods
+
+            static RegionsCacheKey GetHashKey(DrawingOptions options)
+            {
+                var result = RegionsCacheKey.None;
+                if (options.FillMode == ShapeFillMode.NonZero)
+                    result |= RegionsCacheKey.NonZeroFillMode;
+                if (options.AntiAliasing)
+                    result |= RegionsCacheKey.AntiAliasing;
+                return result;
+            }
+
+            #endregion
+
+            if (regionsCache == null)
+            {
+                var options = new LockFreeCacheOptions { InitialCapacity = 4, ThresholdCapacity = 4, HashingStrategy = HashingStrategy.And, MergeInterval = TimeSpan.FromMilliseconds(100) };
+                Interlocked.CompareExchange(ref regionsCache, ThreadSafeCacheFactory.Create<int, Region>(CreateRegion, options), null);
+            }
+
+            return regionsCache[(int)GetHashKey(drawingOptions)];
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private Region CreateRegion(int key) => new Region(bounds, ((RegionsCacheKey)key & RegionsCacheKey.AntiAliasing) != 0);
+
+        #endregion
 
         #endregion
     }

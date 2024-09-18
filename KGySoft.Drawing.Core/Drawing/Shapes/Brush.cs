@@ -56,9 +56,24 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract class FillPathSession : IDisposable
         {
+
             #region Properties
 
             internal virtual bool IsSingleThreaded => false;
+            internal IAsyncContext Context { get; }
+            internal DrawingOptions DrawingOptions { get; }
+            internal Rectangle Bounds { get; }
+
+            #endregion
+
+            #region Constructors
+
+            protected FillPathSession(IAsyncContext context, DrawingOptions options, Rectangle bounds)
+            {
+                Context = context;
+                DrawingOptions = options;
+                Bounds = bounds;
+            }
 
             #endregion
 
@@ -103,16 +118,18 @@ namespace KGySoft.Drawing.Shapes
 
         #region RegionScanner class
 
+        [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
+            Justification = "Rectangles: Preventing creating defensive copies on older platforms where the properties are not readonly.")]
         private abstract class RegionScanner : IDisposable
         {
+
             #region Fields
 
             private ArraySection<byte> primaryBuffer; // allocated by the known number of vertices
             private ArraySection<byte> secondaryBuffer; // allocated after determining the number of edges
 
-            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
-                Justification = "Preventing creating defensive copy for older platforms where the properties are not readonly.")]
-            private Rectangle bounds;
+            private Rectangle generateBounds;
+            private Rectangle visibleBounds;
 
             #endregion
 
@@ -121,16 +138,23 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Properties
 
             internal abstract bool IsSingleThreaded { get; }
-            protected CastArray<byte, int> SortedIndexYStart { get; }
-            protected CastArray<byte, int> SortedIndexYEnd { get; }
+            internal Region? Region { get; }
 
             #endregion
 
             #region Protected Properties
 
-            protected int Bottom => bounds.Bottom;
-            protected int Left => bounds.Left;
-            protected int Width => bounds.Width;
+            protected FillPathSession Session { get; }
+            protected CastArray<byte, int> SortedIndexYStart { get; }
+            protected CastArray<byte, int> SortedIndexYEnd { get; }
+            protected int Top => generateBounds.Top;
+            protected int Bottom => generateBounds.Bottom;
+            protected int Left => generateBounds.Left;
+            protected int Width => generateBounds.Width;
+            protected int VisibleTop => visibleBounds.Top;
+            protected int VisibleBottom => visibleBounds.Bottom;
+            protected int VisibleLeft => visibleBounds.Left;
+            protected int VisibleWidth => visibleBounds.Width;
             protected CastArray<byte, EdgeEntry> Edges { get; }
 
             #endregion
@@ -139,7 +163,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected unsafe RegionScanner(RawPath path, Rectangle bounds, DrawingOptions drawingOptions, float roundingUnit)
+            protected unsafe RegionScanner(FillPathSession session, RawPath path, float roundingUnit, Region? region)
             {
                 #region Local Methods
 
@@ -150,7 +174,10 @@ namespace KGySoft.Drawing.Shapes
 
                 #endregion
 
-                this.bounds = bounds;
+                Session = session;
+                Region = region;
+                visibleBounds = session.Bounds;
+                generateBounds = region == null ? visibleBounds : path.Bounds;
                 int len = sizeof(EdgeEntry) * path.TotalVertices
                     + sizeof(float) * (path.MaxVertices + 1);
                 primaryBuffer = new ArraySection<byte>(len, false);
@@ -159,7 +186,7 @@ namespace KGySoft.Drawing.Shapes
                 int edgeCount = Edges.Length;
 
                 len = sizeof(int) * 2 * edgeCount
-                    + Math.Max(sizeof(float) * 2 * edgeCount, GetActiveTableBufferSize(drawingOptions.FillMode, edgeCount, path.TotalVertices)); // Max: the floats are needed locally only, then they can be re-used
+                    + Math.Max(sizeof(float) * 2 * edgeCount, GetActiveTableBufferSize(session.DrawingOptions.FillMode, edgeCount, path.TotalVertices)); // Max: the floats are needed locally only, then they can be re-used
                 var buffer = secondaryBuffer = new ArraySection<byte>(len, false);
                 var sortedIndexYStart = buffer.Allocate<int>(edgeCount);
                 var sortedIndexYEnd = buffer.Allocate<int>(edgeCount);
@@ -200,8 +227,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal abstract void ProcessScanline(int y, FillPathSession session);
-            internal abstract void ProcessNextScanline(FillPathSession session);
+            internal abstract void ProcessScanline(int y);
+            internal abstract void ProcessNextScanline();
 
             #endregion
 
@@ -249,8 +276,22 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(0, rowStartMin);
-                internal int EndX => Math.Min(scanner.Width - 1, rowEndMax);
+                internal int StartX => Math.Max(scanner.VisibleLeft - scanner.Left, rowStartMin);
+                internal int EndX => Math.Min(scanner.VisibleLeft - scanner.Left + scanner.VisibleWidth - 1, rowEndMax);
+
+                internal bool IsVisibleScanlineDirty
+                {
+                    get
+                    {
+                        if (scanner.Region != null)
+                        {
+                            if (CurrentY < scanner.VisibleTop || CurrentY >= scanner.VisibleBottom || StartX > EndX)
+                                return false;
+                        }
+
+                        return IsScanlineDirty;
+                    }
+                }
 
                 #endregion
 
@@ -261,7 +302,9 @@ namespace KGySoft.Drawing.Shapes
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
                     scanlinePixelWidth = scanner.Width;
-                    ScanlineBuffer = new ArraySection<byte>(KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth));
+                    ScanlineBuffer = scanner.Region is Region region
+                        ? region.Mask[0]
+                        : new ArraySection<byte>(KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth));
 
                     if (scanner.Edges.Length == 0)
                         return;
@@ -276,7 +319,9 @@ namespace KGySoft.Drawing.Shapes
                     activeEdges = other.activeEdges.Clone();
 
                     // not pooling from here because colliding cache items might be overwritten while they are still in use
-                    ScanlineBuffer = new byte[other.ScanlineBuffer.Length];
+                    ScanlineBuffer = scanner.Region is Region region
+                        ? region.Mask[top - scanner.Top]
+                        : new byte[other.ScanlineBuffer.Length];
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -342,7 +387,9 @@ namespace KGySoft.Drawing.Shapes
                     if (CurrentY >= scanner.Bottom)
                         return false;
 
-                    if (IsScanlineDirty)
+                    if (scanner.Region is Region region)
+                        ScanlineBuffer = region.Mask[CurrentY - scanner.Top];
+                    else if (IsScanlineDirty)
                         ScanlineBuffer.Clear();
                     IsScanlineDirty = false;
 
@@ -463,15 +510,18 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public SolidRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(path, bounds, drawingOptions, roundingUnit)
+            public SolidRegionScanner(FillPathSession session, RawPath path, Region? region)
+                : base(session, path, roundingUnit, region)
             {
+                var drawingOptions = session.DrawingOptions;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
+                var context = session.Context;
 
                 mainContext = new SolidScannerContext(this, activeEdges);
-                mainContext.SkipEdgesAbove(bounds.Top);
+                mainContext.SkipEdgesAbove(Top);
 
-                if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
+                int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
+                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
                     return;
 
                 threadContextCache = new StrongBox<(int ThreadId, SolidScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
@@ -500,19 +550,19 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal override void ProcessNextScanline(FillPathSession session)
+            internal override void ProcessNextScanline()
             {
-                Debug.Assert(IsSingleThreaded || session.IsSingleThreaded);
+                Debug.Assert(IsSingleThreaded || Session.IsSingleThreaded);
                 if (!mainContext.MoveNextRow())
                     return;
 
                 mainContext.ScanCurrentRow();
 
-                if (mainContext.IsScanlineDirty)
-                    session.ApplyScanlineSolid(new RegionScanline<byte>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
+                if (mainContext.IsVisibleScanlineDirty)
+                    Session.ApplyScanlineSolid(new RegionScanline<byte>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
-            internal override void ProcessScanline(int y, FillPathSession session)
+            internal override void ProcessScanline(int y)
             {
                 Debug.Assert(!IsSingleThreaded);
 
@@ -521,7 +571,7 @@ namespace KGySoft.Drawing.Shapes
                 context.ScanCurrentRow();
 
                 if (context.IsScanlineDirty)
-                    session.ApplyScanlineSolid(new RegionScanline<byte>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+                    Session.ApplyScanlineSolid(new RegionScanline<byte>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
             #endregion
@@ -615,8 +665,13 @@ namespace KGySoft.Drawing.Shapes
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
-                    scanlineBuffer = new ArraySection<byte>(sizeof(float) * scanner.Width);
-                    ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
+                    if (scanner.Region is Region region)
+                        ScanlineBuffer = region.MaskF[0];
+                    else
+                    {
+                        scanlineBuffer = new ArraySection<byte>(sizeof(float) * scanner.Width);
+                        ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
+                    }
 
                     if (scanner.Edges.Length == 0)
                         return;
@@ -630,9 +685,15 @@ namespace KGySoft.Drawing.Shapes
                     this = other;
                     activeEdges = other.activeEdges.Clone();
 
-                    // not pooling from here because colliding cache items might be overwritten while they are still in use
-                    scanlineBuffer = new byte[other.scanlineBuffer.Length];
-                    ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
+                    if (scanner.Region is Region region)
+                        ScanlineBuffer = region.MaskF[top];
+                    else
+                    {
+                        // not pooling from here because colliding cache items might be overwritten while they are still in use
+                        scanlineBuffer = new byte[other.scanlineBuffer.Length];
+                        ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
+                    }
+
                     IsScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
@@ -700,7 +761,9 @@ namespace KGySoft.Drawing.Shapes
                     if (CurrentY >= scanner.Bottom)
                         return false;
 
-                    if (IsScanlineDirty)
+                    if (scanner.Region is Region region)
+                        ScanlineBuffer = region.MaskF[CurrentY - scanner.Top];
+                    else if (IsScanlineDirty)
                         ScanlineBuffer.Clear();
                     IsScanlineDirty = false;
 
@@ -827,18 +890,21 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public AntiAliasingRegionScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(path, bounds, drawingOptions, 1f / subpixelCount)
+            public AntiAliasingRegionScanner(FillPathSession session, RawPath path, Region? region)
+                : base(session, path, 1f / subpixelCount, region)
             {
                 subpixelSize = 1f / subpixelCount;
                 subpixelArea = 1f / (subpixelCount * subpixelCount);
 
+                var drawingOptions = session.DrawingOptions;
+                var context = session.Context;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
                 mainContext = new AntiAliasingScannerContext(this, activeEdges);
-                mainContext.SkipEdgesAbove(bounds.Top);
+                mainContext.SkipEdgesAbove(Top);
 
-                if (bounds.Width < parallelThreshold || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
+                int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
+                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
                     return;
 
                 threadContextCache = new StrongBox<(int ThreadId, AntiAliasingScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
@@ -867,7 +933,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal override void ProcessNextScanline(FillPathSession session)
+            internal override void ProcessNextScanline()
             {
                 Debug.Assert(IsSingleThreaded);
                 if (!mainContext.MoveNextRow())
@@ -877,10 +943,10 @@ namespace KGySoft.Drawing.Shapes
                     mainContext.ScanCurrentSubpixelRow();
 
                 if (mainContext.IsScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
+                    Session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
-            internal override void ProcessScanline(int y, FillPathSession session)
+            internal override void ProcessScanline(int y)
             {
                 Debug.Assert(!IsSingleThreaded);
 
@@ -891,7 +957,7 @@ namespace KGySoft.Drawing.Shapes
                     context.ScanCurrentSubpixelRow();
 
                 if (context.IsScanlineDirty)
-                    session.ApplyScanlineAntiAliasing(new RegionScanline<float>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+                    Session.ApplyScanlineAntiAliasing(new RegionScanline<float>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
             #endregion
@@ -1673,6 +1739,94 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region RegionApplicator struct
+
+        private struct RegionApplicator
+        {
+            #region Constants
+
+            private const int parallelThreshold = 256;
+
+            #endregion
+
+            #region Fields
+
+            private readonly FillPathSession session;
+            private readonly Region region;
+            private readonly bool isAntiAliased;
+
+            private Rectangle bounds;
+            private Rectangle visibleBounds;
+            //private readonly Array2D<byte> mask; // TODO
+            //private readonly CastArray2D<byte, float> maskF;
+
+            #endregion
+
+            #region Properties
+
+            internal bool IsSingleThreaded
+            {
+                get
+                {
+                    int parallelFactor = session.DrawingOptions.Ditherer != null ? 2 : session.DrawingOptions.Quantizer != null ? 1 : 0;
+                    return visibleBounds.Width < (parallelThreshold >> parallelFactor) || session.Context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1;
+                }
+            }
+
+            #endregion
+
+            #region Constructors
+
+            internal RegionApplicator(FillPathSession session, Region region)
+            {
+                this.session = session;
+                this.region = region;
+                isAntiAliased = region.Mask.IsNull;
+                bounds = region.Bounds;
+                visibleBounds = session.Bounds;
+                //mask = region.Mask; // TODO
+                //maskF = region.MaskF;
+            }
+
+            #endregion
+
+            #region Methods
+
+            #region Internal Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal void ApplyScanline(int y)
+            {
+                // A virtual method like RegionScanner.ProcessScanline would be more elegant but this is actually faster
+                if (isAntiAliased)
+                    ApplyScanlineAntiAliased(y);
+                else
+                    ApplyScanlineSolid(y);
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            private void ApplyScanlineSolid(int y)
+            {
+                // TODO: startX/endX can be adjusted by 8 pixels if the start/end bytes are 0.
+                // TODO: prevent implicit cast overhead from ArraySection to CastArray
+                session.ApplyScanlineSolid(new RegionScanline<byte>(y, bounds.Left, region.Mask[y - bounds.Top], visibleBounds.Left - bounds.Left, visibleBounds.Left - bounds.Left + visibleBounds.Width - 1));
+            }
+
+            private void ApplyScanlineAntiAliased(int y)
+            {
+                throw new NotImplementedException();
+            }
+
+            #endregion
+
+            #endregion
+        }
+
+        #endregion
+
         #endregion
 
         #endregion
@@ -1691,11 +1845,10 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private static RegionScanner CreateScanner(IAsyncContext context, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-        {
-            // TODO from cache if possible
-            return drawingOptions.AntiAliasing ? new AntiAliasingRegionScanner(context, path, bounds, drawingOptions) : new SolidRegionScanner(context, path, bounds, drawingOptions);
-        }
+        private static RegionScanner CreateScanner(FillPathSession session, RawPath path, Region? region)
+            => session.DrawingOptions.AntiAliasing
+                ? new AntiAliasingRegionScanner(session, path, region)
+                : new SolidRegionScanner(session, path, region);
 
         #endregion
 
@@ -1707,40 +1860,93 @@ namespace KGySoft.Drawing.Shapes
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
-        internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
+        internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
         {
             RawPath rawPath = path/*TODO .AsClosed() - if needed, cache it, too */.RawPath;
             // TODO: if rawPath.TryGetRegion(this, bitmapData, drawingOptions, out region) -> ApplyRegion... - important: if [Row]Path is not disposable, cached regions should not use ArrayPool or unmanaged buffers
-            Rectangle bounds = Rectangle.Intersect(rawPath.Bounds, new Rectangle(Point.Empty, bitmapData.Size));
+            Rectangle pathBounds = rawPath.Bounds;
+            Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
-            if (bounds.IsEmpty || context.IsCancellationRequested)
+            if (visibleBounds.IsEmpty || context.IsCancellationRequested)
                 return;
 
-            using FillPathSession session = CreateSession(context, bitmapData, bounds, drawingOptions);
-            using RegionScanner scanner = CreateScanner(context, rawPath, bounds, drawingOptions);
-
-            if (scanner.IsSingleThreaded || session.IsSingleThreaded)
+            Region? region = null;
+            if (cache)
             {
-                context.Progress?.New(DrawingOperation.ProcessingPixels, bounds.Height);
-                for (int y = bounds.Top; y < bounds.Bottom; y++)
-                {
-                    if (context.IsCancellationRequested)
-                        return;
-                    scanner.ProcessNextScanline(session);
-                    context.Progress?.Increment();
-                }
+                region = rawPath.GetCreateCachedRegion(drawingOptions);
 
-                session.FinalizeSession();
-                return;
+                // If we already have a generated region, we just re-apply it on a much faster path.
+                if (region.IsGenerated)
+                {
+                    using FillPathSession session = CreateSession(context, bitmapData, visibleBounds, drawingOptions);
+                    var applicator = new RegionApplicator(session, region);
+                    if (applicator.IsSingleThreaded || session.IsSingleThreaded)
+                    {
+                        context.Progress?.New(DrawingOperation.ProcessingPixels, visibleBounds.Height);
+                        for (int y = visibleBounds.Top; y < visibleBounds.Bottom; y++)
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+
+                            applicator.ApplyScanline(y);
+                            context.Progress?.Increment();
+                        }
+                    }
+                    else
+                    {
+                        if (!ParallelHelper.For(context, DrawingOperation.ProcessingPixels, visibleBounds.Top, visibleBounds.Bottom,
+                                y => applicator.ApplyScanline(y)))
+                        {
+                            return;
+                        }
+                    }
+
+                    session.FinalizeSession();
+                    return;
+                }
             }
 
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, bounds.Top, bounds.Bottom,
-                y => scanner.ProcessScanline(y, session));
-            session.FinalizeSession();
-        }
+            try
+            {
+                using FillPathSession session = CreateSession(context, bitmapData, visibleBounds, drawingOptions);
+                using RegionScanner scanner = CreateScanner(session, rawPath, region);
+                Rectangle generateBounds = region == null ? visibleBounds : pathBounds;
 
-        // TODO
-        //internal abstract void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, IReadableBitmapData region, Path path, DrawingOptions drawingOptions);
+                if (scanner.IsSingleThreaded || session.IsSingleThreaded)
+                {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, generateBounds.Height);
+                    for (int y = generateBounds.Top; y < generateBounds.Bottom; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+
+                        scanner.ProcessNextScanline();
+                        context.Progress?.Increment();
+                    }
+                }
+                else
+                {
+                    if (!ParallelHelper.For(context, DrawingOperation.ProcessingPixels, generateBounds.Top, generateBounds.Bottom,
+                        y => scanner.ProcessScanline(y)))
+                    {
+                        return;
+                    }
+                }
+
+                region?.SetCompleted();
+                session.FinalizeSession();
+            }
+            catch (Exception)
+            {
+                region?.Reset();
+                throw;
+            }
+            finally
+            {
+                if (context.IsCancellationRequested)
+                    region?.Reset();
+            }
+        }
 
         #endregion
 

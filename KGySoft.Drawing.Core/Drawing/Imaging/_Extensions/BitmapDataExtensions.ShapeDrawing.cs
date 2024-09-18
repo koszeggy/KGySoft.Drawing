@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
             return context?.IsCancellationRequested != true;
         }
 
-        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null)
+        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null, bool cachePathRegion = true)
         {
 
             // TODO: make public when path contains every possible shapes
@@ -95,7 +95,7 @@ namespace KGySoft.Drawing.Imaging
 
             // TODO: fast shortcut when possible (solid non-AA brush with no quantizer)
 
-            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions);
+            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions, cachePathRegion);
             return context?.IsCancellationRequested != true;
         }
 
@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Imaging
             throw new NotImplementedException();
         }
 
-        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions)
+        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions, bool cache)
         {
             drawingOptions ??= DrawingOptions.Default;
 
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.Imaging
             //    brush.ApplyRegion(context, bitmapData, region, path, drawingOptions);
 
             // TODO: tell if region should be generated to cache (takes more memory). The Path could contain a ToCache = true if it was created by a public constructor so it wasn't created indirectly
-            brush.ApplyPath(context, bitmapData, path, drawingOptions);
+            brush.ApplyPath(context, bitmapData, path, drawingOptions, cache);
         }
 
         #endregion

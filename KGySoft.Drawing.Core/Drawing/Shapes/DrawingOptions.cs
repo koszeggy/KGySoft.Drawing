@@ -70,13 +70,14 @@ namespace KGySoft.Drawing.Shapes
             return Transformation == other.Transformation
                 && AntiAliasing == other.AntiAliasing
                 && AlphaBlending == other.AlphaBlending
+                && FillMode == other.FillMode
                 && Quantizer == other.Quantizer
                 && Ditherer == other.Ditherer;
         }
 
         public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is DrawingOptions other && Equals(other);
 
-        public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, Quantizer, Ditherer).GetHashCode();
+        public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, FillMode, Quantizer, Ditherer).GetHashCode();
 
         #endregion
     }
