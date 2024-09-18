@@ -2,7 +2,7 @@
 
   <PropertyGroup>
      <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>--> 
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
@@ -34,6 +34,7 @@
 
   <!-- Common NuGet references -->
   <ItemGroup>
+    <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
@@ -48,7 +49,7 @@
 
   <!-- .NET 7.0 or newer references: Unix is no nonger supported -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0-rc.2.23479.14" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
