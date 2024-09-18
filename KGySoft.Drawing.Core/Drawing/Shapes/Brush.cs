@@ -56,7 +56,6 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract class FillPathSession : IDisposable
         {
-
             #region Properties
 
             internal virtual bool IsSingleThreaded => false;
@@ -122,7 +121,6 @@ namespace KGySoft.Drawing.Shapes
             Justification = "Rectangles: Preventing creating defensive copies on older platforms where the properties are not readonly.")]
         private abstract class RegionScanner : IDisposable
         {
-
             #region Fields
 
             private ArraySection<byte> primaryBuffer; // allocated by the known number of vertices
@@ -570,7 +568,7 @@ namespace KGySoft.Drawing.Shapes
                 context.MoveNextRow();
                 context.ScanCurrentRow();
 
-                if (context.IsScanlineDirty)
+                if (context.IsVisibleScanlineDirty)
                     Session.ApplyScanlineSolid(new RegionScanline<byte>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
@@ -654,8 +652,22 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(0, rowStartMin);
-                internal int EndX => Math.Min(ScanlineBuffer.Length - 1, rowEndMax);
+                internal int StartX => Math.Max(scanner.VisibleLeft - scanner.Left, rowStartMin);
+                internal int EndX => Math.Min(scanner.VisibleLeft - scanner.Left + scanner.VisibleWidth - 1, rowEndMax);
+
+                internal bool IsVisibleScanlineDirty
+                {
+                    get
+                    {
+                        if (scanner.Region != null)
+                        {
+                            if (CurrentY < scanner.VisibleTop || CurrentY >= scanner.VisibleBottom || StartX > EndX)
+                                return false;
+                        }
+
+                        return IsScanlineDirty;
+                    }
+                }
 
                 #endregion
 
@@ -686,7 +698,7 @@ namespace KGySoft.Drawing.Shapes
                     activeEdges = other.activeEdges.Clone();
 
                     if (scanner.Region is Region region)
-                        ScanlineBuffer = region.MaskF[top];
+                        ScanlineBuffer = region.MaskF[top - scanner.Top];
                     else
                     {
                         // not pooling from here because colliding cache items might be overwritten while they are still in use
@@ -942,7 +954,7 @@ namespace KGySoft.Drawing.Shapes
                 while (mainContext.MoveNextSubpixelRow())
                     mainContext.ScanCurrentSubpixelRow();
 
-                if (mainContext.IsScanlineDirty)
+                if (mainContext.IsVisibleScanlineDirty)
                     Session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
@@ -1752,13 +1764,12 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly FillPathSession session;
-            private readonly Region region;
             private readonly bool isAntiAliased;
+            private readonly CastArray2D<byte, byte> mask;
+            private readonly CastArray2D<byte, float> maskF;
 
             private Rectangle bounds;
             private Rectangle visibleBounds;
-            //private readonly Array2D<byte> mask; // TODO
-            //private readonly CastArray2D<byte, float> maskF;
 
             #endregion
 
@@ -1780,12 +1791,15 @@ namespace KGySoft.Drawing.Shapes
             internal RegionApplicator(FillPathSession session, Region region)
             {
                 this.session = session;
-                this.region = region;
-                isAntiAliased = region.Mask.IsNull;
                 bounds = region.Bounds;
                 visibleBounds = session.Bounds;
-                //mask = region.Mask; // TODO
-                //maskF = region.MaskF;
+                Debug.Assert(bounds.Contains(visibleBounds));
+
+                isAntiAliased = region.Mask.IsNull;
+                if (isAntiAliased)
+                    maskF = region.MaskF;
+                else
+                    mask = region.Mask.Buffer.Cast2D<byte, byte>(region.Mask.Height, region.Mask.Width);
             }
 
             #endregion
@@ -1810,14 +1824,50 @@ namespace KGySoft.Drawing.Shapes
 
             private void ApplyScanlineSolid(int y)
             {
-                // TODO: startX/endX can be adjusted by 8 pixels if the start/end bytes are 0.
-                // TODO: prevent implicit cast overhead from ArraySection to CastArray
-                session.ApplyScanlineSolid(new RegionScanline<byte>(y, bounds.Left, region.Mask[y - bounds.Top], visibleBounds.Left - bounds.Left, visibleBounds.Left - bounds.Left + visibleBounds.Width - 1));
+                int startX = visibleBounds.Left - bounds.Left;
+                int endX = startX + visibleBounds.Width - 1;
+                CastArray<byte, byte> scanline = mask[y - bounds.Top];
+
+                // visible bounds are intersected by target bitmap bounds (and this asserted in the constructor) so we are safe here
+                if (scanline.GetElementUnsafe(startX >> 3) == 0)
+                {
+                    // adjusting to next coordinate divisible by 8
+                    startX = (startX | 7) + 1;
+                    while (startX <= endX && scanline.GetElementUnsafe(startX >> 3) == 0)
+                        startX += 8;
+                    if (startX > endX)
+                        return;
+                }
+
+                if (scanline.GetElementUnsafe(endX >> 3) == 0)
+                {
+                    // adjusting to previous coordinate divisible by 8 minus 1
+                    endX = (endX | 7) - 8;
+                    while (startX <= endX && scanline.GetElementUnsafe(endX >> 3) == 0)
+                        endX -= 8;
+                    if (startX > endX)
+                        return;
+                }
+
+                session.ApplyScanlineSolid(new RegionScanline<byte>(y, bounds.Left, scanline, startX, endX));
             }
 
             private void ApplyScanlineAntiAliased(int y)
             {
-                throw new NotImplementedException();
+                int startX = visibleBounds.Left - bounds.Left;
+                int endX = startX + visibleBounds.Width - 1;
+                CastArray<byte, float> scanline = maskF[y - bounds.Top];
+
+                while (startX <= endX && scanline.GetElementUnsafe(startX) == 0f)
+                    startX += 1;
+
+                while (startX <= endX && scanline.GetElementUnsafe(endX) == 0f)
+                    endX -= 1;
+
+                if (startX > endX)
+                    return;
+
+                session.ApplyScanlineAntiAliasing(new RegionScanline<float>(y, bounds.Left, scanline, startX, endX));
             }
 
             #endregion

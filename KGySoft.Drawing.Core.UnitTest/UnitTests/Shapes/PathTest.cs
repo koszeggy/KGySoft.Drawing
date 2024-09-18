@@ -52,15 +52,15 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] FillPathTestSource =>
         [
             //// string name, KnownPixelFormat pixelFormat, ShapeFillMode fillMode, WorkingColorSpace colorSpace, Color backColor /*Empty: AlphaGradient*/, Color fillColor, bool antiAliasing, bool alphaBlending, IQuantizer? quantizer, IDitherer? ditherer, bool singleThread
-            ["32bppArgb_Alternate_Srgb_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, false, false, null, null],
-            //["32bppArgb_NonZero_Srgb_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.NonZero, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, false, false, null, null],
-            ////["32bppArgb_Alternate_Srgb_NQ_NA_AB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, false, true, null, null],
-            //["32bppArgb_Alternate_Srgb_NQ_AA_NB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, true, false, null, null],
-            //["32bppArgb_Alternate_Srgb_NQ_AA_AB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, true, true, null, null],
-            ////["32bppArgb_Alternate_Linear_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, false, false, null, null],
-            ////["32bppArgb_Alternate_Linear_NQ_NA_AB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, false, true, null, null],
-            ////["32bppArgb_Alternate_Linear_NQ_AA_NB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, true, false, null, null],
-            //["32bppArgb_Alternate_Linear_NQ_AA_AB", KnownPixelFormat.Format32bppArgb, ShapeFillMode.Alternate, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, true, true, null, null],
+            //["32bppArgb_Alternate_Srgb_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false } ],
+            //["32bppArgb_NonZero_Srgb_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.NonZero, AlphaBlending = false, AntiAliasing = false } ],
+            ////["32bppArgb_Alternate_Srgb_NQ_NA_AB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = false } ],
+            //["32bppArgb_Alternate_Srgb_NQ_AA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = true } ],
+            ["32bppArgb_Alternate_Srgb_NQ_AA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
+            ////["32bppArgb_Alternate_Linear_NQ_NA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, false, false, null, null],
+            ////["32bppArgb_Alternate_Linear_NQ_NA_AB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, false, true, null, null],
+            ////["32bppArgb_Alternate_Linear_NQ_AA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, true, false, null, null],
+            //["32bppArgb_Alternate_Linear_NQ_AA_AB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear, Color.Cyan, Color.Blue, true, true, null, null],
         ];
 
         #endregion
@@ -68,16 +68,16 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         #region Methods
 
         [TestCaseSource(nameof(FillPathTestSource))]
-        public void FillPathTest(string name, KnownPixelFormat pixelFormat, ShapeFillMode fillMode, WorkingColorSpace colorSpace, Color backColor, Color fillColor, bool antiAliasing, bool alphaBlending, IQuantizer? quantizer, IDitherer? ditherer)
+        public void FillPathTest(string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor, Color fillColor, DrawingOptions options)
         {
-            var options = new DrawingOptions
-            {
-                FillMode = fillMode,
-                AntiAliasing = antiAliasing,
-                AlphaBlending = alphaBlending,
-                Quantizer = quantizer,
-                Ditherer = ditherer,
-            };
+            //var options = new DrawingOptions
+            //{
+            //    FillMode = fillMode,
+            //    AntiAliasing = antiAliasing,
+            //    AlphaBlending = alphaBlending,
+            //    Quantizer = quantizer,
+            //    Ditherer = ditherer,
+            //};
 
             var path = new Path();
 
@@ -109,26 +109,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //var singleThreadContext = new SimpleContext(1);
             //var twoThreadContext = new CustomContext(2);
 
-            //using var bitmapData = bitmapDataBackground.Clone();
-            //new PerformanceTest { TestName = $"{path.Bounds.Size}" /*Iterations = 10_000*/ }
-            //    .AddCase(() =>
-            //    {
-            //        //bitmapDataBackground.CopyTo(bitmapData);
-            //        bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
-            //    }, "NoCache")
-            //    .AddCase(() =>
-            //    {
-            //        //bitmapDataBackground.CopyTo(bitmapData);
-            //        bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
-            //    }, "Cache")
-            //    //.AddCase(() =>
-            //    //{
-            //    //    //bitmapData.Clear(default);
-            //    //    bitmapData.FillPath(AsyncHelper.DefaultContext, path, new SolidBrush(Color.Blue), options);
-            //    //}, "MultiThread")
-            //    .DoTest()
-            //    .DumpResults(Console.Out);
-
             // non-cached region
             var bitmapData1 = bitmapDataBackground.Clone();
             bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
@@ -143,20 +123,31 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var bitmapData3 = bitmapDataBackground.Clone();
             bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
+
+            using var bitmapData = bitmapDataBackground.Clone();
+            new PerformanceTest { TestName = $"{name} - {path.Bounds.Size}", TestTime = 5000, /*Iterations = 10_000,*/ Repeat = 3 }
+                .AddCase(() =>
+                {
+                    //bitmapDataBackground.CopyTo(bitmapData);
+                    bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
+                }, "NoCache")
+                .AddCase(() =>
+                {
+                    //bitmapDataBackground.CopyTo(bitmapData);
+                    bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+                }, "Cache")
+                //.AddCase(() =>
+                //{
+                //    //bitmapData.Clear(default);
+                //    bitmapData.FillPath(AsyncHelper.DefaultContext, path, new SolidBrush(Color.Blue), options);
+                //}, "MultiThread")
+                .DoTest()
+                .DumpResults(Console.Out);
         }
 
         [TestCaseSource(nameof(FillPathTestSource))]
-        public void ClippedFillPathTest(string name, KnownPixelFormat pixelFormat, ShapeFillMode fillMode, WorkingColorSpace colorSpace, Color backColor, Color fillColor, bool antiAliasing, bool alphaBlending, IQuantizer? quantizer, IDitherer? ditherer)
+        public void ClippedFillPathTest(string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor, Color fillColor, DrawingOptions options)
         {
-            var options = new DrawingOptions
-            {
-                FillMode = fillMode,
-                AntiAliasing = antiAliasing,
-                AlphaBlending = alphaBlending,
-                Quantizer = quantizer,
-                Ditherer = ditherer,
-            };
-
             var offset = new SizeF(-10, -10);
             var path = new Path();
             path.AddLines(new PointF(50, 0) + offset, new PointF(90, 100) + offset, new PointF(0, 40) + offset, new PointF(100, 40) + offset, new PointF(10, 100) + offset);
@@ -167,6 +158,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 
+            var singleThreadContext = new SimpleContext(1);
+
             // non-cached region
             var bitmapData1 = bitmapDataBackground.Clone();
             bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
@@ -174,7 +167,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // generating cached region
             var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData2.FillPath(singleThreadContext/*null*/, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache

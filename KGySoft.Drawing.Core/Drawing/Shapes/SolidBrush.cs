@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
