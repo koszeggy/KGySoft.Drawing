@@ -151,11 +151,11 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask)
+        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
             if (!mask.IsNull)
             {
-                PerformCopyWithQuantizerMasked(quantizingSession, skipTransparent, mask);
+                PerformCopyWithQuantizerMasked(quantizingSession, skipTransparent, mask, maskOffset);
                 return;
             }
 
@@ -215,11 +215,11 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask)
+        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
             if (!mask.IsNull)
             {
-                PerformCopyWithDitheringMasked(quantizingSession, ditheringSession, skipTransparent, mask);
+                PerformCopyWithDitheringMasked(quantizingSession, ditheringSession, skipTransparent, mask, maskOffset);
                 return;
             }
 
@@ -1021,9 +1021,9 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyWithQuantizerMasked(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask)
+        private void PerformCopyWithQuantizerMasked(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
-            Debug.Assert(mask.Height == SourceRectangle.Height && mask.Width * 8 >= SourceRectangle.Width && mask.Width * 7 < SourceRectangle.Width);
+            Debug.Assert(mask.Height + maskOffset.Y >= SourceRectangle.Height && mask.Width * 8 + maskOffset.X >= SourceRectangle.Width);
 
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
@@ -1037,10 +1037,10 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                         return;
 
-                    ArraySection<byte> maskRow = mask[y];
+                    ArraySection<byte> maskRow = mask[y + maskOffset.Y];
                     for (int x = 0; x < SourceRectangle.Width; x++)
                     {
-                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked((x + maskOffset.X) >> 3), x + maskOffset.X) == 0)
                             continue;
                         Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
                         if (skipTransparent && colorSrc.A < alphaThreshold)
@@ -1073,10 +1073,10 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 byte alphaThreshold = Math.Max(session.AlphaThreshold, (byte)1);
                 bool skip = skipTransparent;
-                ArraySection<byte> maskRow = maskLocal[y];
+                ArraySection<byte> maskRow = maskLocal[y + maskOffset.Y];
                 for (int x = 0; x < width; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked((x + maskOffset.X) >> 3), x + maskOffset.X) == 0)
                         continue;
                     Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
                     if (skip && colorSrc.A < alphaThreshold)
@@ -1147,9 +1147,9 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyWithDitheringMasked(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask)
+        private void PerformCopyWithDitheringMasked(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
-            Debug.Assert(mask.Height == SourceRectangle.Height && mask.Width * 8 >= SourceRectangle.Width && mask.Width * 7 < SourceRectangle.Width);
+            Debug.Assert(mask.Height + maskOffset.Y >= SourceRectangle.Height && mask.Width * 8 + maskOffset.X >= SourceRectangle.Width);
 
             // Sequential processing
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
@@ -1163,12 +1163,12 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                         return;
 
-                    ArraySection<byte> maskRow = mask[y];
+                    ArraySection<byte> maskRow = mask[y + maskOffset.Y];
 
                     // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                     for (int x = 0; x < SourceRectangle.Width; x++)
                     {
-                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                        if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked((x + maskOffset.X) >> 3), x + maskOffset.X) == 0)
                             continue;
                         Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
                         if (skipTransparent && colorSrc.A < alphaThreshold)
@@ -1197,7 +1197,7 @@ namespace KGySoft.Drawing.Imaging
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
-                ArraySection<byte> maskRow = maskLocal[y];
+                ArraySection<byte> maskRow = maskLocal[y + maskOffset.Y];
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -1207,7 +1207,7 @@ namespace KGySoft.Drawing.Imaging
                 // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                 for (int x = 0; x < width; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked(x >> 3), x) == 0)
+                    if (ColorExtensions.Get1bppColorIndex(maskRow.GetElementUnchecked((x + maskOffset.X) >> 3), x + maskOffset.X) == 0)
                         continue;
                     Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
                     if (skip && colorSrc.A < alphaThreshold)

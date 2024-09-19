@@ -46,8 +46,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal SolidFillSessionNoBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(context, drawingOptions, bounds)
+            internal SolidFillSessionNoBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(context, drawingOptions, bounds, region)
             {
                 color = owner.Color32;
                 this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -114,8 +114,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal SolidFillSessionWithBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(context, drawingOptions, bounds)
+            internal SolidFillSessionWithBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(context, drawingOptions, bounds, region)
             {
                 color = owner.Color32;
                 this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -218,14 +218,15 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal SolidFillSessionWithQuantizing(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, bool blend)
-                : base(context, drawingOptions, bounds)
+            internal SolidFillSessionWithQuantizing(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, IQuantizer quantizer, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
             {
                 this.blend = blend;
                 color = owner.Color32;
                 this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                quantizingSession = drawingOptions.Quantizer!.Initialize(bitmapData, context);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
             }
 
             #endregion
@@ -247,6 +248,8 @@ namespace KGySoft.Drawing.Shapes
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
                             row.DoSetColor32(x + left, session.GetQuantizedColor(c));
                     }
+
+                    return;
                 }
 
                 var colorSpace = session.WorkingColorSpace;
@@ -265,8 +268,9 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                int y = scanline.RowIndex - Bounds.Top;
+                Debug.Assert(y < bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                 Color32 c = color;
                 int left = scanline.Left;
                 IQuantizingSession session = quantizingSession;
@@ -289,6 +293,8 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
                         }
                     }
+
+                    return;
                 }
 
                 // blending: skipping too transparent pixels
@@ -376,19 +382,20 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal SolidFillSessionWithDithering(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, bool blend)
-                : base(context, drawingOptions, bounds)
+            internal SolidFillSessionWithDithering(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer ditherer, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
             {
                 this.blend = blend;
                 color = owner.Color32;
                 this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                quantizingSession = drawingOptions.Quantizer!.Initialize(bitmapData, context);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
                 if (context.IsCancellationRequested)
                     return;
 
                 context.Progress?.New(DrawingOperation.InitializingDitherer);
-                ditheringSession = drawingOptions.Ditherer!.Initialize(bitmapData, quantizingSession, context);
+                ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
             }
 
             #endregion
@@ -413,9 +420,12 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
+                        int pos = x + left;
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
-                            row.DoSetColor32(x + left, session.GetDitheredColor(c, x, scanline.RowIndex));
+                            row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
                     }
+
+                    return;
                 }
 
                 var colorSpace = quantizingSession.WorkingColorSpace;
@@ -425,7 +435,7 @@ namespace KGySoft.Drawing.Shapes
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
                     {
                         int pos = x + left;
-                        Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                        Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                         if (ditheredColor.A >= alphaThreshold)
                             row.DoSetColor32(pos, ditheredColor);
                     }
@@ -458,13 +468,17 @@ namespace KGySoft.Drawing.Shapes
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                row.DoSetColor32(x + left, session.GetDitheredColor(c, x, scanline.RowIndex));
+                                int pos = x + left;
+                                row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
                                 continue;
                             default:
-                                row.DoSetColor32(x + left, session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c), x, scanline.RowIndex));
+                                pos = x + left;
+                                row.DoSetColor32(pos, session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c), pos, scanline.RowIndex));
                                 continue;
                         }
                     }
+
+                    return;
                 }
 
                 // blending: skipping too transparent pixels
@@ -479,15 +493,16 @@ namespace KGySoft.Drawing.Shapes
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                Color32 ditheredColor = session.GetDitheredColor(c, x, scanline.RowIndex);
+                                int pos = x + left;
+                                Color32 ditheredColor = session.GetDitheredColor(c, pos, scanline.RowIndex);
                                 if (ditheredColor.A >= alphaThreshold)
-                                    row.DoSetColor32(x + left, ditheredColor);
+                                    row.DoSetColor32(pos, ditheredColor);
                                 continue;
                             default:
-                                int pos = x + left;
-                                ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                                pos = x + left;
+                                ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                                 if (ditheredColor.A >= alphaThreshold)
-                                    row.DoSetColor32(x + left, ditheredColor);
+                                    row.DoSetColor32(pos, ditheredColor);
                                 continue;
                         }
                     }
@@ -504,13 +519,13 @@ namespace KGySoft.Drawing.Shapes
                             continue;
                         case >= 1f:
                             int pos = x + left;
-                            Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                            Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                             if (ditheredColor.A >= alphaThreshold)
                                 row.DoSetColor32(pos, ditheredColor);
                             continue;
                         default:
                             pos = x + left;
-                            ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace), x, scanline.RowIndex);
+                            ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                             if (ditheredColor.A >= alphaThreshold)
                                 row.DoSetColor32(pos, ditheredColor);
                             continue;
@@ -536,7 +551,6 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-            private readonly IAsyncContext context;
             private readonly IQuantizer quantizer;
             private readonly IDitherer? ditherer;
             private readonly IBitmapDataInternal firstSessionTarget;
@@ -546,6 +560,7 @@ namespace KGySoft.Drawing.Shapes
             private readonly Color32 color;
             private readonly PColor32? pColor;
             private readonly bool blend;
+            private readonly bool isMaskGenerated;
 
             private Array2D<byte> mask;
 
@@ -553,20 +568,21 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal TwoPassSolidFillSession(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, bool blend)
-                : base(context, drawingOptions, bounds)
+            internal TwoPassSolidFillSession(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer? ditherer, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
             {
-                this.context = context;
                 color = owner.Color32;
                 finalTarget = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-                quantizer = drawingOptions.Quantizer!;
-                ditherer = drawingOptions.Ditherer;
+                this.quantizer = quantizer;
+                this.ditherer = ditherer;
                 workingColorSpace = quantizer.WorkingColorSpace();
                 KnownPixelFormat firstSessionFormat = blend && (drawingOptions.AntiAliasing || color.A != Byte.MaxValue)
                     ? workingColorSpace.GetPreferredFirstPassPixelFormat() // not bitmapData.GetPreferredFirstPassPixelFormat() because we don't create a clone first
                     : KnownPixelFormat.Format32bppArgb;
                 firstSessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bounds.Size, firstSessionFormat, workingColorSpace);
-                mask = new Array2D<byte>(bounds.Height, KnownPixelFormat.Format1bppIndexed.GetByteWidth(bounds.Width));
+                isMaskGenerated = region?.Mask.IsNull == false;
+                mask = isMaskGenerated ? region!.Mask : new Array2D<byte>(bounds.Height, KnownPixelFormat.Format1bppIndexed.GetByteWidth(bounds.Width));
                 this.bounds = bounds;
                 this.blend = blend;
                 if (firstSessionFormat == KnownPixelFormat.Format32bppPArgb)
@@ -588,14 +604,16 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Debug.Assert(!pColor.HasValue);
                     Color32 c = color;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(scanline.RowIndex - bounds.Top);
+                    int y = scanline.RowIndex - bounds.Top;
+                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
+                    int left = scanline.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 0)
                             continue;
 
-                        targetRow.DoSetColor32(x, c);
+                        targetRow.DoSetColor32(x + left, c);
                     }
                 }
 
@@ -612,8 +630,9 @@ namespace KGySoft.Drawing.Shapes
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 0)
                             continue;
 
-                        PColor32 backColor = sourceRow.DoGetPColor32(x + left);
-                        targetRow.DoSetPColor32(x, pc.Blend(backColor));
+                        int pos = x + left;
+                        PColor32 backColor = sourceRow.DoGetPColor32(pos);
+                        targetRow.DoSetPColor32(pos, pc.Blend(backColor));
                     }
 
                 }
@@ -631,14 +650,18 @@ namespace KGySoft.Drawing.Shapes
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 0)
                             continue;
 
-                        Color32 backColor = sourceRow.DoGetColor32(x + left);
-                        targetRow.DoSetColor32(x, c.Blend(backColor, colorSpace));
+                        int pos = x + left;
+                        Color32 backColor = sourceRow.DoGetColor32(pos);
+                        targetRow.DoSetColor32(pos, c.Blend(backColor, colorSpace));
                     }
                 }
 
                 #endregion
 
-                scanline.Scanline.CopyTo(mask[scanline.RowIndex - bounds.Top]);
+                // if mask is not generated, then we can be sure that scanline width is exactly the visible width
+                Debug.Assert(isMaskGenerated || scanline.Scanline.Length == KnownPixelFormat.Format1bppIndexed.GetByteWidth(bounds.Width));
+                if (!isMaskGenerated)
+                    scanline.Scanline.CopyTo(mask[scanline.RowIndex - bounds.Top]);
 
                 if (!blend || color.A == Byte.MaxValue)
                 {
@@ -668,21 +691,23 @@ namespace KGySoft.Drawing.Shapes
                     int y = scanline.RowIndex - bounds.Top;
                     IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
                     ArraySection<byte> maskRow = mask[y];
+                    int left = scanline.Left;
+                    int maskOffset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(x >> 3), x, value <= 0f ? 0 : 1);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
 
                         switch (value)
                         {
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                targetRow.DoSetColor32(x, c);
+                                targetRow.DoSetColor32(x + left, c);
                                 continue;
                             default:
-                                targetRow.DoSetColor32(x, Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c));
+                                targetRow.DoSetColor32(x + left, Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c));
                                 continue;
                         }
                     }
@@ -698,22 +723,24 @@ namespace KGySoft.Drawing.Shapes
                     ArraySection<byte> maskRow = mask[y];
                     IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
                     int left = scanline.Left;
+                    int maskOffset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(x >> 3), x, value <= 0f ? 0 : 1);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
 
                         switch (value)
                         {
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                targetRow.DoSetPColor32(x, pc);
+                                targetRow.DoSetPColor32(x + left, pc);
                                 continue;
                             default:
-                                PColor32 backColor = sourceRow.DoGetPColor32(x + left);
-                                targetRow.DoSetPColor32(x, PColor32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor));
+                                int pos = x + left;
+                                PColor32 backColor = sourceRow.DoGetPColor32(pos);
+                                targetRow.DoSetPColor32(pos, PColor32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor));
                                 continue;
                         }
                     }
@@ -728,23 +755,26 @@ namespace KGySoft.Drawing.Shapes
                     ArraySection<byte> maskRow = mask[y];
                     IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
                     int left = scanline.Left;
+                    int maskOffset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(x >> 3), x, value <= 0f ? 0 : 1);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
 
                         switch (value)
                         {
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                PColor32 backColor = sourceRow.DoGetPColor32(x + left);
-                                targetRow.DoSetPColor32(x, pc.Blend(backColor));
+                                int pos = x + left;
+                                PColor32 backColor = sourceRow.DoGetPColor32(pos);
+                                targetRow.DoSetPColor32(pos, pc.Blend(backColor));
                                 continue;
                             default:
-                                backColor = sourceRow.DoGetPColor32(x + left);
-                                targetRow.DoSetPColor32(x, PColor32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor));
+                                pos = x + left;
+                                backColor = sourceRow.DoGetPColor32(pos);
+                                targetRow.DoSetPColor32(pos, PColor32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor));
                                 continue;
                         }
                     }
@@ -759,22 +789,24 @@ namespace KGySoft.Drawing.Shapes
                     WorkingColorSpace colorSpace = workingColorSpace;
                     IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
                     int left = scanline.Left;
+                    int maskOffset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(x >> 3), x, value <= 0f ? 0 : 1);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
 
                         switch (value)
                         {
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                targetRow.DoSetColor32(x, c);
+                                targetRow.DoSetColor32(x + left, c);
                                 continue;
                             default:
-                                Color32 backColor = sourceRow.DoGetColor32(x + left);
-                                targetRow.DoSetColor32(x, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                                int pos = x + left;
+                                Color32 backColor = sourceRow.DoGetColor32(pos);
+                                targetRow.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
@@ -789,23 +821,26 @@ namespace KGySoft.Drawing.Shapes
                     WorkingColorSpace colorSpace = workingColorSpace;
                     IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
                     int left = scanline.Left;
+                    int maskOffset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(x >> 3), x, value <= 0f ? 0 : 1);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
 
                         switch (value)
                         {
                             case <= 0f:
                                 continue;
                             case >= 1f:
-                                Color32 backColor = sourceRow.DoGetColor32(x + left);
-                                targetRow.DoSetColor32(x, c.Blend(backColor, colorSpace));
+                                int pos = x + left;
+                                Color32 backColor = sourceRow.DoGetColor32(pos);
+                                targetRow.DoSetColor32(pos, c.Blend(backColor, colorSpace));
                                 continue;
                             default:
-                                backColor = sourceRow.DoGetColor32(x + left);
-                                targetRow.DoSetColor32(x, Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor, colorSpace));
+                                pos = x + left;
+                                backColor = sourceRow.DoGetColor32(pos);
+                                targetRow.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
@@ -841,7 +876,11 @@ namespace KGySoft.Drawing.Shapes
                 ProcessAlphaColor32(scanline);
             }
 
-            internal override void FinalizeSession() => firstSessionTarget.DoCopyTo(context, finalTarget, bounds.Location, quantizer, ditherer, blend, mask);
+            internal override void FinalizeSession()
+            {
+                Point maskOffset = isMaskGenerated ? Bounds.Location - new Size(Region!.Bounds.Location) : Point.Empty;
+                firstSessionTarget.DoCopyTo(Context, finalTarget, bounds.Location, quantizer, ditherer, blend, mask, maskOffset);
+            }
 
             #endregion
 
@@ -849,7 +888,8 @@ namespace KGySoft.Drawing.Shapes
 
             protected override void Dispose(bool disposing)
             {
-                mask.Dispose();
+                if (!isMaskGenerated)
+                    mask.Dispose();
                 firstSessionTarget.Dispose();
                 base.Dispose(disposing);
             }
@@ -896,7 +936,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        private protected override FillPathSession CreateSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions)
+        private protected override FillPathSession CreateSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
             IDitherer? ditherer = drawingOptions.Ditherer;
@@ -904,19 +944,19 @@ namespace KGySoft.Drawing.Shapes
             bool blend = drawingOptions.AlphaBlending && (HasAlpha || antiAliasing);
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
-            if(quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
-                return new TwoPassSolidFillSession(this, context, bitmapData, bounds, drawingOptions, blend);
+            if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
+                return new TwoPassSolidFillSession(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
 
             if (ditherer != null)
-                return new SolidFillSessionWithDithering(this, context, bitmapData, bounds, drawingOptions, blend);
+                return new SolidFillSessionWithDithering(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
 
             if (quantizer != null)
-                return new SolidFillSessionWithQuantizing(this, context, bitmapData, bounds, drawingOptions, blend);
+                return new SolidFillSessionWithQuantizing(this, context, bitmapData, bounds, drawingOptions, quantizer, blend, region);
 
             // TODO: && bitmapData.PixelFormat/WorkingColorSpace prefers Color32...
             return blend
-                ? new SolidFillSessionWithBlending(this, context, bitmapData, bounds, drawingOptions)
-                : new SolidFillSessionNoBlending(this, context, bitmapData, bounds, drawingOptions);
+                ? new SolidFillSessionWithBlending(this, context, bitmapData, bounds, drawingOptions, region)
+                : new SolidFillSessionNoBlending(this, context, bitmapData, bounds, drawingOptions, region);
         }
 
         #endregion

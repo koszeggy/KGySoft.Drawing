@@ -3422,8 +3422,8 @@ namespace KGySoft.Drawing.Imaging
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, bool skipTransparent = false)
             => DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, null, skipTransparent);
 
-        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer quantizer, IDitherer? ditherer, bool skipTransparent, in Array2D<byte> mask)
-            => DoCopy(context, source, target, new Rectangle(Point.Empty, source.Size), targetLocation, quantizer, ditherer, skipTransparent, mask);
+        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer quantizer, IDitherer? ditherer, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
+            => DoCopy(context, source, target, new Rectangle(Point.Empty, source.Size), targetLocation, quantizer, ditherer, skipTransparent, mask, maskOffset);
 
         internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle targetRectangle)
             => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.Size), targetRectangle, null, null, ScalingMode.Auto);
@@ -3672,7 +3672,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private static bool DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target,
-            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false, in Array2D<byte> mask = default)
+            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false, in Array2D<byte> mask = default, Point maskOffset = default)
         {
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.Size);
@@ -3739,7 +3739,7 @@ namespace KGySoft.Drawing.Imaging
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent, mask);
+                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent, mask, maskOffset);
                             return !context.IsCancellationRequested;
                         }
 
@@ -3751,7 +3751,7 @@ namespace KGySoft.Drawing.Imaging
                                 return false;
                             if (ditheringSession == null)
                                 throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent, mask);
+                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent, mask, maskOffset);
                         }
                     }
                 }
