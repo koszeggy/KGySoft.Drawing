@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.Imaging
             // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
             => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
                 ? KnownPixelFormat.Format32bppArgb
-                : quantizerWorkingColorSpace.GetPreferredFirstPassPixelFormat();
+                : quantizerWorkingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
 
         private static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
