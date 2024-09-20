@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Shapes
         #region Internal Fields
 
         internal readonly Array2D<byte> Mask;
-        internal readonly CastArray2D<byte, float> MaskF;
+        internal readonly bool IsAntiAliased;
 
         internal Rectangle Bounds;
 
@@ -108,13 +108,11 @@ namespace KGySoft.Drawing.Shapes
         internal Region(Rectangle bounds, bool isAntiAliased)
         {
             Bounds = bounds;
+            IsAntiAliased = isAntiAliased;
             var size = bounds.Size;
-            int byteWidth = isAntiAliased ? size.Width * sizeof(float) : KnownPixelFormat.Format1bppIndexed.GetByteWidth(size.Width);
+            int byteWidth = isAntiAliased ? size.Width : KnownPixelFormat.Format1bppIndexed.GetByteWidth(size.Width);
             byte[] buffer = new byte[byteWidth * size.Height];
-            if (isAntiAliased)
-                MaskF = new CastArray2D<byte, float>(buffer, size.Height, size.Width);
-            else
-                Mask = new Array2D<byte>(buffer, size.Height, byteWidth);
+            Mask = new Array2D<byte>(buffer, size.Height, byteWidth);
         }
 
         #endregion
@@ -141,7 +139,6 @@ namespace KGySoft.Drawing.Shapes
                 return;
 
             Mask.Buffer.Clear();
-            MaskF.Buffer.Clear();
             if (Interlocked.Exchange(ref isGeneratedHandle, null) is ManualResetEventSlim waitHandle)
             {
                 // setting the nullified handle so possible waiters are unblocked

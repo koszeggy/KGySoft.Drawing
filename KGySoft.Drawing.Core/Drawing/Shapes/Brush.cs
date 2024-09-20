@@ -92,8 +92,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal abstract void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline);
-            internal abstract void ApplyScanlineSolid(in RegionScanline<byte> scanline);
+            internal abstract void ApplyScanlineAntiAliasing(in RegionScanline scanline);
+            internal abstract void ApplyScanlineSolid(in RegionScanline scanline);
 
             /// <summary>
             /// Completing the session if it wasn't canceled and there were no errors. Unlike Dispose, this executes only on success.
@@ -253,7 +253,6 @@ namespace KGySoft.Drawing.Shapes
 
                 internal int CurrentY;
                 internal ArraySection<byte> ScanlineBuffer;
-                internal bool IsScanlineDirty;
 
                 #endregion
 
@@ -263,6 +262,7 @@ namespace KGySoft.Drawing.Shapes
                 private readonly ActiveEdgeTable activeEdges;
                 private readonly int scanlinePixelWidth;
 
+                private bool isScanlineDirty;
                 private int yStartIndex;
                 private int yEndIndex;
                 private int rowStartMin;
@@ -288,7 +288,7 @@ namespace KGySoft.Drawing.Shapes
                                 return false;
                         }
 
-                        return IsScanlineDirty;
+                        return isScanlineDirty;
                     }
                 }
 
@@ -322,7 +322,7 @@ namespace KGySoft.Drawing.Shapes
                     ScanlineBuffer = scanner.Region is Region region
                         ? region.Mask[top - scanner.Top]
                         : new byte[other.ScanlineBuffer.Length];
-                    IsScanlineDirty = false;
+                    isScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
 
@@ -335,7 +335,8 @@ namespace KGySoft.Drawing.Shapes
                 public void Dispose()
                 {
                     // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
-                    if (scanner == null) // when this is a default instance
+                    // Skipping if this is a default instance or when we have a region so scanline is not self allocated.
+                    if (scanner == null || scanner.Region != null)
                         return;
 
                     ScanlineBuffer.Release();
@@ -389,9 +390,9 @@ namespace KGySoft.Drawing.Shapes
 
                     if (scanner.Region is Region region)
                         ScanlineBuffer = region.Mask[CurrentY - scanner.Top];
-                    else if (IsScanlineDirty)
+                    else if (isScanlineDirty)
                         ScanlineBuffer.Clear();
-                    IsScanlineDirty = false;
+                    isScanlineDirty = false;
 
                     rowStartMin = Int32.MaxValue;
                     rowEndMax = Int32.MinValue;
@@ -419,7 +420,7 @@ namespace KGySoft.Drawing.Shapes
                             if (startX + 1 - scanStart >= 0.5f)
                             {
                                 ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(startX >> 3), startX, 1);
-                                IsScanlineDirty = true;
+                                isScanlineDirty = true;
                             }
                         }
 
@@ -428,7 +429,7 @@ namespace KGySoft.Drawing.Shapes
                             if (scanEnd - endX >= 0.5f || endX == startX + 1 && scanEnd - scanStart >= 0.5f)
                             {
                                 ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(endX >> 3), endX, 1);
-                                IsScanlineDirty = true;
+                                isScanlineDirty = true;
                             }
                         }
 
@@ -441,7 +442,7 @@ namespace KGySoft.Drawing.Shapes
                             // TODO: vectorization if possible - or at least combine byte changes
                             for (int i = nextX; i < endX; i++)
                                 ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(i >> 3), i, 1);
-                            IsScanlineDirty = true;
+                            isScanlineDirty = true;
                         }
 
                         rowStartMin = Math.Min(rowStartMin, startX);
@@ -559,7 +560,7 @@ namespace KGySoft.Drawing.Shapes
                 mainContext.ScanCurrentRow();
 
                 if (mainContext.IsVisibleScanlineDirty)
-                    Session.ApplyScanlineSolid(new RegionScanline<byte>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
+                    Session.ApplyScanlineSolid(new RegionScanline(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
             internal override void ProcessScanline(int y)
@@ -571,7 +572,7 @@ namespace KGySoft.Drawing.Shapes
                 context.ScanCurrentRow();
 
                 if (context.IsVisibleScanlineDirty)
-                    Session.ApplyScanlineSolid(new RegionScanline<byte>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+                    Session.ApplyScanlineSolid(new RegionScanline(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
             #endregion
@@ -630,8 +631,7 @@ namespace KGySoft.Drawing.Shapes
                 #region Internal Fields
 
                 internal int CurrentY;
-                internal CastArray<byte, float> ScanlineBuffer;
-                internal bool IsScanlineDirty;
+                internal ArraySection<byte> ScanlineBuffer;
 
                 #endregion
 
@@ -640,7 +640,7 @@ namespace KGySoft.Drawing.Shapes
                 private readonly AntiAliasingRegionScanner scanner;
                 private readonly ActiveEdgeTable activeEdges;
 
-                private ArraySection<byte> scanlineBuffer;
+                private bool isScanlineDirty;
                 private int yStartIndex;
                 private int yEndIndex;
                 private int rowStartMin;
@@ -667,7 +667,7 @@ namespace KGySoft.Drawing.Shapes
                                 return false;
                         }
 
-                        return IsScanlineDirty;
+                        return isScanlineDirty;
                     }
                 }
 
@@ -682,10 +682,7 @@ namespace KGySoft.Drawing.Shapes
 
                     // When there is a region, MoveNextRow will take a row from region mask. Otherwise, allocating one row.
                     if (scanner.Region == null)
-                    {
-                        scanlineBuffer = new ArraySection<byte>(sizeof(float) * scanner.Width);
-                        ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
-                    }
+                        ScanlineBuffer = new ArraySection<byte>(scanner.Width);
 
                     if (scanner.Edges.Length == 0)
                         return;
@@ -700,15 +697,14 @@ namespace KGySoft.Drawing.Shapes
                     activeEdges = other.activeEdges.Clone();
 
                     if (scanner.Region is Region region)
-                        ScanlineBuffer = region.MaskF[top - scanner.Top];
+                        ScanlineBuffer = region.Mask[top - scanner.Top];
                     else
                     {
                         // not pooling from here because colliding cache items might be overwritten while they are still in use
-                        scanlineBuffer = new byte[other.scanlineBuffer.Length];
-                        ScanlineBuffer = new CastArray<byte, float>(scanlineBuffer);
+                        ScanlineBuffer = new byte[other.ScanlineBuffer.Length];
                     }
 
-                    IsScanlineDirty = false;
+                    isScanlineDirty = false;
                     SkipEdgesAbove(top);
                 }
 
@@ -721,10 +717,11 @@ namespace KGySoft.Drawing.Shapes
                 public void Dispose()
                 {
                     // Not quite the usual Dispose pattern, which is intended because this class is used internally only.
-                    if (scanner == null) // when this is a default instance
+                    // Skipping if this is a default instance or when we have a region so scanline is not self allocated.
+                    if (scanner == null || scanner.Region != null)
                         return;
 
-                    scanlineBuffer.Release();
+                    ScanlineBuffer.Release();
                 }
 
                 #endregion
@@ -771,15 +768,15 @@ namespace KGySoft.Drawing.Shapes
                 {
                     CurrentY += 1;
                     nextY = CurrentY + 1;
-                    currentSubpixelY = CurrentY - scanner.subpixelSize;
+                    currentSubpixelY = CurrentY - subpixelSizeF;
                     if (CurrentY >= scanner.Bottom)
                         return false;
 
                     if (scanner.Region is Region region)
-                        ScanlineBuffer = region.MaskF[CurrentY - scanner.Top];
-                    else if (IsScanlineDirty)
+                        ScanlineBuffer = region.Mask[CurrentY - scanner.Top];
+                    else if (isScanlineDirty)
                         ScanlineBuffer.Clear();
-                    IsScanlineDirty = false;
+                    isScanlineDirty = false;
 
                     rowStartMin = Int32.MaxValue;
                     rowEndMax = Int32.MinValue;
@@ -789,7 +786,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal bool MoveNextSubpixelRow()
                 {
-                    currentSubpixelY += scanner.subpixelSize;
+                    currentSubpixelY += subpixelSizeF;
                     VisitEdges();
                     return currentSubpixelY < nextY;
                 }
@@ -801,8 +798,6 @@ namespace KGySoft.Drawing.Shapes
                         return;
 
                     float minX = scanner.Left;
-                    float subpixelSize = scanner.subpixelSize;
-                    float subpixelArea = scanner.subpixelArea;
                     for (int point = 0; point < points.Length - 1; point += 2)
                     {
                         float scanStart = points.GetElementUnsafe(point) - minX;
@@ -812,16 +807,22 @@ namespace KGySoft.Drawing.Shapes
 
                         if (startX >= 0 && startX < ScanlineBuffer.Length)
                         {
-                            float subpixelWidth = (startX + 1 - scanStart) / subpixelSize;
-                            ScanlineBuffer.GetElementReferenceUnsafe(startX) += subpixelWidth * subpixelArea;
-                            IsScanlineDirty |= subpixelWidth > 0;
+                            // float subpixelWidth = (startX + 1 - scanStart) / subpixelSizeF;
+                            // ScanlineBuffer.GetElementReferenceUnchecked(startX) += subpixelWidth * subpixelArea;
+                            uint subpixelWidth = (uint)((startX + 1 - scanStart) * subpixelIntegerScale) >> subpixelSizeFactor;
+                            ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(startX);
+                            scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
+                            isScanlineDirty |= subpixelWidth > 0;
                         }
 
                         if (endX >= 0 && endX < ScanlineBuffer.Length)
                         {
-                            float subpixelWidth = (scanEnd - endX) / subpixelSize;
-                            ScanlineBuffer.GetElementReferenceUnsafe(endX) += subpixelWidth * subpixelArea;
-                            IsScanlineDirty |= subpixelWidth > 0;
+                            //float subpixelWidth = (scanEnd - endX) / subpixelSizeF;
+                            //ScanlineBuffer.GetElementReferenceUnchecked(endX) += subpixelWidth * subpixelArea;
+                            uint subpixelWidth = (uint)((scanEnd - endX) * subpixelIntegerScale) >> subpixelSizeFactor;
+                            ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(endX);
+                            scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
+                            isScanlineDirty |= subpixelWidth > 0;
                         }
 
                         int nextX = startX + 1;
@@ -830,10 +831,15 @@ namespace KGySoft.Drawing.Shapes
 
                         if (endX > nextX)
                         {
-                            // TODO: vectorization if possible (or indirectly: ScanlineBuffer.Slice(nextX, endX - nextX).Clear/Fill(subpixelSize))
+                            // TODO: vectorization if possible
                             for (int i = nextX; i < endX; i++)
-                                ScanlineBuffer.GetElementReferenceUnsafe(i) += subpixelSize;
-                            IsScanlineDirty = true;
+                            {
+                                //ScanlineBuffer.GetElementReferenceUnchecked(i) += subpixelSize;
+                                ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(i);
+                                scanlinePixel = (scanlinePixel + subpixelSize).ClipToByte();
+                            }
+
+                            isScanlineDirty = true;
                         }
 
                         rowStartMin = Math.Min(rowStartMin, startX);
@@ -880,15 +886,22 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constants
 
-            private const float subpixelCount = 16f;
+            private const int subpixelCount = 16;
+
+            // We could use just floats but as we have basically 256 different possible values using bytes instead of floats
+            // both in scanline and region mask buffers to spare 3 bytes per pixel, so going with integers where that's better.
+            private const uint subpixelIntegerScale = 256;
+            private const uint subpixelSize = 16; // subpixelIntegerScale / subpixelCount;
+            //private const uint subpixelArea = 1; // subpixelIntegerScale / (subpixelCount * subpixelCount);
+            private const int subpixelSizeFactor = 4; // Math.Log2(subpixelSize);
+            private const float subpixelSizeF = (float)subpixelSize / subpixelIntegerScale;
+
             private const int parallelThreshold = 64;
 
             #endregion
 
             #region Fields
 
-            private readonly float subpixelSize;
-            private readonly float subpixelArea;
             private readonly StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>?[]? threadContextCache;
             private readonly int hashMask;
 
@@ -907,9 +920,6 @@ namespace KGySoft.Drawing.Shapes
             public AntiAliasingRegionScanner(FillPathSession session, RawPath path)
                 : base(session, path, 1f / subpixelCount)
             {
-                subpixelSize = 1f / subpixelCount;
-                subpixelArea = 1f / (subpixelCount * subpixelCount);
-
                 var drawingOptions = session.DrawingOptions;
                 var context = session.Context;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
@@ -957,7 +967,7 @@ namespace KGySoft.Drawing.Shapes
                     mainContext.ScanCurrentSubpixelRow();
 
                 if (mainContext.IsVisibleScanlineDirty)
-                    Session.ApplyScanlineAntiAliasing(new RegionScanline<float>(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
+                    Session.ApplyScanlineAntiAliasing(new RegionScanline(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
             internal override void ProcessScanline(int y)
@@ -971,7 +981,7 @@ namespace KGySoft.Drawing.Shapes
                     context.ScanCurrentSubpixelRow();
 
                 if (context.IsVisibleScanlineDirty)
-                    Session.ApplyScanlineAntiAliasing(new RegionScanline<float>(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+                    Session.ApplyScanlineAntiAliasing(new RegionScanline(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
             }
 
             #endregion
@@ -1723,9 +1733,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region RegionScanline<T> struct
+        #region RegionScanline struct
 
-        private protected ref struct RegionScanline<T> where T : unmanaged
+        private protected ref struct RegionScanline
         {
             #region Fields
 
@@ -1733,13 +1743,13 @@ namespace KGySoft.Drawing.Shapes
             internal readonly int Left;
             internal readonly int MinIndex;
             internal readonly int MaxIndex;
-            internal CastArray<byte, T> Scanline;
+            internal readonly ArraySection<byte> Scanline;
 
             #endregion
 
             #region Constructors
 
-            internal RegionScanline(int y, int left, CastArray<byte, T> scanline, int startX, int endX)
+            internal RegionScanline(int y, int left, ArraySection<byte> scanline, int startX, int endX)
             {
                 RowIndex = y;
                 Left = left;
@@ -1767,8 +1777,7 @@ namespace KGySoft.Drawing.Shapes
 
             private readonly FillPathSession session;
             private readonly bool isAntiAliased;
-            private readonly CastArray2D<byte, byte> mask;
-            private readonly CastArray2D<byte, float> maskF;
+            private readonly Array2D<byte> mask;
 
             private Rectangle bounds;
             private Rectangle visibleBounds;
@@ -1798,11 +1807,8 @@ namespace KGySoft.Drawing.Shapes
                 visibleBounds = session.Bounds;
                 Debug.Assert(bounds.Contains(visibleBounds));
 
-                isAntiAliased = region.Mask.IsNull;
-                if (isAntiAliased)
-                    maskF = region.MaskF;
-                else
-                    mask = region.Mask.Buffer.Cast2D<byte, byte>(region.Mask.Height, region.Mask.Width);
+                isAntiAliased = region.IsAntiAliased;
+                mask = region.Mask;
             }
 
             #endregion
@@ -1829,48 +1835,48 @@ namespace KGySoft.Drawing.Shapes
             {
                 int startX = visibleBounds.Left - bounds.Left;
                 int endX = startX + visibleBounds.Width - 1;
-                CastArray<byte, byte> scanline = mask[y - bounds.Top];
+                ArraySection<byte> scanline = mask[y - bounds.Top];
 
                 // visible bounds are intersected by target bitmap bounds (and this asserted in the constructor) so we are safe here
-                if (scanline.GetElementUnsafe(startX >> 3) == 0)
+                if (scanline.GetElementUnchecked(startX >> 3) == 0)
                 {
                     // adjusting to next coordinate divisible by 8
                     startX = (startX | 7) + 1;
-                    while (startX <= endX && scanline.GetElementUnsafe(startX >> 3) == 0)
+                    while (startX <= endX && scanline.GetElementUnchecked(startX >> 3) == 0)
                         startX += 8;
                     if (startX > endX)
                         return;
                 }
 
-                if (scanline.GetElementUnsafe(endX >> 3) == 0)
+                if (scanline.GetElementUnchecked(endX >> 3) == 0)
                 {
                     // adjusting to previous coordinate divisible by 8 minus 1
                     endX = (endX | 7) - 8;
-                    while (startX <= endX && scanline.GetElementUnsafe(endX >> 3) == 0)
+                    while (startX <= endX && scanline.GetElementUnchecked(endX >> 3) == 0)
                         endX -= 8;
                     if (startX > endX)
                         return;
                 }
 
-                session.ApplyScanlineSolid(new RegionScanline<byte>(y, bounds.Left, scanline, startX, endX));
+                session.ApplyScanlineSolid(new RegionScanline(y, bounds.Left, scanline, startX, endX));
             }
 
             private void ApplyScanlineAntiAliased(int y)
             {
                 int startX = visibleBounds.Left - bounds.Left;
                 int endX = startX + visibleBounds.Width - 1;
-                CastArray<byte, float> scanline = maskF[y - bounds.Top];
+                ArraySection<byte> scanline = mask[y - bounds.Top];
 
-                while (startX <= endX && scanline.GetElementUnsafe(startX) == 0f)
+                while (startX <= endX && scanline.GetElementUnchecked(startX) == 0)
                     startX += 1;
 
-                while (startX <= endX && scanline.GetElementUnsafe(endX) == 0f)
+                while (startX <= endX && scanline.GetElementUnchecked(endX) == 0)
                     endX -= 1;
 
                 if (startX > endX)
                     return;
 
-                session.ApplyScanlineAntiAliasing(new RegionScanline<float>(y, bounds.Left, scanline, startX, endX));
+                session.ApplyScanlineAntiAliasing(new RegionScanline(y, bounds.Left, scanline, startX, endX));
             }
 
             #endregion

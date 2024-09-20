@@ -93,6 +93,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["32bppArgb_Alternate_DFS_Srgb_AA_AB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.Silver), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
             ["32bppArgb_Alternate_DFS_Srgb_AA_AB_A64", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(64, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.Silver), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
             ["32bppArgb_Alternate_DFS_Linear_AA_AB_A64", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear, Color.Empty, Color.FromArgb(64, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.Silver).ConfigureColorSpace(WorkingColorSpace.Linear), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
+            ["1bppIndexed_Alternate_NQ_Srgb_NA_NB", KnownPixelFormat.Format1bppIndexed, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false } ],
+            ["1bppIndexed_NonZero_NQ_Srgb_NA_NB", KnownPixelFormat.Format1bppIndexed, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.NonZero, AlphaBlending = false, AntiAliasing = false } ],
+            ["1bppIndexed_Alternate_DB8_Srgb_NA_NB", KnownPixelFormat.Format1bppIndexed, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Ditherer = OrderedDitherer.Bayer8x8 } ],
+            ["8bppIndexed_Alternate_DB8_Srgb_AA_AB_A64", KnownPixelFormat.Format8bppIndexed, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(64, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Ditherer = OrderedDitherer.Bayer8x8 } ],
         ];
 
         #endregion
@@ -134,7 +138,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(path.Bounds.Location), pixelFormat, colorSpace);
             if (backColor != Color.Empty)
-                bitmapDataBackground.Clear(backColor);
+                bitmapDataBackground.Clear(backColor, options.Ditherer);
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 
@@ -156,25 +160,25 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
 
-            //using var bitmapData = bitmapDataBackground.Clone();
-            //new PerformanceTest { TestName = $"{name} - {path.Bounds.Size}", TestTime = 5000, /*Iterations = 10_000,*/ Repeat = 3 }
-            //    .AddCase(() =>
-            //    {
-            //        //bitmapDataBackground.CopyTo(bitmapData);
-            //        bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
-            //    }, "NoCache")
-            //    .AddCase(() =>
-            //    {
-            //        //bitmapDataBackground.CopyTo(bitmapData);
-            //        bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
-            //    }, "Cache")
-            //    //.AddCase(() =>
-            //    //{
-            //    //    //bitmapData.Clear(default);
-            //    //    bitmapData.FillPath(AsyncHelper.DefaultContext, path, new SolidBrush(Color.Blue), options);
-            //    //}, "MultiThread")
-            //    .DoTest()
-            //    .DumpResults(Console.Out);
+            using var bitmapData = bitmapDataBackground.Clone();
+            new PerformanceTest { TestName = $"{name} - {path.Bounds.Size}", TestTime = 5000, /*Iterations = 10_000,*/ Repeat = 3 }
+                .AddCase(() =>
+                {
+                    //bitmapDataBackground.CopyTo(bitmapData);
+                    bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
+                }, "NoCache")
+                .AddCase(() =>
+                {
+                    //bitmapDataBackground.CopyTo(bitmapData);
+                    bitmapData.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+                }, "Cache")
+                //.AddCase(() =>
+                //{
+                //    //bitmapData.Clear(default);
+                //    bitmapData.FillPath(AsyncHelper.DefaultContext, path, new SolidBrush(Color.Blue), options);
+                //}, "MultiThread")
+                .DoTest()
+                .DumpResults(Console.Out);
         }
 
         [TestCaseSource(nameof(FillPathTestSource))]
@@ -186,7 +190,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData((path.Bounds.Size + offset * 2).ToSize(), pixelFormat, colorSpace);
             if (backColor != Color.Empty)
-                bitmapDataBackground.Clear(backColor);
+                bitmapDataBackground.Clear(backColor, options.Ditherer);
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 

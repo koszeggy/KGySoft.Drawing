@@ -35,9 +35,13 @@ namespace KGySoft.Drawing
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte ClipToByte(this int value)
-            => value < byte.MinValue ? byte.MinValue
-                : value > byte.MaxValue ? byte.MaxValue
+            => value < Byte.MinValue ? Byte.MinValue
+                : value > Byte.MaxValue ? Byte.MaxValue
                 : (byte)value;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static byte ClipToByte(this uint value)
+            => value > Byte.MaxValue ? Byte.MaxValue : (byte)value;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static int ToBitsPerPixel(this int colorCount)

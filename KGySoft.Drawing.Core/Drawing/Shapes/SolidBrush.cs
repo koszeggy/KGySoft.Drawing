@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
@@ -65,12 +65,12 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                         row.DoSetColor32(x + left, c);
                 }
             }
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
@@ -79,16 +79,16 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
                     switch (value)
                     {
-                        case <= 0f:
+                        case Byte.MinValue:
                             continue;
-                        case >= 1f:
+                        case Byte.MaxValue:
                             row.DoSetColor32(x + left, c);
                             continue;
                         default:
-                            row.DoSetColor32(x + left, Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c));
+                            row.DoSetColor32(x + left, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
                             continue;
                     }
                 }
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 Debug.Assert(color.A < Byte.MaxValue);
@@ -136,7 +136,7 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                     {
                         int pos = x + left;
                         Color32 backColor = row.DoGetColor32(pos);
@@ -145,7 +145,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
@@ -157,18 +157,18 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 row.DoSetColor32(x + left, c);
                                 continue;
                             default:
                                 int pos = x + left;
                                 Color32 backColor = row.DoGetColor32(pos);
-                                row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                                row.DoSetColor32(pos, Color32.FromArgb(value, c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
@@ -178,12 +178,12 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
                     switch (value)
                     {
-                        case <= 0f:
+                        case Byte.MinValue:
                             continue;
-                        case >= 1f:
+                        case Byte.MaxValue:
                             int pos = x + left;
                             Color32 backColor = row.DoGetColor32(pos);
                             row.DoSetColor32(pos, c.Blend(backColor, colorSpace));
@@ -191,7 +191,7 @@ namespace KGySoft.Drawing.Shapes
                         default:
                             pos = x + left;
                             backColor = row.DoGetColor32(pos);
-                            row.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor, colorSpace));
+                            row.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
                             continue;
                     }
                 }
@@ -232,7 +232,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
@@ -244,7 +244,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                             row.DoSetColor32(x + left, session.GetQuantizedColor(c));
                     }
 
@@ -255,7 +255,7 @@ namespace KGySoft.Drawing.Shapes
                 byte alphaThreshold = session.AlphaThreshold;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                     {
                         int pos = x + left;
                         Color32 quantizedColor = session.GetQuantizedColor(c.Blend(row.DoGetColor32(pos), colorSpace));
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 int y = scanline.RowIndex - Bounds.Top;
                 Debug.Assert(y < bitmapData.Height);
@@ -279,16 +279,16 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 row.DoSetColor32(x + left, session.GetQuantizedColor(c));
                                 continue;
                             default:
-                                row.DoSetColor32(x + left, session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c)));
+                                row.DoSetColor32(x + left, session.GetQuantizedColor(Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c)));
                                 continue;
                         }
                     }
@@ -303,19 +303,19 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 Color32 quantizedColor = session.GetQuantizedColor(c);
                                 if (quantizedColor.A >= alphaThreshold)
                                     row.DoSetColor32(x + left, quantizedColor);
                                 continue;
                             default:
                                 int pos = x + left;
-                                quantizedColor = session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace));
+                                quantizedColor = session.GetQuantizedColor(Color32.FromArgb(value, c).Blend(row.DoGetColor32(pos), colorSpace));
                                 if (quantizedColor.A >= alphaThreshold)
                                     row.DoSetColor32(pos, quantizedColor);
                                 continue;
@@ -327,12 +327,12 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
                     switch (value)
                     {
-                        case <= 0f:
+                        case Byte.MinValue:
                             continue;
-                        case >= 1f:
+                        case Byte.MaxValue:
                             int pos = x + left;
                             Color32 quantizedColor = session.GetQuantizedColor(c.Blend(row.DoGetColor32(pos), colorSpace));
                             if (quantizedColor.A >= alphaThreshold)
@@ -340,7 +340,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
                         default:
                             pos = x + left;
-                            quantizedColor = session.GetQuantizedColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace));
+                            quantizedColor = session.GetQuantizedColor(Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(row.DoGetColor32(pos), colorSpace));
                             if (quantizedColor.A >= alphaThreshold)
                                 row.DoSetColor32(pos, quantizedColor);
                             continue;
@@ -401,7 +401,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IDitheringSession? session = ditheringSession;
@@ -420,7 +420,7 @@ namespace KGySoft.Drawing.Shapes
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         int pos = x + left;
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                             row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
                     }
 
@@ -431,7 +431,7 @@ namespace KGySoft.Drawing.Shapes
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 1)
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
                     {
                         int pos = x + left;
                         Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
@@ -441,7 +441,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert(scanline.RowIndex < bitmapData.Height);
                 IDitheringSession? session = ditheringSession;
@@ -461,18 +461,18 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 int pos = x + left;
                                 row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
                                 continue;
                             default:
                                 pos = x + left;
-                                row.DoSetColor32(pos, session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c), pos, scanline.RowIndex));
+                                row.DoSetColor32(pos, session.GetDitheredColor(Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c), pos, scanline.RowIndex));
                                 continue;
                         }
                     }
@@ -486,12 +486,12 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 int pos = x + left;
                                 Color32 ditheredColor = session.GetDitheredColor(c, pos, scanline.RowIndex);
                                 if (ditheredColor.A >= alphaThreshold)
@@ -499,7 +499,7 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
                             default:
                                 pos = x + left;
-                                ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
+                                ditheredColor = session.GetDitheredColor(Color32.FromArgb(value, c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                                 if (ditheredColor.A >= alphaThreshold)
                                     row.DoSetColor32(pos, ditheredColor);
                                 continue;
@@ -511,12 +511,12 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    float value = scanline.Scanline.GetElementUnsafe(x);
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
                     switch (value)
                     {
-                        case <= 0f:
+                        case Byte.MinValue:
                             continue;
-                        case >= 1f:
+                        case Byte.MaxValue:
                             int pos = x + left;
                             Color32 ditheredColor = session.GetDitheredColor(c.Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                             if (ditheredColor.A >= alphaThreshold)
@@ -524,7 +524,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
                         default:
                             pos = x + left;
-                            ditheredColor = session.GetDitheredColor(Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
+                            ditheredColor = session.GetDitheredColor(Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(row.DoGetColor32(pos), colorSpace), pos, scanline.RowIndex);
                             if (ditheredColor.A >= alphaThreshold)
                                 row.DoSetColor32(pos, ditheredColor);
                             continue;
@@ -579,7 +579,7 @@ namespace KGySoft.Drawing.Shapes
                 // Note: not using GetPreferredFirstPassPixelFormat because the first step is not a cloning, and the small performance gain at PArgb blending
                 //       is lost at FinalizeSession where the PColors are converted to Color32 due to the quantizing anyway
                 firstSessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bounds.Size, KnownPixelFormat.Format32bppArgb, workingColorSpace);
-                isMaskGenerated = region?.Mask.IsNull == false;
+                isMaskGenerated = region?.IsAntiAliased == false;
                 mask = isMaskGenerated ? region!.Mask : new Array2D<byte>(bounds.Height, KnownPixelFormat.Format1bppIndexed.GetByteWidth(bounds.Width));
                 this.bounds = bounds;
                 this.blend = blend;
@@ -592,11 +592,11 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal override void ApplyScanlineSolid(in RegionScanline<byte> scanline)
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 #region Local Methods
 
-                void ProcessNoBlending(in RegionScanline<byte> scanline)
+                void ProcessNoBlending(in RegionScanline scanline)
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
@@ -605,14 +605,14 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 0)
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
                         targetRow.DoSetColor32(x + left, c);
                     }
                 }
 
-                void ProcessWithBlending(in RegionScanline<byte> scanline)
+                void ProcessWithBlending(in RegionScanline scanline)
                 {
                     Color32 c = color;
                     IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(scanline.RowIndex - bounds.Top);
@@ -622,7 +622,7 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnsafe(x >> 3), x) == 0)
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
                         int pos = x + left;
@@ -648,11 +648,11 @@ namespace KGySoft.Drawing.Shapes
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline<float> scanline)
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 #region Local Methods
 
-                void ProcessNoBlending(in RegionScanline<float> scanline)
+                void ProcessNoBlending(in RegionScanline scanline)
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
@@ -663,25 +663,25 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value);
 
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 targetRow.DoSetColor32(x + left, c);
                                 continue;
                             default:
-                                targetRow.DoSetColor32(x + left, Color32.FromArgb(ColorSpaceHelper.ToByte(c.A == Byte.MaxValue ? value : value * ColorSpaceHelper.ToFloat(c.A)), c));
+                                targetRow.DoSetColor32(x + left, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
                                 continue;
                         }
                     }
 
                 }
 
-                void ProcessWithBlendingSolid(in RegionScanline<float> scanline)
+                void ProcessWithBlendingSolid(in RegionScanline scanline)
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
@@ -694,26 +694,26 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value);
 
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 targetRow.DoSetColor32(x + left, c);
                                 continue;
                             default:
                                 int pos = x + left;
                                 Color32 backColor = sourceRow.DoGetColor32(pos);
-                                targetRow.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value), c).Blend(backColor, colorSpace));
+                                targetRow.DoSetColor32(pos, Color32.FromArgb(value, c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
                 }
 
-                void ProcessWithBlendingAlpha(in RegionScanline<float> scanline)
+                void ProcessWithBlendingAlpha(in RegionScanline scanline)
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
@@ -726,14 +726,14 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        float value = scanline.Scanline.GetElementUnsafe(x);
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value <= 0f ? 0 : 1);
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked((x + maskOffset) >> 3), x + maskOffset, value);
 
                         switch (value)
                         {
-                            case <= 0f:
+                            case Byte.MinValue:
                                 continue;
-                            case >= 1f:
+                            case Byte.MaxValue:
                                 int pos = x + left;
                                 Color32 backColor = sourceRow.DoGetColor32(pos);
                                 targetRow.DoSetColor32(pos, c.Blend(backColor, colorSpace));
@@ -741,7 +741,7 @@ namespace KGySoft.Drawing.Shapes
                             default:
                                 pos = x + left;
                                 backColor = sourceRow.DoGetColor32(pos);
-                                targetRow.DoSetColor32(pos, Color32.FromArgb(ColorSpaceHelper.ToByte(value * ColorSpaceHelper.ToFloat(c.A)), c).Blend(backColor, colorSpace));
+                                targetRow.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
