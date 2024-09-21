@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -31,91 +32,26 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Nested classes
 
-        #region SolidFillSessionNoBlendin class
+        #region SolidFillSessionColor32 class
 
-        // TODO: separate Color32/64/F sessions in by CreateSession by pixelformat preference
-        private sealed class SolidFillSessionNoBlending/*Color32 TODO*/ : FillPathSession
+        private sealed class SolidFillSessionColor32 : FillPathSession
         {
             #region Fields
             
             private readonly Color32 color;
             private readonly IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidFillSessionNoBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
-                : base(context, drawingOptions, bounds, region)
-            {
-                color = owner.Color32;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, false, true);
-            }
-
-            #endregion
-
-            #region Methods
-
-            internal override void ApplyScanlineSolid(in RegionScanline scanline)
-            {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
-                Color32 c = color;
-                int left = scanline.Left;
-                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
-                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                        row.DoSetColor32(x + left, c);
-                }
-            }
-
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
-            {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
-                Color32 c = color;
-                int left = scanline.Left;
-
-                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                {
-                    byte value = scanline.Scanline.GetElementUnchecked(x);
-                    switch (value)
-                    {
-                        case Byte.MinValue:
-                            continue;
-                        case Byte.MaxValue:
-                            row.DoSetColor32(x + left, c);
-                            continue;
-                        default:
-                            row.DoSetColor32(x + left, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
-                            continue;
-                    }
-                }
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #region SolidFillSessionWithBlending class
-
-        private sealed class SolidFillSessionWithBlending : FillPathSession
-        {
-            #region Fields
-
-            private readonly Color32 color;
-            private readonly IBitmapDataInternal bitmapData;
             private readonly WorkingColorSpace workingColorSpace;
+            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionWithBlending(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+            internal SolidFillSessionColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
                 : base(context, drawingOptions, bounds, region)
             {
+                this.blend = blend;
                 color = owner.Color32;
                 this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
                 workingColorSpace = bitmapData.GetPreferredColorSpace();
@@ -127,13 +63,26 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
-                Debug.Assert(color.A < Byte.MaxValue);
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
-                var colorSpace = workingColorSpace;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetColor32(x + left, c);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < Byte.MaxValue);
+                var colorSpace = workingColorSpace;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
@@ -147,12 +96,33 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
-                var colorSpace = workingColorSpace;
 
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetColor32(x + left, c);
+                                continue;
+                            default:
+                                row.DoSetColor32(x + left, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                var colorSpace = workingColorSpace;
                 if (c.A == Byte.MaxValue)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -192,6 +162,712 @@ namespace KGySoft.Drawing.Shapes
                             pos = x + left;
                             backColor = row.DoGetColor32(pos);
                             row.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
+                            continue;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionPColor32 class
+
+        private sealed class SolidFillSessionPColor32 : FillPathSession
+        {
+            #region Fields
+            
+            private readonly Color32 color;
+            private readonly PColor32 pColor;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly bool blend;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionPColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
+            {
+                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Srgb || !blend);
+                this.blend = blend;
+                color = owner.Color32;
+                pColor = color.ToPColor32();
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                PColor32 pc = pColor;
+                int left = scanline.Left;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetPColor32(x + left, pc);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < Byte.MaxValue);
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        PColor32 backColor = row.DoGetPColor32(pos);
+                        row.DoSetPColor32(pos, pc.Blend(backColor));
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color32 c = color;
+                PColor32 pc = pColor;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColor32(x + left, pc);
+                                continue;
+                            default:
+                                row.DoSetPColor32(x + left, PColor32.FromArgb(pc.A == Byte.MaxValue ? value : (byte)(value * pc.A / Byte.MaxValue), c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                if (pc.A == Byte.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColor32(x + left, pc);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                PColor32 backColor = row.DoGetPColor32(pos);
+                                row.DoSetPColor32(pos, PColor32.FromArgb(value, c).Blend(backColor));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    switch (value)
+                    {
+                        case Byte.MinValue:
+                            continue;
+                        case Byte.MaxValue:
+                            int pos = x + left;
+                            PColor32 backColor = row.DoGetPColor32(pos);
+                            row.DoSetPColor32(pos, pc.Blend(backColor));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetPColor32(pos);
+                            row.DoSetPColor32(pos, PColor32.FromArgb((byte)(value * pc.A / Byte.MaxValue), c).Blend(backColor));
+                            continue;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionColor64 class
+
+        private sealed class SolidFillSessionColor64 : FillPathSession
+        {
+            #region Fields
+            
+            private readonly Color64 color;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly WorkingColorSpace workingColorSpace;
+            private readonly bool blend;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
+            {
+                this.blend = blend;
+                color = owner.Color64;
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                workingColorSpace = bitmapData.GetPreferredColorSpace();
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color64 c = color;
+                int left = scanline.Left;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetColor64(x + left, c);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < UInt16.MaxValue);
+                var colorSpace = workingColorSpace;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        Color64 backColor = row.DoGetColor64(pos);
+                        row.DoSetColor64(pos, c.Blend(backColor, colorSpace));
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color64 c = color;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetColor64(x + left, c);
+                                continue;
+                            default:
+                                ushort a = ColorSpaceHelper.ToUInt16(value);
+                                row.DoSetColor64(x + left, Color64.FromArgb(c.A == UInt16.MaxValue ? a : (ushort)((uint)a * c.A / UInt16.MaxValue), c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                var colorSpace = workingColorSpace;
+                if (c.A == UInt16.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetColor64(x + left, c);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                Color64 backColor = row.DoGetColor64(pos);
+                                row.DoSetColor64(pos, Color64.FromArgb(ColorSpaceHelper.ToUInt16(value), c).Blend(backColor, colorSpace));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    switch (value)
+                    {
+                        case Byte.MinValue:
+                            continue;
+                        case Byte.MaxValue:
+                            int pos = x + left;
+                            Color64 backColor = row.DoGetColor64(pos);
+                            row.DoSetColor64(pos, c.Blend(backColor, colorSpace));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetColor64(pos);
+                            row.DoSetColor64(pos, Color64.FromArgb((ushort)((uint)ColorSpaceHelper.ToUInt16(value) * c.A / UInt16.MaxValue), c).Blend(backColor, colorSpace));
+                            continue;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionPColor64 class
+
+        private sealed class SolidFillSessionPColor64 : FillPathSession
+        {
+            #region Fields
+            
+            private readonly Color64 color;
+            private readonly PColor64 pColor;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly bool blend;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionPColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
+            {
+                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Srgb || !blend);
+                this.blend = blend;
+                color = owner.Color64;
+                pColor = color.ToPColor64();
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                PColor64 pc = pColor;
+                int left = scanline.Left;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetPColor64(x + left, pc);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < UInt16.MaxValue);
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        PColor64 backColor = row.DoGetPColor64(pos);
+                        row.DoSetPColor64(pos, pc.Blend(backColor));
+                    }
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Color64 c = color;
+                PColor64 pc = pColor;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColor64(x + left, pc);
+                                continue;
+                            default:
+                                ushort a = ColorSpaceHelper.ToUInt16(value);
+                                row.DoSetPColor64(x + left, PColor64.FromArgb(pc.A == UInt16.MaxValue ? a : (ushort)((uint)a * pc.A / UInt16.MaxValue), c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                if (pc.A == UInt16.MaxValue)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColor64(x + left, pc);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                PColor64 backColor = row.DoGetPColor64(pos);
+                                row.DoSetPColor64(pos, PColor64.FromArgb(ColorSpaceHelper.ToUInt16(value), c).Blend(backColor));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    switch (value)
+                    {
+                        case Byte.MinValue:
+                            continue;
+                        case Byte.MaxValue:
+                            int pos = x + left;
+                            PColor64 backColor = row.DoGetPColor64(pos);
+                            row.DoSetPColor64(pos, pc.Blend(backColor));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetPColor64(pos);
+                            row.DoSetPColor64(pos, PColor64.FromArgb((ushort)((uint)ColorSpaceHelper.ToUInt16(value) * pc.A / UInt16.MaxValue), c).Blend(backColor));
+                            continue;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionColorF class
+
+        private sealed class SolidFillSessionColorF : FillPathSession
+        {
+            #region Fields
+            
+            private readonly ColorF color;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly WorkingColorSpace workingColorSpace;
+            private readonly bool blend;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
+            {
+                this.blend = blend;
+                color = owner.ColorF;
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                workingColorSpace = bitmapData.GetPreferredColorSpace();
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                ColorF c = color;
+                int left = scanline.Left;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetColorF(x + left, c);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < 1f);
+                var colorSpace = workingColorSpace;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        ColorF backColor = row.DoGetColorF(pos);
+                        row.DoSetColorF(pos, c.Blend(backColor, colorSpace));
+                    }
+                }
+            }
+
+            [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
+                Justification = "It's alright, SolidBrush constructors ensure that components are always valid and A is always 1 for opaque colors.")]
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                ColorF c = color;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetColorF(x + left, c);
+                                continue;
+                            default:
+                                row.DoSetColorF(x + left, ColorF.FromArgb(ColorSpaceHelper.ToFloat(value) * c.A, c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                var colorSpace = workingColorSpace;
+                if (c.A == 1f)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetColorF(x + left, c);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                ColorF backColor = row.DoGetColorF(pos);
+                                row.DoSetColorF(pos, ColorF.FromArgb(ColorSpaceHelper.ToFloat(value), c).Blend(backColor, colorSpace));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    switch (value)
+                    {
+                        case Byte.MinValue:
+                            continue;
+                        case Byte.MaxValue:
+                            int pos = x + left;
+                            ColorF backColor = row.DoGetColorF(pos);
+                            row.DoSetColorF(pos, c.Blend(backColor, colorSpace));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetColorF(pos);
+                            row.DoSetColorF(pos, ColorF.FromArgb(ColorSpaceHelper.ToFloat(value) * c.A, c).Blend(backColor, colorSpace));
+                            continue;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region SolidFillSessionPColorF class
+
+        private sealed class SolidFillSessionPColorF : FillPathSession
+        {
+            #region Fields
+            
+            private readonly ColorF color;
+            private readonly PColorF pColor;
+            private readonly IBitmapDataInternal bitmapData;
+            private readonly bool blend;
+
+            #endregion
+
+            #region Constructors
+
+            internal SolidFillSessionPColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
+                DrawingOptions drawingOptions, bool blend, Region? region)
+                : base(context, drawingOptions, bounds, region)
+            {
+                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Linear || !blend);
+                this.blend = blend;
+                color = owner.ColorF;
+                pColor = color.ToPColorF();
+                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                PColorF pc = pColor;
+                int left = scanline.Left;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            row.DoSetPColorF(x + left, pc);
+                    }
+
+                    return;
+                }
+
+                Debug.Assert(color.A < UInt16.MaxValue);
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                    {
+                        int pos = x + left;
+                        PColorF backColor = row.DoGetPColorF(pos);
+                        row.DoSetPColorF(pos, pc.Blend(backColor));
+                    }
+                }
+            }
+
+            [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
+                Justification = "It's alright, SolidBrush constructors ensure that components are always valid and A is always 1 for opaque colors.")]
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                ColorF c = color;
+                PColorF pc = pColor;
+                int left = scanline.Left;
+
+                if (!blend)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColorF(x + left, pc);
+                                continue;
+                            default:
+                                row.DoSetPColorF(x + left, PColorF.FromArgb(ColorSpaceHelper.ToFloat(value) * pc.A, c));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                if (pc.A == 1f)
+                {
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        switch (value)
+                        {
+                            case Byte.MinValue:
+                                continue;
+                            case Byte.MaxValue:
+                                row.DoSetPColorF(x + left, pc);
+                                continue;
+                            default:
+                                int pos = x + left;
+                                PColorF backColor = row.DoGetPColorF(pos);
+                                row.DoSetPColorF(pos, PColorF.FromArgb(ColorSpaceHelper.ToFloat(value), c).Blend(backColor));
+                                continue;
+                        }
+                    }
+
+                    return;
+                }
+
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    switch (value)
+                    {
+                        case Byte.MinValue:
+                            continue;
+                        case Byte.MaxValue:
+                            int pos = x + left;
+                            PColorF backColor = row.DoGetPColorF(pos);
+                            row.DoSetPColorF(pos, pc.Blend(backColor));
+                            continue;
+                        default:
+                            pos = x + left;
+                            backColor = row.DoGetPColorF(pos);
+                            row.DoSetPColorF(pos, PColorF.FromArgb(ColorSpaceHelper.ToFloat(value) * pc.A, c).Blend(backColor));
                             continue;
                     }
                 }
@@ -810,7 +1486,9 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        private Color32 Color32 => (colorSrgb ??= colorLinear!.Value.ToColor64()).ToColor32();
+        private Color64 Color64 => colorSrgb ??= colorLinear!.Value.ToColor64();
+        private ColorF ColorF => colorLinear ??= colorSrgb!.Value.ToColorF();
+        private Color32 Color32 => Color64.ToColor32();
 
         #endregion
 
@@ -818,7 +1496,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal SolidBrush(Color32 color) => colorSrgb = color.ToColor64();
         internal SolidBrush(Color64 color) => colorSrgb = color;
-        internal SolidBrush(ColorF color) => colorLinear = color;
+        internal SolidBrush(ColorF color) => colorLinear = color.Clip();
 
         #endregion
 
@@ -828,23 +1506,44 @@ namespace KGySoft.Drawing.Shapes
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
             IDitherer? ditherer = drawingOptions.Ditherer;
-            bool antiAliasing = drawingOptions.AntiAliasing;
-            bool blend = drawingOptions.AlphaBlending && (HasAlpha || antiAliasing);
+            bool blend = drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing);
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
+            // If the quantizer or ditherer relies on the actual [possibly already blended] result we perform the operation in two passes
             if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
                 return new TwoPassSolidFillSession(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
 
+            // With regular dithering (which implies quantizing, too)
             if (ditherer != null)
                 return new SolidFillSessionWithDithering(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
 
+            // Quantizing without dithering
             if (quantizer != null)
                 return new SolidFillSessionWithQuantizing(this, context, bitmapData, bounds, drawingOptions, quantizer, blend, region);
 
-            // TODO: && bitmapData.PixelFormat/WorkingColorSpace prefers Color32...
-            return blend
-                ? new SolidFillSessionWithBlending(this, context, bitmapData, bounds, drawingOptions, region)
-                : new SolidFillSessionNoBlending(this, context, bitmapData, bounds, drawingOptions, region);
+            // There is no quantizing: picking the most appropriate way for the best quality and performance.
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            bool linearBlending = bitmapData.LinearBlending();
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || linearBlending && pixelFormat.LinearGamma)
+            {
+                // Using PColorF only if the actual pixel format really has linear gamma to prevent performance issues
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true } && (linearBlending || !blend)
+                    ? new SolidFillSessionPColorF(this, context, bitmapData, bounds, drawingOptions, blend, region)
+                    : new SolidFillSessionColorF(this, context, bitmapData, bounds, drawingOptions, blend, region);
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
+                    ? new SolidFillSessionPColor64(this, context, bitmapData, bounds, drawingOptions, blend, region)
+                    : new SolidFillSessionColor64(this, context, bitmapData, bounds, drawingOptions, blend, region);
+            }
+
+            return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
+                ? new SolidFillSessionPColor32(this, context, bitmapData, bounds, drawingOptions, blend, region)
+                : new SolidFillSessionColor32(this, context, bitmapData, bounds, drawingOptions, blend, region);
         }
 
         #endregion
