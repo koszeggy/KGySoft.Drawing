@@ -27,13 +27,31 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Fields
 
+        #region Static Fields
+        
         internal static readonly DrawingOptions Default = new DrawingOptions();
+
+        #endregion
+
+        #region Instance Fields
+
+        private TransformationMatrix transformation;
+
+        #endregion
 
         #endregion
 
         #region Properties
 
-        public TransformationMatrix Transformation { get; set; }
+        #region Public Properties
+        
+        // If not the identity matrix, it disables path region caching.
+        // If you intend to use the same path with the same orientation, then apply the transformation to a cached Path instance, and use the identity matrix here intead.
+        public TransformationMatrix Transformation
+        {
+            get => transformation;
+            set => transformation = value;
+        }
 
         public bool AntiAliasing { get; set; }
 
@@ -47,11 +65,20 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Internal Properties
+
+        // To avoid using options.Transformation.IsIdentity, which would copy the matrix.
+        internal bool IsIdentityTransform => transformation.IsIdentity;
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
         public DrawingOptions()
         {
-            Transformation = TransformationMatrix.Identity;
+            transformation = TransformationMatrix.Identity;
             AlphaBlending = true;
         }
 

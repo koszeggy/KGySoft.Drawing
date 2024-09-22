@@ -27,7 +27,7 @@ using KGySoft.Collections;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// The raw version of <see cref="Path"/> where everything is represented by simple points.
+    /// The raw version of <see cref="Path"/> where everything is represented by simple points (line segments).
     /// </summary>
     internal sealed class RawPath
     {

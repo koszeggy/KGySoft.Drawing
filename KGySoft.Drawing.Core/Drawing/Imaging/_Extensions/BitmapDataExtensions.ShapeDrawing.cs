@@ -86,16 +86,26 @@ namespace KGySoft.Drawing.Imaging
             return context?.IsCancellationRequested != true;
         }
 
-        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null, bool cachePathRegion = true)
+        // allowCachingPathRegion: true to allow caching the region of the specified path, so the next fill operation with the same, unchanged path will be faster; otherwise, false.
+        // Remarks:
+        // - Set allowCachingPathRegion to false if path instance is not stored or is only used once.
+        // - If drawingOptions.Transformation is not the identity matrix, then the path region is not cached. To improve the performance of transformed paths, apply the transformations on the Path instance instead, and use the identity matrix in options.
+        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null, bool allowCachingPathRegion = true)
         {
-
             // TODO: make public when path contains every possible shapes
 
             //ValidateArguments(...);
 
+            drawingOptions ??= DrawingOptions.Default;
+            if (!drawingOptions.IsIdentityTransform)
+            {
+                path = Path.Transform(path, drawingOptions.Transformation);
+                allowCachingPathRegion = false;
+            }
+
             // TODO: fast shortcut when possible (solid non-AA brush with no quantizer)
 
-            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions, cachePathRegion);
+            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions, allowCachingPathRegion);
             return context?.IsCancellationRequested != true;
         }
 
@@ -115,10 +125,8 @@ namespace KGySoft.Drawing.Imaging
             throw new NotImplementedException();
         }
 
-        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions? drawingOptions, bool cache)
+        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions, bool cache)
         {
-            drawingOptions ??= DrawingOptions.Default;
-
             // TODO: apply already built region from cache if possible
             //IReadableBitmapData? region = path.GetRegion(context, brush, drawingOptions);
             //if (region != null)

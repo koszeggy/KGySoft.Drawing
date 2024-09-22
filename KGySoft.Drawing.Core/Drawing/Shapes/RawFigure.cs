@@ -141,8 +141,8 @@ namespace KGySoft.Drawing.Shapes
         {
             // https://www.tutorialspoint.com/how-to-check-orientation-of-3-ordered-points-in-java
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector2 slope1 = p2.ToVector2() - p1.ToVector2();
-            Vector2 slope2 = p3.ToVector2() - p2.ToVector2();
+            Vector2 slope1 = p2.AsVector2() - p1.AsVector2();
+            Vector2 slope2 = p3.AsVector2() - p2.AsVector2();
 #else
             PointF slope1 = p2 - new SizeF(p1);
             PointF slope2 = p3 - new SizeF(p2);

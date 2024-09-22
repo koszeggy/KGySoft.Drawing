@@ -80,12 +80,22 @@ namespace KGySoft.Drawing.Shapes
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         [FieldOffset(0)]
         [NonSerialized]
-        private Matrix3x2 matrix;
+        internal Matrix3x2 Matrix3x2;
 #endif
 
         #endregion
 
         #endregion
+
+        #endregion
+
+        #region Properties
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        public readonly bool IsIdentity => Matrix3x2.IsIdentity;
+#else
+        public readonly bool IsIdentity => this == Identity;
+#endif
 
         #endregion
 
@@ -115,7 +125,7 @@ namespace KGySoft.Drawing.Shapes
             Unsafe.SkipInit(out this);
 #endif
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            matrix = new Matrix3x2(m11, m12, m21, m22, m31, m32);
+            Matrix3x2 = new Matrix3x2(m11, m12, m21, m22, m31, m32);
 #else
             M11 = m11;
             M12 = m12;
@@ -129,7 +139,7 @@ namespace KGySoft.Drawing.Shapes
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public TransformationMatrix(Matrix3x2 matrix)
         {
-            this.matrix = matrix;
+            Matrix3x2 = matrix;
         }
 #endif
 
@@ -140,7 +150,7 @@ namespace KGySoft.Drawing.Shapes
         public bool Equals(TransformationMatrix other)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return matrix.Equals(other.matrix);
+            return Matrix3x2.Equals(other.Matrix3x2);
 #else
             // ReSharper disable CompareOfFloatsByEqualityOperator
             return M11 == other.M11 && M12 == other.M12 && M21 == other.M21 && M22 == other.M22 && M31 == other.M31 && M32 == other.M32;
@@ -156,7 +166,7 @@ namespace KGySoft.Drawing.Shapes
         public override int GetHashCode()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return matrix.GetHashCode();
+            return Matrix3x2.GetHashCode();
 #else
             return ((M11, M12), (M21, M22), (M31, M32)).GetHashCode();
 #endif

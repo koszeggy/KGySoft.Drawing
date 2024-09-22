@@ -303,7 +303,7 @@ namespace KGySoft.Drawing.Shapes
                     scanlinePixelWidth = scanner.Width;
 
                     // When there is a region, MoveNextRow will take a row from region mask. Otherwise, allocating one row.
-                    if (scanner.Region  == null)
+                    if (scanner.Region == null)
                         ScanlineBuffer = new ArraySection<byte>(KnownPixelFormat.Format1bppIndexed.GetByteWidth(scanlinePixelWidth));
 
                     if (scanner.Edges.Length == 0)
@@ -349,6 +349,9 @@ namespace KGySoft.Drawing.Shapes
                 internal void SkipEdgesAbove(int rowIndex)
                 {
                     CurrentY = rowIndex - 1;
+                    if (currentVisitedY >= rowIndex)
+                        return;
+
                     var edges = scanner.Edges;
                     var sortedIndexYStart = scanner.SortedIndexYStart;
                     var sortedIndexYEnd = scanner.SortedIndexYEnd;
@@ -356,7 +359,7 @@ namespace KGySoft.Drawing.Shapes
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
 
-                    while (currentVisitedY < rowIndex)
+                    do
                     {
                         VisitEdges();
                         activeEdges.RemoveLeavingEdges();
@@ -371,6 +374,7 @@ namespace KGySoft.Drawing.Shapes
 
                         if (startY < endY)
                         {
+                            // truncating to int is alright because coordinates are rounded to integers when there is no antialiasing
                             currentVisitedY = (int)startY;
                             startIndex += 1;
                             continue;
@@ -378,7 +382,7 @@ namespace KGySoft.Drawing.Shapes
 
                         currentVisitedY = (int)endY;
                         endIndex += 1;
-                    }
+                    } while (currentVisitedY < rowIndex);
                 }
 
                 internal bool MoveNextRow()
@@ -445,6 +449,9 @@ namespace KGySoft.Drawing.Shapes
                             isScanlineDirty = true;
                         }
 
+                        if (!isScanlineDirty)
+                            continue;
+
                         rowStartMin = Math.Min(rowStartMin, startX);
                         rowEndMax = Math.Max(rowEndMax, endX);
                     }
@@ -489,7 +496,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constants
 
-            private const float roundingUnit = 0.25f;
             private const int parallelThreshold = 256;
 
             #endregion
@@ -512,7 +518,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             public SolidRegionScanner(FillPathSession session, RawPath path)
-                : base(session, path, roundingUnit)
+                : base(session, path, 1f)
             {
                 var drawingOptions = session.DrawingOptions;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
@@ -732,6 +738,9 @@ namespace KGySoft.Drawing.Shapes
                 {
                     CurrentY = rowIndex - 1;
                     float top = rowIndex;
+                    if (currentSubpixelY >= rowIndex)
+                        return;
+
                     var edges = scanner.Edges;
                     var sortedIndexYStart = scanner.SortedIndexYStart;
                     var sortedIndexYEnd = scanner.SortedIndexYEnd;
@@ -739,7 +748,7 @@ namespace KGySoft.Drawing.Shapes
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
 
-                    while (currentSubpixelY < top)
+                    do
                     {
                         VisitEdges();
                         activeEdges.RemoveLeavingEdges();
@@ -761,7 +770,7 @@ namespace KGySoft.Drawing.Shapes
 
                         currentSubpixelY = endY;
                         endIndex += 1;
-                    }
+                    } while (currentSubpixelY < top);
                 }
 
                 internal bool MoveNextRow()
@@ -841,6 +850,9 @@ namespace KGySoft.Drawing.Shapes
 
                             isScanlineDirty = true;
                         }
+
+                        if (!isScanlineDirty)
+                            continue;
 
                         rowStartMin = Math.Min(rowStartMin, startX);
                         rowEndMax = Math.Max(rowEndMax, endX);
@@ -1642,8 +1654,8 @@ namespace KGySoft.Drawing.Shapes
 
                 // calculating p and q adjusted to the origin for better accuracy
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                Vector2 pStart = edgeInfo.Start.ToVector2();
-                Vector2 pEnd = edgeInfo.End.ToVector2();
+                Vector2 pStart = edgeInfo.Start.AsVector2();
+                Vector2 pEnd = edgeInfo.End.AsVector2();
                 Vector2 center = (pStart + pEnd) * 0.5f;
                 pStart -= center;
                 pEnd -= center;

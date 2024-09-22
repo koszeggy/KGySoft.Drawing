@@ -16,6 +16,7 @@
 
 #region Usings
 
+using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 #if NETCOREAPP3_0_OR_GREATER
@@ -76,6 +77,14 @@ namespace KGySoft.Drawing
             // The non-accelerated fallback version that returns 0f for NaN
             return new Vector4(v.X.Clip(min.X, max.X), v.Y.Clip(min.Y, max.Y), v.Z.Clip(min.Z, max.Z), v.W.Clip(min.W, max.W));
         }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PointF AsPointF(this Vector2 vector) => Unsafe.As<Vector2, PointF>(ref vector);
+#else
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PointF AsPointF(this Vector2 vector) => new PointF(vector.X, vector.Y);
+#endif
 
         #endregion
     }

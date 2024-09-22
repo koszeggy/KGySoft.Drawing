@@ -19,6 +19,9 @@ using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 
 #if !(NETCOREAPP || NET45_OR_GREATER || NETSTANDARD)
 using KGySoft.CoreLibraries;
@@ -35,16 +38,27 @@ namespace KGySoft.Drawing.Shapes
         internal static bool TolerantEquals(this PointF p1, PointF p2, float tolerance)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector2 distance = Vector2.Abs(p1.ToVector2() - p2.ToVector2());
+            Vector2 distance = Vector2.Abs(p1.AsVector2() - p2.AsVector2());
             return distance.X < tolerance && distance.Y < tolerance;
 #else
             return p1.X.TolerantEquals(p2.X, tolerance) && p1.Y.TolerantEquals(p2.Y, tolerance);
 #endif
         }
 
-#if (NETCOREAPP || NET45_OR_GREATER || NETSTANDARD) && !NET6_0_OR_GREATER
-        internal static Vector2 ToVector2(this PointF point) => new Vector2(point.X, point.Y);
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector2 AsVector2(this PointF point) => Unsafe.As<PointF, Vector2>(ref point);
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector2 AsVector2(this PointF point) => new Vector2(point.X, point.Y);
 #endif
+
+        internal static PointF Transform(this PointF point, TransformationMatrix matrix)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return Vector2.Transform(point.AsVector2(), matrix.Matrix3x2).AsPointF();
+#endif
+        }
 
         #endregion
     }

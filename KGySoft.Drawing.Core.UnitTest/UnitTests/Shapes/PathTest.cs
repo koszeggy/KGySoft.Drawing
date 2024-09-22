@@ -20,9 +20,11 @@
 #region Used Namespaces
 
 using System.Drawing;
+using System.Numerics;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
+using KGySoft.Threading;
 
 using NUnit.Framework;
 
@@ -144,6 +146,9 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["128bppPRgba_Alternate_NQ_Srgb_AA_NB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = true } ],
             ["128bppPRgba_Alternate_NQ_Srgb_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
             ["128bppPRgba_Alternate_NQ_Linear_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Linear, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
+
+            ["32bppArgb_Alternate_NQ_Srgb_NA_NB_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
+            ["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
         ];
 
         #endregion
@@ -189,22 +194,22 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 
-            //var singleThreadContext = new SimpleContext(1);
+            IAsyncContext? context = null;//new SimpleContext(1);
             //var twoThreadContext = new CustomContext(2);
 
             // non-cached region
             var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
+            bitmapData1.FillPath(context, path, Brush.CreateSolid(fillColor), options, false);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
             var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData2.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
             var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData3.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
 
             //using var bitmapData = bitmapDataBackground.Clone();

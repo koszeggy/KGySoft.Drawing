@@ -51,7 +51,11 @@ namespace KGySoft.Drawing.Shapes
 
             internal Figure(Figure other, bool close)
             {
-                segments = new List<PathSegment>(other.segments);
+                int count = other.segments.Count;
+                segments = new List<PathSegment>(count);
+                for (int i = 0; i < count; i++)
+                    segments.Add(other.segments[i].Clone());
+
                 IsClosed = close || other.IsClosed;
             }
 
@@ -80,6 +84,12 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            internal void Transform(TransformationMatrix matrix)
+            {
+                foreach (PathSegment segment in segments)
+                    segment.Transform(matrix);
+            }
+
             #endregion
         }
 
@@ -92,6 +102,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
             
             internal abstract IList<PointF> GetPoints();
+            internal abstract void Transform(TransformationMatrix matrix);
+            internal abstract PathSegment Clone();
 
             #endregion
         }
@@ -121,6 +133,16 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             internal override IList<PointF> GetPoints() => points;
+
+            internal override void Transform(TransformationMatrix matrix)
+            {
+                Debug.Assert(!matrix.IsIdentity);
+                int len = points.Length;
+                for (int i = 0; i < len; i++)
+                    points[i] = points[i].Transform(matrix);
+            }
+
+            internal override PathSegment Clone() => new LineSegment((PointF[])points.Clone());
 
             #endregion
         }

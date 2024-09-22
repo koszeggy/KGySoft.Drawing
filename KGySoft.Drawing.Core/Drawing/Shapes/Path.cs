@@ -44,6 +44,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Properties
 
+        public bool IsEmpty => figures == null && currentFigure.IsEmpty;
         public Rectangle Bounds => RawPath.Bounds;
 
         #endregion
@@ -63,6 +64,10 @@ namespace KGySoft.Drawing.Shapes
         public Path()
         {
             currentFigure = new Figure();
+        }
+
+        public Path(Path other) : this(other, false)
+        {
         }
 
         #endregion
@@ -86,6 +91,19 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Methods
+
+        #region Static Methods
+
+        public static Path Transform(Path path, TransformationMatrix matrix)
+        {
+            var result = new Path(path);
+            result.Transform(matrix);
+            return result;
+        }
+
+        #endregion
+
+        #region Instance Methods
 
         #region Public Methods
 
@@ -145,27 +163,22 @@ namespace KGySoft.Drawing.Shapes
             return new Path(this, true);
         }
 
-        #endregion
+        // NOTE: not returning this to avoid confusion. Use the static Transform to create a new instance, leaving this unchanged.
+        public void Transform(TransformationMatrix matrix)
+        {
+            if (IsEmpty || matrix.IsIdentity)
+                return;
 
-        #region Internal Methods
+            Invalidate();
 
-        // TODO
-        //internal IReadableBitmapData? GetRegion(IAsyncContext context, Pen pen, DrawingOptions drawingOptions)
-        //{
-        //    // TODO: try get from a small locking cache that can dispose the dropped items
-        //    // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
-        //    throw new NotImplementedException();
-        //}
-
-        //internal IReadableBitmapData? GetRegion(IAsyncContext context, Brush pen, DrawingOptions drawingOptions)
-        //{
-        //    // TODO: trivial shortcut for a simple filled rectangle (SolidBitmapData) - or just assert if that should be handled earlier
-
-
-        //    // TODO: try get from a small locking cache that can dispose the dropped items
-        //    // to make it well scalable use a non-locking cache for the last item (non-volatile so different cores have a bigger chance to see their own instance)
-        //    throw new NotImplementedException();
-        //}
+            if (figures == null)
+                currentFigure.Transform(matrix);
+            else
+            {
+                foreach (Figure figure in figures)
+                    figure.Transform(matrix);
+            }
+        }
 
         #endregion
 
@@ -203,6 +216,8 @@ namespace KGySoft.Drawing.Shapes
         //void IDisposable.Dispose() => Invalidate();
 
         //#endregion
+
+        #endregion
 
         #endregion
     }
