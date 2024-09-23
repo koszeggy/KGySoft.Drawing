@@ -1474,7 +1474,7 @@ namespace KGySoft.Drawing.Shapes
                         continue;
 
                     for (int i = 0; i < vertices.Length; i++)
-                        snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit);
+                        snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit, MidpointRounding.ToPositiveInfinity);
 
                     enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
                         new EdgeInfo(vertices, snappedYCoords, 0));

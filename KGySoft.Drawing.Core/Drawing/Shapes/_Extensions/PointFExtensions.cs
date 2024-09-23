@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Shapes
         internal static PointF Transform(this PointF point, TransformationMatrix matrix)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return Vector2.Transform(point.AsVector2(), matrix.Matrix3x2).AsPointF();
+            return Vector2.Transform(point.AsVector2(), matrix.Matrix).AsPointF();
 #endif
         }
 

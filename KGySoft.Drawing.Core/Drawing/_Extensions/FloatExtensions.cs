@@ -24,6 +24,12 @@ namespace KGySoft.Drawing
 {
     internal static class FloatExtensions
     {
+        #region Constants
+
+        private const float oneDegreeInRadian = MathF.PI / 180f;
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -74,8 +80,10 @@ namespace KGySoft.Drawing
                 : 0f;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static float RoundTo(this float value, float smallestUnit) 
-            => MathF.Round(value / smallestUnit, MidpointRounding.AwayFromZero) * smallestUnit;
+        internal static float RoundTo(this float value, float smallestUnit, MidpointRounding mode = MidpointRounding.ToEven) 
+            => MathF.Round(value / smallestUnit, mode) * smallestUnit;
+
+        internal static float ToRadian(this float degree) => degree * oneDegreeInRadian;
 
         #endregion
     }

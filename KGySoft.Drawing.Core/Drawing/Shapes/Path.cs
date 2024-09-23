@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
@@ -37,6 +38,7 @@ namespace KGySoft.Drawing.Shapes
         private List<Figure>? figures;
         private Figure currentFigure;
         private RawPath? rawPath;
+        private TransformationMatrix transformation;
 
         #endregion
 
@@ -46,6 +48,7 @@ namespace KGySoft.Drawing.Shapes
 
         public bool IsEmpty => figures == null && currentFigure.IsEmpty;
         public Rectangle Bounds => RawPath.Bounds;
+        public TransformationMatrix Transformation => transformation;
 
         #endregion
 
@@ -64,6 +67,7 @@ namespace KGySoft.Drawing.Shapes
         public Path()
         {
             currentFigure = new Figure();
+            transformation = TransformationMatrix.Identity;
         }
 
         public Path(Path other) : this(other, false)
@@ -76,6 +80,7 @@ namespace KGySoft.Drawing.Shapes
 
         private Path(Path other, bool close)
         {
+            transformation = other.transformation;
             if (other.figures == null)
             {
                 currentFigure = new Figure(other.currentFigure, close);
@@ -97,7 +102,7 @@ namespace KGySoft.Drawing.Shapes
         public static Path Transform(Path path, TransformationMatrix matrix)
         {
             var result = new Path(path);
-            result.Transform(matrix);
+            result.TransformAdded(matrix);
             return result;
         }
 
@@ -163,11 +168,21 @@ namespace KGySoft.Drawing.Shapes
             return new Path(this, true);
         }
 
-        // NOTE: not returning this to avoid confusion. Use the static Transform to create a new instance, leaving this unchanged.
-        public void Transform(TransformationMatrix matrix)
+        /// <summary>
+        /// Transforms the already added items in this <see cref="Path"/> instance by applying the specified <paramref name="matrix"/>.
+        /// This method does not change the value of the <see cref="Transformation"/> property.
+        /// </summary>
+        /// <param name="matrix">The <see cref="TransformationMatrix"/> to apply.</param>
+        /// <returns>The current <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>To leave the current instance intact and return a new one, use the static <see cref="Transform(Path,TransformationMatrix)">Transform</see> method instead.</para>
+        /// <para>To set the transformation for the items added afterward only, use the <see cref="TransformTranslation">TransformTranslation</see>,
+        /// <see cref="TransformRotation">TransformRotation</see>, <see cref="TransformTranslation">TransformTranslation</see> or <see cref="TransformScale">TransformScale</see> methods.</para>
+        /// </remarks>
+        public Path TransformAdded(TransformationMatrix matrix)
         {
             if (IsEmpty || matrix.IsIdentity)
-                return;
+                return this;
 
             Invalidate();
 
@@ -178,6 +193,59 @@ namespace KGySoft.Drawing.Shapes
                 foreach (Figure figure in figures)
                     figure.Transform(matrix);
             }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Overwrites the current <see cref="Transformation"/> with a <see cref="TransformationMatrix"/> to be applied
+        /// to the items that are added to the current <see cref="Path"/> after calling this method.
+        /// </summary>
+        /// <param name="matrix">The new <see cref="TransformationMatrix"/> to use.</param>
+        /// <returns>The current <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>This method affects the items that are added after calling this method only. To transform the already added items use
+        /// the <see cref="TransformAdded">TransformAdded</see> method instead.</para>
+        /// </remarks>
+        public Path SetTransformation(TransformationMatrix matrix)
+        {
+            transformation = matrix;
+            return this;
+        }
+
+        public Path ResetTransformation()
+        {
+            transformation = TransformationMatrix.Identity;
+            return this;
+        }
+
+        /// <summary>
+        /// Applies a translation (offset) to the origin of the current <see cref="Transformation"/>.
+        /// </summary>
+        /// <param name="offsetX"></param>
+        /// <param name="offsetY"></param>
+        /// <returns></returns>
+        public Path TransformTranslation(float offsetX, float offsetY)
+        {
+            transformation = TransformationMatrix.CreateTranslation(offsetX, offsetY) * transformation;
+            return this;
+        }
+
+        // TODO
+        //public Path TransformTranslation(Vector2 offset)
+        //{
+        //}
+
+        public Path TransformRotation(float angle)
+        {
+            transformation = TransformationMatrix.CreateRotation(angle.ToRadian()) * transformation;
+            return this;
+        }
+
+        public Path TransformScale(float scaleX, float scaleY)
+        {
+            transformation = TransformationMatrix.CreateScale(scaleX, scaleY) * transformation;
+            return this;
         }
 
         #endregion
@@ -189,6 +257,8 @@ namespace KGySoft.Drawing.Shapes
             Invalidate();
             if (currentFigure.IsClosed)
                 StartFigure();
+            if (!transformation.IsIdentity)
+                segment.Transform(transformation);
             currentFigure.AddSegment(segment);
         }
 
