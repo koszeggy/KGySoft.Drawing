@@ -150,6 +150,7 @@ namespace KGySoft.Drawing.Shapes
             protected int Top => generateBounds.Top;
             protected int Bottom => generateBounds.Bottom;
             protected int Left => generateBounds.Left;
+            protected int Right => generateBounds.Right;
             protected int Width => generateBounds.Width;
             protected int VisibleTop => visibleBounds.Top;
             protected int VisibleBottom => visibleBounds.Bottom;
@@ -275,8 +276,8 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(scanner.VisibleLeft - scanner.Left, rowStartMin);
-                internal int EndX => Math.Min(scanner.VisibleLeft - scanner.Left + scanner.VisibleWidth - 1, rowEndMax);
+                internal int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
+                internal int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
 
                 internal bool IsVisibleScanlineDirty
                 {
@@ -407,44 +408,49 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentRow()
                 {
-                    CastArray<byte, float> points = activeEdges.ScanLine(currentVisitedY, scanner.Edges);
+                    // Scanning at the middle of the row rather than at the top. It will work because Y coordinates are rounded to 0.5.
+                    // It requires removing the possibly leaving edges above the half pixel distance first.
+                    activeEdges.ScanLine(currentVisitedY, scanner.Edges);
+                    activeEdges.RemoveLeavingEdges();
+                    CastArray<byte, float> points = activeEdges.ScanLine(currentVisitedY + roundingUnit, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
-                    float minX = scanner.Left;
+                    int left = scanner.Left;
+                    int right = scanner.Right;
                     for (int point = 0; point < points.Length - 1; point += 2)
                     {
-                        float scanStart = points.GetElementUnsafe(point) - minX;
-                        float scanEnd = points.GetElementUnsafe(point + 1) - minX;
+                        float scanStart = points.GetElementUnsafe(point);
+                        float scanEnd = points.GetElementUnsafe(point + 1);
+                        if (scanEnd - scanStart < roundingUnit)
+                            continue;
+
+                        // the first (potentially partial) pixel
                         int startX = (int)MathF.Floor(scanStart);
+                        int posX = startX - left;
+                        if ((uint)posX < (uint)scanlinePixelWidth && startX + 1 - scanStart >= roundingUnit)
+                        {
+                            ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
+                            isScanlineDirty = true;
+                        }
+
+                        // the last (potentially partial) pixel
                         int endX = (int)MathF.Floor(scanEnd);
-
-                        if (startX >= 0 && startX < scanlinePixelWidth)
+                        posX = endX - left;
+                        if ((uint)posX < (uint)scanlinePixelWidth && scanEnd - endX >= roundingUnit)
                         {
-                            if (startX + 1 - scanStart >= 0.5f)
-                            {
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(startX >> 3), startX, 1);
-                                isScanlineDirty = true;
-                            }
+                            ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
+                            isScanlineDirty = true;
                         }
 
-                        if (endX >= 0 && endX < scanlinePixelWidth)
-                        {
-                            if (scanEnd - endX >= 0.5f || endX == startX + 1 && scanEnd - scanStart >= 0.5f)
-                            {
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(endX >> 3), endX, 1);
-                                isScanlineDirty = true;
-                            }
-                        }
-
-                        int nextX = startX + 1;
-                        endX = Math.Min(endX, scanlinePixelWidth);
-                        nextX = Math.Max(nextX, 0);
-
-                        if (endX > nextX)
+                        // full pixels between first and last (within the scanned region)
+                        int fullStartX = Math.Max(startX + 1, left) - left;
+                        int fullEndX = Math.Min(endX - 1, right - 1) - left;
+                        if (fullEndX >= fullStartX)
                         {
                             // TODO: vectorization if possible - or at least combine byte changes
-                            for (int i = nextX; i < endX; i++)
+                            Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
+                            for (int i = fullStartX; i <= fullEndX; i++)
                                 ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(i >> 3), i, 1);
                             isScanlineDirty = true;
                         }
@@ -497,6 +503,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const int parallelThreshold = 256;
+            private const float roundingUnit = 0.5f;
 
             #endregion
 
@@ -518,7 +525,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             public SolidRegionScanner(FillPathSession session, RawPath path)
-                : base(session, path, 1f)
+                : base(session, path, roundingUnit)
             {
                 var drawingOptions = session.DrawingOptions;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
@@ -660,8 +667,8 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(scanner.VisibleLeft - scanner.Left, rowStartMin);
-                internal int EndX => Math.Min(scanner.VisibleLeft - scanner.Left + scanner.VisibleWidth - 1, rowEndMax);
+                internal int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
+                internal int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
 
                 internal bool IsVisibleScanlineDirty
                 {
@@ -806,42 +813,56 @@ namespace KGySoft.Drawing.Shapes
                     if (points.Length == 0)
                         return;
 
-                    float minX = scanner.Left;
+                    int left = scanner.Left;
+                    int right = scanner.Right;
+                    int scanlinePixelWidth = ScanlineBuffer.Length;
                     for (int point = 0; point < points.Length - 1; point += 2)
                     {
-                        float scanStart = points.GetElementUnsafe(point) - minX;
-                        float scanEnd = points.GetElementUnsafe(point + 1) - minX;
-                        int startX = (int)MathF.Floor(scanStart);
-                        int endX = (int)MathF.Floor(scanEnd);
+                        float scanStart = points.GetElementUnsafe(point);
+                        float scanEnd = points.GetElementUnsafe(point + 1);
+                        if (scanEnd - scanStart < subpixelSizeF)
+                            continue;
 
-                        if (startX >= 0 && startX < ScanlineBuffer.Length)
+                        // the first (potentially partial) pixel
+                        int startX = (int)MathF.Floor(scanStart);
+                        int posX = startX - left;
+                        if ((uint)posX < (uint)scanlinePixelWidth)
                         {
                             // float subpixelWidth = (startX + 1 - scanStart) / subpixelSizeF;
-                            // ScanlineBuffer.GetElementReferenceUnchecked(startX) += subpixelWidth * subpixelArea;
+                            // ScanlineBuffer.GetElementReferenceUnchecked(startX) += subpixelWidthF * subpixelAreaF;
                             uint subpixelWidth = (uint)((startX + 1 - scanStart) * subpixelIntegerScale) >> subpixelSizeFactor;
-                            ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(startX);
-                            scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
-                            isScanlineDirty |= subpixelWidth > 0;
+                            if (subpixelWidth > 0u)
+                            {
+                                ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(posX);
+                                scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
+                                isScanlineDirty = true;
+                            }
                         }
 
-                        if (endX >= 0 && endX < ScanlineBuffer.Length)
+                        // the last (potentially partial) pixel
+                        int endX = (int)MathF.Floor(scanEnd);
+                        posX = endX - left;
+                        if ((uint)posX < (uint)scanlinePixelWidth)
                         {
                             //float subpixelWidth = (scanEnd - endX) / subpixelSizeF;
                             //ScanlineBuffer.GetElementReferenceUnchecked(endX) += subpixelWidth * subpixelArea;
                             uint subpixelWidth = (uint)((scanEnd - endX) * subpixelIntegerScale) >> subpixelSizeFactor;
-                            ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(endX);
-                            scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
-                            isScanlineDirty |= subpixelWidth > 0;
+                            if (subpixelWidth > 0u)
+                            {
+                                ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(posX);
+                                scanlinePixel = (scanlinePixel + subpixelWidth).ClipToByte();
+                                isScanlineDirty = true;
+                            }
                         }
 
-                        int nextX = startX + 1;
-                        endX = Math.Min(endX, ScanlineBuffer.Length);
-                        nextX = Math.Max(nextX, 0);
-
-                        if (endX > nextX)
+                        // full pixels between first and last (within the scanned region)
+                        int fullStartX = Math.Max(startX + 1, left) - left;
+                        int fullEndX = Math.Min(endX - 1, right - 1) - left;
+                        if (fullEndX >= fullStartX)
                         {
                             // TODO: vectorization if possible
-                            for (int i = nextX; i < endX; i++)
+                            Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
+                            for (int i = fullStartX; i <= fullEndX; i++)
                             {
                                 //ScanlineBuffer.GetElementReferenceUnchecked(i) += subpixelSize;
                                 ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(i);
@@ -907,6 +928,7 @@ namespace KGySoft.Drawing.Shapes
             //private const uint subpixelArea = 1; // subpixelIntegerScale / (subpixelCount * subpixelCount);
             private const int subpixelSizeFactor = 4; // Math.Log2(subpixelSize);
             private const float subpixelSizeF = (float)subpixelSize / subpixelIntegerScale;
+            //private const float scannerPrecision = 1f / 32f;
 
             private const int parallelThreshold = 64;
 
