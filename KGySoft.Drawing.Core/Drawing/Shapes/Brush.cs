@@ -268,7 +268,7 @@ namespace KGySoft.Drawing.Shapes
                 private int yEndIndex;
                 private int rowStartMin;
                 private int rowEndMax;
-                private int currentVisitedY;
+                private float currentYf;
 
                 #endregion
 
@@ -310,7 +310,7 @@ namespace KGySoft.Drawing.Shapes
                     if (scanner.Edges.Length == 0)
                         return;
 
-                    currentVisitedY = (int)scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
+                    currentYf = scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
                 }
 
                 internal SolidScannerContext(in SolidScannerContext other, int top)
@@ -324,7 +324,8 @@ namespace KGySoft.Drawing.Shapes
                         ? region.Mask[top - scanner.Top]
                         : new byte[other.ScanlineBuffer.Length];
                     isScanlineDirty = false;
-                    SkipEdgesAbove(top);
+                    currentYf = other.currentYf;
+                    SkipEdgesAbove(top + pixelOffset, true);
                 }
 
                 #endregion
@@ -347,10 +348,11 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Internal Methods
 
-                internal void SkipEdgesAbove(int rowIndex)
+                internal void SkipEdgesAbove(float top, bool isInitializing)
                 {
-                    CurrentY = rowIndex - 1;
-                    if (currentVisitedY >= rowIndex)
+                    if (isInitializing)
+                        CurrentY = (int)MathF.Floor(top) - 1;
+                    if (currentYf >= top)
                         return;
 
                     var edges = scanner.Edges;
@@ -359,11 +361,15 @@ namespace KGySoft.Drawing.Shapes
 
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
+                    bool visitEdges = isInitializing;
 
                     do
                     {
-                        VisitEdges();
-                        activeEdges.RemoveLeavingEdges();
+                        if (visitEdges)
+                        {
+                            VisitEdges();
+                            activeEdges.RemoveLeavingEdges();
+                        }
 
                         bool startFinished = startIndex >= sortedIndexYStart.Length;
                         bool endFinished = endIndex >= sortedIndexYEnd.Length;
@@ -375,21 +381,21 @@ namespace KGySoft.Drawing.Shapes
 
                         if (startY < endY)
                         {
-                            // truncating to int is alright because coordinates are rounded to integers when there is no antialiasing
-                            currentVisitedY = (int)startY;
+                            visitEdges = startY > currentYf;
+                            currentYf = startY;
                             startIndex += 1;
                             continue;
                         }
 
-                        currentVisitedY = (int)endY;
+                        visitEdges = endY > currentYf;
+                        currentYf = endY;
                         endIndex += 1;
-                    } while (currentVisitedY < rowIndex);
+                    } while (currentYf < top);
                 }
 
                 internal bool MoveNextRow()
                 {
                     CurrentY += 1;
-                    currentVisitedY = CurrentY;
                     if (CurrentY >= scanner.Bottom)
                         return false;
 
@@ -401,6 +407,24 @@ namespace KGySoft.Drawing.Shapes
 
                     rowStartMin = Int32.MaxValue;
                     rowEndMax = Int32.MinValue;
+
+                    // Skipping edges is needed if roundingUnit < 1 because edges may dis/appear between two pixel lines
+                    float nextY = CurrentY + pixelOffset;
+                    if (currentYf < nextY)
+                        SkipEdgesAbove(nextY, false);
+
+                    // TODO: remove
+                    //while (currentYf < nextY)
+                    //{
+                    //    currentYf += roundingUnit;
+                    //    if (currentYf >= nextY)
+                    //        break;
+
+                    //    VisitEdges();
+                    //    activeEdges.RemoveLeavingEdges();
+                    //}
+
+                    currentYf = nextY;
                     VisitEdges();
 
                     return true;
@@ -408,11 +432,7 @@ namespace KGySoft.Drawing.Shapes
 
                 internal void ScanCurrentRow()
                 {
-                    // Scanning at the middle of the row rather than at the top. It will work because Y coordinates are rounded to 0.5.
-                    // It requires removing the possibly leaving edges above the half pixel distance first.
-                    activeEdges.ScanLine(currentVisitedY, scanner.Edges);
-                    activeEdges.RemoveLeavingEdges();
-                    CastArray<byte, float> points = activeEdges.ScanLine(currentVisitedY + roundingUnit, scanner.Edges);
+                    CastArray<byte, float> points = activeEdges.ScanLine(currentYf, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
@@ -422,13 +442,13 @@ namespace KGySoft.Drawing.Shapes
                     {
                         float scanStart = points.GetElementUnsafe(point);
                         float scanEnd = points.GetElementUnsafe(point + 1);
-                        if (scanEnd - scanStart < roundingUnit)
+                        if (scanEnd - scanStart < 0.5f)
                             continue;
 
                         // the first (potentially partial) pixel
                         int startX = (int)MathF.Floor(scanStart);
                         int posX = startX - left;
-                        if ((uint)posX < (uint)scanlinePixelWidth && startX + 1 - scanStart >= roundingUnit)
+                        if ((uint)posX < (uint)scanlinePixelWidth && startX + 1 - scanStart >= 0.5f)
                         {
                             ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
                             isScanlineDirty = true;
@@ -437,7 +457,7 @@ namespace KGySoft.Drawing.Shapes
                         // the last (potentially partial) pixel
                         int endX = (int)MathF.Floor(scanEnd);
                         posX = endX - left;
-                        if ((uint)posX < (uint)scanlinePixelWidth && scanEnd - endX >= roundingUnit)
+                        if ((uint)posX < (uint)scanlinePixelWidth && scanEnd - endX >= 0.5f)
                         {
                             ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
                             isScanlineDirty = true;
@@ -475,7 +495,7 @@ namespace KGySoft.Drawing.Shapes
                     while (yStartIndex < sortedIndexYStart.Length)
                     {
                         int i = sortedIndexYStart[yStartIndex];
-                        if (edges[i].YStart > currentVisitedY)
+                        if (edges[i].YStart > currentYf)
                             break;
 
                         activeEdges.EnterEdge(i);
@@ -485,7 +505,7 @@ namespace KGySoft.Drawing.Shapes
                     while (yEndIndex < sortedIndexYEnd.Length)
                     {
                         int i = sortedIndexYEnd[yEndIndex];
-                        if (edges[i].YEnd > currentVisitedY)
+                        if (edges[i].YEnd > currentYf)
                             break;
 
                         activeEdges.LeaveEdge(i);
@@ -503,7 +523,8 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const int parallelThreshold = 256;
-            private const float roundingUnit = 0.5f;
+            private const float roundingUnit = 1/32f;
+            private const float pixelOffset = 0.5f;
 
             #endregion
 
@@ -532,7 +553,7 @@ namespace KGySoft.Drawing.Shapes
                 var context = session.Context;
 
                 mainContext = new SolidScannerContext(this, activeEdges);
-                mainContext.SkipEdgesAbove(Top);
+                mainContext.SkipEdgesAbove(Top + pixelOffset, true);
 
                 int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
                 if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
@@ -576,6 +597,24 @@ namespace KGySoft.Drawing.Shapes
                     Session.ApplyScanlineSolid(new RegionScanline(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
+            // TODO: remove (this helps testing the multi-threaded context on a single thread)
+            //private int? currY;
+            //internal override void ProcessNextScanline()
+            //{
+            //    Debug.Assert(IsSingleThreaded || Session.IsSingleThreaded);
+
+            //    currY ??= mainContext.CurrentY;
+            //    currY += 1;
+            //    var context = new SolidScannerContext(mainContext, currY.Value);
+            //    if (!context.MoveNextRow())
+            //        return;
+
+            //    context.ScanCurrentRow();
+
+            //    if (context.IsVisibleScanlineDirty)
+            //        Session.ApplyScanlineSolid(new RegionScanline(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+            //}
+
             internal override void ProcessScanline(int y)
             {
                 Debug.Assert(!IsSingleThreaded);
@@ -608,7 +647,7 @@ namespace KGySoft.Drawing.Shapes
                         ref SolidScannerContext context = ref value.Context;
                         if (context.CurrentY < y)
                         {
-                            context.SkipEdgesAbove(y);
+                            context.SkipEdgesAbove(y + pixelOffset, true);
                             return ref context;
                         }
                     }
@@ -660,6 +699,7 @@ namespace KGySoft.Drawing.Shapes
                 private int rowEndMax;
                 private float nextY;
                 private float currentSubpixelY;
+                private float currentYf;
 
                 #endregion
 
@@ -700,7 +740,7 @@ namespace KGySoft.Drawing.Shapes
                     if (scanner.Edges.Length == 0)
                         return;
 
-                    currentSubpixelY = scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
+                    currentYf = scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
                 }
 
                 internal AntiAliasingScannerContext(in AntiAliasingScannerContext other, int top)
@@ -718,7 +758,8 @@ namespace KGySoft.Drawing.Shapes
                     }
 
                     isScanlineDirty = false;
-                    SkipEdgesAbove(top);
+                    currentYf = other.currentYf;
+                    SkipEdgesAbove(top + subpixelOffset, true);
                 }
 
                 #endregion
@@ -741,11 +782,11 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Internal Methods
 
-                internal void SkipEdgesAbove(int rowIndex)
+                internal void SkipEdgesAbove(float top, bool isInitializing)
                 {
-                    CurrentY = rowIndex - 1;
-                    float top = rowIndex;
-                    if (currentSubpixelY >= rowIndex)
+                    if (isInitializing)
+                        CurrentY = (int)MathF.Floor(top) - 1;
+                    if (currentYf >= top)
                         return;
 
                     var edges = scanner.Edges;
@@ -754,11 +795,15 @@ namespace KGySoft.Drawing.Shapes
 
                     int startIndex = yStartIndex + 1;
                     int endIndex = yEndIndex;
+                    bool visitEdges = isInitializing;
 
                     do
                     {
-                        VisitEdges();
-                        activeEdges.RemoveLeavingEdges();
+                        if (visitEdges)
+                        {
+                            VisitEdges();
+                            activeEdges.RemoveLeavingEdges();
+                        }
 
                         bool startFinished = startIndex >= sortedIndexYStart.Length;
                         bool endFinished = endIndex >= sortedIndexYEnd.Length;
@@ -770,24 +815,26 @@ namespace KGySoft.Drawing.Shapes
 
                         if (startY < endY)
                         {
-                            currentSubpixelY = startY;
+                            visitEdges = startY > currentYf;
+                            currentYf = startY;
                             startIndex += 1;
                             continue;
                         }
 
-                        currentSubpixelY = endY;
+                        visitEdges = endY > currentYf;
+                        currentYf = endY;
                         endIndex += 1;
-                    } while (currentSubpixelY < top);
+                    } while (currentYf < top);
                 }
 
                 internal bool MoveNextRow()
                 {
                     CurrentY += 1;
-                    nextY = CurrentY + 1;
-                    currentSubpixelY = CurrentY - subpixelSizeF;
                     if (CurrentY >= scanner.Bottom)
                         return false;
 
+                    nextY = CurrentY + 1;
+                    currentSubpixelY = CurrentY - subpixelSizeF;
                     if (scanner.Region is Region region)
                         ScanlineBuffer = region.Mask[CurrentY - scanner.Top];
                     else if (isScanlineDirty)
@@ -803,13 +850,24 @@ namespace KGySoft.Drawing.Shapes
                 internal bool MoveNextSubpixelRow()
                 {
                     currentSubpixelY += subpixelSizeF;
+                    if (currentSubpixelY >= nextY)
+                        return false;
+
+                    // Skipping edges is needed if roundingUnit < subpixelSizeF because edges may dis/appear between two subpixel lines.
+                    // The effect is not that apparent than during non-antialiasing scanning, but it also may cause artifacts.
+                    // It would not be needed if we didn't use offset and roundingUnit would be the same as subpixelSizeF.
+                    float nextScanY = currentSubpixelY + subpixelOffset;
+                    if (currentYf < nextScanY)
+                        SkipEdgesAbove(nextScanY, false);
+
+                    currentYf = nextScanY;
                     VisitEdges();
-                    return currentSubpixelY < nextY;
+                    return true;
                 }
 
                 internal void ScanCurrentSubpixelRow()
                 {
-                    CastArray<byte, float> points = activeEdges.ScanLine(currentSubpixelY, scanner.Edges);
+                    CastArray<byte, float> points = activeEdges.ScanLine(currentYf, scanner.Edges);
                     if (points.Length == 0)
                         return;
 
@@ -828,8 +886,6 @@ namespace KGySoft.Drawing.Shapes
                         int posX = startX - left;
                         if ((uint)posX < (uint)scanlinePixelWidth)
                         {
-                            // float subpixelWidth = (startX + 1 - scanStart) / subpixelSizeF;
-                            // ScanlineBuffer.GetElementReferenceUnchecked(startX) += subpixelWidthF * subpixelAreaF;
                             uint subpixelWidth = (uint)((startX + 1 - scanStart) * subpixelIntegerScale) >> subpixelSizeFactor;
                             if (subpixelWidth > 0u)
                             {
@@ -844,8 +900,6 @@ namespace KGySoft.Drawing.Shapes
                         posX = endX - left;
                         if ((uint)posX < (uint)scanlinePixelWidth)
                         {
-                            //float subpixelWidth = (scanEnd - endX) / subpixelSizeF;
-                            //ScanlineBuffer.GetElementReferenceUnchecked(endX) += subpixelWidth * subpixelArea;
                             uint subpixelWidth = (uint)((scanEnd - endX) * subpixelIntegerScale) >> subpixelSizeFactor;
                             if (subpixelWidth > 0u)
                             {
@@ -864,7 +918,6 @@ namespace KGySoft.Drawing.Shapes
                             Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
                             for (int i = fullStartX; i <= fullEndX; i++)
                             {
-                                //ScanlineBuffer.GetElementReferenceUnchecked(i) += subpixelSize;
                                 ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(i);
                                 scanlinePixel = (scanlinePixel + subpixelSize).ClipToByte();
                             }
@@ -892,7 +945,7 @@ namespace KGySoft.Drawing.Shapes
                     while (yStartIndex < sortedIndexYStart.Length)
                     {
                         int i = sortedIndexYStart[yStartIndex];
-                        if (edges[i].YStart > currentSubpixelY)
+                        if (edges[i].YStart > currentYf)
                             break;
 
                         activeEdges.EnterEdge(i);
@@ -902,7 +955,7 @@ namespace KGySoft.Drawing.Shapes
                     while (yEndIndex < sortedIndexYEnd.Length)
                     {
                         int i = sortedIndexYEnd[yEndIndex];
-                        if (edges[i].YEnd > currentSubpixelY)
+                        if (edges[i].YEnd > currentYf)
                             break;
 
                         activeEdges.LeaveEdge(i);
@@ -921,14 +974,17 @@ namespace KGySoft.Drawing.Shapes
 
             private const int subpixelCount = 16;
 
-            // We could use just floats but as we have basically 256 different possible values using bytes instead of floats
-            // both in scanline and region mask buffers to spare 3 bytes per pixel, so going with integers where that's better.
+            // We could use just floats but if subpixelCount is 16, then as we have basically 256 different possible values (subpixel area is 1/16^2 = 1/256).
+            // So using bytes instead of floats both in scanline and region mask buffers to spare 3 bytes per pixel, so going with integers where that's more optimal.
             private const uint subpixelIntegerScale = 256;
-            private const uint subpixelSize = 16; // subpixelIntegerScale / subpixelCount;
-            //private const uint subpixelArea = 1; // subpixelIntegerScale / (subpixelCount * subpixelCount);
+            private const uint subpixelSize = subpixelIntegerScale / subpixelCount;
             private const int subpixelSizeFactor = 4; // Math.Log2(subpixelSize);
             private const float subpixelSizeF = (float)subpixelSize / subpixelIntegerScale;
-            //private const float scannerPrecision = 1f / 32f;
+
+            // Just like in SolidRegionScanner, we can have a nonzero offset to take samples from the middle of the subpixel rows.
+            // It helps to create completely solid pixels symmetrically at the top/bottom of the shapes (e.g. ellipse).
+            private const float subpixelOffset = subpixelSizeF / 2f;
+            private const float roundingUnit = subpixelOffset; // subpixelOffset > 0f && subpixelOffset < subpixelSizeF ? subpixelOffset : subpixelSizeF;
 
             private const int parallelThreshold = 64;
 
@@ -952,14 +1008,14 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             public AntiAliasingRegionScanner(FillPathSession session, RawPath path)
-                : base(session, path, 1f / subpixelCount)
+                : base(session, path, roundingUnit)
             {
                 var drawingOptions = session.DrawingOptions;
                 var context = session.Context;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
                 mainContext = new AntiAliasingScannerContext(this, activeEdges);
-                mainContext.SkipEdgesAbove(Top);
+                mainContext.SkipEdgesAbove(Top + subpixelOffset, true);
 
                 int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
                 if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
@@ -1004,6 +1060,24 @@ namespace KGySoft.Drawing.Shapes
                     Session.ApplyScanlineAntiAliasing(new RegionScanline(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
+            // TODO: remove (this helps testing the multi-threaded context on a single thread)
+            //private int? currY;
+            //internal override void ProcessNextScanline()
+            //{
+            //    Debug.Assert(IsSingleThreaded || Session.IsSingleThreaded);
+            //    currY ??= mainContext.CurrentY;
+            //    currY += 1;
+            //    var context = new AntiAliasingScannerContext(mainContext, currY.Value);
+            //    if (!context.MoveNextRow())
+            //        return;
+
+            //    while (context.MoveNextSubpixelRow())
+            //        context.ScanCurrentSubpixelRow();
+
+            //    if (context.IsVisibleScanlineDirty)
+            //        Session.ApplyScanlineAntiAliasing(new RegionScanline(context.CurrentY, Left, context.ScanlineBuffer, context.StartX, context.EndX));
+            //}
+
             internal override void ProcessScanline(int y)
             {
                 Debug.Assert(!IsSingleThreaded);
@@ -1038,7 +1112,7 @@ namespace KGySoft.Drawing.Shapes
                         ref AntiAliasingScannerContext context = ref value.Context;
                         if (context.CurrentY < y)
                         {
-                            context.SkipEdgesAbove(y);
+                            context.SkipEdgesAbove(y + subpixelOffset, true);
                             return ref context;
                         }
                     }
@@ -1250,14 +1324,16 @@ namespace KGySoft.Drawing.Shapes
                     ref var entry = ref activeEdges.GetElementReferenceUnsafe(i);
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
-                    if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.EmitStart, Intersections, ref intersectionsCount);
-                    else if ((entry.Flags & Flags.Leaving) != Flags.None)
+                    if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EmitEnd, Intersections, ref intersectionsCount);
+                        if ((entry.Flags & Flags.Entering) == Flags.None)
+                            AddIntersection(x, edge.EmitEnd, Intersections, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
+
+                    if ((entry.Flags & Flags.Entering) != Flags.None)
+                        AddIntersection(x, edge.EmitStart, Intersections, ref intersectionsCount);
                     else
                     {
                         Debug.Assert(Intersections.Length > intersectionsCount);
@@ -1400,14 +1476,16 @@ namespace KGySoft.Drawing.Shapes
                     ref var entry = ref activeEdges.GetElementReference(i);
                     ref var edge = ref edges.GetElementReference(entry.Index);
                     float x = edge.GetX(y);
-                    if ((entry.Flags & Flags.Entering) != Flags.None)
-                        AddIntersection(x, edge.EmitStart, edge.IsAscending, intersections, types, ref intersectionsCount);
-                    else if ((entry.Flags & Flags.Leaving) != Flags.None)
+                    if ((entry.Flags & Flags.Leaving) != Flags.None)
                     {
-                        AddIntersection(x, edge.EmitEnd, edge.IsAscending, intersections, types, ref intersectionsCount);
+                        if ((entry.Flags & Flags.Entering) == Flags.None)
+                            AddIntersection(x, edge.EmitEnd, edge.IsAscending, intersections, types, ref intersectionsCount);
                         removed += 1;
                         continue;
                     }
+
+                    if ((entry.Flags & Flags.Entering) != Flags.None)
+                        AddIntersection(x, edge.EmitStart, edge.IsAscending, intersections, types, ref intersectionsCount);
                     else
                     {
                         if (edge.IsAscending)
@@ -1741,6 +1819,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "Initialization")]
             internal void StartNextFigure(EdgeInfo previous, EdgeInfo current)
             {
                 this.previous = previous;
