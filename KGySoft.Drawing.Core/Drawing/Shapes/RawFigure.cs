@@ -32,8 +32,8 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Constants
 
-        private const float toleranceEquality = 0.001f;
-        private const float tolerancePointDistance = 0.1f;
+        private const float toleranceEquality = 1f / 64f;
+        private const float tolerancePointDistance = 1f / 32f;
 
         #endregion
 

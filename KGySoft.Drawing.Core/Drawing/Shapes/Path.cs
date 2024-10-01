@@ -19,10 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
-
-using KGySoft.Drawing.Imaging;
-using KGySoft.Threading;
+using System.Reflection;
 
 #endregion
 
@@ -112,21 +109,64 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Methods
 
+        // TODO: Point, int, float overloads
         public Path AddLine(PointF p1, PointF p2)
         {
             AddSegment(new LineSegment(p1, p2));
             return this;
         }
 
+        // TODO: Point[] overload
         public Path AddLines(params PointF[] points)
         {
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
+            if (points.Length < 2)
+                throw new ArgumentException(nameof(points), Res.ShapesLinePointsInvalid);
+
             AddSegment(new LineSegment(points));
             return this;
         }
 
-        // TODO: AddRectangle
-        // TODO: AddArc
-        // TODO: AddBezier (required for ellipse)
+        // TODO: Rectangle, int, float overloads
+        public Path AddRectangle(RectangleF rectangle)
+        {
+            CloseFigure();
+            AddSegment(new LineSegment(rectangle.Location,
+                new PointF(rectangle.Right, rectangle.Top),
+                new PointF(rectangle.Right, rectangle.Bottom),
+                new PointF(rectangle.Left, rectangle.Bottom)));
+            CloseFigure();
+            return this;
+        }
+
+        // TODO: Point, float, int overloads
+        public Path AddBezier(PointF p1, PointF p2, PointF p3, PointF p4)
+        {
+            AddSegment(new BezierSegment(p1, p2, p3, p4));
+            return this;
+        }
+
+        public Path AddBeziers(params PointF[] points)
+        {
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
+            if ((points.Length - 1) % 3 != 0)
+                throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
+            AddSegment(new BezierSegment(points));
+            return this;
+        }
+
+        // TODO: Rectangle, int, float overloads
+        //public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
+        //{
+        //    AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
+        //    return this;
+        //}
+
+        //// TODO: Rectangle, int, float overloads
+        //public Path AddEllipse(RectangleF bounds) => AddArc(bounds, 0f, 360f);
+
         // TODO: AddEllipse
         // TODO: AddPolygon (same as AddLines but closed)
         // TODO: AddRoundedRectangle

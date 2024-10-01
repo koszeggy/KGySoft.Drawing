@@ -128,6 +128,16 @@ namespace KGySoft
 
         #endregion
 
+        #region Shapes
+
+        /// <summary>At least two points should be specified.</summary>
+        internal static string ShapesLinePointsInvalid => Get("Shapes_LinePointsInvalid");
+
+        /// <summary>At least four points should be specified, and the number of points minus one should be divisible by 3.</summary>
+        internal static string ShapesBezierPointsInvalid => Get("Shapes_BezierPointsInvalid");
+
+        #endregion
+
         #endregion
 
         #region Methods
