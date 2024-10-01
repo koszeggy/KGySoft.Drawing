@@ -15,10 +15,12 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Reflection;
 
 #endregion
@@ -158,20 +160,21 @@ namespace KGySoft.Drawing.Shapes
 
             private const float flatnessThreshold = 1f / 64f;
             private const int flattenRecursionLimit = 16;
+            private const float tolerance = 1e-4f;
 
             #endregion
 
             #region Fields
 
-            private readonly PointF[] points;
+            private readonly IList<PointF> points;
 
             #endregion
 
             #region Constructors
 
-            internal BezierSegment(params PointF[] points)
+            internal BezierSegment(IList<PointF> points)
             {
-                Debug.Assert(points != null! && (points.Length - 1) % 3 == 0);
+                Debug.Assert(points != null! && (points.Count - 1) % 3 == 0);
                 this.points = points!;
             }
 
@@ -181,9 +184,102 @@ namespace KGySoft.Drawing.Shapes
 
             #region Static Methods
 
+            #region Internal Methods
+
+            internal static BezierSegment FromArc(RectangleF bounds, float startAngle, float sweepAngle)
+            {
+                Debug.Assert(bounds.Width > 0f && bounds.Height > 0f);
+
+                // TODO: internal FromEllipse if sweepAngle is 360 degrees
+
+                // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
+                var result = new List<PointF>(13);
+
+                float completed = 0f;
+                bool finished = false;
+
+                float endAngle = startAngle + sweepAngle;
+                float increment = (endAngle < startAngle) ? -90f : 90f;
+
+                while (!finished)
+                {
+                    float currentStart = startAngle + completed;
+                    float currentEnd = endAngle - currentStart;
+                    if (Math.Abs(currentEnd) > 90f)
+                        currentEnd = increment;
+                    else
+                    {
+                        // for very small remaining section breaking without actually adding it
+                        if (currentEnd.TolerantIsZero(tolerance))
+                            break;
+
+                        finished = true;
+                    }
+
+                    ArcToBezier(bounds, currentStart, currentStart + currentEnd, result);
+
+                    completed += currentEnd;
+                }
+
+
+                return new BezierSegment(result);
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            // This method originates from mono/libgdiplus (MIT license): https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L736
+            // Main changes: converting to C#, floats everywhere, using vectors if possible.
+            private static void ArcToBezier(RectangleF bounds, float startAngle, float endAngle, List<PointF> result)
+            {
+                float radiusX = bounds.Width / 2f;
+                float radiusY = bounds.Height / 2f;
+
+                float centerX = bounds.X + radiusX;
+                float centerY = bounds.Y + radiusY;
+
+                float start = startAngle.ToRadian();
+                float end = endAngle.ToRadian();
+
+                // The result of Atan2 is not in the correct quadrant when Atan2 is called with x == 0 and y != 0, so we may need to adjust it.
+                // We could also do something similar to the ReactOS solution: https://github.com/reactos/reactos/blob/3dfbe526992849cf53a83fae784be2126319150b/dll/win32/gdiplus/gdiplus.c#L201
+                start = MathF.Atan2(radiusX * MathF.Sin(start), radiusY * MathF.Cos(start));
+                end = MathF.Atan2(radiusX * MathF.Sin(end), radiusY * MathF.Cos(end));
+
+                if (Math.Abs(end - start) > MathF.PI)
+                {
+                    if (end > start)
+                        end -= 2f * MathF.PI;
+                    else
+                        start -= 2f * MathF.PI;
+                }
+
+                float mid = (end - start) / 2f;
+                float controlPoint = 4f / 3f * (1f - MathF.Cos(mid)) / MathF.Sin(mid);
+
+                float sinStart = MathF.Sin(start);
+                float sinEnd = MathF.Sin(end);
+                float cosStart = MathF.Cos(start);
+                float cosEnd = MathF.Cos(end);
+
+                // adding starting point only if we don't have a previous end point
+                if (result.Count == 0)
+                {
+                    float startX = centerX + radiusX * cosStart;
+                    float startY = centerY + radiusY * sinStart;
+                    result.Add(new PointF(startX, startY));
+                }
+                 
+                result.Add(new PointF(centerX + radiusX * (cosStart - controlPoint * sinStart), centerY + radiusY * (sinStart + controlPoint * cosStart)));
+                result.Add(new PointF(centerX + radiusX * (cosEnd + controlPoint * sinEnd), centerY + radiusY * (sinEnd - controlPoint * cosEnd)));
+                result.Add(new PointF(centerX + radiusX * cosEnd, centerY + radiusY * sinEnd));
+            }
+
             // This algorithm was inspired by the nr_curve_flatten method from the mono/libgdiplus project: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L1612
             // which they took from Sodipodi's libnr project (nr-svp.c/nr_svl_build_curveto method): https://web.archive.org/web/20070305000912/http://www.sodipodi.com/files/sodipodi-0.33-beta.tar.gz
             // Former is under the MIT License, the latter is simply noted as being in the "public domain" and was written by Lauris Kaplinski.
+            // Main changes: refactored control flow, more descriptive variable names, simply just omitting subdivision when reaching the recursion limit, using vectors when possible.
             [SuppressMessage("ReSharper", "TailRecursiveCall", Justification = "Could remove only one of the two recursions and would make the code messier.")]
             private static void FlattenBezierCurve(PointF start, PointF controlPoint1, PointF controlPoint2, PointF end, int level, List<PointF> result)
             {
@@ -259,18 +355,19 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
 
+            #endregion
+
             #region Instance Methods
 
             internal override IList<PointF> GetPoints()
             {
-                Debug.Assert((points.Length - 1) % 3 == 0);
+                Debug.Assert((points.Count - 1) % 3 == 0);
                 var result = new List<PointF>();
 
                 // Converting the Bézier segments one by one. The last point of a segment is the first point of the next segment.
-                for (int i = 1; i < points.Length; i += 3)
-                {
+                int len = points.Count;
+                for (int i = 1; i < len; i += 3)
                     FlattenBezierCurve(points[i - 1], points[i], points[i + 1], points[i + 2], 0, result);
-                }
 
                 return result;
             }
@@ -278,12 +375,12 @@ namespace KGySoft.Drawing.Shapes
             internal override void Transform(TransformationMatrix matrix)
             {
                 Debug.Assert(!matrix.IsIdentity);
-                int len = points.Length;
+                int len = points.Count;
                 for (int i = 0; i < len; i++)
                     points[i] = points[i].Transform(matrix);
             }
 
-            internal override PathSegment Clone() => new BezierSegment((PointF[])points.Clone());
+            internal override PathSegment Clone() => new BezierSegment(((IList<PointF>?)(points as PointF[])?.Clone()) ?? new List<PointF>(points));
 
             #endregion
 

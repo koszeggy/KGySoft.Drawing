@@ -143,7 +143,7 @@ namespace KGySoft.Drawing.Shapes
         // TODO: Point, float, int overloads
         public Path AddBezier(PointF p1, PointF p2, PointF p3, PointF p4)
         {
-            AddSegment(new BezierSegment(p1, p2, p3, p4));
+            AddSegment(new BezierSegment(new[] { p1, p2, p3, p4 }));
             return this;
         }
 
@@ -158,14 +158,16 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // TODO: Rectangle, int, float overloads
-        //public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
-        //{
-        //    AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
-        //    return this;
-        //}
+        public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
+        {
+            // TODO: validation (bounds width/height, etc)
+            //AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
+            AddSegment(BezierSegment.FromArc(bounds, startAngle, sweepAngle));
+            return this;
+        }
 
-        //// TODO: Rectangle, int, float overloads
-        //public Path AddEllipse(RectangleF bounds) => AddArc(bounds, 0f, 360f);
+        // TODO: Rectangle, int, float overloads
+        public Path AddEllipse(RectangleF bounds) => AddArc(bounds, 0f, 360f);
 
         // TODO: AddEllipse
         // TODO: AddPolygon (same as AddLines but closed)
