@@ -190,7 +190,8 @@ namespace KGySoft.Drawing.Shapes
             {
                 Debug.Assert(bounds.Width > 0f && bounds.Height > 0f);
 
-                // TODO: internal FromEllipse if sweepAngle is 360 degrees
+                if (Math.Abs(sweepAngle) >= 360f)
+                    return FromEllipse(bounds);
 
                 // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
                 var result = new List<PointF>(13);
@@ -217,12 +218,45 @@ namespace KGySoft.Drawing.Shapes
                     }
 
                     ArcToBezier(bounds, currentStart, currentStart + currentEnd, result);
-
                     completed += currentEnd;
                 }
 
 
                 return new BezierSegment(result);
+            }
+
+            internal static BezierSegment FromEllipse(RectangleF bounds)
+            {
+                const float c1 = 0.552285f;
+                float radiusX = bounds.Width / 2;
+                float radiusY = bounds.Height / 2;
+                float centerX = bounds.X + radiusX;
+                float centerY = bounds.Y + radiusY;
+
+                // 4 Bézier curves (1 + 3 * 4 points)
+                return new BezierSegment(new[]
+                {
+                    // 1st quadrant
+                    new PointF(centerX + radiusX, centerY),
+                    new PointF(centerX + radiusX, centerY - c1 * radiusY),
+                    new PointF(centerX + c1 * radiusX, centerY - radiusY),
+                    new PointF(centerX, centerY - radiusY),
+
+                    // 2nd quadrant
+                    new PointF(centerX - c1 * radiusX, centerY - radiusY),
+                    new PointF(centerX - radiusX, centerY - c1 * radiusY),
+                    new PointF(centerX - radiusX, centerY),
+
+                    // 3rd quadrant
+                    new PointF(centerX - radiusX, centerY + c1 * radiusY),
+                    new PointF(centerX - c1 * radiusX, centerY + radiusY),
+                    new PointF(centerX, centerY + radiusY),
+
+                    // 4th quadrant
+                    new PointF(centerX + c1 * radiusX, centerY + radiusY),
+                    new PointF(centerX + radiusX, centerY + c1 * radiusY),
+                    new PointF(centerX + radiusX, centerY)
+                });
             }
 
             #endregion

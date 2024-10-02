@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 
 #endregion
 
@@ -124,7 +123,7 @@ namespace KGySoft.Drawing.Shapes
             if (points.Length < 2)
                 throw new ArgumentException(nameof(points), Res.ShapesLinePointsInvalid);
 
-            AddSegment(new LineSegment(points));
+            AddSegment(new LineSegment((PointF[])points.Clone()));
             return this;
         }
 
@@ -153,7 +152,7 @@ namespace KGySoft.Drawing.Shapes
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
             if ((points.Length - 1) % 3 != 0)
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
-            AddSegment(new BezierSegment(points));
+            AddSegment(new BezierSegment((PointF[])points.Clone()));
             return this;
         }
 
@@ -161,15 +160,20 @@ namespace KGySoft.Drawing.Shapes
         public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
             // TODO: validation (bounds width/height, etc)
-            //AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
             AddSegment(BezierSegment.FromArc(bounds, startAngle, sweepAngle));
             return this;
         }
 
         // TODO: Rectangle, int, float overloads
-        public Path AddEllipse(RectangleF bounds) => AddArc(bounds, 0f, 360f);
+        public Path AddEllipse(RectangleF bounds)
+        {
+            // TODO: validation (bounds width/height, etc)
+            CloseFigure();
+            AddSegment(BezierSegment.FromEllipse(bounds));
+            CloseFigure();
+            return this;
+        }
 
-        // TODO: AddEllipse
         // TODO: AddPolygon (same as AddLines but closed)
         // TODO: AddRoundedRectangle
 
