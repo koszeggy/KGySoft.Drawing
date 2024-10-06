@@ -18,6 +18,7 @@
 using System;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Threading;
 
 #endregion
 
@@ -26,7 +27,7 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// Represents a pen for drawing operations.
     /// </summary>
-    internal sealed class Pen // TODO: IEquatable, ICloneable, make it public when works for any path, any width
+    public sealed class Pen
     {
         #region Fields
 
@@ -68,6 +69,21 @@ namespace KGySoft.Drawing.Shapes
                 throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentMustBeGreaterThan(0f));
             this.width = width;
             brush = new SolidBrush(color);
+        }
+
+        #endregion
+
+        #region Methods
+        
+        internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
+        {
+            RawPath rawPath = path.RawPath;
+
+            // TODO: special handling if width <= 1[.5?]: not generating a new path but drawing thr raw lines of rawPath
+
+            RawPath widePath = cache ? rawPath.GetCreateWidePath(this) : rawPath.WidenPath(this);
+            
+            brush.ApplyRawPath(context, bitmapData, widePath, drawingOptions.WithNonZeroFill, cache);
         }
 
         #endregion

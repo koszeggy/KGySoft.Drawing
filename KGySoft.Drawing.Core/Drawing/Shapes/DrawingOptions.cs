@@ -30,6 +30,7 @@ namespace KGySoft.Drawing.Shapes
         #region Static Fields
         
         internal static readonly DrawingOptions Default = new DrawingOptions();
+        internal static readonly DrawingOptions DefaultNonZero = new DrawingOptions { FillMode = ShapeFillMode.NonZero };
 
         #endregion
 
@@ -46,7 +47,7 @@ namespace KGySoft.Drawing.Shapes
         #region Public Properties
         
         // If not the identity matrix, it disables path region caching.
-        // If you intend to use the same path with the same orientation, then apply the transformation to a cached Path instance, and use the identity matrix here intead.
+        // If you intend to use the same path with the same orientation, then apply the transformation to a cached Path instance, and use the identity matrix here instead.
         public TransformationMatrix Transformation
         {
             get => transformation;
@@ -57,30 +58,54 @@ namespace KGySoft.Drawing.Shapes
 
         public bool AlphaBlending { get; set; } // If false, alpha is written directly, which is usually not quite good with AntiAliasing also enabled, except for already transparent background docs: color space: target's WorkingColorSpace or Quantizer
 
+        public ShapeFillMode FillMode { get; set; }
+
         public IQuantizer? Quantizer { get; set; }
 
         public IDitherer? Ditherer { get; set; }
-
-        public ShapeFillMode FillMode { get; set; }
 
         #endregion
 
         #region Internal Properties
 
-        // To avoid using options.Transformation.IsIdentity, which would copy the matrix.
+        /// <summary>
+        /// To avoid using options.Transformation.IsIdentity, which would copy the matrix.
+        /// </summary>
         internal bool IsIdentityTransform => transformation.IsIdentity;
+
+        internal DrawingOptions WithNonZeroFill => FillMode is ShapeFillMode.NonZero ? this
+            : Equals(Default) ? DefaultNonZero
+            : new DrawingOptions(this) { FillMode = ShapeFillMode.NonZero };
 
         #endregion
 
         #endregion
 
         #region Constructors
+        
+        #region Public Constructors
 
         public DrawingOptions()
         {
             transformation = TransformationMatrix.Identity;
             AlphaBlending = true;
         }
+
+        #endregion
+        
+        #region Private Constructors
+
+        private DrawingOptions(DrawingOptions other)
+        {
+            transformation = other.transformation;
+            AntiAliasing = other.AntiAliasing;
+            AlphaBlending = other.AlphaBlending;
+            FillMode = other.FillMode;
+            Quantizer = other.Quantizer;
+            Ditherer = other.Ditherer;
+        }
+
+        #endregion
 
         #endregion
 

@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -34,7 +35,7 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// Represents a brush shape filling operations.
     /// </summary>
-    internal abstract class Brush // TODO: public when it can fill any path, IEquatable, ICloneable
+    public abstract class Brush
     {
         #region Nested Types
 
@@ -1569,19 +1570,19 @@ namespace KGySoft.Drawing.Shapes
                 var enumerator = new EdgeEnumerator(edgesBuffer);
                 foreach (RawFigure figure in path.Figures)
                 {
-                    PointF[] vertices = figure.Vertices;
-                    if (vertices.Length <= 3)
+                    List<PointF> vertices = figure.ClosedVertices;
+                    if (vertices.Count <= 3)
                         continue;
 
-                    for (int i = 0; i < vertices.Length; i++)
+                    for (int i = 0; i < vertices.Count; i++)
                         snappedYCoords[i] = vertices[i].Y.RoundTo(roundingUnit, MidpointRounding.ToPositiveInfinity);
 
-                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Length - 2),
+                    enumerator.StartNextFigure(new EdgeInfo(vertices, snappedYCoords, vertices.Count - 2),
                         new EdgeInfo(vertices, snappedYCoords, 0));
 
                     enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords, 1));
 
-                    for (int i = 1; i < vertices.Length - 2; i++)
+                    for (int i = 1; i < vertices.Count - 2; i++)
                         enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, i + 1));
 
                     // 1st edge
@@ -1621,9 +1622,9 @@ namespace KGySoft.Drawing.Shapes
 
             [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
                 Justification = "False alarm, these coordinates are already snapped (rounded) to a fraction of 2.")]
-            internal EdgeInfo(PointF[] vertices, CastArray<byte, float> snappedYCoords, int index)
+            internal EdgeInfo(List<PointF> vertices, CastArray<byte, float> snappedYCoords, int index)
             {
-                Debug.Assert(index < vertices.Length - 1 && index < snappedYCoords.Length - 1);
+                Debug.Assert(index < vertices.Count - 1 && index < snappedYCoords.Length - 1);
                 Start = new PointF(vertices[index].X, snappedYCoords.GetElementUnsafe(index));
                 End = new PointF(vertices[index + 1].X, snappedYCoords.GetElementUnsafe(index + 1));
                 Kind = Start.Y == End.Y
@@ -2033,9 +2034,12 @@ namespace KGySoft.Drawing.Shapes
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
         internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
+            => ApplyRawPath(context, bitmapData, path.RawPath, drawingOptions, cache);
+
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure",
+            Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
+        internal void ApplyRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
-            RawPath rawPath = path/*TODO .AsClosed() - if needed, cache it, too */.RawPath;
-            // TODO: if rawPath.TryGetRegion(this, bitmapData, drawingOptions, out region) -> ApplyRegion... - important: if [Row]Path is not disposable, cached regions should not use ArrayPool or unmanaged buffers
             Rectangle pathBounds = rawPath.Bounds;
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 

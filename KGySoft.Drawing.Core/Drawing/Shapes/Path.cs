@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.Shapes
         // TODO: Rectangle, int, float overloads
         public Path AddRectangle(RectangleF rectangle)
         {
-            CloseFigure();
+            StartFigure();
             AddSegment(new LineSegment(rectangle.Location,
                 new PointF(rectangle.Right, rectangle.Top),
                 new PointF(rectangle.Right, rectangle.Bottom),
@@ -168,7 +168,7 @@ namespace KGySoft.Drawing.Shapes
         public Path AddEllipse(RectangleF bounds)
         {
             // TODO: validation (bounds width/height, etc)
-            CloseFigure();
+            StartFigure();
             AddSegment(BezierSegment.FromEllipse(bounds));
             CloseFigure();
             return this;
@@ -314,11 +314,11 @@ namespace KGySoft.Drawing.Shapes
         {
             var result = new RawPath(figures?.Count ?? 1);
             if (figures == null)
-                result.AddRawFigure(currentFigure.GetPoints(), true);
+                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed);
             else
             {
                 foreach (Figure figure in figures)
-                    result.AddRawFigure(figure.GetPoints(), true);
+                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
             }
 
             return result;
