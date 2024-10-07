@@ -27,7 +27,7 @@ using KGySoft.Collections;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// The raw version of <see cref="Path"/> where everything is represented by simple points (line segments).
+    /// The raw version of <see cref="Path"/> where everything is represented by simple points (straight line segments).
     /// </summary>
     internal sealed partial class RawPath
     {
@@ -47,13 +47,17 @@ namespace KGySoft.Drawing.Shapes
 
         #region Nested Structs
 
-        // Needed because Pen has mutable properties. Could be replaced by ValueTuple if there was no DashPattern
+        /// <summary>
+        /// Needed because Pen has mutable properties. Could be replaced by ValueTuple if there was no DashPattern
+        /// </summary>
         private readonly struct PenOptions : IEquatable<PenOptions>
         {
             #region Fields
 
-            // TODO: Start/EndCap, JointType, DashPattern
+            // TODO: LineStart/End, DashPattern
             internal readonly float Width;
+            internal readonly float MiterLimit;
+            internal readonly LineJoinStyle LineJoin;
 
             #endregion
 
@@ -62,31 +66,21 @@ namespace KGySoft.Drawing.Shapes
             internal PenOptions(Pen pen)
             {
                 Width = pen.Width;
-            }
-
-            public PenOptions(float width)
-            {
-                Width = width;
+                LineJoin = pen.LineJoin;
+                MiterLimit = pen.MiterLimit;
             }
 
             #endregion
 
             #region Methods
 
-            public bool Equals(PenOptions other)
-            {
-                return Width.Equals(other.Width);
-            }
+            public bool Equals(PenOptions other) => Width.Equals(other.Width)
+                && LineJoin == other.LineJoin
+                && MiterLimit.Equals(other.MiterLimit);
 
-            public override bool Equals(object? obj)
-            {
-                return obj is PenOptions other && Equals(other);
-            }
+            public override bool Equals(object? obj) => obj is PenOptions other && Equals(other);
 
-            public override int GetHashCode()
-            {
-                return Width.GetHashCode();
-            }
+            public override int GetHashCode() => HashCode.Combine(Width + MiterLimit * (1f / 256f), LineJoin);
 
             #endregion
         }
@@ -157,10 +151,56 @@ namespace KGySoft.Drawing.Shapes
             throw new NotImplementedException();
         }
 
-        private static void WidenJoint(PointF p1, PointF p2, PointF p3, in PenOptions penOptions, List<PointF> widePoints)
+        // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1837
+        // Main changes: converting to C#, more descriptive variable names, more styles (TODO), using vectors when possible
+        private static void WidenJoint(PointF previousPoint, PointF currentPoint, PointF nextPoint, in PenOptions penOptions, List<PointF> widePoints)
         {
-            AddBevelPoint(p2, p1, penOptions, true, widePoints);
-            AddBevelPoint(p2, p3, penOptions, false, widePoints);
+            switch (penOptions.LineJoin)
+            {
+                case LineJoinStyle.Miter:
+                    float diffCurrentPrevX = currentPoint.X - previousPoint.X;
+                    float diffCurrentPrevY = currentPoint.Y - previousPoint.Y;
+
+                    // Checking if the current point is on the left side of the line segment
+                    if (diffCurrentPrevX * (nextPoint.Y - previousPoint.Y) > diffCurrentPrevY * (nextPoint.X - previousPoint.X))
+                    {
+                        float distance = penOptions.Width / 2f;
+                        float diffNextCurrentX = nextPoint.X - currentPoint.X;
+                        float diffNextCurrentY = nextPoint.Y - currentPoint.Y;
+                        float lenPrevCurrent = MathF.Sqrt(diffCurrentPrevX * diffCurrentPrevX + diffCurrentPrevY * diffCurrentPrevY);
+                        float lenCurrentNext = MathF.Sqrt(diffNextCurrentX * diffNextCurrentX + diffNextCurrentY * diffNextCurrentY);
+
+                        // The direction vectors for the previous-to-current and current-to-next segments
+                        float dirPrevCurrentX = distance * diffCurrentPrevX / lenPrevCurrent;
+                        float dirPrevCurrentY = distance * diffCurrentPrevY / lenPrevCurrent;
+                        float dirCurrentNextX = distance * diffNextCurrentX / lenCurrentNext;
+                        float dirCurrentNextY = distance * diffNextCurrentY / lenCurrentNext;
+
+                        // The determinant for miter calculation and the actual miter offset.
+                        float determinant = (dirPrevCurrentY * dirCurrentNextX - dirPrevCurrentX * dirCurrentNextY);
+                        float miterOffsetX = (dirPrevCurrentX * dirCurrentNextX * (dirPrevCurrentX - dirCurrentNextX)
+                                + dirPrevCurrentY * dirPrevCurrentY * dirCurrentNextX
+                                - dirCurrentNextY * dirCurrentNextY * dirPrevCurrentX) / determinant;
+                        float miterOffsetY = (dirPrevCurrentY * dirCurrentNextY * (dirPrevCurrentY - dirCurrentNextY)
+                                + dirPrevCurrentX * dirPrevCurrentX * dirCurrentNextY
+                                - dirCurrentNextX * dirCurrentNextX * dirPrevCurrentY) / determinant;
+
+                        // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
+                        if (miterOffsetX * miterOffsetX + miterOffsetY * miterOffsetY < penOptions.MiterLimit * penOptions.MiterLimit * distance * distance)
+                        {
+                            widePoints.Add(new PointF(currentPoint.X + miterOffsetX, currentPoint.Y + miterOffsetY));
+                            return;
+                        }
+                    }
+
+                    // fallback to Bevel style
+                    goto default;
+
+                default:
+                    AddBevelPoint(currentPoint, previousPoint, penOptions, true, widePoints);
+                    AddBevelPoint(currentPoint, nextPoint, penOptions, false, widePoints);
+                    break;
+            }
         }
 
         private static void AddBevelPoint(PointF endPoint, PointF nextPoint,

@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// Represents the path of a custom shape to be drawn or filled. The path can consist of multiple open or closed figures.
     /// </summary>
-    internal sealed partial class Path // TODO: IDisposable, make it public when all general shapes are available
+    public sealed partial class Path
     {
         #region Fields
 

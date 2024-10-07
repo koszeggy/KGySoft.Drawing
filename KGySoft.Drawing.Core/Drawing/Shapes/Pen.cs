@@ -17,6 +17,7 @@
 
 using System;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -33,6 +34,8 @@ namespace KGySoft.Drawing.Shapes
 
         private Brush brush;
         private float width;
+        private LineJoinStyle lineJoinType;
+        private float miterLimit = 10f;
 
         #endregion
 
@@ -55,11 +58,33 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        public LineJoinStyle LineJoin
+        {
+            get => lineJoinType;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
+                lineJoinType = value;
+            }
+        }
+
+        public float MiterLimit
+        {
+            get => miterLimit;
+            set
+            {
+                if (value < 0f || Single.IsNaN(value))
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0f));
+                miterLimit = value;
+            }
+        }
+
         #endregion
 
         #region Constructors
 
-        public Pen() : this(Color32.Black, 1)
+        public Pen() : this(Color32.Black)
         {
         }
 
@@ -71,10 +96,19 @@ namespace KGySoft.Drawing.Shapes
             brush = new SolidBrush(color);
         }
 
+        public Pen(Brush brush, float width = 1f)
+        {
+            this.brush = brush ?? throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
+            
+            if (width <= 0f)
+                throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentMustBeGreaterThan(0f));
+            this.width = width;
+        }
+
         #endregion
 
         #region Methods
-        
+
         internal void ApplyPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
         {
             RawPath rawPath = path.RawPath;
