@@ -17,6 +17,8 @@
 
 #region Usings
 
+using Pen = KGySoft.Drawing.Shapes.Pen;
+
 #region Used Namespaces
 
 using System;
@@ -152,6 +154,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
         ];
 
+        private static object?[][] DrawPathTestSource =>
+        [
+            // string name, Path path
+            //["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
+            ["Line", new Path().AddLine(new PointF(1, 1), new PointF(13, 3))],
+            ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            //["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            ["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
+            ["SelfCrossingStarOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
+            ["SelfCrossingStarClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle
+        ];
+
         #endregion
 
         #region Methods
@@ -159,15 +174,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCaseSource(nameof(FillPathTestSource))]
         public void FillPathTest(string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor, Color fillColor, DrawingOptions options)
         {
-            //var options = new DrawingOptions
-            //{
-            //    FillMode = fillMode,
-            //    AntiAliasing = antiAliasing,
-            //    AlphaBlending = alphaBlending,
-            //    Quantizer = quantizer,
-            //    Ditherer = ditherer,
-            //};
-
             var path = new Path()
                 //.TransformScale(2, 2)
                 //.TransformTranslation(0.5f, 0.5f)
@@ -181,17 +187,18 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //path.AddLines(new(30, 20), new(26, 30), new(35, 24), new(25, 24), new(34, 30));
 
             // star, big
+            //path.AddLines(new(300, 200), new(260, 300), new(350, 240), new(250, 240), new(340, 300), new(300, 200));
             //path.AddLines(new(300, 200), new(260, 300), new(350, 240), new(250, 240), new(340, 300));
             //path.CloseFigure(); // combine with the following to mix two closed figures - note: causes holes even with Alternate mode, but the same happens for GDI+, too
 
             // Multiple stars with all possible edge relations (to test EdgeInfo.ConfigureEdgeRelation)
-            //path.AddLines(new(300, 300), new(260, 200), new(350, 260), new(250, 260), new(340, 200));
-            //path.CloseFigure();
-            //path.AddLines(new(50, 50), new(90, 150), new(0, 90), new(100, 90), new(10, 150));
-            //path.CloseFigure();
-            //path.AddLines(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
-            //path.CloseFigure();
-            //path.AddLines(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
+            path.AddLines(new(300, 300), new(260, 200), new(350, 260), new(250, 260), new(340, 200));
+            path.CloseFigure();
+            path.AddLines(new(50, 50), new(90, 150), new(0, 90), new(100, 90), new(10, 150));
+            path.CloseFigure();
+            path.AddLines(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
+            path.CloseFigure();
+            path.AddLines(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
 
             // shapes with an almost horizontal top line
             //path.AddLines(new(1, 1), new(260, 2), new(260, 15)/*, new(1, 15)*/);
@@ -209,7 +216,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //path.AddBeziers(new(10, 10), new(42, 10), new(42, 42), new(10, 42));
 
             //path.AddEllipse(new RectangleF(1, 1, 1920, 1440));
-            path.AddEllipse(new RectangleF(1, 1, 98, 48));
+            //path.AddEllipse(new RectangleF(1, 1, 98, 48));
             //path.AddEllipse(new RectangleF(1, 1, 3, 3));
 
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y) /*path.Bounds.Location*/), pixelFormat, colorSpace);
@@ -218,7 +225,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 
-            IAsyncContext context = new SimpleContext(1);
+            IAsyncContext context = new SimpleContext(-1);
 
             // non-cached region
             var bitmapData1 = bitmapDataBackground.Clone();
@@ -286,6 +293,37 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
+
+        [TestCaseSource(nameof(DrawPathTestSource))]
+        public void DrawPathTest(string name, Path path)
+        {
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
+            var colorSpace = WorkingColorSpace.Linear;
+            Size size = path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y));
+            if (size.IsEmpty)
+            {
+                size = new Size(10, 10);
+                path.TransformTranslation(5, 5);
+            }
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
+            IAsyncContext context = new SimpleContext(-1);
+
+            foreach (bool antiAliasing in new[] { false, true })
+            {
+                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
+                foreach (float width in new[] { 1f, 10f })
+                foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel })
+                {
+                    bitmapData.Clear(Color.Cyan);
+
+                    var pen = new Pen(Color.Blue, width) { LineJoin = joinStyle };
+                    bitmapData.DrawPath(context, path, pen, drawingOptions);
+                    SaveBitmapData(name, bitmapData, $"{(antiAliasing ? "AA" : "NA")}_W{width:00}_{joinStyle}");
+                }
+            }
+        }
+
 
         #endregion
     }
