@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.Shapes
         #region Nested Structs
 
         /// <summary>
-        /// Needed because Pen has mutable properties. Could be replaced by ValueTuple if there was no DashPattern
+        /// Needed because Pen has mutable properties.
         /// </summary>
         private readonly struct PenOptions : IEquatable<PenOptions>
         {
@@ -58,6 +58,8 @@ namespace KGySoft.Drawing.Shapes
             internal readonly float Width;
             internal readonly float MiterLimit;
             internal readonly LineJoinStyle LineJoin;
+            internal readonly LineCapStyle StartCap;
+            internal readonly LineCapStyle EndCap;
 
             #endregion
 
@@ -68,6 +70,8 @@ namespace KGySoft.Drawing.Shapes
                 Width = pen.Width;
                 LineJoin = pen.LineJoin;
                 MiterLimit = pen.MiterLimit;
+                StartCap = pen.StartCap;
+                EndCap = pen.EndCap;
             }
 
             #endregion
@@ -76,11 +80,13 @@ namespace KGySoft.Drawing.Shapes
 
             public bool Equals(PenOptions other) => Width.Equals(other.Width)
                 && LineJoin == other.LineJoin
-                && MiterLimit.Equals(other.MiterLimit);
+                && MiterLimit.Equals(other.MiterLimit)
+                && StartCap == other.StartCap
+                && EndCap == other.EndCap;
 
             public override bool Equals(object? obj) => obj is PenOptions other && Equals(other);
 
-            public override int GetHashCode() => HashCode.Combine(Width + MiterLimit * (1f / 256f), LineJoin);
+            public override int GetHashCode() => (Width + MiterLimit * (1f / 256f), (int)LineJoin | ((int)StartCap << 4) | ((int)EndCap << 8)).GetHashCode();
 
             #endregion
         }
@@ -148,12 +154,29 @@ namespace KGySoft.Drawing.Shapes
 
         private static void WidenOpenFigure(RawFigure figure, in PenOptions penOptions, RawPath widePath)
         {
-            throw new NotImplementedException();
+            IList<PointF> origPoints = figure.OpenVertices;
+            Debug.Assert(origPoints.Count > 1);
+
+            var widePoints = new List<PointF>(origPoints.Count << 1);
+            int end = origPoints.Count - 1;
+
+            WidenCap(origPoints[0], origPoints[1], penOptions, penOptions.StartCap, false, true, widePoints);
+
+            for (int i = 1; i < end; i++)
+                WidenJoint(origPoints[i - 1], origPoints[i], origPoints[i + 1], penOptions, widePoints);
+
+            WidenCap(origPoints[end], origPoints[end - 1], penOptions, penOptions.EndCap, true, true, widePoints);
+
+            for (int i = end - 1; i > 0; i--)
+                WidenJoint(origPoints[i + 1], origPoints[i], origPoints[i - 1], penOptions, widePoints);
+
+            WidenCap(origPoints[0], origPoints[1], penOptions, penOptions.StartCap, true, false, widePoints);
+            widePath.AddRawFigure(widePoints, true);
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1837
-        // Main changes: converting to C#, more descriptive variable names, more styles (TODO), using vectors when possible
-        private static void WidenJoint(PointF previousPoint, PointF currentPoint, PointF nextPoint, in PenOptions penOptions, List<PointF> widePoints)
+        // Main changes: converting to C#, more descriptive variable names, more styles (TODO), using vectors when possible (TODO)
+        private static void WidenJoint(PointF previousPoint, PointF currentPoint, PointF nextPoint, in PenOptions penOptions, List<PointF> result)
         {
             switch (penOptions.LineJoin)
             {
@@ -188,26 +211,104 @@ namespace KGySoft.Drawing.Shapes
                         // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
                         if (miterOffsetX * miterOffsetX + miterOffsetY * miterOffsetY < penOptions.MiterLimit * penOptions.MiterLimit * distance * distance)
                         {
-                            widePoints.Add(new PointF(currentPoint.X + miterOffsetX, currentPoint.Y + miterOffsetY));
+                            result.Add(new PointF(currentPoint.X + miterOffsetX, currentPoint.Y + miterOffsetY));
                             return;
                         }
                     }
 
                     // fallback to Bevel style
-                    goto default;
+                    goto case LineJoinStyle.Bevel;
+
+                case LineJoinStyle.Bevel:
+                    AddBevelPoint(currentPoint, previousPoint, penOptions, true, result);
+                    AddBevelPoint(currentPoint, nextPoint, penOptions, false, result);
+                    break;
 
                 default:
-                    AddBevelPoint(currentPoint, previousPoint, penOptions, true, widePoints);
-                    AddBevelPoint(currentPoint, nextPoint, penOptions, false, widePoints);
+                    throw new InvalidOperationException(Res.InternalError($"Unhandled join type: {penOptions.LineJoin}"));
+            }
+        }
+
+        // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1879
+        // Main changes: converting to C#, more descriptive variable names, using vectors when possible (TODO)
+        private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
+            bool addFirstPoints, bool addLastPoint, List<PointF> result)
+        {
+            if (cap == LineCapStyle.Flat)
+            {
+                if (addFirstPoints)
+                    AddBevelPoint(endPoint, nextPoint, penOptions, true, result);
+                if (addLastPoint)
+                    AddBevelPoint(endPoint, nextPoint, penOptions, false, result);
+                return;
+            }
+
+            if (!addFirstPoints && cap == LineCapStyle.Round)
+                return;
+
+            float diffSegmentX = nextPoint.X - endPoint.X;
+            float diffSegmentY = nextPoint.Y - endPoint.Y;
+            float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
+            float distance = penOptions.Width / 2f;
+            float extendX = distance * diffSegmentX / segmentLength;
+            float extendY = distance * diffSegmentY / segmentLength;
+
+            switch (cap)
+            {
+
+                case LineCapStyle.Square:
+                    if (addFirstPoints)
+                        result.Add(new PointF(endPoint.X - extendX - extendY, endPoint.Y - extendY + extendX));
+                    if (addLastPoint)
+                        result.Add(new PointF(endPoint.X - extendX + extendY, endPoint.Y - extendY - extendX));
                     break;
+
+                case LineCapStyle.Triangle:
+                    if (addFirstPoints)
+                    {
+                        AddBevelPoint(endPoint, nextPoint, penOptions, true, result);
+                        result.Add(new PointF(endPoint.X - extendX, endPoint.Y - extendY));
+                    }
+
+                    if (addLastPoint)
+                        AddBevelPoint(endPoint, nextPoint, penOptions, false, result);
+                    break;
+
+                case LineCapStyle.Round:
+                    Debug.Assert(addFirstPoints);
+                    const float distControlPoint = 0.5522848f; // 4/3 * (sqrt(2) - 1)
+                    float ctrlPointX = extendX * distControlPoint;
+                    float ctrlPointY = extendY * distControlPoint;
+
+                    var bezierPoints = new[]
+                    {
+                        // first 90-degree arc
+                        new PointF(endPoint.X - extendY, endPoint.Y + extendX),
+                        new PointF(endPoint.X - extendY - ctrlPointX, endPoint.Y + extendX - ctrlPointY),
+                        new PointF(endPoint.X - extendX - ctrlPointY, endPoint.Y - extendY + ctrlPointX),
+                                
+                        // midpoint
+                        new PointF(endPoint.X - extendX, endPoint.Y - extendY),
+
+                        // second 90-degree arc
+                        new PointF(endPoint.X - extendX + ctrlPointY, endPoint.Y - extendY - ctrlPointX),
+                        new PointF(endPoint.X + extendY - ctrlPointX, endPoint.Y - extendX - ctrlPointY),
+                        new PointF(endPoint.X + extendY, endPoint.Y - extendX)
+                    };
+
+                    result.AddRange(new Path.BezierSegment(bezierPoints).GetPoints());
+                    break;
+
+                default:
+                    throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {cap}"));
             }
         }
 
         private static void AddBevelPoint(PointF endPoint, PointF nextPoint,
             in PenOptions penOptions, bool isRightSide, List<PointF> result)
         {
-            float diffSegmentY = nextPoint.Y - endPoint.Y;
             float diffSegmentX = nextPoint.X - endPoint.X;
+            float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
             float distance = penOptions.Width / 2f;
 

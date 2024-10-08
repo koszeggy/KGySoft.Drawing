@@ -157,14 +157,15 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawPathTestSource =>
         [
             // string name, Path path
-            //["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
-            ["Line", new Path().AddLine(new PointF(1, 1), new PointF(13, 3))],
-            ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
-            //["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
-            ["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
-            ["SelfCrossingStarOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
-            ["SelfCrossingStarClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
-            // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle
+            ////["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
+            //["Line", new Path().AddLine(new PointF(1, 1), new PointF(13, 3))],
+            //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            ////["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            //["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
+            //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
+            ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
+            //["SelfCrossingStarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
+            // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle, MoreFigures (eg. circle+star)
         ];
 
         #endregion
@@ -295,7 +296,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         }
 
         [TestCaseSource(nameof(DrawPathTestSource))]
-        public void DrawPathTest(string name, Path path)
+        public void DrawPathJoinStylesTest(string name, Path path, float width)
         {
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
             var colorSpace = WorkingColorSpace.Linear;
@@ -312,7 +313,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             foreach (bool antiAliasing in new[] { false, true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                foreach (float width in new[] { 1f, 10f })
                 foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel })
                 {
                     bitmapData.Clear(Color.Cyan);
@@ -324,6 +324,34 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             }
         }
 
+        [TestCaseSource(nameof(DrawPathTestSource))]
+        public void DrawPathCapStylesTest(string name, Path path, float width)
+        {
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
+            var colorSpace = WorkingColorSpace.Linear;
+            Size size = path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y));
+            if (size.IsEmpty)
+            {
+                size = new Size(10, 10);
+                path.TransformTranslation(5, 5);
+            }
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
+            IAsyncContext context = new SimpleContext(-1);
+
+            foreach (bool antiAliasing in new[] { false, true })
+            {
+                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
+                foreach (LineCapStyle capStyle in new[] { LineCapStyle.Flat, LineCapStyle.Square, LineCapStyle.Triangle, LineCapStyle.Round })
+                {
+                    bitmapData.Clear(Color.Cyan);
+
+                    var pen = new Pen(Color.Blue, width) { LineJoin = LineJoinStyle.Bevel, StartCap = capStyle, EndCap = capStyle };
+                    bitmapData.DrawPath(context, path, pen, drawingOptions);
+                    SaveBitmapData(name, bitmapData, $"{(antiAliasing ? "AA" : "NA")}_W{width:00}_{capStyle}");
+                }
+            }
+        }
 
         #endregion
     }

@@ -34,8 +34,10 @@ namespace KGySoft.Drawing.Shapes
 
         private Brush brush;
         private float width;
-        private LineJoinStyle lineJoinType;
+        private LineJoinStyle lineJoin;
         private float miterLimit = 10f;
+        private LineCapStyle startCap;
+        private LineCapStyle endCap;
 
         #endregion
 
@@ -60,12 +62,12 @@ namespace KGySoft.Drawing.Shapes
 
         public LineJoinStyle LineJoin
         {
-            get => lineJoinType;
+            get => lineJoin;
             set
             {
                 if (!value.IsDefined())
                     throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
-                lineJoinType = value;
+                lineJoin = value;
             }
         }
 
@@ -77,6 +79,28 @@ namespace KGySoft.Drawing.Shapes
                 if (value < 0f || Single.IsNaN(value))
                     throw new ArgumentOutOfRangeException(nameof(value), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0f));
                 miterLimit = value;
+            }
+        }
+
+        public LineCapStyle StartCap
+        {
+            get => startCap;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
+                startCap = value;
+            }
+        }
+
+        public LineCapStyle EndCap
+        {
+            get => endCap;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
+                endCap = value;
             }
         }
 

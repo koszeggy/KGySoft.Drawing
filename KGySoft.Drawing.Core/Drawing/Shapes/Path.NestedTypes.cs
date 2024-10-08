@@ -100,7 +100,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region PathSegment class
 
-        private abstract class PathSegment
+        internal abstract class PathSegment
         {
             #region Methods
             
@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region LineSegment class
 
-        private sealed class LineSegment : PathSegment
+        internal sealed class LineSegment : PathSegment
         {
             #region Fields
 
@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region BezierSegment class
 
-        private sealed class BezierSegment : PathSegment
+        internal sealed class BezierSegment : PathSegment
         {
             #region Constants
 
@@ -227,34 +227,36 @@ namespace KGySoft.Drawing.Shapes
 
             internal static BezierSegment FromEllipse(RectangleF bounds)
             {
-                const float c1 = 0.552285f;
-                float radiusX = bounds.Width / 2;
-                float radiusY = bounds.Height / 2;
+                const float c1 = 0.5522848f; //  4/3 * (sqrt(2) - 1)
+                float radiusX = bounds.Width / 2f;
+                float radiusY = bounds.Height / 2f;
                 float centerX = bounds.X + radiusX;
                 float centerY = bounds.Y + radiusY;
+                float ctrlPointX = c1 * radiusX;
+                float ctrlPointY = c1 * radiusY;
 
                 // 4 Bézier curves (1 + 3 * 4 points)
                 return new BezierSegment(new[]
                 {
                     // 1st quadrant
                     new PointF(centerX + radiusX, centerY),
-                    new PointF(centerX + radiusX, centerY - c1 * radiusY),
-                    new PointF(centerX + c1 * radiusX, centerY - radiusY),
+                    new PointF(centerX + radiusX, centerY - ctrlPointY),
+                    new PointF(centerX + ctrlPointX, centerY - radiusY),
                     new PointF(centerX, centerY - radiusY),
 
                     // 2nd quadrant
-                    new PointF(centerX - c1 * radiusX, centerY - radiusY),
-                    new PointF(centerX - radiusX, centerY - c1 * radiusY),
+                    new PointF(centerX - ctrlPointX, centerY - radiusY),
+                    new PointF(centerX - radiusX, centerY - ctrlPointY),
                     new PointF(centerX - radiusX, centerY),
 
                     // 3rd quadrant
-                    new PointF(centerX - radiusX, centerY + c1 * radiusY),
-                    new PointF(centerX - c1 * radiusX, centerY + radiusY),
+                    new PointF(centerX - radiusX, centerY + ctrlPointY),
+                    new PointF(centerX - ctrlPointX, centerY + radiusY),
                     new PointF(centerX, centerY + radiusY),
 
                     // 4th quadrant
-                    new PointF(centerX + c1 * radiusX, centerY + radiusY),
-                    new PointF(centerX + radiusX, centerY + c1 * radiusY),
+                    new PointF(centerX + ctrlPointX, centerY + radiusY),
+                    new PointF(centerX + radiusX, centerY + ctrlPointY),
                     new PointF(centerX + radiusX, centerY)
                 });
             }
@@ -264,7 +266,7 @@ namespace KGySoft.Drawing.Shapes
             #region Private Methods
 
             // This method originates from mono/libgdiplus (MIT license): https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L736
-            // Main changes: converting to C#, floats everywhere, using vectors if possible.
+            // Main changes: converting to C#, floats everywhere, using vectors if possible (TODO).
             private static void ArcToBezier(RectangleF bounds, float startAngle, float endAngle, List<PointF> result)
             {
                 float radiusX = bounds.Width / 2f;
@@ -313,7 +315,7 @@ namespace KGySoft.Drawing.Shapes
             // This algorithm was inspired by the nr_curve_flatten method from the mono/libgdiplus project: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L1612
             // which they took from Sodipodi's libnr project (nr-svp.c/nr_svl_build_curveto method): https://web.archive.org/web/20070305000912/http://www.sodipodi.com/files/sodipodi-0.33-beta.tar.gz
             // Former is under the MIT License, the latter is simply noted as being in the "public domain" and was written by Lauris Kaplinski.
-            // Main changes: refactored control flow, more descriptive variable names, simply just omitting subdivision when reaching the recursion limit, using vectors when possible.
+            // Main changes: refactored control flow, more descriptive variable names, simply just omitting subdivision when reaching the recursion limit, using vectors when possible (TODO).
             [SuppressMessage("ReSharper", "TailRecursiveCall", Justification = "Could remove only one of the two recursions and would make the code messier.")]
             private static void FlattenBezierCurve(PointF start, PointF controlPoint1, PointF controlPoint2, PointF end, int level, List<PointF> result)
             {
