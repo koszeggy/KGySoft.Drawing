@@ -175,44 +175,72 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1837
-        // Main changes: converting to C#, more descriptive variable names, more styles (TODO), using vectors when possible (TODO)
+        // Main changes: converting to C#, more descriptive variable names, adding Round style, using vectors when possible (TODO)
         private static void WidenJoint(PointF previousPoint, PointF currentPoint, PointF nextPoint, in PenOptions penOptions, List<PointF> result)
         {
+            float radius = penOptions.Width / 2f;
             switch (penOptions.LineJoin)
             {
                 case LineJoinStyle.Miter:
+                case LineJoinStyle.Round:
                     float diffCurrentPrevX = currentPoint.X - previousPoint.X;
                     float diffCurrentPrevY = currentPoint.Y - previousPoint.Y;
 
                     // Checking if the current point is on the left side of the line segment
                     if (diffCurrentPrevX * (nextPoint.Y - previousPoint.Y) > diffCurrentPrevY * (nextPoint.X - previousPoint.X))
                     {
-                        float distance = penOptions.Width / 2f;
-                        float diffNextCurrentX = nextPoint.X - currentPoint.X;
-                        float diffNextCurrentY = nextPoint.Y - currentPoint.Y;
-                        float lenPrevCurrent = MathF.Sqrt(diffCurrentPrevX * diffCurrentPrevX + diffCurrentPrevY * diffCurrentPrevY);
-                        float lenCurrentNext = MathF.Sqrt(diffNextCurrentX * diffNextCurrentX + diffNextCurrentY * diffNextCurrentY);
+                        if (penOptions.LineJoin == LineJoinStyle.Miter)
+                        {
+                            float diffNextCurrentX = nextPoint.X - currentPoint.X;
+                            float diffNextCurrentY = nextPoint.Y - currentPoint.Y;
+                            float lenPrevCurrent = MathF.Sqrt(diffCurrentPrevX * diffCurrentPrevX + diffCurrentPrevY * diffCurrentPrevY);
+                            float lenCurrentNext = MathF.Sqrt(diffNextCurrentX * diffNextCurrentX + diffNextCurrentY * diffNextCurrentY);
 
-                        // The direction vectors for the previous-to-current and current-to-next segments
-                        float dirPrevCurrentX = distance * diffCurrentPrevX / lenPrevCurrent;
-                        float dirPrevCurrentY = distance * diffCurrentPrevY / lenPrevCurrent;
-                        float dirCurrentNextX = distance * diffNextCurrentX / lenCurrentNext;
-                        float dirCurrentNextY = distance * diffNextCurrentY / lenCurrentNext;
+                            // The direction vectors for the previous-to-current and current-to-next segments
+                            float dirPrevCurrentX = radius * diffCurrentPrevX / lenPrevCurrent;
+                            float dirPrevCurrentY = radius * diffCurrentPrevY / lenPrevCurrent;
+                            float dirCurrentNextX = radius * diffNextCurrentX / lenCurrentNext;
+                            float dirCurrentNextY = radius * diffNextCurrentY / lenCurrentNext;
 
-                        // The determinant for miter calculation and the actual miter offset.
-                        float determinant = (dirPrevCurrentY * dirCurrentNextX - dirPrevCurrentX * dirCurrentNextY);
-                        float miterOffsetX = (dirPrevCurrentX * dirCurrentNextX * (dirPrevCurrentX - dirCurrentNextX)
+                            // The determinant for miter calculation and the actual miter offset.
+                            float determinant = (dirPrevCurrentY * dirCurrentNextX - dirPrevCurrentX * dirCurrentNextY);
+                            float miterOffsetX = (dirPrevCurrentX * dirCurrentNextX * (dirPrevCurrentX - dirCurrentNextX)
                                 + dirPrevCurrentY * dirPrevCurrentY * dirCurrentNextX
                                 - dirCurrentNextY * dirCurrentNextY * dirPrevCurrentX) / determinant;
-                        float miterOffsetY = (dirPrevCurrentY * dirCurrentNextY * (dirPrevCurrentY - dirCurrentNextY)
+                            float miterOffsetY = (dirPrevCurrentY * dirCurrentNextY * (dirPrevCurrentY - dirCurrentNextY)
                                 + dirPrevCurrentX * dirPrevCurrentX * dirCurrentNextY
                                 - dirCurrentNextX * dirCurrentNextX * dirPrevCurrentY) / determinant;
 
-                        // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
-                        if (miterOffsetX * miterOffsetX + miterOffsetY * miterOffsetY < penOptions.MiterLimit * penOptions.MiterLimit * distance * distance)
+                            // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
+                            if (miterOffsetX * miterOffsetX + miterOffsetY * miterOffsetY < penOptions.MiterLimit * penOptions.MiterLimit * radius * radius)
+                            {
+                                result.Add(new PointF(currentPoint.X + miterOffsetX, currentPoint.Y + miterOffsetY));
+                                return;
+                            }
+                        }
+                        else // Round
                         {
-                            result.Add(new PointF(currentPoint.X + miterOffsetX, currentPoint.Y + miterOffsetY));
-                            return;
+                            PointF startPoint = GetBevelPoint(currentPoint, previousPoint, radius, true);
+                            PointF endPoint = GetBevelPoint(currentPoint, nextPoint, radius, false);
+
+                            float distX = endPoint.X - startPoint.X;
+                            float distY = endPoint.Y - startPoint.Y;
+                            float startAngle = MathF.Atan2(distY, distX);
+                            float length = MathF.Sqrt(distX * distX + distY * distY);
+                            if (penOptions.Width >= length)
+                            {
+                                // Unlike in WidenPath, adding the Bézier points from arc because it's simpler with the dynamic start/end angle
+                                float halfSweepAngle = MathF.Asin(length / penOptions.Width);
+                                result.AddRange(Path.BezierSegment.FromArc(currentPoint, radius, radius,
+                                    (startAngle - halfSweepAngle) - MathF.PI / 2f, (2f * halfSweepAngle)).GetPoints());
+                            }
+                            else
+                            {
+                                result.Add(startPoint);
+                                result.Add(endPoint);
+                            }
+
+                            break;
                         }
                     }
 
@@ -220,8 +248,8 @@ namespace KGySoft.Drawing.Shapes
                     goto case LineJoinStyle.Bevel;
 
                 case LineJoinStyle.Bevel:
-                    AddBevelPoint(currentPoint, previousPoint, penOptions, true, result);
-                    AddBevelPoint(currentPoint, nextPoint, penOptions, false, result);
+                    result.Add(GetBevelPoint(currentPoint, previousPoint, radius, true));
+                    result.Add(GetBevelPoint(currentPoint, nextPoint, radius, false));
                     break;
 
                 default:
@@ -234,28 +262,27 @@ namespace KGySoft.Drawing.Shapes
         private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
             bool addFirstPoints, bool addLastPoint, List<PointF> result)
         {
+            if (!addFirstPoints && cap == LineCapStyle.Round)
+                return;
+
+            float distance = penOptions.Width / 2f;
             if (cap == LineCapStyle.Flat)
             {
                 if (addFirstPoints)
-                    AddBevelPoint(endPoint, nextPoint, penOptions, true, result);
+                    result.Add(GetBevelPoint(endPoint, nextPoint, distance, true));
                 if (addLastPoint)
-                    AddBevelPoint(endPoint, nextPoint, penOptions, false, result);
+                    result.Add(GetBevelPoint(endPoint, nextPoint, distance, false));
                 return;
             }
-
-            if (!addFirstPoints && cap == LineCapStyle.Round)
-                return;
 
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
-            float distance = penOptions.Width / 2f;
             float extendX = distance * diffSegmentX / segmentLength;
             float extendY = distance * diffSegmentY / segmentLength;
 
             switch (cap)
             {
-
                 case LineCapStyle.Square:
                     if (addFirstPoints)
                         result.Add(new PointF(endPoint.X - extendX - extendY, endPoint.Y - extendY + extendX));
@@ -266,12 +293,12 @@ namespace KGySoft.Drawing.Shapes
                 case LineCapStyle.Triangle:
                     if (addFirstPoints)
                     {
-                        AddBevelPoint(endPoint, nextPoint, penOptions, true, result);
+                        result.Add(GetBevelPoint(endPoint, nextPoint, distance, true));
                         result.Add(new PointF(endPoint.X - extendX, endPoint.Y - extendY));
                     }
 
                     if (addLastPoint)
-                        AddBevelPoint(endPoint, nextPoint, penOptions, false, result);
+                        result.Add(GetBevelPoint(endPoint, nextPoint, distance, false));
                     break;
 
                 case LineCapStyle.Round:
@@ -304,19 +331,14 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        private static void AddBevelPoint(PointF endPoint, PointF nextPoint,
-            in PenOptions penOptions, bool isRightSide, List<PointF> result)
+        private static PointF GetBevelPoint(PointF endPoint, PointF nextPoint, float distance, bool isRightSide)
         {
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
-            float distance = penOptions.Width / 2f;
 
             if (segmentLength == 0f)
-            {
-                result.Add(new PointF(endPoint.X, endPoint.Y));
-                return;
-            }
+                return new PointF(endPoint.X, endPoint.Y);
 
             float distBevelX, distBevelY;
             if (isRightSide)
@@ -330,7 +352,7 @@ namespace KGySoft.Drawing.Shapes
                 distBevelY = -distance * diffSegmentX / segmentLength;
             }
 
-            result.Add(new PointF(endPoint.X + distBevelX, endPoint.Y + distBevelY));
+            return new PointF(endPoint.X + distBevelX, endPoint.Y + distBevelY);
         }
 
         #endregion

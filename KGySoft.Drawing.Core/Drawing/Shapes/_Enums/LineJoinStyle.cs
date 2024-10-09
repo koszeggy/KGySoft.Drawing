@@ -19,5 +19,6 @@ namespace KGySoft.Drawing.Shapes
     {
         Miter,
         Bevel,
+        Round
     }
 }

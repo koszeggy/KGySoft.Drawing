@@ -159,12 +159,14 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             // string name, Path path
             ////["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
             //["Line", new Path().AddLine(new PointF(1, 1), new PointF(13, 3))],
-            //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
+            //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             ////["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
-            //["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure()],
+            //["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure(), 10f],
+            ["TetragonClose", new Path().AddLines(new PointF(10, 10), new PointF(40, 10), new PointF(100, 60), new PointF(5, 60)).CloseFigure(), 10f],
             //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
             ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
             //["SelfCrossingStarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
+            //["1Joint10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
             // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle, MoreFigures (eg. circle+star)
         ];
 
@@ -313,7 +315,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             foreach (bool antiAliasing in new[] { false, true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel })
+                foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel, LineJoinStyle.Round })
                 {
                     bitmapData.Clear(Color.Cyan);
 

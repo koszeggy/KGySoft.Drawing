@@ -189,9 +189,18 @@ namespace KGySoft.Drawing.Shapes
             internal static BezierSegment FromArc(RectangleF bounds, float startAngle, float sweepAngle)
             {
                 Debug.Assert(bounds.Width > 0f && bounds.Height > 0f);
-
                 if (Math.Abs(sweepAngle) >= 360f)
                     return FromEllipse(bounds);
+
+                float radiusX = bounds.Width / 2f;
+                float radiusY = bounds.Height / 2f;
+                return FromArc(new PointF(bounds.X + radiusX, bounds.Y + radiusY), radiusX, radiusY, startAngle.ToRadian(), sweepAngle.ToRadian());
+            }
+
+            internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
+            {
+                Debug.Assert(radiusX > 0f && radiusY > 0f);
+                Debug.Assert(sweepRad < MathF.PI * 2f, "The caller should have called FromEllipse. If the caller of this overload may create full ellipses, then add if (Math.Abs(sweepRad) >= MathF.PI * 2f) FromEllipse(...) here.");
 
                 // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
                 var result = new List<PointF>(13);
@@ -199,14 +208,14 @@ namespace KGySoft.Drawing.Shapes
                 float completed = 0f;
                 bool finished = false;
 
-                float endAngle = startAngle + sweepAngle;
-                float increment = (endAngle < startAngle) ? -90f : 90f;
+                float end = startRad + sweepRad;
+                float increment = (end < startRad) ? -(MathF.PI / 2f) : (MathF.PI / 2f);
 
                 while (!finished)
                 {
-                    float currentStart = startAngle + completed;
-                    float currentEnd = endAngle - currentStart;
-                    if (Math.Abs(currentEnd) > 90f)
+                    float currentStart = startRad + completed;
+                    float currentEnd = end - currentStart;
+                    if (Math.Abs(currentEnd) > MathF.PI / 2f)
                         currentEnd = increment;
                     else
                     {
@@ -217,7 +226,7 @@ namespace KGySoft.Drawing.Shapes
                         finished = true;
                     }
 
-                    ArcToBezier(bounds, currentStart, currentStart + currentEnd, result);
+                    ArcToBezier(centerPoint, radiusX, radiusY, currentStart, currentStart + currentEnd, result);
                     completed += currentEnd;
                 }
 
@@ -227,11 +236,16 @@ namespace KGySoft.Drawing.Shapes
 
             internal static BezierSegment FromEllipse(RectangleF bounds)
             {
-                const float c1 = 0.5522848f; //  4/3 * (sqrt(2) - 1)
                 float radiusX = bounds.Width / 2f;
                 float radiusY = bounds.Height / 2f;
-                float centerX = bounds.X + radiusX;
-                float centerY = bounds.Y + radiusY;
+                return FromEllipse(new PointF(bounds.X + radiusX, bounds.Y + radiusY), radiusX, radiusY);
+            }
+            
+            internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
+            {
+                const float c1 = 0.5522848f; // 4/3 * (sqrt(2) - 1)
+                float centerX = centerPoint.X;
+                float centerY = centerPoint.Y;
                 float ctrlPointX = c1 * radiusX;
                 float ctrlPointY = c1 * radiusY;
 
@@ -266,50 +280,41 @@ namespace KGySoft.Drawing.Shapes
             #region Private Methods
 
             // This method originates from mono/libgdiplus (MIT license): https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L736
-            // Main changes: converting to C#, floats everywhere, using vectors if possible (TODO).
-            private static void ArcToBezier(RectangleF bounds, float startAngle, float endAngle, List<PointF> result)
+            // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians, using vectors if possible (TODO).
+            private static void ArcToBezier(PointF center, float radiusX, float radiusY, float startRad, float endRad, List<PointF> result)
             {
-                float radiusX = bounds.Width / 2f;
-                float radiusY = bounds.Height / 2f;
-
-                float centerX = bounds.X + radiusX;
-                float centerY = bounds.Y + radiusY;
-
-                float start = startAngle.ToRadian();
-                float end = endAngle.ToRadian();
-
                 // The result of Atan2 is not in the correct quadrant when Atan2 is called with x == 0 and y != 0, so we may need to adjust it.
                 // We could also do something similar to the ReactOS solution: https://github.com/reactos/reactos/blob/3dfbe526992849cf53a83fae784be2126319150b/dll/win32/gdiplus/gdiplus.c#L201
-                start = MathF.Atan2(radiusX * MathF.Sin(start), radiusY * MathF.Cos(start));
-                end = MathF.Atan2(radiusX * MathF.Sin(end), radiusY * MathF.Cos(end));
+                startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
+                endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
 
-                if (Math.Abs(end - start) > MathF.PI)
+                if (Math.Abs(endRad - startRad) > MathF.PI)
                 {
-                    if (end > start)
-                        end -= 2f * MathF.PI;
+                    if (endRad > startRad)
+                        endRad -= 2f * MathF.PI;
                     else
-                        start -= 2f * MathF.PI;
+                        startRad -= 2f * MathF.PI;
                 }
 
-                float mid = (end - start) / 2f;
+                float mid = (endRad - startRad) / 2f;
                 float controlPoint = 4f / 3f * (1f - MathF.Cos(mid)) / MathF.Sin(mid);
 
-                float sinStart = MathF.Sin(start);
-                float sinEnd = MathF.Sin(end);
-                float cosStart = MathF.Cos(start);
-                float cosEnd = MathF.Cos(end);
+                float sinStart = MathF.Sin(startRad);
+                float sinEnd = MathF.Sin(endRad);
+                float cosStart = MathF.Cos(startRad);
+                float cosEnd = MathF.Cos(endRad);
 
                 // adding starting point only if we don't have a previous end point
                 if (result.Count == 0)
                 {
-                    float startX = centerX + radiusX * cosStart;
-                    float startY = centerY + radiusY * sinStart;
+                    float startX = center.X + radiusX * cosStart;
+                    float startY = center.Y + radiusY * sinStart;
                     result.Add(new PointF(startX, startY));
                 }
                  
-                result.Add(new PointF(centerX + radiusX * (cosStart - controlPoint * sinStart), centerY + radiusY * (sinStart + controlPoint * cosStart)));
-                result.Add(new PointF(centerX + radiusX * (cosEnd + controlPoint * sinEnd), centerY + radiusY * (sinEnd - controlPoint * cosEnd)));
-                result.Add(new PointF(centerX + radiusX * cosEnd, centerY + radiusY * sinEnd));
+                result.Add(new PointF(center.X + radiusX * (cosStart - controlPoint * sinStart), center.Y + radiusY * (sinStart + controlPoint * cosStart)));
+                result.Add(new PointF(center.X + radiusX * (cosEnd + controlPoint * sinEnd), center.Y + radiusY * (sinEnd - controlPoint * cosEnd)));
+                result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
             }
 
             // This algorithm was inspired by the nr_curve_flatten method from the mono/libgdiplus project: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L1612
