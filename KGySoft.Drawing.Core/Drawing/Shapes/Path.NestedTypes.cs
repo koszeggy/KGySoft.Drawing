@@ -403,7 +403,7 @@ namespace KGySoft.Drawing.Shapes
             internal override IList<PointF> GetPoints()
             {
                 Debug.Assert((points.Count - 1) % 3 == 0);
-                var result = new List<PointF>();
+                var result = new List<PointF>(points.Count) { points[0] };
 
                 // Converting the Bézier segments one by one. The last point of a segment is the first point of the next segment.
                 int len = points.Count;

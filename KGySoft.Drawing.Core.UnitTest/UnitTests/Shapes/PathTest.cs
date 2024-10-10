@@ -162,11 +162,13 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             ////["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
             //["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure(), 10f],
-            ["TetragonClose", new Path().AddLines(new PointF(10, 10), new PointF(40, 10), new PointF(100, 60), new PointF(5, 60)).CloseFigure(), 10f],
+            //["TetragonClose", new Path().AddLines(new PointF(10, 10), new PointF(40, 10), new PointF(100, 60), new PointF(5, 60)).CloseFigure(), 10f],
             //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
-            ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
+            //["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
             //["SelfCrossingStarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
             //["1Joint10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
+            //["ArcHalfEllipse01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
+            ["ArcHalfEllipse10", new Path().AddArc(new RectangleF(10, 10, 100, 50), 0, 180), 10f],
             // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle, MoreFigures (eg. circle+star)
         ];
 
@@ -195,13 +197,13 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //path.CloseFigure(); // combine with the following to mix two closed figures - note: causes holes even with Alternate mode, but the same happens for GDI+, too
 
             // Multiple stars with all possible edge relations (to test EdgeInfo.ConfigureEdgeRelation)
-            path.AddLines(new(300, 300), new(260, 200), new(350, 260), new(250, 260), new(340, 200));
-            path.CloseFigure();
-            path.AddLines(new(50, 50), new(90, 150), new(0, 90), new(100, 90), new(10, 150));
-            path.CloseFigure();
-            path.AddLines(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
-            path.CloseFigure();
-            path.AddLines(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
+            //path.AddLines(new(300, 300), new(260, 200), new(350, 260), new(250, 260), new(340, 200));
+            //path.CloseFigure();
+            //path.AddLines(new(50, 50), new(90, 150), new(0, 90), new(100, 90), new(10, 150));
+            //path.CloseFigure();
+            //path.AddLines(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
+            //path.CloseFigure();
+            //path.AddLines(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
 
             // shapes with an almost horizontal top line
             //path.AddLines(new(1, 1), new(260, 2), new(260, 15)/*, new(1, 15)*/);
@@ -218,6 +220,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             // beziers
             //path.AddBeziers(new(10, 10), new(42, 10), new(42, 42), new(10, 42));
 
+            path.AddArc(new RectangleF(1, 1, 98, 48), 0, 180);
             //path.AddEllipse(new RectangleF(1, 1, 1920, 1440));
             //path.AddEllipse(new RectangleF(1, 1, 98, 48));
             //path.AddEllipse(new RectangleF(1, 1, 3, 3));
@@ -315,7 +318,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             foreach (bool antiAliasing in new[] { false, true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel, LineJoinStyle.Round })
+                foreach (LineJoinStyle joinStyle in new[] { /*LineJoinStyle.Miter, LineJoinStyle.Bevel,*/ LineJoinStyle.Round })
                 {
                     bitmapData.Clear(Color.Cyan);
 
