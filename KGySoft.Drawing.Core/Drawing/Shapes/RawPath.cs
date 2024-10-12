@@ -69,10 +69,10 @@ namespace KGySoft.Drawing.Shapes
             internal PenOptions(Pen pen)
             {
                 Width = pen.Width;
-                LineJoin = pen.LineJoin;
+                LineJoin = Width <= 1f ? LineJoinStyle.Bevel : pen.LineJoin;
                 MiterLimit = pen.MiterLimit;
-                StartCap = pen.StartCap;
-                EndCap = pen.EndCap;
+                StartCap = Width <= 1f ? LineCapStyle.Flat : pen.StartCap;
+                EndCap = Width <= 1f ? LineCapStyle.Flat : pen.EndCap;
             }
 
             #endregion
@@ -260,23 +260,17 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1879
-        // Main changes: converting to C#, more descriptive variable names, using vectors when possible (TODO)
+        // Main changes: converting to C#, more descriptive variable names, Flat style uses a fix 0.5 px square cap instead of adding bevel points, using vectors when possible (TODO)
         private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
             bool addFirstPoints, bool addLastPoint, List<PointF> result)
         {
             if (!addFirstPoints && cap == LineCapStyle.Round)
                 return;
 
-            float distance = penOptions.Width / 2f;
-            if (cap == LineCapStyle.Flat)
-            {
-                if (addFirstPoints)
-                    result.Add(GetBevelPoint(endPoint, nextPoint, distance, true));
-                if (addLastPoint)
-                    result.Add(GetBevelPoint(endPoint, nextPoint, distance, false));
-                return;
-            }
-
+            // When the cap style is Flat, the original code just added two bevel points.
+            // But that way lines are always 1 pixel shorter than needed (when drawing, right/bottom coordinates are inclusive).
+            // This is also in sync with the DrawThinRawPath behavior.
+            float distance = cap == LineCapStyle.Flat ? 0.5f : penOptions.Width / 2f;
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
@@ -285,6 +279,7 @@ namespace KGySoft.Drawing.Shapes
 
             switch (cap)
             {
+                case LineCapStyle.Flat:
                 case LineCapStyle.Square:
                     if (addFirstPoints)
                         result.Add(new PointF(endPoint.X - extendX - extendY, endPoint.Y - extendY + extendX));

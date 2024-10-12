@@ -182,26 +182,21 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             // string name, Path path
             ////["Point", new Path().AddPoint(new PointF(1, 1))],
             //["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
-            ["LineRight", new Path().AddLine(new PointF(1, 1), new PointF(2, 1))],
-            ["LineDown", new Path().AddLine(new PointF(1, 1), new PointF(1, 2))],
-            ["LineLeft", new Path().AddLine(new PointF(2, 1), new PointF(1, 1))],
-            ["LineUp", new Path().AddLine(new PointF(1, 2), new PointF(1, 1))],
-            ["LineRightDownLandscape", new Path().AddLine(new PointF(1, 1), new PointF(3, 2))],
-            ["LineLeftUpLandscape", new Path().AddLine(new PointF(3, 2), new PointF(1, 1))],
-            ["LineRightUpLandscape", new Path().AddLine(new PointF(1, 2), new PointF(3, 1))],
-            ["LineLeftDownLandscape", new Path().AddLine(new PointF(3, 1), new PointF(1, 2))],
-            ["LineRightDownPortrait", new Path().AddLine(new PointF(1, 1), new PointF(2, 3))],
-            ["LineLeftUpPortrait", new Path().AddLine(new PointF(2, 3), new PointF(1, 1))],
-            ["LineRightUpPortrait", new Path().AddLine(new PointF(1, 3), new PointF(2, 1))],
-            ["LineLeftDownPortrait", new Path().AddLine(new PointF(2, 1), new PointF(1, 3))],
+            //["LineRightLeft", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)).StartFigure().AddLine(new PointF(2, 5), new PointF(1, 5))],
+            //["LineRightLeft.5", new Path().AddLine(new PointF(1.5f, 1.5f), new PointF(2.5f, 1.5f)).StartFigure().AddLine(new PointF(2.5f, 5.5f), new PointF(1.5f, 5.5f))],
+            //["LineUpDown", new Path().AddLine(new PointF(1, 2), new PointF(1, 1)).StartFigure().AddLine(new PointF(5, 1), new PointF(5, 2))],
+            //["LineRightDownLandscape", new Path().AddLine(new PointF(1, 1), new PointF(3, 2)).StartFigure().AddLine(new PointF(3, 6), new PointF(1, 5))],
+            //["LineRightUpLandscape", new Path().AddLine(new PointF(1, 2), new PointF(3, 1)).StartFigure().AddLine(new PointF(3, 5), new PointF(1, 6))],
+            //["LineRightDownPortrait", new Path().AddLine(new PointF(1, 1), new PointF(2, 3)).StartFigure().AddLine(new PointF(6, 3), new PointF(5, 1))],
+            //["LineRightUpPortrait", new Path().AddLine(new PointF(1, 3), new PointF(2, 1)).StartFigure().AddLine(new PointF(6, 1), new PointF(5, 3))],
             //["Rectangle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
-            //["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
-            //["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
+            ["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
+            ["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
             //["StarOpen", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91))],
-            //["StarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
+            ["StarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
             //["Pentagon", new Path().AddLines(new(51, 1), new(99, 36), new(81, 91), new(22, 91), new(3, 36)).CloseFigure()],
             //["ArcHalfEllipse", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180)],
-            //["Ellipse", new Path().AddEllipse(new RectangleF(1, 1, 98, 48))],
+            ["Ellipse", new Path().AddEllipse(new RectangleF(1, 1, 98, 48))],
             //["Circle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
             //["Circle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
             //["Circle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
@@ -403,11 +398,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var colorSpace = WorkingColorSpace.Srgb; // the bad blending makes the unaligned fill/draw shapes more apparent
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
-            if (size.IsEmpty)
-            {
-                size = new Size(10, 10);
-                path.TransformTranslation(5, 5);
-            }
+            Assert.IsFalse(bounds.IsEmpty);
 
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             bitmapDataBackground.Clear(Color.Green);
