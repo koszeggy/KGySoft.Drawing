@@ -125,13 +125,13 @@ namespace KGySoft.Drawing.Imaging
         private static void DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions drawingOptions, bool cache)
         {
             // TODO: put allow caching in options
-            pen.ApplyPath(context, bitmapData, path, drawingOptions, cache);
+            pen.DrawPath(context, bitmapData, path, drawingOptions, cache);
         }
 
         private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions, bool cache)
         {
             // TODO: put allow caching in options
-            brush.ApplyPath(context, bitmapData, path, drawingOptions, cache);
+            brush.FillPath(context, bitmapData, path, drawingOptions, cache);
         }
 
         #endregion

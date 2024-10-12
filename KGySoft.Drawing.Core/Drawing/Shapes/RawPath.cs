@@ -41,6 +41,7 @@ namespace KGySoft.Drawing.Shapes
             None,
             NonZeroFillMode = 1,
             AntiAliasing = 1 << 1,
+            Outline = 1 << 2
         }
 
         #endregion
@@ -110,6 +111,7 @@ namespace KGySoft.Drawing.Shapes
         #region Properties
 
         internal Rectangle Bounds => bounds;
+        internal Rectangle DrawOutlineBounds => new Rectangle(bounds.Location, bounds.Size + new Size(1, 1));
         internal int TotalVertices => totalVertices;
         internal int MaxVertices => maxVertices;
         internal List<RawFigure> Figures => figures;
@@ -374,17 +376,19 @@ namespace KGySoft.Drawing.Shapes
             widePathsCache = null;
         }
 
-        internal Region GetCreateCachedRegion(DrawingOptions drawingOptions)
+        internal Region GetCreateCachedRegion(DrawingOptions drawingOptions, bool isOutline = false)
         {
             #region Local Methods
 
-            static RegionsCacheKey GetHashKey(DrawingOptions options)
+            static RegionsCacheKey GetHashKey(DrawingOptions options, bool outline)
             {
                 var result = RegionsCacheKey.None;
-                if (options.FillMode == ShapeFillMode.NonZero)
+                if (options.FillMode == ShapeFillMode.NonZero && !outline)
                     result |= RegionsCacheKey.NonZeroFillMode;
                 if (options.AntiAliasing)
                     result |= RegionsCacheKey.AntiAliasing;
+                if (outline)
+                    result |= RegionsCacheKey.Outline;
                 return result;
             }
 
@@ -396,7 +400,7 @@ namespace KGySoft.Drawing.Shapes
                 Interlocked.CompareExchange(ref regionsCache, ThreadSafeCacheFactory.Create<int, Region>(CreateRegion, options), null);
             }
 
-            return regionsCache[(int)GetHashKey(drawingOptions)];
+            return regionsCache[(int)GetHashKey(drawingOptions, isOutline)];
         }
 
         internal RawPath GetCreateWidePath(Pen pen)
@@ -416,7 +420,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private Region CreateRegion(int key) => new Region(bounds, ((RegionsCacheKey)key & RegionsCacheKey.AntiAliasing) != 0);
+        private Region CreateRegion(int key)
+        {
+            var options = (RegionsCacheKey)key;
+            return new Region((options & RegionsCacheKey.Outline) != 0 ? DrawOutlineBounds : bounds, (options & RegionsCacheKey.AntiAliasing) != 0);
+        }
 
         private RawPath DoWidenPath(PenOptions penOptions)
         {

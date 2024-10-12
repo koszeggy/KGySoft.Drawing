@@ -39,22 +39,15 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
             
             private readonly Color32 color;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly WorkingColorSpace workingColorSpace;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                this.blend = blend;
                 color = owner.Color32;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
-                workingColorSpace = bitmapData.GetPreferredColorSpace();
             }
 
             #endregion
@@ -63,14 +56,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -82,7 +75,7 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Debug.Assert(color.A < Byte.MaxValue);
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
@@ -96,12 +89,12 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -122,7 +115,7 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 if (c.A == Byte.MaxValue)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -180,22 +173,17 @@ namespace KGySoft.Drawing.Shapes
             
             private readonly Color32 color;
             private readonly PColor32 pColor;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionPColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionPColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Srgb || !blend);
-                this.blend = blend;
+                Debug.Assert(WorkingColorSpace == WorkingColorSpace.Srgb || !Blend);
                 color = owner.Color32;
                 pColor = color.ToPColor32();
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
             }
 
             #endregion
@@ -204,14 +192,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 PColor32 pc = pColor;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -236,13 +224,13 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 PColor32 pc = pColor;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -319,22 +307,15 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
             
             private readonly Color64 color;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly WorkingColorSpace workingColorSpace;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                this.blend = blend;
                 color = owner.Color64;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
-                workingColorSpace = bitmapData.GetPreferredColorSpace();
             }
 
             #endregion
@@ -343,14 +324,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color64 c = color;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -362,7 +343,7 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Debug.Assert(color.A < UInt16.MaxValue);
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
@@ -376,12 +357,12 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color64 c = color;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -403,7 +384,7 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 if (c.A == UInt16.MaxValue)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -461,22 +442,17 @@ namespace KGySoft.Drawing.Shapes
             
             private readonly Color64 color;
             private readonly PColor64 pColor;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionPColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionPColor64(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Srgb || !blend);
-                this.blend = blend;
+                Debug.Assert(WorkingColorSpace == WorkingColorSpace.Srgb || !Blend);
                 color = owner.Color64;
                 pColor = color.ToPColor64();
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
             }
 
             #endregion
@@ -485,14 +461,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 PColor64 pc = pColor;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -517,13 +493,13 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color64 c = color;
                 PColor64 pc = pColor;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -601,22 +577,15 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
             
             private readonly ColorF color;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly WorkingColorSpace workingColorSpace;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                this.blend = blend;
                 color = owner.ColorF;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
-                workingColorSpace = bitmapData.GetPreferredColorSpace();
             }
 
             #endregion
@@ -625,14 +594,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 ColorF c = color;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -644,7 +613,7 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 Debug.Assert(color.A < 1f);
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
@@ -660,12 +629,12 @@ namespace KGySoft.Drawing.Shapes
                 Justification = "It's alright, SolidBrush constructors ensure that components are always valid and A is always 1 for opaque colors.")]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 ColorF c = color;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -686,7 +655,7 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
-                var colorSpace = workingColorSpace;
+                var colorSpace = WorkingColorSpace;
                 if (c.A == 1f)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -744,22 +713,17 @@ namespace KGySoft.Drawing.Shapes
             
             private readonly ColorF color;
             private readonly PColorF pColor;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly bool blend;
 
             #endregion
 
             #region Constructors
 
-            internal SolidFillSessionPColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+            internal SolidFillSessionPColorF(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                Debug.Assert(bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Linear || !blend);
-                this.blend = blend;
+                Debug.Assert(WorkingColorSpace == WorkingColorSpace.Linear || !Blend);
                 color = owner.ColorF;
                 pColor = color.ToPColorF();
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
             }
 
             #endregion
@@ -768,14 +732,14 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 PColorF pc = pColor;
                 int left = scanline.Left;
                 Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -802,13 +766,13 @@ namespace KGySoft.Drawing.Shapes
                 Justification = "It's alright, SolidBrush constructors ensure that components are always valid and A is always 1 for opaque colors.")]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert((uint)scanline.RowIndex < (uint)bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 ColorF c = color;
                 PColorF pc = pColor;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -885,8 +849,6 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly Color32 color;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly bool blend;
             private readonly IQuantizingSession quantizingSession;
 
             #endregion
@@ -894,14 +856,13 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             internal SolidFillSessionWithQuantizing(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, IQuantizer quantizer, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+                DrawingOptions drawingOptions, IQuantizer quantizer, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                this.blend = blend;
                 color = owner.Color32;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 quantizingSession = quantizer.Initialize(bitmapData, context);
+                WorkingColorSpace = quantizingSession.WorkingColorSpace;
             }
 
             #endregion
@@ -910,13 +871,13 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                Debug.Assert(scanline.RowIndex < BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
                 IQuantizingSession session = quantizingSession;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -943,15 +904,15 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                int y = scanline.RowIndex - Bounds.Top;
-                Debug.Assert(y < bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
+                int y = scanline.RowIndex - VisibleBounds.Top;
+                Debug.Assert(y < BitmapData.Height);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(y);
                 Color32 c = color;
                 int left = scanline.Left;
                 IQuantizingSession session = quantizingSession;
 
                 // no blending: writing even transparent result pixels
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -1042,8 +1003,6 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly Color32 color;
-            private readonly IBitmapDataInternal bitmapData;
-            private readonly bool blend;
             private readonly IQuantizingSession quantizingSession;
             private readonly IDitheringSession? ditheringSession;
 
@@ -1058,14 +1017,13 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             internal SolidFillSessionWithDithering(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer ditherer, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer ditherer, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
-                this.blend = blend;
                 color = owner.Color32;
-                this.bitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 quantizingSession = quantizer.Initialize(bitmapData, context);
+                WorkingColorSpace = quantizingSession.WorkingColorSpace;
                 if (context.IsCancellationRequested)
                     return;
 
@@ -1079,7 +1037,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert(scanline.RowIndex < BitmapData.Height);
                 IDitheringSession? session = ditheringSession;
                 if (session == null)
                 {
@@ -1087,11 +1045,11 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
 
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -1119,7 +1077,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
-                Debug.Assert(scanline.RowIndex < bitmapData.Height);
+                Debug.Assert(scanline.RowIndex < BitmapData.Height);
                 IDitheringSession? session = ditheringSession;
                 if (session == null)
                 {
@@ -1127,13 +1085,13 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(scanline.RowIndex);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
                 var colorSpace = quantizingSession.WorkingColorSpace;
 
                 // no blending: writing even transparent result pixels
-                if (!blend)
+                if (!Blend)
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
@@ -1229,11 +1187,8 @@ namespace KGySoft.Drawing.Shapes
             private readonly IQuantizer quantizer;
             private readonly IDitherer? ditherer;
             private readonly IBitmapDataInternal firstSessionTarget;
-            private readonly IBitmapDataInternal finalTarget;
             private readonly Rectangle bounds;
-            private readonly WorkingColorSpace workingColorSpace;
             private readonly Color32 color;
-            private readonly bool blend;
             private readonly bool isMaskGenerated;
 
             private Array2D<byte> mask;
@@ -1243,22 +1198,20 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             internal TwoPassSolidFillSession(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds,
-                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer? ditherer, bool blend, Region? region)
-                : base(context, drawingOptions, bounds, region)
+                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer? ditherer, Region? region)
+                : base(owner, context, bitmapData, drawingOptions, bounds, region)
             {
                 color = owner.Color32;
-                finalTarget = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
                 this.quantizer = quantizer;
                 this.ditherer = ditherer;
-                workingColorSpace = quantizer.WorkingColorSpace();
+                WorkingColorSpace = quantizer.WorkingColorSpace();
 
                 // Note: not using GetPreferredFirstPassPixelFormat because the first step is not a cloning, and the small performance gain at PArgb blending
                 //       is lost at FinalizeSession where the PColors are converted to Color32 due to the quantizing anyway
-                firstSessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bounds.Size, KnownPixelFormat.Format32bppArgb, workingColorSpace);
+                firstSessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(bounds.Size, KnownPixelFormat.Format32bppArgb, WorkingColorSpace);
                 isMaskGenerated = region?.IsAntiAliased == false;
                 mask = isMaskGenerated ? region!.Mask : new Array2D<byte>(bounds.Height, KnownPixelFormat.Format1bppIndexed.GetByteWidth(bounds.Width));
                 this.bounds = bounds;
-                this.blend = blend;
             }
 
             #endregion
@@ -1292,8 +1245,8 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Color32 c = color;
                     IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(scanline.RowIndex - bounds.Top);
-                    WorkingColorSpace colorSpace = workingColorSpace;
-                    IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
+                    WorkingColorSpace colorSpace = WorkingColorSpace;
+                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
                     int offset = scanline.Left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -1314,7 +1267,7 @@ namespace KGySoft.Drawing.Shapes
                 if (!isMaskGenerated)
                     scanline.Scanline.CopyTo(mask[scanline.RowIndex - bounds.Top]);
 
-                if (!blend || color.A == Byte.MaxValue)
+                if (!Blend || color.A == Byte.MaxValue)
                 {
                     ProcessNoBlending(scanline);
                     return;
@@ -1363,8 +1316,8 @@ namespace KGySoft.Drawing.Shapes
                     int y = scanline.RowIndex - bounds.Top;
                     IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
                     ArraySection<byte> maskRow = mask[y];
-                    WorkingColorSpace colorSpace = workingColorSpace;
-                    IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
+                    WorkingColorSpace colorSpace = WorkingColorSpace;
+                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
                     int offset = scanline.Left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -1394,8 +1347,8 @@ namespace KGySoft.Drawing.Shapes
                     int y = scanline.RowIndex - bounds.Top;
                     IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
                     ArraySection<byte> maskRow = mask[y];
-                    WorkingColorSpace colorSpace = workingColorSpace;
-                    IBitmapDataRowInternal sourceRow = finalTarget.GetRowCached(scanline.RowIndex);
+                    WorkingColorSpace colorSpace = WorkingColorSpace;
+                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
                     int offset = scanline.Left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -1422,7 +1375,7 @@ namespace KGySoft.Drawing.Shapes
 
                 #endregion
 
-                if (!blend)
+                if (!Blend)
                 {
                     ProcessNoBlending(scanline);
                     return;
@@ -1439,8 +1392,8 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void FinalizeSession()
             {
-                Point maskOffset = isMaskGenerated ? Bounds.Location - new Size(Region!.Bounds.Location) : Point.Empty;
-                firstSessionTarget.DoCopyTo(Context, finalTarget, bounds.Location, quantizer, ditherer, blend, mask, maskOffset);
+                Point maskOffset = isMaskGenerated ? VisibleBounds.Location - new Size(Region!.Bounds.Location) : Point.Empty;
+                firstSessionTarget.DoCopyTo(Context, BitmapData, bounds.Location, quantizer, ditherer, Blend, mask, maskOffset);
             }
 
             #endregion
@@ -1473,7 +1426,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        private bool HasAlpha
+        private protected override bool HasAlpha
         {
             get
             {
@@ -1499,48 +1452,57 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        private protected override FillPathSession CreateSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+        private protected override FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
             IDitherer? ditherer = drawingOptions.Ditherer;
-            bool blend = drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing);
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
             // If the quantizer or ditherer relies on the actual [possibly already blended] result we perform the operation in two passes
             if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
-                return new TwoPassSolidFillSession(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
+                return new TwoPassSolidFillSession(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, region);
 
             // With regular dithering (which implies quantizing, too)
             if (ditherer != null)
-                return new SolidFillSessionWithDithering(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, blend, region);
+                return new SolidFillSessionWithDithering(this, context, bitmapData, bounds, drawingOptions, quantizer!, ditherer, region);
 
             // Quantizing without dithering
             if (quantizer != null)
-                return new SolidFillSessionWithQuantizing(this, context, bitmapData, bounds, drawingOptions, quantizer, blend, region);
+                return new SolidFillSessionWithQuantizing(this, context, bitmapData, bounds, drawingOptions, quantizer, region);
 
             // There is no quantizing: picking the most appropriate way for the best quality and performance.
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             bool linearBlending = bitmapData.LinearBlending();
+            bool blend = drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing);
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || linearBlending && pixelFormat.LinearGamma)
             {
                 // Using PColorF only if the actual pixel format really has linear gamma to prevent performance issues
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true } && (linearBlending || !blend)
-                    ? new SolidFillSessionPColorF(this, context, bitmapData, bounds, drawingOptions, blend, region)
-                    : new SolidFillSessionColorF(this, context, bitmapData, bounds, drawingOptions, blend, region);
+                    ? new SolidFillSessionPColorF(this, context, bitmapData, bounds, drawingOptions, region)
+                    : new SolidFillSessionColorF(this, context, bitmapData, bounds, drawingOptions, region);
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
-                    ? new SolidFillSessionPColor64(this, context, bitmapData, bounds, drawingOptions, blend, region)
-                    : new SolidFillSessionColor64(this, context, bitmapData, bounds, drawingOptions, blend, region);
+                    ? new SolidFillSessionPColor64(this, context, bitmapData, bounds, drawingOptions, region)
+                    : new SolidFillSessionColor64(this, context, bitmapData, bounds, drawingOptions, region);
             }
 
             return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
-                ? new SolidFillSessionPColor32(this, context, bitmapData, bounds, drawingOptions, blend, region)
-                : new SolidFillSessionColor32(this, context, bitmapData, bounds, drawingOptions, blend, region);
+                ? new SolidFillSessionPColor32(this, context, bitmapData, bounds, drawingOptions, region)
+                : new SolidFillSessionColor32(this, context, bitmapData, bounds, drawingOptions, region);
+        }
+
+        private protected override DrawPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+        {
+            if (region != null)
+                return base.CreateDrawSession(context, bitmapData, rawPath, bounds, drawingOptions, region);
+
+            // TODO: two pass if quantizer/ditherer requires it, or when there is alpha and there can be crossing lines. Maybe AA with solid color is OK. Guaranteed no crossing line: single line, recognized rectangle/ellipse/arc
+            throw new NotImplementedException("CreateDrawSession");
         }
 
         #endregion

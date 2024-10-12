@@ -43,7 +43,13 @@ namespace KGySoft.Drawing.Shapes
         #region Public Properties
 
         public bool IsEmpty => figures == null && currentFigure.IsEmpty;
+
+        /// <summary>
+        /// Gets the bounds of this <see cref="Path"/> in pixels required for filling by a <see cref="Brush"/>.
+        /// When drawing, the returned bounds needed to be inflated depending on the corresponding <see cref="Pen"/>&#160;<see cref="Pen.Width"/>.
+        /// </summary>
         public Rectangle Bounds => RawPath.Bounds;
+
         public TransformationMatrix Transformation => transformation;
 
         #endregion
@@ -116,6 +122,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // TODO: Point[] overload
+        // TODO: IEnumerable, ROS
         public Path AddLines(params PointF[] points)
         {
             if (points == null)
@@ -146,6 +153,7 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
+        // TODO: IEnumerable, ROS
         public Path AddBeziers(params PointF[] points)
         {
             if (points == null)
