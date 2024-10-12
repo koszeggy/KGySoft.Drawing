@@ -181,7 +181,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [
             // string name, Path path
             ////["Point", new Path().AddPoint(new PointF(1, 1))],
-            ["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
+            //["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
             ["LineRight", new Path().AddLine(new PointF(1, 1), new PointF(2, 1))],
             ["LineDown", new Path().AddLine(new PointF(1, 1), new PointF(1, 2))],
             ["LineLeft", new Path().AddLine(new PointF(2, 1), new PointF(1, 1))],
@@ -194,17 +194,20 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["LineLeftUpPortrait", new Path().AddLine(new PointF(2, 3), new PointF(1, 1))],
             ["LineRightUpPortrait", new Path().AddLine(new PointF(1, 3), new PointF(2, 1))],
             ["LineLeftDownPortrait", new Path().AddLine(new PointF(2, 1), new PointF(1, 3))],
-            ["Rectangle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
-            ["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
-            ["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
-            ["Star", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91))],
-            ["ArcHalfEllipse", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180)],
-            ["Circle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
-            ["Circle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
-            ["Circle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
-            ["Ellipse10", new Path().AddRectangle(new RectangleF(1, 1, 1, 0))],
-            ["Ellipse21", new Path().AddRectangle(new RectangleF(1, 1, 2, 1))],
-            ["Ellipse32", new Path().AddRectangle(new RectangleF(1, 1, 3, 2))],
+            //["Rectangle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
+            //["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
+            //["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
+            //["StarOpen", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91))],
+            //["StarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
+            //["Pentagon", new Path().AddLines(new(51, 1), new(99, 36), new(81, 91), new(22, 91), new(3, 36)).CloseFigure()],
+            //["ArcHalfEllipse", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180)],
+            //["Ellipse", new Path().AddEllipse(new RectangleF(1, 1, 98, 48))],
+            //["Circle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
+            //["Circle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
+            //["Circle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
+            //["Ellipse10", new Path().AddRectangle(new RectangleF(1, 1, 1, 0))],
+            //["Ellipse21", new Path().AddRectangle(new RectangleF(1, 1, 2, 1))],
+            //["Ellipse32", new Path().AddRectangle(new RectangleF(1, 1, 3, 2))],
         ];
 
         #endregion
@@ -269,17 +272,17 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             IAsyncContext context = new SimpleContext(-1);
 
             // non-cached region
-            var bitmapData1 = bitmapDataBackground.Clone();
+            using var bitmapData1 = bitmapDataBackground.Clone();
             bitmapData1.FillPath(context, path, Brush.CreateSolid(fillColor), options, false);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
-            var bitmapData2 = bitmapDataBackground.Clone();
+            using var bitmapData2 = bitmapDataBackground.Clone();
             bitmapData2.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
-            var bitmapData3 = bitmapDataBackground.Clone();
+            using var bitmapData3 = bitmapDataBackground.Clone();
             bitmapData3.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
 
@@ -320,17 +323,17 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //var singleThreadContext = new SimpleContext(1);
 
             // non-cached region
-            var bitmapData1 = bitmapDataBackground.Clone();
+            using var bitmapData1 = bitmapDataBackground.Clone();
             bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
-            //SaveBitmapData(name, bitmapData1);
+            SaveBitmapData(name, bitmapData1);
 
             // generating cached region
-            var bitmapData2 = bitmapDataBackground.Clone();
+            using var bitmapData2 = bitmapDataBackground.Clone();
             bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
-            var bitmapData3 = bitmapDataBackground.Clone();
+            using var bitmapData3 = bitmapDataBackground.Clone();
             bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
@@ -397,7 +400,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         public void DrawThinLinesTest(string name, Path path)
         {
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
-            var colorSpace = WorkingColorSpace.Linear;
+            var colorSpace = WorkingColorSpace.Srgb; // the bad blending makes the unaligned fill/draw shapes more apparent
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
             if (size.IsEmpty)
@@ -406,17 +409,30 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 path.TransformTranslation(5, 5);
             }
 
-            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
+            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
+            bitmapDataBackground.Clear(Color.Green);
             IAsyncContext context = new SimpleContext(-1);
-            var pen = new Pen(Color.Yellow);
+            var pen = new Pen(Color.FromArgb(128, Color.Yellow));
             var brush = new SolidBrush(Color.Blue);
-            foreach (bool antiAliasing in new[] { false, /*true*/ })
+            foreach (bool antiAliasing in new[] { false, true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                bitmapData.Clear(Color.Green);
-                bitmapData.FillPath(context, path, brush, drawingOptions);
-                bitmapData.DrawPath(context, path, pen, drawingOptions);
-                SaveBitmapData(name, bitmapData, $"{(antiAliasing ? "AA" : "NA")}");
+
+                //using var bitmapData1 = bitmapDataBackground.Clone();
+                //bitmapData1.FillPath(context, path, brush, drawingOptions);
+                //bitmapData1.DrawPath(context, path, pen, drawingOptions, false);
+                //SaveBitmapData(name, bitmapData1, $"{(antiAliasing ? "AA" : "NA")}_W{width}");
+
+                //using var bitmapData2 = bitmapDataBackground.Clone();
+                //bitmapData2.FillPath(context, path, brush, drawingOptions);
+                //bitmapData2.DrawPath(context, path, pen, drawingOptions, true);
+                //AssertAreEqual(bitmapData1, bitmapData2);
+
+                using var bitmapData3 = bitmapDataBackground.Clone();
+                bitmapData3.FillPath(context, path, brush, drawingOptions);
+                bitmapData3.DrawPath(context, path, pen, drawingOptions, true);
+                //AssertAreEqual(bitmapData1, bitmapData3);
+                ;
             }
         }
 

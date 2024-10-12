@@ -138,9 +138,9 @@ namespace KGySoft.Drawing.Shapes
             RawPath rawPath = path.RawPath;
 
             // special handling for thin paths: not generating a new path but drawing the raw lines of rawPath
-            if (!drawingOptions.AntiAliasing && Width < 1.25f)
+            if (!drawingOptions.AntiAliasing && Width <= 1f) // TODO: && drawingOptions.FastThinLines
             {
-                brush.DrawRawPath(context, bitmapData, rawPath, drawingOptions, cache);
+                brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, cache);
                 return;
             }
 

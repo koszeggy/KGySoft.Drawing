@@ -1496,7 +1496,7 @@ namespace KGySoft.Drawing.Shapes
                 : new SolidFillSessionColor32(this, context, bitmapData, bounds, drawingOptions, region);
         }
 
-        private protected override DrawPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+        private protected override DrawThinPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             if (region != null)
                 return base.CreateDrawSession(context, bitmapData, rawPath, bounds, drawingOptions, region);

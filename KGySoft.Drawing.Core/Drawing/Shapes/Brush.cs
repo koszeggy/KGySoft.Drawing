@@ -1584,9 +1584,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region DrawPathSession class
+        #region DrawThinPathSession class
 
-        private protected abstract class DrawPathSession : PathSessionBase
+        private protected abstract class DrawThinPathSession : PathSessionBase
         {
             #region Properties
 
@@ -1596,7 +1596,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected DrawPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions options, Rectangle bounds, Region? region)
+            protected DrawThinPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions options, Rectangle bounds, Region? region)
                 : base(owner, context, bitmapData, options, bounds, region)
             {
                 Path = rawPath;
@@ -1619,7 +1619,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region DrawIntoRegionSession class
 
-        private sealed class DrawIntoRegionSession : DrawPathSession
+        private sealed class DrawIntoRegionSession : DrawThinPathSession
         {
             #region Constructors
 
@@ -1651,39 +1651,72 @@ namespace KGySoft.Drawing.Shapes
                 int x2 = (int)(p2.X.RoundTo(roundingUnit) + offset) - offsetX;
                 int y2 = (int)(p2.Y.RoundTo(roundingUnit) + offset) - offsetY;
 
-            //TODO: always the same direction
-                int width = x2 - x1;
-                int height = y2 - y1;
-                int dx1 = width < 0 ? -1 : width > 0 ? 1 : 0;
-                int dy1 = height < 0 ? -1 : height > 0 ? 1 : 0;
-                int dx2 = width < 0 ? -1 : width > 0 ? 1 : 0;
-                int dy2 = 0;
-
-                int longer = Math.Abs(width);
-                int shorter = Math.Abs(height);
-                if (longer <= shorter)
+                // horizontal line (or a single point)
+                if (y1 == y2)
                 {
-                    (longer, shorter) = (shorter, longer);
-                    dy2 = height < 0 ? -1 : height > 0 ? 1 : dy2;
-                    dx2 = 0;
+                    ArraySection<byte> row = mask[y1];
+                    if (x1 > x2)
+                        (x1, x2) = (x2, x1);
+                    for (int x = x1; x <= x2; x++)
+                        ColorExtensions.Set1bppColorIndex(ref row.GetElementReferenceUnchecked(x >> 3), x, 1);
+
+                    return;
                 }
 
-                int numerator = longer >> 1;
-                for (int i = 0; i <= longer; i++)
+                // vertical line
+                if (x1 == x2)
                 {
-                    Debug.Assert((uint)(x1 >> 3) < (uint)mask.Width && (uint)y1 < (uint)mask.Height);
-                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y1, x1 >> 3), x1, 1);
-                    numerator += shorter;
-                    if (numerator >= longer)
+                    int maskPos = x1 >> 3;
+                    if (y1 > y2)
+                        (y1, y2) = (y2, y1);
+
+                    for (int y = y1; y <= y2; y++)
+                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), x1, 1);
+                    return;
+                }
+
+                // general line
+                int width = (x2 - x1).Abs();
+                int height = (y2 - y1).Abs();
+                int numerator;
+                int step;
+
+                if (width > height)
+                {
+                    numerator = width >> 1;
+                    if (x1 > x2)
+                        (x1, y1, x2, y2) = (x2, y2, x1, y1);
+                    step = y2 > y1 ? 1 : -1;
+                    int y = y1;
+                    for (int x = x1; x <= x2; x++)
                     {
-                        numerator -= longer;
-                        x1 += dx1;
-                        y1 += dy1;
+                        Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
+                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        numerator += height;
+                        if (numerator < width)
+                            continue;
+
+                        y += step;
+                        numerator -= width;
                     }
-                    else
+                }
+                else
+                {
+                    numerator = height >> 1;
+                    if (y1 > y2)
+                        (x1, y1, x2, y2) = (x2, y2, x1, y1);
+                    step = x2 > x1 ? 1 : -1;
+                    int x = x1;
+                    for (int y = y1; y <= y2; y++)
                     {
-                        x1 += dx2;
-                        y1 += dy2;
+                        Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
+                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        numerator += width;
+                        if (numerator < height)
+                            continue;
+                        
+                        numerator -= height;
+                        x += step;
                     }
                 }
             }
@@ -2257,7 +2290,7 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        internal void DrawRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
+        internal void DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
             Debug.Assert(!drawingOptions.AntiAliasing);
 
@@ -2282,7 +2315,7 @@ namespace KGySoft.Drawing.Shapes
 
             try
             {
-                using DrawPathSession session = CreateDrawSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+                using DrawThinPathSession session = CreateDrawSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
 
                 // TODO: parallelize if possible
                 //if (session.IsSingleThreaded)
@@ -2332,7 +2365,7 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region);
 
-        private protected virtual DrawPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
+        private protected virtual DrawThinPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
             ? throw new InvalidOperationException(Res.InternalError($"{nameof(CreateDrawSession)} should be overridden to draw path without generating a region"))
             : new DrawIntoRegionSession(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
 
