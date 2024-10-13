@@ -52,6 +52,9 @@ namespace KGySoft.Drawing.Shapes
 
         public TransformationMatrix Transformation => transformation;
 
+        // true to allow caching the region of the specified path, so the next fill/draw operation with the same, unchanged path will be faster; otherwise, false.
+        public bool PreferCaching { get; set; }
+
         #endregion
 
         #region Internal Properties
@@ -66,10 +69,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Constructors
 
-        public Path()
+        public Path(bool preferCaching = true)
         {
             currentFigure = new Figure();
             transformation = TransformationMatrix.Identity;
+            PreferCaching = preferCaching;
         }
 
         public Path(Path other) : this(other, false)
@@ -83,6 +87,7 @@ namespace KGySoft.Drawing.Shapes
         private Path(Path other, bool close)
         {
             transformation = other.transformation;
+            PreferCaching = other.PreferCaching;
             if (other.figures == null)
             {
                 currentFigure = new Figure(other.currentFigure, close);

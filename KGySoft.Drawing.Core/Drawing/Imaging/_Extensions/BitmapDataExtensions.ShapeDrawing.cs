@@ -66,14 +66,14 @@ namespace KGySoft.Drawing.Imaging
         internal static void DrawLine(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, DrawingOptions? drawingOptions = null)
         {
             // TODO: fast shortcut when possible (solid non-AA 1px pen)
-            DoDrawPath(AsyncHelper.DefaultContext, bitmapData, new Path().AddLine(p1, p2), pen, drawingOptions, false);
+            DoDrawPath(AsyncHelper.DefaultContext, bitmapData, new Path(false).AddLine(p1, p2), pen, drawingOptions ?? DrawingOptions.Default);
         }
 
         #endregion
 
         #region Path
 
-        internal static bool DrawPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Pen pen, DrawingOptions? drawingOptions = null, bool allowCachingPathRegion = true)
+        internal static bool DrawPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Pen pen, DrawingOptions? drawingOptions = null)
         {
 
             // TODO: make public when path contains every possible shapes
@@ -84,12 +84,12 @@ namespace KGySoft.Drawing.Imaging
             if (!drawingOptions.IsIdentityTransform)
             {
                 path = Path.Transform(path, drawingOptions.Transformation);
-                allowCachingPathRegion = false;
+                path.PreferCaching = false;
             }
 
             // TODO: fast shortcut when possible (solid non-AA 1px pen)
 
-            DoDrawPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, pen, drawingOptions, allowCachingPathRegion);
+            DoDrawPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, pen, drawingOptions);
             return context?.IsCancellationRequested != true;
         }
 
@@ -97,7 +97,7 @@ namespace KGySoft.Drawing.Imaging
         // Remarks:
         // - Set allowCachingPathRegion to false if path instance is not stored or is only used once. - TODO: put unto options instead. Default: true, so the callers from a non-ath overload should replace null with a nondefault instance
         // - If drawingOptions.Transformation is not the identity matrix, then the path region is not cached. To improve the performance of transformed paths, apply the transformations on the Path instance instead, and use the identity matrix in options.
-        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null, bool allowCachingPathRegion = true)
+        internal static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Path path, Brush brush, DrawingOptions? drawingOptions = null)
         {
             // TODO: make public when path contains every possible shapes
 
@@ -107,12 +107,12 @@ namespace KGySoft.Drawing.Imaging
             if (!drawingOptions.IsIdentityTransform)
             {
                 path = Path.Transform(path, drawingOptions.Transformation);
-                allowCachingPathRegion = false;
+                path.PreferCaching = false;
             }
 
             // TODO: fast shortcut when possible (solid non-AA brush with no quantizer)
 
-            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions, allowCachingPathRegion);
+            DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions);
             return context?.IsCancellationRequested != true;
         }
 
@@ -122,16 +122,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        private static void DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions drawingOptions, bool cache)
+        private static void DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions drawingOptions)
         {
-            // TODO: put allow caching in options
-            pen.DrawPath(context, bitmapData, path, drawingOptions, cache);
+            pen.DrawPath(context, bitmapData, path, drawingOptions);
         }
 
-        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions, bool cache)
+        private static void DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions)
         {
-            // TODO: put allow caching in options
-            brush.FillPath(context, bitmapData, path, drawingOptions, cache);
+            brush.FillPath(context, bitmapData, path, drawingOptions);
         }
 
         #endregion

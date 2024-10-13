@@ -212,7 +212,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCaseSource(nameof(FillPathTestSource))]
         public void FillPathTest(string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor, Color fillColor, DrawingOptions options)
         {
-            var path = new Path()
+            var path = new Path(false)
                 //.TransformScale(2, 2)
                 //.TransformTranslation(0.5f, 0.5f)
                 //.TransformRotation(45)
@@ -268,17 +268,18 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // non-cached region
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.FillPath(context, path, Brush.CreateSolid(fillColor), options, false);
+            bitmapData1.FillPath(context, path, Brush.CreateSolid(fillColor), options);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
+            path.PreferCaching = true;
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData2.FillPath(context, path, Brush.CreateSolid(fillColor), options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(context, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData3.FillPath(context, path, Brush.CreateSolid(fillColor), options);
             AssertAreEqual(bitmapData1, bitmapData3);
 
             //using var bitmapData = bitmapDataBackground.Clone();
@@ -306,7 +307,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         public void ClippedFillPathTest(string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor, Color fillColor, DrawingOptions options)
         {
             var offset = new SizeF(-10, -10);
-            var path = new Path();
+            var path = new Path(false);
             path.AddLines(new PointF(50, 0) + offset, new PointF(90, 100) + offset, new PointF(0, 40) + offset, new PointF(100, 40) + offset, new PointF(10, 100) + offset);
 
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData((path.Bounds.Size + offset * 2).ToSize(), pixelFormat, colorSpace);
@@ -319,17 +320,18 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // non-cached region
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options, false);
+            bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
+            path.PreferCaching = true;
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options, true);
+            bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
@@ -409,21 +411,22 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
 
-                //using var bitmapData1 = bitmapDataBackground.Clone();
-                //bitmapData1.FillPath(context, path, brush, drawingOptions);
-                //bitmapData1.DrawPath(context, path, pen, drawingOptions, false);
-                //SaveBitmapData(name, bitmapData1, $"{(antiAliasing ? "AA" : "NA")}_W{width}");
+                path = new Path(path) { PreferCaching = false };
+                using var bitmapData1 = bitmapDataBackground.Clone();
+                bitmapData1.FillPath(context, path, brush, drawingOptions);
+                bitmapData1.DrawPath(context, path, pen, drawingOptions);
+                SaveBitmapData(name, bitmapData1, $"{(antiAliasing ? "AA" : "NA")}");
 
-                //using var bitmapData2 = bitmapDataBackground.Clone();
-                //bitmapData2.FillPath(context, path, brush, drawingOptions);
-                //bitmapData2.DrawPath(context, path, pen, drawingOptions, true);
-                //AssertAreEqual(bitmapData1, bitmapData2);
+                path.PreferCaching = true;
+                using var bitmapData2 = bitmapDataBackground.Clone();
+                bitmapData2.FillPath(context, path, brush, drawingOptions);
+                bitmapData2.DrawPath(context, path, pen, drawingOptions);
+                AssertAreEqual(bitmapData1, bitmapData2);
 
                 using var bitmapData3 = bitmapDataBackground.Clone();
                 bitmapData3.FillPath(context, path, brush, drawingOptions);
-                bitmapData3.DrawPath(context, path, pen, drawingOptions, true);
-                //AssertAreEqual(bitmapData1, bitmapData3);
-                ;
+                bitmapData3.DrawPath(context, path, pen, drawingOptions);
+                AssertAreEqual(bitmapData1, bitmapData3);
             }
         }
 

@@ -133,19 +133,19 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        internal void DrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
+        internal void DrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
             RawPath rawPath = path.RawPath;
 
             // special handling for thin paths: not generating a new path but drawing the raw lines of rawPath
             if (!drawingOptions.AntiAliasing && Width <= 1f) // TODO: && drawingOptions.FastThinLines
             {
-                brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, cache);
+                brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, path.PreferCaching);
                 return;
             }
 
-            RawPath widePath = cache ? rawPath.GetCreateWidePath(this) : rawPath.WidenPath(this);
-            brush.FillRawPath(context, bitmapData, widePath, drawingOptions.WithNonZeroFill, cache);
+            RawPath widePath = path.PreferCaching ? rawPath.GetCreateWidePath(this) : rawPath.WidenPath(this);
+            brush.FillRawPath(context, bitmapData, widePath, drawingOptions.WithNonZeroFill, path.PreferCaching);
         }
 
         #endregion

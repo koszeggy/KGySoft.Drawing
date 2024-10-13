@@ -2222,8 +2222,8 @@ namespace KGySoft.Drawing.Shapes
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
-        internal void FillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
-            => FillRawPath(context, bitmapData, path.RawPath, drawingOptions, cache);
+        internal void FillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
+            => FillRawPath(context, bitmapData, path.RawPath, drawingOptions, path.PreferCaching);
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
@@ -2292,6 +2292,40 @@ namespace KGySoft.Drawing.Shapes
 
         internal void DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
+            #region Local Methods
+
+            bool NeedsRegion()
+            {
+                // If there can be blending, then we must use a region to prevent issues at crossing lines.
+                Debug.Assert(!drawingOptions.AntiAliasing);
+                if (drawingOptions.AlphaBlending && HasAlpha)
+                    return true;
+
+                IQuantizer? quantizer = drawingOptions.Quantizer;
+                IDitherer? ditherer = drawingOptions.Ditherer;
+                if (quantizer != null || ditherer != null)
+                {
+                    bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
+
+                    // If the quantizer or ditherer relies on the actual content, it would be no benefit in direct drawing in the first pass
+                    // because the small advantage would be negligible due to the multiple passes anyway.
+                    if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
+                        return true;
+                }
+
+                // From this point it's not a must to use a region so we can decide on practical reasons.
+
+                // Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
+                // we don't check the length or the orientation of the lines.
+                if (rawPath.TotalVertices < (Math.Min(bitmapData.Width, bitmapData.Height) >> 1))
+                    return false;
+
+                // Returning true if the path is expected to be re-used.
+                return cache;
+            }
+
+            #endregion
+
             Debug.Assert(!drawingOptions.AntiAliasing);
 
             Rectangle pathBounds = rawPath.DrawOutlineBounds;
@@ -2301,7 +2335,7 @@ namespace KGySoft.Drawing.Shapes
                 return;
 
             Region? region = null;
-            if (cache) // TODO: even if caching is true, do not do it if the non-caching operation seems cheaper (eg. solid non-alpha brush)
+            if (NeedsRegion()) // TODO: even if caching is true, do not do it if the non-caching operation seems cheaper (eg. solid non-alpha brush)
             {
                 region = rawPath.GetCreateCachedRegion(drawingOptions, true);
 
@@ -2315,9 +2349,9 @@ namespace KGySoft.Drawing.Shapes
 
             try
             {
-                using DrawThinPathSession session = CreateDrawSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+                using DrawThinPathSession session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
 
-                // TODO: parallelize if possible
+                // TODO: parallelize if possible - maybe not: the mask setting or concurrent low-bpp indexed SetPixel is not thread safe (not a problem for scanning where threads work on different rows)
                 //if (session.IsSingleThreaded)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, rawPath.TotalVertices);
@@ -2365,8 +2399,8 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region);
 
-        private protected virtual DrawThinPathSession CreateDrawSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
-            ? throw new InvalidOperationException(Res.InternalError($"{nameof(CreateDrawSession)} should be overridden to draw path without generating a region"))
+        private protected virtual DrawThinPathSession CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
+            ? throw new InvalidOperationException(Res.InternalError($"{nameof(CreateDrawThinPathSession)} should be overridden to draw path without generating a region"))
             : new DrawIntoRegionSession(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
 
         #endregion
