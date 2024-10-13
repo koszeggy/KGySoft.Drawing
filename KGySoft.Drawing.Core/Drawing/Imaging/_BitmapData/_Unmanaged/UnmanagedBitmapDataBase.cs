@@ -49,10 +49,26 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override unsafe T DoReadRaw<T>(int x, int y) => *GetPixelAddress<T>(y, x);
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override unsafe void DoWriteRaw<T>(int x, int y, T data) => *GetPixelAddress<T>(y, x) = data;
+
+        #endregion
+
+        #region Protected Methods
+
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected unsafe TPixel* GetPixelAddress<TPixel>(int rowIndex, int offset) where TPixel : unmanaged
             => (TPixel*)((byte*)Scan0 + rowIndex * Stride) + offset;
+
+        #endregion
 
         #endregion
     }

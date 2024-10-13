@@ -25,6 +25,12 @@ namespace KGySoft.Drawing.Imaging
     internal abstract class UnmanagedBitmapDataIndexedBase<TRow> : UnmanagedBitmapDataBase<TRow>
         where TRow : UnmanagedBitmapDataRowBase, new()
     {
+        #region Properties
+
+        protected abstract uint MaxIndex { get; }
+
+        #endregion
+
         #region Constructors
 
         protected UnmanagedBitmapDataIndexedBase(IntPtr buffer, int stride, in BitmapDataConfig cfg)
@@ -36,14 +42,34 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected sealed override Color32 DoGetColor32(int x, int y) => Palette!.GetColor(DoGetColorIndex(x, y));
+        #region Static Methods
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowColorIndexOutOfRange()
+        {
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentOutOfRangeException("colorIndex", PublicResources.ArgumentOutOfRange);
+        }
+
+        #endregion
+
+        #region Instance Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected sealed override void DoSetColor32(int x, int y, Color32 c) => DoSetColorIndex(x, y, Palette!.GetNearestColorIndex(c));
+        public sealed override void SetColorIndex(int x, int y, int colorIndex)
+        {
+            if (colorIndex >= Palette!.Count || (uint)colorIndex > MaxIndex)
+                ThrowColorIndexOutOfRange();
+            base.SetColorIndex(x, y, colorIndex);
+        }
 
-        protected abstract int DoGetColorIndex(int x, int y);
-        protected abstract void DoSetColorIndex(int x, int y, int colorIndex);
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override Color32 DoGetColor32(int x, int y) => Palette!.GetColor(DoGetColorIndex(x, y));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override void DoSetColor32(int x, int y, Color32 c) => DoSetColorIndex(x, y, Palette!.GetNearestColorIndex(c));
+
+        #endregion
 
         #endregion
     }

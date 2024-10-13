@@ -107,6 +107,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Properties
+        
+        #region Public Properties
 
         public override bool IsCustomPixelFormat => true;
         public bool CanReadWrite { get; }
@@ -167,6 +169,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Protected Properties
+
+        protected override uint MaxIndex => (1u << PixelFormat.BitsPerPixel) - 1u;
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
         public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, in BitmapDataConfig cfg, CustomIndexedBitmapDataConfig customConfig)
@@ -184,13 +194,17 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+        
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
+
+        #endregion
+
         #region Protected Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 
         protected override void Dispose(bool disposing)
         {

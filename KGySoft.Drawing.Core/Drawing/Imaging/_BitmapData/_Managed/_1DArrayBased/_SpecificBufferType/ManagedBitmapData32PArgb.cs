@@ -71,22 +71,22 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToStraight();
+        public override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToStraight();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c) => Buffer[y, x] = c.ToPremultiplied();
+        public override void DoSetColor32(int x, int y, Color32 c) => Buffer[y, x] = c.ToPremultiplied();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColor32 DoGetPColor32(int x, int y) => Buffer[y, x];
+        public override PColor32 DoGetPColor32(int x, int y) => Buffer[y, x];
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColor32(int x, int y, PColor32 c) => Buffer[y, x] = c;
+        public override void DoSetPColor32(int x, int y, PColor32 c) => Buffer[y, x] = c;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColor64 DoGetPColor64(int x, int y) => Buffer[y, x].ToPColor64();
+        public override PColor64 DoGetPColor64(int x, int y) => Buffer[y, x].ToPColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColor64(int x, int y, PColor64 c) => Buffer[y, x] = c.ToPColor32();
+        public override void DoSetPColor64(int x, int y, PColor64 c) => Buffer[y, x] = c.ToPColor32();
 
         #endregion
     }

@@ -49,6 +49,12 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        protected override uint MaxIndex => 1;
+
+        #endregion
+
         #region Constructors
 
         internal ManagedBitmapData1I(in BitmapDataConfig cfg)
@@ -66,10 +72,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override int DoGetColorIndex(int x, int y) => ColorExtensions.Get1bppColorIndex(Buffer[y, x >> 3], x);
+        public override int DoGetColorIndex(int x, int y) => ColorExtensions.Get1bppColorIndex(Buffer[y, x >> 3], x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorIndex(int x, int y, int colorIndex)
+        public override void DoSetColorIndex(int x, int y, int colorIndex)
             => ColorExtensions.Set1bppColorIndex(ref Buffer.GetElementReference(y, x >> 3), x, colorIndex);
 
         #endregion

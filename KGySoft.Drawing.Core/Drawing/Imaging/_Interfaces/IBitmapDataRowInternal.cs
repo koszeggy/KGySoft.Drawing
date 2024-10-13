@@ -13,6 +13,8 @@
 
 #endregion
 
+using System.Security;
+
 namespace KGySoft.Drawing.Imaging
 {
     internal interface IBitmapDataRowInternal : IReadWriteBitmapDataRowMovable
@@ -37,8 +39,8 @@ namespace KGySoft.Drawing.Imaging
         PColorF DoGetPColorF(int x);
         void DoSetColorF(int x, ColorF c);
         void DoSetPColorF(int x, PColorF c);
-        T DoReadRaw<T>(int x) where T : unmanaged;
-        void DoWriteRaw<T>(int x, T data) where T : unmanaged;
+        [SecurityCritical]T DoReadRaw<T>(int x) where T : unmanaged;
+        [SecurityCritical]void DoWriteRaw<T>(int x, T data) where T : unmanaged;
         int DoGetColorIndex(int x);
         void DoSetColorIndex(int x, int colorIndex);
         void DoMoveToRow(int y);

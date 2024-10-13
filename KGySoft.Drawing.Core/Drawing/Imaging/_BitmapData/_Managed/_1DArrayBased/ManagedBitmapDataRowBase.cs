@@ -37,9 +37,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override TResult DoReadRaw<TResult>(int x) => GetPixelRef<TResult>(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override void DoWriteRaw<TValue>(int x, TValue data) => GetPixelRef<TValue>(x) = data;
 

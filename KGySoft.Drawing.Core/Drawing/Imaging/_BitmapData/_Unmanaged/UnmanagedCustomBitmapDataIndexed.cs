@@ -83,6 +83,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Public Properties
+
         public override bool IsCustomPixelFormat => true;
         public bool CanReadWrite { get; }
         public bool BackBufferIndependentPixelAccess { get; }
@@ -134,6 +136,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Protected Properties
+
+        protected override uint MaxIndex => (1u << PixelFormat.BitsPerPixel) - 1u;
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
         [SecurityCritical]
@@ -152,12 +162,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+        
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
+        public override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
+        public override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 
+        #endregion
+
+        #region Protected Methods
+        
         protected override void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -166,6 +182,8 @@ namespace KGySoft.Drawing.Imaging
             rowSetColorIndex = null!;
             base.Dispose(disposing);
         }
+
+        #endregion
 
         #endregion
     }

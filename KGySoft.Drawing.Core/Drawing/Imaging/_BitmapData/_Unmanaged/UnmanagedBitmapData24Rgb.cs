@@ -67,21 +67,21 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Color24>(y, x)->ToColor32();
+        public override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Color24>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColor32(int x, int y, Color32 c)
+        public override unsafe void DoSetColor32(int x, int y, Color32 c)
             => *GetPixelAddress<Color24>(y, x) = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color24>(y, x) = new Color24(c.A >= 1f ? c.ToColor32()
+        public override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Color24>(y, x) = new Color24(c.A >= 1f ? c.ToColor32()
             : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
             : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
+        public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

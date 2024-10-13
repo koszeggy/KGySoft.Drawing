@@ -71,10 +71,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => GetPixelRef<Color16Argb1555>(y, x).ToColor32();
+        public override Color32 DoGetColor32(int x, int y) => GetPixelRef<Color16Argb1555>(y, x).ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c)
+        public override void DoSetColor32(int x, int y, Color32 c)
         {
             if (c.A != Byte.MaxValue)
             {

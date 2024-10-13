@@ -17,6 +17,7 @@
 
 using System;
 using System.Drawing;
+using System.Security;
 
 #endregion
 
@@ -43,9 +44,9 @@ namespace KGySoft.Drawing.Imaging
             #region Public Methods
             
             public override Color32 DoGetColor32(int x) => Color;
-            public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
             public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
-            public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
 
             #endregion
 
@@ -80,8 +81,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        protected override Color32 DoGetColor32(int x, int y) => color;
-        protected override void DoSetColor32(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
+        #region Public Methods
+
+        public override Color32 DoGetColor32(int x, int y) => color;
+        public override void DoSetColor32(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
+        [SecurityCritical]public override T DoReadRaw<T>(int x, int y) => throw new NotSupportedException(PublicResources.NotSupported);
+        [SecurityCritical]public override void DoWriteRaw<T>(int x, int y, T data) => throw new NotSupportedException(PublicResources.NotSupported);
+
+        #endregion
+
+        #region Protected Methods
 
         protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
         {
@@ -89,6 +98,8 @@ namespace KGySoft.Drawing.Imaging
             Color = color,
             Index = y,
         };
+
+        #endregion
 
         #endregion
     }

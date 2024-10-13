@@ -71,20 +71,20 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => GetPixelRef<Gray8>(y, x).ToColor32();
+        public override Color32 DoGetColor32(int x, int y) => GetPixelRef<Gray8>(y, x).ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<Gray8>(y, x) = LinearWorkingColorSpace
+        public override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<Gray8>(y, x) = LinearWorkingColorSpace
             ? new Gray8(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
             : new Gray8(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BackColor));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<Gray8>(y, x) = LinearWorkingColorSpace
+        public override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<Gray8>(y, x) = LinearWorkingColorSpace
             ? new Gray8(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BackColor.ToColorF()))
             : new Gray8(c.A >= 1f ? c.ToColor32() : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
+        public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

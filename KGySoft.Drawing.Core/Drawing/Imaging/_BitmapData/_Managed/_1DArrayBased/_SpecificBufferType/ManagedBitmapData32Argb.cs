@@ -59,10 +59,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => Buffer[y, x];
+        public override Color32 DoGetColor32(int x, int y) => Buffer[y, x];
         
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c) => Buffer[y, x] = c;
+        public override void DoSetColor32(int x, int y, Color32 c) => Buffer[y, x] = c;
 
         #endregion
     }

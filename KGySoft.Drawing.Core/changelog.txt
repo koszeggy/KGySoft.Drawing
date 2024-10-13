@@ -17,6 +17,13 @@
     targeted platform is below .NET 6.0. From now on the CPU affinity is respected on all platform targets.
     See also: https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/environment-processorcount-on-windows
 
+! KGySoft.Drawing.Imaging namespace
+===================================
+! IReadableBitmapData interface: (breaking only if you implement it, which is normally not needed)
+  ! New GetColorIndex/ReadRaw<T> methods
+! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
+  ! New SetColorIndex/WriteRaw<T> methods
+
 
 ~~~~~~~~~
 + v8.2.0:

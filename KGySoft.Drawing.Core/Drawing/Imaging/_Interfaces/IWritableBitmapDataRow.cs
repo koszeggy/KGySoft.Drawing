@@ -186,7 +186,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="data">The raw value to write.</param>
         /// <remarks>
         /// <para>This method writes the actual raw underlying data. <typeparamref name="T"/> can have any size so you by using this method you can write multiple pixels as well as individual color channels.</para>
-        /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
+        /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IWritableBitmapData"/> instance.</para>
         /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IWritableBitmapData"/> instance.</para>
         /// </remarks>
         /// <example>

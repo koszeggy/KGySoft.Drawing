@@ -87,6 +87,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public PColor64 GetPColor64(int x, int y) => wrapped.GetPColor64(x, y);
             public ColorF GetColorF(int x, int y) => wrapped.GetColorF(x, y);
             public PColorF GetPColorF(int x, int y) => wrapped.GetPColorF(x, y);
+            public int GetColorIndex(int x, int y) => wrapped.GetColorIndex(x, y);
+            public T ReadRaw<T>(int x, int y) where T : unmanaged => wrapped.ReadRaw<T>(x, y);
             public IReadableBitmapDataRowMovable GetMovableRow(int y) => wrapped.GetMovableRow(y);
 
             #endregion

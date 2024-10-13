@@ -160,9 +160,9 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="x">The x-coordinate of the color index to retrieve.</param>
         /// <returns>A palette index that represents the color of the specified pixel.</returns>
         /// <remarks>
-        /// <para>This method can be used only if <see cref="PixelFormatInfo.Indexed"/> is set in the <see cref="IBitmapData.PixelFormat"/> of the parent <see cref="IWritableBitmapData"/>.
+        /// <para>This method can be used only if <see cref="PixelFormatInfo.Indexed"/> is set in the <see cref="IBitmapData.PixelFormat"/> of the parent <see cref="IReadableBitmapData"/>.
         /// Otherwise, this method throws an <see cref="InvalidOperationException"/>.</para>
-        /// <para>To set the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <c>GetColor...</c>/<c>GetPColor...</c>
+        /// <para>To get the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <c>GetColor...</c>/<c>GetPColor...</c>
         /// methods or the <see cref="this">indexer</see>, or you can call the <see cref="Palette.GetColor">Palette.GetColor</see> method with the return value of this method
         /// on the <see cref="Palette"/> instance returned by the <see cref="IBitmapData.Palette"/> property of the parent <see cref="IReadableBitmapData"/>.</para>
         /// </remarks>
@@ -181,7 +181,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>The raw value within the current <see cref="IReadableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.</returns>
         /// <remarks>
         /// <para>This method returns the actual raw underlying data as arbitrary unmanaged value type (a value type is unmanaged if contains no managed references).
-        /// <typeparamref name="T"/> can have any size so you using this method can access multiple pixels or individual color channels.</para>
+        /// <typeparamref name="T"/> can have any size so this method can access multiple pixels or individual color channels.</para>
         /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
         /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
         /// </remarks>

@@ -247,41 +247,47 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+        
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
-      
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
+        public override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
-      
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
+        public override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
-      
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
+        public override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
-      
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
+        public override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
-      
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
+        public override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
-      
+        public override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
+        public override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
+
+        #endregion
+
+        #region Protected Methods
 
         protected override void Dispose(bool disposing)
         {
@@ -301,6 +307,8 @@ namespace KGySoft.Drawing.Imaging
             rowSetPColorF = null!;
             base.Dispose(disposing);
         }
+
+        #endregion
 
         #endregion
     }

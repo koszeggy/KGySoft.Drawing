@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -378,6 +379,58 @@ namespace KGySoft.Drawing.Imaging
             DoSetPColorF(x, y, color);
         }
 
+        [SecuritySafeCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public unsafe T ReadRaw<T>(int x, int y)
+            where T : unmanaged
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((x + 1) * sizeof(T) > RowSize)
+                ThrowXOutOfRange();
+            return DoReadRaw<T>(x, y);
+        }
+
+        [SecuritySafeCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public unsafe void WriteRaw<T>(int x, int y, T data)
+            where T : unmanaged
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((x + 1) * sizeof(T) > RowSize)
+                ThrowXOutOfRange();
+            DoWriteRaw(x, y, data);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public int GetColorIndex(int x, int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetColorIndex(x, y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public virtual void SetColorIndex(int x, int y, int colorIndex)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint) y >= Height)
+                ThrowYOutOfRange();
+            if ((uint) x >= Width)
+                ThrowXOutOfRange();
+            DoSetColorIndex(x, y, colorIndex);
+        }
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public IBitmapDataRowInternal GetRowUncached(int y) => DoGetRow(y);
 
@@ -401,6 +454,23 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
+        public abstract Color32 DoGetColor32(int x, int y);
+        public abstract void DoSetColor32(int x, int y, Color32 c);
+        public virtual PColor32 DoGetPColor32(int x, int y) => DoGetColor32(x, y).ToPColor32();
+        public virtual void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor32(x, y, c.ToColor32());
+        public virtual Color64 DoGetColor64(int x, int y) => DoGetColor32(x, y).ToColor64();
+        public virtual void DoSetColor64(int x, int y, Color64 c) => DoSetColor32(x, y, c.ToColor32());
+        public virtual PColor64 DoGetPColor64(int x, int y) => DoGetColor32(x, y).ToPColor64();
+        public virtual void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor32(x, y, c.ToColor32());
+        public virtual ColorF DoGetColorF(int x, int y) => DoGetColor32(x, y).ToColorF();
+        public virtual void DoSetColorF(int x, int y, ColorF c) => DoSetColor32(x, y, c.ToColor32());
+        public virtual PColorF DoGetPColorF(int x, int y) => DoGetColor32(x, y).ToPColorF();
+        public virtual void DoSetPColorF(int x, int y, PColorF c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public abstract T DoReadRaw<T>(int x, int y) where T : unmanaged;
+        [SecurityCritical]public abstract void DoWriteRaw<T>(int x, int y, T data) where T : unmanaged;
+        public virtual int DoGetColorIndex(int x, int y) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        public virtual void DoSetColorIndex(int x, int y, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+
         public void Dispose()
         {
             Dispose(true);
@@ -412,18 +482,6 @@ namespace KGySoft.Drawing.Imaging
         #region Protected Methods
 
         protected abstract IBitmapDataRowInternal DoGetRow(int y);
-        protected abstract Color32 DoGetColor32(int x, int y);
-        protected abstract void DoSetColor32(int x, int y, Color32 c);
-        protected virtual PColor32 DoGetPColor32(int x, int y) => DoGetColor32(x, y).ToPColor32();
-        protected virtual void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor32(x, y, c.ToColor32());
-        protected virtual Color64 DoGetColor64(int x, int y) => DoGetColor32(x, y).ToColor64();
-        protected virtual void DoSetColor64(int x, int y, Color64 c) => DoSetColor32(x, y, c.ToColor32());
-        protected virtual PColor64 DoGetPColor64(int x, int y) => DoGetColor32(x, y).ToPColor64();
-        protected virtual void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor32(x, y, c.ToColor32());
-        protected virtual ColorF DoGetColorF(int x, int y) => DoGetColor32(x, y).ToColorF();
-        protected virtual void DoSetColorF(int x, int y, ColorF c) => DoSetColor32(x, y, c.ToColor32());
-        protected virtual PColorF DoGetPColorF(int x, int y) => DoGetColor32(x, y).ToPColorF();
-        protected virtual void DoSetPColorF(int x, int y, PColorF c) => DoSetColor32(x, y, c.ToColor32());
 
         protected virtual void Dispose(bool disposing)
         {

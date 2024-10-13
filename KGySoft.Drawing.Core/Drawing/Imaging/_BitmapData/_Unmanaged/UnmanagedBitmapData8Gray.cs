@@ -68,22 +68,22 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Gray8>(y, x)->ToColor32();
+        public override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<Gray8>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<Gray8>(y, x) = LinearWorkingColorSpace
+        public override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<Gray8>(y, x) = LinearWorkingColorSpace
             ? new Gray8(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
             : new Gray8(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BackColor));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Gray8>(y, x) = LinearWorkingColorSpace
+        public override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<Gray8>(y, x) = LinearWorkingColorSpace
             ? new Gray8(c.A >= 1f ? c : c.BlendWithBackgroundLinear(BackColor.ToColorF()))
             : new Gray8(c.A >= 1f ? c.ToColor32() : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
+        public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

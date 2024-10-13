@@ -241,6 +241,66 @@ namespace KGySoft.Drawing.Imaging
         void SetPColorF(int x, int y, PColorF color);
 
         /// <summary>
+        /// If this <see cref="IWritableBitmapData"/> has an indexed pixel format, then sets the color index of the pixel in the current row at the specified pixel.
+        /// </summary>
+        /// <param name="x">The x-coordinate of the color index to set.</param>
+        /// <param name="y">The y-coordinate of the color index to set.</param>
+        /// <param name="colorIndex">A palette index that represents the color to be set.</param>
+        /// <remarks>
+        /// <para>This method can be used only if <see cref="PixelFormatInfo.Indexed"/> is set in the <see cref="IBitmapData.PixelFormat"/> of this <see cref="IWritableBitmapData"/>.
+        /// Otherwise, this method throws an <see cref="InvalidOperationException"/>.</para>
+        /// <para>To set the actual color of the pixel at the specified coordinates you can use the <c>SetColor...</c>/<c>SetPColor...</c> methods.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <exception cref="InvalidOperationException">This <see cref="IWritableBitmapData"/> does not have an indexed pixel format.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="IWritableBitmapDataRow.SetColorIndex"/>
+        void SetColorIndex(int x, int y, int colorIndex);
+
+        /// <summary>
+        /// Sets the underlying raw value within the current <see cref="IWritableBitmapData"/> at the specified coordinates.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to write. Must be a value type without managed references.</typeparam>
+        /// <param name="x">The x-coordinate of the value to write. The valid range depends on the size of <typeparamref name="T"/>.</param>
+        /// <param name="y">The y-coordinate of the value to write.</param>
+        /// <param name="data">The raw value to write.</param>
+        /// <remarks>
+        /// <para>This method writes the actual raw underlying data. <typeparamref name="T"/> can have any size so you by using this method you can write multiple pixels as well as individual color channels.</para>
+        /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of this <see cref="IWritableBitmapData"/> instance.</para>
+        /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of this <see cref="IWritableBitmapData"/> instance.</para>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates how to write multiple pixels by a single <see cref="WriteRaw{T}">WriteRaw</see> call:
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
+        /// <code lang="C#"><![CDATA[
+        /// using (Bitmap bmp4bppIndexed = new Bitmap(8, 1, PixelFormat.Format4bppIndexed))
+        /// using (IReadWriteBitmapData bitmapData = bmp4bppIndexed.GetReadWriteBitmapData())
+        /// {
+        ///     // Writing as uint writes 8 pixels at once in case of a 4 BPP indexed bitmap:
+        ///     bitmapData.WriteRaw<uint>(0, 0, 0x12345678);
+        ///
+        ///     // because of little endianness and 4 BPP pixel order the color indices will be printed
+        ///     // in the following order: 7, 8, 5, 6, 3, 4, 1, 2
+        ///     for (int x = 0; x < bitmapData.Width; x++)
+        ///         Console.WriteLine(bitmapData.GetColorIndex(x, 0));
+        /// }]]></code>
+        /// <note type="tip">See also the example at the <strong>Examples</strong> section of the <see cref="IReadableBitmapData.ReadRaw{T}">IReadableBitmapData.ReadRaw</see> method.</note>
+        /// </example>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or the calculated offset of the value (considering the size of <typeparamref name="T"/>)
+        /// at least partially exceeds the bounds of a row.
+        /// <br/>-or-
+        /// <br/><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
+        /// <seealso cref="FirstRow"/>
+        /// <seealso cref="this"/>
+        /// <seealso cref="SetColorIndex"/>
+        /// <seealso cref="IWritableBitmapDataRow.WriteRaw{T}"/>
+        /// <seealso cref="IReadableBitmapData.ReadRaw{T}"/>
+        void WriteRaw<T>(int x, int y, T data) where T : unmanaged;
+
+        /// <summary>
         /// Gets an <see cref="IWritableBitmapDataRowMovable"/> instance representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IWritableBitmapData"/>.
         /// Unlike the <see cref="this">indexer</see>, this method always allocates a new instance.
         /// </summary>

@@ -79,34 +79,34 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => GetPixelRef<PColorF>(y, x).ToColor32();
+        public override Color32 DoGetColor32(int x, int y) => GetPixelRef<PColorF>(y, x).ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
+        public override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color64 DoGetColor64(int x, int y) => GetPixelRef<PColorF>(y, x).ToColor64();
+        public override Color64 DoGetColor64(int x, int y) => GetPixelRef<PColorF>(y, x).ToColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor64(int x, int y, Color64 c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
+        public override void DoSetColor64(int x, int y, Color64 c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColor64 DoGetPColor64(int x, int y) => GetPixelRef<PColorF>(y, x).ToPColor64();
+        public override PColor64 DoGetPColor64(int x, int y) => GetPixelRef<PColorF>(y, x).ToPColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColor64(int x, int y, PColor64 c) => GetPixelRef<PColorF>(y, x) = c.ToPColorF();
+        public override void DoSetPColor64(int x, int y, PColor64 c) => GetPixelRef<PColorF>(y, x) = c.ToPColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override ColorF DoGetColorF(int x, int y) => GetPixelRef<PColorF>(y, x).ToColorF();
+        public override ColorF DoGetColorF(int x, int y) => GetPixelRef<PColorF>(y, x).ToColorF();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
+        public override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<PColorF>(y, x) = new PColorF(c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override PColorF DoGetPColorF(int x, int y) => GetPixelRef<PColorF>(y, x);
+        public override PColorF DoGetPColorF(int x, int y) => GetPixelRef<PColorF>(y, x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => GetPixelRef<PColorF>(y, x) = c;
+        public override void DoSetPColorF(int x, int y, PColorF c) => GetPixelRef<PColorF>(y, x) = c;
 
         #endregion
     }

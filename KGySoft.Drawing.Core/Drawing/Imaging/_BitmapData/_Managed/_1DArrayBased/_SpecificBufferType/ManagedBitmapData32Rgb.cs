@@ -69,19 +69,19 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToOpaque();
+        public override Color32 DoGetColor32(int x, int y) => Buffer[y, x].ToOpaque();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColor32(int x, int y, Color32 c)
+        public override void DoSetColor32(int x, int y, Color32 c)
             => Buffer[y, x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetColorF(int x, int y, ColorF c) => Buffer[y, x] = c.A >= 1f ? c.ToColor32()
+        public override void DoSetColorF(int x, int y, ColorF c) => Buffer[y, x] = c.A >= 1f ? c.ToColor32()
             : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
             : c.ToColor32().BlendWithBackgroundSrgb(BackColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
+        public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 
         #endregion
     }

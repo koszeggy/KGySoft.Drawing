@@ -71,6 +71,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override TResult DoReadRaw<TResult>(int x, int y) => GetPixelRef<TResult>(y, x);
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override void DoWriteRaw<TValue>(int x, int y, TValue data) => GetPixelRef<TValue>(y, x) = data;
+
+        #endregion
+
         #region Internal Methods
 
 #if NETCOREAPP3_0_OR_GREATER

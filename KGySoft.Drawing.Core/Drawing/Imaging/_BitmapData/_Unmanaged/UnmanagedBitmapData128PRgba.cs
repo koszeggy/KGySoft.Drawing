@@ -89,43 +89,43 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColor32();
+        public override unsafe Color32 DoGetColor32(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
+        public override unsafe void DoSetColor32(int x, int y, Color32 c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color64 DoGetColor64(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColor64();
+        public override unsafe Color64 DoGetColor64(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColor64();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
+        public override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe PColor64 DoGetPColor64(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToPColor64();
+        public override unsafe PColor64 DoGetPColor64(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToPColor64();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPColor64(int x, int y, PColor64 c) => *GetPixelAddress<PColorF>(y, x) = c.ToPColorF();
+        public override unsafe void DoSetPColor64(int x, int y, PColor64 c) => *GetPixelAddress<PColorF>(y, x) = c.ToPColorF();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColorF();
+        public override unsafe ColorF DoGetColorF(int x, int y) => GetPixelAddress<PColorF>(y, x)->ToColorF();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
+        public override unsafe void DoSetColorF(int x, int y, ColorF c) => *GetPixelAddress<PColorF>(y, x) = new PColorF(c);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe PColorF DoGetPColorF(int x, int y) => *GetPixelAddress<PColorF>(y, x);
+        public override unsafe PColorF DoGetPColorF(int x, int y) => *GetPixelAddress<PColorF>(y, x);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPColorF(int x, int y, PColorF c) => *GetPixelAddress<PColorF>(y, x) = c;
+        public override unsafe void DoSetPColorF(int x, int y, PColorF c) => *GetPixelAddress<PColorF>(y, x) = c;
 
         #endregion
     }

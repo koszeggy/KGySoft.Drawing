@@ -17,6 +17,7 @@
 
 using System;
 using System.Drawing;
+using System.Security;
 
 #endregion
 
@@ -85,8 +86,8 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColorF(int x, ColorF c) => WrappedRow.DoSetColorF(x + Parent.X, c);
             public override PColorF DoGetPColorF(int x) => WrappedRow.DoGetPColorF(x + Parent.X);
             public override void DoSetPColorF(int x, PColorF c) => WrappedRow.DoSetPColorF(x + Parent.X, c);
-            public override T DoReadRaw<T>(int x) => WrappedRow.DoReadRaw<T>(x);
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.DoWriteRaw(x, data);
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => WrappedRow.DoReadRaw<T>(x);
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => WrappedRow.DoWriteRaw(x, data);
             public override int DoGetColorIndex(int x) => WrappedRow.DoGetColorIndex(x + Parent.X);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.DoSetColorIndex(x + Parent.X, colorIndex);
 
@@ -122,8 +123,8 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColorF(int x, ColorF c) => WrappedRow.SetColorF(x + Parent.X, c);
             public override PColorF DoGetPColorF(int x) => WrappedRow.GetPColorF(x + Parent.X);
             public override void DoSetPColorF(int x, PColorF c) => WrappedRow.SetPColorF(x + Parent.X, c);
-            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
             public override int DoGetColorIndex(int x) => WrappedRow.GetColorIndex(x + Parent.X);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.SetColorIndex(x + Parent.X, colorIndex);
 
@@ -153,10 +154,10 @@ namespace KGySoft.Drawing.Imaging
             public override PColor64 DoGetPColor64(int x) => WrappedRow.GetPColor64(x + Parent.X);
             public override ColorF DoGetColorF(int x) => WrappedRow.GetColorF(x + Parent.X);
             public override PColorF DoGetPColorF(int x) => WrappedRow.GetPColorF(x + Parent.X);
-            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
             public override int DoGetColorIndex(int x) => WrappedRow.GetColorIndex(x + Parent.X);
             public override void DoSetColor32(int x, Color32 c) => throw new InvalidOperationException();
-            public override void DoWriteRaw<T>(int x, T data) => throw new InvalidOperationException();
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => throw new InvalidOperationException();
             public override void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException();
 
             #endregion
@@ -185,11 +186,11 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetPColor64(int x, PColor64 c) => WrappedRow.SetPColor64(x + Parent.X, c);
             public override void DoSetColorF(int x, ColorF c) => WrappedRow.SetColorF(x + Parent.X, c);
             public override void DoSetPColorF(int x, PColorF c) => WrappedRow.SetPColorF(x + Parent.X, c);
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.SetColorIndex(x + Parent.X, colorIndex);
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
             public override Color32 DoGetColor32(int x) => throw new InvalidOperationException();
-            public override T DoReadRaw<T>(int x) => throw new InvalidOperationException();
             public override int DoGetColorIndex(int x) => throw new InvalidOperationException();
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => throw new InvalidOperationException();
 
             #endregion
         }
@@ -282,20 +283,29 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
+        public override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
+        public override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
+        public override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
+        public override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
+        public override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
+        public override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
+        public override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
+        public override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
+        public override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
+        public override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
+        public override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
+        [SecurityCritical]public override T DoReadRaw<T>(int x, int y) => GetRowCached(y).DoReadRaw<T>(x);
+        [SecurityCritical]public override void DoWriteRaw<T>(int x, int y, T data) => GetRowCached(y).DoWriteRaw(x, data);
+        public override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
+        public override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
+
+        #endregion
+
         #region Protected Methods
 
-        protected override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
-        protected override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
-        protected override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
-        protected override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
-        protected override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
-        protected override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
-        protected override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
-        protected override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
-        protected override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
-        protected override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
-        protected override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
-        protected override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
         protected override IBitmapDataRowInternal DoGetRow(int y) => createRowFactory.Invoke(y);
 
         protected override void Dispose(bool disposing)

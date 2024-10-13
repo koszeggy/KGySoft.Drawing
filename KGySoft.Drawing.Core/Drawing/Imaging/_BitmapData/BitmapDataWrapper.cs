@@ -15,9 +15,9 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -115,8 +115,8 @@ namespace KGySoft.Drawing.Imaging
             public void DoSetPColorF(int x, PColorF c) => writableBitmapDataRow.SetPColorF(x, c);
             public int DoGetColorIndex(int x) => readableBitmapDataRow.GetColorIndex(x);
             public void DoSetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
-            public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
-            public void DoWriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
+            [SecurityCritical]public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
+            [SecurityCritical]public void DoWriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
 
             #endregion
         }
@@ -219,6 +219,28 @@ namespace KGySoft.Drawing.Imaging
         public void SetColorF(int x, int y, ColorF color) => AsWritable.SetColorF(x, y, color);
         public PColorF GetPColorF(int x, int y) => AsReadable.GetPColorF(x, y);
         public void SetPColorF(int x, int y, PColorF color) => AsWritable.SetPColorF(x, y, color);
+        public T ReadRaw<T>(int x, int y) where T : unmanaged => AsReadable.ReadRaw<T>(x, y);
+        public void WriteRaw<T>(int x, int y, T data) where T : unmanaged => AsWritable.WriteRaw(x, y, data);
+        public int GetColorIndex(int x, int y) => AsReadable.GetColorIndex(x, y);
+        public void SetColorIndex(int x, int y, int colorIndex) => AsWritable.SetColorIndex(x, y, colorIndex);
+
+        public Color32 DoGetColor32(int x, int y) => AsReadable.GetColor32(x, y);
+        public void DoSetColor32(int x, int y, Color32 color) => AsWritable.SetColor32(x, y, color);
+        public PColor32 DoGetPColor32(int x, int y) => AsReadable.GetPColor32(x, y);
+        public void DoSetPColor32(int x, int y, PColor32 color) => AsWritable.SetPColor32(x, y, color);
+        public Color64 DoGetColor64(int x, int y) => AsReadable.GetColor64(x, y);
+        public void DoSetColor64(int x, int y, Color64 color) => AsWritable.SetColor64(x, y, color);
+        public PColor64 DoGetPColor64(int x, int y) => AsReadable.GetPColor64(x, y);
+        public void DoSetPColor64(int x, int y, PColor64 color) => AsWritable.SetPColor64(x, y, color);
+        public ColorF DoGetColorF(int x, int y) => AsReadable.GetColorF(x, y);
+        public void DoSetColorF(int x, int y, ColorF color) => AsWritable.SetColorF(x, y, color);
+        public PColorF DoGetPColorF(int x, int y) => AsReadable.GetPColorF(x, y);
+        public void DoSetPColorF(int x, int y, PColorF color) => AsWritable.SetPColorF(x, y, color);
+        [SecurityCritical]public T DoReadRaw<T>(int x, int y) where T : unmanaged => AsReadable.ReadRaw<T>(x, y);
+        [SecurityCritical]public void DoWriteRaw<T>(int x, int y, T data) where T : unmanaged => AsWritable.WriteRaw(x, y, data);
+        public int DoGetColorIndex(int x, int y) => AsReadable.GetColorIndex(x, y);
+        public void DoSetColorIndex(int x, int y, int colorIndex) => AsWritable.SetColorIndex(x, y, colorIndex);
+
         public bool TrySetPalette(Palette? palette) => false;
         public IBitmapDataRowInternal GetRowUncached(int y) => DoGetRow(y);
 
