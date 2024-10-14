@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: PointFExtensions.cs
+//  File: PointExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -31,7 +31,8 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Shapes
 {
-    internal static class PointFExtensions
+    // Actually for Point/PointF
+    internal static class PointExtensions
     {
         #region Methods
 
@@ -59,6 +60,14 @@ namespace KGySoft.Drawing.Shapes
             return Vector2.Transform(point.AsVector2(), matrix.Matrix).AsPointF();
 #endif
         }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Size AsSize(this Point point) => Unsafe.As<Point, Size>(ref point);
+#else
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Size AsSize(this Point point) => new Size(point);
+#endif
 
         #endregion
     }

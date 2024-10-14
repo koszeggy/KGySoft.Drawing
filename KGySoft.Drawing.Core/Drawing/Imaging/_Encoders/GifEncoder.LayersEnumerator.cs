@@ -423,7 +423,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 layerRegion = GetContentArea(layer);
-                if (layerRegion.IsEmpty)
+                if (layerRegion.IsEmpty())
                 {
                     layer.Dispose();
                     Layer = null;

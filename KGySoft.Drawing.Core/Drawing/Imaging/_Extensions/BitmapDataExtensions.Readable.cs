@@ -3553,7 +3553,7 @@ namespace KGySoft.Drawing.Imaging
             var sourceBounds = new Rectangle(default, source.Size);
             Unwrap(ref source, ref sourceRectangle);
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+            if (session.SourceRectangle.IsEmpty() || session.TargetRectangle.IsEmpty())
                 throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
 
             if (palette == null)
@@ -3614,7 +3614,7 @@ namespace KGySoft.Drawing.Imaging
             var sourceBounds = new Rectangle(default, source.Size);
             Unwrap(ref source, ref sourceRectangle);
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+            if (session.SourceRectangle.IsEmpty() || session.TargetRectangle.IsEmpty())
                 throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
 
             // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
@@ -3681,7 +3681,7 @@ namespace KGySoft.Drawing.Imaging
             Unwrap(ref target, ref targetBounds);
 
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+            if (session.SourceRectangle.IsEmpty() || session.TargetRectangle.IsEmpty())
                 return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
@@ -3809,7 +3809,7 @@ namespace KGySoft.Drawing.Imaging
             Unwrap(ref target, ref targetBounds);
 
             (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
-            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
+            if (actualSourceRectangle.IsEmpty() || actualTargetRectangle.IsEmpty())
                 return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
@@ -3903,7 +3903,7 @@ namespace KGySoft.Drawing.Imaging
             Unwrap(ref target, ref targetBounds);
 
             (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetRectangle);
-            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
+            if (actualSourceRectangle.IsEmpty() || actualTargetRectangle.IsEmpty())
                 return !context.IsCancellationRequested;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
@@ -4018,12 +4018,12 @@ namespace KGySoft.Drawing.Imaging
         {
             sourceRectangle.Offset(sourceBounds.Location);
             Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
-            if (actualSourceRectangle.IsEmpty)
+            if (actualSourceRectangle.IsEmpty())
                 return default;
             targetLocation.Offset(targetBounds.Location);
             Rectangle targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
             Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
-            if (actualTargetRectangle.IsEmpty)
+            if (actualTargetRectangle.IsEmpty())
                 return default;
 
             // adjusting source by clipped target
@@ -4049,11 +4049,11 @@ namespace KGySoft.Drawing.Imaging
         {
             sourceRectangle.Offset(sourceBounds.Location);
             Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
-            if (actualSourceRectangle.IsEmpty)
+            if (actualSourceRectangle.IsEmpty())
                 return default;
             targetRectangle.Offset(targetBounds.Location);
             Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
-            if (actualTargetRectangle.IsEmpty)
+            if (actualTargetRectangle.IsEmpty())
                 return default;
 
             float widthRatio = (float)sourceRectangle.Width / targetRectangle.Width;

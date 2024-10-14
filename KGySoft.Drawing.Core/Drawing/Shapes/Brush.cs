@@ -61,7 +61,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Properties
             
-            internal virtual bool IsSingleThreaded => false;
             internal IAsyncContext Context { get; }
             internal DrawingOptions DrawingOptions { get; }
             internal Rectangle VisibleBounds { get; }
@@ -136,6 +135,12 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract class FillPathSession : PathSessionBase
         {
+            #region Properties
+
+            internal virtual bool IsSingleThreaded => false;
+
+            #endregion
+
             #region Constructors
 
             protected FillPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, DrawingOptions options, Rectangle bounds, Region? region)
@@ -450,17 +455,6 @@ namespace KGySoft.Drawing.Shapes
                     float nextY = CurrentY + pixelOffset;
                     if (currentYf < nextY)
                         SkipEdgesAbove(nextY, false);
-
-                    // TODO: remove
-                    //while (currentYf < nextY)
-                    //{
-                    //    currentYf += roundingUnit;
-                    //    if (currentYf >= nextY)
-                    //        break;
-
-                    //    VisitEdges();
-                    //    activeEdges.RemoveLeavingEdges();
-                    //}
 
                     currentYf = nextY;
                     VisitEdges();
@@ -1588,6 +1582,12 @@ namespace KGySoft.Drawing.Shapes
 
         private protected abstract class DrawThinPathSession : PathSessionBase
         {
+            #region Constants
+
+            private const float roundingUnit = 1f / 32f;
+
+            #endregion
+
             #region Properties
 
             protected RawPath Path { get; }
@@ -1608,7 +1608,19 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal abstract void DrawLine(PointF p1, PointF p2);
+            internal abstract void DrawLine(PointF start, PointF end);
+
+            #endregion
+
+            #region Protected Methods
+
+            protected (Point P1, Point P2) Round(PointF p1, PointF p2)
+            {
+                var _ = DrawingOptions; // TODO: remove. Only here to avoid make static error
+                float offset = 0f; // DrawingOptions.DrawPixelOffset == ... // TODO: add DrawPixelOffset to options, check if +2 is needed in Region..ctor when offset is Half
+                return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
+                    (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
+            }
 
             #endregion
 
@@ -1634,61 +1646,55 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal override void DrawLine(PointF p1, PointF p2)
+            internal override void DrawLine(PointF start, PointF end)
             {
-                const float roundingUnit = 1f / 32f;
-
-                Rectangle generateBounds = Path.Bounds;
-                int offsetX = generateBounds.Left;
-                int offsetY = generateBounds.Top;
+                Debug.Assert(!Region!.IsAntiAliased);
                 Array2D<byte> mask = Region!.Mask;
-
-                Debug.Assert(!Region.IsAntiAliased);
-
-                float offset = 0f; //DrawingOptions.DrawPixelOffset == ... // TODO: add DrawPixelOffset to options, check if +2 is needed in Region..ctor when offset is Half
-                int x1 = (int)(p1.X.RoundTo(roundingUnit) + offset) - offsetX;
-                int y1 = (int)(p1.Y.RoundTo(roundingUnit) + offset) - offsetY;
-                int x2 = (int)(p2.X.RoundTo(roundingUnit) + offset) - offsetX;
-                int y2 = (int)(p2.Y.RoundTo(roundingUnit) + offset) - offsetY;
+                (Point p1, Point p2) = Round(start, end);
+                Size offset = Path.Bounds.Location.AsSize();
+                p1 -= offset;
+                p2 -= offset;
 
                 // horizontal line (or a single point)
-                if (y1 == y2)
+                if (p1.Y == p2.Y)
                 {
-                    ArraySection<byte> row = mask[y1];
-                    if (x1 > x2)
-                        (x1, x2) = (x2, x1);
-                    for (int x = x1; x <= x2; x++)
+                    ArraySection<byte> row = mask[p1.Y];
+                    if (p1.X > p2.X)
+                        (p1.X, p2.X) = (p2.X, p1.X);
+
+                    // TODO: optimize if possible
+                    for (int x = p1.X; x <= p2.X; x++)
                         ColorExtensions.Set1bppColorIndex(ref row.GetElementReferenceUnchecked(x >> 3), x, 1);
 
                     return;
                 }
 
                 // vertical line
-                if (x1 == x2)
+                if (p1.X == p2.X)
                 {
-                    int maskPos = x1 >> 3;
-                    if (y1 > y2)
-                        (y1, y2) = (y2, y1);
+                    int maskPos = p1.X >> 3;
+                    if (p1.Y > p2.Y)
+                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
-                    for (int y = y1; y <= y2; y++)
-                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), x1, 1);
+                    for (int y = p1.Y; y <= p2.Y; y++)
+                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), p1.X, 1);
                     return;
                 }
 
                 // general line
-                int width = (x2 - x1).Abs();
-                int height = (y2 - y1).Abs();
+                int width = (p2.X - p1.X).Abs();
+                int height = (p2.Y - p1.Y).Abs();
                 int numerator;
                 int step;
 
                 if (width > height)
                 {
                     numerator = width >> 1;
-                    if (x1 > x2)
-                        (x1, y1, x2, y2) = (x2, y2, x1, y1);
-                    step = y2 > y1 ? 1 : -1;
-                    int y = y1;
-                    for (int x = x1; x <= x2; x++)
+                    if (p1.X > p2.X)
+                        (p1, p2) = (p2, p1);
+                    step = p2.Y > p1.Y ? 1 : -1;
+                    int y = p1.Y;
+                    for (int x = p1.X; x <= p2.X; x++)
                     {
                         Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
                         ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
@@ -1703,11 +1709,11 @@ namespace KGySoft.Drawing.Shapes
                 else
                 {
                     numerator = height >> 1;
-                    if (y1 > y2)
-                        (x1, y1, x2, y2) = (x2, y2, x1, y1);
-                    step = x2 > x1 ? 1 : -1;
-                    int x = x1;
-                    for (int y = y1; y <= y2; y++)
+                    if (p1.Y > p2.Y)
+                        (p1, p2) = (p2, p1);
+                    step = p2.X > p1.X ? 1 : -1;
+                    int x = p1.X;
+                    for (int y = p1.Y; y <= p2.Y; y++)
                     {
                         Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
                         ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
@@ -2232,7 +2238,7 @@ namespace KGySoft.Drawing.Shapes
             Rectangle pathBounds = rawPath.Bounds;
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
-            if (visibleBounds.IsEmpty || context.IsCancellationRequested)
+            if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
                 return;
 
             Region? region = null;
@@ -2317,8 +2323,9 @@ namespace KGySoft.Drawing.Shapes
 
                 // Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
                 // we don't check the length or the orientation of the lines.
-                if (rawPath.TotalVertices < (Math.Min(bitmapData.Width, bitmapData.Height) >> 1))
-                    return false;
+                // TODO: measure
+                //if (rawPath.TotalVertices < (Math.Min(bitmapData.Width, bitmapData.Height) >> 1))
+                //    return false;
 
                 // Returning true if the path is expected to be re-used.
                 return cache;
@@ -2331,11 +2338,11 @@ namespace KGySoft.Drawing.Shapes
             Rectangle pathBounds = rawPath.DrawOutlineBounds;
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
-            if (visibleBounds.IsEmpty || context.IsCancellationRequested)
+            if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
                 return;
 
             Region? region = null;
-            if (NeedsRegion()) // TODO: even if caching is true, do not do it if the non-caching operation seems cheaper (eg. solid non-alpha brush)
+            if (NeedsRegion())
             {
                 region = rawPath.GetCreateCachedRegion(drawingOptions, true);
 
@@ -2350,33 +2357,20 @@ namespace KGySoft.Drawing.Shapes
             try
             {
                 using DrawThinPathSession session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
-
-                // TODO: parallelize if possible - maybe not: the mask setting or concurrent low-bpp indexed SetPixel is not thread safe (not a problem for scanning where threads work on different rows)
-                //if (session.IsSingleThreaded)
+                context.Progress?.New(DrawingOperation.ProcessingPixels, rawPath.TotalVertices);
+                foreach (RawFigure figure in rawPath.Figures)
                 {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, rawPath.TotalVertices);
-                    foreach (RawFigure figure in rawPath.Figures)
+                    IList<PointF> points = figure.IsClosed ? figure.ClosedVertices : figure.OpenVertices;
+                    int len = points.Count;
+                    for (int i = 1; i < len; i++)
                     {
-                        IList<PointF> points = figure.IsClosed ? figure.ClosedVertices : figure.OpenVertices;
-                        int len = points.Count;
-                        for (int i = 1; i < len; i++)
-                        {
-                            if (context.IsCancellationRequested)
-                                return;
+                        if (context.IsCancellationRequested)
+                            return;
 
-                            session.DrawLine(points[i - 1], points[i]);
-                            context.Progress?.Increment();
-                        }
+                        session.DrawLine(points[i - 1], points[i]);
+                        context.Progress?.Increment();
                     }
                 }
-                //else // TODO
-                //{
-                //    if (!ParallelHelper.For(context, DrawingOperation.ProcessingPixels, generateBounds.Top, generateBounds.Bottom,
-                //        y => scanner.ProcessScanline(y)))
-                //    {
-                //        return;
-                //    }
-                //}
 
                 region?.SetCompleted();
                 session.FinalizeSession();

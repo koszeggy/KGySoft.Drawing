@@ -245,7 +245,7 @@ namespace KGySoft.Drawing.Imaging
                 clippingRegion.Intersect(new Rectangle(Point.Empty, source.Size));
             }
 
-            if (clippingRegion.IsEmpty)
+            if (clippingRegion.IsEmpty())
                 throw new ArgumentOutOfRangeException(nameof(clippingRegion), PublicResources.ArgumentOutOfRange);
 
             createRowFactory = BitmapData switch

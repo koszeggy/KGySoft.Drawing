@@ -796,7 +796,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // fully transparent image: returning 1x1 at the center
-                if (contentArea.IsEmpty)
+                if (contentArea.IsEmpty())
                     contentArea = new Rectangle(logicalScreenSize.Width >> 1, logicalScreenSize.Height >> 1, 1, 1);
 
                 if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
@@ -914,7 +914,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Unchanged image: returning 1x1 pixel of the previous frame in the middle
                 // (from the previous because it can be "unchanged" even just because of a nonzero tolerance)
-                if (contentArea.IsEmpty)
+                if (contentArea.IsEmpty())
                 {
                     contentArea = new Rectangle(logicalScreenSize.Width >> 1, logicalScreenSize.Height >> 1, 1, 1);
                     quantizedFrame = deltaBuffer.BitmapData!.DoClone(asyncContext, contentArea, KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
