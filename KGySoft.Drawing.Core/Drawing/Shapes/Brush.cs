@@ -2302,7 +2302,7 @@ namespace KGySoft.Drawing.Shapes
 
             bool NeedsRegion()
             {
-                // If there can be blending, then we must use a region to prevent issues at crossing lines.
+                // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
                 Debug.Assert(!drawingOptions.AntiAliasing);
                 if (drawingOptions.AlphaBlending && HasAlpha)
                     return true;
@@ -2323,11 +2323,10 @@ namespace KGySoft.Drawing.Shapes
 
                 // Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
                 // we don't check the length or the orientation of the lines.
-                // TODO: measure
-                //if (rawPath.TotalVertices < (Math.Min(bitmapData.Width, bitmapData.Height) >> 1))
-                //    return false;
+                if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
+                    return false;
 
-                // Returning true if the path is expected to be re-used.
+                // Returning true only if the path is expected to be re-used.
                 return cache;
             }
 

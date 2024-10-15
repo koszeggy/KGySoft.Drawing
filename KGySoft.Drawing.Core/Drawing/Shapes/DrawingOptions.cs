@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Shapes
         #region Fields
 
         #region Static Fields
-        
+
         internal static readonly DrawingOptions Default = new DrawingOptions();
         internal static readonly DrawingOptions DefaultNonZero = new DrawingOptions { FillMode = ShapeFillMode.NonZero };
 
