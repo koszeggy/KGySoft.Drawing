@@ -129,14 +129,93 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
+        private static void WidenPoint(RawFigure figure, in PenOptions penOptions, RawPath widePath)
+        {
+            var point = figure.OpenVertices[0];
+
+            // Shortcut for thin pens: always returning a 1x1 pixel rectangle (PenOptions is always Flat here so the result would be the same on the slow path)
+            if (penOptions.Width <= 1f)
+            {
+                widePath.AddRawFigure(new[]
+                {
+                    new PointF(point.X - 0.5f, point.Y - 0.5f),
+                    new PointF(point.X + 0.5f, point.Y - 0.5f),
+                    new PointF(point.X + 0.5f, point.Y + 0.5f),
+                    new PointF(point.X - 0.5f, point.Y + 0.5f)
+                }, true);
+                return;
+            }
+
+            float distance = penOptions.Width / 2f;
+
+            // Round start/end cap: regular circle
+            if (penOptions is { StartCap: LineCapStyle.Round, EndCap: LineCapStyle.Round })
+            {
+                widePath.AddRawFigure(Path.BezierSegment.FromEllipse(point, distance, distance).GetPoints(), true);
+                return;
+            }
+
+            // A point has no direction so arbitrarily using a horizontal orientation when widening a single point.
+            // Unlike in WidenOpenFigure we don't split the start cap into two sessions here. Also meaning, we start from bottom-left.
+            var points = new List<PointF>(4);
+
+            switch (penOptions.StartCap)
+            {
+                case LineCapStyle.Flat:
+                    points.Add(new PointF(point.X - 0.5f, point.Y + distance));
+                    points.Add(new PointF(point.X - 0.5f, point.Y - distance));
+                    break;
+                case LineCapStyle.Square:
+                    points.Add(new PointF(point.X - distance, point.Y + distance));
+                    points.Add(new PointF(point.X - distance, point.Y - distance));
+                    break;
+                case LineCapStyle.Triangle:
+                    points.Add(new PointF(point.X, point.Y + distance));
+                    points.Add(new PointF(point.X - distance, point.Y));
+                    points.Add(new PointF(point.X, point.Y - distance));
+                    break;
+                case LineCapStyle.Round:
+                    points.AddRange(Path.BezierSegment.FromArc(point, distance, distance, MathF.PI / 2f, MathF.PI).GetPoints());
+                    break;
+                default:
+                    throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.StartCap}"));
+            }
+
+            switch (penOptions.EndCap)
+            {
+                case LineCapStyle.Flat:
+                    points.Add(new PointF(point.X + 0.5f, point.Y - distance));
+                    points.Add(new PointF(point.X + 0.5f, point.Y + distance));
+                    break;
+                case LineCapStyle.Square:
+                    points.Add(new PointF(point.X + distance, point.Y - distance));
+                    points.Add(new PointF(point.X + distance, point.Y + distance));
+                    break;
+                case LineCapStyle.Triangle:
+                    points.Add(new PointF(point.X, point.Y - distance));
+                    points.Add(new PointF(point.X + distance, point.Y));
+                    points.Add(new PointF(point.X, point.Y + distance));
+                    break;
+                case LineCapStyle.Round:
+                    points.AddRange(Path.BezierSegment.FromArc(point, distance, distance, -MathF.PI / 2f, MathF.PI).GetPoints());
+                    break;
+                default:
+                    throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.EndCap}"));
+
+            }
+
+            widePath.AddRawFigure(points, true);
+        }
+
         private static void WidenClosedFigure(RawFigure figure, in PenOptions penOptions, RawPath widePath)
         {
-            // Getting the open vertices so the first and last points are different but handling them as being in a ring
-            IList<PointF> origPoints = figure.OpenVertices;
-            Debug.Assert(origPoints.Count > 2);
+            // ClosedVertices contains the first point at the end again, which we ignore here.
+            // Still, not using OpenVertices because that may be a wrapper, which is slower.
+            IList<PointF> origPoints = figure.ClosedVertices;
+            Debug.Assert(origPoints.Count > 3);
 
             var widePoints = new List<PointF>(origPoints.Count << 1);
-            int end = origPoints.Count - 1;
+            int end = origPoints.Count - 2;
 
             // left outline
             WidenJoint(origPoints[end], origPoints[0], origPoints[1], penOptions, widePoints);
@@ -162,17 +241,19 @@ namespace KGySoft.Drawing.Shapes
             var widePoints = new List<PointF>(origPoints.Count << 1);
             int end = origPoints.Count - 1;
 
+            // start cap left side, left outline
             WidenCap(origPoints[0], origPoints[1], penOptions, penOptions.StartCap, false, true, widePoints);
-
             for (int i = 1; i < end; i++)
                 WidenJoint(origPoints[i - 1], origPoints[i], origPoints[i + 1], penOptions, widePoints);
 
+            // end cap
             WidenCap(origPoints[end], origPoints[end - 1], penOptions, penOptions.EndCap, true, true, widePoints);
 
+            // right outline, start cap right side
             for (int i = end - 1; i > 0; i--)
                 WidenJoint(origPoints[i + 1], origPoints[i], origPoints[i - 1], penOptions, widePoints);
-
             WidenCap(origPoints[0], origPoints[1], penOptions, penOptions.StartCap, true, false, widePoints);
+
             widePath.AddRawFigure(widePoints, true);
         }
 
@@ -260,46 +341,53 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1879
-        // Main changes: converting to C#, more descriptive variable names, Flat style uses a fix 0.5 px square cap instead of adding bevel points, using vectors when possible (TODO)
+        // Main changes: converting to C#, more descriptive variable names, Flat style extends the bevel points by a fix 0.5 px cap, using vectors when possible (TODO)
         private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
-            bool addFirstPoints, bool addLastPoint, List<PointF> result)
+            bool addRightSide, bool addLeftSide, List<PointF> result)
         {
-            if (!addFirstPoints && cap == LineCapStyle.Round)
+            if (!addRightSide && cap == LineCapStyle.Round)
                 return;
 
-            // When the cap style is Flat, the original code just added two bevel points.
+            // When the cap style is Flat, the original code just added two bevel points at the original start/end points.
             // But that way lines are always 1 pixel shorter than needed (when drawing, right/bottom coordinates are inclusive).
             // This is also in sync with the DrawThinRawPath behavior.
-            float distance = cap == LineCapStyle.Flat ? 0.5f : penOptions.Width / 2f;
+            float distance = penOptions.Width / 2f;
+            float extensionLength = cap == LineCapStyle.Flat ? 0.5f : distance;
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
-            float extendX = distance * diffSegmentX / segmentLength;
-            float extendY = distance * diffSegmentY / segmentLength;
+            float extendX = extensionLength * diffSegmentX / segmentLength;
+            float extendY = extensionLength * diffSegmentY / segmentLength;
 
             switch (cap)
             {
                 case LineCapStyle.Flat:
+                    if (addRightSide)
+                        result.Add(GetBevelPoint(new PointF(endPoint.X - extendX, endPoint.Y - extendY), nextPoint, distance, true));
+                    if (addLeftSide)
+                        result.Add(GetBevelPoint(new PointF(endPoint.X - extendX, endPoint.Y - extendY), nextPoint, distance, false));
+                    break;
+
                 case LineCapStyle.Square:
-                    if (addFirstPoints)
+                    if (addRightSide)
                         result.Add(new PointF(endPoint.X - extendX - extendY, endPoint.Y - extendY + extendX));
-                    if (addLastPoint)
+                    if (addLeftSide)
                         result.Add(new PointF(endPoint.X - extendX + extendY, endPoint.Y - extendY - extendX));
                     break;
 
                 case LineCapStyle.Triangle:
-                    if (addFirstPoints)
+                    if (addRightSide)
                     {
                         result.Add(GetBevelPoint(endPoint, nextPoint, distance, true));
                         result.Add(new PointF(endPoint.X - extendX, endPoint.Y - extendY));
                     }
 
-                    if (addLastPoint)
+                    if (addLeftSide)
                         result.Add(GetBevelPoint(endPoint, nextPoint, distance, false));
                     break;
 
                 case LineCapStyle.Round:
-                    Debug.Assert(addFirstPoints);
+                    Debug.Assert(addRightSide);
                     const float distControlPoint = 0.5522848f; // 4/3 * (sqrt(2) - 1)
                     float ctrlPointX = extendX * distControlPoint;
                     float ctrlPointY = extendY * distControlPoint;
@@ -426,17 +514,24 @@ namespace KGySoft.Drawing.Shapes
             var result = new RawPath(figures.Capacity);
             foreach (RawFigure figure in figures)
             {
-                if (figure.VertexCount == 0)
-                    continue;
-
-                // TODO
-                //if (key.Dash != null)
-                //    WidenDashedFigure(result, figure);
-                //else
-                if (figure.IsClosed)
-                    WidenClosedFigure(figure, penOptions, result);
-                else
-                    WidenOpenFigure(figure, penOptions, result);
+                switch (figure.VertexCount)
+                {
+                    case > 1:
+                        // TODO
+                        //if (key.Dash != null)
+                        //    WidenDashedFigure(result, figure);
+                        //else
+                        if (figure.IsClosed)
+                            WidenClosedFigure(figure, penOptions, result);
+                        else
+                            WidenOpenFigure(figure, penOptions, result);
+                        break;
+                    case 1:
+                        WidenPoint(figure, penOptions, result);
+                        break;
+                    default:
+                        continue;
+                }
             }
 
             return result;

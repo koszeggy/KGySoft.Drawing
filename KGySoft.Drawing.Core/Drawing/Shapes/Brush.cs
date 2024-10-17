@@ -2361,13 +2361,21 @@ namespace KGySoft.Drawing.Shapes
                 {
                     IList<PointF> points = figure.IsClosed ? figure.ClosedVertices : figure.OpenVertices;
                     int len = points.Count;
-                    for (int i = 1; i < len; i++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
 
-                        session.DrawLine(points[i - 1], points[i]);
+                    if (len == 1)
+                    {
+                        session.DrawLine(points[0], points[0]);
                         context.Progress?.Increment();
+                    }
+                    else
+                    {
+                        for (int i = 1; i < len; i++)
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+                            session.DrawLine(points[i - 1], points[i]);
+                            context.Progress?.Increment();
+                        }
                     }
                 }
 

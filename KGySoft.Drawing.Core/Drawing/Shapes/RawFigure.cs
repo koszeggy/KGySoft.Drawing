@@ -18,12 +18,11 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
-using KGySoft.Collections.ObjectModel;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
 
+using KGySoft.Collections.ObjectModel;
 using KGySoft.CoreLibraries;
 
 #endregion
@@ -34,11 +33,21 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Nested Classes
 
-        private sealed class OpenVerticesCollection(IList<PointF> closedVertices) : VirtualCollection<PointF>(closedVertices)
+        private sealed class OpenVerticesCollection : VirtualCollection<PointF>
         {
             #region Properties
 
-            public override int Count => Items.Count - 1;
+            public override int Count { get; }
+
+            #endregion
+
+            #region Constructors
+
+            internal OpenVerticesCollection(List<PointF> closedVertices)
+                : base(closedVertices)
+            {
+                Count = closedVertices.Count - 1;
+            }
 
             #endregion
 
@@ -75,7 +84,7 @@ namespace KGySoft.Drawing.Shapes
         /// This should be used when filling the path, which is consistent no matter whether the figure is open or closed.
         /// NOTE: This can be different from OpenVertices.Count if an open figure has the same start/end point.
         /// </summary>
-        internal int VertexCount => ClosedVertices.Count - 1;
+        internal int VertexCount { get; }
 
         #endregion
 
@@ -85,46 +94,34 @@ namespace KGySoft.Drawing.Shapes
         {
             Debug.Assert(points.Count > 0);
 
-            // TODO: delete
-            //// overriding isClosed if actually closed
-            //if (!isClosed && points.Count > 2 && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
-            //    isClosed = true;
-
-            IsClosed = isClosed;
-
             // removing points too close to each other and the ones lying on the same line
             var result = new List<PointF>();
             var orientations = new List<sbyte>();
-            var lastPoint = points[0];
-
             int count = points.Count;
-            //if (!optimize) // TODO
-            //{
-            //    result.Add(points[0]);
-            //    orientations.Add(0);
-            //}
-            //else
+            int prev = count;
+            do
             {
-                int prev = count;
-                do
+                prev -= 1;
+                if (prev == 0)
                 {
-                    prev -= 1;
-                    if (prev == 0)
-                    {
-                        // all points are practically the same
-                        result.Add(points[0]);
-                        openVertices = ClosedVertices = result;
-                        return;
-                    }
-                } while (points[0].TolerantEquals(points[prev], equalityTolerance));
+                    // All points are practically the same.
+                    result.Add(points[0]);
+                    openVertices = ClosedVertices = result;
+                    int x = (int)points[0].X.TolerantFloor(equalityTolerance);
+                    int y = (int)points[0].X.TolerantFloor(equalityTolerance);
+                    Bounds = new Rectangle(x, y, 0, 0);
+                    IsClosed = false;
+                    VertexCount = 1;
+                    return;
+                }
+            } while (points[0].TolerantEquals(points[prev], equalityTolerance));
 
-                count = prev + 1;
-                lastPoint = points[prev];
+            count = prev + 1;
+            PointF lastPoint = points[prev];
 
-                result.Add(points[0]);
-                orientations.Add(GetOrientation(lastPoint, points[0], points[1]));
-                lastPoint = points[0];
-            }
+            result.Add(points[0]);
+            orientations.Add(GetOrientation(lastPoint, points[0], points[1]));
+            lastPoint = points[0];
 
             for (int i = 1; i < count; i++)
             {
@@ -141,15 +138,13 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // removing points lying on the same line from the end
-            //if (optimize) // TODO
-            {
-                count = result.Count;
-                while (count > 2 && orientations[count - 1] == 0)
-                    count -= 1;
-                if (count < result.Count)
-                    result.RemoveRange(count, result.Count - count);
-            }
+            count = result.Count;
+            while (count > 2 && orientations[count - 1] == 0)
+                count -= 1;
+            if (count < result.Count)
+                result.RemoveRange(count, result.Count - count);
 
+            VertexCount = result.Count;
             float minX = Single.MaxValue;
             float minY = Single.MaxValue;
             float maxX = Single.MinValue;
@@ -166,18 +161,31 @@ namespace KGySoft.Drawing.Shapes
                     maxY = vertex.Y;
             }
 
-            // Auto closing if not already closed
-            if (!result[0].TolerantEquals(result[result.Count - 1], equalityTolerance))
-                result.Add(result[0]);
+            // Forcing open shape below 3 points
+            if (isClosed && result.Count < 3)
+            {
+                isClosed = false;
+                openVertices = ClosedVertices = result;
+            }
             else
-                openVertices = result;
+            {
+                // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
+                if (!result[0].TolerantEquals(result[result.Count - 1], equalityTolerance))
+                    result.Add(result[0]);
+                else
+                    openVertices = result;
 
-            if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
-                openVertices ??= result;
+                // If original points are practically closed but the figure is officially open, then
+                // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
+                if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
+                    openVertices ??= result;
 
-            ClosedVertices = result;
+                ClosedVertices = result;
+            }
+
             Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(equalityTolerance), (int)minY.TolerantFloor(equalityTolerance),
                 (int)maxX.TolerantCeiling(equalityTolerance), (int)maxY.TolerantCeiling(equalityTolerance));
+            IsClosed = isClosed;
         }
 
         #endregion

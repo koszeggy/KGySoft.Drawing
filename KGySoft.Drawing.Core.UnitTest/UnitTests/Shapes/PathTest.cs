@@ -163,8 +163,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawPathTestSource =>
         [
             // string name, Path path, float width
-            ////["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
-            //["Line", new Path().AddLine(new PointF(1, 1), new PointF(13, 3))],
+            //["Point01", new Path().AddPoint(new PointF(1, 1)), 1f],
+            //["Point.5", new Path().AddPoint(new PointF(1, 1)), 0.5f],
+            //["Point10", new Path().AddPoint(new PointF(1, 1)), 10f],
+            ["LineEpsilon01", new Path().AddLine(new PointF(1, 1), new PointF(1 + RawFigure.EqualityTolerance, 1)), 1f],
+            ["LineEpsilon.5", new Path().AddLine(new PointF(1, 1), new PointF(1 + RawFigure.EqualityTolerance, 1)), 0.5f],
+            ["LineEpsilon10", new Path().AddLine(new PointF(1, 1), new PointF(1 + RawFigure.EqualityTolerance, 1)), 10f],
+            ["Line2px01", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 1f],
+            //["Line2px.5", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 0.5f],
+            ["Line2px10", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 10f],
+            //["LineLong01", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f],
+            //["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
+            //["LineLong10Open", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
+            //["LineLong10Close", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)).CloseFigure(), 10f],
             //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             ////["TetragonClose", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50))],
             //["TetragonClose", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure(), 10f],
@@ -185,23 +196,24 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawThinLinesTestSource =>
         [
             // string name, Path path
-            ////["Point", new Path().AddPoint(new PointF(1, 1))],
-            //["Point", new Path().AddLine(new PointF(1, 1), new PointF(1, 1))],
-            ["LineLeftRight", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)).StartFigure().AddLine(new PointF(2, 5), new PointF(1, 5))],
+            ["PointOpen", new Path().AddPoint(new PointF(1, 1))],
+            ["PointClose", new Path().AddPoint(new PointF(1, 1)).CloseFigure()],
+            //["LineLeftRight", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)).StartFigure().AddLine(new PointF(2, 5), new PointF(1, 5))],
             //["LineRightLeft.5", new Path().AddLine(new PointF(1.5f, 1.5f), new PointF(2.5f, 1.5f)).StartFigure().AddLine(new PointF(2.5f, 5.5f), new PointF(1.5f, 5.5f))],
             //["LineUpDown", new Path().AddLine(new PointF(1, 2), new PointF(1, 1)).StartFigure().AddLine(new PointF(5, 1), new PointF(5, 2))],
             //["LineRightDownLandscape", new Path().AddLine(new PointF(1, 1), new PointF(3, 2)).StartFigure().AddLine(new PointF(3, 6), new PointF(1, 5))],
             //["LineRightUpLandscape", new Path().AddLine(new PointF(1, 2), new PointF(3, 1)).StartFigure().AddLine(new PointF(3, 5), new PointF(1, 6))],
             //["LineRightDownPortrait", new Path().AddLine(new PointF(1, 1), new PointF(2, 3)).StartFigure().AddLine(new PointF(6, 3), new PointF(5, 1))],
             //["LineRightUpPortrait", new Path().AddLine(new PointF(1, 3), new PointF(2, 1)).StartFigure().AddLine(new PointF(6, 1), new PointF(5, 3))],
+            ["Rectangle", new Path().AddRectangle(new RectangleF(2, 2, 95, 45))],
             //["Rectangle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
-            ["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
-            ["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
+            //["Rectangle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
+            //["Rectangle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
             //["StarOpen", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91))],
-            ["StarClose", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure()],
+            ["StarClose", new Path().AddLines(new(51, 1), new(80, 91), new(3, 36), new(98, 36), new(22, 91)).CloseFigure()],
             //["Pentagon", new Path().AddLines(new(51, 1), new(99, 36), new(81, 91), new(22, 91), new(3, 36)).CloseFigure()],
             //["ArcHalfEllipse", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180)],
-            ["Ellipse", new Path().AddEllipse(new RectangleF(1, 1, 98, 48))],
+            ["Ellipse", new Path().AddEllipse(new RectangleF(2, 2, 95, 45))],
             //["Circle0", new Path().AddRectangle(new RectangleF(1, 1, 0, 0))],
             //["Circle1", new Path().AddRectangle(new RectangleF(1, 1, 1, 1))],
             //["Circle2", new Path().AddRectangle(new RectangleF(1, 1, 2, 2))],
@@ -213,22 +225,21 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawThinLinesWithFormatTestSource =>
         [
             // string name, KnownPixelFormat pixelFormat, Color backColor, Color drawColor, DrawingOptions drawingOptions
-            //["32bppArgb_NQ_NB_NA", KnownPixelFormat.Format32bppArgb, Color.Cyan, Color.Blue, new DrawingOptions { AlphaBlending = false } ],
-            //["32bppArgb_NQ_AB_NA", KnownPixelFormat.Format32bppArgb, Color.Cyan, Color.Blue, new DrawingOptions { AlphaBlending = true } ],
-            //["32bppArgb_NQ_NB_AA", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, AntiAliasing = true } ],
-            //["32bppArgb_NQ_AB_AA", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, AntiAliasing = true } ],
-            //["32bppArgb_NQ_Tr_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.Transparent, new DrawingOptions { AlphaBlending = false } ],
-            //["32bppArgb_NQ_Tr_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.Transparent, new DrawingOptions { AlphaBlending = true } ],
-
-            //["32bppArgb_QSys256_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() } ],
-            //["32bppArgb_QSys256_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() } ],
-            //["32bppArgb_B8_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = OrderedDitherer.Bayer8x8} ],
-            //["32bppArgb_B8_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = OrderedDitherer.Bayer8x8 } ],
-            //["32bppArgb_Wu256_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            //["32bppArgb_FSSerp_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
-            //["1bppIndexed", KnownPixelFormat.Format1bppIndexed, Color.Cyan, Color.Blue, null],
-            //["1bppIndexed_DB", KnownPixelFormat.Format1bppIndexed, Color.Cyan, Color.Blue, new DrawingOptions { Ditherer = OrderedDitherer.BlueNoise } ],
-            //["32bppPArgb", KnownPixelFormat.Format32bppPArgb, Color.Cyan, Color.Blue, null],
+            ["32bppArgb_NQ_NB_NA", KnownPixelFormat.Format32bppArgb, Color.Cyan, Color.Blue, new DrawingOptions { AlphaBlending = false } ],
+            ["32bppArgb_NQ_AB_NA", KnownPixelFormat.Format32bppArgb, Color.Cyan, Color.Blue, new DrawingOptions { AlphaBlending = true } ],
+            ["32bppArgb_NQ_NB_AA", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, AntiAliasing = true } ],
+            ["32bppArgb_NQ_AB_AA", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, AntiAliasing = true } ],
+            ["32bppArgb_NQ_Tr_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.Transparent, new DrawingOptions { AlphaBlending = false } ],
+            ["32bppArgb_NQ_Tr_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.Transparent, new DrawingOptions { AlphaBlending = true } ],
+            ["32bppArgb_QSys256_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() } ],
+            ["32bppArgb_QSys256_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() } ],
+            ["32bppArgb_B8_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = OrderedDitherer.Bayer8x8} ],
+            ["32bppArgb_B8_AB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = OrderedDitherer.Bayer8x8 } ],
+            ["32bppArgb_Wu256_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["32bppArgb_FSSerp_NB", KnownPixelFormat.Format32bppArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
+            ["1bppIndexed", KnownPixelFormat.Format1bppIndexed, Color.Cyan, Color.Blue, null],
+            ["1bppIndexed_DB", KnownPixelFormat.Format1bppIndexed, Color.Cyan, Color.Blue, new DrawingOptions { Ditherer = OrderedDitherer.BlueNoise } ],
+            ["32bppPArgb", KnownPixelFormat.Format32bppPArgb, Color.Cyan, Color.Blue, null],
             ["32bppPArgb_NB_AA", KnownPixelFormat.Format32bppPArgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { AlphaBlending = false }],
             ["64bppArgb", KnownPixelFormat.Format64bppArgb, Color.Cyan, Color.Blue, null],
             ["64bppPArgb", KnownPixelFormat.Format64bppPArgb, Color.Cyan, Color.Blue, null],
@@ -410,6 +421,9 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCaseSource(nameof(DrawPathTestSource))]
         public void DrawPathJoinStylesTest(string name, Path path, float width)
         {
+            if (path.RawPath.TotalVertices < 3)
+                Assert.Inconclusive($"{name}: No joints in path");
+
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
             var colorSpace = WorkingColorSpace.Linear;
             Size size = path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y));
@@ -425,7 +439,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             foreach (bool antiAliasing in new[] { false/*, true*/ })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                foreach (LineJoinStyle joinStyle in new[] { /*LineJoinStyle.Miter, LineJoinStyle.Bevel,*/ LineJoinStyle.Round })
+                foreach (LineJoinStyle joinStyle in new[] { LineJoinStyle.Miter, LineJoinStyle.Bevel, LineJoinStyle.Round })
                 {
                     bitmapData.Clear(Color.Cyan);
 
@@ -441,12 +455,13 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         {
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
             var colorSpace = WorkingColorSpace.Linear;
-            Size size = path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y));
-            if (size.IsEmpty)
-            {
-                size = new Size(10, 10);
-                path.TransformTranslation(5, 5);
-            }
+            Size size = path.Bounds.Size
+                + new Size(path.Bounds.Location)
+                + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y))
+                + Size.Ceiling(new SizeF(width, width));
+
+            if (width > 1f)
+                path = Path.Transform(path, TransformationMatrix.CreateTranslation(MathF.Floor(width / 2f), MathF.Floor(width / 2f)));
 
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
@@ -454,11 +469,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             foreach (bool antiAliasing in new[] { false, true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
-                foreach (LineCapStyle capStyle in new[] { LineCapStyle.Flat, LineCapStyle.Square, LineCapStyle.Triangle, LineCapStyle.Round })
+                LineCapStyle[] capStyles = width <= 1f ? [LineCapStyle.Flat] : [LineCapStyle.Flat, LineCapStyle.Square, LineCapStyle.Triangle, LineCapStyle.Round];
+                foreach (LineCapStyle capStyle in capStyles)
                 {
                     bitmapData.Clear(Color.Cyan);
 
-                    var pen = new Pen(Color.Blue, width) { LineJoin = LineJoinStyle.Bevel, StartCap = capStyle, EndCap = capStyle };
+                    var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
                     bitmapData.DrawPath(context, path, pen, drawingOptions);
                     SaveBitmapData(name, bitmapData, $"{(antiAliasing ? "AA" : "NA")}_W{width:00}_{capStyle}");
                 }
@@ -478,9 +494,9 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             bitmapDataBackground.Clear(Color.Green);
             IAsyncContext context = new SimpleContext(-1);
             var pen = new Pen(Color.Yellow);
-            //var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw
+            //var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible
             var brush = new SolidBrush(Color.Blue);
-            foreach (bool antiAliasing in new[] { false, true })
+            foreach (bool antiAliasing in new[] { /*false,*/ true })
             {
                 var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
 
@@ -572,22 +588,23 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var path = new Path(false)
                     .AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()
                     .AddEllipse(new RectangleF(0, 0, 100, 100))
-                    .AddRectangle(new RectangleF(0, 0, 100, 100));
+                    .AddRectangle(new RectangleF(0, 0, 100, 100))
+                    ;
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
 
-            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format8bppIndexed);
+            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size);
             bitmapDataBackground.Clear(Color.Cyan);
 
             IAsyncContext context = new SimpleContext(-1);
             var pen = new Pen(Color.Blue);
 
-            //var options1 = new DrawingOptions { TestBehavior = -1 }; // force Color32
+            //DrawingOptions options1 = new DrawingOptions { TestBehavior = -1 }; // Region
             //using var bitmapData1 = bitmapDataBackground.Clone();
-            //bitmapData1.DrawPath(context, path, pen, options1);
+            //bitmapData1.DrawPath(context, path, pen, options1); // no caching
             //SaveBitmapData(null, bitmapData1);
 
-            //var options2 = new DrawingOptions { TestBehavior = 0 }; // allow indexed
+            //DrawingOptions options2 = new DrawingOptions { TestBehavior = 0 }; // Direct SetColor32
             //using var bitmapData2 = bitmapDataBackground.Clone();
             //bitmapData2.DrawPath(context, path, pen, options2);
             //AssertAreEqual(bitmapData1, bitmapData2);
@@ -603,8 +620,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //AssertAreEqual(bitmapData1, bitmapData4);
 
             new PerformanceTest { Repeat = 3, TestTime = 5000, TestName = $"Size: {size}; Vertices: {path.RawPath.TotalVertices}" }
-                //.AddCase(() => bitmapData1.DrawPath(context, path, pen, options1), "SetColor32")
-                //.AddCase(() => bitmapData2.DrawPath(context, path, pen, options2), "SetColorIndex")
+                //.AddCase(() => bitmapData1.DrawPath(context, path, pen, options1), "No caching")
+                //.AddCase(() => bitmapData2.DrawPath(context, path, pen, options2), "Caching")
                 //.AddCase(() => bitmapData3.DrawPath(context, path, pen, options3), "Delegate")
                 //.AddCase(() => bitmapData4.DrawPath(context, path, pen, options4), "Function pointer")
                 .DoTest()

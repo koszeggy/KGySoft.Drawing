@@ -66,9 +66,24 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal void AddSegment(PathSegment segment)
+            internal void AddSegment(PathSegment segment) => segments.Add(segment);
+
+            [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
+            internal bool TryAppendPoints(ICollection<PointF> points)
             {
-                segments.Add(segment);
+                Debug.Assert(points.Count > 0);
+                if (segments.Count == 0 || segments[segments.Count - 1] is not LineSegment lastSegment)
+                    return false;
+
+                if (IsClosed)
+                {
+                    if (!IsEmpty)
+                        return false;
+                    IsClosed = false;
+                }
+
+                lastSegment.Append(points);
+                return true;
             }
 
             internal IList<PointF> GetPoints()
@@ -119,33 +134,42 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-            private readonly PointF[] points;
+            private readonly List<PointF> points;
 
             #endregion
 
             #region Constructors
 
-            internal LineSegment(params PointF[] points)
+            internal LineSegment(List<PointF> points)
             {
-                Debug.Assert(points != null! && points.Length >= 2, "points.Length should be >= 2");
+                // This overload does not copy the elements. Make sure it's called internally only.
+                Debug.Assert(points != null! && points.Count > 0, "At least 1 point is expected");
                 this.points = points!;
+            }
+
+            internal LineSegment(ICollection<PointF> points)
+                : this(new List<PointF>(points))
+            {
+                // This overload exists for copying the elements.
             }
 
             #endregion
 
             #region Methods
 
+            internal void Append(ICollection<PointF> newPoints) => points.AddRange(newPoints);
+
             internal override IList<PointF> GetPoints() => points;
 
             internal override void Transform(TransformationMatrix matrix)
             {
                 Debug.Assert(!matrix.IsIdentity);
-                int len = points.Length;
+                int len = points.Count;
                 for (int i = 0; i < len; i++)
                     points[i] = points[i].Transform(matrix);
             }
 
-            internal override PathSegment Clone() => new LineSegment((PointF[])points.Clone());
+            internal override PathSegment Clone() => new LineSegment(new List<PointF>(points));
 
             #endregion
         }

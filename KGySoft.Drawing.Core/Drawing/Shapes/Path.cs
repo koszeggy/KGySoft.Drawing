@@ -119,23 +119,30 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Methods
 
+        // TODO Point, int/int, float/float overload
+        public Path AddPoint(PointF point)
+        {
+            AppendPoints([point]);
+            return this;
+        }
+
         // TODO: Point, int, float overloads
         public Path AddLine(PointF p1, PointF p2)
         {
-            AddSegment(new LineSegment(p1, p2));
+            AppendPoints([p1, p2]);
             return this;
         }
 
         // TODO: Point[] overload
-        // TODO: IEnumerable, ROS
+        // TODO: ICollection/[IEnumerable?], ROS
         public Path AddLines(params PointF[] points)
         {
             if (points == null)
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
-            if (points.Length < 2)
-                throw new ArgumentException(nameof(points), Res.ShapesLinePointsInvalid);
+            if (points.Length < 1)
+                throw new ArgumentException(nameof(points), PublicResources.CollectionEmpty);
 
-            AddSegment(new LineSegment((PointF[])points.Clone()));
+            AppendPoints(points);
             return this;
         }
 
@@ -143,10 +150,12 @@ namespace KGySoft.Drawing.Shapes
         public Path AddRectangle(RectangleF rectangle)
         {
             StartFigure();
-            AddSegment(new LineSegment(rectangle.Location,
+            AddSegment(new LineSegment([
+                rectangle.Location,
                 new PointF(rectangle.Right, rectangle.Top),
                 new PointF(rectangle.Right, rectangle.Bottom),
-                new PointF(rectangle.Left, rectangle.Bottom)));
+                new PointF(rectangle.Left, rectangle.Bottom)
+            ]));
             CloseFigure();
             return this;
         }
@@ -190,6 +199,8 @@ namespace KGySoft.Drawing.Shapes
         // TODO: AddPolygon (same as AddLines but closed)
         // TODO: AddRoundedRectangle
 
+        // The next point will be a new starting point.
+        // A single point or a line section is always rendered as an open figure. After a point or a single line this method has the same effect as StartFigure.
         public Path CloseFigure()
         {
             // not closing if empty because it would be skipped anyway
@@ -310,6 +321,34 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// This overload does not copy the points in LineSegment.ctor.
+        /// Call from non-collection methods only.
+        /// </summary>
+        private void AppendPoints(List<PointF> points)
+        {
+            Debug.Assert(points != null! && points.Count > 0);
+            if (transformation.IsIdentity && currentFigure.TryAppendPoints(points!))
+            {
+                Invalidate();
+                return;
+            }
+
+            AddSegment(new LineSegment(points!));
+        }
+
+        private void AppendPoints(ICollection<PointF> points)
+        {
+            Debug.Assert(points != null! && points.Count > 0);
+            if (transformation.IsIdentity && currentFigure.TryAppendPoints(points!))
+            {
+                Invalidate();
+                return;
+            }
+
+            AddSegment(new LineSegment(points!));
+        }
 
         private void AddSegment(PathSegment segment)
         {
