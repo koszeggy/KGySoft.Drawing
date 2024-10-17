@@ -305,6 +305,7 @@ namespace KGySoft.Drawing.Shapes
                 private readonly SolidRegionScanner scanner;
                 private readonly ActiveEdgeTable activeEdges;
                 private readonly int scanlinePixelWidth;
+                private readonly float pixelOffset;
 
                 private bool isScanlineDirty;
                 private int yStartIndex;
@@ -345,6 +346,7 @@ namespace KGySoft.Drawing.Shapes
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
                     scanlinePixelWidth = scanner.Width;
+                    pixelOffset = scanner.pixelOffset;
 
                     // When there is a region, MoveNextRow will take a row from region mask. Otherwise, allocating one row.
                     if (scanner.Region == null)
@@ -555,8 +557,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constants
 
             private const int parallelThreshold = 256;
-            private const float roundingUnit = 1/32f;
-            private const float pixelOffset = 0.5f;
+            private const float roundingUnit = 1f / 32f;
 
             #endregion
 
@@ -564,6 +565,7 @@ namespace KGySoft.Drawing.Shapes
 
             private readonly StrongBox<(int ThreadId, SolidScannerContext Context)>?[]? threadContextCache;
             private readonly int hashMask;
+            private readonly float pixelOffset;
 
             private SolidScannerContext mainContext;
 
@@ -584,6 +586,7 @@ namespace KGySoft.Drawing.Shapes
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
                 var context = session.Context;
 
+                pixelOffset = drawingOptions.ScanPathPixelOffset == PixelOffset.Half ? 0.5f : 0f;
                 mainContext = new SolidScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(Top + pixelOffset, true);
 
@@ -723,6 +726,7 @@ namespace KGySoft.Drawing.Shapes
 
                 private readonly AntiAliasingRegionScanner scanner;
                 private readonly ActiveEdgeTable activeEdges;
+                private readonly float subpixelOffset;
 
                 private bool isScanlineDirty;
                 private int yStartIndex;
@@ -764,6 +768,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     this.scanner = scanner;
                     this.activeEdges = activeEdges;
+                    subpixelOffset = scanner.subpixelOffset;
 
                     // When there is a region, MoveNextRow will take a row from region mask. Otherwise, allocating one row.
                     if (scanner.Region == null)
@@ -1013,10 +1018,7 @@ namespace KGySoft.Drawing.Shapes
             private const int subpixelSizeFactor = 4; // Math.Log2(subpixelSize);
             private const float subpixelSizeF = (float)subpixelSize / subpixelIntegerScale;
 
-            // Just like in SolidRegionScanner, we can have a nonzero offset to take samples from the middle of the subpixel rows.
-            // It helps to create completely solid pixels symmetrically at the top/bottom of the shapes (e.g. ellipse).
-            private const float subpixelOffset = subpixelSizeF / 2f;
-            private const float roundingUnit = subpixelOffset; // subpixelOffset > 0f && subpixelOffset < subpixelSizeF ? subpixelOffset : subpixelSizeF;
+            private const float roundingUnit = subpixelSizeF / 2f;
 
             private const int parallelThreshold = 64;
 
@@ -1026,6 +1028,10 @@ namespace KGySoft.Drawing.Shapes
 
             private readonly StrongBox<(int ThreadId, AntiAliasingScannerContext Context)>?[]? threadContextCache;
             private readonly int hashMask;
+
+            // Just like in SolidRegionScanner, we can have a nonzero offset to take samples from the middle of the subpixel rows.
+            // It helps to create completely solid pixels symmetrically at the top/bottom of the shapes (e.g. ellipse).
+            private readonly float subpixelOffset;
 
             private AntiAliasingScannerContext mainContext;
 
@@ -1046,6 +1052,7 @@ namespace KGySoft.Drawing.Shapes
                 var context = session.Context;
                 var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
 
+                subpixelOffset = drawingOptions.ScanPathPixelOffset == PixelOffset.Half ? subpixelSizeF / 2f : 0f;
                 mainContext = new AntiAliasingScannerContext(this, activeEdges);
                 mainContext.SkipEdgesAbove(Top + subpixelOffset, true);
 
@@ -1242,7 +1249,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 ShapeFillMode.Alternate => new ActiveEdgeTableAlternate(ref buffer, edgeCount, maxIntersectionCount),
                 ShapeFillMode.NonZero => new ActiveEdgeTableNonZero(ref buffer, edgeCount, maxIntersectionCount),
-                _ => throw new ArgumentOutOfRangeException(nameof(fillMode), PublicResources.EnumOutOfRange(fillMode))
+                _ => throw new InvalidOperationException(Res.InternalError($"Unhandled fill mode {fillMode}"))
             };
 
             #endregion

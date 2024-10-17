@@ -17,6 +17,7 @@
 
 using System;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -37,6 +38,9 @@ namespace KGySoft.Drawing.Shapes
         #region Instance Fields
 
         private TransformationMatrix transformation;
+        private ShapeFillMode fillMode;
+        private PixelOffset scanPathPixelOffset = PixelOffset.Half;
+        private PixelOffset drawPathPixelOffset;
 
         #endregion
 
@@ -58,7 +62,39 @@ namespace KGySoft.Drawing.Shapes
 
         public bool AlphaBlending { get; set; } // If false, alpha is written directly, which is usually not quite good with AntiAliasing also enabled, except for already transparent background docs: color space: target's WorkingColorSpace or Quantizer
 
-        public ShapeFillMode FillMode { get; set; }
+        public ShapeFillMode FillMode
+        {
+            get => fillMode;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(value));
+                fillMode = value;
+            }
+        }
+
+        // TODO: add images
+        public PixelOffset ScanPathPixelOffset
+        {
+            get => scanPathPixelOffset;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(value));
+                scanPathPixelOffset = value;
+            }
+        }
+
+        public PixelOffset DrawPathPixelOffset
+        {
+            get => drawPathPixelOffset;
+            set
+            {
+                if (!value.IsDefined())
+                    throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(value));
+                drawPathPixelOffset = value;
+            }
+        }
 
         public IQuantizer? Quantizer { get; set; }
 
@@ -69,7 +105,7 @@ namespace KGySoft.Drawing.Shapes
         #region Internal Properties
 
         /// <summary>
-        /// To avoid using options.Transformation.IsIdentity, which would copy the matrix.
+        /// To avoid the callers use options.Transformation.IsIdentity, which would copy the matrix.
         /// </summary>
         internal bool IsIdentityTransform => transformation.IsIdentity;
 
@@ -101,6 +137,8 @@ namespace KGySoft.Drawing.Shapes
             AntiAliasing = other.AntiAliasing;
             AlphaBlending = other.AlphaBlending;
             FillMode = other.FillMode;
+            scanPathPixelOffset = other.scanPathPixelOffset;
+            drawPathPixelOffset = other.drawPathPixelOffset;
             Quantizer = other.Quantizer;
             Ditherer = other.Ditherer;
         }
@@ -123,13 +161,16 @@ namespace KGySoft.Drawing.Shapes
                 && AntiAliasing == other.AntiAliasing
                 && AlphaBlending == other.AlphaBlending
                 && FillMode == other.FillMode
+                && ScanPathPixelOffset == other.ScanPathPixelOffset
+                && DrawPathPixelOffset == other.DrawPathPixelOffset
                 && Quantizer == other.Quantizer
                 && Ditherer == other.Ditherer;
         }
 
         public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is DrawingOptions other && Equals(other);
 
-        public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, FillMode, Quantizer, Ditherer).GetHashCode();
+        // TODO: do combinations like in PenOptions
+        public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, FillMode, ScanPathPixelOffset, DrawPathPixelOffset, Quantizer, Ditherer).GetHashCode();
 
         #endregion
     }

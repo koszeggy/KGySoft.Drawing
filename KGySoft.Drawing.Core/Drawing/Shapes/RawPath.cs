@@ -41,7 +41,8 @@ namespace KGySoft.Drawing.Shapes
             None,
             NonZeroFillMode = 1,
             AntiAliasing = 1 << 1,
-            Outline = 1 << 2
+            Outline = 1 << 2,
+            ScanOffset = 1 << 3
         }
 
         #endregion
@@ -341,7 +342,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1879
-        // Main changes: converting to C#, more descriptive variable names, Flat style extends the bevel points by a fix 0.5 px cap, using vectors when possible (TODO)
+        // Main changes: converting to C#, more descriptive variable names, Flat style extends the bevel points by a fix 0.5 px cap, converting round cap to line segments, using vectors when possible (TODO)
         private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
             bool addRightSide, bool addLeftSide, List<PointF> result)
         {
@@ -472,6 +473,8 @@ namespace KGySoft.Drawing.Shapes
                     result |= RegionsCacheKey.AntiAliasing;
                 if (outline)
                     result |= RegionsCacheKey.Outline;
+                if (!outline && options.ScanPathPixelOffset == PixelOffset.Half)
+                    result |= RegionsCacheKey.ScanOffset;
                 return result;
             }
 
