@@ -49,6 +49,7 @@ namespace KGySoft.Drawing.Shapes
             set => brush = value ?? throw new ArgumentNullException(nameof(value), PublicResources.ArgumentNull);
         }
 
+        // 1/64 or smaller is not visible. Or smaller than 1/4 if FastDrawLines is true and AA is off.
         public float Width
         {
             get => width;
@@ -135,12 +136,17 @@ namespace KGySoft.Drawing.Shapes
 
         internal void DrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
+            // RawFigure.EqualityTolerance
+            if (Width <= 1f / 64f)
+                return;
+
             RawPath rawPath = path.RawPath;
 
             // special handling for thin paths: not generating a new path but drawing the raw lines of rawPath
             if (!drawingOptions.AntiAliasing && drawingOptions.FastThinLines && Width <= 1f)
             {
-                brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, path.PreferCaching);
+                if (Width >= 0.25f)
+                    brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, path.PreferCaching);
                 return;
             }
 
