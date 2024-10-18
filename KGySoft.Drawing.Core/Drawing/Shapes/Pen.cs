@@ -138,13 +138,13 @@ namespace KGySoft.Drawing.Shapes
             RawPath rawPath = path.RawPath;
 
             // special handling for thin paths: not generating a new path but drawing the raw lines of rawPath
-            if (!drawingOptions.AntiAliasing && Width <= 1f) // TODO: && drawingOptions.FastThinLines
+            if (!drawingOptions.AntiAliasing && drawingOptions.FastThinLines && Width <= 1f)
             {
                 brush.DrawThinRawPath(context, bitmapData, rawPath, drawingOptions, path.PreferCaching);
                 return;
             }
 
-            RawPath widePath = path.PreferCaching ? rawPath.GetCreateWidePath(this) : rawPath.WidenPath(this);
+            RawPath widePath = path.PreferCaching ? rawPath.GetCreateWidePath(this, drawingOptions) : rawPath.WidenPath(this, drawingOptions);
             brush.FillRawPath(context, bitmapData, widePath, drawingOptions.WithNonZeroFill, path.PreferCaching);
         }
 

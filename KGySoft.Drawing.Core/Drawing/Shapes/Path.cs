@@ -366,11 +366,11 @@ namespace KGySoft.Drawing.Shapes
         {
             var result = new RawPath(figures?.Count ?? 1);
             if (figures == null)
-                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed);
+                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed, false);
             else
             {
                 foreach (Figure figure in figures)
-                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed);
+                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed, false);
             }
 
             return result;

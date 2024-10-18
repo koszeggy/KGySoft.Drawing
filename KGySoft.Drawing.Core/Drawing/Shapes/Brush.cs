@@ -1623,8 +1623,7 @@ namespace KGySoft.Drawing.Shapes
 
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
-                var _ = DrawingOptions; // TODO: remove. Only here to avoid make static error
-                float offset = 0f; // DrawingOptions.DrawPixelOffset == ... // TODO: add DrawPixelOffset to options, check if +2 is needed in Region..ctor when offset is Half
+                float offset = DrawingOptions.DrawPathPixelOffset == PixelOffset.Half ? 0.5f : 0f;
                 return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
                     (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
             }

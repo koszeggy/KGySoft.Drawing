@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 using KGySoft.Collections;
@@ -29,7 +30,7 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// The raw version of <see cref="Path"/> where everything is represented by simple points (straight line segments).
     /// </summary>
-    internal sealed partial class RawPath
+    internal sealed class RawPath
     {
         #region Nested Types
 
@@ -42,7 +43,7 @@ namespace KGySoft.Drawing.Shapes
             NonZeroFillMode = 1,
             AntiAliasing = 1 << 1,
             Outline = 1 << 2,
-            ScanOffset = 1 << 3
+            Offset = 1 << 3
         }
 
         #endregion
@@ -62,18 +63,20 @@ namespace KGySoft.Drawing.Shapes
             internal readonly LineJoinStyle LineJoin;
             internal readonly LineCapStyle StartCap;
             internal readonly LineCapStyle EndCap;
+            internal readonly bool Offset;
 
             #endregion
 
             #region Constructors
 
-            internal PenOptions(Pen pen)
+            internal PenOptions(Pen pen, DrawingOptions options)
             {
                 Width = pen.Width;
-                LineJoin = Width <= 1f ? LineJoinStyle.Bevel : pen.LineJoin;
+                LineJoin = pen.LineJoin;
                 MiterLimit = pen.MiterLimit;
                 StartCap = Width <= 1f ? LineCapStyle.Flat : pen.StartCap;
                 EndCap = Width <= 1f ? LineCapStyle.Flat : pen.EndCap;
+                Offset = options.DrawPathPixelOffset == PixelOffset.Half;
             }
 
             #endregion
@@ -84,11 +87,12 @@ namespace KGySoft.Drawing.Shapes
                 && LineJoin == other.LineJoin
                 && MiterLimit.Equals(other.MiterLimit)
                 && StartCap == other.StartCap
-                && EndCap == other.EndCap;
+                && EndCap == other.EndCap
+                && Offset == other.Offset;
 
             public override bool Equals(object? obj) => obj is PenOptions other && Equals(other);
 
-            public override int GetHashCode() => (Width + MiterLimit * (1f / 256f), (int)LineJoin | ((int)StartCap << 4) | ((int)EndCap << 8)).GetHashCode();
+            public override int GetHashCode() => (Width + MiterLimit * (1f / 256f), (int)LineJoin | ((int)StartCap << 4) | ((int)EndCap << 8) | (Offset ? (1 << 12) : 0)).GetHashCode();
 
             #endregion
         }
@@ -133,26 +137,12 @@ namespace KGySoft.Drawing.Shapes
         private static void WidenPoint(RawFigure figure, in PenOptions penOptions, RawPath widePath)
         {
             var point = figure.OpenVertices[0];
-
-            // Shortcut for thin pens: always returning a 1x1 pixel rectangle (PenOptions is always Flat here so the result would be the same on the slow path)
-            if (penOptions.Width <= 1f)
-            {
-                widePath.AddRawFigure(new[]
-                {
-                    new PointF(point.X - 0.5f, point.Y - 0.5f),
-                    new PointF(point.X + 0.5f, point.Y - 0.5f),
-                    new PointF(point.X + 0.5f, point.Y + 0.5f),
-                    new PointF(point.X - 0.5f, point.Y + 0.5f)
-                }, true);
-                return;
-            }
-
             float distance = penOptions.Width / 2f;
 
             // Round start/end cap: regular circle
             if (penOptions is { StartCap: LineCapStyle.Round, EndCap: LineCapStyle.Round })
             {
-                widePath.AddRawFigure(Path.BezierSegment.FromEllipse(point, distance, distance).GetPoints(), true);
+                widePath.AddRawFigure(Path.BezierSegment.FromEllipse(point, distance, distance).GetPoints(), true, penOptions.Offset);
                 return;
             }
 
@@ -205,7 +195,7 @@ namespace KGySoft.Drawing.Shapes
 
             }
 
-            widePath.AddRawFigure(points, true);
+            widePath.AddRawFigure(points, true, penOptions.Offset);
         }
 
         private static void WidenClosedFigure(RawFigure figure, in PenOptions penOptions, RawPath widePath)
@@ -223,7 +213,7 @@ namespace KGySoft.Drawing.Shapes
             for (int i = 1; i < end; i++)
                 WidenJoint(origPoints[i - 1], origPoints[i], origPoints[i + 1], penOptions, widePoints);
             WidenJoint(origPoints[end - 1], origPoints[end], origPoints[0], penOptions, widePoints);
-            widePath.AddRawFigure(widePoints, true);
+            widePath.AddRawFigure(widePoints, true, penOptions.Offset);
             widePoints.Clear();
 
             // right outline
@@ -231,7 +221,7 @@ namespace KGySoft.Drawing.Shapes
             for (int i = end - 1; i > 0; i--)
                 WidenJoint(origPoints[i + 1], origPoints[i], origPoints[i - 1], penOptions, widePoints);
             WidenJoint(origPoints[1], origPoints[0], origPoints[end], penOptions, widePoints);
-            widePath.AddRawFigure(widePoints, true);
+            widePath.AddRawFigure(widePoints, true, penOptions.Offset);
         }
 
         private static void WidenOpenFigure(RawFigure figure, in PenOptions penOptions, RawPath widePath)
@@ -255,7 +245,7 @@ namespace KGySoft.Drawing.Shapes
                 WidenJoint(origPoints[i + 1], origPoints[i], origPoints[i - 1], penOptions, widePoints);
             WidenCap(origPoints[0], origPoints[1], penOptions, penOptions.StartCap, true, false, widePoints);
 
-            widePath.AddRawFigure(widePoints, true);
+            widePath.AddRawFigure(widePoints, true, penOptions.Offset);
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1837
@@ -447,11 +437,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal void AddRawFigure(IList<PointF> points, bool isClosed)
+        internal void AddRawFigure(IList<PointF> points, bool isClosed, bool offset)
         {
             if (points.Count == 0)
                 return;
-            var figure = new RawFigure(points, isClosed);
+            var figure = new RawFigure(points, isClosed, offset);
             bounds = IsEmpty ? figure.Bounds : Rectangle.Union(bounds, figure.Bounds);
             figures.Add(figure);
             totalVertices += figure.VertexCount;
@@ -464,6 +454,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Local Methods
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             static RegionsCacheKey GetHashKey(DrawingOptions options, bool outline)
             {
                 var result = RegionsCacheKey.None;
@@ -473,8 +464,8 @@ namespace KGySoft.Drawing.Shapes
                     result |= RegionsCacheKey.AntiAliasing;
                 if (outline)
                     result |= RegionsCacheKey.Outline;
-                if (!outline && options.ScanPathPixelOffset == PixelOffset.Half)
-                    result |= RegionsCacheKey.ScanOffset;
+                if (!outline && options.ScanPathPixelOffset == PixelOffset.Half || outline && options.DrawPathPixelOffset == PixelOffset.Half)
+                    result |= RegionsCacheKey.Offset;
                 return result;
             }
 
@@ -489,7 +480,7 @@ namespace KGySoft.Drawing.Shapes
             return regionsCache[(int)GetHashKey(drawingOptions, isOutline)];
         }
 
-        internal RawPath GetCreateWidePath(Pen pen)
+        internal RawPath GetCreateWidePath(Pen pen, DrawingOptions drawingOptions)
         {
             if (widePathsCache == null)
             {
@@ -497,10 +488,10 @@ namespace KGySoft.Drawing.Shapes
                 Interlocked.CompareExchange(ref widePathsCache, ThreadSafeCacheFactory.Create<PenOptions, RawPath>(DoWidenPath, options), null);
             }
 
-            return widePathsCache[new PenOptions(pen)];
+            return widePathsCache[new PenOptions(pen, drawingOptions)];
         }
 
-        internal RawPath WidenPath(Pen pen) => DoWidenPath(new PenOptions(pen));
+        internal RawPath WidenPath(Pen pen, DrawingOptions drawingOptions) => DoWidenPath(new PenOptions(pen, drawingOptions));
 
         #endregion
 

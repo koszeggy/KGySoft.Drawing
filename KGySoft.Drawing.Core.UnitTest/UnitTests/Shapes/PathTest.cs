@@ -496,18 +496,23 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             bitmapDataBackground.Clear(Color.Green);
             IAsyncContext context = new SimpleContext(-1);
-            var pen = new Pen(Color.Yellow);
-            //var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible
+            //var pen = new Pen(Color.Yellow);
+            var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible. Non-region-draw cases are covered by DrawThinLinesWithFormatTest
             var brush = new SolidBrush(Color.Blue);
-            foreach (bool antiAliasing in new[] { false, true })
+            foreach (bool antiAliasing in new[] { /*false,*/ true })
+            foreach (bool fastThinLines in new[] { true, false })
+            foreach (var offset in new[] { /*PixelOffset.None,*/ PixelOffset.Half })
             {
-                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing };
+                if (antiAliasing && fastThinLines)
+                    continue;
 
-                path = new Path(path) { PreferCaching = false };
+                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, DrawPathPixelOffset = offset, FastThinLines = fastThinLines };
+
+                path.PreferCaching = false;
                 using var bitmapData1 = bitmapDataBackground.Clone();
                 bitmapData1.FillPath(context, path, brush, drawingOptions);
                 bitmapData1.DrawPath(context, path, pen, drawingOptions);
-                SaveBitmapData(name, bitmapData1, $"{(antiAliasing ? "AA" : "NA")}");
+                SaveBitmapData(name, bitmapData1, $"{(antiAliasing ? "AA" : $"NA{(fastThinLines ? "F" : "S")}")}_{offset}");
 
                 path.PreferCaching = true;
                 using var bitmapData2 = bitmapDataBackground.Clone();

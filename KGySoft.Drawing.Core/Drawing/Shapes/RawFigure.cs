@@ -90,102 +90,119 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        internal RawFigure(IList<PointF> points, bool isClosed)
+        internal RawFigure(IList<PointF> points, bool isClosed, bool offset)
         {
             Debug.Assert(points.Count > 0);
 
             // removing points too close to each other and the ones lying on the same line
             var result = new List<PointF>();
-            var orientations = new List<sbyte>();
-            int count = points.Count;
-            int prev = count;
-            do
-            {
-                prev -= 1;
-                if (prev == 0)
-                {
-                    // All points are practically the same.
-                    result.Add(points[0]);
-                    openVertices = ClosedVertices = result;
-                    int x = (int)points[0].X.TolerantFloor(equalityTolerance);
-                    int y = (int)points[0].X.TolerantFloor(equalityTolerance);
-                    Bounds = new Rectangle(x, y, 0, 0);
-                    IsClosed = false;
-                    VertexCount = 1;
-                    return;
-                }
-            } while (points[0].TolerantEquals(points[prev], equalityTolerance));
-
-            count = prev + 1;
-            PointF lastPoint = points[prev];
-
-            result.Add(points[0]);
-            orientations.Add(GetOrientation(lastPoint, points[0], points[1]));
-            lastPoint = points[0];
-
-            for (int i = 1; i < count; i++)
-            {
-                int next = i + 1;
-                if (next >= count)
-                    next -= count;
-                sbyte orientation = GetOrientation(lastPoint, points[i], points[next]);
-                if (orientation == 0 && next != 0)
-                    continue;
-
-                result.Add(points[i]);
-                orientations.Add(orientation);
-                lastPoint = points[i];
-            }
-
-            // removing points lying on the same line from the end
-            count = result.Count;
-            while (count > 2 && orientations[count - 1] == 0)
-                count -= 1;
-            if (count < result.Count)
-                result.RemoveRange(count, result.Count - count);
-
-            VertexCount = result.Count;
             float minX = Single.MaxValue;
             float minY = Single.MaxValue;
             float maxX = Single.MinValue;
             float maxY = Single.MinValue;
-            foreach (PointF vertex in result)
-            {
-                if (vertex.X < minX)
-                    minX = vertex.X;
-                if (vertex.X > maxX)
-                    maxX = vertex.X;
-                if (vertex.Y < minY)
-                    minY = vertex.Y;
-                if (vertex.Y > maxY)
-                    maxY = vertex.Y;
-            }
 
-            // Forcing open shape below 3 points
-            if (isClosed && result.Count < 3)
+            try
             {
-                isClosed = false;
-                openVertices = ClosedVertices = result;
-            }
-            else
-            {
-                // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
-                if (!result[0].TolerantEquals(result[result.Count - 1], equalityTolerance))
-                    result.Add(result[0]);
+                var orientations = new List<sbyte>();
+                int count = points.Count;
+                int prev = count;
+
+                // skipping points from the end that are same as the first point
+                do
+                {
+                    prev -= 1;
+                    if (prev == 0)
+                    {
+                        // All points are practically the same.
+                        result.Add(points[0]);
+                        openVertices = ClosedVertices = result;
+                        minX = maxX = points[0].X;
+                        minY = maxY = points[0].Y;
+                        isClosed = false;
+                        VertexCount = 1;
+                        return;
+                    }
+                } while (points[0].TolerantEquals(points[prev], equalityTolerance));
+
+                count = prev + 1;
+                PointF lastPoint = points[prev];
+
+                result.Add(points[0]);
+                orientations.Add(GetOrientation(lastPoint, points[0], points[1]));
+                lastPoint = points[0];
+
+                for (int i = 1; i < count; i++)
+                {
+                    int next = i + 1;
+                    if (next >= count)
+                        next -= count;
+                    sbyte orientation = GetOrientation(lastPoint, points[i], points[next]);
+                    if (orientation == 0 && next != 0)
+                        continue;
+
+                    result.Add(points[i]);
+                    orientations.Add(orientation);
+                    lastPoint = points[i];
+                }
+
+                // removing points lying on the same line from the end
+                count = result.Count;
+                while (count > 2 && orientations[count - 1] == 0)
+                    count -= 1;
+                if (count < result.Count)
+                    result.RemoveRange(count, result.Count - count);
+
+                VertexCount = result.Count;
+                foreach (PointF vertex in result)
+                {
+                    if (vertex.X < minX)
+                        minX = vertex.X;
+                    if (vertex.X > maxX)
+                        maxX = vertex.X;
+                    if (vertex.Y < minY)
+                        minY = vertex.Y;
+                    if (vertex.Y > maxY)
+                        maxY = vertex.Y;
+                }
+
+                // Forcing open shape below 3 points
+                if (result.Count < 3)
+                {
+                    isClosed = false;
+                    openVertices = ClosedVertices = result;
+                }
                 else
-                    openVertices = result;
+                {
+                    // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
+                    if (!result[0].TolerantEquals(result[result.Count - 1], equalityTolerance))
+                        result.Add(result[0]);
+                    else
+                        openVertices = result;
 
-                // If original points are practically closed but the figure is officially open, then
-                // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
-                if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
-                    openVertices ??= result;
+                    // If original points are practically closed but the figure is officially open, then
+                    // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
+                    if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
+                        openVertices ??= result;
 
-                ClosedVertices = result;
+                    ClosedVertices = result;
+                }
             }
+            finally
+            {
+                // Offsetting the input points could be simpler, but it may not be a copy in every case and may contain ignored points.
+                if (offset)
+                {
+                    minX += 0.5f;
+                    minY += 0.5f;
+                    maxX += 0.5f;
+                    maxY += 0.5f;
+                    DoOffset(result);
+                }
 
-            Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(equalityTolerance), (int)minY.TolerantFloor(equalityTolerance),
-                (int)maxX.TolerantCeiling(equalityTolerance), (int)maxY.TolerantCeiling(equalityTolerance));
-            IsClosed = isClosed;
+                Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(equalityTolerance), (int)minY.TolerantFloor(equalityTolerance),
+                    (int)maxX.TolerantCeiling(equalityTolerance), (int)maxY.TolerantCeiling(equalityTolerance));
+                IsClosed = isClosed;
+            }
         }
 
         #endregion
@@ -206,6 +223,18 @@ namespace KGySoft.Drawing.Shapes
             return (sbyte)(result.TolerantIsZero(equalityTolerance) ? 0
                 : result > 0f ? 1
                 : -1);
+        }
+
+        private static void DoOffset(IList<PointF> points)
+        {
+            // TODO: vectorization (test cast to Vector4/Vector<float>/explicit SIMD Vector128/256) options.
+            // .NET5+: CollectionsMarshal.AsSpan(ClosedVertices); otherwise, Accessor.GetArraySection(ClosedVertices).Cast<Vector4>, and Vector2 to the possible last element.
+
+            // TODO: is it faster to get the internal array first, and then set element's X/Y in place?
+            int len = points.Count;
+            SizeF offset = new SizeF(0.5f, 0.5f);
+            for (int i = 0; i < len; i++)
+                points[i] += offset;
         }
 
         #endregion
