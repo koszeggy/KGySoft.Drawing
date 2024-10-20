@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        IBitmapData IBitmapDataRowInternal.BitmapData => BitmapData;
+        IBitmapDataInternal IBitmapDataRowInternal.BitmapData => BitmapData;
 
         #endregion
 

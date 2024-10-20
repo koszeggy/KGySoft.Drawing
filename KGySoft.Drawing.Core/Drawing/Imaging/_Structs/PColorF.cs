@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct PColorF : IEquatable<PColorF>
+    public readonly struct PColorF : IEquatable<PColorF>, IColor<PColorF, ColorF>
     {
         #region Fields
 
@@ -120,6 +120,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Properties
 
+        #region Public Properties
+
         /// <summary>
         /// Gets whether this <see cref="PColorF"/> instance represents a valid color.
         /// That is, when <see cref="A"/>, <see cref="R"/>, <see cref="G"/> and <see cref="B"/> fields are all between 0 and 1,
@@ -130,6 +132,14 @@ namespace KGySoft.Drawing.Imaging
 #else
         public bool IsValid => Clip() == this;
 #endif
+
+        #endregion
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IColor<PColorF, ColorF>.IsOpaque => A >= 1f;
 
         #endregion
 
@@ -687,6 +697,26 @@ namespace KGySoft.Drawing.Imaging
                 result.G.ClipToUInt16(a),
                 result.B.ClipToUInt16(a));
 #endif
+        }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        PColorF IColor<PColorF, ColorF>.BlendSrgb(PColorF backColor) => throw new InvalidOperationException(Res.InternalError("PColorF.BlendSrgb should not be called by internal IColor<PColorF, ColorF> implementations"));
+        PColorF IColor<PColorF, ColorF>.BlendLinear(PColorF backColor) => this.Blend(backColor);
+
+        PColorF IColor<PColorF, ColorF>.WithAlpha(byte a, ColorF baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColorF());
+            Debug.Assert(A >= 1f, "Expected to be called on opaque colors");
+            return FromArgb(ColorSpaceHelper.ToFloat(a), baseColor);
+        }
+
+        PColorF IColor<PColorF, ColorF>.AdjustAlpha(byte factor, ColorF baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColorF());
+            return FromArgb(ColorSpaceHelper.ToFloat(factor) * A, baseColor);
         }
 
         #endregion

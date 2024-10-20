@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
-            public IBitmapData BitmapData { get; }
+            public IBitmapDataInternal BitmapData { get; }
             public int Width => row.Width;
             public int Size => row.Size;
             public int Index => row.Index;

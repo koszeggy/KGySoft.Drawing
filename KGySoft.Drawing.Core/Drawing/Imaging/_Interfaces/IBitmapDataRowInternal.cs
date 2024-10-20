@@ -21,7 +21,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Properties
         
-        IBitmapData BitmapData { get; }
+        IBitmapDataInternal BitmapData { get; }
 
         #endregion
 

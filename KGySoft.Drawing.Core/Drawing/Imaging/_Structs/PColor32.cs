@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct PColor32 : IEquatable<PColor32>
+    public readonly struct PColor32 : IEquatable<PColor32>, IColor<PColor32, Color32>
     {
         #region Fields
 
@@ -106,6 +106,12 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal uint Value => value;
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IColor<PColor32, Color32>.IsOpaque => A == Byte.MaxValue;
 
         #endregion
 
@@ -342,6 +348,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Returns a valid <see cref="PColor32"/> instance by clipping the possibly exceeding original RGB values.
         /// If <see cref="IsValid"/> returns <see langword="true"/>, then the result is the same as the original instance.
@@ -464,6 +472,28 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="PColor32"/> instance.</returns>
         public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        PColor32 IColor<PColor32, Color32>.BlendSrgb(PColor32 backColor) => this.Blend(backColor);
+        PColor32 IColor<PColor32, Color32>.BlendLinear(PColor32 backColor) => throw new InvalidOperationException(Res.InternalError("PColor32.BlendLinear should not be called by internal IColor<PColor32, Color32> implementations"));
+        
+        PColor32 IColor<PColor32, Color32>.WithAlpha(byte a, Color32 baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColor32());
+            Debug.Assert(A == Byte.MaxValue, "Expected to be called on opaque colors");
+            return FromArgb(a, baseColor);
+        }
+
+        PColor32 IColor<PColor32, Color32>.AdjustAlpha(byte factor, Color32 baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColor32());
+            return FromArgb(A == Byte.MaxValue ? factor : (byte)(factor * A / Byte.MaxValue), baseColor);
+        }
+
+        #endregion
 
         #endregion
 

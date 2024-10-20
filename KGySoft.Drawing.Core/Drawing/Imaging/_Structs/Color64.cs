@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct Color64 : IEquatable<Color64>
+    public readonly struct Color64 : IEquatable<Color64>, IColor<Color64>
     {
         #region Constants
 
@@ -91,7 +91,17 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Internal Properties
+
         internal ulong Value => value;
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IColor<Color64, Color64>.IsOpaque => A == UInt16.MaxValue;
+
+        #endregion
 
         #endregion
 
@@ -274,6 +284,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Converts this <see cref="Color64"/> instance to a <see cref="Color32"/> structure.
         /// </summary>
@@ -362,6 +374,35 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="Color64"/> instance.</returns>
         public override string ToString() => $"{value:X16} [A={A}; R={R}; G={G}; B={B}]";
+
+        #endregion
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        Color64 IColor<Color64, Color64>.BlendSrgb(Color64 backColor) => this.Blend(backColor);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        Color64 IColor<Color64, Color64>.BlendLinear(Color64 backColor) => A == UInt16.MaxValue ? this
+            : backColor.A == UInt16.MaxValue ? this.BlendWithBackgroundLinear(backColor)
+            : A == 0 ? backColor
+            : backColor.A == 0 ? this
+            : this.BlendWithLinear(backColor);
+
+        Color64 IColor<Color64, Color64>.WithAlpha(byte a, Color64 baseColor)
+        {
+            Debug.Assert(this == baseColor);
+            Debug.Assert(A == UInt16.MaxValue, "Expected to be called on opaque colors");
+            return FromArgb(ColorSpaceHelper.ToUInt16(a), this);
+        }
+
+        Color64 IColor<Color64, Color64>.AdjustAlpha(byte factor, Color64 baseColor)
+        {
+            Debug.Assert(this == baseColor);
+            ushort factorU16 = ColorSpaceHelper.ToUInt16(factor);
+            return FromArgb(A == UInt16.MaxValue ? factorU16 : (ushort)((uint)factorU16 * A / UInt16.MaxValue), this);
+        }
 
         #endregion
 

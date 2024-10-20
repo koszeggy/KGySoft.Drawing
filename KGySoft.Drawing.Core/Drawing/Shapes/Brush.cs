@@ -65,11 +65,12 @@ namespace KGySoft.Drawing.Shapes
             internal DrawingOptions DrawingOptions { get; }
             internal Rectangle VisibleBounds { get; }
             internal Region? Region { get; }
+            internal RawPath RawPath { get; }
 
             #endregion
 
             #region Protected Properties
-            
+
             protected Brush Owner { get; }
             protected IBitmapDataInternal BitmapData { get; }
             protected WorkingColorSpace WorkingColorSpace { get; set; }
@@ -81,11 +82,12 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected PathSessionBase(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, DrawingOptions options, Rectangle bounds, Region? region)
+            protected PathSessionBase(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
             {
                 Owner = owner;
                 Context = context;
                 BitmapData = (bitmapData as IBitmapDataInternal) ?? new BitmapDataWrapper(bitmapData, true, true);
+                RawPath = rawPath;
                 DrawingOptions = options;
                 VisibleBounds = bounds;
                 Region = region;
@@ -143,8 +145,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected FillPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, DrawingOptions options, Rectangle bounds, Region? region)
-                : base(owner, context, bitmapData, options, bounds, region)
+            protected FillPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
+                : base(owner, context, bitmapData, rawPath, bounds, options, region)
             {
             }
 
@@ -207,7 +209,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected unsafe RegionScanner(FillPathSession session, RawPath path, float roundingUnit)
+            protected unsafe RegionScanner(FillPathSession session, float roundingUnit)
             {
                 #region Local Methods
 
@@ -219,6 +221,7 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
 
                 Session = session;
+                RawPath path = session.RawPath;
                 visibleBounds = session.VisibleBounds;
                 generateBounds = session.Region == null ? visibleBounds : path.Bounds;
                 int len = sizeof(EdgeEntry) * path.TotalVertices
@@ -579,11 +582,11 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public SolidRegionScanner(FillPathSession session, RawPath path)
-                : base(session, path, roundingUnit)
+            public SolidRegionScanner(FillPathSession session)
+                : base(session, roundingUnit)
             {
                 var drawingOptions = session.DrawingOptions;
-                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, session.RawPath.TotalVertices);
                 var context = session.Context;
 
                 pixelOffset = drawingOptions.ScanPathPixelOffset == PixelOffset.Half ? 0.5f : 0f;
@@ -1045,12 +1048,12 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            public AntiAliasingRegionScanner(FillPathSession session, RawPath path)
-                : base(session, path, roundingUnit)
+            public AntiAliasingRegionScanner(FillPathSession session)
+                : base(session, roundingUnit)
             {
                 var drawingOptions = session.DrawingOptions;
                 var context = session.Context;
-                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, path.TotalVertices);
+                var activeEdges = ActiveEdgeTable.Create(GetActiveTableBuffer(), drawingOptions.FillMode, Edges.Length, session.RawPath.TotalVertices);
 
                 subpixelOffset = drawingOptions.ScanPathPixelOffset == PixelOffset.Half ? subpixelSizeF / 2f : 0f;
                 mainContext = new AntiAliasingScannerContext(this, activeEdges);
@@ -1603,8 +1606,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            protected DrawThinPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions options, Rectangle bounds, Region? region)
-                : base(owner, context, bitmapData, options, bounds, region)
+            protected DrawThinPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
+                : base(owner, context, bitmapData, rawPath, bounds, options, region)
             {
                 Path = rawPath;
             }
@@ -1642,7 +1645,7 @@ namespace KGySoft.Drawing.Shapes
             #region Constructors
 
             internal DrawIntoRegionSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
-                : base(owner, context, bitmapData, rawPath, options, bounds, region)
+                : base(owner, context, bitmapData, rawPath, bounds, options, region)
             {
             }
 
@@ -1733,7 +1736,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
-            internal override void FinalizeSession() => Owner.ApplyRegion(Context, BitmapData, VisibleBounds, DrawingOptions, Region!);
+            internal override void FinalizeSession() => Owner.ApplyRegion(Context, BitmapData, Path, VisibleBounds, DrawingOptions, Region!);
 
             #endregion
 
@@ -2219,10 +2222,10 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private static RegionScanner CreateScanner(FillPathSession session, RawPath path)
+        private static RegionScanner CreateScanner(FillPathSession session)
             => session.DrawingOptions.AntiAliasing
-                ? new AntiAliasingRegionScanner(session, path)
-                : new SolidRegionScanner(session, path);
+                ? new AntiAliasingRegionScanner(session)
+                : new SolidRegionScanner(session);
 
         #endregion
 
@@ -2255,15 +2258,15 @@ namespace KGySoft.Drawing.Shapes
                 // If we already have a generated region, we just re-apply it on a much faster path.
                 if (region.IsGenerated)
                 {
-                    ApplyRegion(context, bitmapData, visibleBounds, drawingOptions, region);
+                    ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
                     return;
                 }
             }
 
             try
             {
-                using FillPathSession session = CreateFillSession(context, bitmapData, visibleBounds, drawingOptions, region);
-                using RegionScanner scanner = CreateScanner(session, rawPath);
+                using FillPathSession session = CreateFillSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+                using RegionScanner scanner = CreateScanner(session);
                 Rectangle generateBounds = region == null ? visibleBounds : pathBounds;
 
                 if (scanner.IsSingleThreaded || session.IsSingleThreaded)
@@ -2354,7 +2357,7 @@ namespace KGySoft.Drawing.Shapes
                 // If we already have a generated region, we just re-apply it
                 if (region.IsGenerated)
                 {
-                    ApplyRegion(context, bitmapData, visibleBounds, drawingOptions, region);
+                    ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
                     return;
                 }
             }
@@ -2404,7 +2407,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Protected Methods
 
-        private protected abstract FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle bounds, DrawingOptions drawingOptions, Region? region);
+        private protected abstract FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region);
 
         private protected virtual DrawThinPathSession CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
             ? throw new InvalidOperationException(Res.InternalError($"{nameof(CreateDrawThinPathSession)} should be overridden to draw path without generating a region"))
@@ -2414,9 +2417,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle visibleBounds, DrawingOptions drawingOptions, Region region)
+        private void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle visibleBounds, DrawingOptions drawingOptions, Region region)
         {
-            using FillPathSession session = CreateFillSession(context, bitmapData, visibleBounds, drawingOptions, region);
+            using FillPathSession session = CreateFillSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
             var applicator = new RegionApplicator(session);
             if (applicator.IsSingleThreaded || session.IsSingleThreaded)
             {

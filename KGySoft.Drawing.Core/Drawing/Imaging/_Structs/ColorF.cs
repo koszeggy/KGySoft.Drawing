@@ -38,7 +38,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct ColorF : IEquatable<ColorF>
+    public readonly struct ColorF : IEquatable<ColorF>, IColor<ColorF>
     {
         #region Fields
 
@@ -142,6 +142,12 @@ namespace KGySoft.Drawing.Imaging
 #else
         internal RgbF RgbF => new RgbF(R, G, B);
 #endif
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IColor<ColorF, ColorF>.IsOpaque => A >= 1f;
 
         #endregion
 
@@ -801,6 +807,32 @@ namespace KGySoft.Drawing.Imaging
                 ColorSpaceHelper.SrgbToLinear(G),
                 ColorSpaceHelper.SrgbToLinear(B));
 #endif
+        }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        ColorF IColor<ColorF, ColorF>.BlendSrgb(ColorF backColor) => A >= 1f ? this
+            : backColor.A >= 1f ? this.BlendWithBackgroundSrgb(backColor)
+            : A <= 0f ? backColor
+            : backColor.A <= 0f ? this
+            : this.BlendWithSrgb(backColor);
+
+        ColorF IColor<ColorF, ColorF>.BlendLinear(ColorF backColor) => this.Blend(backColor);
+
+        ColorF IColor<ColorF, ColorF>.WithAlpha(byte a, ColorF baseColor)
+        {
+            Debug.Assert(this == baseColor);
+            Debug.Assert(A >= 1f, "Expected to be called on opaque colors");
+            return FromArgb(ColorSpaceHelper.ToFloat(a), this);
+        }
+
+        ColorF IColor<ColorF, ColorF>.AdjustAlpha(byte factor, ColorF baseColor)
+        {
+            Debug.Assert(this == baseColor);
+            return FromArgb(ColorSpaceHelper.ToFloat(factor) * A, this);
         }
 
         #endregion

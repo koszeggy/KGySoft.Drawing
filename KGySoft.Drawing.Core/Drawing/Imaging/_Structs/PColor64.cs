@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct PColor64 : IEquatable<PColor64>
+    public readonly struct PColor64 : IEquatable<PColor64>, IColor<PColor64, Color64>
     {
         #region Fields
 
@@ -113,6 +113,12 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal ulong Value => value;
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IColor<PColor64, Color64>.IsOpaque => A == UInt16.MaxValue;
 
         #endregion
 
@@ -400,6 +406,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Returns a valid <see cref="PColor64"/> instance by clipping the possibly exceeding original RGB values.
         /// If <see cref="IsValid"/> returns <see langword="true"/>, then the result is the same as the original instance.
@@ -625,6 +633,29 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="PColor64"/> instance.</returns>
         public override string ToString() => $"{value:X16} [A={A}; R={R}; G={G}; B={B}]";
+
+        #endregion
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        PColor64 IColor<PColor64, Color64>.BlendSrgb(PColor64 backColor) => this.Blend(backColor);
+        PColor64 IColor<PColor64, Color64>.BlendLinear(PColor64 backColor) => throw new InvalidOperationException(Res.InternalError("PColor64.BlendLinear should not be called by internal IColor<PColor64, Color64> implementations"));
+
+        PColor64 IColor<PColor64, Color64>.WithAlpha(byte a, Color64 baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColor64());
+            Debug.Assert(A == UInt16.MaxValue, "Expected to be called on opaque colors");
+            return FromArgb(ColorSpaceHelper.ToUInt16(a), baseColor);
+        }
+
+        PColor64 IColor<PColor64, Color64>.AdjustAlpha(byte factor, Color64 baseColor)
+        {
+            Debug.Assert(this == baseColor.ToPColor64());
+            ushort factorU16 = ColorSpaceHelper.ToUInt16(factor);
+            return FromArgb(A == UInt16.MaxValue ? factorU16 : (ushort)((uint)factorU16 * A / UInt16.MaxValue), baseColor);
+        }
 
         #endregion
 
