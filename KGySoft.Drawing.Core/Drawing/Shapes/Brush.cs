@@ -51,6 +51,27 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Nested Interfaces
+
+        private protected interface IBitmapDataAccessor<TColor, TBaseColor> where TColor : unmanaged, IColor<TColor, TBaseColor>
+        {
+            #region Methods
+
+            void InitBitmapData(IBitmapDataInternal bitmapData);
+            TColor GetColor(int x, int y);
+            void SetColor(int x, int y, TColor color);
+
+            void InitRow(IBitmapDataRowInternal row);
+            TColor GetColor(int x);
+            void SetColor(int x, TColor color);
+
+            #endregion
+        }
+
+        private protected interface IBitmapDataAccessor<TColor> : IBitmapDataAccessor<TColor, TColor> where TColor : unmanaged, IColor<TColor>;
+
+        #endregion
+
         #region Nested Classes
 
         #region PathSessionBase class
@@ -2198,6 +2219,168 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Nested Structs
+        // ReSharper disable ParameterHidesMember - justification: initialization
+
+        #region AccessorColor32 struct
+
+        private protected struct AccessorColor32 : IBitmapDataAccessor<Color32>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
+            public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public Color32 GetColor(int x) => row.DoGetColor32(x);
+            public void SetColor(int x, Color32 color) => row.DoSetColor32(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AccessorPColor32 struct
+
+        private protected struct AccessorPColor32 : IBitmapDataAccessor<PColor32, Color32>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public PColor32 GetColor(int x, int y) => bitmapData.DoGetPColor32(x, y);
+            public void SetColor(int x, int y, PColor32 color) => bitmapData.DoSetPColor32(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public PColor32 GetColor(int x) => row.DoGetPColor32(x);
+            public void SetColor(int x, PColor32 color) => row.DoSetPColor32(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AccessorColor64 struct
+
+        private protected struct AccessorColor64 : IBitmapDataAccessor<Color64>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public Color64 GetColor(int x, int y) => bitmapData.DoGetColor64(x, y);
+            public void SetColor(int x, int y, Color64 color) => bitmapData.DoSetColor64(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public Color64 GetColor(int x) => row.DoGetColor64(x);
+            public void SetColor(int x, Color64 color) => row.DoSetColor64(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AccessorPColor64 struct
+
+        private protected struct AccessorPColor64 : IBitmapDataAccessor<PColor64, Color64>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public PColor64 GetColor(int x, int y) => bitmapData.DoGetPColor64(x, y);
+            public void SetColor(int x, int y, PColor64 color) => bitmapData.DoSetPColor64(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public PColor64 GetColor(int x) => row.DoGetPColor64(x);
+            public void SetColor(int x, PColor64 color) => row.DoSetPColor64(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AccessorColorF struct
+
+        private protected struct AccessorColorF : IBitmapDataAccessor<ColorF>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public ColorF GetColor(int x, int y) => bitmapData.DoGetColorF(x, y);
+            public void SetColor(int x, int y, ColorF color) => bitmapData.DoSetColorF(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public ColorF GetColor(int x) => row.DoGetColorF(x);
+            public void SetColor(int x, ColorF color) => row.DoSetColorF(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region AccessorPColorF struct
+
+        private protected struct AccessorPColorF : IBitmapDataAccessor<PColorF, ColorF>
+        {
+            #region Fields
+
+            private IBitmapDataRowInternal row;
+            private IBitmapDataInternal bitmapData;
+
+            #endregion
+
+            #region Methods
+
+            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
+            public PColorF GetColor(int x, int y) => bitmapData.DoGetPColorF(x, y);
+            public void SetColor(int x, int y, PColorF color) => bitmapData.DoSetPColorF(x, y, color);
+
+            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
+            public PColorF GetColor(int x) => row.DoGetPColorF(x);
+            public void SetColor(int x, PColorF color) => row.DoSetPColorF(x, color);
+
+            #endregion
+        }
+
+        #endregion
+
+        // ReSharper restore ParameterHidesMember
+        #endregion
+
         #endregion
 
         #endregion
@@ -2217,6 +2400,9 @@ namespace KGySoft.Drawing.Shapes
         public static Brush CreateSolid(Color32 color) => new SolidBrush(color);
         public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
+
+        public static Brush CreateTexture(IReadableBitmapData texture, WrapMode wrapMode = WrapMode.Tile, bool hasAlphaHint = true)
+            => TextureBasedBrush.Create(texture, wrapMode, hasAlphaHint);
 
         #endregion
 
