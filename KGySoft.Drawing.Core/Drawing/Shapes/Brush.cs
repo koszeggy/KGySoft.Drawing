@@ -53,7 +53,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Nested Interfaces
 
-        private protected interface IBitmapDataAccessor<TColor, TBaseColor> where TColor : unmanaged, IColor<TColor, TBaseColor>
+        private protected interface IBitmapDataAccessor<TColor, TBaseColor>
+            where TColor : unmanaged, IColor<TColor, TBaseColor>
+            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Methods
 
@@ -64,6 +66,8 @@ namespace KGySoft.Drawing.Shapes
             void InitRow(IBitmapDataRowInternal row);
             TColor GetColor(int x);
             void SetColor(int x, TColor color);
+            TBaseColor GetBaseColor(int x);
+            void SetBaseColor(int x, TBaseColor color);
 
             #endregion
         }
@@ -2242,6 +2246,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public Color32 GetColor(int x) => row.DoGetColor32(x);
             public void SetColor(int x, Color32 color) => row.DoSetColor32(x, color);
+            public Color32 GetBaseColor(int x) => row.DoGetColor32(x);
+            public void SetBaseColor(int x, Color32 color) => row.DoSetColor32(x, color);
 
             #endregion
         }
@@ -2268,6 +2274,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public PColor32 GetColor(int x) => row.DoGetPColor32(x);
             public void SetColor(int x, PColor32 color) => row.DoSetPColor32(x, color);
+            public Color32 GetBaseColor(int x) => row.DoGetColor32(x);
+            public void SetBaseColor(int x, Color32 color) => row.DoSetColor32(x, color);
 
             #endregion
         }
@@ -2294,6 +2302,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public Color64 GetColor(int x) => row.DoGetColor64(x);
             public void SetColor(int x, Color64 color) => row.DoSetColor64(x, color);
+            public Color64 GetBaseColor(int x) => row.DoGetColor64(x);
+            public void SetBaseColor(int x, Color64 color) => row.DoSetColor64(x, color);
 
             #endregion
         }
@@ -2320,6 +2330,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public PColor64 GetColor(int x) => row.DoGetPColor64(x);
             public void SetColor(int x, PColor64 color) => row.DoSetPColor64(x, color);
+            public Color64 GetBaseColor(int x) => row.DoGetColor64(x);
+            public void SetBaseColor(int x, Color64 color) => row.DoSetColor64(x, color);
 
             #endregion
         }
@@ -2346,6 +2358,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public ColorF GetColor(int x) => row.DoGetColorF(x);
             public void SetColor(int x, ColorF color) => row.DoSetColorF(x, color);
+            public ColorF GetBaseColor(int x) => row.DoGetColorF(x);
+            public void SetBaseColor(int x, ColorF color) => row.DoSetColorF(x, color);
 
             #endregion
         }
@@ -2372,6 +2386,8 @@ namespace KGySoft.Drawing.Shapes
             public void InitRow(IBitmapDataRowInternal row) => this.row = row;
             public PColorF GetColor(int x) => row.DoGetPColorF(x);
             public void SetColor(int x, PColorF color) => row.DoSetPColorF(x, color);
+            public ColorF GetBaseColor(int x) => row.DoGetColorF(x);
+            public void SetBaseColor(int x, ColorF color) => row.DoSetColorF(x, color);
 
             #endregion
         }

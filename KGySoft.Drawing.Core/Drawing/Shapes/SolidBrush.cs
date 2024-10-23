@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Shapes
     //  ==[Draw thin path - Size: {Width=101, Height=101}; Vertices: 73 Results]================================================
     //  Test Time: 5 000 ms
     //  Warming up: Yes
-    //  Test cases: 5
+    //  Test cases: 4
     //  Repeats: 3
     //  Calling GC.Collect: Yes
     //  Forced CPU Affinity: No
@@ -60,11 +60,6 @@ namespace KGySoft.Drawing.Shapes
     //    #2  639 767 iterations in 5 000,00 ms. Adjusted: 639 766,48	 <---- Worst
     //    #3  640 939 iterations in 5 000,00 ms. Adjusted: 640 938,85
     //    Worst-Best difference: 1 507,41 (0,24%)
-    //  5. Cached region: 894 508 iterations in 15 000,03 ms. Adjusted for 5 000 ms: 298 168,71 (-1 033 494,01 / 22,39%)
-    //    #1  297 908 iterations in 5 000,01 ms. Adjusted: 297 907,48
-    //    #2  297 593 iterations in 5 000,01 ms. Adjusted: 297 592,49	 <---- Worst
-    //    #3  299 007 iterations in 5 000,01 ms. Adjusted: 299 006,16	 <---- Best
-    //    Worst-Best difference: 1 413,67 (0,48%)
     internal sealed class SolidBrush : Brush
     {
         #region Nested Types
@@ -73,144 +68,12 @@ namespace KGySoft.Drawing.Shapes
 
         #region Fill
 
-        #region SolidFillSessionColor32 class
-
-        private sealed class SolidFillSessionColor32 : FillPathSession
-        {
-            #region Fields
-
-            private readonly Color32 color;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidFillSessionColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
-                : base(owner, context, bitmapData, rawPath, bounds, drawingOptions, region)
-            {
-                color = owner.Color32;
-            }
-
-            #endregion
-
-            #region Methods
-
-            internal override void ApplyScanlineSolid(in RegionScanline scanline)
-            {
-                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
-
-                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
-                Color32 c = color;
-                int left = scanline.Left;
-                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < row.Width);
-
-                if (!Blend)
-                {
-                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                    {
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                            row.DoSetColor32(x + left, c);
-                    }
-
-                    return;
-                }
-
-                Debug.Assert(color.A < Byte.MaxValue);
-                var colorSpace = WorkingColorSpace;
-                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                {
-                    if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                    {
-                        int pos = x + left;
-                        Color32 backColor = row.DoGetColor32(pos);
-                        row.DoSetColor32(pos, c.Blend(backColor, colorSpace));
-                    }
-                }
-            }
-
-            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
-            {
-                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
-                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
-                Color32 c = color;
-                int left = scanline.Left;
-
-                if (!Blend)
-                {
-                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                    {
-                        byte value = scanline.Scanline.GetElementUnchecked(x);
-                        switch (value)
-                        {
-                            case Byte.MinValue:
-                                continue;
-                            case Byte.MaxValue:
-                                row.DoSetColor32(x + left, c);
-                                continue;
-                            default:
-                                row.DoSetColor32(x + left, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
-                                continue;
-                        }
-                    }
-
-                    return;
-                }
-
-                var colorSpace = WorkingColorSpace;
-                if (c.A == Byte.MaxValue)
-                {
-                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                    {
-                        byte value = scanline.Scanline.GetElementUnchecked(x);
-                        switch (value)
-                        {
-                            case Byte.MinValue:
-                                continue;
-                            case Byte.MaxValue:
-                                row.DoSetColor32(x + left, c);
-                                continue;
-                            default:
-                                int pos = x + left;
-                                Color32 backColor = row.DoGetColor32(pos);
-                                row.DoSetColor32(pos, Color32.FromArgb(value, c).Blend(backColor, colorSpace));
-                                continue;
-                        }
-                    }
-
-                    return;
-                }
-
-                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                {
-                    byte value = scanline.Scanline.GetElementUnchecked(x);
-                    switch (value)
-                    {
-                        case Byte.MinValue:
-                            continue;
-                        case Byte.MaxValue:
-                            int pos = x + left;
-                            Color32 backColor = row.DoGetColor32(pos);
-                            row.DoSetColor32(pos, c.Blend(backColor, colorSpace));
-                            continue;
-                        default:
-                            pos = x + left;
-                            backColor = row.DoGetColor32(pos);
-                            row.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
-                            continue;
-                    }
-                }
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region SolidFillSessionNoBlend<,,> class
 
         private sealed class SolidFillSessionNoBlend<TAccessor, TColor, TBaseColor> : FillPathSession
             where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
+            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Fields
 
@@ -287,6 +150,7 @@ namespace KGySoft.Drawing.Shapes
         private sealed class SolidFillSessionBlendSrgb<TAccessor, TColor, TBaseColor> : FillPathSession
             where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
+            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Fields
 
@@ -394,6 +258,7 @@ namespace KGySoft.Drawing.Shapes
         private sealed class SolidFillSessionBlendLinear<TAccessor, TColor, TBaseColor> : FillPathSession
             where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
+            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Fields
 
@@ -1323,6 +1188,7 @@ namespace KGySoft.Drawing.Shapes
         private sealed class SolidDrawSession<TAccessor, TColor, TBaseColor> : DrawThinPathSession
             where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
+            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Fields
 
@@ -2027,17 +1893,16 @@ namespace KGySoft.Drawing.Shapes
                             : new SolidFillSessionBlendSrgb<AccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
             }
 
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
+            // Unlike drawing, fill has no special SolidFillSessionColor32 because these split generic cases are actually faster
             return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
                 ? !blend
                     ? new SolidFillSessionNoBlend<AccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                     : new SolidFillSessionBlendSrgb<AccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                //: !blend
-                //    ? new SolidFillSessionNoBlend<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                //    : linearBlending
-                //        ? new SolidFillSessionBlendLinear<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                //        : new SolidFillSessionBlendSrgb<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
-                : new SolidFillSessionColor32(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
+                : !blend
+                    ? new SolidFillSessionNoBlend<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                    : linearBlending
+                        ? new SolidFillSessionBlendLinear<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        : new SolidFillSessionBlendSrgb<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
         }
 
         private protected override DrawThinPathSession CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
