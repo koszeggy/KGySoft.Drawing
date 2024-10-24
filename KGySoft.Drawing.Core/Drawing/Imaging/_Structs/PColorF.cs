@@ -139,6 +139,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
+        bool IColor<PColorF, ColorF>.IsTransparent => A <= 0f;
         bool IColor<PColorF, ColorF>.IsOpaque => A >= 1f;
 
         #endregion

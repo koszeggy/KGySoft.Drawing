@@ -140,10 +140,21 @@ namespace KGySoft.Drawing.Shapes
                     if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) != 1)
                         continue;
 
-                    int pos = x + left;
-                    Color32 backColor = rowDst.DoGetColor32(pos);
-                    Color32 foreColor = rowSrc.DoGetColor32(srcX);
-                    rowDst.DoSetColor32(pos, foreColor.A == Byte.MaxValue ? foreColor : foreColor.Blend(backColor, colorSpace));
+                    Color32 colorSrc = rowSrc.DoGetColor32(srcX);
+                    if (colorSrc.A != Byte.MaxValue)
+                    {
+                        if (colorSrc.A == Byte.MinValue)
+                            continue;
+                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        if (colorDst.A != Byte.MinValue)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                ? colorSrc.BlendWithBackground(colorDst, colorSpace)
+                                : colorSrc.BlendWith(colorDst, colorSpace);
+                        }
+                    }
+
+                    rowDst.DoSetColor32(x + left, colorSrc);
                 }
             }
 
@@ -192,6 +203,8 @@ namespace KGySoft.Drawing.Shapes
                     return;
                 }
 
+                // From this point there is blending. Working in a compatible way with DrawInto (important to be consistent with TwoPassSolidSession):
+                // fully transparent source is skipped, just like when the alpha of the blended result is smaller than the threshold
                 if (srcY < 0)
                     return;
 
@@ -207,27 +220,31 @@ namespace KGySoft.Drawing.Shapes
                     if (srcX < 0)
                         continue;
 
-                    Color32 foreColor = rowSrc.GetColor32(srcX);
-                    if (value == Byte.MaxValue)
+                    Color32 colorSrc = rowSrc.GetColor32(srcX);
+                    if (colorSrc.A == Byte.MinValue)
+                        continue;
+
+                    if (value != Byte.MaxValue)
                     {
-                        if (foreColor.A == Byte.MaxValue)
-                            rowDst.DoSetColor32(x + left, foreColor);
-                        else
+                        colorSrc = colorSrc.A == Byte.MaxValue
+                            ? Color32.FromArgb(value, colorSrc)
+                            : Color32.FromArgb((byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
+                        if (colorSrc.A == Byte.MinValue)
+                            continue;
+                    }
+
+                    if (colorSrc.A != Byte.MaxValue)
+                    {
+                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        if (colorDst.A != Byte.MinValue)
                         {
-                            int pos = x + left;
-                            Color32 backColor = rowDst.DoGetColor32(pos);
-                            rowDst.DoSetColor32(pos, foreColor.Blend(backColor, colorSpace));
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                ? colorSrc.BlendWithBackground(colorDst, colorSpace)
+                                : colorSrc.BlendWith(colorDst, colorSpace);
                         }
                     }
-                    else
-                    {
-                        int pos = x + left;
-                        Color32 backColor = rowDst.DoGetColor32(pos);
-                        rowDst.DoSetColor32(pos, (foreColor.A == Byte.MaxValue
-                            ? Color32.FromArgb(value, foreColor)
-                            : Color32.FromArgb((byte)(value * foreColor.A / Byte.MaxValue), foreColor))
-                            .Blend(backColor, colorSpace));
-                    }
+
+                    rowDst.DoSetColor32(x + left, colorSrc);
                 }
             }
 
@@ -389,9 +406,18 @@ namespace KGySoft.Drawing.Shapes
                         continue;
 
                     int pos = x + left;
-                    TColor backColor = accDst.GetColor(pos);
-                    TColor foreColor = accSrc.GetColor(srcX);
-                    accDst.SetColor(pos, foreColor.IsOpaque ? foreColor : foreColor.BlendSrgb(backColor));
+                    TColor colorSrc = accSrc.GetColor(srcX);
+                    if (!colorSrc.IsOpaque)
+                    {
+                        if (colorSrc.IsTransparent)
+                            continue;
+
+                        TColor colorDst = accDst.GetColor(pos);
+                        if (!colorDst.IsTransparent)
+                            colorSrc = colorSrc.BlendSrgb(colorDst);
+                    }
+
+                    accDst.SetColor(pos, colorSrc);
                 }
             }
 
@@ -424,25 +450,31 @@ namespace KGySoft.Drawing.Shapes
 
                     if (value == Byte.MaxValue)
                     {
-                        TColor foreColor = accSrc.GetColor(srcX);
-                        if (foreColor.IsOpaque)
-                            accDst.SetColor(x + left, foreColor);
-                        else
+                        TColor colorSrc = accSrc.GetColor(srcX);
+                        if (colorSrc.IsOpaque)
+                            accDst.SetColor(x + left, colorSrc);
+                        else if (!colorSrc.IsTransparent)
                         {
                             int pos = x + left;
-                            TColor backColor = accDst.GetColor(pos);
-                            accDst.SetColor(pos, foreColor.BlendSrgb(backColor));
+                            TColor colorDst = accDst.GetColor(pos);
+                            accDst.SetColor(pos, colorDst.IsTransparent ? colorSrc : colorSrc.BlendSrgb(colorDst));
                         }
                     }
                     else
                     {
+                        TBaseColor colorSrc = accSrc.GetBaseColor(srcX);
+                        if (colorSrc.IsOpaque)
+                            colorSrc = colorSrc.WithAlpha(value, colorSrc);
+                        else
+                        {
+                            colorSrc = colorSrc.AdjustAlpha(value, colorSrc);
+                            if (colorSrc.IsTransparent)
+                                continue;
+                        }
+
                         int pos = x + left;
-                        TBaseColor foreColor = accSrc.GetBaseColor(srcX);
-                        TBaseColor backColor = accDst.GetBaseColor(pos);
-                        accDst.SetBaseColor(pos, (foreColor.IsOpaque
-                            ? foreColor.WithAlpha(value, foreColor)
-                            : foreColor.AdjustAlpha(value, foreColor))
-                            .BlendSrgb(backColor));
+                        TBaseColor colorDst = accDst.GetBaseColor(pos);
+                        accDst.SetBaseColor(pos, colorDst.IsTransparent ? colorSrc : colorSrc.BlendSrgb(colorDst));
                     }
                 }
             }
@@ -496,9 +528,18 @@ namespace KGySoft.Drawing.Shapes
                         continue;
 
                     int pos = x + left;
-                    TColor backColor = accDst.GetColor(pos);
-                    TColor foreColor = accSrc.GetColor(srcX);
-                    accDst.SetColor(pos, foreColor.IsOpaque ? foreColor : foreColor.BlendLinear(backColor));
+                    TColor colorSrc = accSrc.GetColor(srcX);
+                    if (!colorSrc.IsOpaque)
+                    {
+                        if (colorSrc.IsTransparent)
+                            continue;
+
+                        TColor colorDst = accDst.GetColor(pos);
+                        if (!colorDst.IsTransparent)
+                            colorSrc = colorSrc.BlendLinear(colorDst);
+                    }
+
+                    accDst.SetColor(pos, colorSrc);
                 }
             }
 
@@ -531,26 +572,236 @@ namespace KGySoft.Drawing.Shapes
 
                     if (value == Byte.MaxValue)
                     {
-                        TColor foreColor = accSrc.GetColor(srcX);
-                        if (foreColor.IsOpaque)
-                            accDst.SetColor(x + left, foreColor);
-                        else
+                        TColor colorSrc = accSrc.GetColor(srcX);
+                        if (colorSrc.IsOpaque)
+                            accDst.SetColor(x + left, colorSrc);
+                        else if (!colorSrc.IsTransparent)
                         {
                             int pos = x + left;
-                            TColor backColor = accDst.GetColor(pos);
-                            accDst.SetColor(pos, foreColor.BlendLinear(backColor));
+                            TColor colorDst = accDst.GetColor(pos);
+                            accDst.SetColor(pos, colorDst.IsTransparent ? colorSrc : colorSrc.BlendLinear(colorDst));
                         }
                     }
                     else
                     {
+                        TBaseColor colorSrc = accSrc.GetBaseColor(srcX);
+                        if (colorSrc.IsOpaque)
+                            colorSrc = colorSrc.WithAlpha(value, colorSrc);
+                        else
+                        {
+                            colorSrc = colorSrc.AdjustAlpha(value, colorSrc);
+                            if (colorSrc.IsTransparent)
+                                continue;
+                        }
+
                         int pos = x + left;
-                        TBaseColor foreColor = accSrc.GetBaseColor(srcX);
-                        TBaseColor backColor = accDst.GetBaseColor(pos);
-                        accDst.SetBaseColor(pos, (foreColor.IsOpaque
-                            ? foreColor.WithAlpha(value, foreColor)
-                            : foreColor.AdjustAlpha(value, foreColor))
-                            .BlendLinear(backColor));
+                        TBaseColor colorDst = accDst.GetBaseColor(pos);
+                        accDst.SetBaseColor(pos, colorDst.IsTransparent ? colorSrc : colorSrc.BlendLinear(colorDst));
                     }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region FillSessionWithQuantizing class
+
+        private sealed class FillSessionWithQuantizing : TextureBasedFillSession
+        {
+            #region Fields
+
+            private readonly IQuantizingSession quantizingSession;
+
+            #endregion
+
+            #region Constructors
+
+            internal FillSessionWithQuantizing(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath,
+                Rectangle bounds, DrawingOptions drawingOptions, IQuantizer quantizer, Region? region)
+                : base(owner, context, bitmapData, rawPath, bounds, drawingOptions, region)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
+                WorkingColorSpace = quantizingSession.WorkingColorSpace;
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void ApplyScanlineSolid(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+
+                TMapper mapper = Mapper;
+                int dstY = scanline.RowIndex;
+                int srcY = mapper.MapY(dstY);
+                int left = scanline.Left;
+                IBitmapDataRowInternal rowSrc;
+                IBitmapDataRowInternal rowDst = BitmapData.GetRowCached(dstY);
+                IQuantizingSession session = quantizingSession;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < BitmapData.Width);
+
+                if (!Blend)
+                {
+                    if (srcY < 0)
+                    {
+                        // Blank texture row. As there is no blending here, setting transparent pixels
+                        Color32 transparentColor = session.GetQuantizedColor(default);
+                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                        {
+                            if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                                rowDst.DoSetColor32(x + left, transparentColor);
+                        }
+                    }
+                    else
+                    {
+                        rowSrc = Texture.GetRowCached(srcY);
+                        Color32? transparentColor = null;
+                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                        {
+                            int srcX = mapper.MapX(x);
+                            if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                                rowDst.DoSetColor32(x + left, srcX >= 0 ? session.GetQuantizedColor(rowSrc.DoGetColor32(srcX)) : transparentColor ??= session.GetQuantizedColor(default));
+                        }
+                    }
+
+                    return;
+                }
+
+                // From this point there is blending. Working in a compatible way with DrawInto (important to be consistent with TwoPassSession):
+                // fully transparent source is skipped, just like when the alpha of the blended result is smaller than the threshold
+                if (srcY < 0)
+                    return;
+
+                rowSrc = Texture.GetRowCached(srcY);
+                var colorSpace = WorkingColorSpace;
+                byte alphaThreshold = session.AlphaThreshold;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    int srcX = mapper.MapX(x);
+                    if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) != 1)
+                        continue;
+
+                    Color32 colorSrc = rowSrc.DoGetColor32(srcX);
+                    if (colorSrc.A != Byte.MaxValue)
+                    {
+                        if (colorSrc.A == Byte.MinValue)
+                            continue;
+                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        if (colorDst.A != Byte.MinValue)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                ? colorSrc.BlendWithBackground(colorDst, colorSpace)
+                                : colorSrc.BlendWith(colorDst, colorSpace);
+                        }
+
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+                    }
+
+                    rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
+                }
+            }
+
+            internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
+            {
+                Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
+                TMapper mapper = Mapper;
+                int dstY = scanline.RowIndex;
+                int srcY = mapper.MapY(dstY);
+                int left = scanline.Left;
+                IBitmapDataRowInternal rowSrc;
+                IBitmapDataRowInternal rowDst = BitmapData.GetRowCached(dstY);
+                IQuantizingSession session = quantizingSession;
+                Debug.Assert(scanline.MinIndex + left >= 0 && scanline.MaxIndex + left < BitmapData.Width);
+
+                if (!Blend)
+                {
+                    if (srcY < 0)
+                    {
+                        // Blank texture row. As there is no blending here, setting transparent pixels where the scanline mask is not zero
+                        Color32 transparentColor = session.GetQuantizedColor(default);
+                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                        {
+                            if (scanline.Scanline.GetElementUnchecked(x) != 0)
+                                rowDst.SetColor32(x + left, transparentColor);
+                        }
+                    }
+                    else
+                    {
+                        rowSrc = Texture.GetRowCached(srcY);
+                        Color32? transparentColor = null;
+                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                        {
+                            byte value = scanline.Scanline.GetElementUnchecked(x);
+                            if (value == Byte.MinValue)
+                                continue;
+
+                            int srcX = mapper.MapX(x);
+                            if (srcX < 0)
+                                rowDst.DoSetColor32(x + left, transparentColor ??= session.GetQuantizedColor(default));
+                            else
+                            {
+                                Color32 c = rowSrc.GetColor32(srcX);
+                                Color32 quantizedColor = session.GetQuantizedColor(value == Byte.MaxValue ? c : Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
+                                rowDst.DoSetColor32(x + left, quantizedColor);
+                            }
+                        }
+                    }
+
+                    return;
+                }
+
+                if (srcY < 0)
+                    return;
+
+                rowSrc = Texture.GetRowCached(srcY);
+                var colorSpace = WorkingColorSpace;
+                byte alphaThreshold = session.AlphaThreshold;
+                for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                {
+                    byte value = scanline.Scanline.GetElementUnchecked(x);
+                    if (value == Byte.MinValue)
+                        continue;
+
+                    int srcX = mapper.MapX(x);
+                    if (srcX < 0)
+                        continue;
+
+                    Color32 colorSrc = rowSrc.GetColor32(srcX);
+                    if (colorSrc.A == Byte.MinValue)
+                        continue;
+
+                    if (value != Byte.MaxValue)
+                    {
+                        if (colorSrc.A == Byte.MaxValue)
+                            colorSrc = Color32.FromArgb(value, colorSrc);
+                        else
+                        {
+                            colorSrc = Color32.FromArgb((byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
+                            if (colorSrc.A == Byte.MinValue)
+                                continue;
+                        }
+                    }
+
+                    if (colorSrc.A != Byte.MaxValue)
+                    {
+                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        if (colorDst.A != Byte.MinValue)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                ? colorSrc.BlendWithBackground(colorDst, colorSpace)
+                                : colorSrc.BlendWith(colorDst, colorSpace);
+                        }
+
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+                    }
+
+                    rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
                 }
             }
 
@@ -986,18 +1237,18 @@ namespace KGySoft.Drawing.Shapes
             IDitherer? ditherer = drawingOptions.Ditherer;
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
-            // TODO:
+            // TODO
             //// If the quantizer or ditherer relies on the actual [possibly already blended] result we perform the operation in two passes
             //if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
-            //    return new TwoPassSolidFillSession(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer, region);
+            //    return new TwoPassFillSession(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer, region);
 
             //// With regular dithering (which implies quantizing, too)
             //if (ditherer != null)
-            //    return new SolidFillSessionWithDithering(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer, region);
+            //    return new FillSessionWithDithering(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer, region);
 
-            //// Quantizing without dithering
-            //if (quantizer != null)
-            //    return new SolidFillSessionWithQuantizing(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer, region);
+            // Quantizing without dithering
+            if (quantizer != null)
+                return new FillSessionWithQuantizing(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer, region);
 
             // There is no quantizing: picking the most appropriate way for the best quality and performance.
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;

@@ -99,6 +99,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
+        bool IColor<Color64, Color64>.IsTransparent => A == UInt16.MinValue;
         bool IColor<Color64, Color64>.IsOpaque => A == UInt16.MaxValue;
 
         #endregion

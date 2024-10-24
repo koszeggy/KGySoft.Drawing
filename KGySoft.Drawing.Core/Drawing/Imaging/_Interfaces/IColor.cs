@@ -20,6 +20,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Properties
 
+        bool IsTransparent { get; }
         bool IsOpaque { get; }
 
         #endregion
