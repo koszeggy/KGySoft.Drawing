@@ -438,6 +438,7 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly IQuantizingSession quantizingSession;
+            private readonly Color32 transparentColor;
 
             #endregion
 
@@ -450,6 +451,7 @@ namespace KGySoft.Drawing.Shapes
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 quantizingSession = quantizer.Initialize(bitmapData, context);
                 WorkingColorSpace = quantizingSession.WorkingColorSpace;
+                transparentColor = quantizingSession.GetQuantizedColor(default);
             }
 
             #endregion
@@ -474,23 +476,22 @@ namespace KGySoft.Drawing.Shapes
                     if (srcY < 0)
                     {
                         // Blank texture row. As there is no blending here, setting transparent pixels
-                        Color32 transparentColor = session.GetQuantizedColor(default);
+                        Color32 tr = transparentColor;
                         for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                         {
                             if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                                rowDst.DoSetColor32(x + left, transparentColor);
+                                rowDst.DoSetColor32(x + left, tr);
                         }
+
+                        return;
                     }
-                    else
+
+                    rowSrc = Texture.GetRowCached(srcY);
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        rowSrc = Texture.GetRowCached(srcY);
-                        Color32? transparentColor = null;
-                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                        {
-                            int srcX = mapper.MapX(x);
-                            if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                                rowDst.DoSetColor32(x + left, srcX >= 0 ? session.GetQuantizedColor(rowSrc.DoGetColor32(srcX)) : transparentColor ??= session.GetQuantizedColor(default));
-                        }
+                        int srcX = mapper.MapX(x);
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
+                            rowDst.DoSetColor32(x + left, srcX >= 0 ? session.GetQuantizedColor(rowSrc.DoGetColor32(srcX)) : transparentColor);
                     }
 
                     return;
@@ -548,33 +549,32 @@ namespace KGySoft.Drawing.Shapes
                     if (srcY < 0)
                     {
                         // Blank texture row. As there is no blending here, setting transparent pixels where the scanline mask is not zero
-                        Color32 transparentColor = session.GetQuantizedColor(default);
+                        Color32 tr = transparentColor;
                         for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                         {
                             if (scanline.Scanline.GetElementUnchecked(x) != 0)
-                                rowDst.SetColor32(x + left, transparentColor);
+                                rowDst.SetColor32(x + left, tr);
                         }
-                    }
-                    else
-                    {
-                        rowSrc = Texture.GetRowCached(srcY);
-                        Color32? transparentColor = null;
-                        for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
-                        {
-                            byte value = scanline.Scanline.GetElementUnchecked(x);
-                            if (value == Byte.MinValue)
-                                continue;
 
-                            int srcX = mapper.MapX(x);
-                            if (srcX < 0)
-                                rowDst.DoSetColor32(x + left, transparentColor ??= session.GetQuantizedColor(default));
-                            else
-                            {
-                                Color32 colorSrc = rowSrc.GetColor32(srcX);
-                                if (value != Byte.MaxValue)
-                                    colorSrc = Color32.FromArgb(colorSrc.A == Byte.MaxValue ? value : (byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
-                                rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
-                            }
+                        return;
+                    }
+
+                    rowSrc = Texture.GetRowCached(srcY);
+                    for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
+                    {
+                        byte value = scanline.Scanline.GetElementUnchecked(x);
+                        if (value == Byte.MinValue)
+                            continue;
+
+                        int srcX = mapper.MapX(x);
+                        if (srcX < 0)
+                            rowDst.DoSetColor32(x + left, transparentColor);
+                        else
+                        {
+                            Color32 colorSrc = rowSrc.GetColor32(srcX);
+                            if (value != Byte.MaxValue)
+                                colorSrc = Color32.FromArgb(colorSrc.A == Byte.MaxValue ? value : (byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
+                            rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
                         }
                     }
 
@@ -1563,6 +1563,398 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region DrawSessionWithQuantizing class
+
+        private sealed class DrawSessionWithQuantizing : TextureBasedDrawSession
+        {
+            #region Fields
+
+            private readonly IQuantizingSession quantizingSession;
+            private readonly Color32 transparentColor;
+
+            #endregion
+
+            #region Constructors
+
+            internal DrawSessionWithQuantizing(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds,
+                DrawingOptions drawingOptions, IQuantizer quantizer)
+                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
+                WorkingColorSpace = quantizingSession.WorkingColorSpace;
+                transparentColor = quantizingSession.GetQuantizedColor(default);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void DrawLine(PointF start, PointF end)
+            {
+                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
+                Rectangle bounds = VisibleBounds;
+                (Point p1, Point p2) = Round(start, end);
+                TMapper mapper = Mapper;
+                IQuantizingSession session = quantizingSession;
+
+                // horizontal line (or a single point)
+                if (p1.Y == p2.Y)
+                {
+                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
+                        return;
+
+                    IBitmapDataRowInternal rowDst = BitmapData.GetRowCached(p1.Y);
+                    if (p1.X > p2.X)
+                        (p1.X, p2.X) = (p2.X, p1.X);
+
+                    int max = Math.Min(p2.X, bounds.Right - 1);
+                    int srcY = mapper.MapY(p1.Y);
+
+                    // blank line: as there is no blending here, setting quantized transparent pixels
+                    if (srcY < 0)
+                    {
+                        Color32 tr = transparentColor;
+                        for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                            rowDst.DoSetColor32(x, tr);
+
+                        return;
+                    }
+
+                    IBitmapDataRowInternal rowSrc = Texture.GetRowCached(srcY);
+                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                    {
+                        int srcX = mapper.MapX(x);
+                        rowDst.DoSetColor32(x, srcX >= 0 ? session.GetQuantizedColor(rowSrc.GetColor32(srcX)) : transparentColor);
+                    }
+
+                    return;
+                }
+
+                IBitmapDataInternal bmpSrc = Texture;
+                IBitmapDataInternal bmpDst = BitmapData;
+
+                // vertical line
+                if (p1.X == p2.X)
+                {
+                    if ((uint)p1.X >= (uint)(bounds.Right))
+                        return;
+
+                    if (p1.Y > p2.Y)
+                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
+
+                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
+                    int srcX = mapper.MapX(p1.Y);
+
+                    // blank line: as there is no blending here, setting quantized transparent pixels
+                    if (srcX < 0)
+                    {
+                        Color32 tr = transparentColor;
+                        for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                            bmpDst.DoSetColor32(p1.X, y, tr);
+
+                        return;
+                    }
+
+                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                    {
+                        int srcY = mapper.MapX(y);
+                        bmpDst.DoSetColor32(p1.X, y, srcY >= 0 ? session.GetQuantizedColor(bmpSrc.GetColor32(srcX, srcY)) : transparentColor);
+                    }
+
+                    return;
+                }
+
+                // general line
+                int width = (p2.X - p1.X).Abs();
+                int height = (p2.Y - p1.Y).Abs();
+
+                if (width > height)
+                {
+                    int numerator = width >> 1;
+                    if (p1.X > p2.X)
+                        (p1, p2) = (p2, p1);
+                    int step = p2.Y > p1.Y ? 1 : -1;
+                    int x = p1.X;
+                    int y = p1.Y;
+
+                    // skipping invisible X coordinates
+                    if (x < bounds.Left)
+                    {
+                        int diff = bounds.Left - x;
+                        numerator = (int)((numerator + ((long)height * diff)) % width);
+                        x = bounds.Left;
+                        y += diff * step;
+                    }
+
+                    int endX = Math.Min(p2.X, bounds.Right - 1);
+                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
+                    for (; x <= endX; x++)
+                    {
+                        // Drawing only if Y is visible
+                        if ((uint)y < (uint)bounds.Bottom)
+                        {
+                            int srcX = mapper.MapX(x);
+                            int srcY = mapper.MapY(y);
+                            bmpDst.DoSetColor32(x, y, srcX < 0 || srcY < 0 ? transparentColor : session.GetQuantizedColor(bmpSrc.GetColor32(srcX, srcY)));
+                        }
+
+                        numerator += height;
+                        if (numerator < width)
+                            continue;
+
+                        y += step;
+                        if (y == offY)
+                            return;
+                        numerator -= width;
+                    }
+                }
+                else
+                {
+                    int numerator = height >> 1;
+                    if (p1.Y > p2.Y)
+                        (p1, p2) = (p2, p1);
+                    int step = p2.X > p1.X ? 1 : -1;
+                    int x = p1.X;
+                    int y = p1.Y;
+
+                    // skipping invisible Y coordinates
+                    if (y < bounds.Top)
+                    {
+                        int diff = bounds.Top - y;
+                        numerator = (int)((numerator + ((long)width * diff)) % height);
+                        x += diff * step;
+                        y = bounds.Top;
+                    }
+
+                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
+                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
+                    for (; y <= endY; y++)
+                    {
+                        // Drawing only if X is visible
+                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        {
+                            int srcX = mapper.MapX(x);
+                            int srcY = mapper.MapY(y);
+                            bmpDst.DoSetColor32(x, y, srcX < 0 || srcY < 0 ? transparentColor : session.GetQuantizedColor(bmpSrc.GetColor32(srcX, srcY)));
+                        }
+
+                        numerator += width;
+                        if (numerator < height)
+                            continue;
+
+                        x += step;
+                        if (x == offX)
+                            return;
+                        numerator -= height;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region DrawSessionWithDithering class
+
+        private sealed class DrawSessionWithDithering : TextureBasedDrawSession
+        {
+            #region Fields
+
+            private readonly IDitheringSession? ditheringSession;
+
+            #endregion
+
+            #region Constructors
+
+            internal DrawSessionWithDithering(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds,
+                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer ditherer)
+                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+                WorkingColorSpace = quantizingSession.WorkingColorSpace;
+                if (context.IsCancellationRequested)
+                    return;
+
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal override void DrawLine(PointF start, PointF end)
+            {
+                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
+                Rectangle bounds = VisibleBounds;
+                (Point p1, Point p2) = Round(start, end);
+                TMapper mapper = Mapper;
+                IDitheringSession? session = ditheringSession;
+                if (session == null)
+                {
+                    Debug.Fail("Dithering session is not expected to be null here");
+                    return;
+                }
+
+                // horizontal line (or a single point)
+                if (p1.Y == p2.Y)
+                {
+                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
+                        return;
+
+                    IBitmapDataRowInternal rowDst = BitmapData.GetRowCached(p1.Y);
+                    if (p1.X > p2.X)
+                        (p1.X, p2.X) = (p2.X, p1.X);
+
+                    int max = Math.Min(p2.X, bounds.Right - 1);
+                    int srcY = mapper.MapY(p1.Y);
+
+                    // blank line: as there is no blending here, setting dithered transparent pixels
+                    if (srcY < 0)
+                    {
+                        for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                            rowDst.DoSetColor32(x, session.GetDitheredColor(default, x, p1.Y));
+
+                        return;
+                    }
+
+                    IBitmapDataRowInternal rowSrc = Texture.GetRowCached(srcY);
+                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                    {
+                        int srcX = mapper.MapX(x);
+                        rowDst.DoSetColor32(x, session.GetDitheredColor(srcX >= 0 ? rowSrc.GetColor32(srcX) : default, x, p1.Y));
+                    }
+
+                    return;
+                }
+
+                IBitmapDataInternal bmpSrc = Texture;
+                IBitmapDataInternal bmpDst = BitmapData;
+
+                // vertical line
+                if (p1.X == p2.X)
+                {
+                    if ((uint)p1.X >= (uint)(bounds.Right))
+                        return;
+
+                    if (p1.Y > p2.Y)
+                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
+
+                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
+                    int srcX = mapper.MapX(p1.Y);
+
+                    // blank line: as there is no blending here, setting quantized transparent pixels
+                    if (srcX < 0)
+                    {
+                        for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                            bmpDst.DoSetColor32(p1.X, y, session.GetDitheredColor(default, p1.X, y));
+
+                        return;
+                    }
+
+                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                    {
+                        int srcY = mapper.MapX(y);
+                        bmpDst.DoSetColor32(p1.X, y, session.GetDitheredColor(srcY >= 0 ? bmpSrc.GetColor32(srcX, srcY) : default, p1.X, y));
+                    }
+
+                    return;
+                }
+
+                // general line
+                int width = (p2.X - p1.X).Abs();
+                int height = (p2.Y - p1.Y).Abs();
+
+                if (width > height)
+                {
+                    int numerator = width >> 1;
+                    if (p1.X > p2.X)
+                        (p1, p2) = (p2, p1);
+                    int step = p2.Y > p1.Y ? 1 : -1;
+                    int x = p1.X;
+                    int y = p1.Y;
+
+                    // skipping invisible X coordinates
+                    if (x < bounds.Left)
+                    {
+                        int diff = bounds.Left - x;
+                        numerator = (int)((numerator + ((long)height * diff)) % width);
+                        x = bounds.Left;
+                        y += diff * step;
+                    }
+
+                    int endX = Math.Min(p2.X, bounds.Right - 1);
+                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
+                    for (; x <= endX; x++)
+                    {
+                        // Drawing only if Y is visible
+                        if ((uint)y < (uint)bounds.Bottom)
+                        {
+                            int srcX = mapper.MapX(x);
+                            int srcY = mapper.MapY(y);
+                            bmpDst.DoSetColor32(x, y, session.GetDitheredColor(srcX < 0 || srcY < 0 ? default : bmpSrc.GetColor32(srcX, srcY), x, y));
+                        }
+
+                        numerator += height;
+                        if (numerator < width)
+                            continue;
+
+                        y += step;
+                        if (y == offY)
+                            return;
+                        numerator -= width;
+                    }
+                }
+                else
+                {
+                    int numerator = height >> 1;
+                    if (p1.Y > p2.Y)
+                        (p1, p2) = (p2, p1);
+                    int step = p2.X > p1.X ? 1 : -1;
+                    int x = p1.X;
+                    int y = p1.Y;
+
+                    // skipping invisible Y coordinates
+                    if (y < bounds.Top)
+                    {
+                        int diff = bounds.Top - y;
+                        numerator = (int)((numerator + ((long)width * diff)) % height);
+                        x += diff * step;
+                        y = bounds.Top;
+                    }
+
+                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
+                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
+                    for (; y <= endY; y++)
+                    {
+                        // Drawing only if X is visible
+                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        {
+                            int srcX = mapper.MapX(x);
+                            int srcY = mapper.MapY(y);
+                            bmpDst.DoSetColor32(x, y, session.GetDitheredColor(srcX < 0 || srcY < 0 ? default : bmpSrc.GetColor32(srcX, srcY), x, y));
+                        }
+
+                        numerator += width;
+                        if (numerator < height)
+                            continue;
+
+                        x += step;
+                        if (x == offX)
+                            return;
+                        numerator -= height;
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #endregion
 
         #endregion
@@ -1643,13 +2035,13 @@ namespace KGySoft.Drawing.Shapes
 
             Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true);
 
-            //// With regular dithering (which implies quantizing, too)
-            //if (ditherer != null)
-            //    return new SolidDrawSessionWithDithering(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer);
+            // With regular dithering (which implies quantizing, too)
+            if (ditherer != null)
+                return new DrawSessionWithDithering(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer);
 
-            //// Quantizing without dithering
-            //if (quantizer != null)
-            //    return new SolidDrawSessionWithQuantizing(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer);
+            // Quantizing without dithering
+            if (quantizer != null)
+                return new DrawSessionWithQuantizing(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer);
 
             // There is no quantizing: picking the most appropriate way for the best quality and performance.
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
