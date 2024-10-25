@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.Imaging
                     PrepareNewRow(y);
 
                 // odd row: returning preprocessed result
-                Debug.Assert(origColor == source.GetColor32(x, y));
+                Debug.Assert(origColor == source.GetColor32(x, y), "Unexpected odd row color. Make sure you initialize the session with the actual content when InitializeReliesOnContent returns true.");
                 return preprocessedResults[x];
             }
 

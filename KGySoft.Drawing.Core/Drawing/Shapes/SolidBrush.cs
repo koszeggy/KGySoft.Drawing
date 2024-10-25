@@ -521,7 +521,7 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 byte alphaThreshold = session.AlphaThreshold;
-                if (c.A < alphaThreshold || c.A == Byte.MinValue)
+                if (c.A == Byte.MinValue)
                     return;
 
                 var colorSpace = session.WorkingColorSpace;
@@ -584,7 +584,7 @@ namespace KGySoft.Drawing.Shapes
                 // From this point there is blending. Working in a compatible way with DrawInto (important to be consistent with TwoPassSolidSession):
                 // fully transparent source is skipped, just like when the alpha of the blended result is smaller than the threshold
                 byte alphaThreshold = session.AlphaThreshold;
-                if (c.A < alphaThreshold || c.A == Byte.MinValue)
+                if (c.A == Byte.MinValue)
                     return;
 
                 var colorSpace = session.WorkingColorSpace;
@@ -705,16 +705,18 @@ namespace KGySoft.Drawing.Shapes
                 {
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
+                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) != 1)
+                            continue;
+
                         int pos = x + left;
-                        if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                            row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
+                        row.DoSetColor32(pos, session.GetDitheredColor(c, pos, scanline.RowIndex));
                     }
 
                     return;
                 }
 
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
-                if (c.A < alphaThreshold || c.A == Byte.MinValue)
+                if (c.A == Byte.MinValue)
                     return;
 
                 var colorSpace = quantizingSession.WorkingColorSpace;
@@ -783,7 +785,7 @@ namespace KGySoft.Drawing.Shapes
 
                 // blending: skipping too transparent pixels
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
-                if (c.A < alphaThreshold || c.A == Byte.MinValue)
+                if (c.A == Byte.MinValue)
                     return;
 
                 var colorSpace = quantizingSession.WorkingColorSpace;
@@ -898,7 +900,7 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
+                    IBitmapDataRowInternal rowDst = firstSessionTarget.GetRowCached(y);
                     int offset = scanline.Left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
@@ -906,26 +908,27 @@ namespace KGySoft.Drawing.Shapes
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
-                        targetRow.DoSetColor32(x + offset, c);
+                        rowDst.DoSetColor32(x + offset, c);
                     }
                 }
 
                 void ProcessWithBlending(in RegionScanline scanline)
                 {
+                    Debug.Assert(color.A != Byte.MaxValue);
                     Color32 c = color;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(scanline.RowIndex - bounds.Top);
+                    IBitmapDataRowInternal rowDst = firstSessionTarget.GetRowCached(scanline.RowIndex - bounds.Top);
+                    IBitmapDataRowInternal rowBackground = BitmapData.GetRowCached(scanline.RowIndex);
                     WorkingColorSpace colorSpace = WorkingColorSpace;
-                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
-                    int offset = scanline.Left - bounds.Left;
+                    int left = scanline.Left;
+                    int offset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
-                        int pos = x + offset;
-                        Color32 backColor = sourceRow.DoGetColor32(pos);
-                        targetRow.DoSetColor32(pos, c.Blend(backColor, colorSpace));
+                        Color32 colorDst = rowBackground.DoGetColor32(x + left);
+                        rowDst.DoSetColor32(x + offset, c.Blend(colorDst, colorSpace));
                     }
                 }
 
@@ -955,25 +958,25 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
-                    ArraySection<byte> maskRow = mask[y];
+                    IBitmapDataRowInternal rowDst = firstSessionTarget.GetRowCached(y);
+                    ArraySection<byte> rowMask = mask[y];
                     int offset = scanline.Left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         byte value = scanline.Scanline.GetElementUnchecked(x);
                         int pos = x + offset;
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(pos >> 3), pos, value);
+                        ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, value);
 
                         switch (value)
                         {
                             case Byte.MinValue:
                                 continue;
                             case Byte.MaxValue:
-                                targetRow.DoSetColor32(pos, c);
+                                rowDst.DoSetColor32(pos, c);
                                 continue;
                             default:
-                                targetRow.DoSetColor32(pos, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
+                                rowDst.DoSetColor32(pos, Color32.FromArgb(c.A == Byte.MaxValue ? value : (byte)(value * c.A / Byte.MaxValue), c));
                                 continue;
                         }
                     }
@@ -984,28 +987,29 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
-                    ArraySection<byte> maskRow = mask[y];
+                    IBitmapDataRowInternal rowDst = firstSessionTarget.GetRowCached(y);
+                    ArraySection<byte> rowMask = mask[y];
                     WorkingColorSpace colorSpace = WorkingColorSpace;
-                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
-                    int offset = scanline.Left - bounds.Left;
+                    IBitmapDataRowInternal rowBackground = BitmapData.GetRowCached(scanline.RowIndex);
+                    int left = scanline.Left;
+                    int offset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         byte value = scanline.Scanline.GetElementUnchecked(x);
                         int pos = x + offset;
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(pos >> 3), pos, value);
+                        ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, value);
 
                         switch (value)
                         {
                             case Byte.MinValue:
                                 continue;
                             case Byte.MaxValue:
-                                targetRow.DoSetColor32(pos, c);
+                                rowDst.DoSetColor32(pos, c);
                                 continue;
                             default:
-                                Color32 backColor = sourceRow.DoGetColor32(pos);
-                                targetRow.DoSetColor32(pos, Color32.FromArgb(value, c).Blend(backColor, colorSpace));
+                                Color32 backColor = rowBackground.DoGetColor32(x + left);
+                                rowDst.DoSetColor32(pos, Color32.FromArgb(value, c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
@@ -1015,29 +1019,30 @@ namespace KGySoft.Drawing.Shapes
                 {
                     Color32 c = color;
                     int y = scanline.RowIndex - bounds.Top;
-                    IBitmapDataRowInternal targetRow = firstSessionTarget.GetRowCached(y);
-                    ArraySection<byte> maskRow = mask[y];
+                    IBitmapDataRowInternal rowDst = firstSessionTarget.GetRowCached(y);
+                    ArraySection<byte> rowMask = mask[y];
                     WorkingColorSpace colorSpace = WorkingColorSpace;
-                    IBitmapDataRowInternal sourceRow = BitmapData.GetRowCached(scanline.RowIndex);
-                    int offset = scanline.Left - bounds.Left;
+                    IBitmapDataRowInternal rowBackground = BitmapData.GetRowCached(scanline.RowIndex);
+                    int left = scanline.Left;
+                    int offset = left - bounds.Left;
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
                         byte value = scanline.Scanline.GetElementUnchecked(x);
                         int pos = x + offset;
-                        ColorExtensions.Set1bppColorIndex(ref maskRow.GetElementReferenceUnchecked(pos >> 3), pos, value);
+                        ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, value);
 
                         switch (value)
                         {
                             case Byte.MinValue:
                                 continue;
                             case Byte.MaxValue:
-                                Color32 backColor = sourceRow.DoGetColor32(pos);
-                                targetRow.DoSetColor32(pos, c.Blend(backColor, colorSpace));
+                                Color32 backColor = rowBackground.DoGetColor32(x + left);
+                                rowDst.DoSetColor32(pos, c.Blend(backColor, colorSpace));
                                 continue;
                             default:
-                                backColor = sourceRow.DoGetColor32(pos);
-                                targetRow.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
+                                backColor = rowBackground.DoGetColor32(x + left);
+                                rowDst.DoSetColor32(pos, Color32.FromArgb((byte)(value * c.A / Byte.MaxValue), c).Blend(backColor, colorSpace));
                                 continue;
                         }
                     }
