@@ -384,6 +384,7 @@ namespace KGySoft.Drawing.UnitTests
             GetInfoIcon16()
         };
 
+        protected static IReadWriteBitmapData GetShieldIcon16() => GetBitmapData(@"..\..\..\..\Help\Images\Shield16.png");
         protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
 
         protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)

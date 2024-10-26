@@ -1196,183 +1196,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        // TODO: delete after creating other specific cases, not faster than the generic version
-        #region DrawSessionColor32 class
-
-        private sealed class DrawSessionColor32 : TextureBasedDrawSession
-        {
-            #region Constructors
-
-            internal DrawSessionColor32(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                TMapper mapper = Mapper;
-
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    IBitmapDataRowInternal rowDst = BitmapData.GetRowCached(p1.Y);
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    int srcY = mapper.MapY(p1.Y);
-                    
-                    // blank line: as there is no blending here, setting transparent pixels
-                    if (srcY < 0)
-                    {
-                        for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                            rowDst.DoSetColor32(x, default);
-                        return;
-                    }
-
-                    IBitmapDataRowInternal rowSrc = Texture.GetRowCached(srcY);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                    {
-                        int srcX = mapper.MapX(x);
-                        rowDst.DoSetColor32(x, srcX < 0 ? default : rowSrc.GetColor32(srcX));
-                    }
-
-                    return;
-                }
-
-                IBitmapDataInternal bmpSrc = Texture;
-                IBitmapDataInternal bmpDst = BitmapData;
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int srcX = mapper.MapX(p1.Y);
-
-                    // blank line: as there is no blending here, setting transparent pixels
-                    if (srcX < 0)
-                    {
-                        for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                            bmpDst.DoSetColor32(p1.X, y, default);
-                        return;
-                    }
-
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                    {
-                        int srcY = mapper.MapX(y);
-                        bmpDst.DoSetColor32(p1.X, y, srcY < 0 ? default : bmpSrc.GetColor32(srcX, srcY));
-                    }
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                        {
-                            int srcX = mapper.MapX(x);
-                            int srcY = mapper.MapY(y);
-                            bmpDst.DoSetColor32(x, y, srcX < 0 || srcY < 0 ? default : bmpSrc.GetColor32(srcX, srcY));
-                        }
-
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
-                        {
-                            int srcX = mapper.MapX(x);
-                            int srcY = mapper.MapY(y);
-                            bmpDst.DoSetColor32(x, y, srcX < 0 || srcY < 0 ? default : bmpSrc.GetColor32(srcX, srcY));
-                        }
-
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region DrawSession<,,> class
 
         private sealed class DrawSession<TAccessor, TColor, TBaseColor> : TextureBasedDrawSession
@@ -2093,6 +1916,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Nested Structs
 
+        #region TextureMapperTile struct
+        
         private protected struct TextureMapperTile : ITextureMapper
         {
             #region Fields
@@ -2105,10 +1930,115 @@ namespace KGySoft.Drawing.Shapes
 
             public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
             public int MapY(int y) => y % size.Height;
-            public int MapX(int x) => x % size.Width; 
-            
+            public int MapX(int x) => x % size.Width;
+
             #endregion
         }
+
+        #endregion
+
+        #region TextureMapperTileFlipX struct
+
+        private protected struct TextureMapperTileFlipX : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public int MapY(int y) => y % size.Height;
+            public int MapX(int x)
+            {
+                x %= size.Width << 1;
+                return x < size.Width ? x : size.Width - (x - size.Width) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperTileFlipY struct
+
+        private protected struct TextureMapperTileFlipY : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public int MapX(int x) => x % size.Width;
+
+            public int MapY(int y)
+            {
+                y %= size.Height << 1;
+                return y < size.Height ? y : size.Height - (y - size.Height) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperTileFlipXY struct
+
+        private protected struct TextureMapperTileFlipXY : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+
+            public int MapY(int y)
+            {
+                y %= size.Height << 1;
+                return y < size.Height ? y : size.Height - (y - size.Height) - 1;
+            }
+
+            public int MapX(int x)
+            {
+                x %= size.Width << 1;
+                return x < size.Width ? x : size.Width - (x - size.Width) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperNoTile struct
+
+        private protected struct TextureMapperNoTile : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public int MapY(int y) => (uint)y < (uint)size.Height ? y : - 1;
+            public int MapX(int x) => (uint)x < (uint)size.Width ? x : -1;
+
+            #endregion
+        }
+
+        #endregion
 
         #endregion
 
@@ -2120,13 +2050,15 @@ namespace KGySoft.Drawing.Shapes
 
         internal static TextureBasedBrush Create(IReadableBitmapData texture, WrapMode wrapMode = WrapMode.Tile, bool hasAlphaHint = true)
         {
-            switch (wrapMode)
+            return wrapMode switch
             {
-                case WrapMode.Tile:
-                    return new TextureBrush<TextureMapperTile>(texture, hasAlphaHint);
-                default:
-                    throw new InvalidOperationException(Res.InternalError($"Unhandled wrap mode: {wrapMode}"));
-            }
+                WrapMode.Tile => new TextureBrush<TextureMapperTile>(texture, hasAlphaHint),
+                WrapMode.NoTile => new TextureBrush<TextureMapperNoTile>(texture, hasAlphaHint),
+                WrapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipX>(texture, hasAlphaHint),
+                WrapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipY>(texture, hasAlphaHint),
+                WrapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXY>(texture, hasAlphaHint),
+                _ => throw new InvalidOperationException(Res.InternalError($"Unhandled wrap mode: {wrapMode}"))
+            };
         }
 
         #endregion

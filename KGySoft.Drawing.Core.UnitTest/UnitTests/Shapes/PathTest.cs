@@ -303,22 +303,21 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] TextureBrushTestSource =>
         [
             // string name, KnownPixelFormat pixelFormat, bool hasAlphaHint, DrawingOptions options
-            ["FillSessionNoBlend_NA_NB", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = false } ],
-            ["FillSessionBlend_NA_AB", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true } ],
-            ["FillSessionWithQuantizing_NA_AB_QRgb24", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.Rgb888(Color.White) } ],
-            ["FillSessionWithQuantizing_NA_NB_QSys4", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White) } ],
-            ["FillSessionWithQuantizing_NA_AB_QSys4", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette() } ],
-            ["FillSessionWithQuantizing_NA_AB_QSys4_DFS", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg } ],
-            ["FillSessionWithQuantizing_NA_AB_QSys4_DFS_Op", KnownPixelFormat.Format32bppArgb, false, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg } ],
-            ["FillSessionWithQuantizing_NA_AB_QSys4_DFSS", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
-            ["FillSessionWithQuantizing_NA_NB_QWu", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_NA_NB_QWu_Op", KnownPixelFormat.Format32bppArgb, false, new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_NA_AB_QWu", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_AA_NB_QWu", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AntiAliasing = true, AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_AA_NB_QWu_Op", KnownPixelFormat.Format32bppArgb, false, new DrawingOptions { AntiAliasing = true, AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_AA_AB_QWu", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AntiAliasing = true, AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
-            ["FillSessionWithQuantizing_AA_AB_QWu_Linear", KnownPixelFormat.Format32bppArgb, true, new DrawingOptions { AntiAliasing = true, AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu().ConfigureColorSpace(WorkingColorSpace.Linear) } ],
-            ["FillSessionBlend_NA_AB", KnownPixelFormat.Format24bppRgb, true, new DrawingOptions { AlphaBlending = true } ],
+            ["FillSessionNoBlend_NA_NB", true, new DrawingOptions { AlphaBlending = false } ],
+            ["FillSessionBlend_NA_AB", true, new DrawingOptions { AlphaBlending = true } ],
+            ["FillSessionWithQuantizing_NA_AB_QRgb24", true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.Rgb888(Color.White) } ],
+            ["FillSessionWithQuantizing_NA_NB_QSys4", true, new DrawingOptions { AlphaBlending = false, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White) } ],
+            ["FillSessionWithQuantizing_NA_AB_QSys4", true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette() } ],
+            ["FillSessionWithQuantizing_NA_AB_QSys4_DFS", true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg } ],
+            ["FillSessionWithQuantizing_NA_AB_QSys4_DFS_Op", false, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg } ],
+            ["FillSessionWithQuantizing_NA_AB_QSys4_DFSS", true, new DrawingOptions { AlphaBlending = true, Quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(), Ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) } ],
+            ["FillSessionWithQuantizing_NA_NB_QWu", true, new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_NA_NB_QWu_Op", false, new DrawingOptions { AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_NA_AB_QWu", true, new DrawingOptions { AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_AA_NB_QWu", true, new DrawingOptions { AntiAliasing = true, AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_AA_NB_QWu_Op", false, new DrawingOptions { AntiAliasing = true, AlphaBlending = false, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_AA_AB_QWu", true, new DrawingOptions { AntiAliasing = true, AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu() } ],
+            ["FillSessionWithQuantizing_AA_AB_QWu_Linear", true, new DrawingOptions { AntiAliasing = true, AlphaBlending = true, Quantizer = OptimizedPaletteQuantizer.Wu().ConfigureColorSpace(WorkingColorSpace.Linear) } ],
         ];
 
         #endregion
@@ -680,7 +679,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         }
 
         [TestCaseSource(nameof(TextureBrushTestSource))]
-        public void TextureBrushTest(string name, KnownPixelFormat pixelFormat, bool hasAlphaHint, DrawingOptions options)
+        public void TextureBrushTest(string name, bool hasAlphaHint, DrawingOptions options)
         {
             var path = new Path()
                 .TransformTranslation(10, 10)
@@ -691,7 +690,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
             
-            using IReadWriteBitmapData background = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+            using IReadWriteBitmapData background = BitmapDataFactory.CreateBitmapData(size);
             GenerateAlphaGradient(background);
             //Color32 backColor = pixelFormat.HasAlpha() ? Color.Empty : Color.White;
             //if (backColor != default)
@@ -708,32 +707,31 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             drawTexture.SetPixel(1, 1, Color32.FromArgb(64, Color.Blue));
 
             if (!hasAlphaHint)
+            {
+                fillTexture.MakeOpaque(Color32.White);
                 drawTexture.MakeOpaque(Color32.White);
+            }
 
             IAsyncContext context = new SimpleContext(-1);
+            var brush = Brush.CreateTexture(fillTexture, hasAlphaHint: hasAlphaHint);
+            var pen = new Pen(Brush.CreateTexture(drawTexture));
 
-            foreach (WrapMode wrapMode in new[] { WrapMode.Tile, /*WrapMode.TileFlipX, WrapMode.TileFlipY, WrapMode.TileFlipXY, WrapMode.NoTile*/ })
-            {
-                var brush = Brush.CreateTexture(fillTexture, wrapMode, hasAlphaHint);
-                var pen = new Pen(Brush.CreateTexture(drawTexture));
+            path.PreferCaching = false;
+            using var bitmapData1 = background.Clone();
+            bitmapData1.FillPath(context, path, brush, options);
+            bitmapData1.DrawPath(context, path, pen, options);
+            SaveBitmapData(name, bitmapData1);
 
-                path = new Path(path) { PreferCaching = false };
-                using var bitmapData1 = background.Clone();
-                bitmapData1.FillPath(context, path, brush, options);
-                bitmapData1.DrawPath(context, path, pen, options);
-                SaveBitmapData($"{name}_{wrapMode}", bitmapData1);
+            path.PreferCaching = true;
+            using var bitmapData2 = background.Clone();
+            bitmapData2.FillPath(context, path, brush, options);
+            bitmapData2.DrawPath(context, path, pen, options);
+            AssertAreEqual(bitmapData1, bitmapData2);
 
-                path.PreferCaching = true;
-                using var bitmapData2 = background.Clone();
-                bitmapData2.FillPath(context, path, brush, options);
-                bitmapData2.DrawPath(context, path, pen, options);
-                AssertAreEqual(bitmapData1, bitmapData2);
-
-                using var bitmapData3 = background.Clone();
-                bitmapData3.FillPath(context, path, brush, options);
-                bitmapData3.DrawPath(context, path, pen, options);
-                AssertAreEqual(bitmapData1, bitmapData3);
-            }
+            using var bitmapData3 = background.Clone();
+            bitmapData3.FillPath(context, path, brush, options);
+            bitmapData3.DrawPath(context, path, pen, options);
+            AssertAreEqual(bitmapData1, bitmapData3);
         }
 
         [TestCase(WrapMode.NoTile)]
@@ -743,7 +741,22 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCase(WrapMode.TileFlipXY)]
         public void TextureBrushTilingTest(WrapMode wrapMode)
         {
-            throw new NotImplementedException();
+            var path = new Path(false)
+                .AddEllipse(new RectangleF(0, 0, 100, 50));
+
+            using var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
+            using var texture = GetShieldIcon16();
+
+            foreach (bool blend in new[] { false, true })
+            foreach (bool antiAliasing in new[] { false, true })
+            {
+                bitmap.Clear(Color.Navy);
+                var brush = Brush.CreateTexture(texture, wrapMode: wrapMode);
+                foreach (int offset in new[] { -50, 0, 50 })
+                    bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+
+                SaveBitmapData($"{wrapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
+            }
         }
 
         [Explicit]
