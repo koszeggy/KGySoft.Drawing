@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -57,9 +58,9 @@ namespace KGySoft.Drawing.Shapes
             protected TextureBasedFillSession(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
                 : base(owner, context, bitmapData, rawPath, bounds, drawingOptions, region)
             {
-                Texture = owner.GetTexture(rawPath, out disposeTexture);
+                Texture = owner.GetTexture(context, rawPath, drawingOptions, out disposeTexture, out Point offset);
                 mapper = new TMapper();
-                mapper.InitTexture(Texture);
+                mapper.InitTexture(Texture, offset);
             }
 
             #endregion
@@ -125,9 +126,10 @@ namespace KGySoft.Drawing.Shapes
                 accSrc.InitRow(Texture.GetRowCached(srcY));
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                        accDst.SetColor(x + left, srcX >= 0 ? accSrc.GetColor(srcX) : default);
+                        accDst.SetColor(dstX, srcX >= 0 ? accSrc.GetColor(srcX) : default);
                 }
             }
 
@@ -164,17 +166,19 @@ namespace KGySoft.Drawing.Shapes
                         case Byte.MinValue:
                             continue;
                         case Byte.MaxValue:
-                            int srcX = mapper.MapX(x);
-                            accDst.SetColor(x + left, srcX >= 0 ? accSrc.GetColor(srcX) : default);
+                            int dstX = x + left;
+                            int srcX = mapper.MapX(dstX);
+                            accDst.SetColor(dstX, srcX >= 0 ? accSrc.GetColor(srcX) : default);
                             continue;
                         default:
-                            srcX = mapper.MapX(x);
+                            dstX = x + left;
+                            srcX = mapper.MapX(dstX);
                             if (srcX < 0)
-                                accDst.SetColor(x + left, default);
+                                accDst.SetColor(dstX, default);
                             else
                             {
                                 TBaseColor c = accSrc.GetBaseColor(srcX);
-                                accDst.SetBaseColor(x + left, c.AdjustAlpha(value, c));
+                                accDst.SetBaseColor(dstX, c.AdjustAlpha(value, c));
                             }
 
                             continue;
@@ -226,11 +230,11 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                         continue;
 
-                    int dstX = x + left;
                     TColor colorSrc = accSrc.GetColor(srcX);
                     if (!colorSrc.IsOpaque)
                     {
@@ -269,7 +273,8 @@ namespace KGySoft.Drawing.Shapes
                     if (value == Byte.MinValue)
                         continue;
 
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0)
                         continue;
 
@@ -280,7 +285,6 @@ namespace KGySoft.Drawing.Shapes
                             accDst.SetColor(x + left, colorSrc);
                         else if (!colorSrc.IsTransparent)
                         {
-                            int dstX = x + left;
                             TColor colorDst = accDst.GetColor(dstX);
                             accDst.SetColor(dstX, colorDst.IsTransparent ? colorSrc : colorSrc.BlendSrgb(colorDst));
                         }
@@ -297,7 +301,6 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
                         }
 
-                        int dstX = x + left;
                         TBaseColor colorDst = accDst.GetBaseColor(dstX);
                         accDst.SetBaseColor(dstX, colorDst.IsTransparent ? colorSrc : colorSrc.BlendSrgb(colorDst));
                     }
@@ -348,11 +351,11 @@ namespace KGySoft.Drawing.Shapes
 
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                         continue;
 
-                    int dstX = x + left;
                     TColor colorSrc = accSrc.GetColor(srcX);
                     if (!colorSrc.IsOpaque)
                     {
@@ -391,7 +394,8 @@ namespace KGySoft.Drawing.Shapes
                     if (value == Byte.MinValue)
                         continue;
 
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0)
                         continue;
 
@@ -402,7 +406,6 @@ namespace KGySoft.Drawing.Shapes
                             accDst.SetColor(x + left, colorSrc);
                         else if (!colorSrc.IsTransparent)
                         {
-                            int dstX = x + left;
                             TColor colorDst = accDst.GetColor(dstX);
                             accDst.SetColor(dstX, colorDst.IsTransparent ? colorSrc : colorSrc.BlendLinear(colorDst));
                         }
@@ -419,7 +422,6 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
                         }
 
-                        int dstX = x + left;
                         TBaseColor colorDst = accDst.GetBaseColor(dstX);
                         accDst.SetBaseColor(dstX, colorDst.IsTransparent ? colorSrc : colorSrc.BlendLinear(colorDst));
                     }
@@ -489,9 +491,10 @@ namespace KGySoft.Drawing.Shapes
                     rowSrc = Texture.GetRowCached(srcY);
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        int srcX = mapper.MapX(x);
+                        int dstX = x + left;
+                        int srcX = mapper.MapX(dstX);
                         if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 1)
-                            rowDst.DoSetColor32(x + left, srcX >= 0 ? session.GetQuantizedColor(rowSrc.DoGetColor32(srcX)) : transparentColor);
+                            rowDst.DoSetColor32(dstX, srcX >= 0 ? session.GetQuantizedColor(rowSrc.DoGetColor32(srcX)) : transparentColor);
                     }
 
                     return;
@@ -507,7 +510,8 @@ namespace KGySoft.Drawing.Shapes
                 byte alphaThreshold = session.AlphaThreshold;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                         continue;
 
@@ -516,7 +520,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         if (colorSrc.A == Byte.MinValue)
                             continue;
-                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        Color32 colorDst = rowDst.DoGetColor32(dstX);
                         if (colorDst.A != Byte.MinValue)
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
@@ -528,7 +532,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
                     }
 
-                    rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
+                    rowDst.DoSetColor32(dstX, session.GetQuantizedColor(colorSrc));
                 }
             }
 
@@ -566,15 +570,16 @@ namespace KGySoft.Drawing.Shapes
                         if (value == Byte.MinValue)
                             continue;
 
-                        int srcX = mapper.MapX(x);
+                        int dstX = x + left;
+                        int srcX = mapper.MapX(dstX);
                         if (srcX < 0)
-                            rowDst.DoSetColor32(x + left, transparentColor);
+                            rowDst.DoSetColor32(dstX, transparentColor);
                         else
                         {
                             Color32 colorSrc = rowSrc.GetColor32(srcX);
                             if (value != Byte.MaxValue)
                                 colorSrc = Color32.FromArgb(colorSrc.A == Byte.MaxValue ? value : (byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
-                            rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
+                            rowDst.DoSetColor32(dstX, session.GetQuantizedColor(colorSrc));
                         }
                     }
 
@@ -593,7 +598,8 @@ namespace KGySoft.Drawing.Shapes
                     if (value == Byte.MinValue)
                         continue;
 
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0)
                         continue;
 
@@ -615,7 +621,7 @@ namespace KGySoft.Drawing.Shapes
 
                     if (colorSrc.A != Byte.MaxValue)
                     {
-                        Color32 colorDst = rowDst.DoGetColor32(x + left);
+                        Color32 colorDst = rowDst.DoGetColor32(dstX);
                         if (colorDst.A != Byte.MinValue)
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
@@ -627,7 +633,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
                     }
 
-                    rowDst.DoSetColor32(x + left, session.GetQuantizedColor(colorSrc));
+                    rowDst.DoSetColor32(dstX, session.GetQuantizedColor(colorSrc));
                 }
             }
 
@@ -716,11 +722,11 @@ namespace KGySoft.Drawing.Shapes
                         rowSrc = Texture.GetRowCached(srcY);
                         for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                         {
-                            int srcX = mapper.MapX(x);
+                            int dstX = x + left;
+                            int srcX = mapper.MapX(dstX);
                             if (ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                                 continue;
 
-                            int dstX = x + left;
                             rowDst.DoSetColor32(dstX, session.GetDitheredColor(srcX >= 0 ? rowSrc.DoGetColor32(srcX) : default, dstX, dstY));
                         }
                     }
@@ -738,12 +744,12 @@ namespace KGySoft.Drawing.Shapes
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
                 for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                 {
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                         continue;
 
                     Color32 colorSrc = rowSrc.DoGetColor32(srcX);
-                    int dstX = x + left;
                     if (colorSrc.A != Byte.MaxValue)
                     {
                         if (colorSrc.A == Byte.MinValue)
@@ -806,7 +812,7 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
 
                             int dstX = x + left;
-                            int srcX = mapper.MapX(x);
+                            int srcX = mapper.MapX(dstX);
                             if (srcX < 0)
                                 rowDst.DoSetColor32(dstX, session.GetDitheredColor(default, dstX, dstY));
                             else
@@ -834,7 +840,8 @@ namespace KGySoft.Drawing.Shapes
                     if (value == Byte.MinValue)
                         continue;
 
-                    int srcX = mapper.MapX(x);
+                    int dstX = x + left;
+                    int srcX = mapper.MapX(dstX);
                     if (srcX < 0)
                         continue;
 
@@ -854,7 +861,6 @@ namespace KGySoft.Drawing.Shapes
                         }
                     }
 
-                    int dstX = x + left;
                     if (colorSrc.A != Byte.MaxValue)
                     {
                         Color32 colorDst = rowDst.DoGetColor32(dstX);
@@ -946,14 +952,13 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        int pos = x + offset;
-                        int srcX = mapper.MapX(pos);
+                        int srcX = mapper.MapX(x + scanline.Left);
                         if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
                         Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                         if (colorSrc.A != Byte.MinValue)
-                            rowDst.DoSetColor32(pos, colorSrc);
+                            rowDst.DoSetColor32(x + offset, colorSrc);
                     }
                 }
 
@@ -975,8 +980,7 @@ namespace KGySoft.Drawing.Shapes
 
                     for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                     {
-                        int pos = x + offset;
-                        int srcX = mapper.MapX(pos);
+                        int srcX = mapper.MapX(x + scanline.Left);
                         if (srcX < 0 || ColorExtensions.Get1bppColorIndex(scanline.Scanline.GetElementUnchecked(x >> 3), x) == 0)
                             continue;
 
@@ -994,7 +998,7 @@ namespace KGySoft.Drawing.Shapes
                             }
                         }
 
-                        rowDst.DoSetColor32(pos, colorSrc);
+                        rowDst.DoSetColor32(x + offset, colorSrc);
                     }
                 }
 
@@ -1037,11 +1041,11 @@ namespace KGySoft.Drawing.Shapes
                         if (value == Byte.MinValue)
                             continue;
 
-                        int pos = x + offset;
-                        int srcX = mapper.MapX(pos);
+                        int srcX = mapper.MapX(x + scanline.Left);
                         if (srcX < 0)
                             continue;
 
+                        int pos = x + offset;
                         ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, 1);
 
                         Color32 colorSrc = rowSrc.DoGetColor32(srcX);
@@ -1077,11 +1081,11 @@ namespace KGySoft.Drawing.Shapes
                         if (value == Byte.MinValue)
                             continue;
 
-                        int pos = x + offset;
-                        int srcX = mapper.MapX(pos);
+                        int srcX = mapper.MapX(x + scanline.Left);
                         if (srcX < 0)
                             continue;
 
+                        int pos = x + offset;
                         ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, 1);
 
                         Color32 colorSrc = rowSrc.DoGetColor32(srcX);
@@ -1175,9 +1179,9 @@ namespace KGySoft.Drawing.Shapes
             protected TextureBasedDrawSession(TextureBasedBrush<TMapper> owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
                 : base(owner, context, bitmapData, rawPath, bounds, drawingOptions, region)
             {
-                Texture = owner.GetTexture(rawPath, out disposeTexture);
+                Texture = owner.GetTexture(context, rawPath, drawingOptions, out disposeTexture, out Point offset);
                 mapper = new TMapper();
-                mapper.InitTexture(Texture);
+                mapper.InitTexture(Texture, offset);
             }
 
             #endregion
@@ -1905,7 +1909,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Methods
 
-            void InitTexture(IBitmapDataInternal texture);
+            void InitTexture(IBitmapDataInternal texture, Point offset);
             int MapY(int y);
             int MapX(int x);
 
@@ -1918,7 +1922,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTile struct
         
-        private protected struct TextureMapperTile : ITextureMapper
+        private struct TextureMapperTile : ITextureMapper
         {
             #region Fields
 
@@ -1928,7 +1932,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
             public int MapY(int y) => y % size.Height;
             public int MapX(int x) => x % size.Width;
 
@@ -1939,7 +1943,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTileFlipX struct
 
-        private protected struct TextureMapperTileFlipX : ITextureMapper
+        private struct TextureMapperTileFlipX : ITextureMapper
         {
             #region Fields
 
@@ -1949,7 +1953,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
             public int MapY(int y) => y % size.Height;
             public int MapX(int x)
             {
@@ -1964,7 +1968,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTileFlipY struct
 
-        private protected struct TextureMapperTileFlipY : ITextureMapper
+        private struct TextureMapperTileFlipY : ITextureMapper
         {
             #region Fields
 
@@ -1974,7 +1978,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
             public int MapX(int x) => x % size.Width;
 
             public int MapY(int y)
@@ -1990,7 +1994,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTileFlipXY struct
 
-        private protected struct TextureMapperTileFlipXY : ITextureMapper
+        private struct TextureMapperTileFlipXY : ITextureMapper
         {
             #region Fields
 
@@ -2000,7 +2004,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
 
             public int MapY(int y)
             {
@@ -2019,9 +2023,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region TextureMapperNoTile struct
+        #region TextureMapperClip struct
 
-        private protected struct TextureMapperNoTile : ITextureMapper
+        private struct TextureMapperClip : ITextureMapper
         {
             #region Fields
 
@@ -2031,9 +2035,106 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            public void InitTexture(IBitmapDataInternal texture) => size = texture.Size;
-            public int MapY(int y) => (uint)y < (uint)size.Height ? y : - 1;
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
+            public int MapY(int y) => (uint)y < (uint)size.Height ? y : -1;
             public int MapX(int x) => (uint)x < (uint)size.Width ? x : -1;
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperExtend struct
+
+        private struct TextureMapperExtend : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
+            public int MapY(int y) => (uint)y < (uint)size.Height ? y : size.Height - 1;
+            public int MapX(int x) => (uint)x < (uint)size.Width ? x : size.Width - 1;
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperCenter struct
+
+        private struct TextureMapperCenter : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                return (uint)y < (uint)size.Height ? y : -1;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                return (uint)x < (uint)size.Width ? x : -1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperCenterExtend struct
+
+        private struct TextureMapperCenterExtend : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                return y < 0 ? 0
+                    : y >= size.Height ? size.Height - 1
+                    : y;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                return x < 0 ? 0
+                    : x >= size.Width ? size.Width - 1
+                    : x;
+            }
 
             #endregion
         }
@@ -2048,16 +2149,19 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
-        internal static TextureBasedBrush Create(IReadableBitmapData texture, WrapMode wrapMode = WrapMode.Tile, bool hasAlphaHint = true)
+        internal static TextureBasedBrush Create(IReadableBitmapData texture, TextureMapMode mapMode, bool hasAlphaHint)
         {
-            return wrapMode switch
+            return mapMode switch
             {
-                WrapMode.Tile => new TextureBrush<TextureMapperTile>(texture, hasAlphaHint),
-                WrapMode.NoTile => new TextureBrush<TextureMapperNoTile>(texture, hasAlphaHint),
-                WrapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipX>(texture, hasAlphaHint),
-                WrapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipY>(texture, hasAlphaHint),
-                WrapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXY>(texture, hasAlphaHint),
-                _ => throw new InvalidOperationException(Res.InternalError($"Unhandled wrap mode: {wrapMode}"))
+                TextureMapMode.Tile => new TextureBrush<TextureMapperTile>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipX>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipY>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXY>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.Clip => new TextureBrush<TextureMapperClip>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.Extend => new TextureBrush<TextureMapperExtend>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.Center or TextureMapMode.Stretch or TextureMapMode.Zoom => new TextureBrush<TextureMapperCenter>(texture, hasAlphaHint, mapMode),
+                TextureMapMode.CenterExtend => new TextureBrush<TextureMapperCenterExtend>(texture, hasAlphaHint, mapMode),
+                _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(mapMode))
             };
         }
 
@@ -2065,7 +2169,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance Methods
         
-        private protected abstract IBitmapDataInternal GetTexture(RawPath rawPath, out bool disposeTexture);
+        private protected abstract IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset);
 
         #endregion
 

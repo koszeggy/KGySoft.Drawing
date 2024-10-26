@@ -3428,6 +3428,9 @@ namespace KGySoft.Drawing.Imaging
         internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle targetRectangle)
             => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.Size), targetRectangle, null, null, ScalingMode.Auto);
 
+        internal static IReadWriteBitmapData? DoResize(this IReadableBitmapData bitmapData, IAsyncContext context, Size newSize, ScalingMode scalingMode, bool keepAspectRatio)
+            => DoResize(context, bitmapData, newSize, scalingMode, keepAspectRatio);
+
         #endregion
 
         #region Private Methods
@@ -4274,8 +4277,12 @@ namespace KGySoft.Drawing.Imaging
                 return null;
 
             bool canceled = false;
-            var pixelFormat = bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
-            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, pixelFormat, bitmapData.WorkingColorSpace);
+            bool isLinear = bitmapData.LinearBlending();
+            PixelFormatInfo sourceFromat = bitmapData.PixelFormat;
+            var targetFormat = sourceFromat.Prefers128BitColors ? isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
+                : sourceFromat.Prefers64BitColors ? isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
+                : isLinear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
+            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, targetFormat, bitmapData.WorkingColorSpace);
             try
             {
                 DoDrawInto(context, bitmapData, result, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);

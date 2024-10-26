@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WrapMode.cs
+//  File: TextureMapMode.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -15,13 +15,20 @@
 
 namespace KGySoft.Drawing.Shapes
 {
-    public enum WrapMode
+    /// <summary>
+    /// Represents the possible modes how a texture is mapped when filling a shape by a texture <see cref="Brush"/>.
+    /// </summary>
+    public enum TextureMapMode
     {
         Tile,
         TileFlipX,
         TileFlipY,
         TileFlipXY,
-        NoTile,
-        // TODO: Center, Stretch, Shrink, Zoom - in the case not WrapMode but TextureMode?
+        Clip,
+        Extend,
+        Center,
+        CenterExtend,
+        Stretch, // A new texture is generated for each session. Smoothing mode depends on the drawing options. WorkingColorSpace depends on the original texture.
+        Zoom, // Same as Stretch but keeps aspect ratio. There is no ZoomExtend mode because when keeping the aspect ratio, the result can have transparent borders.
     }
 }

@@ -734,28 +734,34 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
-        [TestCase(WrapMode.NoTile)]
-        [TestCase(WrapMode.Tile)]
-        [TestCase(WrapMode.TileFlipX)]
-        [TestCase(WrapMode.TileFlipY)]
-        [TestCase(WrapMode.TileFlipXY)]
-        public void TextureBrushTilingTest(WrapMode wrapMode)
+        [TestCase(TextureMapMode.Tile)]
+        [TestCase(TextureMapMode.TileFlipX)]
+        [TestCase(TextureMapMode.TileFlipY)]
+        [TestCase(TextureMapMode.TileFlipXY)]
+        [TestCase(TextureMapMode.Clip)]
+        [TestCase(TextureMapMode.Extend)]
+        [TestCase(TextureMapMode.Center)]
+        [TestCase(TextureMapMode.CenterExtend)]
+        [TestCase(TextureMapMode.Stretch)]
+        [TestCase(TextureMapMode.Zoom)]
+        public void TextureBrushTilingTest(TextureMapMode mapMode)
         {
             var path = new Path(false)
                 .AddEllipse(new RectangleF(0, 0, 100, 50));
 
             using var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
             using var texture = GetShieldIcon16();
+            using var textureOpaque = texture.Clone(KnownPixelFormat.Format24bppRgb);
 
             foreach (bool blend in new[] { false, true })
             foreach (bool antiAliasing in new[] { false, true })
             {
                 bitmap.Clear(Color.Navy);
-                var brush = Brush.CreateTexture(texture, wrapMode: wrapMode);
+                var brush = Brush.CreateTexture(mapMode < TextureMapMode.Clip ? texture : textureOpaque, mapMode: mapMode);
                 foreach (int offset in new[] { -50, 0, 50 })
                     bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
-                SaveBitmapData($"{wrapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
+                SaveBitmapData($"{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
             }
         }
 

@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Threading;
 
 #endregion
 
@@ -30,6 +31,7 @@ namespace KGySoft.Drawing.Shapes
         #region Fields
 
         private readonly IBitmapDataInternal texture;
+        private readonly TextureMapMode mapMode;
 
         #endregion
 
@@ -41,10 +43,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        internal TextureBrush(IReadableBitmapData texture, bool hasAlphaHint/*, WrapMode wrapMode TODO*/)
+        internal TextureBrush(IReadableBitmapData texture, bool hasAlphaHint, TextureMapMode mapMode)
         {
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture), PublicResources.ArgumentNull);
+            this.mapMode = mapMode;
             this.texture = texture as IBitmapDataInternal ?? new BitmapDataWrapper(texture, true, false);
             HasAlpha = hasAlphaHint && texture.HasAlpha();
         }
@@ -53,10 +56,25 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        private protected override IBitmapDataInternal GetTexture(RawPath rawPath, out bool disposeTexture)
+        private protected override IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset)
         {
-            disposeTexture = false;
-            return texture;
+            IBitmapDataInternal result = texture;
+
+            if (mapMode is TextureMapMode.Stretch or TextureMapMode.Zoom)
+            {
+                result = (IBitmapDataInternal)texture.DoResize(context, rawPath.Bounds.Size, drawingOptions.AntiAliasing ? ScalingMode.Auto : ScalingMode.NearestNeighbor, mapMode is TextureMapMode.Zoom)!;
+                
+                // Result above is null if cancellation occurred. This is one of the very few cases where we throw an OperationCanceledException
+                // instead of returning null. This prevents accessing the texture in the caller as well as creating an unnecessary region scanner, etc.
+                context.ThrowIfCancellationRequested();
+            }
+
+            offset = mapMode >= TextureMapMode.Center
+                ? new Point(-(((rawPath.Bounds.Width - result.Width) >> 1) + rawPath.Bounds.Left), -(((rawPath.Bounds.Height - result.Height) >> 1) + rawPath.Bounds.Top))
+                : Point.Empty;
+
+            disposeTexture = result != texture;
+            return result;
         }
 
         #endregion

@@ -2417,8 +2417,8 @@ namespace KGySoft.Drawing.Shapes
         public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
 
-        public static Brush CreateTexture(IReadableBitmapData texture, WrapMode wrapMode = WrapMode.Tile, bool hasAlphaHint = true)
-            => TextureBasedBrush.Create(texture, wrapMode, hasAlphaHint);
+        public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, bool hasAlphaHint = true)
+            => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint);
 
         #endregion
 
