@@ -765,6 +765,29 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             }
         }
 
+        //[TestCase("horizontal", 20f, 10f, 80f, 10f)]
+        [TestCase("vertical", 10f, 20f, 10f, 120f)]
+        [TestCase("diagonal", -10f, 10f, 10f, -10f)]
+        public void GradientBrushMappingTest(string name, float x1, float y1, float x2, float y2)
+        {
+            var path = new Path(false)
+                .AddEllipse(new RectangleF(0, 0, 100, 50));
+
+            using var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
+
+            foreach (GradientMapMode mapMode in new[] { GradientMapMode.Stop, GradientMapMode.Clip, GradientMapMode.Repeat, GradientMapMode.Mirror })
+            foreach (bool blend in new[] { false, true })
+            foreach (bool antiAliasing in new[] { false, true })
+            {
+                bitmap.Clear(Color.Navy);
+                var brush = Brush.CreateLinearGradient(new PointF(x1, y1), new PointF(x2, y2), Color.Red, Color.Blue, mapMode);
+                foreach (int offset in new[] { -50, 0, 50 })
+                    bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+
+                SaveBitmapData($"{name}_{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
+            }
+        }
+
         [Explicit]
         [Test]
         public void DrawThinLinesPerfTest()
@@ -826,6 +849,135 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 //.AddCase(() => bitmapData5.DrawPath(context, path, pen, options5), "Generic accessor")
                 .DoTest()
                 .DumpResults(Console.Out);
+        }
+
+        [Test]
+        public void GenerateGradientTest()
+        {
+            Color startColor = Color.Red;
+            Color endColor = Color.Blue;
+            Color32 c1 = startColor;
+            Color32 c2 = endColor;
+            Size size = new Size(800, 200);
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size);
+
+            //float width = size.Width;
+            //float height = size.Height;
+
+            // 0. Convert your startPoint and endPoint into vectors:
+            PointF startPoint = new PointF(-20, 20);
+            PointF endPoint = new PointF(20, -20);
+
+            //PointF startPoint = new PointF(1, 1);
+            //PointF endPoint = new PointF(0, 2);
+
+            //PointF startPoint = new PointF(20, 20);
+            //PointF endPoint = new PointF(100, 21);
+
+            //float width = Math.Max(size.Width, size.Height);
+            //float height = width;
+
+
+
+            //float x1 = (startPoint.X / width) * 2.0f - 1.0f;
+            //float y1 = (startPoint.Y / height) * 2.0f - 1.0f;
+            //float x2 = (endPoint.X / width) * 2.0f - 1.0f;
+            //float y2 = (endPoint.Y / height) * 2.0f - 1.0f;
+            //float x1 = (startPoint.X) * 2.0f - 1.0f;
+            //float y1 = (startPoint.Y) * 2.0f - 1.0f;
+            //float x2 = (endPoint.X) * 2.0f - 1.0f;
+            //float y2 = (endPoint.Y) * 2.0f - 1.0f;
+            float x1 = (startPoint.X);
+            float y1 = (startPoint.Y);
+            float x2 = (endPoint.X);
+            float y2 = (endPoint.Y);
+
+            // 1. Find the angle between (x1,y1) and (x2,y2):
+            float angle = MathF.Atan2(y1 - y2, x1 - x2);
+
+            // 0/b. fixed vectors
+            //float x1 = -1;
+            //float y1 = -1;
+            //float x2 = 1;
+            //float y2 = 1;
+            //float angle = 45f.ToRadian();
+
+            // 2. Create half of a rotation matrix
+            float rx = MathF.Cos(angle);
+            float ry = MathF.Sin(angle);
+
+            // 3. Calculate start and end points in rotated space:
+            float startRotated = x1 * rx + y1 * ry;
+            float endRotated = x2 * rx + y2 * ry;
+
+            // 4. Apply the gradient for each pixel:
+            for (int y = 0; y < bitmapData.Height; y++)
+            for (int x = 0; x < bitmapData.Width; x++)
+            {
+                // Mapping pixels from (0, 0)..(width, height) to vectors (-1, -1)..(1, 1)
+                //float u = (x / width) * 2.0f - 1.0f;
+                //float v = (y / height) * 2.0f - 1.0f;
+                //float current = u * rx + v * ry;
+                //float u = (x  ) ;
+                //float v = (y ) ;
+
+                float current = (float)((double)x * rx + (double)y * ry);
+                float lerp = (startRotated - current) / (startRotated - endRotated);
+                bitmapData.SetColor32(x, y, LerpRepeat(c1, c2, lerp));
+            }
+
+            SaveBitmapData(null, bitmapData);
+            throw new Exception("remove");
+        }
+
+        public Color32 LerpRepeat(Color32 start, Color32 end, float t)
+        {
+            //t = t % 1 - needed only for ColorF
+            return new Color32(
+                (byte)(start.A + (end.A - start.A) * t),
+                (byte)(start.R + (end.R - start.R) * t),
+                (byte)(start.G + (end.G - start.G) * t),
+                (byte)(start.B + (end.B - start.B) * t)
+                );
+        }
+
+        public Color32 LerpStop(Color32 start, Color32 end, float t)
+        {
+            if (t <= 0)
+                return start;
+            if (t >= 1)
+                return end;
+            return new Color32(
+                (byte)(start.A + (end.A - start.A) * t),
+                (byte)(start.R + (end.R - start.R) * t),
+                (byte)(start.G + (end.G - start.G) * t),
+                (byte)(start.B + (end.B - start.B) * t)
+                );
+        }
+
+        public Color32 LerpClip(Color32 start, Color32 end, float t)
+        {
+            if (t < 0 || t > 1)
+                return default;
+            return new Color32(
+                (byte)(start.A + (end.A - start.A) * t),
+                (byte)(start.R + (end.R - start.R) * t),
+                (byte)(start.G + (end.G - start.G) * t),
+                (byte)(start.B + (end.B - start.B) * t)
+                );
+        }
+
+        public Color32 LerpMirror(Color32 start, Color32 end, float t)
+        {
+            t = Math.Abs(t) % 2;
+            if (t > 1)
+                t = 2 - t;
+            return new Color32(
+                (byte)(start.A + (end.A - start.A) * t),
+                (byte)(start.R + (end.R - start.R) * t),
+                (byte)(start.G + (end.G - start.G) * t),
+                (byte)(start.B + (end.B - start.B) * t)
+                );
         }
 
         #endregion

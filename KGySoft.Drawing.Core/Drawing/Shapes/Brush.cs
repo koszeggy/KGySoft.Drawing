@@ -25,6 +25,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -2417,8 +2418,24 @@ namespace KGySoft.Drawing.Shapes
         public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
 
+        // TODO: clip Rectangle
         public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, bool hasAlphaHint = true)
             => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint);
+
+        // TODO: Color64/ColorF/Point
+        public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
+            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            // TODO: validate points (infinity, NaN, tolerant equals - return 2px horizontal at start) and enums
+            //if (start.Y.TolerantEquals(start.Y, tolerance))
+            return LinearGradientBrush.Create(startPoint, endPoint, startColor, endColor, mapMode, workingColorSpace);
+        }
+
+        public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => throw new NotImplementedException();
+
+        // TODO
+        //public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, IList<Color32> colors, IList<float> positions, float angle = 0f, GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => throw new NotImplementedException();
+        //public static Brush CreateLinearGradient(float angle, IList<Color32> colors, IList<float> positions, GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => throw new NotImplementedException();
 
         #endregion
 

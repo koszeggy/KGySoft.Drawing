@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -2168,7 +2167,7 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Instance Methods
-        
+
         private protected abstract IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset);
 
         #endregion

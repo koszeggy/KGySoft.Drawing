@@ -62,6 +62,7 @@ namespace KGySoft.Drawing.Shapes
 
             if (mapMode is TextureMapMode.Stretch or TextureMapMode.Zoom)
             {
+                // TODO: 1 item cache (key: size+AA+KeepAspect) - make sure DoResize does not use array pooling so no dispose is needed
                 result = (IBitmapDataInternal)texture.DoResize(context, rawPath.Bounds.Size, drawingOptions.AntiAliasing ? ScalingMode.Auto : ScalingMode.NearestNeighbor, mapMode is TextureMapMode.Zoom)!;
                 
                 // Result above is null if cancellation occurred. This is one of the very few cases where we throw an OperationCanceledException
