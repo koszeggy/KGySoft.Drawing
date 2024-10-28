@@ -1726,6 +1726,31 @@ namespace KGySoft.Drawing.Imaging
                 bits |= (byte)mask;
         }
 
+        internal static ColorF Interpolate(this ColorF c1, ColorF c2, float t)
+        {
+            switch (t)
+            {
+                case <= 0f:
+                    return c1;
+                case >= 1f:
+                    return c2;
+                default:
+                    if (Single.IsNaN(t))
+                        return default;
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    return new ColorF(c1.Rgba * (1f - t) + c2.Rgba * t);
+#else
+                    float inverseT = 1f - t;
+                    return new ColorF(
+                        c1.A * inverseT + c2.A * t,
+                        c1.R * inverseT + c2.R * t,
+                        c1.G * inverseT + c2.G * t,
+                        c1.B * inverseT + c2.B * t);
+#endif
+            }
+        }
+
         #endregion
 
         #region Private Methods

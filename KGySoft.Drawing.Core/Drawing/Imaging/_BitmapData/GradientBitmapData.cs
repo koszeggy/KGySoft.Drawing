@@ -78,7 +78,8 @@ namespace KGySoft.Drawing.Imaging
             this.startColor = startColor.ToColorF(LinearWorkingColorSpace);
             this.endColor = endColor.ToColorF(LinearWorkingColorSpace);
 
-            // Using double for the partial results matters when using 90 or 180 degrees, because in radians they are not exactly representable.
+            // Using double for the partial results matters when using 90 or 180 degrees, because in radians they are not exactly representable
+            // (though horizontal and vertical gradients have optimized cases in LinearGradientBrush).
             double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
             rotationX = (float)Math.Cos(angle);
             rotationY = (float)Math.Sin(angle);
@@ -99,21 +100,11 @@ namespace KGySoft.Drawing.Imaging
 
         public override ColorF DoGetColorF(int x, int y)
         {
-            // Calculating the current position on the gradient.
-            // Using double to avoid precision issues. Would not be necessary if the range was normalized between (-1, 1) but that would be slower.
+            // Calculating the current position on the gradient. Using double for the intermediate steps to avoid precision issues (observable with
+            // clipping interpolation). Would not be necessary if the range was normalized between (-1, 1) but the extra calculation would be slower.
             float current = (float)((double)x * rotationX + (double)y * rotationY);
             float pos = default(TInterpolation).GetValue((start - current) / (start - end));
-            if (Single.IsNaN(pos))
-                return default;
-            
-            Debug.Assert(pos is >= 0f and <= 1f);
-
-            // TODO: vectorize
-            return new ColorF(
-                startColor.A * (1 - pos) + endColor.A * pos,
-                startColor.R * (1 - pos) + endColor.R * pos,
-                startColor.G * (1 - pos) + endColor.G * pos,
-                startColor.B * (1 - pos) + endColor.B * pos);
+            return startColor.Interpolate(endColor, pos);
         }
 
         public override void DoSetColor32(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);

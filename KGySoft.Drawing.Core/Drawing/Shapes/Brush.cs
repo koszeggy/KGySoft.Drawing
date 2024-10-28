@@ -2431,7 +2431,11 @@ namespace KGySoft.Drawing.Shapes
             return LinearGradientBrush.Create(startPoint, endPoint, startColor, endColor, mapMode, workingColorSpace);
         }
 
-        public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => throw new NotImplementedException();
+        // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
+        public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            return LinearGradientBrush.Create(angle, startColor, endColor, workingColorSpace);
+        }
 
         // TODO
         //public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, IList<Color32> colors, IList<float> positions, float angle = 0f, GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => throw new NotImplementedException();

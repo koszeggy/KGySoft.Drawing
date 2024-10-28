@@ -765,10 +765,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             }
         }
 
-        //[TestCase("horizontal", 20f, 10f, 80f, 10f)]
+        [TestCase("horizontal", 20f, 10f, 80f, 10f)]
         [TestCase("vertical", 10f, 20f, 10f, 120f)]
         [TestCase("diagonal", -10f, 10f, 10f, -10f)]
-        public void GradientBrushMappingTest(string name, float x1, float y1, float x2, float y2)
+        public void GradientBrushWithEndpointsTest(string name, float x1, float y1, float x2, float y2)
         {
             var path = new Path(false)
                 .AddEllipse(new RectangleF(0, 0, 100, 50));
@@ -785,6 +785,30 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                     bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
                 SaveBitmapData($"{name}_{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
+            }
+        }
+
+        //[TestCase("horizontal right", 0f)]
+        [TestCase("horizontal left", 180f)]
+        //[TestCase("vertical down", 90f)]
+        //[TestCase("vertical up", 270f)]
+        [TestCase("diagonal", 45f)]
+        [TestCase("almost horizontal", 13f)]
+        public void GradientBrushWithAngleTest(string name, float angle)
+        {
+            var path = new Path(false)
+                .AddEllipse(new RectangleF(0, 0, 100, 50));
+
+            using var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
+
+            foreach (bool antiAliasing in new[] { false, true })
+            {
+                bitmap.Clear(Color.Cyan);
+                var brush = Brush.CreateLinearGradient(angle, Color.White, Color.Black);
+                foreach (int offset in new[] { -50, 0, 50 })
+                    bitmap.FillPath(null, path, brush, new DrawingOptions {AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+
+                SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}", bitmap);
             }
         }
 
