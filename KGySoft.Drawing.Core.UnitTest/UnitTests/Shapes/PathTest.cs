@@ -755,13 +755,14 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             foreach (bool blend in new[] { false, true })
             foreach (bool antiAliasing in new[] { false, true })
+            foreach (Point textureOffset in new[] { Point.Empty, new Point(-texture.Width / 4, texture.Height / 2) })
             {
                 bitmap.Clear(Color.Navy);
-                var brush = Brush.CreateTexture(mapMode < TextureMapMode.Clip ? texture : textureOpaque, mapMode: mapMode);
+                var brush = Brush.CreateTexture(mapMode < TextureMapMode.Clip ? texture : textureOpaque, mapMode: mapMode, textureOffset);
                 foreach (int offset in new[] { -50, 0, 50 })
                     bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
-                SaveBitmapData($"{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
+                SaveBitmapData($"{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}{(textureOffset.IsEmpty ? null : "_Offset")}", bitmap);
             }
         }
 
@@ -788,10 +789,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             }
         }
 
-        //[TestCase("horizontal right", 0f)]
+        [TestCase("horizontal right", 0f)]
         [TestCase("horizontal left", 180f)]
-        //[TestCase("vertical down", 90f)]
-        //[TestCase("vertical up", 270f)]
+        [TestCase("vertical down", 90f)]
+        [TestCase("vertical up", 270f)]
         [TestCase("diagonal", 45f)]
         [TestCase("almost horizontal", 13f)]
         public void GradientBrushWithAngleTest(string name, float angle)
@@ -875,133 +876,48 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 .DumpResults(Console.Out);
         }
 
-        [Test]
-        public void GenerateGradientTest()
+        //[TestCase("2px", 20, 21)]
+        [TestCase("LeftToRight", 20, 80)]
+        //[TestCase("RightToLeft", 80, 20)]
+        // TODO: right-left
+        public void HorizontalGradientBrushOptimizationTest(string name, int x1, int x2)
         {
-            Color startColor = Color.Red;
-            Color endColor = Color.Blue;
-            Color32 c1 = startColor;
-            Color32 c2 = endColor;
-            Size size = new Size(800, 200);
-            using var bitmapData = BitmapDataFactory.CreateBitmapData(size);
+            var path = new Path()
+                .AddEllipse(new RectangleF(0, 0, 100, 50));
 
-            //float width = size.Width;
-            //float height = size.Height;
+            using var bitmapData1 = BitmapDataFactory.CreateBitmapData(100, 150);
+            using var bitmapData2 = BitmapDataFactory.CreateBitmapData(bitmapData1.Size);
+            Brush brush1, brush2;
 
-            // 0. Convert your startPoint and endPoint into vectors:
-            PointF startPoint = new PointF(-20, 20);
-            PointF endPoint = new PointF(20, -20);
-
-            //PointF startPoint = new PointF(1, 1);
-            //PointF endPoint = new PointF(0, 2);
-
-            //PointF startPoint = new PointF(20, 20);
-            //PointF endPoint = new PointF(100, 21);
-
-            //float width = Math.Max(size.Width, size.Height);
-            //float height = width;
-
-
-
-            //float x1 = (startPoint.X / width) * 2.0f - 1.0f;
-            //float y1 = (startPoint.Y / height) * 2.0f - 1.0f;
-            //float x2 = (endPoint.X / width) * 2.0f - 1.0f;
-            //float y2 = (endPoint.Y / height) * 2.0f - 1.0f;
-            //float x1 = (startPoint.X) * 2.0f - 1.0f;
-            //float y1 = (startPoint.Y) * 2.0f - 1.0f;
-            //float x2 = (endPoint.X) * 2.0f - 1.0f;
-            //float y2 = (endPoint.Y) * 2.0f - 1.0f;
-            float x1 = (startPoint.X);
-            float y1 = (startPoint.Y);
-            float x2 = (endPoint.X);
-            float y2 = (endPoint.Y);
-
-            // 1. Find the angle between (x1,y1) and (x2,y2):
-            float angle = MathF.Atan2(y1 - y2, x1 - x2);
-
-            // 0/b. fixed vectors
-            //float x1 = -1;
-            //float y1 = -1;
-            //float x2 = 1;
-            //float y2 = 1;
-            //float angle = 45f.ToRadian();
-
-            // 2. Create half of a rotation matrix
-            float rx = MathF.Cos(angle);
-            float ry = MathF.Sin(angle);
-
-            // 3. Calculate start and end points in rotated space:
-            float startRotated = x1 * rx + y1 * ry;
-            float endRotated = x2 * rx + y2 * ry;
-
-            // 4. Apply the gradient for each pixel:
-            for (int y = 0; y < bitmapData.Height; y++)
-            for (int x = 0; x < bitmapData.Width; x++)
+            foreach (GradientMapMode mapMode in new[] { GradientMapMode.Stop, GradientMapMode.Clip, /*GradientMapMode.Repeat, GradientMapMode.Mirror*/ })
+            foreach (bool blend in new[] { false, /*true*/ })
+            foreach (bool antiAliasing in new[] { false, /*true*/ })
             {
-                // Mapping pixels from (0, 0)..(width, height) to vectors (-1, -1)..(1, 1)
-                //float u = (x / width) * 2.0f - 1.0f;
-                //float v = (y / height) * 2.0f - 1.0f;
-                //float current = u * rx + v * ry;
-                //float u = (x  ) ;
-                //float v = (y ) ;
+                bitmapData1.Clear(Color.Navy);
+                brush1 = new LinearGradientBrush(new PointF(x1, 0), new PointF(x2, 0), Color.Red.ToColorF(), Color.Blue.ToColorF(), mapMode, true);
+                foreach (int offset in new[] { -50, 0, 50 })
+                    bitmapData1.FillPath(null, path, brush1, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
-                float current = (float)((double)x * rx + (double)y * ry);
-                float lerp = (startRotated - current) / (startRotated - endRotated);
-                bitmapData.SetColor32(x, y, LerpRepeat(c1, c2, lerp));
+                SaveBitmapData($"{name}_{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmapData1);
+
+                bitmapData2.Clear(Color.Navy);
+                brush2 = LinearGradientBrush.CreateHorizontal(x1, x2, Color.Red.ToColorF(), Color.Blue.ToColorF(), mapMode, true);
+                foreach (int offset in new[] { -50, 0, 50 })
+                    bitmapData2.FillPath(null, path, brush2, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+                AssertAreEqual(bitmapData1, bitmapData2);
             }
 
-            SaveBitmapData(null, bitmapData);
-            throw new Exception("remove");
-        }
+#if !DEBUG
+            brush1 = new LinearGradientBrush(new PointF(x1, 0), new PointF(x2, 0), Color.Red.ToColorF(), Color.Blue.ToColorF(), GradientMapMode.Stop, false);
+            brush2 = LinearGradientBrush.CreateHorizontal(x1, x2, Color.Red.ToColorF(), Color.Blue.ToColorF(), GradientMapMode.Stop, false);
+            var options = new DrawingOptions { AntiAliasing = false, AlphaBlending = false };
+            new PerformanceTest { Repeat = 3, TestTime = 5000, TestName = name }
+                .AddCase(() => bitmapData1.FillPath(null, path, brush1, options), "General LinearGradientBrush")
+                .AddCase(() => bitmapData2.FillPath(null, path, brush2, options), "Specialized TextureBrush")
+                .DoTest()
+                .DumpResults(Console.Out);
 
-        public Color32 LerpRepeat(Color32 start, Color32 end, float t)
-        {
-            //t = t % 1 - needed only for ColorF
-            return new Color32(
-                (byte)(start.A + (end.A - start.A) * t),
-                (byte)(start.R + (end.R - start.R) * t),
-                (byte)(start.G + (end.G - start.G) * t),
-                (byte)(start.B + (end.B - start.B) * t)
-                );
-        }
-
-        public Color32 LerpStop(Color32 start, Color32 end, float t)
-        {
-            if (t <= 0)
-                return start;
-            if (t >= 1)
-                return end;
-            return new Color32(
-                (byte)(start.A + (end.A - start.A) * t),
-                (byte)(start.R + (end.R - start.R) * t),
-                (byte)(start.G + (end.G - start.G) * t),
-                (byte)(start.B + (end.B - start.B) * t)
-                );
-        }
-
-        public Color32 LerpClip(Color32 start, Color32 end, float t)
-        {
-            if (t < 0 || t > 1)
-                return default;
-            return new Color32(
-                (byte)(start.A + (end.A - start.A) * t),
-                (byte)(start.R + (end.R - start.R) * t),
-                (byte)(start.G + (end.G - start.G) * t),
-                (byte)(start.B + (end.B - start.B) * t)
-                );
-        }
-
-        public Color32 LerpMirror(Color32 start, Color32 end, float t)
-        {
-            t = Math.Abs(t) % 2;
-            if (t > 1)
-                t = 2 - t;
-            return new Color32(
-                (byte)(start.A + (end.A - start.A) * t),
-                (byte)(start.R + (end.R - start.R) * t),
-                (byte)(start.G + (end.G - start.G) * t),
-                (byte)(start.B + (end.B - start.B) * t)
-                );
+#endif
         }
 
         #endregion

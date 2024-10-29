@@ -136,8 +136,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal void DrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
-            // RawFigure.EqualityTolerance
-            if (Width <= 1f / 64f)
+            if (Width <= Constants.EqualityTolerance)
                 return;
 
             RawPath rawPath = path.RawPath;

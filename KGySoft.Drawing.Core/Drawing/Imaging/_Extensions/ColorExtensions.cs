@@ -1207,6 +1207,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        #region Conversions
+
+        internal static ColorF ToColorF(this ColorF c, bool isLinear) => isLinear ? c : c.ToLinear();
+        internal static PColorF ToPColorF(this ColorF c, bool isLinear) => (isLinear ? c : c.ToLinear()).ToPColorF();
+
+        #endregion
+
+        #region Blending
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, bool linear)
             => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
@@ -1669,6 +1678,10 @@ namespace KGySoft.Drawing.Imaging
 #endif
         }
 
+        #endregion
+
+        #region Tolerant Equality
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance)
         {
@@ -1684,6 +1697,10 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(c1.A == 255 && backColor.A == 255);
             return TolerantEquals(c1, c2.Blend(backColor, colorSpace), tolerance);
         }
+
+        #endregion
+
+        #region Index Operations
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
@@ -1726,6 +1743,11 @@ namespace KGySoft.Drawing.Imaging
                 bits |= (byte)mask;
         }
 
+        #endregion
+
+        #region Interpolation
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ColorF Interpolate(this ColorF c1, ColorF c2, float t)
         {
             switch (t)
@@ -1750,6 +1772,8 @@ namespace KGySoft.Drawing.Imaging
 #endif
             }
         }
+
+        #endregion
 
         #endregion
 

@@ -60,12 +60,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Constants
-
-        private const float equalityTolerance = 1f / 64f;
-
-        #endregion
-
         #region Fields
 
         private IList<PointF>? openVertices;
@@ -122,7 +116,7 @@ namespace KGySoft.Drawing.Shapes
                         VertexCount = 1;
                         return;
                     }
-                } while (points[0].TolerantEquals(points[prev], equalityTolerance));
+                } while (points[0].TolerantEquals(points[prev], Constants.EqualityTolerance));
 
                 count = prev + 1;
                 PointF lastPoint = points[prev];
@@ -174,14 +168,14 @@ namespace KGySoft.Drawing.Shapes
                 else
                 {
                     // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
-                    if (!result[0].TolerantEquals(result[result.Count - 1], equalityTolerance))
+                    if (!result[0].TolerantEquals(result[result.Count - 1], Constants.EqualityTolerance))
                         result.Add(result[0]);
                     else
                         openVertices = result;
 
                     // If original points are practically closed but the figure is officially open, then
                     // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
-                    if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], equalityTolerance))
+                    if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], Constants.EqualityTolerance))
                         openVertices ??= result;
 
                     ClosedVertices = result;
@@ -199,8 +193,8 @@ namespace KGySoft.Drawing.Shapes
                     DoOffset(result);
                 }
 
-                Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(equalityTolerance), (int)minY.TolerantFloor(equalityTolerance),
-                    (int)maxX.TolerantCeiling(equalityTolerance), (int)maxY.TolerantCeiling(equalityTolerance));
+                Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(Constants.EqualityTolerance), (int)minY.TolerantFloor(Constants.EqualityTolerance),
+                    (int)maxX.TolerantCeiling(Constants.EqualityTolerance), (int)maxY.TolerantCeiling(Constants.EqualityTolerance));
                 IsClosed = isClosed;
             }
         }
@@ -220,7 +214,7 @@ namespace KGySoft.Drawing.Shapes
             PointF slope2 = p3 - new SizeF(p2);
 #endif
             float result = (slope1.Y * slope2.X) - (slope1.X * slope2.Y);
-            return (sbyte)(result.TolerantIsZero(equalityTolerance) ? 0
+            return (sbyte)(result.TolerantIsZero(Constants.EqualityTolerance) ? 0
                 : result > 0f ? 1
                 : -1);
         }

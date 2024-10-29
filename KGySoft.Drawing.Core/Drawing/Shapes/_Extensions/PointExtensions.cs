@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
@@ -31,7 +32,9 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Shapes
 {
-    // Actually for Point/PointF
+    /// <summary>
+    /// Extensions for Point/PointF structs.
+    /// </summary>
     internal static class PointExtensions
     {
         #region Methods
@@ -68,6 +71,14 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Size AsSize(this Point point) => new Size(point);
 #endif
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended, that's the point of the method.")]
+        internal static bool IsInteger(this PointF pointF, out Point point)
+        {
+            point = new Point((int)pointF.X, (int)pointF.Y);
+            return pointF.X == point.X && pointF.Y == point.Y;
+        }
 
         #endregion
     }
