@@ -1940,6 +1940,42 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region TextureMapperTileOffset struct
+        
+        private struct TextureMapperTileOffset : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                return (y %= size.Height) < 0 ? y + size.Height : y;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                return (x %= size.Width) < 0 ? x + size.Width : x;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region TextureMapperTileFlipX struct
 
         private struct TextureMapperTileFlipX : ITextureMapper
@@ -1957,6 +1993,45 @@ namespace KGySoft.Drawing.Shapes
             public int MapX(int x)
             {
                 x %= size.Width << 1;
+                return x < size.Width ? x : size.Width - (x - size.Width) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperTileFlipXOffset struct
+
+        private struct TextureMapperTileFlipXOffset : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                return (y %= size.Height) < 0 ? y + size.Height : y;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                x %= size.Width << 1;
+                if (x < 0)
+                    x += size.Width << 1;
                 return x < size.Width ? x : size.Width - (x - size.Width) - 1;
             }
 
@@ -1991,6 +2066,45 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region TextureMapperTileFlipYOffset struct
+
+        private struct TextureMapperTileFlipYOffset : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                return (x %= size.Width) < 0 ? x + size.Width : x;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                y %= size.Height << 1;
+                if (y < 0)
+                    y += size.Height << 1;
+                return y < size.Height ? y : size.Height - (y - size.Height) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region TextureMapperTileFlipXY struct
 
         private struct TextureMapperTileFlipXY : ITextureMapper
@@ -2014,6 +2128,48 @@ namespace KGySoft.Drawing.Shapes
             public int MapX(int x)
             {
                 x %= size.Width << 1;
+                return x < size.Width ? x : size.Width - (x - size.Width) - 1;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TextureMapperTileFlipXYOffset struct
+
+        private struct TextureMapperTileFlipXYOffset : ITextureMapper
+        {
+            #region Fields
+
+            private Size size;
+            private Point offset;
+
+            #endregion
+
+            #region Methods
+
+            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
+            {
+                size = texture.Size;
+                offset = textureOffset;
+            }
+
+            public int MapY(int y)
+            {
+                y += offset.Y;
+                y %= size.Height << 1;
+                if (y < 0)
+                    y += size.Height << 1;
+                return y < size.Height ? y : size.Height - (y - size.Height) - 1;
+            }
+
+            public int MapX(int x)
+            {
+                x += offset.X;
+                x %= size.Width << 1;
+                if (x < 0)
+                    x += size.Width << 1;
                 return x < size.Width ? x : size.Width - (x - size.Width) - 1;
             }
 
@@ -2064,9 +2220,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region TextureMapperCenter struct
+        #region TextureMapperOffset struct
 
-        private struct TextureMapperCenter : ITextureMapper
+        private struct TextureMapperOffset : ITextureMapper
         {
             #region Fields
 
@@ -2100,9 +2256,9 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region TextureMapperCenterExtend struct
+        #region TextureMapperOffsetExtend struct
 
-        private struct TextureMapperCenterExtend : ITextureMapper
+        private struct TextureMapperOffsetExtend : ITextureMapper
         {
             #region Fields
 
@@ -2148,18 +2304,38 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
-        internal static TextureBasedBrush Create(IReadableBitmapData texture, TextureMapMode mapMode, bool hasAlphaHint)
+        internal static TextureBasedBrush Create(IReadableBitmapData texture, TextureMapMode mapMode, bool hasAlphaHint, Point offset)
         {
+            if (mapMode >= TextureMapMode.Center)
+            {
+                return mapMode == TextureMapMode.CenterExtend
+                    ? new TextureBrush<TextureMapperOffsetExtend>(texture, hasAlphaHint, mapMode, offset)
+                    : new TextureBrush<TextureMapperOffset>(texture, hasAlphaHint, mapMode, offset);
+            }
+
+            if (offset.IsEmpty)
+            {
+                return mapMode switch
+                {
+                    TextureMapMode.Tile => new TextureBrush<TextureMapperTile>(texture, hasAlphaHint, mapMode, offset),
+                    TextureMapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipX>(texture, hasAlphaHint, mapMode, offset),
+                    TextureMapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipY>(texture, hasAlphaHint, mapMode, offset),
+                    TextureMapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXY>(texture, hasAlphaHint, mapMode, offset),
+                    TextureMapMode.Clip => new TextureBrush<TextureMapperClip>(texture, hasAlphaHint, mapMode, offset),
+                    TextureMapMode.Extend => new TextureBrush<TextureMapperExtend>(texture, hasAlphaHint, mapMode, offset),
+                    _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(mapMode))
+                };
+            }
+
             return mapMode switch
             {
-                TextureMapMode.Tile => new TextureBrush<TextureMapperTile>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipX>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipY>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXY>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.Clip => new TextureBrush<TextureMapperClip>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.Extend => new TextureBrush<TextureMapperExtend>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.Center or TextureMapMode.Stretch or TextureMapMode.Zoom => new TextureBrush<TextureMapperCenter>(texture, hasAlphaHint, mapMode),
-                TextureMapMode.CenterExtend => new TextureBrush<TextureMapperCenterExtend>(texture, hasAlphaHint, mapMode),
+                // TODO: tile with offset
+                TextureMapMode.Tile => new TextureBrush<TextureMapperTileOffset>(texture, hasAlphaHint, mapMode, offset),
+                TextureMapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipXOffset>(texture, hasAlphaHint, mapMode, offset),
+                TextureMapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipYOffset>(texture, hasAlphaHint, mapMode, offset),
+                TextureMapMode.TileFlipXY => new TextureBrush<TextureMapperTileFlipXYOffset>(texture, hasAlphaHint, mapMode, offset),
+                TextureMapMode.Clip => new TextureBrush<TextureMapperOffset>(texture, hasAlphaHint, mapMode, offset),
+                TextureMapMode.Extend => new TextureBrush<TextureMapperOffsetExtend>(texture, hasAlphaHint, mapMode, offset),
                 _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(mapMode))
             };
         }

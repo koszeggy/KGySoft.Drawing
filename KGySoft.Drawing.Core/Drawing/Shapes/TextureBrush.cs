@@ -32,6 +32,7 @@ namespace KGySoft.Drawing.Shapes
 
         private readonly IBitmapDataInternal texture;
         private readonly TextureMapMode mapMode;
+        private readonly Point displayOffset;
 
         #endregion
 
@@ -43,11 +44,12 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        internal TextureBrush(IReadableBitmapData texture, bool hasAlphaHint, TextureMapMode mapMode)
+        internal TextureBrush(IReadableBitmapData texture, bool hasAlphaHint, TextureMapMode mapMode, Point offset)
         {
             if (texture == null)
                 throw new ArgumentNullException(nameof(texture), PublicResources.ArgumentNull);
             this.mapMode = mapMode;
+            displayOffset = new Point(-offset.X, -offset.Y);
             this.texture = texture as IBitmapDataInternal ?? new BitmapDataWrapper(texture, true, false);
             HasAlpha = hasAlphaHint && texture.HasAlpha();
         }
@@ -59,6 +61,7 @@ namespace KGySoft.Drawing.Shapes
         private protected override IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset)
         {
             IBitmapDataInternal result = texture;
+            offset = displayOffset;
 
             if (mapMode is TextureMapMode.Stretch or TextureMapMode.Zoom)
             {
@@ -70,9 +73,8 @@ namespace KGySoft.Drawing.Shapes
                 context.ThrowIfCancellationRequested();
             }
 
-            offset = mapMode >= TextureMapMode.Center
-                ? new Point(-(((rawPath.Bounds.Width - result.Width) >> 1) + rawPath.Bounds.Left), -(((rawPath.Bounds.Height - result.Height) >> 1) + rawPath.Bounds.Top))
-                : Point.Empty;
+            if (mapMode >= TextureMapMode.Center)
+                offset -= new Size(((rawPath.Bounds.Width - result.Width) >> 1) + rawPath.Bounds.Left, ((rawPath.Bounds.Height - result.Height) >> 1) + rawPath.Bounds.Top);
 
             disposeTexture = result != texture;
             return result;

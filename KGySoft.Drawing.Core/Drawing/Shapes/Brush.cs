@@ -1040,7 +1040,7 @@ namespace KGySoft.Drawing.Shapes
 
             private const int subpixelCount = 16;
 
-            // We could use just floats but if subpixelCount is 16, then as we have basically 256 different possible values (subpixel area is 1/16^2 = 1/256).
+            // We could use just floats but if subpixelCount is 16, then we have basically 256 different possible values (subpixel area is 1/16^2 = 1/256).
             // So using bytes instead of floats both in scanline and region mask buffers to spare 3 bytes per pixel, so going with integers where that's more optimal.
             private const uint subpixelIntegerScale = 256;
             private const uint subpixelSize = subpixelIntegerScale / subpixelCount;
@@ -2419,22 +2419,32 @@ namespace KGySoft.Drawing.Shapes
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
 
         // TODO: clip Rectangle
-        public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, bool hasAlphaHint = true)
-            => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint);
+        public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, Point offset = default, bool hasAlphaHint = true)
+            => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint, offset);
 
         // TODO: Color64/ColorF/Point
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
             GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
-            // TODO: validate points (infinity, NaN, tolerant equals - return 2px horizontal at start) and enums
-            //if (start.Y.TolerantEquals(start.Y, tolerance))
-            return LinearGradientBrush.Create(startPoint, endPoint, startColor, endColor, mapMode, workingColorSpace);
+            // TODO: validate points (infinity, NaN
+            //if (startPoint.HasInfinityOrNaN)
+            //    throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
+            //if (endPoint.HasInfinityOrNaN)
+            //    throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
+            //if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
+            //    throw new ArgumentException(Res.ShapesStartEndTooClose);
+            if (startColor == endColor && mapMode != GradientMapMode.Clip)
+                return CreateSolid(startColor);
+
+            bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
+            return LinearGradientBrush.Create(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
         }
 
         // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
         public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
-            return LinearGradientBrush.Create(angle, startColor, endColor, workingColorSpace);
+            bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
+            return LinearGradientBrush.Create(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
         }
 
         // TODO
