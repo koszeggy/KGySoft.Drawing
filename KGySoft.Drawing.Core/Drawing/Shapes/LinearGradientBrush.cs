@@ -176,48 +176,80 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Here we generate a gradient specifically for the path so it perfectly completely covers it, without exceeding its bounds.
-            // We could do a shortcut for horizontal and vertical gradients but they are handled in the factory method anyway.
             Rectangle bounds = rawPath.Bounds;
+            if (bounds.Width > 1)
+                bounds.Width--;
+            if (bounds.Height > 1)
+                bounds.Height--;
             PointF startPoint = default;
             PointF endPoint = default;
             PointF center = new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f);
-            float rad = angle.ToRadian();
 
-            float directionX = (float)Math.Cos(rad);
-            float directionY = (float)Math.Sin(rad);
+            float degree = angle is >= 0f and <= 360f ? angle : angle % 360f;
+            if (degree < 0f)
+                degree += 360f;
 
-            // Projecting all corners onto the gradient direction and finding min/max projections
-            PointF[] corners = new PointF[]
+            // Using shortcuts for horizontal and vertical gradients. Not just for performance but also to avoid floating point inaccuracies in radians
+            // (apart from 0 degrees, horizontal and vertical lines cannot be represented accurately).
+            switch (degree)
             {
-                new PointF(bounds.Left, bounds.Top),
-                new PointF(bounds.Right, bounds.Top),
-                new PointF(bounds.Right, bounds.Bottom),
-                new PointF(bounds.Left, bounds.Bottom)
-            };
+                case 0f:
+                    startPoint = new PointF(bounds.Left, center.Y);
+                    endPoint = new PointF(bounds.Right, center.Y);
+                    break;
+                case 90f:
+                    startPoint = new PointF(center.X, bounds.Top);
+                    endPoint = new PointF(center.X, bounds.Bottom);
+                    break;
+                case 180f:
+                    startPoint = new PointF(bounds.Right, center.Y);
+                    endPoint = new PointF(bounds.Left, center.Y);
+                    break;
+                case 270f:
+                    startPoint = new PointF(center.X, bounds.Bottom);
+                    endPoint = new PointF(center.X, bounds.Top);
+                    break;
+                
+                default:
+                    float radian = degree.ToRadian();
+                    float directionX = (float)Math.Cos(radian);
+                    float directionY = (float)Math.Sin(radian);
 
-            float minProjection = float.MaxValue;
-            float maxProjection = float.MinValue;
-            foreach (var corner in corners)
-            {
-                float projection = ProjectPointOntoLine(new PointF(corner.X - center.X, corner.Y - center.Y), new PointF(directionX, directionY));
-                if (projection < minProjection)
-                {
-                    minProjection = projection;
-                    startPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
-                }
+                    // Projecting all corners onto the gradient direction and finding min/max projections
+                    PointF[] corners = new[]
+                    {
+                        new PointF(bounds.Left, bounds.Top),
+                        new PointF(bounds.Right, bounds.Top),
+                        new PointF(bounds.Right, bounds.Bottom),
+                        new PointF(bounds.Left, bounds.Bottom)
+                    };
 
-                if (projection > maxProjection)
-                {
-                    maxProjection = projection;
-                    endPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
-                }
+                    float minProjection = Single.MaxValue;
+                    float maxProjection = Single.MinValue;
+                    foreach (var corner in corners)
+                    {
+                        float projection = ProjectPointOntoLine(new PointF(corner.X - center.X, corner.Y - center.Y), new PointF(directionX, directionY));
+                        if (projection < minProjection)
+                        {
+                            minProjection = projection;
+                            startPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
+                        }
+
+                        if (projection > maxProjection)
+                        {
+                            maxProjection = projection;
+                            endPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
+                        }
+                    }
+
+                    break;
             }
 
             // though it doesn't contain anything to dispose...
             disposeTexture = true;
 
             // actually any size would do it, because as an IBitmapDataInternal any pixel coordinate can be read without range check
-            return new GradientBitmapData<StoppingInterpolation>(bounds.Size, startPoint, endPoint, startColor, endColor, isLinearColorSpace);
+            return new GradientBitmapData<ClippingInterpolation>(bounds.Size, startPoint, endPoint, startColor, endColor, isLinearColorSpace);
         }
 
         #endregion
