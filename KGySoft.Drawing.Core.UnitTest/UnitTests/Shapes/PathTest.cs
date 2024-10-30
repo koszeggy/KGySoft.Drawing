@@ -876,50 +876,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 .DumpResults(Console.Out);
         }
 
-        //[TestCase("2px", 20, 21)]
-        [TestCase("LeftToRight", 20, 80)]
-        //[TestCase("RightToLeft", 80, 20)]
-        // TODO: right-left
-        public void HorizontalGradientBrushOptimizationTest(string name, int x1, int x2)
-        {
-            var path = new Path()
-                .AddEllipse(new RectangleF(0, 0, 100, 50));
-
-            using var bitmapData1 = BitmapDataFactory.CreateBitmapData(100, 150);
-            using var bitmapData2 = BitmapDataFactory.CreateBitmapData(bitmapData1.Size);
-            Brush brush1, brush2;
-
-            foreach (GradientMapMode mapMode in new[] { GradientMapMode.Stop, GradientMapMode.Clip, /*GradientMapMode.Repeat, GradientMapMode.Mirror*/ })
-            foreach (bool blend in new[] { false, /*true*/ })
-            foreach (bool antiAliasing in new[] { false, /*true*/ })
-            {
-                bitmapData1.Clear(Color.Navy);
-                brush1 = new LinearGradientBrush(new PointF(x1, 0), new PointF(x2, 0), Color.Red.ToColorF(), Color.Blue.ToColorF(), mapMode, true);
-                foreach (int offset in new[] { -50, 0, 50 })
-                    bitmapData1.FillPath(null, path, brush1, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
-
-                SaveBitmapData($"{name}_{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmapData1);
-
-                bitmapData2.Clear(Color.Navy);
-                brush2 = LinearGradientBrush.CreateHorizontal(x1, x2, Color.Red.ToColorF(), Color.Blue.ToColorF(), mapMode, true);
-                foreach (int offset in new[] { -50, 0, 50 })
-                    bitmapData2.FillPath(null, path, brush2, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
-                AssertAreEqual(bitmapData1, bitmapData2);
-            }
-
-#if !DEBUG
-            brush1 = new LinearGradientBrush(new PointF(x1, 0), new PointF(x2, 0), Color.Red.ToColorF(), Color.Blue.ToColorF(), GradientMapMode.Stop, false);
-            brush2 = LinearGradientBrush.CreateHorizontal(x1, x2, Color.Red.ToColorF(), Color.Blue.ToColorF(), GradientMapMode.Stop, false);
-            var options = new DrawingOptions { AntiAliasing = false, AlphaBlending = false };
-            new PerformanceTest { Repeat = 3, TestTime = 5000, TestName = name }
-                .AddCase(() => bitmapData1.FillPath(null, path, brush1, options), "General LinearGradientBrush")
-                .AddCase(() => bitmapData2.FillPath(null, path, brush2, options), "Specialized TextureBrush")
-                .DoTest()
-                .DumpResults(Console.Out);
-
-#endif
-        }
-
         #endregion
     }
 }

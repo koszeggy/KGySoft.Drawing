@@ -2437,14 +2437,14 @@ namespace KGySoft.Drawing.Shapes
                 return CreateSolid(startColor);
 
             bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
-            return LinearGradientBrush.Create(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
+            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
         }
 
         // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
         public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
-            return LinearGradientBrush.Create(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
+            return new LinearGradientBrush(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
         }
 
         // TODO

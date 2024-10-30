@@ -42,6 +42,10 @@ namespace KGySoft.Drawing.Imaging
 
             public override Color32 DoGetColor32(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColor32(x, Index);
             public override PColor32 DoGetPColor32(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColor32(x, Index);
+            public override Color64 DoGetColor64(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColor64(x, Index);
+            public override PColor64 DoGetPColor64(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColor64(x, Index);
+            public override ColorF DoGetColorF(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColorF(x, Index);
+            public override PColorF DoGetPColorF(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColorF(x, Index);
             public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
             [SecurityCritical] public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
             [SecurityCritical] public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
@@ -85,7 +89,6 @@ namespace KGySoft.Drawing.Imaging
             this.endColor = endColor;
 
             // Using double for the partial results matters when using 90 or 180 degrees, because in radians they are not exactly representable.
-            // (Only horizontal and vertical gradients with integer start/end points have optimized cases in LinearGradientBrush).
             double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
             rotationX = (float)Math.Cos(angle);
             rotationY = (float)Math.Sin(angle);

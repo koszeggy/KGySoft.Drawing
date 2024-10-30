@@ -17,9 +17,7 @@
 
 using System;
 using System.Drawing;
-using System.Security;
 
-using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -102,72 +100,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region HorizontalGradientStop struct
-
-        private struct HorizontalGradientStop : ITextureMapper
-        {
-            #region Fields
-
-            private int width;
-            private int offset;
-
-            #endregion
-
-            #region Methods
-
-            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
-            {
-                width = texture.Width;
-                offset = textureOffset.X;
-            }
-
-            public int MapY(int y) => 0;
-
-            public int MapX(int x)
-            {
-                x += offset;
-                return x < 0 ? 0
-                    : x >= width ? width - 1
-                    : x;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #region TextureMapperOffset struct
-
-        private struct HorizontalGradientClip : ITextureMapper
-        {
-            #region Fields
-
-            private int width;
-            private int offset;
-
-            #endregion
-
-            #region Methods
-
-            public void InitTexture(IBitmapDataInternal texture, Point textureOffset)
-            {
-                width = texture.Width;
-                offset = textureOffset.X;
-            }
-
-            public int MapY(int y) => 0;
-
-            public int MapX(int x)
-            {
-                x += offset;
-                return (uint)x < (uint)width ? x : -1;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #endregion
 
         #region Fields
@@ -225,68 +157,6 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Methods
-
-        #region Static Methods
-
-        internal static TextureBasedBrush Create(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor, GradientMapMode mapMode, bool isLinearColorSpace)
-        {
-            Debug.Assert(!startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance));
-
-            // Horizontal or vertical gradient on integer coordinates: we can create a texture brush directly for better performance
-            if (startPoint.IsInteger(out Point start) && endPoint.IsInteger(out Point end))
-            {
-                if (start.Y == end.Y)
-                    return CreateHorizontal(start.X, end.X, startColor, endColor, mapMode, isLinearColorSpace);
-                if (start.X == end.X)
-                    return CreateVertical(start.Y, end.Y, startColor, endColor, mapMode, isLinearColorSpace);
-            }
-
-            return new LinearGradientBrush(startPoint, endPoint, startColor, endColor, mapMode, isLinearColorSpace);
-        }
-
-        internal static TextureBasedBrush CreateHorizontal(int left, int right, ColorF startColor, ColorF endColor, GradientMapMode mapMode, bool isLinearColorSpace)
-        {
-            Debug.Assert(left != right);
-
-            // preallocating the buffer for the gradient texture so it will not use the array pool
-            int width = (right - left).Abs() + 1;
-            var buffer = new ColorF[width];
-            var texture = BitmapDataFactory.CreateManagedBitmapData(new Array2D<ColorF>(buffer, 1, width), width, KnownPixelFormat.Format128bppRgba, default, default, default, null, null, null);
-
-            // filling the buffer with the gradient (we could create a GradientBitmap and copy one row but this is faster)
-            for (int x = 0; x < width; x++)
-            {
-                float current = x / (float)(width - 1);
-                buffer[x] = startColor.Interpolate(endColor, current).ToColorF(isLinearColorSpace);
-            }
-
-            if (right < left)
-                Array.Reverse(buffer);
-
-            bool hasAlphaHint = startColor.A < 1f || endColor.A < 1f;
-            var offset = new Point(Math.Min(left, right), 0);
-            return mapMode switch
-            {
-                GradientMapMode.Stop => new TextureBrush<HorizontalGradientStop>(texture, hasAlphaHint, TextureMapMode.Extend, offset),
-                GradientMapMode.Clip => new TextureBrush<HorizontalGradientClip>(texture, hasAlphaHint, TextureMapMode.Clip, offset),
-                //GradientMapMode.Repeat => new TextureBrush<HorizontalGradientRepeat>(texture, hasAlphaHint, TextureMapMode.Tile, offset),
-                //GradientMapMode.Mirror => new TextureBrush<HorizontalGradientMirror>(texture, hasAlphaHint, TextureMapMode.TileFlipX, offset),
-                _ => throw new InvalidOperationException(Res.InternalError($"Unhandled map mode: {mapMode}"))
-            };
-        }
-
-        private static TextureBasedBrush CreateVertical(int top, int bottom, ColorF startColor, ColorF endColor, GradientMapMode mapMode, bool isLinearColorSpace)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static TextureBasedBrush Create(float angle, ColorF startColor, ColorF endColor, bool isLinearColorSpace)
-        {
-            // if horizontal or vertical: TODO return new TextureBrush<Horizontal/VerticalGradient>(gradientTexture, hasAlphaHint, mapMode, offset: null)
-            return new LinearGradientBrush(angle, startColor, endColor, isLinearColorSpace);
-        }
-
-        #endregion
 
         private protected override IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset)
         {
