@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a read-only bitmap data of a gradient.
     /// As a public instance should be exposed as an <see cref="IReadableBitmapData"/>.
-    /// As an <see cref="IBitmapDataInternal"/> it allows reading any pixel coordinates.
+    /// As an <see cref="IBitmapDataInternal"/> it allows reading any pixel coordinates, regardless of the actual size.
     /// </summary>
     internal sealed class GradientBitmapData<TInterpolation> : BitmapDataBase
         where TInterpolation : struct, IInterpolation
@@ -36,26 +36,49 @@ namespace KGySoft.Drawing.Imaging
 
         private sealed class Row : BitmapDataRowBase
         {
+            #region Fields
+
+            internal double CurrentY;
+
+            #endregion
+
+            #region Properties
+
+            private new GradientBitmapData<TInterpolation> BitmapData => (GradientBitmapData<TInterpolation>)base.BitmapData;
+
+            #endregion
+
             #region Methods
 
             #region Public Methods
 
-            public override Color32 DoGetColor32(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColor32(x, Index);
-            public override PColor32 DoGetPColor32(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColor32(x, Index);
-            public override Color64 DoGetColor64(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColor64(x, Index);
-            public override PColor64 DoGetPColor64(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColor64(x, Index);
-            public override ColorF DoGetColorF(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetColorF(x, Index);
-            public override PColorF DoGetPColorF(int x) => ((GradientBitmapData<TInterpolation>)BitmapData).DoGetPColorF(x, Index);
+            public override Color32 DoGetColor32(int x) => DoGetColor(x).ToColor32(BitmapData.LinearWorkingColorSpace);
+            public override Color64 DoGetColor64(int x) => DoGetColor(x).ToColor64(BitmapData.LinearWorkingColorSpace);
+            public override PColor64 DoGetPColor64(int x) => DoGetColor(x).ToPColor64(BitmapData.LinearWorkingColorSpace);
+            public override ColorF DoGetColorF(int x) => DoGetColor(x).ToColorF(BitmapData.LinearWorkingColorSpace);
+            public override PColorF DoGetPColorF(int x) => DoGetColor(x).ToPColorF(BitmapData.LinearWorkingColorSpace);
             public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
-            [SecurityCritical] public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
-            [SecurityCritical] public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
+            [SecurityCritical]public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
+            [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
 
             #endregion
 
             #region Protected Methods
 
-            protected override void DoMoveToIndex()
+            protected override void DoMoveToIndex() => CurrentY = (double)Index * BitmapData.RotationY;
+
+            #endregion
+
+            #region Private Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            private ColorF DoGetColor(int x)
             {
+                // The same logic as in GradientBitmapData.DoGetColor, see the comments there.
+                var bitmap = BitmapData;
+                float current = (float)((double)x * bitmap.RotationX + CurrentY);
+                float pos = default(TInterpolation).GetValue((bitmap.Start - current) / (bitmap.Start - bitmap.End));
+                return bitmap.StartColor.Interpolate(bitmap.EndColor, pos);
             }
 
             #endregion
@@ -68,12 +91,12 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         // the colors here are actually in the working color space of the bitmap
-        private readonly ColorF startColor;
-        private readonly ColorF endColor;
-        private readonly float rotationX;
-        private readonly float rotationY;
-        private readonly float start;
-        private readonly float end;
+        internal readonly ColorF StartColor;
+        internal readonly ColorF EndColor;
+        internal readonly float RotationX;
+        internal readonly float RotationY;
+        internal readonly float Start;
+        internal readonly float End;
 
         #endregion
 
@@ -85,15 +108,15 @@ namespace KGySoft.Drawing.Imaging
             // NOTE: The colors here are expected in the specified color space. If it was a public constructor, it would be cleaner if ColorF values were always
             // in the linear color space, but it would be slower because of the extra back-and-forth conversions (e.g. when a Color32 was specified originally
             // in the public factory method). The BitmapData/Row.GetColorF methods will always return linear color space results.
-            this.startColor = startColor;
-            this.endColor = endColor;
+            StartColor = startColor;
+            EndColor = endColor;
 
             // Using double for the partial results matters when using 90 or 180 degrees, because in radians they are not exactly representable.
             double angle = Math.Atan2(endPoint.Y - startPoint.Y, endPoint.X - startPoint.X);
-            rotationX = (float)Math.Cos(angle);
-            rotationY = (float)Math.Sin(angle);
-            start = startPoint.X * rotationX + startPoint.Y * rotationY;
-            end = endPoint.X * rotationX + endPoint.Y * rotationY;
+            RotationX = (float)Math.Cos(angle);
+            RotationY = (float)Math.Sin(angle);
+            Start = startPoint.X * RotationX + startPoint.Y * RotationY;
+            End = endPoint.X * RotationX + endPoint.Y * RotationY;
         }
 
         #endregion
@@ -120,6 +143,7 @@ namespace KGySoft.Drawing.Imaging
         {
             BitmapData = this,
             Index = y,
+            CurrentY = (double)y * RotationY
         };
 
         #endregion
@@ -131,9 +155,9 @@ namespace KGySoft.Drawing.Imaging
         {
             // Calculating the current position on the gradient. Using double for the intermediate steps to avoid precision issues (observable with
             // clipping interpolation). Would not be necessary if the range was normalized between (-1, 1) but the extra calculation would be slower.
-            float current = (float)((double)x * rotationX + (double)y * rotationY);
-            float pos = default(TInterpolation).GetValue((start - current) / (start - end));
-            return startColor.Interpolate(endColor, pos);
+            float current = (float)((double)x * RotationX + (double)y * RotationY);
+            float pos = default(TInterpolation).GetValue((Start - current) / (Start - End));
+            return StartColor.Interpolate(EndColor, pos);
         }
 
         #endregion
