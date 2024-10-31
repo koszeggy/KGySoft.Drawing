@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 
@@ -146,6 +147,21 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
+        // TODO: Point[] overload
+        // TODO: ICollection/[IEnumerable?], ROS
+        public Path AddPolygon(params PointF[] points)
+        {
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
+            //if (points.Length < 3)
+            //    throw new ArgumentException(nameof(points), Res.ShapesPolygonPointsInvalid);
+
+            StartFigure();
+            AddSegment(new LineSegment(points));
+            CloseFigure();
+            return this;
+        }
+
         // TODO: Rectangle, int, float overloads
         public Path AddRectangle(RectangleF rectangle)
         {
@@ -187,6 +203,17 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // TODO: Rectangle, int, float overloads
+        public Path AddPie(RectangleF bounds, float startAngle, float sweepAngle)
+        {
+            // TODO: validation (bounds width/height, etc)
+            StartFigure();
+            AddPoint(new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f));
+            AddSegment(BezierSegment.FromArc(bounds, startAngle, sweepAngle));
+            CloseFigure();
+            return this;
+        }
+
+        // TODO: Rectangle, int, float overloads
         public Path AddEllipse(RectangleF bounds)
         {
             // TODO: validation (bounds width/height, etc)
@@ -196,8 +223,133 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        // TODO: AddPolygon (same as AddLines but closed)
-        // TODO: AddRoundedRectangle
+        // TODO: Rectangle, int, float overloads
+        public Path AddRoundedRectangle(RectangleF bounds, float radius)
+        {
+            // TODO: validation (bounds width/height, etc)
+            if (radius <= 0f)
+                return AddRectangle(bounds);
+
+            StartFigure();
+            float diameter = radius * 2f;
+            var corner = new RectangleF(bounds.Location, new SizeF(diameter, diameter));
+
+            // top left
+            AddArc(corner, 180f, 90f);
+            
+            // top right
+            corner.X = bounds.Right - diameter;
+            AddArc(corner, 270f, 90f);
+            
+            // bottom right
+            corner.Y = bounds.Bottom - diameter;
+            AddArc(corner, 0f, 90f);
+            
+            // bottom left
+            corner.X = bounds.Left;
+            AddArc(corner, 90f, 90f);
+
+            CloseFigure();
+            return this;
+        }
+
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "(In)equality is handled correctly")]
+        public Path AddRoundedRectangle(RectangleF bounds, float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft)
+        {
+            StartFigure();
+
+            // top left
+            var corner = new RectangleF(bounds.Location, new SizeF(radiusTopLeft * 2f, radiusTopLeft * 2f));
+            if (radiusTopLeft > 0f)
+                AddArc(corner, 180f, 90f);
+            else
+                AddPoint(corner.Location);
+
+            // top right
+            if (radiusTopRight != radiusTopLeft)
+                corner.Size = new SizeF(radiusTopRight * 2f, radiusTopRight * 2f);
+            corner.X = bounds.Right - corner.Width;
+            if (radiusTopRight > 0f)
+                AddArc(corner, 270f, 90f);
+            else
+                AddPoint(corner.Location);
+
+            // bottom right
+            if (radiusBottomRight != radiusTopRight)
+            {
+                corner.Size = new SizeF(radiusBottomRight * 2f, radiusBottomRight * 2f);
+                corner.X = bounds.Right - corner.Width;
+            }
+
+            corner.Y = bounds.Bottom - corner.Height;
+            if (radiusBottomRight > 0f)
+                AddArc(corner, 0f, 90f);
+            else
+                AddPoint(corner.Location);
+
+            // bottom left
+            if (radiusBottomLeft != radiusBottomRight)
+            {
+                corner.Size = new SizeF(radiusBottomLeft * 2f, radiusBottomLeft * 2f);
+                corner.Y = bounds.Bottom - corner.Height;
+            }
+
+            corner.X = bounds.Left;
+            if (radiusBottomLeft > 0f)
+                AddArc(corner, 90f, 90f);
+            else
+                AddPoint(corner.Location);
+
+            CloseFigure();
+            return this;
+        }
+
+        // connect: only if the last figure of this path is not closed
+        // the original path is transformed by the current transformation
+        public Path AddPath(Path path, bool connect)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+            if (path.IsEmpty)
+                return this;
+
+            bool isFirst = true;
+            foreach (Figure figure in path.figures ?? [path.currentFigure])
+            {
+                if (IsEmpty || isFirst && connect)
+                {
+                    foreach (PathSegment segment in figure.Segments)
+                    {
+                        PathSegment segmentToAdd = segment.Clone();
+                        if (!transformation.IsIdentity)
+                            segmentToAdd.Transform(transformation);
+                        AddSegment(segmentToAdd);
+                    }
+
+                    isFirst = false;
+                    continue;
+                }
+
+                figures ??= new List<Figure>(2) { currentFigure };
+                var figureToAdd = new Figure(figure, false);
+                if (!transformation.IsIdentity)
+                    figureToAdd.Transform(transformation);
+                figures.Add(figureToAdd);
+            }
+
+            currentFigure = figures![figures.Count - 1];
+            return this;
+        }
+
+        public IList<PointF[]> GetPoints()
+        {
+            if (figures == null)
+                return [currentFigure.GetPoints().ToArray()];
+            var result = new List<PointF[]>(figures.Count);
+            foreach (Figure figure in figures)
+                result.Add(figure.GetPoints().ToArray());
+            return result;
+        }
 
         // The next point will be a new starting point.
         // A single point or a line section is always rendered as an open figure. After a point or a single line this method has the same effect as StartFigure.

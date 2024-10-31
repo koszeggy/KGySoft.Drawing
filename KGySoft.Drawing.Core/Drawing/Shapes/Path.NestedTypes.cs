@@ -35,29 +35,24 @@ namespace KGySoft.Drawing.Shapes
 
         private sealed class Figure
         {
-            #region Fields
-
-            private readonly List<PathSegment> segments;
-
-            #endregion
-
             #region Properties
 
             internal bool IsClosed { get; set; }
-            internal bool IsEmpty => segments.Count == 0;
+            internal bool IsEmpty => Segments.Count == 0;
+            internal List<PathSegment> Segments { get; }
 
             #endregion
 
             #region Constructors
 
-            internal Figure() => segments = new List<PathSegment>();
+            internal Figure() => Segments = new List<PathSegment>();
 
             internal Figure(Figure other, bool close)
             {
-                int count = other.segments.Count;
-                segments = new List<PathSegment>(count);
+                int count = other.Segments.Count;
+                Segments = new List<PathSegment>(count);
                 for (int i = 0; i < count; i++)
-                    segments.Add(other.segments[i].Clone());
+                    Segments.Add(other.Segments[i].Clone());
 
                 IsClosed = close || other.IsClosed;
             }
@@ -66,13 +61,13 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal void AddSegment(PathSegment segment) => segments.Add(segment);
+            internal void AddSegment(PathSegment segment) => Segments.Add(segment);
 
             [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
             internal bool TryAppendPoints(ICollection<PointF> points)
             {
                 Debug.Assert(points.Count > 0);
-                if (segments.Count == 0 || segments[segments.Count - 1] is not LineSegment lastSegment)
+                if (Segments.Count == 0 || Segments[Segments.Count - 1] is not LineSegment lastSegment)
                     return false;
 
                 if (IsClosed)
@@ -88,15 +83,15 @@ namespace KGySoft.Drawing.Shapes
 
             internal IList<PointF> GetPoints()
             {
-                switch (segments.Count)
+                switch (Segments.Count)
                 {
                     case 0:
                         return Reflector.EmptyArray<PointF>();
                     case 1:
-                        return segments[0].GetPoints();
+                        return Segments[0].GetPoints();
                     default:
                         var result = new List<PointF>();
-                        foreach (PathSegment segment in segments)
+                        foreach (PathSegment segment in Segments)
                             result.AddRange(segment.GetPoints());
                         return result;
                 }
@@ -104,7 +99,7 @@ namespace KGySoft.Drawing.Shapes
 
             internal void Transform(TransformationMatrix matrix)
             {
-                foreach (PathSegment segment in segments)
+                foreach (PathSegment segment in Segments)
                     segment.Transform(matrix);
             }
 
