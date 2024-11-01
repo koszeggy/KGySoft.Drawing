@@ -23,6 +23,19 @@
   ! New GetColorIndex/ReadRaw<T> methods
 ! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
   ! New SetColorIndex/WriteRaw<T> methods
++ BitmapDataExtensions class:
+  + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
+  + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
+  + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
+
++ New KGySoft.Drawing.Shapes namespace
+======================================
++ New Brush class
++ New Pen class
++ New Path class
++ New DrawingOptions class
++ New TransformMatrix struct
++ New LineCapStyle, LineJoinStyle, PixelOffset, ShapeFillMode, GradientWrapMode, TextureMapMode enums
 
 
 ~~~~~~~~~

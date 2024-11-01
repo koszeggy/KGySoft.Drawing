@@ -1624,23 +1624,30 @@ namespace KGySoft.Drawing.Shapes
 
             #endregion
 
-            #region Properties
-
-            protected RawPath Path { get; }
-
-            #endregion
-
             #region Constructors
 
             protected DrawThinPathSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
                 : base(owner, context, bitmapData, rawPath, bounds, options, region)
             {
-                Path = rawPath;
             }
 
             #endregion
 
             #region Methods
+
+            #region Static Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            protected static (Point P1, Point P2) Round(PointF p1, PointF p2, bool doOffset)
+            {
+                float offset = doOffset ? 0.5f : 0f;
+                return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
+                    (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
+            }
+
+            #endregion
+
+            #region Instance Methods
 
             #region Internal Methods
 
@@ -1650,12 +1657,15 @@ namespace KGySoft.Drawing.Shapes
 
             #region Protected Methods
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
                 float offset = DrawingOptions.DrawPathPixelOffset == PixelOffset.Half ? 0.5f : 0f;
                 return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
                     (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
             }
+
+            #endregion
 
             #endregion
 
@@ -1686,7 +1696,7 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(!Region!.IsAntiAliased);
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(start, end);
-                Size offset = Path.Bounds.Location.AsSize();
+                Size offset = RawPath.Bounds.Location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
 
@@ -1762,7 +1772,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
-            internal override void FinalizeSession() => Owner.ApplyRegion(Context, BitmapData, Path, VisibleBounds, DrawingOptions, Region!);
+            internal override void FinalizeSession() => Owner.ApplyRegion(Context, BitmapData, RawPath, VisibleBounds, DrawingOptions, Region!);
 
             #endregion
 
@@ -2404,7 +2414,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        private protected abstract bool HasAlpha { get; }
+        internal abstract bool HasAlpha { get; }
 
         #endregion
 
@@ -2470,18 +2480,18 @@ namespace KGySoft.Drawing.Shapes
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
-        internal void FillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
+        internal bool FillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
             => FillRawPath(context, bitmapData, path.RawPath, drawingOptions, path.PreferCaching);
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure",
             Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
-        internal void FillRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
+        internal bool FillRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
             Rectangle pathBounds = rawPath.Bounds;
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
             if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
-                return;
+                return !context.IsCancellationRequested;
 
             Region? region = null;
             if (cache)
@@ -2490,10 +2500,7 @@ namespace KGySoft.Drawing.Shapes
 
                 // If we already have a generated region, we just re-apply it on a much faster path.
                 if (region.IsGenerated)
-                {
-                    ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
-                    return;
-                }
+                    return ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
             }
 
             try
@@ -2508,7 +2515,7 @@ namespace KGySoft.Drawing.Shapes
                     for (int y = generateBounds.Top; y < generateBounds.Bottom; y++)
                     {
                         if (context.IsCancellationRequested)
-                            return;
+                            return false;
 
                         scanner.ProcessNextScanline();
                         context.Progress?.Increment();
@@ -2519,12 +2526,13 @@ namespace KGySoft.Drawing.Shapes
                     if (!ParallelHelper.For(context, DrawingOperation.ProcessingPixels, generateBounds.Top, generateBounds.Bottom,
                         y => scanner.ProcessScanline(y)))
                     {
-                        return;
+                        return false;
                     }
                 }
 
                 region?.SetCompleted();
                 session.FinalizeSession();
+                return !context.IsCancellationRequested;
             }
             catch (Exception)
             {
@@ -2538,7 +2546,7 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        internal void DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
+        internal bool DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
             #region Local Methods
 
@@ -2580,7 +2588,7 @@ namespace KGySoft.Drawing.Shapes
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
             if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
-                return;
+                return !context.IsCancellationRequested;
 
             Region? region = null;
             if (NeedsRegion())
@@ -2589,10 +2597,7 @@ namespace KGySoft.Drawing.Shapes
 
                 // If we already have a generated region, we just re-apply it
                 if (region.IsGenerated)
-                {
-                    ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
-                    return;
-                }
+                    return ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
             }
 
             try
@@ -2614,7 +2619,7 @@ namespace KGySoft.Drawing.Shapes
                         for (int i = 1; i < len; i++)
                         {
                             if (context.IsCancellationRequested)
-                                return;
+                                return false;
                             session.DrawLine(points[i - 1], points[i]);
                             context.Progress?.Increment();
                         }
@@ -2623,6 +2628,7 @@ namespace KGySoft.Drawing.Shapes
 
                 region?.SetCompleted();
                 session.FinalizeSession();
+                return !context.IsCancellationRequested;
             }
             catch (Exception)
             {
@@ -2650,7 +2656,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        private void ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle visibleBounds, DrawingOptions drawingOptions, Region region)
+        private bool ApplyRegion(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle visibleBounds, DrawingOptions drawingOptions, Region region)
         {
             using FillPathSession session = CreateFillSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
             var applicator = new RegionApplicator(session);
@@ -2660,7 +2666,7 @@ namespace KGySoft.Drawing.Shapes
                 for (int y = visibleBounds.Top; y < visibleBounds.Bottom; y++)
                 {
                     if (context.IsCancellationRequested)
-                        return;
+                        return false;
 
                     applicator.ApplyScanline(y);
                     context.Progress?.Increment();
@@ -2671,11 +2677,12 @@ namespace KGySoft.Drawing.Shapes
                 if (!ParallelHelper.For(context, DrawingOperation.ProcessingPixels, visibleBounds.Top, visibleBounds.Bottom,
                     y => applicator.ApplyScanline(y)))
                 {
-                    return;
+                    return false;
                 }
             }
 
             session.FinalizeSession();
+            return !context.IsCancellationRequested;
         }
 
         #endregion

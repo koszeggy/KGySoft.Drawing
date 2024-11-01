@@ -114,7 +114,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        private protected override bool HasAlpha { get; }
+        internal override bool HasAlpha { get; }
 
         #endregion
 

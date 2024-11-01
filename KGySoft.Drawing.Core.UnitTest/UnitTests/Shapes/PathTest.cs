@@ -23,7 +23,6 @@ using System;
 using System.Drawing;
 using System.Numerics;
 
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
@@ -154,8 +153,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["128bppPRgba_Alternate_NQ_Srgb_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
             ["128bppPRgba_Alternate_NQ_Linear_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Linear, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
 
-            //["32bppArgb_Alternate_NQ_Srgb_NA_NB_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
-            //["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
+            ["32bppArgb_Alternate_NQ_Srgb_NA_NB_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
+            ["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
         ];
 
         private static object?[][] ScanPixelOffsetTestSource =>
@@ -377,23 +376,22 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             else
                 GenerateAlphaGradient(bitmapDataBackground);
 
-            //IAsyncContext context = new SimpleContext(-1);
-            IAsyncContext context = new SimpleContext(1); // TODO
+            IAsyncContext context = new SimpleContext(-1);
 
             // non-cached region
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.FillPath(context, path, Brush.CreateSolid(fillColor), options);
+            bitmapData1.FillPath(context, Brush.CreateSolid(fillColor), path, options);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
             var pathCached = new Path(path) { PreferCaching = true };
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(context, pathCached, Brush.CreateSolid(fillColor), options);
+            bitmapData2.FillPath(context, Brush.CreateSolid(fillColor), pathCached, options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(context, pathCached, new SolidBrush(fillColor), options);
+            bitmapData3.FillPath(context, new SolidBrush(fillColor), pathCached, options);
             AssertAreEqual(bitmapData1, bitmapData3);
 
 #if DEBUG
@@ -401,48 +399,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.Fail("Execute performance test in Release");
 #endif
 
-            //using var bitmapData = bitmapDataBackground.Clone();
-            //var b1 = new SolidBrush(fillColor);
-            //var b2 = new SolidBrush2(fillColor);
-            //var b3 = new SolidBrush3(fillColor);
-            new PerformanceTest { TestName = $"{name} - {path.Bounds.Size}", TestTime = 5000, /*Iterations = 10_000,*/ Repeat = 3 }
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, path, b1, options);
-                //}, "SolidBrush no cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, path, b2, options);
-                //}, "SolidBrush2 no cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, path, b3, options);
-                //}, "SolidBrush3 no cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, pathCached, b3, options);
-                //}, "SolidBrush3 cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, pathCached, b2, options);
-                //}, "SolidBrush2 cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapDataBackground.CopyTo(bitmapData);
-                //    bitmapData.FillPath(null, pathCached, b1, options);
-                //}, "SolidBrush cache")
-                //.AddCase(() =>
-                //{
-                //    //bitmapData.Clear(default);
-                //    bitmapData.FillPath(AsyncHelper.DefaultContext, path, new SolidBrush(Color.Blue), options);
-                //}, "MultiThread")
-                .DoTest()
-                .DumpResults(Console.Out);
         }
 
         [TestCaseSource(nameof(FillPathTestSource))]
@@ -466,18 +422,18 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // non-cached region
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.FillPath(null, path, Brush.CreateSolid(fillColor), options);
+            bitmapData1.FillPath(null, Brush.CreateSolid(fillColor), path, options);
             SaveBitmapData(name, bitmapData1);
 
             // generating cached region
             path.PreferCaching = true;
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.FillPath(null, path, Brush.CreateSolid(fillColor), options);
+            bitmapData2.FillPath(null, Brush.CreateSolid(fillColor), path, options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             // re-using region from cache
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(null, path, Brush.CreateSolid(fillColor), options);
+            bitmapData3.FillPath(null, Brush.CreateSolid(fillColor), path, options);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
@@ -506,7 +462,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                     bitmapData.Clear(Color.Cyan);
 
                     var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
-                    bitmapData.DrawPath(context, path, pen, drawingOptions);
+                    bitmapData.DrawPath(context, pen, path, drawingOptions);
                     SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width}_{capStyle}", bitmapData);
                 }
             }
@@ -533,7 +489,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                     bitmapData.Clear(Color.Cyan);
 
                     var pen = new Pen(Color.Blue, width) { LineJoin = joinStyle };
-                    bitmapData.DrawPath(context, path, pen, drawingOptions);
+                    bitmapData.DrawPath(context, pen, path, drawingOptions);
                     SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width:00}_{joinStyle}", bitmapData);
                 }
             }
@@ -565,19 +521,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
                 path.PreferCaching = false;
                 using var bitmapData1 = bitmapDataBackground.Clone();
-                bitmapData1.FillPath(context, path, brush, drawingOptions);
-                bitmapData1.DrawPath(context, path, pen, drawingOptions);
+                bitmapData1.FillPath(context, brush, path, drawingOptions);
+                bitmapData1.DrawPath(context, pen, path, drawingOptions);
                 SaveBitmapData($"{name}_{(antiAliasing ? "AA" : $"NA{(fastThinLines ? "F" : "S")}")}_{offset}", bitmapData1);
 
                 path.PreferCaching = true;
                 using var bitmapData2 = bitmapDataBackground.Clone();
-                bitmapData2.FillPath(context, path, brush, drawingOptions);
-                bitmapData2.DrawPath(context, path, pen, drawingOptions);
+                bitmapData2.FillPath(context, brush, path, drawingOptions);
+                bitmapData2.DrawPath(context, pen, path, drawingOptions);
                 AssertAreEqual(bitmapData1, bitmapData2);
 
                 using var bitmapData3 = bitmapDataBackground.Clone();
-                bitmapData3.FillPath(context, path, brush, drawingOptions);
-                bitmapData3.DrawPath(context, path, pen, drawingOptions);
+                bitmapData3.FillPath(context, brush, path, drawingOptions);
+                bitmapData3.DrawPath(context, pen, path, drawingOptions);
                 AssertAreEqual(bitmapData1, bitmapData3);
             }
         }
@@ -605,16 +561,16 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var pen = new Pen(drawColor);
             
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.DrawPath(context, path, pen, options);
+            bitmapData1.DrawPath(context, pen, path, options);
             SaveBitmapData(name, bitmapData1);
 
             path.PreferCaching = true;
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.DrawPath(context, path, pen, options);
+            bitmapData2.DrawPath(context, pen, path, options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.DrawPath(context, path, pen, options);
+            bitmapData3.DrawPath(context, pen, path, options);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
@@ -631,16 +587,16 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             path.PreferCaching = false;
             using var bitmapData1 = bitmapDataBackground.Clone();
-            bitmapData1.DrawPath(context, path, pen);
+            bitmapData1.DrawPath(context, pen, path);
             SaveBitmapData(name, bitmapData1);
 
             path.PreferCaching = true;
             using var bitmapData2 = bitmapDataBackground.Clone();
-            bitmapData2.DrawPath(context, path, pen);
+            bitmapData2.DrawPath(context, pen, path);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.DrawPath(context, path, pen);
+            bitmapData3.DrawPath(context, pen, path);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
@@ -661,16 +617,16 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 var options = new DrawingOptions { ScanPathPixelOffset = pixelOffset, AntiAliasing = antiAliasing };
                 path.PreferCaching = false;
                 using var bitmapData1 = bitmapDataBackground.Clone();
-                bitmapData1.FillPath(context, path, brush, options);
+                bitmapData1.FillPath(context, brush, path, options);
                 SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_{pixelOffset}", bitmapData1);
 
                 path.PreferCaching = true;
                 using var bitmapData2 = bitmapDataBackground.Clone();
-                bitmapData2.FillPath(context, path, brush, options);
+                bitmapData2.FillPath(context, brush, path, options);
                 AssertAreEqual(bitmapData1, bitmapData2);
 
                 using var bitmapData3 = bitmapDataBackground.Clone();
-                bitmapData3.FillPath(context, path, brush, options);
+                bitmapData3.FillPath(context, brush, path, options);
                 AssertAreEqual(bitmapData1, bitmapData3);
             }
         }
@@ -715,19 +671,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             path.PreferCaching = false;
             using var bitmapData1 = background.Clone();
-            bitmapData1.FillPath(context, path, brush, options);
-            bitmapData1.DrawPath(context, path, pen, options);
+            bitmapData1.FillPath(context, brush, path, options);
+            bitmapData1.DrawPath(context, pen, path, options);
             SaveBitmapData(name, bitmapData1);
 
             path.PreferCaching = true;
             using var bitmapData2 = background.Clone();
-            bitmapData2.FillPath(context, path, brush, options);
-            bitmapData2.DrawPath(context, path, pen, options);
+            bitmapData2.FillPath(context, brush, path, options);
+            bitmapData2.DrawPath(context, pen, path, options);
             AssertAreEqual(bitmapData1, bitmapData2);
 
             using var bitmapData3 = background.Clone();
-            bitmapData3.FillPath(context, path, brush, options);
-            bitmapData3.DrawPath(context, path, pen, options);
+            bitmapData3.FillPath(context, brush, path, options);
+            bitmapData3.DrawPath(context, pen, path, options);
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
@@ -757,7 +713,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 bitmap.Clear(Color.Navy);
                 var brush = Brush.CreateTexture(mapMode < TextureMapMode.Clip ? texture : textureOpaque, mapMode: mapMode, textureOffset);
                 foreach (int offset in new[] { -50, 0, 50 })
-                    bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+                    bitmap.FillPath(null, brush, path, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
                 SaveBitmapData($"{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}{(textureOffset.IsEmpty ? null : "_Offset")}", bitmap);
             }
@@ -780,7 +736,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 bitmap.Clear(Color.Navy);
                 var brush = Brush.CreateLinearGradient(new PointF(x1, y1), new PointF(x2, y2), Color.Red, Color.Blue, mapMode);
                 foreach (int offset in new[] { -50, 0, 50 })
-                    bitmap.FillPath(null, path, brush, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+                    bitmap.FillPath(null, brush, path, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
                 SaveBitmapData($"{name}_{mapMode}_{(blend ? "AB" : "NB")}_{(antiAliasing ? "AA" : "NA")}", bitmap);
             }
@@ -804,73 +760,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 bitmap.Clear(Color.Cyan);
                 var brush = Brush.CreateLinearGradient(angle, Color.White, Color.Black);
                 foreach (int offset in new[] { -50, 0, 50 })
-                    bitmap.FillPath(null, path, brush, new DrawingOptions {AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
+                    bitmap.FillPath(null, brush, path, new DrawingOptions {AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 
                 SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}", bitmap);
             }
-        }
-
-        [Explicit]
-        [Test]
-        public void DrawThinLinesPerfTest()
-        {
-            var path = new Path(false)
-                .AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()
-                .AddEllipse(new RectangleF(0, 0, 100, 100))
-                .AddRectangle(new RectangleF(0, 0, 100, 100));
-            var bounds = path.RawPath.DrawOutlineBounds;
-            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
-
-            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear);
-            bitmapDataBackground.Clear(Color32.White);
-
-            IAsyncContext context = new SimpleContext(-1);
-            using IReadWriteBitmapData texture = GenerateAlphaGradientBitmapData(size / 4);
-            //var pen = new Pen(Color.Blue);
-            var pen = new Pen(Brush.CreateTexture(texture));
-
-            //DrawingOptions options1 = new DrawingOptions { TestBehavior = -1, AlphaBlending = false }; // Forcing caching in Region
-            //using var bitmapData1 = bitmapDataBackground.Clone();
-            //bitmapData1.DrawPath(context, path, pen, options1);
-            //SaveBitmapData(null, bitmapData1);
-
-            //DrawingOptions options2 = new DrawingOptions { TestBehavior = 0, AlphaBlending = false }; // Direct SetColor32
-            //using var bitmapData2 = bitmapDataBackground.Clone();
-            //bitmapData2.DrawPath(context, path, pen, options2);
-            //AssertAreEqual(bitmapData1, bitmapData2);
-
-            //var options3 = new DrawingOptions { TestBehavior = 1 }; // Delegate
-            //using var bitmapData3 = bitmapDataBackground.Clone();
-            //bitmapData3.DrawPath(context, path, pen, options3);
-            //AssertAreEqual(bitmapData1, bitmapData3);
-
-            //var options4 = new DrawingOptions { TestBehavior = 2 }; // FuncPtr
-            //using var bitmapData4 = bitmapDataBackground.Clone();
-            //bitmapData4.DrawPath(context, path, pen, options4);
-            //AssertAreEqual(bitmapData1, bitmapData4);
-
-            //var options5 = new DrawingOptions { TestBehavior = 3, AlphaBlending = false }; // Generic accessor
-            //using var bitmapData5 = bitmapDataBackground.Clone();
-            //bitmapData5.DrawPath(context, path, pen, options5);
-            //AssertAreEqual(bitmapData1, bitmapData5);
-
-            //using var bitmapData1 = bitmapDataBackground.Clone();
-            //bitmapData1.DrawPath(context, path, pen); 
-            //SaveBitmapData(null, bitmapData1);
-
-#if DEBUG
-            return;
-            Assert.Fail("Execute performance test in Release");
-#endif
-
-            new PerformanceTest { Repeat = 3, TestTime = 5000, TestName = $"Draw thin path - Size: {size}; Vertices: {path.RawPath.TotalVertices}" }
-                //.AddCase(() => bitmapData1.DrawPath(context, path, pen, options1), "Cached region")
-                //.AddCase(() => bitmapData2.DrawPath(context, path, pen, options2), "Direct SetColor32")
-                //.AddCase(() => bitmapData3.DrawPath(context, path, pen, options3), "Delegate")
-                //.AddCase(() => bitmapData4.DrawPath(context, path, pen, options4), "Function pointer")
-                //.AddCase(() => bitmapData5.DrawPath(context, path, pen, options5), "Generic accessor")
-                .DoTest()
-                .DumpResults(Console.Out);
         }
 
         #endregion

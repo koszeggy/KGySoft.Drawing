@@ -60,6 +60,7 @@ namespace KGySoft.Drawing.Shapes
     //    #2  639 767 iterations in 5 000,00 ms. Adjusted: 639 766,48	 <---- Worst
     //    #3  640 939 iterations in 5 000,00 ms. Adjusted: 640 938,85
     //    Worst-Best difference: 1 507,41 (0,24%)
+    [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
     internal sealed class SolidBrush : Brush
     {
         #region Nested Types
@@ -1116,21 +1117,24 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                Color32 c = color;
+            #region Static Methods
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, Color32 c, Rectangle bounds, bool doOffset)
+            {
+                (Point p1, Point p2) = Round(start, end, doOffset);
+                DrawLine(bitmapData, p1, p2, c, bounds);
+            }
+
+            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, Color32 c, Rectangle bounds)
+            {
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
                 {
                     if ((uint)p1.Y >= (uint)(bounds.Bottom))
                         return;
 
-                    IBitmapDataRowInternal row = BitmapData.GetRowCached(p1.Y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(p1.Y);
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
@@ -1140,8 +1144,6 @@ namespace KGySoft.Drawing.Shapes
 
                     return;
                 }
-
-                IBitmapDataInternal bitmapData = BitmapData;
 
                 // vertical line
                 if (p1.X == p2.X)
@@ -1236,6 +1238,19 @@ namespace KGySoft.Drawing.Shapes
             }
 
             #endregion
+
+            #region Instance Methods
+            
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal override void DrawLine(PointF start, PointF end)
+            {
+                (Point p1, Point p2) = Round(start, end);
+                DrawLine(BitmapData, p1, p2, color, VisibleBounds);
+            }
+
+            #endregion
+
+            #endregion
         }
 
         #endregion
@@ -1250,7 +1265,6 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly TColor color;
-            private readonly TAccessor accessor;
 
             #endregion
 
@@ -1261,22 +1275,24 @@ namespace KGySoft.Drawing.Shapes
             {
                 Debug.Assert(!Blend);
                 color = owner.GetColor<TColor>();
-                accessor = new TAccessor();
-                accessor.InitBitmapData(BitmapData);
             }
 
             #endregion
 
             #region Methods
 
-            [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
-            internal override void DrawLine(PointF start, PointF end)
+            #region Static Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, Rectangle bounds, bool doOffset)
             {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                TColor c = color;
-                TAccessor acc = accessor;
+                (Point p1, Point p2) = Round(start, end, doOffset);
+                DrawLine(bitmapData, p1, p2, c, bounds);
+            }
+
+            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, Rectangle bounds)
+            {
+                var accessor = new TAccessor();
 
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
@@ -1284,16 +1300,18 @@ namespace KGySoft.Drawing.Shapes
                     if ((uint)p1.Y >= (uint)(bounds.Bottom))
                         return;
 
-                    acc.InitRow(BitmapData.GetRowCached(p1.Y));
+                    accessor.InitRow(bitmapData.GetRowCached(p1.Y));
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
                     int max = Math.Min(p2.X, bounds.Right - 1);
                     for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        acc.SetColor(x, c);
+                        accessor.SetColor(x, c);
 
                     return;
                 }
+
+                accessor.InitBitmapData(bitmapData);
 
                 // vertical line
                 if (p1.X == p2.X)
@@ -1306,7 +1324,7 @@ namespace KGySoft.Drawing.Shapes
 
                     int max = Math.Min(p2.Y, bounds.Bottom - 1);
                     for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        acc.SetColor(p1.X, y, c);
+                        accessor.SetColor(p1.X, y, c);
 
                     return;
                 }
@@ -1339,7 +1357,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         // Drawing only if Y is visible
                         if ((uint)y < (uint)bounds.Bottom)
-                            acc.SetColor(x, y, c);
+                            accessor.SetColor(x, y, c);
                         numerator += height;
                         if (numerator < width)
                             continue;
@@ -1374,7 +1392,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         // Drawing only if X is visible
                         if ((uint)(x - bounds.Left) < (uint)bounds.Right)
-                            acc.SetColor(x, y, c);
+                            accessor.SetColor(x, y, c);
                         numerator += width;
                         if (numerator < height)
                             continue;
@@ -1386,6 +1404,19 @@ namespace KGySoft.Drawing.Shapes
                     }
                 }
             }
+
+            #endregion
+
+            #region Instance Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal override void DrawLine(PointF start, PointF end)
+            {
+                (Point p1, Point p2) = Round(start, end);
+                DrawLine(BitmapData, p1, p2, color, VisibleBounds);
+            }
+
+            #endregion
 
             #endregion
         }
@@ -1414,21 +1445,24 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                int c = colorIndex;
+            #region Static Methods
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, int c, Rectangle bounds, bool doOffset)
+            {
+                (Point p1, Point p2) = Round(start, end, doOffset);
+                DrawLine(bitmapData, p1, p2, c, bounds);
+            }
+
+            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, int c, Rectangle bounds)
+            {
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
                 {
                     if ((uint)p1.Y >= (uint)(bounds.Bottom))
                         return;
 
-                    IBitmapDataRowInternal row = BitmapData.GetRowCached(p1.Y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(p1.Y);
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
@@ -1438,8 +1472,6 @@ namespace KGySoft.Drawing.Shapes
 
                     return;
                 }
-
-                IBitmapDataInternal bitmapData = BitmapData;
 
                 // vertical line
                 if (p1.X == p2.X)
@@ -1534,6 +1566,19 @@ namespace KGySoft.Drawing.Shapes
             }
 
             #endregion
+
+            #region Instance Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal override void DrawLine(PointF start, PointF end)
+            {
+                (Point p1, Point p2) = Round(start, end);
+                DrawLine(BitmapData, p1, p2, colorIndex, VisibleBounds);
+            }
+
+            #endregion
+
+            #endregion
         }
 
         #endregion
@@ -1565,7 +1610,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
@@ -1722,7 +1766,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
@@ -1861,41 +1904,205 @@ namespace KGySoft.Drawing.Shapes
 
         #region Fields
 
-        private Color64? colorSrgb;
-        private ColorF? colorLinear;
+        private Color32? color32;
+        private Color64? color64;
+        private ColorF? colorF;
 
         #endregion
 
         #region Properties
 
-        private protected override bool HasAlpha
-        {
-            get
-            {
-                if (colorSrgb.HasValue)
-                    return colorSrgb.Value.A != UInt16.MaxValue;
-                return colorLinear!.Value.A < 1f;
-            }
-        }
-
-        private Color64 Color64 => colorSrgb ??= colorLinear!.Value.ToColor64();
-        private ColorF ColorF => colorLinear ??= colorSrgb!.Value.ToColorF();
-        private Color32 Color32 => Color64.ToColor32();
+        internal override bool HasAlpha { get; }
+        private Color32 Color32 => color32 ??= color64?.ToColor32() ?? colorF!.Value.ToColor32();
+        private Color64 Color64 => color64 ??= colorF?.ToColor64() ?? color32!.Value.ToColor64();
+        private ColorF ColorF => colorF ??= color64?.ToColorF() ?? color32!.Value.ToColorF();
 
         #endregion
 
         #region Constructors
 
-        internal SolidBrush(Color32 color) => colorSrgb = color.ToColor64();
-        internal SolidBrush(Color64 color) => colorSrgb = color;
-        internal SolidBrush(ColorF color) => colorLinear = color.Clip();
+        internal SolidBrush(Color32 color)
+        {
+            color32 = color;
+            HasAlpha = color.A != Byte.MaxValue;
+        }
+
+        internal SolidBrush(Color64 color)
+        {
+            color64 = color;
+            HasAlpha = color.A != UInt16.MaxValue;
+        }
+
+        internal SolidBrush(ColorF color)
+        {
+            colorF = color.Clip();
+            HasAlpha = color.A < 1f;
+        }
 
         #endregion
 
         #region Methods
 
+        #region Static Methods
+
+        internal static void DrawThinLineDirect(IReadWriteBitmapData bitmapData, Point p1, Point p2, Color32 color)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (pixelFormat.Indexed)
+            {
+                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                else
+                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                else
+                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
+            else
+                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size));
+        }
+
+        internal static void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, Color32 color, bool doOffset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (pixelFormat.Indexed)
+            {
+                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                else
+                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                else
+                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+            else
+                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+        }
+
+        #endregion
+
+        #region Instance Methods
+
+        #region Internal Methods
+
+        internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, Point p1, Point p2)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (pixelFormat.Indexed)
+            {
+                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                else
+                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                else
+                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
+            else
+                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size));
+        }
+
+        internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, bool doOffset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (pixelFormat.Indexed)
+            {
+                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                else
+                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                else
+                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+            else
+                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+        }
+
+        #endregion
+
         #region Private Protected Methods
-        
+
         private protected override FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
@@ -2022,6 +2229,8 @@ namespace KGySoft.Drawing.Shapes
             : typeof(TColor) == typeof(ColorF) ? (TColor)(object)ColorF
             : typeof(TColor) == typeof(PColorF) ? (TColor)(object)ColorF.ToPColorF()
             : throw new InvalidOperationException(Res.InternalError($"Unhandled color {typeof(TColor)}"));
+
+        #endregion
 
         #endregion
 
