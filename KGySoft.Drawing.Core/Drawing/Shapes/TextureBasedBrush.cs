@@ -459,6 +459,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            #region Internal Methods
+
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -636,11 +638,17 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            #endregion
+
+            #region Protected Methods
+            
             protected override void Dispose(bool disposing)
             {
                 quantizingSession.Dispose();
                 base.Dispose(disposing);
             }
+
+            #endregion
 
             #endregion
         }
@@ -684,6 +692,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            #region Internal Methods
+            
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -878,12 +888,18 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            #endregion
+
+            #region Protected Methods
+
             protected override void Dispose(bool disposing)
             {
                 ditheringSession?.Dispose();
                 quantizingSession.Dispose();
                 base.Dispose(disposing);
             }
+
+            #endregion
 
             #endregion
         }
@@ -1365,7 +1381,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                         {
                             int srcX = mapper.MapX(x);
                             int srcY = mapper.MapY(y);
@@ -1558,7 +1574,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                         {
                             int srcX = mapper.MapX(x);
                             int srcY = mapper.MapY(y);
@@ -1757,7 +1773,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                         {
                             int srcX = mapper.MapX(x);
                             int srcY = mapper.MapY(y);

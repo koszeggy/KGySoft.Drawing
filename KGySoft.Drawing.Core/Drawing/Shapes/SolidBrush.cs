@@ -1223,7 +1223,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                             bitmapData.DoSetColor32(x, y, c);
                         numerator += width;
                         if (numerator < height)
@@ -1240,7 +1240,7 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             #region Instance Methods
-            
+
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void DrawLine(PointF start, PointF end)
             {
@@ -1391,7 +1391,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                             accessor.SetColor(x, y, c);
                         numerator += width;
                         if (numerator < height)
@@ -1551,7 +1551,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                             bitmapData.DoSetColorIndex(x, y, c);
                         numerator += width;
                         if (numerator < height)
@@ -1610,6 +1610,9 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            
+            #region Internal Methods
+            
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
@@ -1715,7 +1718,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                             bitmapData.DoSetColor32(x, y, session.GetQuantizedColor(c));
                         numerator += width;
                         if (numerator < height)
@@ -1730,6 +1733,18 @@ namespace KGySoft.Drawing.Shapes
             }
 
             #endregion
+
+            #region Protected Methods
+
+            protected override void Dispose(bool disposing)
+            {
+                quantizingSession.Dispose();
+                base.Dispose(disposing);
+            }
+
+            #endregion
+
+            #endregion
         }
 
         #endregion
@@ -1741,6 +1756,7 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly Color32 color;
+            private readonly IQuantizingSession quantizingSession;
             private readonly IDitheringSession? ditheringSession;
 
             #endregion
@@ -1753,7 +1769,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 color = owner.Color32;
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+                quantizingSession = quantizer.Initialize(bitmapData, context);
                 WorkingColorSpace = quantizingSession.WorkingColorSpace;
                 if (context.IsCancellationRequested)
                     return;
@@ -1765,6 +1781,8 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             #region Methods
+            
+            #region Internal Methods
 
             internal override void DrawLine(PointF start, PointF end)
             {
@@ -1877,7 +1895,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)(x - bounds.Left) < (uint)bounds.Right)
+                        if ((uint)x < (uint)bounds.Right)
                             bitmapData.DoSetColor32(x, y, session.GetDitheredColor(c, x, y));
                         numerator += width;
                         if (numerator < height)
@@ -1890,6 +1908,19 @@ namespace KGySoft.Drawing.Shapes
                     }
                 }
             }
+
+            #endregion
+
+            #region Protected Methods
+
+            protected override void Dispose(bool disposing)
+            {
+                ditheringSession?.Dispose();
+                quantizingSession.Dispose();
+                base.Dispose(disposing);
+            }
+
+            #endregion
 
             #endregion
         }
