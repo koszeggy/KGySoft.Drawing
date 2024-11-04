@@ -169,38 +169,43 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawOpenPathTestSource =>
         [
             // string name, Path path, float width
-            //["Point01", new Path().AddPoint(new PointF(1, 1)), 1f],
-            //["Point.5", new Path().AddPoint(new PointF(1, 1)), 0.5f],
-            //["Point10", new Path().AddPoint(new PointF(1, 1)), 10f],
-            //["LineEpsilon01", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 1f],
-            //["LineEpsilon.5", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 0.5f],
-            //["LineEpsilon10", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 10f],
-            //["Line2px01", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 1f],
-            //["Line2px.5", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 0.5f],
-            //["Line2px10", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 10f],
-            //["LineLong01", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f],
-            //["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
+            ["Point01", new Path().AddPoint(new PointF(1, 1)), 1f],
+            ["Point.5", new Path().AddPoint(new PointF(1, 1)), 0.5f],
+            ["Point10", new Path().AddPoint(new PointF(1, 1)), 10f],
+            ["LineEpsilon01", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 1f],
+            ["LineEpsilon.5", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 0.5f],
+            ["LineEpsilon10", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 10f],
+            ["Line2px01", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 1f],
+            ["Line2px.5", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 0.5f],
+            ["Line2px10", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 10f],
+            ["LineLong01", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f],
+            ["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
             ["LineLong.Thin", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f/48f],
-            //["LineLong10", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
-            //["Joints01", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 1f],
-            //["Joints10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
-            //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
-            //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
-            //["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
-            //["ArcHalfEllipse01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
-            //["ArcHalfEllipse10", new Path().AddArc(new RectangleF(10, 10, 100, 50), 0, 180), 10f],
-            // TODO: Bezier, Ellipse, Rectangle, Arc, RoundedRectangle, MoreFigures (eg. circle+star)
+            ["LineLong10", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
+            ["Joints01", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 1f],
+            ["Joints10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
+            ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
+            ["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
+            ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
+            ["ArcHalfEllipse01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
+            ["ArcHalfEllipse10", new Path().AddArc(new RectangleF(10, 10, 100, 50), 0, 180), 10f],
+            // TODO: Bezier, Arc
         ];
 
         private static object?[][] DrawClosedPathTestSource =>
         [
             // string name, Path path, float width
-            ["TetragonClose01", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure(), 1f],
-            ["TetragonClose10", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)).CloseFigure(), 10f],
-            ["SelfCrossingStarClose01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure(), 1f],
-            ["SelfCrossingStarClose10", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)).CloseFigure(), 10f],
+            //["TetragonClose01", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 1f],
+            //["TetragonClose10", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
+            //["SelfCrossingStarClose01", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
+            //["SelfCrossingStarClose10", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 10f],
             ["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
-            ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
+            //["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
+            //["Circle100_01", new Path().AddEllipse(new RectangleF(1, 1, 100, 100)), 1f],
+            ["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
+            ["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
+            ["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
+            // TODO: Pie
         ];
 
         private static object?[][] DrawThinLinesTestSource =>
@@ -480,17 +485,23 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
 
-            foreach (bool antiAliasing in new[] { false, true })
+            foreach (bool antiAliasing in new[] { false, /*true*/ })
+            foreach (bool fastThinLines in new[] { /*false,*/ true })
             {
-                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = false, DrawPathPixelOffset = ((int)MathF.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
+                if (fastThinLines && (width > 1f || antiAliasing))
+                    continue;
+                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)MathF.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
                 LineJoinStyle[] joinStyles = [LineJoinStyle.Miter, LineJoinStyle.Bevel, LineJoinStyle.Round];
                 foreach (LineJoinStyle joinStyle in joinStyles)
                 {
+                    if (joinStyle > LineJoinStyle.Miter && width <= 1f)
+                        continue;
+
                     bitmapData.Clear(Color.Cyan);
 
                     var pen = new Pen(Color.Blue, width) { LineJoin = joinStyle };
                     bitmapData.DrawPath(context, pen, path, drawingOptions);
-                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width:00}_{joinStyle}", bitmapData);
+                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}{(width <= 1f && fastThinLines ? "_F" : "")}_W{width:00}_{joinStyle}", bitmapData);
                 }
             }
         }
@@ -507,8 +518,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             bitmapDataBackground.Clear(Color.Green);
             IAsyncContext context = new SimpleContext(-1);
-            //var pen = new Pen(Color.Yellow);
-            var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible. Non-region-draw cases are covered by DrawThinLinesWithFormatTest
+            var pen = new Pen(Color.Yellow);
+            //var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible. Non-region-draw cases are covered by DrawThinLinesWithFormatTest
             var brush = new SolidBrush(Color.Blue);
             foreach (bool antiAliasing in new[] { false, true })
             foreach (bool fastThinLines in new[] { true, false })

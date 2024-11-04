@@ -15,8 +15,7 @@
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal interface IColor<TColor, in TBaseColor>
-        where TColor : unmanaged, IColor<TColor, TBaseColor>
+    internal interface IColor<TColor> where TColor : unmanaged, IColor<TColor>
     {
         #region Properties
 
@@ -30,12 +29,18 @@ namespace KGySoft.Drawing.Imaging
         TColor BlendSrgb(TColor backColor);
         TColor BlendLinear(TColor backColor);
 
+        #endregion
+    }
+
+    internal interface IColor<TColor, in TBaseColor> : IColor<TColor>
+        where TColor : unmanaged, IColor<TColor, TBaseColor>
+    {
+        #region Methods
+
         // If these were public it would be nicer with float, or ushort/float overloads should be added
         TColor WithAlpha(byte a, TBaseColor baseColor); // this could be a static abstract method but that's not supported on every targeted platform
         TColor AdjustAlpha(byte a, TBaseColor baseColor);
 
         #endregion
     }
-
-    internal interface IColor<TColor> : IColor<TColor, TColor> where TColor : unmanaged, IColor<TColor, TColor>;
 }

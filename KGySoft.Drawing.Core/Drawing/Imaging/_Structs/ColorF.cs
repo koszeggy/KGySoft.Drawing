@@ -38,7 +38,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct ColorF : IEquatable<ColorF>, IColor<ColorF>
+    public readonly struct ColorF : IEquatable<ColorF>, IColor<ColorF, ColorF>
     {
         #region Fields
 
@@ -147,8 +147,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        bool IColor<ColorF, ColorF>.IsTransparent => A <= 0f;
-        bool IColor<ColorF, ColorF>.IsOpaque => A >= 1f;
+        bool IColor<ColorF>.IsTransparent => A <= 0f;
+        bool IColor<ColorF>.IsOpaque => A >= 1f;
 
         #endregion
 
@@ -815,13 +815,13 @@ namespace KGySoft.Drawing.Imaging
         #region Explicitly Implemented Interface Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        ColorF IColor<ColorF, ColorF>.BlendSrgb(ColorF backColor) => A >= 1f ? this
+        ColorF IColor<ColorF>.BlendSrgb(ColorF backColor) => A >= 1f ? this
             : backColor.A >= 1f ? this.BlendWithBackgroundSrgb(backColor)
             : A <= 0f ? backColor
             : backColor.A <= 0f ? this
             : this.BlendWithSrgb(backColor);
 
-        ColorF IColor<ColorF, ColorF>.BlendLinear(ColorF backColor) => this.Blend(backColor);
+        ColorF IColor<ColorF>.BlendLinear(ColorF backColor) => this.Blend(backColor);
 
         ColorF IColor<ColorF, ColorF>.WithAlpha(byte a, ColorF baseColor)
         {

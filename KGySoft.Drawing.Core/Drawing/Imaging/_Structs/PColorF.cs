@@ -139,8 +139,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        bool IColor<PColorF, ColorF>.IsTransparent => A <= 0f;
-        bool IColor<PColorF, ColorF>.IsOpaque => A >= 1f;
+        bool IColor<PColorF>.IsTransparent => A <= 0f;
+        bool IColor<PColorF>.IsOpaque => A >= 1f;
 
         #endregion
 
@@ -704,8 +704,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        PColorF IColor<PColorF, ColorF>.BlendSrgb(PColorF backColor) => throw new InvalidOperationException(Res.InternalError("PColorF.BlendSrgb should not be called by internal IColor<PColorF, ColorF> implementations"));
-        PColorF IColor<PColorF, ColorF>.BlendLinear(PColorF backColor) => this.Blend(backColor);
+        PColorF IColor<PColorF>.BlendSrgb(PColorF backColor) => throw new InvalidOperationException(Res.InternalError("PColorF.BlendSrgb should not be called by internal IColor<PColorF, ColorF> implementations"));
+        PColorF IColor<PColorF>.BlendLinear(PColorF backColor) => this.Blend(backColor);
 
         PColorF IColor<PColorF, ColorF>.WithAlpha(byte a, ColorF baseColor)
         {

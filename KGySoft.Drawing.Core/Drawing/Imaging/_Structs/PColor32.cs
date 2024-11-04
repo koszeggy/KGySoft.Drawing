@@ -111,8 +111,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        bool IColor<PColor32, Color32>.IsTransparent => A == Byte.MinValue;
-        bool IColor<PColor32, Color32>.IsOpaque => A == Byte.MaxValue;
+        bool IColor<PColor32>.IsTransparent => A == Byte.MinValue;
+        bool IColor<PColor32>.IsOpaque => A == Byte.MaxValue;
 
         #endregion
 
@@ -478,8 +478,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        PColor32 IColor<PColor32, Color32>.BlendSrgb(PColor32 backColor) => this.Blend(backColor);
-        PColor32 IColor<PColor32, Color32>.BlendLinear(PColor32 backColor) => throw new InvalidOperationException(Res.InternalError("PColor32.BlendLinear should not be called by internal IColor<PColor32, Color32> implementations"));
+        PColor32 IColor<PColor32>.BlendSrgb(PColor32 backColor) => this.Blend(backColor);
+        PColor32 IColor<PColor32>.BlendLinear(PColor32 backColor) => throw new InvalidOperationException(Res.InternalError("PColor32.BlendLinear should not be called by internal IColor<PColor32, Color32> implementations"));
         
         PColor32 IColor<PColor32, Color32>.WithAlpha(byte a, Color32 baseColor)
         {

@@ -25,7 +25,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -49,31 +48,6 @@ namespace KGySoft.Drawing.Shapes
             HorizontalRight,
             HorizontalLeft
         }
-
-        #endregion
-
-        #region Nested Interfaces
-
-        private protected interface IBitmapDataAccessor<TColor, TBaseColor>
-            where TColor : unmanaged, IColor<TColor, TBaseColor>
-            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
-        {
-            #region Methods
-
-            void InitBitmapData(IBitmapDataInternal bitmapData);
-            TColor GetColor(int x, int y);
-            void SetColor(int x, int y, TColor color);
-
-            void InitRow(IBitmapDataRowInternal row);
-            TColor GetColor(int x);
-            void SetColor(int x, TColor color);
-            TBaseColor GetBaseColor(int x);
-            void SetBaseColor(int x, TBaseColor color);
-
-            #endregion
-        }
-
-        private protected interface IBitmapDataAccessor<TColor> : IBitmapDataAccessor<TColor, TColor> where TColor : unmanaged, IColor<TColor>;
 
         #endregion
 
@@ -1635,20 +1609,6 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            #region Static Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            protected static (Point P1, Point P2) Round(PointF p1, PointF p2, bool doOffset)
-            {
-                float offset = doOffset ? 0.5f : 0f;
-                return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
-                    (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
-            }
-
-            #endregion
-
-            #region Instance Methods
-
             #region Internal Methods
 
             internal abstract void DrawLine(PointF start, PointF end);
@@ -1668,8 +1628,6 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             #endregion
-
-            #endregion
         }
 
         #endregion
@@ -1680,7 +1638,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Constructors
 
-            internal DrawIntoRegionSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region? region)
+            internal DrawIntoRegionSession(Brush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions options, Region region)
                 : base(owner, context, bitmapData, rawPath, bounds, options, region)
             {
             }
@@ -2234,180 +2192,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Nested Structs
-        // ReSharper disable ParameterHidesMember - justification: initialization
-
-        #region AccessorColor32 struct
-
-        private protected struct AccessorColor32 : IBitmapDataAccessor<Color32>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
-            public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public Color32 GetColor(int x) => row.DoGetColor32(x);
-            public void SetColor(int x, Color32 color) => row.DoSetColor32(x, color);
-            public Color32 GetBaseColor(int x) => row.DoGetColor32(x);
-            public void SetBaseColor(int x, Color32 color) => row.DoSetColor32(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        #region AccessorPColor32 struct
-
-        private protected struct AccessorPColor32 : IBitmapDataAccessor<PColor32, Color32>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public PColor32 GetColor(int x, int y) => bitmapData.DoGetPColor32(x, y);
-            public void SetColor(int x, int y, PColor32 color) => bitmapData.DoSetPColor32(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public PColor32 GetColor(int x) => row.DoGetPColor32(x);
-            public void SetColor(int x, PColor32 color) => row.DoSetPColor32(x, color);
-            public Color32 GetBaseColor(int x) => row.DoGetColor32(x);
-            public void SetBaseColor(int x, Color32 color) => row.DoSetColor32(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        #region AccessorColor64 struct
-
-        private protected struct AccessorColor64 : IBitmapDataAccessor<Color64>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public Color64 GetColor(int x, int y) => bitmapData.DoGetColor64(x, y);
-            public void SetColor(int x, int y, Color64 color) => bitmapData.DoSetColor64(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public Color64 GetColor(int x) => row.DoGetColor64(x);
-            public void SetColor(int x, Color64 color) => row.DoSetColor64(x, color);
-            public Color64 GetBaseColor(int x) => row.DoGetColor64(x);
-            public void SetBaseColor(int x, Color64 color) => row.DoSetColor64(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        #region AccessorPColor64 struct
-
-        private protected struct AccessorPColor64 : IBitmapDataAccessor<PColor64, Color64>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public PColor64 GetColor(int x, int y) => bitmapData.DoGetPColor64(x, y);
-            public void SetColor(int x, int y, PColor64 color) => bitmapData.DoSetPColor64(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public PColor64 GetColor(int x) => row.DoGetPColor64(x);
-            public void SetColor(int x, PColor64 color) => row.DoSetPColor64(x, color);
-            public Color64 GetBaseColor(int x) => row.DoGetColor64(x);
-            public void SetBaseColor(int x, Color64 color) => row.DoSetColor64(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        #region AccessorColorF struct
-
-        private protected struct AccessorColorF : IBitmapDataAccessor<ColorF>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public ColorF GetColor(int x, int y) => bitmapData.DoGetColorF(x, y);
-            public void SetColor(int x, int y, ColorF color) => bitmapData.DoSetColorF(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public ColorF GetColor(int x) => row.DoGetColorF(x);
-            public void SetColor(int x, ColorF color) => row.DoSetColorF(x, color);
-            public ColorF GetBaseColor(int x) => row.DoGetColorF(x);
-            public void SetBaseColor(int x, ColorF color) => row.DoSetColorF(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        #region AccessorPColorF struct
-
-        private protected struct AccessorPColorF : IBitmapDataAccessor<PColorF, ColorF>
-        {
-            #region Fields
-
-            private IBitmapDataRowInternal row;
-            private IBitmapDataInternal bitmapData;
-
-            #endregion
-
-            #region Methods
-
-            public void InitBitmapData(IBitmapDataInternal bitmapData) => this.bitmapData = bitmapData;
-            public PColorF GetColor(int x, int y) => bitmapData.DoGetPColorF(x, y);
-            public void SetColor(int x, int y, PColorF color) => bitmapData.DoSetPColorF(x, y, color);
-
-            public void InitRow(IBitmapDataRowInternal row) => this.row = row;
-            public PColorF GetColor(int x) => row.DoGetPColorF(x);
-            public void SetColor(int x, PColorF color) => row.DoSetPColorF(x, color);
-            public ColorF GetBaseColor(int x) => row.DoGetColorF(x);
-            public void SetBaseColor(int x, ColorF color) => row.DoSetColorF(x, color);
-
-            #endregion
-        }
-
-        #endregion
-
-        // ReSharper restore ParameterHidesMember
-        #endregion
-
         #endregion
 
         #endregion
@@ -2546,6 +2330,7 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        // TODO: delete
         internal bool DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
             #region Local Methods
@@ -2602,13 +2387,16 @@ namespace KGySoft.Drawing.Shapes
 
             try
             {
-                using DrawThinPathSession session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+                using DrawThinPathSession? session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+                if (session == null)
+                    return false;
                 context.Progress?.New(DrawingOperation.ProcessingPixels, rawPath.TotalVertices);
                 foreach (RawFigure figure in rawPath.Figures)
                 {
                     IList<PointF> points = figure.IsClosed ? figure.ClosedVertices : figure.OpenVertices;
                     int len = points.Count;
 
+                    // A single point
                     if (len == 1)
                     {
                         session.DrawLine(points[0], points[0]);
@@ -2642,13 +2430,113 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        //internal bool DrawThinPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
+        //{
+        //    #region Local Methods
+
+        //    bool NeedsRegion()
+        //    {
+        //        // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
+        //        Debug.Assert(!drawingOptions.AntiAliasing);
+        //        if (drawingOptions.AlphaBlending && HasAlpha)
+        //            return true;
+
+        //        IQuantizer? quantizer = drawingOptions.Quantizer;
+        //        IDitherer? ditherer = drawingOptions.Ditherer;
+        //        if (quantizer != null || ditherer != null)
+        //        {
+        //            bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
+
+        //            // If the quantizer or ditherer relies on the actual content, it would be no benefit in direct drawing in the first pass
+        //            // because the small advantage would be negligible due to the multiple passes anyway.
+        //            if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
+        //                return true;
+        //        }
+
+        //        // From this point it's not a must to use a region so we can decide on practical reasons.
+
+        //        // TODO
+        //        return false;
+        //        //// Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
+        //        //// we don't check the length or the orientation of the lines.
+        //        //if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
+        //        //    return false;
+
+        //        // Returning true only if the path is expected to be re-used.
+        //        return cache;
+        //    }
+
+        //    #endregion
+
+        //    Debug.Assert(!drawingOptions.AntiAliasing);
+
+        //    RawPath rawPath = path.RawPath;
+        //    Rectangle pathBounds = rawPath.DrawOutlineBounds;
+        //    Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
+
+        //    if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
+        //        return !context.IsCancellationRequested;
+
+        //    Region? region = null;
+        //    if (NeedsRegion())
+        //    {
+        //        region = rawPath.GetCreateCachedRegion(drawingOptions, true);
+
+        //        // If we already have a generated region, we just re-apply it
+        //        if (region.IsGenerated)
+        //            return ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+        //    }
+
+        //    try
+        //    {
+        //        using DrawThinPathSession session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
+        //        context.Progress?.New(DrawingOperation.ProcessingPixels/*, TODO rawPath.TotalVertices*/);
+        //        foreach ((IList<PointF> points, bool isBezier) in path.GetPointsInternal())
+        //        {
+        //            if (context.IsCancellationRequested)
+        //                return false;
+        //            int len = points.Count;
+
+        //            if (len == 1)
+        //                session.DrawLine(points[0], points[0]);
+        //            else if (!isBezier)
+        //            {
+        //                for (int i = 1; i < len; i++)
+        //                    session.DrawLine(points[i - 1], points[i]);
+        //            }
+        //            else
+        //            {
+        //                Debug.Assert((points.Count - 1) % 3 == 0);
+        //                for (int i = 1; i < points.Count; i += 3)
+        //                    session.DrawBezier(points[i - 1], points[i], points[i + 1], points[i + 2]);
+        //            }
+
+        //            // TODO context.Progress?.Increment();
+        //        }
+
+        //        region?.SetCompleted();
+        //        session.FinalizeSession();
+        //        return !context.IsCancellationRequested;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        region?.Reset();
+        //        throw;
+        //    }
+        //    finally
+        //    {
+        //        if (context.IsCancellationRequested)
+        //            region?.Reset();
+        //    }
+        //}
+
         #endregion
 
         #region Private Protected Methods
 
         private protected abstract FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region);
 
-        private protected virtual DrawThinPathSession CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
+        private protected virtual DrawThinPathSession? CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region) => region == null
             ? throw new InvalidOperationException(Res.InternalError($"{nameof(CreateDrawThinPathSession)} should be overridden to draw path without generating a region"))
             : new DrawIntoRegionSession(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
 

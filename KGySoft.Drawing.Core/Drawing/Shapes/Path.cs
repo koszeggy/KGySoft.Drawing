@@ -472,6 +472,41 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Internal Methods
+
+        internal IEnumerable<(IList<PointF> Points, bool IsBezier)> GetPointsInternal()
+        {
+            foreach (Figure figure in figures ?? [currentFigure])
+            {
+                if (figure.IsEmpty)
+                    continue;
+
+                List<PathSegment> segments = figure.Segments;
+
+                int count = segments.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    PathSegment segment = segments[i];
+                    yield return (segment.PointsInternal, segment is BezierSegment);
+                    
+                    if (i < count - 1)
+                    {
+                        // connecting the points of two segments if needed
+                        if (segment.EndPoint != segments[i + 1].StartPoint)
+                            yield return ([segment.EndPoint, segments[i + 1].StartPoint], false);
+                    }
+                    else if (figure.IsClosed)
+                    {
+                        // connecting the last and the first point of the figure if it is closed
+                        if (segment.EndPoint != segments[0].StartPoint)
+                            yield return ([segment.EndPoint, segments[0].StartPoint], false);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
         /// <summary>
@@ -529,13 +564,6 @@ namespace KGySoft.Drawing.Shapes
         }
 
         #endregion
-
-        // TODO
-        //#region Explicitly Implemented Interface Methods
-
-        //void IDisposable.Dispose() => Invalidate();
-
-        //#endregion
 
         #endregion
 

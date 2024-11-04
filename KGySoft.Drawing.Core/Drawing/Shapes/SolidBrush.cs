@@ -63,16 +63,14 @@ namespace KGySoft.Drawing.Shapes
     [SuppressMessage("ReSharper", "InlineTemporaryVariable", Justification = "A local variable is faster than a class field")]
     internal sealed class SolidBrush : Brush
     {
-        #region Nested Types
-
-        #region Nested Classes
+        #region Nested classes
 
         #region Fill
 
         #region SolidFillSessionNoBlend<,,> class
 
         private sealed class SolidFillSessionNoBlend<TAccessor, TColor, TBaseColor> : FillPathSession
-            where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
+            where TAccessor : struct, IBitmapDataAccessor<TColor, _>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
             where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
@@ -149,9 +147,8 @@ namespace KGySoft.Drawing.Shapes
         #region SolidFillSessionBlendSrgb<,,> class
 
         private sealed class SolidFillSessionBlendSrgb<TAccessor, TColor, TBaseColor> : FillPathSession
-            where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
+            where TAccessor : struct, IBitmapDataAccessor<TColor, _>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
-            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
             #region Fields
 
@@ -264,7 +261,7 @@ namespace KGySoft.Drawing.Shapes
         #region SolidFillSessionBlendLinear<,,> class
 
         private sealed class SolidFillSessionBlendLinear<TAccessor, TColor, TBaseColor> : FillPathSession
-            where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
+            where TAccessor : struct, IBitmapDataAccessor<TColor, _>
             where TColor : unmanaged, IColor<TColor, TBaseColor>
             where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
         {
@@ -1095,837 +1092,51 @@ namespace KGySoft.Drawing.Shapes
 
         #region Draw
 
-        #region SolidDrawSessionColor32 class
+        #region SolidDrawSession<,,> class
 
-        private sealed class SolidDrawSessionColor32 : DrawThinPathSession
-        {
-            #region Fields
-
-            private readonly Color32 color;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidDrawSessionColor32(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
-            {
-                color = owner.Color32;
-            }
-
-            #endregion
-
-            #region Methods
-
-            #region Static Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, Color32 c, Rectangle bounds, bool doOffset)
-            {
-                (Point p1, Point p2) = Round(start, end, doOffset);
-                DrawLine(bitmapData, p1, p2, c, bounds);
-            }
-
-            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, Color32 c, Rectangle bounds)
-            {
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(p1.Y);
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        row.DoSetColor32(x, c);
-
-                    return;
-                }
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        bitmapData.DoSetColor32(p1.X, y, c);
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                            bitmapData.DoSetColor32(x, y, c);
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
-                            bitmapData.DoSetColor32(x, y, c);
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Instance Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                (Point p1, Point p2) = Round(start, end);
-                DrawLine(BitmapData, p1, p2, color, VisibleBounds);
-            }
-
-            #endregion
-
-            #endregion
-        }
-
-        #endregion
-
-        #region SolidDrawSession class
-
-        private sealed class SolidDrawSession<TAccessor, TColor, TBaseColor> : DrawThinPathSession
-            where TAccessor : struct, IBitmapDataAccessor<TColor, TBaseColor>
-            where TColor : unmanaged, IColor<TColor, TBaseColor>
-            where TBaseColor : unmanaged, IColor<TBaseColor, TBaseColor>
+        private sealed class SolidDrawSession<TAccessor, TColor, TArg> : DrawThinPathSession
+            where TAccessor : struct, IBitmapDataAccessor<TColor, TArg>
+            where TColor : unmanaged
         {
             #region Fields
 
             private readonly TColor color;
+            private readonly TArg arg;
+            private readonly Action? disposeCallback;
 
             #endregion
 
             #region Constructors
 
-            internal SolidDrawSession(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
+            internal SolidDrawSession(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds,
+                DrawingOptions drawingOptions, TColor color, TArg arg = default!, Action? disposeCallback = null)
                 : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
             {
                 Debug.Assert(!Blend);
-                color = owner.GetColor<TColor>();
+                this.color = color;
+                this.arg = arg;
+                this.disposeCallback = disposeCallback;
             }
 
             #endregion
 
             #region Methods
 
-            #region Static Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, Rectangle bounds, bool doOffset)
-            {
-                (Point p1, Point p2) = Round(start, end, doOffset);
-                DrawLine(bitmapData, p1, p2, c, bounds);
-            }
-
-            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, Rectangle bounds)
-            {
-                var accessor = new TAccessor();
-
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    accessor.InitRow(bitmapData.GetRowCached(p1.Y));
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        accessor.SetColor(x, c);
-
-                    return;
-                }
-
-                accessor.InitBitmapData(bitmapData);
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        accessor.SetColor(p1.X, y, c);
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                            accessor.SetColor(x, y, c);
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
-                            accessor.SetColor(x, y, c);
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Instance Methods
-
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void DrawLine(PointF start, PointF end)
             {
                 (Point p1, Point p2) = Round(start, end);
-                DrawLine(BitmapData, p1, p2, color, VisibleBounds);
+                ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawLine(BitmapData, p1, p2, color, VisibleBounds, arg);
             }
-
-            #endregion
-
-            #endregion
-        }
-
-        #endregion
-
-        #region SolidDrawSessionIndexed class
-
-        private sealed class SolidDrawSessionIndexed : DrawThinPathSession
-        {
-            #region Fields
-
-            private readonly int colorIndex;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidDrawSessionIndexed(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds, DrawingOptions drawingOptions)
-                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
-            {
-                colorIndex = bitmapData.Palette!.GetNearestColorIndex(owner.Color32);
-            }
-
-            #endregion
-
-            #region Methods
-
-            #region Static Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, int c, Rectangle bounds, bool doOffset)
-            {
-                (Point p1, Point p2) = Round(start, end, doOffset);
-                DrawLine(bitmapData, p1, p2, c, bounds);
-            }
-
-            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, int c, Rectangle bounds)
-            {
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(p1.Y);
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        row.DoSetColorIndex(x, c);
-
-                    return;
-                }
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        bitmapData.DoSetColorIndex(p1.X, y, c);
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                            bitmapData.DoSetColorIndex(x, y, c);
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
-                            bitmapData.DoSetColorIndex(x, y, c);
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Instance Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                (Point p1, Point p2) = Round(start, end);
-                DrawLine(BitmapData, p1, p2, colorIndex, VisibleBounds);
-            }
-
-            #endregion
-
-            #endregion
-        }
-
-        #endregion
-
-        #region SolidDrawSessionWithQuantizing class
-
-        private sealed class SolidDrawSessionWithQuantizing : DrawThinPathSession
-        {
-            #region Fields
-
-            private readonly Color32 color;
-            private readonly IQuantizingSession quantizingSession;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidDrawSessionWithQuantizing(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds,
-                DrawingOptions drawingOptions, IQuantizer quantizer)
-                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
-            {
-                color = owner.Color32;
-                context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                quantizingSession = quantizer.Initialize(bitmapData, context);
-                WorkingColorSpace = quantizingSession.WorkingColorSpace;
-            }
-
-            #endregion
-
-            #region Methods
-
-            
-            #region Internal Methods
-            
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                Color32 c = color;
-                IQuantizingSession session = quantizingSession;
-
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    IBitmapDataRowInternal row = BitmapData.GetRowCached(p1.Y);
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        row.DoSetColor32(x, session.GetQuantizedColor(c));
-
-                    return;
-                }
-
-                IBitmapDataInternal bitmapData = BitmapData;
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        bitmapData.DoSetColor32(p1.X, y, session.GetQuantizedColor(c));
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                            bitmapData.DoSetColor32(x, y, session.GetQuantizedColor(c));
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
-                            bitmapData.DoSetColor32(x, y, session.GetQuantizedColor(c));
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Protected Methods
 
             protected override void Dispose(bool disposing)
             {
-                quantizingSession.Dispose();
+                disposeCallback?.Invoke();
                 base.Dispose(disposing);
             }
 
             #endregion
-
-            #endregion
         }
-
-        #endregion
-
-        #region SolidDrawSessionWithDithering class
-
-        private sealed class SolidDrawSessionWithDithering : DrawThinPathSession
-        {
-            #region Fields
-
-            private readonly Color32 color;
-            private readonly IQuantizingSession quantizingSession;
-            private readonly IDitheringSession? ditheringSession;
-
-            #endregion
-
-            #region Constructors
-
-            internal SolidDrawSessionWithDithering(SolidBrush owner, IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath path, Rectangle bounds,
-                DrawingOptions drawingOptions, IQuantizer quantizer, IDitherer ditherer)
-                : base(owner, context, bitmapData, path, bounds, drawingOptions, null)
-            {
-                color = owner.Color32;
-                context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                quantizingSession = quantizer.Initialize(bitmapData, context);
-                WorkingColorSpace = quantizingSession.WorkingColorSpace;
-                if (context.IsCancellationRequested)
-                    return;
-
-                context.Progress?.New(DrawingOperation.InitializingDitherer);
-                ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
-            }
-
-            #endregion
-
-            #region Methods
-            
-            #region Internal Methods
-
-            internal override void DrawLine(PointF start, PointF end)
-            {
-                Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                IDitheringSession? session = ditheringSession;
-                if (session == null)
-                {
-                    Debug.Fail("Dithering session is not expected to be null here");
-                    return;
-                }
-
-                Rectangle bounds = VisibleBounds;
-                (Point p1, Point p2) = Round(start, end);
-                Color32 c = color;
-
-                // horizontal line (or a single point)
-                if (p1.Y == p2.Y)
-                {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
-                        return;
-
-                    IBitmapDataRowInternal row = BitmapData.GetRowCached(p1.Y);
-                    if (p1.X > p2.X)
-                        (p1.X, p2.X) = (p2.X, p1.X);
-
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
-                        row.DoSetColor32(x, session.GetDitheredColor(c, x, p1.Y));
-
-                    return;
-                }
-
-                IBitmapDataInternal bitmapData = BitmapData;
-
-                // vertical line
-                if (p1.X == p2.X)
-                {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
-                        return;
-
-                    if (p1.Y > p2.Y)
-                        (p1.Y, p2.Y) = (p2.Y, p1.Y);
-
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
-                        bitmapData.DoSetColor32(p1.X, y, session.GetDitheredColor(c, p1.X, y));
-
-                    return;
-                }
-
-                // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-
-                if (width > height)
-                {
-                    int numerator = width >> 1;
-                    if (p1.X > p2.X)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible X coordinates
-                    if (x < bounds.Left)
-                    {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
-                    }
-
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
-                    for (; x <= endX; x++)
-                    {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
-                            bitmapData.DoSetColor32(x, y, session.GetDitheredColor(c, x, y));
-                        numerator += height;
-                        if (numerator < width)
-                            continue;
-
-                        y += step;
-                        if (y == offY)
-                            return;
-                        numerator -= width;
-                    }
-                }
-                else
-                {
-                    int numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
-
-                    // skipping invisible Y coordinates
-                    if (y < bounds.Top)
-                    {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
-                    }
-
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
-                            bitmapData.DoSetColor32(x, y, session.GetDitheredColor(c, x, y));
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
-                            return;
-                        numerator -= height;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Protected Methods
-
-            protected override void Dispose(bool disposing)
-            {
-                ditheringSession?.Dispose();
-                quantizingSession.Dispose();
-                base.Dispose(disposing);
-            }
-
-            #endregion
-
-            #endregion
-        }
-
-        #endregion
 
         #endregion
 
@@ -1974,86 +1185,6 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        #region Static Methods
-
-        internal static void DrawThinLineDirect(IReadWriteBitmapData bitmapData, Point p1, Point p2, Color32 color)
-        {
-            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
-            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
-
-            if (pixelFormat.Indexed)
-            {
-                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size));
-                return;
-            }
-
-            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
-            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
-            {
-                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
-                else
-                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size));
-                return;
-            }
-
-            if (pixelFormat.Prefers64BitColors)
-            {
-                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
-                else
-                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size));
-                return;
-            }
-
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
-            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
-            else
-                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size));
-        }
-
-        internal static void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, Color32 color, bool doOffset)
-        {
-            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
-            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
-
-            if (pixelFormat.Indexed)
-            {
-                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                return;
-            }
-
-            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
-            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
-            {
-                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                else
-                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                return;
-            }
-
-            if (pixelFormat.Prefers64BitColors)
-            {
-                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                else
-                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                return;
-            }
-
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
-            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-            else
-                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-        }
-
-        #endregion
-
-        #region Instance Methods
-
         #region Internal Methods
 
         internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, Point p1, Point p2)
@@ -2061,36 +1192,38 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
-            if (pixelFormat.Indexed)
-            {
-                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size));
-                return;
-            }
-
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
                 else
-                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size));
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
                 else
-                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size));
                 return;
             }
 
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
-            else
-                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size));
+            {
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size));
+                return;
+            }
+
+            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size));
         }
 
         internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, bool doOffset)
@@ -2098,36 +1231,38 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
-            if (pixelFormat.Indexed)
-            {
-                SolidDrawSessionIndexed.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-                return;
-            }
-
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    SolidDrawSession<AccessorPColorF, PColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
                 else
-                    SolidDrawSession<AccessorColorF, ColorF, ColorF>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    SolidDrawSession<AccessorPColor64, PColor64, Color64>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
                 else
-                    SolidDrawSession<AccessorColor64, Color64, Color64>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
                 return;
             }
 
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                SolidDrawSession<AccessorPColor32, PColor32, Color32>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
-            else
-                SolidDrawSessionColor32.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+            {
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                return;
+            }
+
+            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
         }
 
         #endregion
@@ -2166,41 +1301,41 @@ namespace KGySoft.Drawing.Shapes
                 // Using PColorF only if the actual pixel format really has linear gamma to prevent performance issues
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true } && (linearBlending || !blend)
                     ? !blend
-                        ? new SolidFillSessionNoBlend<AccessorPColorF, PColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                        : new SolidFillSessionBlendLinear<AccessorPColorF, PColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        ? new SolidFillSessionNoBlend<BitmapDataAccessorPColorF, PColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        : new SolidFillSessionBlendLinear<BitmapDataAccessorPColorF, PColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                     : !blend
-                        ? new SolidFillSessionNoBlend<AccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        ? new SolidFillSessionNoBlend<BitmapDataAccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                         : linearBlending
-                            ? new SolidFillSessionBlendLinear<AccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                            : new SolidFillSessionBlendSrgb<AccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
+                            ? new SolidFillSessionBlendLinear<BitmapDataAccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                            : new SolidFillSessionBlendSrgb<BitmapDataAccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
                     ? !blend
-                        ? new SolidFillSessionNoBlend<AccessorPColor64, PColor64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                        : new SolidFillSessionBlendSrgb<AccessorPColor64, PColor64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        ? new SolidFillSessionNoBlend<BitmapDataAccessorPColor64, PColor64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        : new SolidFillSessionBlendSrgb<BitmapDataAccessorPColor64, PColor64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                     : !blend
-                        ? new SolidFillSessionNoBlend<AccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        ? new SolidFillSessionNoBlend<BitmapDataAccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                         : linearBlending
-                            ? new SolidFillSessionBlendLinear<AccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                            : new SolidFillSessionBlendSrgb<AccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
+                            ? new SolidFillSessionBlendLinear<BitmapDataAccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                            : new SolidFillSessionBlendSrgb<BitmapDataAccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
             }
 
             // Unlike drawing, fill has no special SolidFillSessionColor32 because these split generic cases are actually faster
             return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false } && (!linearBlending || !blend)
                 ? !blend
-                    ? new SolidFillSessionNoBlend<AccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                    : new SolidFillSessionBlendSrgb<AccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                    ? new SolidFillSessionNoBlend<BitmapDataAccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                    : new SolidFillSessionBlendSrgb<BitmapDataAccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                 : !blend
-                    ? new SolidFillSessionNoBlend<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                    ? new SolidFillSessionNoBlend<BitmapDataAccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
                     : linearBlending
-                        ? new SolidFillSessionBlendLinear<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
-                        : new SolidFillSessionBlendSrgb<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
+                        ? new SolidFillSessionBlendLinear<BitmapDataAccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region)
+                        : new SolidFillSessionBlendSrgb<BitmapDataAccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions, region);
         }
 
-        private protected override DrawThinPathSession CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
+        private protected override DrawThinPathSession? CreateDrawThinPathSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             if (region != null)
                 return base.CreateDrawThinPathSession(context, bitmapData, rawPath, bounds, drawingOptions, region);
@@ -2214,38 +1349,59 @@ namespace KGySoft.Drawing.Shapes
 
             // With regular dithering (which implies quantizing, too)
             if (ditherer != null)
-                return new SolidDrawSessionWithDithering(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer!, ditherer);
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                IQuantizingSession quantizingSession = quantizer!.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                {
+                    quantizingSession.Dispose();
+                    return null;
+                }
 
-            // Quantizing without dithering
-            if (quantizer != null)
-                return new SolidDrawSessionWithQuantizing(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizer);
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
 
-            // There is no quantizing: picking the most appropriate way for the best quality and performance.
+                return new SolidDrawSession<BitmapDataAccessorDithering, Color32, IDitheringSession>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32,
+                    ditheringSession, () => { ditheringSession.Dispose(); quantizingSession.Dispose(); });
+            }
+
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
 
-            if (pixelFormat.Indexed)
-                return new SolidDrawSessionIndexed(this, context, bitmapData, rawPath, bounds, drawingOptions);
+            // Quantizing without dithering. As we don't have blending we need to quantize a single color that we can do before creating the drawing session.
+            if (quantizer != null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                Color32 quantizedColor;
+                using (var quantizingSession = quantizer.Initialize(bitmapData, context))
+                    quantizedColor = quantizingSession.GetQuantizedColor(Color32);
+
+                if (pixelFormat.Indexed)
+                        return new SolidDrawSession<BitmapDataAccessorIndexed, int, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, bitmapData.Palette!.GetNearestColorIndex(quantizedColor));
+                return new SolidDrawSession<BitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizedColor);
+            }
+
+            // There is no quantizing: picking the most appropriate way for the best quality and performance.
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
-                    ? new SolidDrawSession<AccessorPColorF, PColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions)
-                    : new SolidDrawSession<AccessorColorF, ColorF, ColorF>(this, context, bitmapData, rawPath, bounds, drawingOptions);
+                    ? new SolidDrawSession<BitmapDataAccessorPColorF, PColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, ColorF.ToPColorF())
+                    : new SolidDrawSession<BitmapDataAccessorColorF, ColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, ColorF);
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
-                    ? new SolidDrawSession<AccessorPColor64, PColor64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions)
-                    : new SolidDrawSession<AccessorColor64, Color64, Color64>(this, context, bitmapData, rawPath, bounds, drawingOptions);
+                    ? new SolidDrawSession<BitmapDataAccessorPColor64, PColor64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color64.ToPColor64())
+                    : new SolidDrawSession<BitmapDataAccessorColor64, Color64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color64);
             }
 
-            // As Color32 is used much more often than any other formats, using a dedicated class for that due to performance reasons - see the table at the top
             return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
-                ? new SolidDrawSession<AccessorPColor32, PColor32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions)
-                //: new SolidDrawSession<AccessorColor32, Color32, Color32>(this, context, bitmapData, rawPath, bounds, drawingOptions);
-                : new SolidDrawSessionColor32(this, context, bitmapData, rawPath, bounds, drawingOptions);
+                ? new SolidDrawSession<BitmapDataAccessorPColor32, PColor32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32.ToPColor32())
+                : pixelFormat.Indexed
+                    ? new SolidDrawSession<BitmapDataAccessorIndexed, int, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, bitmapData.Palette!.GetNearestColorIndex(Color32))
+                    : new SolidDrawSession<BitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32);
         }
 
         #endregion
@@ -2260,8 +1416,6 @@ namespace KGySoft.Drawing.Shapes
             : typeof(TColor) == typeof(ColorF) ? (TColor)(object)ColorF
             : typeof(TColor) == typeof(PColorF) ? (TColor)(object)ColorF.ToPColorF()
             : throw new InvalidOperationException(Res.InternalError($"Unhandled color {typeof(TColor)}"));
-
-        #endregion
 
         #endregion
 

@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    public readonly struct Color64 : IEquatable<Color64>, IColor<Color64>
+    public readonly struct Color64 : IEquatable<Color64>, IColor<Color64, Color64>
     {
         #region Constants
 
@@ -99,8 +99,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        bool IColor<Color64, Color64>.IsTransparent => A == UInt16.MinValue;
-        bool IColor<Color64, Color64>.IsOpaque => A == UInt16.MaxValue;
+        bool IColor<Color64>.IsTransparent => A == UInt16.MinValue;
+        bool IColor<Color64>.IsOpaque => A == UInt16.MaxValue;
 
         #endregion
 
@@ -382,10 +382,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        Color64 IColor<Color64, Color64>.BlendSrgb(Color64 backColor) => this.Blend(backColor);
+        Color64 IColor<Color64>.BlendSrgb(Color64 backColor) => this.Blend(backColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        Color64 IColor<Color64, Color64>.BlendLinear(Color64 backColor) => A == UInt16.MaxValue ? this
+        Color64 IColor<Color64>.BlendLinear(Color64 backColor) => A == UInt16.MaxValue ? this
             : backColor.A == UInt16.MaxValue ? this.BlendWithBackgroundLinear(backColor)
             : A == 0 ? backColor
             : backColor.A == 0 ? this

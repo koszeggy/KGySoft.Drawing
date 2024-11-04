@@ -112,8 +112,16 @@ namespace KGySoft.Drawing.Shapes
 
         internal abstract class PathSegment
         {
+            #region Properties
+
+            internal PointF StartPoint => PointsInternal[0];
+            internal PointF EndPoint => PointsInternal[PointsInternal.Count - 1];
+            internal abstract IList<PointF> PointsInternal { get; }
+
+            #endregion
+
             #region Methods
-            
+
             internal abstract IList<PointF> GetPoints();
             internal abstract void Transform(TransformationMatrix matrix);
             internal abstract PathSegment Clone();
@@ -130,6 +138,12 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly List<PointF> points;
+
+            #endregion
+
+            #region Properties
+
+            internal override IList<PointF> PointsInternal => points;
 
             #endregion
 
@@ -186,6 +200,12 @@ namespace KGySoft.Drawing.Shapes
             #region Fields
 
             private readonly IList<PointF> points;
+
+            #endregion
+
+            #region Properties
+
+            internal override IList<PointF> PointsInternal => points;
 
             #endregion
 

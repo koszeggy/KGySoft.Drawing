@@ -221,6 +221,45 @@ namespace KGySoft.Drawing.PerformanceTests
             //   Worst-Best difference: 84 854,60 (0,46%)
         }
 
+        [Test, Explicit]
+        public void TestBehaviorTest()
+        {
+            var p1 = new Point(1, 1);
+            var p2 = new Point(10, 1);
+
+            PointF p1f = p1;
+            PointF p2f = p2;
+
+            var path = new Path()
+                .TransformTranslation(1, 1)
+                .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))
+                .AddEllipse(new RectangleF(0, 0, 100, 100))
+                .AddRoundedRectangle(new RectangleF(0, 0, 100, 100), 10);
+
+            Color32 color = Color.Blue;
+            var pen = new Pen(color, 1f);
+
+            using var bitmapData1 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + path.Bounds.Location.AsSize() * 2);
+            using var bitmapData2 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + path.Bounds.Location.AsSize() * 2);
+
+            bitmapData1.Clear(Color.Cyan);
+            bitmapData2.Clear(Color.Cyan);
+
+            DrawingOptions options1 = null;//new DrawingOptions { TestBehavior = 1 };
+            DrawingOptions options2 = null;//new DrawingOptions { TestBehavior = 2 };
+
+            bitmapData1.DrawPath(null, pen, path, options1);
+            bitmapData2.DrawPath(null, pen, path, options2);
+
+            ;
+
+            new PerformanceTest { TestName = nameof(DrawLineShortcutTest), TestTime = 5000, Repeat = 3 }
+                .AddCase(() => bitmapData1.DrawPath(null, pen, path, options1), "SolidDrawSession<IndexedAccessor, int>")
+                .AddCase(() => bitmapData2.DrawPath(null, pen, path, options2), "SolidDrawSessionWithQuantizing")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
         #endregion
     }
 }
