@@ -21,6 +21,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 
+using KGySoft.Reflection;
+
 #endregion
 
 namespace KGySoft.Drawing.Shapes
@@ -28,8 +30,90 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// Represents the path of a custom shape to be drawn or filled. The path can consist of multiple open or closed figures.
     /// </summary>
-    public sealed partial class Path
+    public sealed class Path
     {
+        #region Nested Classes
+
+        private sealed class Figure
+        {
+            #region Properties
+
+            internal bool IsClosed { get; set; }
+            internal bool IsEmpty => Segments.Count == 0;
+            internal List<PathSegment> Segments { get; }
+
+            #endregion
+
+            #region Constructors
+
+            internal Figure() => Segments = new List<PathSegment>();
+
+            internal Figure(Figure other, bool close)
+            {
+                int count = other.Segments.Count;
+                Segments = new List<PathSegment>(count);
+                for (int i = 0; i < count; i++)
+                    Segments.Add(other.Segments[i].Clone());
+
+                IsClosed = close || other.IsClosed;
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal void AddSegment(PathSegment segment) => Segments.Add(segment);
+
+            [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
+            internal bool TryAppendPoints(ICollection<PointF> points)
+            {
+                Debug.Assert(points.Count > 0);
+                if (Segments.Count == 0 || Segments[Segments.Count - 1] is not LineSegment lastSegment)
+                    return false;
+
+                if (IsClosed)
+                {
+                    if (!IsEmpty)
+                        return false;
+                    IsClosed = false;
+                }
+
+                lastSegment.Append(points);
+                return true;
+            }
+
+            internal IList<PointF> GetPoints()
+            {
+                switch (Segments.Count)
+                {
+                    case 0:
+                        return Reflector.EmptyArray<PointF>();
+                    case 1:
+                        return Segments[0].GetFlattenedPoints();
+                    default:
+                        var result = new List<PointF>();
+                        foreach (PathSegment segment in Segments)
+                            result.AddRange(segment.GetFlattenedPoints());
+                        return result;
+                }
+            }
+
+            internal void Transform(TransformationMatrix matrix)
+            {
+                for (int i = 0; i < Segments.Count; i++)
+                {
+                    PathSegment segment = Segments[i];
+                    PathSegment transformedSegment = segment.Transform(matrix);
+                    if (!ReferenceEquals(segment, transformedSegment))
+                        Segments[i] = transformedSegment;
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private List<Figure>? figures;
@@ -198,7 +282,7 @@ namespace KGySoft.Drawing.Shapes
         public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
             // TODO: validation (bounds width/height, etc)
-            AddSegment(BezierSegment.FromArc(bounds, startAngle, sweepAngle));
+            AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
             return this;
         }
 
@@ -208,7 +292,7 @@ namespace KGySoft.Drawing.Shapes
             // TODO: validation (bounds width/height, etc)
             StartFigure();
             AddPoint(new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f));
-            AddSegment(BezierSegment.FromArc(bounds, startAngle, sweepAngle));
+            AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
             CloseFigure();
             return this;
         }
@@ -218,7 +302,7 @@ namespace KGySoft.Drawing.Shapes
         {
             // TODO: validation (bounds width/height, etc)
             StartFigure();
-            AddSegment(BezierSegment.FromEllipse(bounds));
+            AddSegment(new ArcSegment(bounds));
             CloseFigure();
             return this;
         }
@@ -322,7 +406,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         PathSegment segmentToAdd = segment.Clone();
                         if (!transformation.IsIdentity)
-                            segmentToAdd.Transform(transformation);
+                            segmentToAdd = segmentToAdd.Transform(transformation);
                         AddSegment(segmentToAdd);
                     }
 
@@ -474,8 +558,10 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal IEnumerable<(IList<PointF> Points, bool IsBezier)> GetPointsInternal()
+        // Gets the path segments, connecting the open segments if needed.
+        internal List<PathSegment> GetSegments()
         {
+            var result = new List<PathSegment>();
             foreach (Figure figure in figures ?? [currentFigure])
             {
                 if (figure.IsEmpty)
@@ -487,22 +573,27 @@ namespace KGySoft.Drawing.Shapes
                 for (int i = 0; i < count; i++)
                 {
                     PathSegment segment = segments[i];
-                    yield return (segment.PointsInternal, segment is BezierSegment);
-                    
+
+                    // returning the actual segment
+                    result.Add(segment);
+
+                    // returning an implicit connecting segment if needed
                     if (i < count - 1)
                     {
                         // connecting the points of two segments if needed
                         if (segment.EndPoint != segments[i + 1].StartPoint)
-                            yield return ([segment.EndPoint, segments[i + 1].StartPoint], false);
+                            result.Add(new LineSegment([segment.EndPoint, segments[i + 1].StartPoint]));
                     }
                     else if (figure.IsClosed)
                     {
                         // connecting the last and the first point of the figure if it is closed
                         if (segment.EndPoint != segments[0].StartPoint)
-                            yield return ([segment.EndPoint, segments[0].StartPoint], false);
+                            result.Add(new LineSegment([segment.EndPoint, segments[0].StartPoint]));
                     }
                 }
             }
+
+            return result;
         }
 
         #endregion
@@ -543,7 +634,7 @@ namespace KGySoft.Drawing.Shapes
             if (currentFigure.IsClosed)
                 StartFigure();
             if (!transformation.IsIdentity)
-                segment.Transform(transformation);
+                segment = segment.Transform(transformation);
             currentFigure.AddSegment(segment);
         }
 

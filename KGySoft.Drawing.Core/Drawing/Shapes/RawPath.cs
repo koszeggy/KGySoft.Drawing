@@ -142,7 +142,7 @@ namespace KGySoft.Drawing.Shapes
             // Round start/end cap: regular circle
             if (penOptions is { StartCap: LineCapStyle.Round, EndCap: LineCapStyle.Round })
             {
-                widePath.AddRawFigure(Path.BezierSegment.FromEllipse(point, distance, distance).GetPoints(), true, penOptions.Offset);
+                widePath.AddRawFigure(BezierSegment.FromEllipse(point, distance, distance).GetFlattenedPoints(), true, penOptions.Offset);
                 return;
             }
 
@@ -166,7 +166,7 @@ namespace KGySoft.Drawing.Shapes
                     points.Add(new PointF(point.X, point.Y - distance));
                     break;
                 case LineCapStyle.Round:
-                    points.AddRange(Path.BezierSegment.FromArc(point, distance, distance, MathF.PI / 2f, MathF.PI).GetPoints());
+                    points.AddRange(BezierSegment.FromArc(point, distance, distance, MathF.PI / 2f, MathF.PI).GetFlattenedPoints());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.StartCap}"));
@@ -188,7 +188,7 @@ namespace KGySoft.Drawing.Shapes
                     points.Add(new PointF(point.X, point.Y + distance));
                     break;
                 case LineCapStyle.Round:
-                    points.AddRange(Path.BezierSegment.FromArc(point, distance, distance, -MathF.PI / 2f, MathF.PI).GetPoints());
+                    points.AddRange(BezierSegment.FromArc(point, distance, distance, -MathF.PI / 2f, MathF.PI).GetFlattenedPoints());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.EndCap}"));
@@ -305,8 +305,8 @@ namespace KGySoft.Drawing.Shapes
                             {
                                 // Unlike in WidenPath, adding the Bézier points from arc because it's simpler with the dynamic start/end angle
                                 float halfSweepAngle = MathF.Asin(length / penOptions.Width);
-                                result.AddRange(Path.BezierSegment.FromArc(currentPoint, radius, radius,
-                                    (startAngle - halfSweepAngle) - MathF.PI / 2f, (2f * halfSweepAngle)).GetPoints());
+                                result.AddRange(BezierSegment.FromArc(currentPoint, radius, radius,
+                                    (startAngle - halfSweepAngle) - MathF.PI / 2f, (2f * halfSweepAngle)).GetFlattenedPoints());
                             }
                             else
                             {
@@ -399,7 +399,7 @@ namespace KGySoft.Drawing.Shapes
                         new PointF(endPoint.X + extendY, endPoint.Y - extendX)
                     };
 
-                    result.AddRange(new Path.BezierSegment(bezierPoints).GetPoints());
+                    result.AddRange(new BezierSegment(bezierPoints).GetFlattenedPoints());
                     break;
 
                 default:
