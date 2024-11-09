@@ -75,7 +75,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return;
             }
 
@@ -112,7 +112,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
             {
-                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -182,7 +182,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -216,7 +216,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
             {
-                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.PixelOffset ?? 0f);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -252,7 +252,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -284,7 +284,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
             {
-                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -321,7 +321,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -353,7 +353,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
             {
-                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.DrawPathPixelOffset == PixelOffset.Half);
+                solidBrush.DrawThinLineDirect(bitmapData, p1, p2, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 

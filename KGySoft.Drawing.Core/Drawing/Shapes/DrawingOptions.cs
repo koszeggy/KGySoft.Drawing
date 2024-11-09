@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Shapes
 
         private TransformationMatrix transformation;
         private ShapeFillMode fillMode;
-        private PixelOffset scanPathPixelOffset = PixelOffset.Half;
+        private PixelOffset scanPathPixelOffset = Shapes.PixelOffset.Half;
         private PixelOffset drawPathPixelOffset;
 
         #endregion
@@ -115,12 +115,14 @@ namespace KGySoft.Drawing.Shapes
             : Equals(Default) ? DefaultNonZero
             : new DrawingOptions(this) { FillMode = ShapeFillMode.NonZero };
 
+        internal float PixelOffset => DrawPathPixelOffset == Shapes.PixelOffset.Half ? 0.5f : 0f;
+
         #endregion
 
         #endregion
 
         #region Constructors
-        
+
         #region Public Constructors
 
         public DrawingOptions()

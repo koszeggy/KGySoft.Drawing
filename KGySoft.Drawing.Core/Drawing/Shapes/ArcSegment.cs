@@ -155,6 +155,40 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        // Returns the sectors where the arc should be drawn. The idea is taken from https://www.scattergood.io/arc-drawing-algorithm/
+        // It prevents the Atan2 calculation for each point of the arc.
+        // The original circle drawing code uses 8 sectors but when generalizing it for ellipses we should use 4.
+        internal static BitVector32 GetSectors(float startAngle, float sweepAngle)
+        {
+            // Normalizing start angle and sweep angle
+            if (sweepAngle < 0)
+            {
+                startAngle += sweepAngle;
+                sweepAngle = -sweepAngle;
+            }
+
+            startAngle = startAngle is >= 0f and <= 360f ? startAngle : startAngle % 360f;
+            if (startAngle < 0)
+                startAngle += 360f;
+
+            // The original code uses an array here but by using BitVector32 we can store the sectors in a single int, avoiding array allocation.
+            var result = new BitVector32();
+            int startSector = (int)(startAngle / 90);
+            int endSector = (int)((startAngle + sweepAngle) / 90) & 3;
+
+            if (startSector == endSector)
+                result[Sectors[startSector]] = SectorStartEnd;
+            else
+            {
+                for (int i = startSector + 1; i < endSector; i++)
+                    result[Sectors[i]] = SectorFullyDrawn;
+                result[Sectors[startSector]] = SectorStart;
+                result[Sectors[endSector]] = SectorEnd;
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Instance Methods
@@ -190,45 +224,11 @@ namespace KGySoft.Drawing.Shapes
             SweepRad = SweepRad,
         };
 
-        // Returns the sectors where the arc should be drawn. The idea is taken from https://www.scattergood.io/arc-drawing-algorithm/
-        // It prevents the Atan2 calculation for each point of the arc.
-        // The original circle drawing code uses 8 sectors but when generalizing it for ellipses we should use 4.
         internal BitVector32 GetSectors()
         {
             Debug.Assert(Math.Abs(SweepAngle) < 360f, "Don't get the sectors of a full ellipse.");
-            if (sectors.HasValue)
-                return sectors.Value;
-
-            float startAngle = StartAngle;
-            float sweepAngle = SweepAngle;
-
-            // Normalizing start angle and sweep angle
-            if (sweepAngle < 0)
-            {
-                startAngle += sweepAngle;
-                sweepAngle = -sweepAngle;
-            }
-
-            startAngle = startAngle is >= 0f and <= 360f ? startAngle : startAngle % 360f;
-            if (startAngle < 0)
-                startAngle += 360f;
-
-            // The original code uses an array here but by using BitVector32 we can store the sectors in a single int, avoiding array allocation.
-            var result = new BitVector32();
-            int startSector = (int)(startAngle / 90);
-            int endSector = (int)((startAngle + sweepAngle) / 90) & 3;
-
-            if (startSector == endSector)
-                result[Sectors[startSector]] = SectorStartEnd;
-            else
-            {
-                for (int i = startSector + 1; i < endSector; i++)
-                    result[Sectors[i]] = SectorFullyDrawn;
-                result[Sectors[startSector]] = SectorStart;
-                result[Sectors[endSector]] = SectorEnd;
-            }
-
-            return (sectors = result).Value;
+            sectors ??= GetSectors(StartAngle, SweepAngle);
+            return sectors.Value;
         }
 
         internal (float StartRad, float EndRad) GetStartEndRadians() => SweepRad > 0f

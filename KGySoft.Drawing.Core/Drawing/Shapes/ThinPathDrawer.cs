@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -48,9 +49,9 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Methods 
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, Rectangle bounds, bool doOffset, TArg arg = default!)
+            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, Rectangle bounds, float offset, TArg arg = default!)
             {
-                (Point p1, Point p2) = Round(start, end, doOffset);
+                (Point p1, Point p2) = Round(start, end, offset);
                 DrawLine(bitmapData, p1, p2, c, bounds, arg);
             }
 
@@ -169,21 +170,209 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, Rectangle drawBounds, float offset, TArg arg = default!)
+            {
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
+                DrawEllipse(bitmapData, p1.X, p1.Y, p2.X, p2.Y, c, drawBounds, arg);
+            }
+
+            internal static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, Rectangle bounds, TArg arg = default!)
+            {
+                if (left > right)
+                    (left, right) = (right, left);
+                if (top > bottom)
+                    (top, bottom) = (bottom, top);
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                var accessor = new TAccessor();
+                accessor.InitBitmapData(bitmapData, arg);
+
+                do
+                {
+                    SetPixel(right, top);
+                    SetPixel(left, top);
+                    SetPixel(left, bottom);
+                    SetPixel(right, bottom);
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top);
+                    SetPixel(right + 1, top++);
+                    SetPixel(left - 1, bottom);
+                    SetPixel(right + 1, bottom--);
+                }
+
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                void SetPixel(int x, int y)
+                {
+                    if ((uint)x < (uint)bounds.Right && (uint)y < (uint)bounds.Bottom)
+                        accessor.SetColor(x, y, c);
+                }
+
+                #endregion
+            }
+
+            internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, Rectangle drawBounds, float offset, TArg arg = default!)
+            {
+                RectangleF bounds = arc.Bounds;
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
+                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
+                float centerX = (left + right + 1) / 2f;
+                float radiusX = ((right - left) + 1) / 2f;
+                float radiusY = ((bottom - top) + 1) / 2f;
+
+                (float startRad, float endRad) = arc.GetStartEndRadians();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                DrawArc(bitmapData, left, top, right, bottom, c, drawBounds, arc.GetSectors(),
+                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c,
+                Rectangle drawBounds, float startAngle, float sweepAngle, TArg arg = default!)
+            {
+                if (left > right)
+                    (left, right) = (right, left);
+                if (top > bottom)
+                    (top, bottom) = (bottom, top);
+
+                float centerX = (left + right + 1) / 2f;
+                float radiusX = (right - left + 1) / 2f;
+                float radiusY = (bottom - top + 1) / 2f;
+                float startRad = startAngle.ToRadian();
+                float endRad = (startAngle + sweepAngle).ToRadian();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
+                DrawArc(bitmapData, left, top, right, bottom, c, drawBounds, ArcSegment.GetSectors(startAngle, sweepAngle),
+                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
+            }
+
             #endregion
 
             #region Private Methods
 
-            #region Static Methods
-
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static (Point P1, Point P2) Round(PointF p1, PointF p2, bool doOffset)
+            private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
             {
-                float offset = doOffset ? 0.5f : 0f;
                 return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
                     (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
             }
 
-            #endregion
+            // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            private static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
+                TColor c, Rectangle bounds, BitVector32 sectors, int startX, int endX, TArg arg)
+            {
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                var accessor = new TAccessor();
+                accessor.InitBitmapData(bitmapData, arg);
+
+                do
+                {
+                    SetPixel(left, top, 1);
+                    SetPixel(right, top, 0);
+                    SetPixel(left, bottom, 2);
+                    SetPixel(right, bottom, 3);
+
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top, 1);
+                    SetPixel(right + 1, top, 0);
+                    SetPixel(left - 1, bottom, 2);
+                    SetPixel(right + 1, bottom--, 3);
+                }
+
+                #region Local Methods
+
+                void SetPixel(int x, int y, int sector)
+                {
+                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                        return;
+
+                    int sectorType = sectors[ArcSegment.Sectors[sector]];
+                    if (sectorType == ArcSegment.SectorNotDrawn)
+                        return;
+
+                    if (sectorType == ArcSegment.SectorFullyDrawn
+                        || sector > 1 // positive sector point
+                        && (sectorType == ArcSegment.SectorStart && x >= startX
+                            || sectorType == ArcSegment.SectorEnd && x <= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x >= startX && x <= endX)
+                        || sector <= 1 // negative sector point
+                        && (sectorType == ArcSegment.SectorStart && x <= startX
+                            || sectorType == ArcSegment.SectorEnd && x >= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x <= startX && x >= endX))
+                    {
+                        accessor.SetColor(x, y, c);
+                    }
+                }
+
+                #endregion
+            }
 
             #endregion
 
@@ -233,7 +422,7 @@ namespace KGySoft.Drawing.Shapes
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size));
         }
 
-        internal static void DrawLine(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, Color32 color, bool doOffset)
+        internal static void DrawLine(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, Color32 color, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -242,34 +431,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 else
-                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 else
-                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size), offset);
                 return;
             }
 
-            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size), doOffset);
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size), offset);
         }
 
         #endregion

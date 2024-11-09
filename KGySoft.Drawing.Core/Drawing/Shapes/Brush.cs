@@ -76,6 +76,7 @@ namespace KGySoft.Drawing.Shapes
             protected IBitmapDataInternal BitmapData { get; }
             protected WorkingColorSpace WorkingColorSpace { get; set; }
             protected bool Blend { get; }
+            protected float PixelOffset { get; }
 
             #endregion
 
@@ -94,6 +95,7 @@ namespace KGySoft.Drawing.Shapes
                 Region = region;
                 WorkingColorSpace = bitmapData.GetPreferredColorSpace();
                 Blend = options.AlphaBlending && (owner.HasAlpha || options.AntiAliasing);
+                PixelOffset = DrawingOptions.DrawPathPixelOffset == Shapes.PixelOffset.Half ? 0.5f : 0f;
             }
 
             #endregion
@@ -1630,9 +1632,8 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
-                float offset = DrawingOptions.DrawPathPixelOffset == PixelOffset.Half ? 0.5f : 0f;
-                return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
-                    (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
+                return (new Point((int)(p1.X.RoundTo(roundingUnit) + PixelOffset), (int)(p1.Y.RoundTo(roundingUnit) + PixelOffset)),
+                    (new Point((int)(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)(p2.Y.RoundTo(roundingUnit) + PixelOffset))));
             }
 
             #endregion
@@ -1851,10 +1852,8 @@ namespace KGySoft.Drawing.Shapes
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
                 BitVector32 sectors = arc.GetSectors();
-                float cosStart = MathF.Cos(startRad);
-                float cosEnd = MathF.Cos(endRad);
-                int startX = (int)(centerX + radiusX * cosStart);
-                int endX = (int)(centerX + radiusX * cosEnd);
+                int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
+                int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
 
                 do
                 {
@@ -2515,45 +2514,6 @@ namespace KGySoft.Drawing.Shapes
 
         internal bool DrawThinPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
         {
-            #region Local Methods
-
-            bool NeedsRegion()
-            {
-                // TODO: For testing, remove later
-                return true;
-
-                // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
-                Debug.Assert(!drawingOptions.AntiAliasing);
-                if (drawingOptions.AlphaBlending && HasAlpha)
-                    return true;
-
-                IQuantizer? quantizer = drawingOptions.Quantizer;
-                IDitherer? ditherer = drawingOptions.Ditherer;
-                if (quantizer != null || ditherer != null)
-                {
-                    bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
-
-                    // If the quantizer or ditherer relies on the actual content, it would be no benefit in direct drawing in the first pass
-                    // because the small advantage would be negligible due to the multiple passes anyway.
-                    if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
-                        return true;
-                }
-
-                // From this point it's not a must to use a region so we can decide on practical reasons.
-
-                // TODO
-                return false;
-                //// Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
-                //// we don't check the length or the orientation of the lines.
-                //if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
-                //    return false;
-
-                // Returning true only if the path is expected to be re-used.
-                return cache;
-            }
-
-            #endregion
-
             Debug.Assert(!drawingOptions.AntiAliasing);
 
             RawPath rawPath = path.RawPath;
@@ -2589,7 +2549,7 @@ namespace KGySoft.Drawing.Shapes
                     // Special handling for arcs for nicer Bresenham-like results. Not needed for wide pens or anti-aliased paths.
                     if (segment is ArcSegment arc)
                     {
-                        if (arc.SweepAngle >= 360f)
+                        if (Math.Abs(arc.SweepAngle) >= 360f)
                             session.DrawEllipse(arc.Bounds);
                         else
                             session.DrawArc(arc);
@@ -2624,6 +2584,40 @@ namespace KGySoft.Drawing.Shapes
                 if (context.IsCancellationRequested)
                     region?.Reset();
             }
+
+            #region Local Methods
+
+            bool NeedsRegion()
+            {
+                // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
+                Debug.Assert(!drawingOptions.AntiAliasing);
+                if (drawingOptions.AlphaBlending && HasAlpha)
+                    return true;
+
+                IQuantizer? quantizer = drawingOptions.Quantizer;
+                IDitherer? ditherer = drawingOptions.Ditherer;
+                if (quantizer != null || ditherer != null)
+                {
+                    bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
+
+                    // If the quantizer or ditherer relies on the actual content, it would be no benefit in direct drawing in the first pass
+                    // because the small advantage would be negligible due to the multiple passes anyway.
+                    if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
+                        return true;
+                }
+
+                // From this point it's not a must to use a region so we can decide on practical reasons.
+
+                // Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
+                // we don't check the length or the orientation of the lines.
+                if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
+                    return false;
+
+                // Returning true only if the path is expected to be re-used.
+                return cache;
+            }
+
+            #endregion
         }
 
         #endregion
