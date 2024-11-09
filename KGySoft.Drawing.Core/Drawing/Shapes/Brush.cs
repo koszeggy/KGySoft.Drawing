@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -1612,6 +1613,15 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Methods
 
             internal abstract void DrawLine(PointF start, PointF end);
+            internal virtual void DrawEllipse(RectangleF bounds)
+            {
+                throw new NotImplementedException(); // TODO: to abstract
+            }
+
+            internal virtual void DrawArc(ArcSegment arc)
+            {
+                throw new NotImplementedException(); // TODO: to abstract
+            }
 
             #endregion
 
@@ -1728,6 +1738,179 @@ namespace KGySoft.Drawing.Shapes
                         x += step;
                     }
                 }
+            }
+
+            // Based on http://members.chello.at/~easyfilter/bresenham.c
+            // Main changes: converting to C#, correcting types, more descriptive variable names, and using the ColorExtensions.Set1bppColorIndex method.
+            internal override void DrawEllipse(RectangleF bounds)
+            {
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                static void SetPixel(int x, int y, in Array2D<byte> mask)
+                {
+                    Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
+                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                }
+
+                #endregion
+
+                Debug.Assert(!Region!.IsAntiAliased);
+                Array2D<byte> mask = Region!.Mask;
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
+
+                Size offset = RawPath.Bounds.Location.AsSize();
+                p1 -= offset;
+                p2 -= offset;
+
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                do
+                {
+                    SetPixel(right, top, mask);
+                    SetPixel(left, top, mask);
+                    SetPixel(left, bottom, mask);
+                    SetPixel(right, bottom, mask);
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top, mask);
+                    SetPixel(right + 1, top++, mask);
+                    SetPixel(left - 1, bottom, mask);
+                    SetPixel(right + 1, bottom--, mask);
+                }
+            }
+
+            // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            internal override void DrawArc(ArcSegment arc)
+            {
+                Debug.Assert(!Region!.IsAntiAliased);
+                Debug.Assert(Math.Abs(arc.SweepAngle) < 360f, "Don't draw a full ellipse as an arc.");
+                Array2D<byte> mask = Region!.Mask;
+                RectangleF bounds = arc.Bounds;
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
+
+                Size offset = RawPath.Bounds.Location.AsSize();
+                p1 -= offset;
+                p2 -= offset;
+
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
+                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
+                float centerX = (left + right + 1) / 2f;
+                float radiusX = (width + 1) / 2f;
+                float radiusY = (height + 1) / 2f;
+                (float startRad, float endRad) = arc.GetStartEndRadians();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
+                BitVector32 sectors = arc.GetSectors();
+                float cosStart = MathF.Cos(startRad);
+                float cosEnd = MathF.Cos(endRad);
+                int startX = (int)(centerX + radiusX * cosStart);
+                int endX = (int)(centerX + radiusX * cosEnd);
+
+                do
+                {
+                    SetPixel(left, top, 1);
+                    SetPixel(right, top, 0);
+                    SetPixel(left, bottom, 2);
+                    SetPixel(right, bottom, 3);
+
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top, 1);
+                    SetPixel(right + 1, top, 0);
+                    SetPixel(left - 1, bottom, 2);
+                    SetPixel(right + 1, bottom--, 3);
+                }
+
+                #region Local Methods
+
+                void SetPixel(int x, int y, int sector)
+                {
+                    int sectorType = sectors[ArcSegment.Sectors[sector]];
+                    if (sectorType == ArcSegment.SectorNotDrawn)
+                        return;
+
+                    if (sectorType == ArcSegment.SectorFullyDrawn
+                        || sector > 1 // positive sector point
+                        && (sectorType == ArcSegment.SectorStart && x >= startX
+                            || sectorType == ArcSegment.SectorEnd && x <= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x >= startX && x <= endX)
+                        || sector <= 1 // negative sector point
+                        && (sectorType == ArcSegment.SectorStart && x <= startX
+                            || sectorType == ArcSegment.SectorEnd && x >= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x <= startX && x >= endX))
+                    {
+                        Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
+                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                    }
+                }
+
+                #endregion
             }
 
             internal override void FinalizeSession() => Owner.ApplyRegion(Context, BitmapData, RawPath, VisibleBounds, DrawingOptions, Region!);
@@ -2330,13 +2513,15 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        // TODO: delete
-        internal bool DrawThinRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
+        internal bool DrawThinPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
         {
             #region Local Methods
 
             bool NeedsRegion()
             {
+                // TODO: For testing, remove later
+                return true;
+
                 // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
                 Debug.Assert(!drawingOptions.AntiAliasing);
                 if (drawingOptions.AlphaBlending && HasAlpha)
@@ -2356,10 +2541,12 @@ namespace KGySoft.Drawing.Shapes
 
                 // From this point it's not a must to use a region so we can decide on practical reasons.
 
-                // Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
-                // we don't check the length or the orientation of the lines.
-                if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
-                    return false;
+                // TODO
+                return false;
+                //// Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
+                //// we don't check the length or the orientation of the lines.
+                //if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
+                //    return false;
 
                 // Returning true only if the path is expected to be re-used.
                 return cache;
@@ -2369,6 +2556,7 @@ namespace KGySoft.Drawing.Shapes
 
             Debug.Assert(!drawingOptions.AntiAliasing);
 
+            RawPath rawPath = path.RawPath;
             Rectangle pathBounds = rawPath.DrawOutlineBounds;
             Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
 
@@ -2390,28 +2578,36 @@ namespace KGySoft.Drawing.Shapes
                 using DrawThinPathSession? session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
                 if (session == null)
                     return false;
-                context.Progress?.New(DrawingOperation.ProcessingPixels, rawPath.TotalVertices);
-                foreach (RawFigure figure in rawPath.Figures)
+
+                List<PathSegment> segments = path.GetSegments();
+                context.Progress?.New(DrawingOperation.ProcessingPixels, segments.Count);
+                foreach (PathSegment segment in segments)
                 {
-                    IList<PointF> points = figure.IsClosed ? figure.ClosedVertices : figure.OpenVertices;
+                    if (context.IsCancellationRequested)
+                        return false;
+
+                    // Special handling for arcs for nicer Bresenham-like results. Not needed for wide pens or anti-aliased paths.
+                    if (segment is ArcSegment arc)
+                    {
+                        if (arc.SweepAngle >= 360f)
+                            session.DrawEllipse(arc.Bounds);
+                        else
+                            session.DrawArc(arc);
+                        continue;
+                    }
+
+                    IList<PointF> points = segment.GetFlattenedPoints();
                     int len = points.Count;
 
-                    // A single point
                     if (len == 1)
-                    {
                         session.DrawLine(points[0], points[0]);
-                        context.Progress?.Increment();
-                    }
                     else
                     {
                         for (int i = 1; i < len; i++)
-                        {
-                            if (context.IsCancellationRequested)
-                                return false;
                             session.DrawLine(points[i - 1], points[i]);
-                            context.Progress?.Increment();
-                        }
                     }
+
+                    context.Progress?.Increment();
                 }
 
                 region?.SetCompleted();
@@ -2429,106 +2625,6 @@ namespace KGySoft.Drawing.Shapes
                     region?.Reset();
             }
         }
-
-        //internal bool DrawThinPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
-        //{
-        //    #region Local Methods
-
-        //    bool NeedsRegion()
-        //    {
-        //        // If there can be blending, then we must use a region to prevent overblending issues at crossing lines.
-        //        Debug.Assert(!drawingOptions.AntiAliasing);
-        //        if (drawingOptions.AlphaBlending && HasAlpha)
-        //            return true;
-
-        //        IQuantizer? quantizer = drawingOptions.Quantizer;
-        //        IDitherer? ditherer = drawingOptions.Ditherer;
-        //        if (quantizer != null || ditherer != null)
-        //        {
-        //            bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
-
-        //            // If the quantizer or ditherer relies on the actual content, it would be no benefit in direct drawing in the first pass
-        //            // because the small advantage would be negligible due to the multiple passes anyway.
-        //            if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
-        //                return true;
-        //        }
-
-        //        // From this point it's not a must to use a region so we can decide on practical reasons.
-
-        //        // TODO
-        //        return false;
-        //        //// Not using a region if its cost would be bigger than direct draw. This is a very rough estimation because
-        //        //// we don't check the length or the orientation of the lines.
-        //        //if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
-        //        //    return false;
-
-        //        // Returning true only if the path is expected to be re-used.
-        //        return cache;
-        //    }
-
-        //    #endregion
-
-        //    Debug.Assert(!drawingOptions.AntiAliasing);
-
-        //    RawPath rawPath = path.RawPath;
-        //    Rectangle pathBounds = rawPath.DrawOutlineBounds;
-        //    Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
-
-        //    if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
-        //        return !context.IsCancellationRequested;
-
-        //    Region? region = null;
-        //    if (NeedsRegion())
-        //    {
-        //        region = rawPath.GetCreateCachedRegion(drawingOptions, true);
-
-        //        // If we already have a generated region, we just re-apply it
-        //        if (region.IsGenerated)
-        //            return ApplyRegion(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
-        //    }
-
-        //    try
-        //    {
-        //        using DrawThinPathSession session = CreateDrawThinPathSession(context, bitmapData, rawPath, visibleBounds, drawingOptions, region);
-        //        context.Progress?.New(DrawingOperation.ProcessingPixels/*, TODO rawPath.TotalVertices*/);
-        //        foreach ((IList<PointF> points, bool isBezier) in path.GetPointsInternal())
-        //        {
-        //            if (context.IsCancellationRequested)
-        //                return false;
-        //            int len = points.Count;
-
-        //            if (len == 1)
-        //                session.DrawLine(points[0], points[0]);
-        //            else if (!isBezier)
-        //            {
-        //                for (int i = 1; i < len; i++)
-        //                    session.DrawLine(points[i - 1], points[i]);
-        //            }
-        //            else
-        //            {
-        //                Debug.Assert((points.Count - 1) % 3 == 0);
-        //                for (int i = 1; i < points.Count; i += 3)
-        //                    session.DrawBezier(points[i - 1], points[i], points[i + 1], points[i + 2]);
-        //            }
-
-        //            // TODO context.Progress?.Increment();
-        //        }
-
-        //        region?.SetCompleted();
-        //        session.FinalizeSession();
-        //        return !context.IsCancellationRequested;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        region?.Reset();
-        //        throw;
-        //    }
-        //    finally
-        //    {
-        //        if (context.IsCancellationRequested)
-        //            region?.Reset();
-        //    }
-        //}
 
         #endregion
 

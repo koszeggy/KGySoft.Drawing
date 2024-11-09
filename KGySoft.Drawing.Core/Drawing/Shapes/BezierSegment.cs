@@ -67,7 +67,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
-            Debug.Assert(bounds.Width > 0f && bounds.Height > 0f);
+            Debug.Assert(Math.Abs(bounds.Width) > 0f && Math.Abs(bounds.Height) > 0f);
             if (Math.Abs(sweepAngle) >= 360f)
                 return FromEllipse(bounds);
 
@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
         {
-            Debug.Assert(radiusX > 0f && radiusY > 0f);
+            Debug.Assert(Math.Abs(radiusX) > 0f && Math.Abs(radiusY) > 0f);
             Debug.Assert(sweepRad < MathF.PI * 2f, "The caller should have called FromEllipse. If the caller of this overload may create full ellipses, then add if (Math.Abs(sweepRad) >= MathF.PI * 2f) FromEllipse(...) here.");
 
             // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
@@ -162,18 +162,7 @@ namespace KGySoft.Drawing.Shapes
         // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians, using vectors if possible (TODO).
         private static void ArcToBezier(PointF center, float radiusX, float radiusY, float startRad, float endRad, List<PointF> result)
         {
-            // The result of Atan2 is not in the correct quadrant when Atan2 is called with x == 0 and y != 0, so we may need to adjust it.
-            // We could also do something similar to the ReactOS solution: https://github.com/reactos/reactos/blob/3dfbe526992849cf53a83fae784be2126319150b/dll/win32/gdiplus/gdiplus.c#L201
-            startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
-            endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
-
-            if (Math.Abs(endRad - startRad) > MathF.PI)
-            {
-                if (endRad > startRad)
-                    endRad -= 2f * MathF.PI;
-                else
-                    startRad -= 2f * MathF.PI;
-            }
+            ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
             float mid = (endRad - startRad) / 2f;
             float controlPoint = 4f / 3f * (1f - MathF.Cos(mid)) / MathF.Sin(mid);

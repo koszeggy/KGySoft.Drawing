@@ -135,6 +135,30 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
+        #region Static Methods
+
+        // Adjusts the start/end angles for the radii of an ellipse. This is how also GDI+ calculates the start/end points of arcs.
+        // The formula is taken from libgdiplus: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L752
+        internal static void AdjustAngles(ref float startRad, ref float endRad, float radiusX, float radiusY)
+        {
+            startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
+            endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
+
+            // The result of Atan2 is not in the correct quadrant when Atan2 is called with x == 0 and y != 0, so we may need to adjust it.
+            // Another way would be to use a special Atan2 function similarly to ReactOS: https://github.com/reactos/reactos/blob/3dfbe526992849cf53a83fae784be2126319150b/dll/win32/gdiplus/gdiplus.c#L304
+            if (Math.Abs(endRad - startRad) > MathF.PI)
+            {
+                if (endRad > startRad)
+                    endRad -= 2f * MathF.PI;
+                else
+                    startRad -= 2f * MathF.PI;
+            }
+        }
+
+        #endregion
+
+        #region Instance Methods
+
         internal override IList<PointF> GetFlattenedPoints() => Math.Abs(SweepAngle) >= 360f
             ? BezierSegment.FromEllipse(Center, RadiusX, RadiusY).GetFlattenedPoints()
             : BezierSegment.FromArc(Center, RadiusX, RadiusY, StartRad, SweepRad).GetFlattenedPoints();
@@ -166,6 +190,9 @@ namespace KGySoft.Drawing.Shapes
             SweepRad = SweepRad,
         };
 
+        // Returns the sectors where the arc should be drawn. The idea is taken from https://www.scattergood.io/arc-drawing-algorithm/
+        // It prevents the Atan2 calculation for each point of the arc.
+        // The original circle drawing code uses 8 sectors but when generalizing it for ellipses we should use 4.
         internal BitVector32 GetSectors()
         {
             Debug.Assert(Math.Abs(SweepAngle) < 360f, "Don't get the sectors of a full ellipse.");
@@ -186,9 +213,10 @@ namespace KGySoft.Drawing.Shapes
             if (startAngle < 0)
                 startAngle += 360f;
 
+            // The original code uses an array here but by using BitVector32 we can store the sectors in a single int, avoiding array allocation.
             var result = new BitVector32();
-            int startSector = (int)(StartAngle / 90);
-            int endSector = (int)((startAngle + sweepAngle) / 90) % 4;
+            int startSector = (int)(startAngle / 90);
+            int endSector = (int)((startAngle + sweepAngle) / 90) & 3;
 
             if (startSector == endSector)
                 result[Sectors[startSector]] = SectorStartEnd;
@@ -201,9 +229,14 @@ namespace KGySoft.Drawing.Shapes
             }
 
             return (sectors = result).Value;
-
         }
 
+        internal (float StartRad, float EndRad) GetStartEndRadians() => SweepRad > 0f
+            ? (StartRad, StartRad + SweepRad)
+            : (StartRad + SweepRad, StartRad);
+
+        #endregion
+        
         #endregion
     }
 }
