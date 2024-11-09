@@ -1217,35 +1217,35 @@ namespace KGySoft.Drawing.Shapes
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
-                Rectangle bounds = VisibleBounds;
                 (Point p1, Point p2) = Round(start, end);
                 TMapper map = mapper;
                 TAccessor accSrc = accessorSrc;
                 TAccessor accDst = accessorDst;
+                Size size = BitmapData.Size;
 
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
                 {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
+                    if ((uint)p1.Y >= (uint)(size.Height))
                         return;
 
                     accDst.InitRow(BitmapData.GetRowCached(p1.Y), arg);
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
-                    int max = Math.Min(p2.X, bounds.Right - 1);
+                    int max = Math.Min(p2.X, size.Width - 1);
                     int srcY = map.MapY(p1.Y);
 
                     // blank line: as there is no blending here, setting transparent pixels
                     if (srcY < 0)
                     {
-                        for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                        for (int x = Math.Max(p1.X, 0); x <= max; x++)
                             accDst.SetColor(x, default);
                         return;
                     }
 
                     accSrc.InitRow(texture.GetRowCached(srcY), arg);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                    for (int x = Math.Max(p1.X, 0); x <= max; x++)
                     {
                         int srcX = map.MapX(x);
                         accDst.SetColor(x, srcX < 0 ? default : accSrc.GetColor(srcX));
@@ -1257,24 +1257,24 @@ namespace KGySoft.Drawing.Shapes
                 // vertical line
                 if (p1.X == p2.X)
                 {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
+                    if ((uint)p1.X >= (uint)(size.Width))
                         return;
 
                     if (p1.Y > p2.Y)
                         (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
+                    int max = Math.Min(p2.Y, size.Height - 1);
                     int srcX = map.MapX(p1.Y);
 
                     // blank line: as there is no blending here, setting transparent pixels
                     if (srcX < 0)
                     {
-                        for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                        for (int y = Math.Max(p1.Y, 0); y <= max; y++)
                             accDst.SetColor(p1.X, y, default);
                         return;
                     }
 
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                    for (int y = Math.Max(p1.Y, 0); y <= max; y++)
                     {
                         int srcY = map.MapX(y);
                         accDst.SetColor(p1.X, y, srcY < 0 ? default : accSrc.GetColor(srcX, srcY));
@@ -1297,20 +1297,19 @@ namespace KGySoft.Drawing.Shapes
                     int y = p1.Y;
 
                     // skipping invisible X coordinates
-                    if (x < bounds.Left)
+                    if (x < 0)
                     {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
+                        numerator = (numerator - height * x) % width;
+                        y -= x * step;
+                        x = 0;
                     }
 
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
+                    int endX = Math.Min(p2.X, size.Width - 1);
+                    int offY = step > 0 ? Math.Min(p2.Y, size.Height - 1) + 1 : Math.Max(p2.Y, 0) - 1;
                     for (; x <= endX; x++)
                     {
                         // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
+                        if ((uint)y < (uint)size.Height)
                         {
                             int srcX = map.MapX(x);
                             int srcY = map.MapY(y);
@@ -1337,20 +1336,19 @@ namespace KGySoft.Drawing.Shapes
                     int y = p1.Y;
 
                     // skipping invisible Y coordinates
-                    if (y < bounds.Top)
+                    if (y < 0)
                     {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
+                        numerator = (numerator - width * y) % height;
+                        x -= y * step;
+                        y = 0;
                     }
 
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
+                    int endY = Math.Min(p2.Y, size.Height - 1);
+                    int offX = step > 0 ? Math.Min(p2.X, size.Width - 1) + 1 : Math.Max(p2.X, 0) - 1;
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
+                        if ((uint)x < (uint)size.Width)
                         {
                             int srcX = map.MapX(x);
                             int srcY = map.MapY(y);
@@ -1392,6 +1390,7 @@ namespace KGySoft.Drawing.Shapes
                 TMapper map = mapper;
                 TAccessor accSrc = accessorSrc;
                 TAccessor accDst = accessorDst;
+                Size size = BitmapData.Size;
 
                 do
                 {
@@ -1428,7 +1427,7 @@ namespace KGySoft.Drawing.Shapes
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 void SetPixel(int x, int y)
                 {
-                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
                         return;
 
                     int srcX = map.MapX(x);
@@ -1476,6 +1475,7 @@ namespace KGySoft.Drawing.Shapes
                 TMapper map = mapper;
                 TAccessor accSrc = accessorSrc;
                 TAccessor accDst = accessorDst;
+                Size size = BitmapData.Size;
 
                 do
                 {
@@ -1512,7 +1512,7 @@ namespace KGySoft.Drawing.Shapes
 
                 void SetPixel(int x, int y, int sector)
                 {
-                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
                         return;
 
                     int sectorType = sectors[ArcSegment.Sectors[sector]];

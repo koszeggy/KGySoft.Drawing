@@ -49,28 +49,29 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Methods 
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, Rectangle bounds, float offset, TArg arg = default!)
+            internal static void DrawLine(IBitmapDataInternal bitmapData, PointF start, PointF end, TColor c, float offset, TArg arg = default!)
             {
                 (Point p1, Point p2) = Round(start, end, offset);
-                DrawLine(bitmapData, p1, p2, c, bounds, arg);
+                DrawLine(bitmapData, p1, p2, c, arg);
             }
 
-            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, Rectangle bounds, TArg arg = default!)
+            internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, TArg arg = default!)
             {
                 var accessor = new TAccessor();
+                Size size = bitmapData.Size;
 
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
                 {
-                    if ((uint)p1.Y >= (uint)(bounds.Bottom))
+                    if ((uint)p1.Y >= (uint)(size.Height))
                         return;
 
                     accessor.InitRow(bitmapData.GetRowCached(p1.Y), arg);
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
-                    int max = Math.Min(p2.X, bounds.Right - 1);
-                    for (int x = Math.Max(p1.X, bounds.Left); x <= max; x++)
+                    int max = Math.Min(p2.X, size.Width - 1);
+                    for (int x = Math.Max(p1.X, 0); x <= max; x++)
                         accessor.SetColor(x, c);
 
                     return;
@@ -81,14 +82,14 @@ namespace KGySoft.Drawing.Shapes
                 // vertical line
                 if (p1.X == p2.X)
                 {
-                    if ((uint)p1.X >= (uint)(bounds.Right))
+                    if ((uint)p1.X >= (uint)(size.Width))
                         return;
 
                     if (p1.Y > p2.Y)
                         (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
-                    int max = Math.Min(p2.Y, bounds.Bottom - 1);
-                    for (int y = Math.Max(p1.Y, bounds.Top); y <= max; y++)
+                    int max = Math.Min(p2.Y, size.Height - 1);
+                    for (int y = Math.Max(p1.Y, 0); y <= max; y++)
                         accessor.SetColor(p1.X, y, c);
 
                     return;
@@ -108,20 +109,19 @@ namespace KGySoft.Drawing.Shapes
                     int y = p1.Y;
 
                     // skipping invisible X coordinates
-                    if (x < bounds.Left)
+                    if (x < 0)
                     {
-                        int diff = bounds.Left - x;
-                        numerator = (int)((numerator + ((long)height * diff)) % width);
-                        x = bounds.Left;
-                        y += diff * step;
+                        numerator = (numerator - height * x) % width;
+                        y -= x * step;
+                        x = 0;
                     }
 
-                    int endX = Math.Min(p2.X, bounds.Right - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, bounds.Bottom - 1) + 1 : Math.Max(p2.Y, bounds.Top) - 1;
+                    int endX = Math.Min(p2.X, size.Width - 1);
+                    int offY = step > 0 ? Math.Min(p2.Y, size.Height - 1) + 1 : Math.Max(p2.Y, 0) - 1;
                     for (; x <= endX; x++)
                     {
                         // Drawing only if Y is visible
-                        if ((uint)y < (uint)bounds.Bottom)
+                        if ((uint)y < (uint)size.Height)
                             accessor.SetColor(x, y, c);
                         numerator += height;
                         if (numerator < width)
@@ -143,20 +143,19 @@ namespace KGySoft.Drawing.Shapes
                     int y = p1.Y;
 
                     // skipping invisible Y coordinates
-                    if (y < bounds.Top)
+                    if (y < 0)
                     {
-                        int diff = bounds.Top - y;
-                        numerator = (int)((numerator + ((long)width * diff)) % height);
-                        x += diff * step;
-                        y = bounds.Top;
+                        numerator = (numerator - width * y) % height;
+                        x -= y * step;
+                        y = 0;
                     }
 
-                    int endY = Math.Min(p2.Y, bounds.Bottom - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, bounds.Right - 1) + 1 : Math.Max(p2.X, bounds.Left) - 1;
+                    int endY = Math.Min(p2.Y, size.Height - 1);
+                    int offX = step > 0 ? Math.Min(p2.X, size.Width - 1) + 1 : Math.Max(p2.X, 0) - 1;
                     for (; y <= endY; y++)
                     {
                         // Drawing only if X is visible
-                        if ((uint)x < (uint)bounds.Right)
+                        if ((uint)x < (uint)size.Width)
                             accessor.SetColor(x, y, c);
                         numerator += width;
                         if (numerator < height)
@@ -171,13 +170,13 @@ namespace KGySoft.Drawing.Shapes
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, Rectangle drawBounds, float offset, TArg arg = default!)
+            internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, float offset, TArg arg = default!)
             {
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
-                DrawEllipse(bitmapData, p1.X, p1.Y, p2.X, p2.Y, c, drawBounds, arg);
+                DrawEllipse(bitmapData, p1.X, p1.Y, p2.X, p2.Y, c, arg);
             }
 
-            internal static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, Rectangle bounds, TArg arg = default!)
+            internal static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, TArg arg = default!)
             {
                 if (left > right)
                     (left, right) = (right, left);
@@ -199,6 +198,7 @@ namespace KGySoft.Drawing.Shapes
 
                 var accessor = new TAccessor();
                 accessor.InitBitmapData(bitmapData, arg);
+                Size size = bitmapData.Size;
 
                 do
                 {
@@ -235,14 +235,14 @@ namespace KGySoft.Drawing.Shapes
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 void SetPixel(int x, int y)
                 {
-                    if ((uint)x < (uint)bounds.Right && (uint)y < (uint)bounds.Bottom)
+                    if ((uint)x < (uint)size.Width && (uint)y < (uint)size.Height)
                         accessor.SetColor(x, y, c);
                 }
 
                 #endregion
             }
 
-            internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, Rectangle drawBounds, float offset, TArg arg = default!)
+            internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
             {
                 RectangleF bounds = arc.Bounds;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
@@ -258,13 +258,13 @@ namespace KGySoft.Drawing.Shapes
                 (float startRad, float endRad) = arc.GetStartEndRadians();
                 ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
-                DrawArc(bitmapData, left, top, right, bottom, c, drawBounds, arc.GetSectors(),
+                DrawArc(bitmapData, left, top, right, bottom, c, arc.GetSectors(),
                     (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c,
-                Rectangle drawBounds, float startAngle, float sweepAngle, TArg arg = default!)
+            internal static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
+                TColor c, float startAngle, float sweepAngle, TArg arg = default!)
             {
                 if (left > right)
                     (left, right) = (right, left);
@@ -279,7 +279,7 @@ namespace KGySoft.Drawing.Shapes
                 ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
-                DrawArc(bitmapData, left, top, right, bottom, c, drawBounds, ArcSegment.GetSectors(startAngle, sweepAngle),
+                DrawArc(bitmapData, left, top, right, bottom, c, ArcSegment.GetSectors(startAngle, sweepAngle),
                     (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
             }
 
@@ -296,7 +296,7 @@ namespace KGySoft.Drawing.Shapes
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
             private static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
-                TColor c, Rectangle bounds, BitVector32 sectors, int startX, int endX, TArg arg)
+                TColor c, BitVector32 sectors, int startX, int endX, TArg arg)
             {
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
@@ -314,6 +314,7 @@ namespace KGySoft.Drawing.Shapes
 
                 var accessor = new TAccessor();
                 accessor.InitBitmapData(bitmapData, arg);
+                Size size = bitmapData.Size;
 
                 do
                 {
@@ -350,7 +351,7 @@ namespace KGySoft.Drawing.Shapes
 
                 void SetPixel(int x, int y, int sector)
                 {
-                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
                         return;
 
                     int sectorType = sectors[ArcSegment.Sectors[sector]];
@@ -392,34 +393,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF());
                 else
-                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF());
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64());
                 else
-                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64());
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32());
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size));
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color));
                 return;
             }
 
-            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size));
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color);
         }
 
         internal static void DrawLine(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, Color32 color, float offset)
@@ -431,34 +432,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, color.ToPColorF(), offset);
                 else
-                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, color.ToColorF(), offset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, color.ToPColor64(), offset);
                 else
-                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, color.ToColor64(), offset);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, color.ToPColor32(), offset);
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(color), offset);
                 return;
             }
 
-            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, new Rectangle(Point.Empty, bitmapData.Size), offset);
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, offset);
         }
 
         #endregion

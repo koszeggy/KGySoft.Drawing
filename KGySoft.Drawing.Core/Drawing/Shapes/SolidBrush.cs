@@ -1124,14 +1124,14 @@ namespace KGySoft.Drawing.Shapes
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void DrawLine(PointF start, PointF end)
-                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawLine(BitmapData, start, end, color, VisibleBounds, PixelOffset, arg);
+                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawLine(BitmapData, start, end, color, PixelOffset, arg);
 
             internal override void DrawEllipse(RectangleF bounds)
-                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawEllipse(BitmapData, bounds, color, VisibleBounds, PixelOffset, arg);
+                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawEllipse(BitmapData, bounds, color, PixelOffset, arg);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void DrawArc(ArcSegment arc)
-                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawArc(BitmapData, arc, color, VisibleBounds, PixelOffset, arg);
+                => ThinPathDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawArc(BitmapData, arc, color, PixelOffset, arg);
 
             protected override void Dispose(bool disposing)
             {
@@ -1200,34 +1200,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF());
                 else
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64());
                 else
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size));
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size));
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32());
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size));
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32));
                 return;
             }
 
-            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size));
+            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32);
         }
 
         internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, float offset)
@@ -1239,34 +1239,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), offset);
                 else
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, offset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), offset);
                 else
-                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, new Rectangle(Point.Empty, bitmapData.Size), offset);
+                    ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, offset);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), offset);
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), new Rectangle(Point.Empty, bitmapData.Size), offset);
+                ThinPathDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
                 return;
             }
 
-            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, new Rectangle(Point.Empty, bitmapData.Size), offset);
+            ThinPathDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, offset);
         }
 
         #endregion
