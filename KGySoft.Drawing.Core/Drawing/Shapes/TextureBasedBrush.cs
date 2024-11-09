@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -1366,6 +1367,175 @@ namespace KGySoft.Drawing.Shapes
                         numerator -= height;
                     }
                 }
+            }
+
+            internal override void DrawEllipse(RectangleF bounds)
+            {
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                TMapper map = mapper;
+                TAccessor accSrc = accessorSrc;
+                TAccessor accDst = accessorDst;
+
+                do
+                {
+                    SetPixel(right, top);
+                    SetPixel(left, top);
+                    SetPixel(left, bottom);
+                    SetPixel(right, bottom);
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top);
+                    SetPixel(right + 1, top++);
+                    SetPixel(left - 1, bottom);
+                    SetPixel(right + 1, bottom--);
+                }
+
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                void SetPixel(int x, int y)
+                {
+                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                        return;
+
+                    int srcX = map.MapX(x);
+                    int srcY = map.MapY(y);
+                    accDst.SetColor(x, y, srcX < 0 || srcY < 0 ? default : accSrc.GetColor(srcX, srcY));
+                }
+
+                #endregion
+            }
+
+            internal override void DrawArc(ArcSegment arc)
+            {
+                RectangleF bounds = arc.Bounds;
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
+                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
+                float centerX = (left + right + 1) / 2f;
+                float radiusX = (width + 1) / 2f;
+                float radiusY = (height + 1) / 2f;
+                (float startRad, float endRad) = arc.GetStartEndRadians();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
+                BitVector32 sectors = arc.GetSectors();
+                int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
+                int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
+
+                TMapper map = mapper;
+                TAccessor accSrc = accessorSrc;
+                TAccessor accDst = accessorDst;
+
+                do
+                {
+                    SetPixel(left, top, 1);
+                    SetPixel(right, top, 0);
+                    SetPixel(left, bottom, 2);
+                    SetPixel(right, bottom, 3);
+
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top, 1);
+                    SetPixel(right + 1, top, 0);
+                    SetPixel(left - 1, bottom, 2);
+                    SetPixel(right + 1, bottom--, 3);
+                }
+
+                #region Local Methods
+
+                void SetPixel(int x, int y, int sector)
+                {
+                    if ((uint)x >= (uint)bounds.Right || (uint)y >= (uint)bounds.Bottom)
+                        return;
+
+                    int sectorType = sectors[ArcSegment.Sectors[sector]];
+                    if (sectorType == ArcSegment.SectorNotDrawn)
+                        return;
+
+                    if (sectorType == ArcSegment.SectorFullyDrawn
+                        || sector > 1 // positive sector point
+                        && (sectorType == ArcSegment.SectorStart && x >= startX
+                            || sectorType == ArcSegment.SectorEnd && x <= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x >= startX && x <= endX)
+                        || sector <= 1 // negative sector point
+                        && (sectorType == ArcSegment.SectorStart && x <= startX
+                            || sectorType == ArcSegment.SectorEnd && x >= endX
+                            || sectorType == ArcSegment.SectorStartEnd && x <= startX && x >= endX))
+                    {
+                        int srcX = map.MapX(x);
+                        int srcY = map.MapY(y);
+                        accDst.SetColor(x, y, srcX < 0 || srcY < 0 ? default : accSrc.GetColor(srcX, srcY));
+                    }
+                }
+
+                #endregion
             }
 
             #endregion

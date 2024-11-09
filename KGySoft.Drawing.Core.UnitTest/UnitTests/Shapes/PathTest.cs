@@ -654,7 +654,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 .TransformTranslation(10, 10)
                 .AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()
                 .AddEllipse(new RectangleF(0, 0, 100, 100))
-                .AddRectangle(new RectangleF(0, 0, 100, 100));
+                .AddRoundedRectangle(new RectangleF(0, 0, 100, 100), 10);
 
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));

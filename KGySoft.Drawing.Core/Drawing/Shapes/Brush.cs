@@ -1615,15 +1615,8 @@ namespace KGySoft.Drawing.Shapes
             #region Internal Methods
 
             internal abstract void DrawLine(PointF start, PointF end);
-            internal virtual void DrawEllipse(RectangleF bounds)
-            {
-                throw new NotImplementedException(); // TODO: to abstract
-            }
-
-            internal virtual void DrawArc(ArcSegment arc)
-            {
-                throw new NotImplementedException(); // TODO: to abstract
-            }
+            internal abstract void DrawEllipse(RectangleF bounds);
+            internal abstract void DrawArc(ArcSegment arc);
 
             #endregion
 
