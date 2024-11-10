@@ -72,6 +72,8 @@ namespace KGySoft.Drawing.Shapes
         #region Private Fields
 
         private BitVector32? sectors;
+        private PointF? startPoint;
+        private PointF? endPoint;
 
         #endregion
 
@@ -81,20 +83,21 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        // TODO: This is not accurate for ellipse arcs. If cached, it should be recalculated after transformation.
-        internal override PointF StartPoint => StartAngle == 0f
-            ? new PointF(Center.X + RadiusX, Center.Y)
-            : new PointF(Center.X + RadiusX * MathF.Cos(StartRad), Center.Y + RadiusY * MathF.Sin(StartRad));
+        internal override PointF StartPoint
+        {
+            get
+            {
+                EnsureStartEndPoints();
+                return startPoint!.Value;
+            }
+        }
 
-        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Using degrees instead of radians provides reliable comparisons")]
         internal override PointF EndPoint
         {
             get
             {
-                if (SweepAngle == 360f)
-                    return StartPoint;
-                float rad = StartRad + SweepRad;
-                return new PointF(Center.X + RadiusX * MathF.Cos(rad), Center.Y + RadiusY * MathF.Sin(rad));
+                EnsureStartEndPoints();
+                return endPoint!.Value;
             }
         }
 
@@ -112,10 +115,8 @@ namespace KGySoft.Drawing.Shapes
             SweepAngle = 360f;
         }
 
-        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Using degrees instead of radians provides reliable comparisons")]
         internal ArcSegment(RectangleF bounds, float startAngle = 0f, float sweepAngle = 360f)
         {
-            Debug.Assert(sweepAngle <= 360f);
             bool isFullEllipse = Math.Abs(sweepAngle) >= 360f;
             StartAngle = startAngle;
             SweepAngle = isFullEllipse ? 360f : sweepAngle;
@@ -124,6 +125,9 @@ namespace KGySoft.Drawing.Shapes
             RadiusX = bounds.Width / 2f;
             RadiusY = bounds.Height / 2f;
             Center = new PointF(bounds.X + RadiusX, bounds.Y + RadiusY);
+
+            // For a full ellipse start/end points are always at 0 degrees.
+            // This way the behavior is consistent with thin lines and Bézier curves-conversion.
             if (!isFullEllipse)
             {
                 StartRad = startAngle.ToRadian();
@@ -139,8 +143,12 @@ namespace KGySoft.Drawing.Shapes
 
         // Adjusts the start/end angles for the radii of an ellipse. This is how also GDI+ calculates the start/end points of arcs.
         // The formula is taken from libgdiplus: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L752
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended")]
         internal static void AdjustAngles(ref float startRad, ref float endRad, float radiusX, float radiusY)
         {
+            if (radiusX == radiusY)
+                return;
+
             startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
             endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
 
@@ -192,6 +200,8 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Instance Methods
+        
+        #region Internal Methods
 
         internal override IList<PointF> GetFlattenedPoints() => Math.Abs(SweepAngle) >= 360f
             ? BezierSegment.FromEllipse(Center, RadiusX, RadiusY).GetFlattenedPoints()
@@ -200,6 +210,9 @@ namespace KGySoft.Drawing.Shapes
         internal override PathSegment Transform(TransformationMatrix matrix)
         {
             Debug.Assert(!matrix.IsIdentity);
+
+            startPoint = null;
+            endPoint = null;
 
             // If the transformation is translation or scale (including reflections) only, we can transform the arc directly.
             // See https://en.wikipedia.org/wiki/Transformation_matrix#/media/File:2D_affine_transformation_matrix.svg
@@ -212,7 +225,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Otherwise, converting the arc to a Bézier curve and transforming that.
-            return (SweepRad >= MathF.PI * 2f
+            return (Math.Abs(SweepAngle) >= 360f
                     ? BezierSegment.FromEllipse(Center, RadiusX, RadiusY)
                     : BezierSegment.FromArc(Center, RadiusX, RadiusY, StartRad, SweepRad))
                 .Transform(matrix);
@@ -236,7 +249,31 @@ namespace KGySoft.Drawing.Shapes
             : (StartRad + SweepRad, StartRad);
 
         #endregion
-        
+
+        #region Private Methods
+
+        private void EnsureStartEndPoints()
+        {
+            if (startPoint.HasValue)
+                return;
+
+            float startRad = StartRad;
+            float endRad = startRad + SweepRad;
+            AdjustAngles(ref startRad, ref endRad, RadiusX, RadiusY);
+
+            float sinStart = MathF.Sin(startRad);
+            float sinEnd = MathF.Sin(endRad);
+            float cosStart = MathF.Cos(startRad);
+            float cosEnd = MathF.Cos(endRad);
+
+            startPoint = new PointF(Center.X + RadiusX * cosStart, Center.Y + RadiusY * sinStart);
+            endPoint = new PointF(Center.X + RadiusX * cosEnd, Center.Y + RadiusY * sinEnd);
+        }
+
+        #endregion
+
+        #endregion
+
         #endregion
     }
 }

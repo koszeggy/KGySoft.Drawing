@@ -131,27 +131,27 @@ namespace KGySoft.Drawing.Shapes
             // 4 Bézier curves (1 + 3 * 4 points)
             return new BezierSegment(new[]
             {
-                    // 1st quadrant
-                    new PointF(centerX + radiusX, centerY),
-                    new PointF(centerX + radiusX, centerY - ctrlPointY),
-                    new PointF(centerX + ctrlPointX, centerY - radiusY),
-                    new PointF(centerX, centerY - radiusY),
+                // 1st quadrant
+                new PointF(centerX + radiusX, centerY),
+                new PointF(centerX + radiusX, centerY - ctrlPointY),
+                new PointF(centerX + ctrlPointX, centerY - radiusY),
+                new PointF(centerX, centerY - radiusY),
 
-                    // 2nd quadrant
-                    new PointF(centerX - ctrlPointX, centerY - radiusY),
-                    new PointF(centerX - radiusX, centerY - ctrlPointY),
-                    new PointF(centerX - radiusX, centerY),
+                // 2nd quadrant
+                new PointF(centerX - ctrlPointX, centerY - radiusY),
+                new PointF(centerX - radiusX, centerY - ctrlPointY),
+                new PointF(centerX - radiusX, centerY),
 
-                    // 3rd quadrant
-                    new PointF(centerX - radiusX, centerY + ctrlPointY),
-                    new PointF(centerX - ctrlPointX, centerY + radiusY),
-                    new PointF(centerX, centerY + radiusY),
+                // 3rd quadrant
+                new PointF(centerX - radiusX, centerY + ctrlPointY),
+                new PointF(centerX - ctrlPointX, centerY + radiusY),
+                new PointF(centerX, centerY + radiusY),
 
-                    // 4th quadrant
-                    new PointF(centerX + ctrlPointX, centerY + radiusY),
-                    new PointF(centerX + radiusX, centerY + ctrlPointY),
-                    new PointF(centerX + radiusX, centerY)
-                });
+                // 4th quadrant
+                new PointF(centerX + ctrlPointX, centerY + radiusY),
+                new PointF(centerX + radiusX, centerY + ctrlPointY),
+                new PointF(centerX + radiusX, centerY)
+            });
         }
 
         #endregion

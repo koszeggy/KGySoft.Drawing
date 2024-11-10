@@ -782,6 +782,53 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             }
         }
 
+        [TestCase(0f, 45f)]
+        [TestCase(45f, 90f)]
+        [TestCase(-45f, 90f)]
+        [TestCase(15f, 400f)]
+        public void ConnectedArcTest(float start, float sweep)
+        {
+            var path = new Path()
+                //.AddPie(new RectangleF(0, 0, 100, 50), start, sweep)
+                .AddPoint(new PointF(50, 0))
+                .AddArc(new RectangleF(0, 0, 100, 50), start, sweep)
+                .AddPoint(new PointF(50, 0));
+
+            var bounds = path.RawPath.DrawOutlineBounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+
+            using var bmp1 = BitmapDataFactory.CreateBitmapData(size);
+            bmp1.DrawPath(new Pen(Color.Blue), path);
+            SaveBitmapData($"{start}_{sweep}_F", bmp1);
+
+            using var bmp2 = BitmapDataFactory.CreateBitmapData(size);
+            bmp2.DrawPath(new Pen(Color.Blue), path, new DrawingOptions { FastThinLines = false });
+            SaveBitmapData($"{start}_{sweep}_NF", bmp2);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TransformedCircleTest(bool antiAliased)
+        {
+            // Adding a circle, and applying a transformation with 2x1 scale and 13° rotation: the result should be a rotated ellipse,
+            // which is always drawn as Bézier curves, even when drawing fast thin lines.
+            var path = new Path()
+                .AddEllipse(new RectangleF(0, 0, 100, 100));
+
+            var transform = TransformationMatrix.CreateTranslation(30, 0)
+                 * TransformationMatrix.CreateScale(2, 1)
+                 * TransformationMatrix.CreateRotation(13);
+            path.TransformAdded(transform);
+
+            var options = new DrawingOptions { AntiAliasing = antiAliased };
+            var bounds = path.RawPath.DrawOutlineBounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+            using var bmp = BitmapDataFactory.CreateBitmapData(size);
+            bmp.Clear(Color.Cyan);
+            bmp.DrawPath(new Pen(Color.Blue), path, options);
+            SaveBitmapData($"{(antiAliased ? "AA" : "NA")}", bmp);
+        }
+
         #endregion
     }
 }
