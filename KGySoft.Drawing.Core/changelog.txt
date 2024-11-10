@@ -28,6 +28,7 @@
   + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
   + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
+  + New DrawRectangle/BeginDrawRectangle/EndDrawRectangle/DrawRectangleAsync methods
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================

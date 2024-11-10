@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataExtensions.ShapeDrawing.cs
+//  File: BitmapDataExtensions.DrawShape.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -82,7 +82,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -135,7 +135,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -152,7 +152,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -173,7 +173,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -189,7 +189,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -205,7 +205,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -222,7 +222,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -244,7 +244,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -259,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -274,7 +274,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -290,7 +290,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -313,7 +313,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -328,7 +328,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -343,7 +343,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -359,7 +359,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -387,7 +387,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -403,7 +403,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -425,7 +425,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -441,7 +441,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -457,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -474,7 +474,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -495,7 +495,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -511,7 +511,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -527,7 +527,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -544,7 +544,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -566,7 +566,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -581,7 +581,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -596,7 +596,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -612,7 +612,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -635,7 +635,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -650,7 +650,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, points);
 
-            // Shortcut for solid non-AA lines
+            // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
@@ -665,7 +665,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -681,7 +681,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, pen, points);
 
-            // Shortcut for solid non-AA thin lines
+            // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
@@ -698,9 +698,340 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Path
+        #region Rectangle
 
-        #region DrawPath
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        // Remarks:
+        // - When cannot do a shortcut, a Path is created internally. In such case DrawPath with caching may perform better.
+        // - When drawing, bounds right/bottom are inclusive, so zero width or height means 1 pixel wide/high rectangle.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, DrawingOptions? drawingOptions = null)
+            => DrawRectangle(bitmapData, color, new Rectangle(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                return;
+            }
+
+            DoDrawRectangle(AsyncHelper.DefaultContext, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height, DrawingOptions? drawingOptions = null)
+            => DrawRectangle(bitmapData, color, new RectangleF(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                return;
+            }
+
+            DoDrawRectangle(AsyncHelper.DefaultContext, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginDrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndDrawRectangle(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawRectangle));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawRectangle(ctx, bitmapData, new Pen(color), rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinRectangleDirect(bitmapData, rectangle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawRectangle(ctx, bitmapData, pen, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
+        #region Path
 
         // Remarks:
         // - If drawingOptions.Transformation is not the identity matrix, then the path region is not cached. To improve the performance of repeatedly drawn transformed paths, apply the transformations on the Path instance instead, and use the identity matrix in options.
@@ -767,73 +1098,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region FillPath
-
-        // Remarks:
-        // - If drawingOptions.Transformation is not the identity matrix, then the path region is not cached. To improve the performance of repeatedly drawn transformed paths, apply the transformations on the Path instance instead, and use the identity matrix in options.
-        public static void FillPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions = null)
-        {
-            ValidateArguments(bitmapData, path);
-            DoFillPath(AsyncHelper.DefaultContext, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default);
-        }
-
-        // TODO: remove? Now it's for symmetry, but at DrawLine(s)/etc. it's justified because it has a special handling for thin lines, but here this is just a shortcut with new Pen(color)
-        public static bool FillPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
-        {
-            ValidateArguments(bitmapData, path);
-            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPath(ctx, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default), parallelConfig);
-        }
-
-        public static bool FillPath(this IReadWriteBitmapData bitmapData, Brush brush, Path path, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
-        {
-            ValidateArguments(bitmapData, brush, path);
-            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPath(ctx, bitmapData, path, brush, drawingOptions ?? DrawingOptions.Default), parallelConfig);
-        }
-
-        public static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Path path, DrawingOptions? drawingOptions = null)
-        {
-            ValidateArguments(bitmapData, path);
-            return DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default);
-        }
-
-        public static bool FillPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, Path path, DrawingOptions? drawingOptions = null)
-        {
-            ValidateArguments(bitmapData, brush, path);
-            return DoFillPath(context ?? AsyncHelper.DefaultContext, bitmapData, path, brush, drawingOptions ?? DrawingOptions.Default);
-        }
-
-        public static IAsyncResult BeginFillPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
-        {
-            ValidateArguments(bitmapData, path);
-            return AsyncHelper.BeginOperation(ctx => DoFillPath(ctx, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default), asyncConfig);
-        }
-
-        public static IAsyncResult BeginFillPath(this IReadWriteBitmapData bitmapData, Brush brush, Path path, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
-        {
-            ValidateArguments(bitmapData, brush, path);
-            return AsyncHelper.BeginOperation(ctx => DoFillPath(ctx, bitmapData, path, brush, drawingOptions ?? DrawingOptions.Default), asyncConfig);
-        }
-
-        public static bool EndFillPath(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginFillPath));
-
-#if !NET35
-        public static Task<bool> FillPathAsync(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
-        {
-            ValidateArguments(bitmapData, path);
-            return AsyncHelper.DoOperationAsync(ctx => DoFillPath(ctx, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default), asyncConfig);
-        }
-
-        public static Task<bool> FillPathAsync(this IReadWriteBitmapData bitmapData, Brush brush, Path path, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
-        {
-            ValidateArguments(bitmapData, brush, path);
-            return AsyncHelper.DoOperationAsync(ctx => DoFillPath(ctx, bitmapData, path, brush, drawingOptions ?? DrawingOptions.Default), asyncConfig);
-        }
-#endif
-
-        #endregion
-
-        #endregion
-
         #endregion
 
         #region Private Methods
@@ -884,16 +1148,6 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush, Path path)
-        {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brush == null)
-                throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
-            if (path == null)
-                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
-        }
-
         #endregion
 
         #region Line/s
@@ -912,6 +1166,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Rectangle
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoDrawRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions drawingOptions)
+            => DoDrawPath(context, bitmapData, new Path(false).AddRectangle(rectangle), pen, drawingOptions);
+
+        #endregion
+
         #region Path
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -924,18 +1186,6 @@ namespace KGySoft.Drawing.Imaging
             }
 
             return pen.DrawPath(context, bitmapData, path, drawingOptions);
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static bool DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions)
-        {
-            if (!drawingOptions.IsIdentityTransform)
-            {
-                path = Path.Transform(path, drawingOptions.Transformation);
-                path.PreferCaching = false;
-            }
-
-            return brush.FillPath(context, bitmapData, path, drawingOptions);
         }
 
         #endregion
