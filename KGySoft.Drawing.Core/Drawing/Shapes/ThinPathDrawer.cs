@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -460,6 +461,136 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, color, offset);
+        }
+
+        internal static void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<Point> points, Color32 color)
+        {
+            IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
+            int count = pointList.Count;
+            if (count < 1)
+                return;
+
+            if (count == 1)
+            {
+                DrawLine(bitmapData, pointList[0], pointList[0], color);
+                return;
+            }
+
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColorF());
+                }
+                else
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColorF());
+                }
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor64());
+                }
+                else
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColor64());
+                }
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                for (int i = 1; i < count; i++)
+                    GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                for (int i = 1; i < count; i++)
+                    GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(color));
+                return;
+            }
+
+            for (int i = 1; i < count; i++)
+                GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color);
+        }
+
+        internal static void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, Color32 color, float offset)
+        {
+            IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
+            int count = pointList.Count;
+            if (count < 1)
+                return;
+
+            if (count == 1)
+            {
+                DrawLine(bitmapData, pointList[0], pointList[0], color, offset);
+                return;
+            }
+
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColorF(), offset);
+                }
+                else
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColorF(), offset);
+                }
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor64(), offset);
+                }
+                else
+                {
+                    for (int i = 1; i < count; i++)
+                        GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColor64(), offset);
+                }
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                for (int i = 1; i < count; i++)
+                    GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                for (int i = 1; i < count; i++)
+                    GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            for (int i = 1; i < count; i++)
+                GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color, offset);
         }
 
         #endregion

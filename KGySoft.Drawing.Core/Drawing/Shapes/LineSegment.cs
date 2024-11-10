@@ -46,7 +46,7 @@ namespace KGySoft.Drawing.Shapes
             this.points = points!;
         }
 
-        internal LineSegment(ICollection<PointF> points)
+        internal LineSegment(IEnumerable<PointF> points)
             : this(new List<PointF>(points))
         {
             // This overload exists for copying the elements.
@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        internal void Append(ICollection<PointF> newPoints) => points.AddRange(newPoints);
+        internal void Append(IEnumerable<PointF> newPoints) => points.AddRange(newPoints);
 
         internal override IList<PointF> GetFlattenedPoints() => points;
 

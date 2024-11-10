@@ -21,6 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Reflection;
 
 #endregion
@@ -65,9 +66,8 @@ namespace KGySoft.Drawing.Shapes
             internal void AddSegment(PathSegment segment) => Segments.Add(segment);
 
             [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
-            internal bool TryAppendPoints(ICollection<PointF> points)
+            internal bool TryAppendPoints(IEnumerable<PointF> points)
             {
-                Debug.Assert(points.Count > 0);
                 if (Segments.Count == 0 || Segments[Segments.Count - 1] is not LineSegment lastSegment)
                     return false;
 
@@ -219,13 +219,21 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // TODO: Point[] overload
-        // TODO: ICollection/[IEnumerable?], ROS
         public Path AddLines(params PointF[] points)
         {
             if (points == null)
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
-            if (points.Length < 1)
-                throw new ArgumentException(nameof(points), PublicResources.CollectionEmpty);
+
+            if (points.Length == 0)
+                return this;
+            AppendPoints(points);
+            return this;
+        }
+
+        public Path AddLines(IEnumerable<PointF> points)
+        {
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
 
             AppendPoints(points);
             return this;
@@ -616,16 +624,16 @@ namespace KGySoft.Drawing.Shapes
             AddSegment(new LineSegment(points!));
         }
 
-        private void AppendPoints(ICollection<PointF> points)
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration", Justification = "TryAppendPoints does not enumerate if it returns false")]
+        private void AppendPoints(IEnumerable<PointF> points)
         {
-            Debug.Assert(points != null! && points.Count > 0);
-            if (transformation.IsIdentity && currentFigure.TryAppendPoints(points!))
+            if (transformation.IsIdentity && currentFigure.TryAppendPoints(points))
             {
                 Invalidate();
                 return;
             }
 
-            AddSegment(new LineSegment(points!));
+            AddSegment(new LineSegment(points));
         }
 
         private void AddSegment(PathSegment segment)

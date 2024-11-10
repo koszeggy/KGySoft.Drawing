@@ -25,6 +25,7 @@
   ! New SetColorIndex/WriteRaw<T> methods
 + BitmapDataExtensions class:
   + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
+  + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
   + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
 
