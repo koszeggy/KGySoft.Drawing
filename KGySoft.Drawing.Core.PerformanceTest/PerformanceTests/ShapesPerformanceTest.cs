@@ -221,6 +221,107 @@ namespace KGySoft.Drawing.PerformanceTests
             //   Worst-Best difference: 84 854,60 (0,46%)
         }
 
+        [Test]
+        public void FillRectangleShortcutTest()
+        {
+            var rect = new Rectangle(1, 1, 10, 10);
+            RectangleF rectF = rect;
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
+
+            var pathNoCache = new Path(false)
+                .AddRectangle(rectF);
+            var pathCache = new Path(pathNoCache) { PreferCaching = true };
+
+            Color32 color = Color.Blue;
+            var brush = Brush.CreateSolid(color);
+
+            var bounds = pathNoCache.Bounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+            bitmapData.Clear(Color.Cyan);
+
+            new PerformanceTest { TestName = nameof(FillRectangleShortcutTest), TestTime = 2000, Repeat = 3 }
+                .AddCase(() => bitmapData.FillPath(brush, pathNoCache, null), "FillPath, no cache")
+                .AddCase(() => bitmapData.FillPath(brush, pathCache, null), "FillPath, cache")
+                .AddCase(() => bitmapData.FillPath(null, brush, pathNoCache, null), "FillPath IAsyncContext, no cache")
+                .AddCase(() => bitmapData.FillPath(null, brush, pathCache, null), "FillPath IAsyncContext, cache")
+                .AddCase(() => bitmapData.FillRectangle(color, rect), "FillRectangle Color32, Rectangle, DefaultContext")
+                .AddCase(() => bitmapData.FillRectangle(color, rect, null, null), "FillRectangle Color32, Rectangle, ParallelConfig")
+                .AddCase(() => bitmapData.FillRectangle(null, color, rect), "FillRectangle Color32, Rectangle, IAsyncContext")
+                .AddCase(() => bitmapData.FillRectangle(brush, rect), "FillRectangle Brush, Rectangle")
+                .AddCase(() => bitmapData.FillRectangle(color, rectF), "FillRectangle Color32, RectangleF")
+                .AddCase(() => bitmapData.FillRectangle(brush, rectF), "FillRectangle Brush, RectangleF")
+                .AddCase(() => bitmapData.Clip(rect).Clear(color), "Clip(Rectangle).Clear Color32")
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // ==[FillRectangleShortcutTest (.NET Core 9.0.0-rc.2.24473.5) Results]================================================
+            // Test Time: 2 000 ms
+            // Warming up: Yes
+            // Test cases: 11
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. FillRectangle Color32, Rectangle, DefaultContext: 23 827 608 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 7 942 535,34
+            //   #1  7 975 557 iterations in 2 000,00 ms. Adjusted: 7 975 556,20	 <---- Best
+            //   #2  7 937 310 iterations in 2 000,00 ms. Adjusted: 7 937 309,21
+            //   #3  7 914 741 iterations in 2 000,00 ms. Adjusted: 7 914 740,60	 <---- Worst
+            //   Worst-Best difference: 60 815,60 (0,77%)
+            // 2. FillRectangle Color32, Rectangle, IAsyncContext: 23 704 142 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 7 901 380,14 (-41 155,20 / 99,48%)
+            //   #1  7 898 774 iterations in 2 000,00 ms. Adjusted: 7 898 773,61
+            //   #2  7 957 571 iterations in 2 000,00 ms. Adjusted: 7 957 570,60	 <---- Best
+            //   #3  7 847 797 iterations in 2 000,00 ms. Adjusted: 7 847 796,22	 <---- Worst
+            //   Worst-Best difference: 109 774,39 (1,40%)
+            // 3. FillRectangle Color32, RectangleF: 22 344 304 iterations in 6 000,02 ms. Adjusted for 2 000 ms: 7 448 082,57 (-494 452,77 / 93,77%)
+            //   #1  7 456 345 iterations in 2 000,01 ms. Adjusted: 7 456 289,82	 <---- Best
+            //   #2  7 439 342 iterations in 2 000,00 ms. Adjusted: 7 439 341,26	 <---- Worst
+            //   #3  7 448 617 iterations in 2 000,00 ms. Adjusted: 7 448 616,63
+            //   Worst-Best difference: 16 948,57 (0,23%)
+            // 4. FillRectangle Color32, Rectangle, ParallelConfig: 21 441 194 iterations in 6 000,05 ms. Adjusted for 2 000 ms: 7 147 003,26 (-795 532,08 / 89,98%)
+            //   #1  7 168 551 iterations in 2 000,05 ms. Adjusted: 7 168 367,13	 <---- Best
+            //   #2  7 164 666 iterations in 2 000,00 ms. Adjusted: 7 164 665,64
+            //   #3  7 107 977 iterations in 2 000,00 ms. Adjusted: 7 107 977,00	 <---- Worst
+            //   Worst-Best difference: 60 390,13 (0,85%)
+            // 5. FillRectangle Brush, Rectangle: 20 975 821 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 6 991 939,40 (-950 595,94 / 88,03%)
+            //   #1  7 018 750 iterations in 2 000,00 ms. Adjusted: 7 018 748,60	 <---- Best
+            //   #2  6 949 962 iterations in 2 000,00 ms. Adjusted: 6 949 961,65	 <---- Worst
+            //   #3  7 007 109 iterations in 2 000,00 ms. Adjusted: 7 007 107,95
+            //   Worst-Best difference: 68 786,94 (0,99%)
+            // 6. FillRectangle Brush, RectangleF: 19 025 249 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 6 341 748,60 (-1 600 786,73 / 79,85%)
+            //   #1  6 405 195 iterations in 2 000,00 ms. Adjusted: 6 405 192,76	 <---- Best
+            //   #2  6 340 604 iterations in 2 000,00 ms. Adjusted: 6 340 603,68
+            //   #3  6 279 450 iterations in 2 000,00 ms. Adjusted: 6 279 449,37	 <---- Worst
+            //   Worst-Best difference: 125 743,39 (2,00%)
+            // 7. FillPath IAsyncContext, cache: 11 479 282 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 3 826 425,99 (-4 116 109,35 / 48,18%)
+            //   #1  3 847 939 iterations in 2 000,00 ms. Adjusted: 3 847 937,46
+            //   #2  3 773 115 iterations in 2 000,00 ms. Adjusted: 3 773 114,43	 <---- Worst
+            //   #3  3 858 228 iterations in 2 000,00 ms. Adjusted: 3 858 226,07	 <---- Best
+            //   Worst-Best difference: 85 111,64 (2,26%)
+            // 8. FillPath, cache: 10 843 896 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 3 614 631,46 (-4 327 903,88 / 45,51%)
+            //   #1  3 633 296 iterations in 2 000,00 ms. Adjusted: 3 633 295,27
+            //   #2  3 566 364 iterations in 2 000,00 ms. Adjusted: 3 566 363,64	 <---- Worst
+            //   #3  3 644 236 iterations in 2 000,00 ms. Adjusted: 3 644 235,45	 <---- Best
+            //   Worst-Best difference: 77 871,81 (2,18%)
+            // 9. Clip(Rectangle).Clear Color32: 5 918 889 iterations in 6 010,38 ms. Adjusted for 2 000 ms: 1 969 571,07 (-5 972 964,27 / 24,80%)
+            //   #1  1 966 246 iterations in 2 005,47 ms. Adjusted: 1 960 883,87	 <---- Worst
+            //   #2  1 986 397 iterations in 2 000,00 ms. Adjusted: 1 986 396,80	 <---- Best
+            //   #3  1 966 246 iterations in 2 004,91 ms. Adjusted: 1 961 432,55
+            //   Worst-Best difference: 25 512,94 (1,30%)
+            // 10. FillPath IAsyncContext, no cache: 3 779 633 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 1 259 877,18 (-6 682 658,15 / 15,86%)
+            //   #1  1 261 110 iterations in 2 000,00 ms. Adjusted: 1 261 109,37
+            //   #2  1 263 575 iterations in 2 000,00 ms. Adjusted: 1 263 574,62	 <---- Best
+            //   #3  1 254 948 iterations in 2 000,00 ms. Adjusted: 1 254 947,56	 <---- Worst
+            //   Worst-Best difference: 8 627,06 (0,69%)
+            // 11. FillPath, no cache: 3 511 102 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 1 170 366,46 (-6 772 168,88 / 14,74%)
+            //   #1  1 069 638 iterations in 2 000,00 ms. Adjusted: 1 069 636,66	 <---- Worst
+            //   #2  1 206 642 iterations in 2 000,00 ms. Adjusted: 1 206 641,58
+            //   #3  1 234 822 iterations in 2 000,00 ms. Adjusted: 1 234 821,14	 <---- Best
+            //   Worst-Best difference: 165 184,47 (15,44%)             
+        }
+
         [Test, Explicit]
         public void TestBehaviorTest()
         {

@@ -268,7 +268,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static void DoClear(this IWritableBitmapData bitmapData, IAsyncContext asyncContext, Color32 color)
+        internal static bool DoClear(this IWritableBitmapData bitmapData, IAsyncContext asyncContext, Color32 color)
             => DoClear(asyncContext, bitmapData, color, null);
 
         #endregion

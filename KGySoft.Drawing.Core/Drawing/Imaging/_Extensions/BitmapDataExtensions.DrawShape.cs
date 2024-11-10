@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color);
                 return;
             }
 
@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return;
             }
 
@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -177,7 +177,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -193,7 +193,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -248,7 +248,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -263,7 +263,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -317,7 +317,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -332,7 +332,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLine(bitmapData, p1, p2, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -391,7 +391,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color);
+                DirectDrawer.DrawLines(bitmapData, points, color);
                 return;
             }
 
@@ -407,7 +407,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
                 return;
             }
 
@@ -429,7 +429,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color);
+                DirectDrawer.DrawLines(bitmapData, points, color);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -445,7 +445,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -499,7 +499,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color);
+                DirectDrawer.DrawLines(bitmapData, points, color);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -515,7 +515,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -570,7 +570,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color);
+                DirectDrawer.DrawLines(bitmapData, points, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -585,7 +585,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -639,7 +639,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color);
+                DirectDrawer.DrawLines(bitmapData, points, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -654,7 +654,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawLines(bitmapData, points, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -721,7 +721,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color);
                 return;
             }
 
@@ -741,7 +741,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
                 return;
             }
 
@@ -762,7 +762,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -778,7 +778,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
@@ -832,7 +832,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -848,7 +848,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
                 return context?.IsCancellationRequested != true;
             }
 
@@ -903,7 +903,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -918,7 +918,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -972,7 +972,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 
@@ -987,7 +987,7 @@ namespace KGySoft.Drawing.Imaging
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
                 || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
             {
-                ThinPathDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
+                DirectDrawer.DrawRectangle(bitmapData, rectangle, color, drawingOptions?.PixelOffset ?? 0f);
                 return AsyncHelper.FromResult(true, asyncConfig);
             }
 

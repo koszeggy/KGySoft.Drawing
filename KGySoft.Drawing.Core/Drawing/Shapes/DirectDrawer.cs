@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ThinPathDrawer.cs
+//  File: DirectDrawer.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -22,16 +22,17 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Threading;
 
 #endregion
 
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// This class is used to draw thin paths with solid colors. These drawing algorithms are actually duplicated in the classes
+    /// This class is used to draw thin paths and to fill rectangles with solid colors. These drawing algorithms are actually duplicated in the classes
     /// derived from DrawThinPathSession in <see cref="Brush"/>. These are used in special cases, and are optimized for performance.
     /// </summary>
-    internal static class ThinPathDrawer
+    internal static class DirectDrawer
     {
         #region Nested classes
 
@@ -284,6 +285,47 @@ namespace KGySoft.Drawing.Shapes
                     (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
             }
 
+            internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
+            {
+                Debug.Assert(!rectangle.IsEmpty() && new Rectangle(Point.Empty, bitmapData.Size).Contains(rectangle));
+                
+                // sequential fill
+                if (rectangle.Width < parallelThreshold)
+                {
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(rectangle.Top);
+                    var accessor = new TAccessor();
+                    accessor.InitRow(row);
+
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    for (int y = 0; y < rectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return false;
+
+                        int right = rectangle.Right;
+                        for (int x = rectangle.Left; x < right; x++)
+                            accessor.SetColor(x, color);
+                        context.Progress?.Increment();
+                        row.MoveNextRow();
+                    }
+
+                    return true;
+                }
+
+                // parallel fill
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, rectangle.Top, rectangle.Bottom, y =>
+                {
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
+                    var accessor = new TAccessor();
+                    accessor.InitRow(row);
+                    TColor c = color;
+
+                    int right = rectangle.Right;
+                    for (int x = rectangle.Left; x < right; x++)
+                        accessor.SetColor(x, c);
+                });
+            }
+
             #endregion
 
             #region Private Methods
@@ -383,7 +425,15 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Constants
+
+        private const int parallelThreshold = 100;
+
+        #endregion
+
         #region Methods
+        // These methods are specifically for Color32, but use GenericDrawer with the actual preferred color type.
+        // Other color types call the GenericDrawer methods from SolidBrush.
 
         internal static void DrawLine(IReadWriteBitmapData bitmapData, Point p1, Point p2, Color32 color)
         {
@@ -591,6 +641,44 @@ namespace KGySoft.Drawing.Shapes
 
             for (int i = 1; i < count; i++)
                 GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color, offset);
+        }
+
+        internal static void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
+            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color);
+
+        internal static void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, Color32 color, float offset)
+            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color, offset);
+
+        internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
+        {
+            rectangle.Intersect(new Rectangle(Point.Empty, bitmapData.Size));
+            if (rectangle.IsEmpty())
+                return !context.IsCancellationRequested;
+
+            // we could use a ClippedBitmapData here, but it would be slower because of the extra wrapping
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
+                    ? GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.FillRectangle(context, bitmap, color.ToPColorF(), rectangle)
+                    : GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.FillRectangle(context, bitmap, color.ToColorF(), rectangle);
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                    ? GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.FillRectangle(context, bitmap, color.ToPColor64(), rectangle)
+                    : GenericDrawer<BitmapDataAccessorColor64, Color64, _>.FillRectangle(context, bitmap, color.ToColor64(), rectangle);
+            }
+
+            return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                ? GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.FillRectangle(context, bitmap, color.ToPColor32(), rectangle)
+                : pixelFormat.Indexed
+                    ? GenericDrawer<BitmapDataAccessorIndexed, int, _>.FillRectangle(context, bitmap, bitmapData.Palette!.GetNearestColorIndex(color), rectangle)
+                    : GenericDrawer<BitmapDataAccessorColor32, Color32, _>.FillRectangle(context, bitmap, color, rectangle);
         }
 
         #endregion
