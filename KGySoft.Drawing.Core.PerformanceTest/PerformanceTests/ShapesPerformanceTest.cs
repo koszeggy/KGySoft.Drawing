@@ -222,6 +222,170 @@ namespace KGySoft.Drawing.PerformanceTests
         }
 
         [Test]
+        public void DrawRectangleShortcutTest()
+        {
+            var rect = new Rectangle(1, 1, 10, 10);
+            RectangleF rectF = rect;
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
+
+            var path = new Path()
+                .AddRectangle(rectF);
+
+            Color32 color = Color.Blue;
+            var pen = new Pen(color);
+
+            var bounds = path.Bounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+            bitmapData.Clear(Color.Cyan);
+
+            new PerformanceTest { TestName = nameof(DrawRectangleShortcutTest), TestTime = 2000, Repeat = 3 }
+                .AddCase(() => bitmapData.DrawPath(pen, path, null), "DrawPath")
+                .AddCase(() => bitmapData.DrawPath(null, pen, path, null), "DrawPath IAsyncContext")
+                .AddCase(() => bitmapData.DrawRectangle(color, rect), "DrawRectangle Color32, Rectangle, DefaultContext")
+                .AddCase(() => bitmapData.DrawRectangle(color, rect, null, null), "DrawRectangle Color32, Rectangle, ParallelConfig")
+                .AddCase(() => bitmapData.DrawRectangle(null, color, rect), "DrawRectangle Color32, Rectangle, IAsyncContext")
+                .AddCase(() => bitmapData.DrawRectangle(pen, rect), "DrawRectangle Pen, Rectangle")
+                .AddCase(() => bitmapData.DrawRectangle(color, rectF), "DrawRectangle Color32, RectangleF")
+                .AddCase(() => bitmapData.DrawRectangle(pen, rectF), "DrawRectangle Pen, RectangleF")
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // ==[DrawRectangleShortcutTest (.NET Core 9.0.0-rc.2.24473.5) Results]================================================
+            // Test Time: 2 000 ms
+            // Warming up: Yes
+            // Test cases: 8
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. DrawRectangle Color32, Rectangle, IAsyncContext: 38 314 532 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 12 771 510,24
+            //   #1  12 730 277 iterations in 2 000,00 ms. Adjusted: 12 730 277,00	 <---- Worst
+            //   #2  12 812 766 iterations in 2 000,00 ms. Adjusted: 12 812 765,36	 <---- Best
+            //   #3  12 771 489 iterations in 2 000,00 ms. Adjusted: 12 771 488,36
+            //   Worst-Best difference: 82 488,36 (0,65%)
+            // 2. DrawRectangle Color32, Rectangle, DefaultContext: 38 232 719 iterations in 6 000,01 ms. Adjusted for 2 000 ms: 12 744 211,71 (-27 298,53 / 99,79%)
+            //   #1  12 805 752 iterations in 2 000,01 ms. Adjusted: 12 805 669,40	 <---- Best
+            //   #2  12 719 466 iterations in 2 000,00 ms. Adjusted: 12 719 465,36
+            //   #3  12 707 501 iterations in 2 000,00 ms. Adjusted: 12 707 500,36	 <---- Worst
+            //   Worst-Best difference: 98 169,04 (0,77%)
+            // 3. DrawRectangle Color32, Rectangle, ParallelConfig: 35 459 038 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 11 819 678,55 (-951 831,70 / 92,55%)
+            //   #1  11 833 134 iterations in 2 000,00 ms. Adjusted: 11 833 132,82
+            //   #2  11 838 926 iterations in 2 000,00 ms. Adjusted: 11 838 925,41	 <---- Best
+            //   #3  11 786 978 iterations in 2 000,00 ms. Adjusted: 11 786 977,41	 <---- Worst
+            //   Worst-Best difference: 51 948,00 (0,44%)
+            // 4. DrawRectangle Pen, Rectangle: 34 824 288 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 11 608 095,23 (-1 163 415,01 / 90,89%)
+            //   #1  11 486 446 iterations in 2 000,00 ms. Adjusted: 11 486 445,43	 <---- Worst
+            //   #2  11 585 116 iterations in 2 000,00 ms. Adjusted: 11 585 114,84
+            //   #3  11 752 726 iterations in 2 000,00 ms. Adjusted: 11 752 725,41	 <---- Best
+            //   Worst-Best difference: 266 279,99 (2,32%)
+            // 5. DrawRectangle Color32, RectangleF: 29 448 677 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 9 816 225,34 (-2 955 284,90 / 76,86%)
+            //   #1  9 761 810 iterations in 2 000,00 ms. Adjusted: 9 761 809,51	 <---- Worst
+            //   #2  9 810 111 iterations in 2 000,00 ms. Adjusted: 9 810 110,51
+            //   #3  9 876 756 iterations in 2 000,00 ms. Adjusted: 9 876 756,00	 <---- Best
+            //   Worst-Best difference: 114 946,49 (1,18%)
+            // 6. DrawRectangle Pen, RectangleF: 26 669 052 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 8 889 682,81 (-3 881 827,43 / 69,61%)
+            //   #1  8 891 501 iterations in 2 000,00 ms. Adjusted: 8 891 500,56
+            //   #2  8 875 616 iterations in 2 000,00 ms. Adjusted: 8 875 615,11	 <---- Worst
+            //   #3  8 901 935 iterations in 2 000,00 ms. Adjusted: 8 901 932,77	 <---- Best
+            //   Worst-Best difference: 26 317,66 (0,30%)
+            // 7. DrawPath IAsyncContext: 18 478 297 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 6 159 431,82 (-6 612 078,42 / 48,23%)
+            //   #1  6 185 476 iterations in 2 000,00 ms. Adjusted: 6 185 475,38	 <---- Best
+            //   #2  6 184 433 iterations in 2 000,00 ms. Adjusted: 6 184 432,38
+            //   #3  6 108 388 iterations in 2 000,00 ms. Adjusted: 6 108 387,69	 <---- Worst
+            //   Worst-Best difference: 77 087,69 (1,26%)
+            // 8. DrawPath: 16 536 922 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 5 512 306,91 (-7 259 203,33 / 43,16%)
+            //   #1  4 856 357 iterations in 2 000,00 ms. Adjusted: 4 856 356,03	 <---- Worst
+            //   #2  5 866 668 iterations in 2 000,00 ms. Adjusted: 5 866 667,71	 <---- Best
+            //   #3  5 813 897 iterations in 2 000,00 ms. Adjusted: 5 813 897,00
+            //   Worst-Best difference: 1 010 311,68 (20,80%)
+        }
+
+        [Test]
+        public void DrawEllipseShortcutTest()
+        {
+            var rect = new Rectangle(1, 1, 10, 5);
+            RectangleF rectF = rect;
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
+
+            var path = new Path()
+                .AddEllipse(rectF);
+
+            Color32 color = Color.Blue;
+            var pen = new Pen(color);
+
+            var bounds = path.Bounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+            bitmapData.Clear(Color.Cyan);
+
+            new PerformanceTest { TestName = nameof(DrawEllipseShortcutTest), TestTime = 2000, Repeat = 3 }
+                .AddCase(() => bitmapData.DrawPath(pen, path, null), "DrawPath")
+                .AddCase(() => bitmapData.DrawPath(null, pen, path, null), "DrawPath IAsyncContext")
+                .AddCase(() => bitmapData.DrawEllipse(color, rect), "DrawEllipse Color32, Rectangle, DefaultContext")
+                .AddCase(() => bitmapData.DrawEllipse(color, rect, null, null), "DrawEllipse Color32, Rectangle, ParallelConfig")
+                .AddCase(() => bitmapData.DrawEllipse(null, color, rect), "DrawEllipse Color32, Rectangle, IAsyncContext")
+                .AddCase(() => bitmapData.DrawEllipse(pen, rect), "DrawEllipse Pen, Rectangle")
+                .AddCase(() => bitmapData.DrawEllipse(color, rectF), "DrawEllipse Color32, RectangleF")
+                .AddCase(() => bitmapData.DrawEllipse(pen, rectF), "DrawEllipse Pen, RectangleF")
+                .DoTest()
+                .DumpResults(Console.Out);
+
+             // ==[DrawEllipseShortcutTest (.NET Core 9.0.0-rc.2.24473.5) Results]================================================
+             //   Test Time: 2 000 ms
+             //   Warming up: Yes
+             //   Test cases: 8
+             //   Repeats: 3
+             //   Calling GC.Collect: Yes
+             //   Forced CPU Affinity: No
+             //   Cases are sorted by fulfilled iterations (the most first)
+             //   --------------------------------------------------
+             //   1. DrawEllipse Color32, Rectangle, IAsyncContext: 77 913 014 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 25 971 004,67
+             //     #1  26 058 791 iterations in 2 000,00 ms. Adjusted: 26 058 791,00	 <---- Best
+             //     #2  26 023 982 iterations in 2 000,00 ms. Adjusted: 26 023 982,00
+             //     #3  25 830 241 iterations in 2 000,00 ms. Adjusted: 25 830 241,00	 <---- Worst
+             //     Worst-Best difference: 228 550,00 (0,88%)
+             //   2. DrawEllipse Color32, Rectangle, DefaultContext: 77 162 276 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 25 720 758,24 (-250 246,43 / 99,04%)
+             //     #1  25 650 374 iterations in 2 000,00 ms. Adjusted: 25 650 374,00
+             //     #2  25 581 781 iterations in 2 000,00 ms. Adjusted: 25 581 779,72	 <---- Worst
+             //     #3  25 930 121 iterations in 2 000,00 ms. Adjusted: 25 930 121,00	 <---- Best
+             //     Worst-Best difference: 348 341,28 (1,36%)
+             //   3. DrawEllipse Color32, RectangleF: 69 196 205 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 23 065 401,28 (-2 905 603,38 / 88,81%)
+             //     #1  23 016 779 iterations in 2 000,00 ms. Adjusted: 23 016 777,85	 <---- Worst
+             //     #2  23 059 062 iterations in 2 000,00 ms. Adjusted: 23 059 062,00
+             //     #3  23 120 364 iterations in 2 000,00 ms. Adjusted: 23 120 364,00	 <---- Best
+             //     Worst-Best difference: 103 586,15 (0,45%)
+             //   4. DrawEllipse Color32, Rectangle, ParallelConfig: 65 499 201 iterations in 6 000,07 ms. Adjusted for 2 000 ms: 21 832 792,59 (-4 138 212,08 / 84,07%)
+             //     #1  21 664 244 iterations in 2 000,00 ms. Adjusted: 21 664 244,00	 <---- Worst
+             //     #2  21 881 239 iterations in 2 000,00 ms. Adjusted: 21 881 239,00
+             //     #3  21 953 718 iterations in 2 000,08 ms. Adjusted: 21 952 894,77	 <---- Best
+             //     Worst-Best difference: 288 650,77 (1,33%)
+             //   5. DrawEllipse Pen, Rectangle: 63 987 491 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 21 329 163,67 (-4 641 841,00 / 82,13%)
+             //     #1  21 378 263 iterations in 2 000,00 ms. Adjusted: 21 378 263,00	 <---- Best
+             //     #2  21 257 819 iterations in 2 000,00 ms. Adjusted: 21 257 819,00	 <---- Worst
+             //     #3  21 351 409 iterations in 2 000,00 ms. Adjusted: 21 351 409,00
+             //     Worst-Best difference: 120 444,00 (0,57%)
+             //   6. DrawEllipse Pen, RectangleF: 57 370 147 iterations in 6 000,19 ms. Adjusted for 2 000 ms: 19 122 774,68 (-6 848 229,98 / 73,63%)
+             //     #1  18 886 191 iterations in 2 000,00 ms. Adjusted: 18 886 191,00	 <---- Worst
+             //     #2  19 190 666 iterations in 2 000,19 ms. Adjusted: 19 188 844,02
+             //     #3  19 293 290 iterations in 2 000,00 ms. Adjusted: 19 293 289,04	 <---- Best
+             //     Worst-Best difference: 407 098,04 (2,16%)
+             //   7. DrawPath IAsyncContext: 18 079 540 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 6 026 512,23 (-19 944 492,44 / 23,20%)
+             //     #1  5 989 138 iterations in 2 000,00 ms. Adjusted: 5 989 135,90	 <---- Worst
+             //     #2  6 037 763 iterations in 2 000,00 ms. Adjusted: 6 037 763,00
+             //     #3  6 052 639 iterations in 2 000,00 ms. Adjusted: 6 052 637,79	 <---- Best
+             //     Worst-Best difference: 63 501,89 (1,06%)
+             //   8. DrawPath: 16 558 139 iterations in 6 000,04 ms. Adjusted for 2 000 ms: 5 519 346,00 (-20 451 658,67 / 21,25%)
+             //     #1  5 488 626 iterations in 2 000,04 ms. Adjusted: 5 488 526,66	 <---- Worst
+             //     #2  5 540 330 iterations in 2 000,00 ms. Adjusted: 5 540 329,45	 <---- Best
+             //     #3  5 529 183 iterations in 2 000,00 ms. Adjusted: 5 529 181,89
+             //     Worst-Best difference: 51 802,79 (0,94%)
+        }
+
+        [Test]
         public void FillRectangleShortcutTest()
         {
             var rect = new Rectangle(1, 1, 10, 10);

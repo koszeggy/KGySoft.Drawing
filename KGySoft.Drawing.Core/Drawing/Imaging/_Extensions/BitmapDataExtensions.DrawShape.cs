@@ -1031,6 +1031,339 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Ellipse
+
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        // Remarks:
+        // - When cannot do a shortcut, a Path is created internally. In such case DrawPath with caching may perform better.
+        // - When drawing, bounds right/bottom are inclusive, so zero width or height means 1 pixel wide/high bounds.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, DrawingOptions? drawingOptions = null)
+            => DrawEllipse(bitmapData, color, new Rectangle(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color);
+                return;
+            }
+
+            DoDrawEllipse(AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height, DrawingOptions? drawingOptions = null)
+            => DrawEllipse(bitmapData, color, new RectangleF(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color, drawingOptions?.PixelOffset ?? 0f);
+                return;
+            }
+
+            DoDrawEllipse(AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginDrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndDrawEllipse(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawEllipse));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawEllipse(bitmapData, bounds, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawEllipse(ctx, bitmapData, new Pen(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinEllipseDirect(bitmapData, bounds, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawEllipse(ctx, bitmapData, pen, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region Path
 
         // Remarks:
@@ -1150,7 +1483,7 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Line/s
+        #region DoDrawXXX
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawLine(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, DrawingOptions drawingOptions)
@@ -1164,17 +1497,13 @@ namespace KGySoft.Drawing.Imaging
         private static bool DoDrawLines(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions drawingOptions)
             => DoDrawPath(context, bitmapData, new Path(false).AddLines(points), pen, drawingOptions);
 
-        #endregion
-
-        #region Rectangle
-
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions drawingOptions)
             => DoDrawPath(context, bitmapData, new Path(false).AddRectangle(rectangle), pen, drawingOptions);
 
-        #endregion
-
-        #region Path
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoDrawEllipse(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions drawingOptions)
+            => DoDrawPath(context, bitmapData, new Path(false).AddEllipse(rectangle), pen, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions drawingOptions)

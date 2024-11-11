@@ -30,6 +30,7 @@
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
   + New DrawRectangle/BeginDrawRectangle/EndDrawRectangle/DrawRectangleAsync methods
   + New FillRectangle/BeginFillRectangle/EndFillRectangle/FillRectangleAsync methods
+  + New DrawEllipse/BeginDrawEllipse/EndDrawEllipse/DrawEllipseAsync methods
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================

@@ -1407,6 +1407,84 @@ namespace KGySoft.Drawing.Shapes
         internal void DrawThinRectangleDirect(IReadWriteBitmapData bitmapData, RectangleF rectangle, float offset)
             => DrawThinLinesDirect(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, offset);
 
+        internal void DrawThinEllipseDirect(IReadWriteBitmapData bitmapData, Rectangle bounds)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, ColorF.ToPColorF());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, ColorF);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, Color64.ToPColor64());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, Color64);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, Color32.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32);
+        }
+
+        internal void DrawThinEllipseDirect(IReadWriteBitmapData bitmapData, RectangleF bounds, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, ColorF, offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32, offset);
+        }
+
         internal bool FillRectangleDirect(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle)
         {
             rectangle.Intersect(new Rectangle(Point.Empty, bitmapData.Size));

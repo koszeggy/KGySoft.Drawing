@@ -178,71 +178,9 @@ namespace KGySoft.Drawing.Shapes
                 DrawEllipse(bitmapData, p1.X, p1.Y, p2.X, p2.Y, c, arg);
             }
 
-            internal static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, TArg arg = default!)
-            {
-                if (left > right)
-                    (left, right) = (right, left);
-                if (top > bottom)
-                    (top, bottom) = (bottom, top);
-                int width = right - left; // exclusive: the actual drawn width is width + 1
-                int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
-
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
-                long scaledWidth = widthSquared << 3;
-                long scaledHeight = heightSquared << 3;
-
-                var accessor = new TAccessor();
-                accessor.InitBitmapData(bitmapData, arg);
-                Size size = bitmapData.Size;
-
-                do
-                {
-                    SetPixel(right, top);
-                    SetPixel(left, top);
-                    SetPixel(left, bottom);
-                    SetPixel(right, bottom);
-                    long err2 = err << 1;
-                    if (err2 <= stepY)
-                    {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
-                    }
-
-                    if (err2 >= stepX || (err << 1) > stepY)
-                    {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
-                    }
-                } while (left <= right);
-
-                while (top - bottom <= height)
-                {
-                    SetPixel(left - 1, top);
-                    SetPixel(right + 1, top++);
-                    SetPixel(left - 1, bottom);
-                    SetPixel(right + 1, bottom--);
-                }
-
-                #region Local Methods
-
-                [MethodImpl(MethodImpl.AggressiveInlining)]
-                void SetPixel(int x, int y)
-                {
-                    if ((uint)x < (uint)size.Width && (uint)y < (uint)size.Height)
-                        accessor.SetColor(x, y, c);
-                }
-
-                #endregion
-            }
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
+                => DrawEllipse(bitmapData, bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, c, arg);
 
             internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
             {
@@ -335,6 +273,72 @@ namespace KGySoft.Drawing.Shapes
             {
                 return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
                     (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
+            }
+
+            private static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, TArg arg = default!)
+            {
+                if (left > right)
+                    (left, right) = (right, left);
+                if (top > bottom)
+                    (top, bottom) = (bottom, top);
+                int width = right - left; // exclusive: the actual drawn width is width + 1
+                int height = bottom - top; // exclusive: the actual drawn height is height + 1
+                int oddHeightCorrection = height & 1;
+                long widthSquared = width * width;
+                long heightSquared = height * height;
+                long stepX = ((1 - width) * heightSquared) << 2;
+                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
+                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+
+                top += (height + 1) >> 1;
+                bottom = top - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                var accessor = new TAccessor();
+                accessor.InitBitmapData(bitmapData, arg);
+                Size size = bitmapData.Size;
+
+                do
+                {
+                    SetPixel(right, top);
+                    SetPixel(left, top);
+                    SetPixel(left, bottom);
+                    SetPixel(right, bottom);
+                    long err2 = err << 1;
+                    if (err2 <= stepY)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        err += stepY += scaledWidth;
+                    }
+
+                    if (err2 >= stepX || (err << 1) > stepY)
+                    {
+                        left++;
+                        right--;
+                        err += stepX += scaledHeight;
+                    }
+                } while (left <= right);
+
+                while (top - bottom <= height)
+                {
+                    SetPixel(left - 1, top);
+                    SetPixel(right + 1, top++);
+                    SetPixel(left - 1, bottom);
+                    SetPixel(right + 1, bottom--);
+                }
+
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                void SetPixel(int x, int y)
+                {
+                    if ((uint)x < (uint)size.Width && (uint)y < (uint)size.Height)
+                        accessor.SetColor(x, y, c);
+                }
+
+                #endregion
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
@@ -648,6 +652,84 @@ namespace KGySoft.Drawing.Shapes
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, Color32 color, float offset)
             => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color, offset);
+
+        internal static void DrawEllipse(IReadWriteBitmapData bitmapData, Rectangle bounds, Color32 color)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, color.ToPColorF());
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, color.ToColorF());
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, color.ToPColor64());
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, color.ToColor64());
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, color.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(color));
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, color);
+        }
+
+        internal static void DrawEllipse(IReadWriteBitmapData bitmapData, RectangleF bounds, Color32 color, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, color, offset);
+        }
 
         internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
         {
