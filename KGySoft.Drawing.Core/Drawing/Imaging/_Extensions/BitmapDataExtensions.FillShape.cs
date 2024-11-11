@@ -374,6 +374,171 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Ellipse
+        // NOTE: Unlike the Rectangle methods, this section have no shortcuts because it wouldn't produce the same result as the Path-based fill,
+        // so most of the overloads are just for symmetry reasons.
+
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        // Remarks:
+        // - Fill overloads are here for symmetry with the Rectangle methods but there are no actual shortcuts for other filled shapes than rectangles.
+        //   If you fill the same shape with any brush repeatedly, use FillPath with caching for the best performance.
+        // - When filling, bounds right/bottom are exclusive, so zero width or height means no operation.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, DrawingOptions? drawingOptions = null)
+            => FillEllipse(bitmapData, color, new Rectangle(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillEllipse(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height, DrawingOptions? drawingOptions = null)
+            => FillEllipse(bitmapData, color, new RectangleF(x, y, width, height), drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillEllipse(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, Rectangle bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillEllipse(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, RectangleF bounds, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillEllipse(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginFillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillEllipse(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillEllipse(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions), asyncConfig);
+        }
+
+        public static bool EndFillEllipse(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginFillEllipse));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> FillEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillEllipse(ctx, bitmapData, new SolidBrush(color), bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillEllipseAsync(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillEllipseAsync(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillEllipse(ctx, bitmapData, brush, bounds, drawingOptions), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region Path
 
         // Remarks:
@@ -465,15 +630,15 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Rectangle
+        #region DoFillXXX
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, DrawingOptions drawingOptions)
             => DoFillPath(context, bitmapData, new Path(false).AddRectangle(rectangle), brush, drawingOptions);
 
-        #endregion
-
-        #region Path
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillEllipse(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddEllipse(rectangle), brush, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions)
