@@ -180,9 +180,10 @@ namespace KGySoft.Drawing.Shapes
                 startAngle += 360f;
 
             // The original code uses an array here but by using BitVector32 we can store the sectors in a single int, avoiding array allocation.
+            // Angles are not checked in the public methods, so this is a good place to do it because this method is called in the moment of drawing.
             var result = new BitVector32();
-            int startSector = (int)(startAngle / 90);
-            int endSector = (int)((startAngle + sweepAngle) / 90) & 3;
+            int startSector = checked((int)(startAngle / 90));
+            int endSector = checked((int)((startAngle + sweepAngle) / 90)) & 3;
 
             if (startSector == endSector)
                 result[Sectors[startSector]] = SectorStartEnd;

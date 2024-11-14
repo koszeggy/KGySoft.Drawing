@@ -84,8 +84,10 @@ namespace KGySoft.Drawing.Imaging
             {
                 Rectangle rect = Rectangle.Truncate(rectangle);
                 if (rect == rectangle)
+                {
                     DirectDrawer.FillRectangle(AsyncHelper.DefaultContext, bitmapData, rect, color);
-                return;
+                    return;
+                }
             }
 
             DoFillRectangle(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), rectangle, drawingOptions ?? DrawingOptions.Default);

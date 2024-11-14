@@ -167,7 +167,7 @@ namespace KGySoft.Drawing.Imaging
                         source = (TBitmapData)clipped.BitmapData;
                         Rectangle region = clipped.Region;
                         newRectangle.Offset(region.Location);
-                        newRectangle.Intersect(region);
+                        newRectangle = newRectangle.IntersectSafe(region);
                         continue;
                     case BitmapDataWrapper wrapper:
                         Debug.Fail("Wrapper has been leaked out, check call stack");

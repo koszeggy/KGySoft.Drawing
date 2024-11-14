@@ -95,6 +95,7 @@ namespace KGySoft.Drawing.Shapes
             float maxX = Single.MinValue;
             float maxY = Single.MinValue;
 
+            // the try-finally block is just because of the return
             try
             {
                 var orientations = new List<sbyte>();
@@ -131,8 +132,17 @@ namespace KGySoft.Drawing.Shapes
                     if (next >= count)
                         next -= count;
                     sbyte orientation = GetOrientation(lastPoint, points[i], points[next]);
-                    if (orientation == 0 && next != 0)
+
+                    if (orientation == 0 && next != 0
+                        // Skipping point only if the orientation is 0 also in a shifted order.
+                        // This prevents skipping false alarms at coordinates where float precision is less accurate (e.g. very long and thin widened lines).
+                        && GetOrientation(points[i], points[next], lastPoint) == 0
+                        // And if points[i] is between lastPoint and points[next]. This prevents skipping the last point before the direction changes.
+                        && points[i].X >= Math.Min(lastPoint.X, points[next].X) && points[i].X <= Math.Max(lastPoint.X, points[next].X)
+                        && points[i].Y >= Math.Min(lastPoint.Y, points[next].Y) && points[i].Y <= Math.Max(lastPoint.Y, points[next].Y))
+                    {
                         continue;
+                    }
 
                     result.Add(points[i]);
                     orientations.Add(orientation);
@@ -193,8 +203,12 @@ namespace KGySoft.Drawing.Shapes
                     DoOffset(result);
                 }
 
-                Bounds = Rectangle.FromLTRB((int)minX.TolerantFloor(Constants.EqualityTolerance), (int)minY.TolerantFloor(Constants.EqualityTolerance),
-                    (int)maxX.TolerantCeiling(Constants.EqualityTolerance), (int)maxY.TolerantCeiling(Constants.EqualityTolerance));
+                // For performance reasons there are no checks in the public Path.AddXXX methods (which actually allows transformations into the valid range before drawing),
+                // but here we throw an OverflowException for extreme cases.
+                // Not using Rectangle.FromLTRB because it allows overflow.
+                Bounds = checked(new Rectangle((int)minX.TolerantFloor(Constants.EqualityTolerance), (int)minY.TolerantFloor(Constants.EqualityTolerance),
+                    (int)(maxX - minX).TolerantCeiling(Constants.EqualityTolerance), (int)(maxY - minY).TolerantCeiling(Constants.EqualityTolerance)));
+
                 IsClosed = isClosed;
             }
         }

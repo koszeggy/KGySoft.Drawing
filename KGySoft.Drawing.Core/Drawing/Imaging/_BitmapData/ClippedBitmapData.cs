@@ -237,12 +237,12 @@ namespace KGySoft.Drawing.Imaging
             {
                 BitmapData = parent.BitmapData;
                 clippingRegion.Offset(parent.X, parent.Y);
-                clippingRegion.Intersect(parent.Region);
+                clippingRegion = clippingRegion.IntersectSafe(parent.Region);
             }
             else
             {
                 BitmapData = source;
-                clippingRegion.Intersect(new Rectangle(Point.Empty, source.Size));
+                clippingRegion = clippingRegion.IntersectSafe(new Rectangle(Point.Empty, source.Size));
             }
 
             if (clippingRegion.IsEmpty())

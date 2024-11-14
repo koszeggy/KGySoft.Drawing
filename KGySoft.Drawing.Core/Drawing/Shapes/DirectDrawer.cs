@@ -98,12 +98,12 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
+                long width = ((long)p2.X - p1.X).Abs();
+                long height = ((long)p2.Y - p1.Y).Abs();
 
-                if (width > height)
+                if (width >= height)
                 {
-                    int numerator = width >> 1;
+                    long numerator = width >> 1;
                     if (p1.X > p2.X)
                         (p1, p2) = (p2, p1);
                     int step = p2.Y > p1.Y ? 1 : -1;
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Shapes
                 }
                 else
                 {
-                    int numerator = height >> 1;
+                    long numerator = height >> 1;
                     if (p1.Y > p2.Y)
                         (p1, p2) = (p2, p1);
                     int step = p2.X > p1.X ? 1 : -1;
@@ -174,13 +174,94 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, float offset, TArg arg = default!)
             {
-                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
-                DrawEllipse(bitmapData, p1.X, p1.Y, p2.X, p2.Y, c, arg);
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
+                DrawEllipse(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), c, arg);
             }
 
-            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
-                => DrawEllipse(bitmapData, bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, c, arg);
+            {
+                int top = bounds.Top;
+                int left = bounds.Left;
+                int right = bounds.RightChecked();
+                int bottom = bounds.BottomChecked();
+                Size size = bitmapData.Size;
+
+                if (left > right)
+                    (left, right) = (right, left);
+                if (top > bottom)
+                    (top, bottom) = (bottom, top);
+                int width = right - left; // Not bounds.Width, because that can be negative. Exclusive: the actual drawn width is width + 1.
+                int height = bottom - top; // Not bounds.Height, because that can be negative. Exclusive: the actual drawn height is height + 1
+
+                if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
+                    return;
+
+                int oddHeightCorrection = height & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepX = 1L - width;
+                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                long stepY = (oddHeightCorrection + 1L) * widthSquared;
+                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                long err = oddHeightCorrection * widthSquared;
+                err = checked(stepX + stepY + err);
+
+                bottom = top + ((height + 1) >> 1);
+                top = bottom - oddHeightCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                var accessor = new TAccessor();
+                accessor.InitBitmapData(bitmapData, arg);
+
+                do
+                {
+                    SetPixel(left, top);
+                    SetPixel(right, top);
+                    SetPixel(left, bottom);
+                    SetPixel(right, bottom);
+                    long err2 = checked(err * 2);
+                    if (err2 <= stepY)
+                    {
+                        top -= 1;
+                        bottom += 1;
+                        stepY = checked(stepY + scaledWidth);
+                        err += stepY;
+                    }
+
+                    if (err2 >= stepX || err2 > stepY)
+                    {
+                        left += 1;
+                        right -= 1;
+                        stepX = checked(stepX + scaledHeight);
+                        err += stepX;
+                    }
+                } while (left <= right);
+
+                if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
+                    return;
+
+                while (bottom - top <= height)
+                {
+                    SetPixel(left - 1, top);
+                    SetPixel(right + 1, top);
+                    top -= 1;
+                    SetPixel(left - 1, bottom);
+                    SetPixel(right + 1, bottom);
+                    bottom += 1;
+                }
+
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                void SetPixel(int x, int y)
+                {
+                    if ((uint)x < (uint)size.Width && (uint)y < (uint)size.Height)
+                        accessor.SetColor(x, y, c);
+                }
+
+                #endregion
+            }
 
             internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
             {
@@ -271,74 +352,13 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
             {
-                return (new Point((int)(p1.X.RoundTo(roundingUnit) + offset), (int)(p1.Y.RoundTo(roundingUnit) + offset)),
-                    (new Point((int)(p2.X.RoundTo(roundingUnit) + offset), (int)(p2.Y.RoundTo(roundingUnit) + offset))));
-            }
+                p1.X = p1.X.RoundTo(roundingUnit) + offset;
+                p1.Y = p1.Y.RoundTo(roundingUnit) + offset;
+                p2.X = p2.X.RoundTo(roundingUnit) + offset;
+                p2.Y = p2.Y.RoundTo(roundingUnit) + offset;
 
-            private static void DrawEllipse(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom, TColor c, TArg arg = default!)
-            {
-                if (left > right)
-                    (left, right) = (right, left);
-                if (top > bottom)
-                    (top, bottom) = (bottom, top);
-                int width = right - left; // exclusive: the actual drawn width is width + 1
-                int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
-
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
-                long scaledWidth = widthSquared << 3;
-                long scaledHeight = heightSquared << 3;
-
-                var accessor = new TAccessor();
-                accessor.InitBitmapData(bitmapData, arg);
-                Size size = bitmapData.Size;
-
-                do
-                {
-                    SetPixel(right, top);
-                    SetPixel(left, top);
-                    SetPixel(left, bottom);
-                    SetPixel(right, bottom);
-                    long err2 = err << 1;
-                    if (err2 <= stepY)
-                    {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
-                    }
-
-                    if (err2 >= stepX || (err << 1) > stepY)
-                    {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
-                    }
-                } while (left <= right);
-
-                while (top - bottom <= height)
-                {
-                    SetPixel(left - 1, top);
-                    SetPixel(right + 1, top++);
-                    SetPixel(left - 1, bottom);
-                    SetPixel(right + 1, bottom--);
-                }
-
-                #region Local Methods
-
-                [MethodImpl(MethodImpl.AggressiveInlining)]
-                void SetPixel(int x, int y)
-                {
-                    if ((uint)x < (uint)size.Width && (uint)y < (uint)size.Height)
-                        accessor.SetColor(x, y, c);
-                }
-
-                #endregion
+                // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
+                return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
@@ -648,7 +668,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
-            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color);
+            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.RightChecked(), rectangle.BottomChecked()), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color);
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, Color32 color, float offset)
             => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color, offset);
@@ -733,7 +753,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
         {
-            rectangle.Intersect(new Rectangle(Point.Empty, bitmapData.Size));
+            rectangle = rectangle.IntersectSafe(new Rectangle(Point.Empty, bitmapData.Size));
             if (rectangle.IsEmpty())
                 return !context.IsCancellationRequested;
 

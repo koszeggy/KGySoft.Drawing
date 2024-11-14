@@ -1487,7 +1487,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal bool FillRectangleDirect(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle)
         {
-            rectangle.Intersect(new Rectangle(Point.Empty, bitmapData.Size));
+            rectangle = rectangle.IntersectSafe(new Rectangle(Point.Empty, bitmapData.Size));
             if (rectangle.IsEmpty())
                 return !context.IsCancellationRequested;
 

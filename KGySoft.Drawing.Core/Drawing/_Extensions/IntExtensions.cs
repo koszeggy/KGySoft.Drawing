@@ -77,7 +77,14 @@ namespace KGySoft.Drawing
         internal static int Abs(this int i)
         {
             // Math.Abs is still slower, even after the fix in https://github.com/dotnet/runtime/issues/24626
-            Debug.Assert(i != int.MinValue);
+            Debug.Assert(i != Int32.MinValue);
+            return i >= 0 ? i : -i;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static long Abs(this long i)
+        {
+            Debug.Assert(i != Int64.MinValue);
             return i >= 0 ? i : -i;
         }
 

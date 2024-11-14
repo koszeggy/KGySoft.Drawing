@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Shapes
         private TransformationMatrix transformation;
         private ShapeFillMode fillMode;
         private PixelOffset scanPathPixelOffset = Shapes.PixelOffset.Half;
-        private PixelOffset drawPathPixelOffset;
+        private PixelOffset drawPathPixelOffset = Shapes.PixelOffset.Half;
 
         #endregion
 
@@ -49,7 +49,7 @@ namespace KGySoft.Drawing.Shapes
         #region Properties
 
         #region Public Properties
-        
+
         // If not the identity matrix, it disables path region caching.
         // If you intend to use the same path with the same orientation, then apply the transformation to a cached Path instance, and use the identity matrix here instead.
         public TransformationMatrix Transformation
@@ -101,6 +101,13 @@ namespace KGySoft.Drawing.Shapes
         public IQuantizer? Quantizer { get; set; }
 
         public IDitherer? Ditherer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum pixel size to cache the region of a <see cref="Path"/> instance.
+        /// If the region has more pixels than this value, it will be re-scanned in each drawing session.
+        /// <br/>Default value: 16777216, which is 16 MB for anti-aliased regions or 2 MB for aliased regions.
+        /// </summary>
+        public long CacheRegionLimit { get; set; } = 1L << 24; // 16 MB
 
         #endregion
 
@@ -168,12 +175,14 @@ namespace KGySoft.Drawing.Shapes
                 && ScanPathPixelOffset == other.ScanPathPixelOffset
                 && DrawPathPixelOffset == other.DrawPathPixelOffset
                 && Quantizer == other.Quantizer
-                && Ditherer == other.Ditherer;
+                && Ditherer == other.Ditherer
+                && CacheRegionLimit == other.CacheRegionLimit;
         }
 
         public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is DrawingOptions other && Equals(other);
 
         // TODO: do combinations like in PenOptions
+        // CacheRegionLimit is not in hash code, which is intended
         public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, FillMode, ScanPathPixelOffset, DrawPathPixelOffset, Quantizer, Ditherer).GetHashCode();
 
         #endregion

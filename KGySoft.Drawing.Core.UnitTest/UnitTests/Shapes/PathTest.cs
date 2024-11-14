@@ -200,13 +200,16 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //["TetragonClose10", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             //["SelfCrossingStarClose01", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
             //["SelfCrossingStarClose10", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 10f],
-            ["Circle00_01", new Path().AddEllipse(new RectangleF(1, 1, 0, 0)), 1f],
-            ["Circle01_01", new Path().AddEllipse(new RectangleF(1, 1, 1, 1)), 1f],
-            ["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
-            ["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
-            ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
-            ["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
-            ["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
+            ["Rectangle00_01", new Path().AddRectangle(new RectangleF(0, 0, 0, 0)), 1f],
+            ["Rectangle01_01", new Path().AddRectangle(new RectangleF(0, 0, 1, 1)), 1f],
+            ["Rectangle10_01", new Path().AddRectangle(new RectangleF(0, 0, 10, 10)), 1f],
+            //["Circle00_01", new Path().AddEllipse(new RectangleF(1, 1, 0, 0)), 1f],
+            //["Circle01_01", new Path().AddEllipse(new RectangleF(1, 1, 1, 1)), 1f],
+            //["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
+            //["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
+            //["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
+            //["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
+            //["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
             // TODO: Pie
         ];
 
@@ -491,7 +494,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             IAsyncContext context = new SimpleContext(-1);
 
             foreach (bool antiAliasing in new[] { false, /*true*/ })
-            foreach (bool fastThinLines in new[] { /*false,*/ true })
+            foreach (bool fastThinLines in new[] { false, true })
             {
                 if (fastThinLines && (width > 1f || antiAliasing))
                     continue;
@@ -827,6 +830,124 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             bmp.Clear(Color.Cyan);
             bmp.DrawPath(new Pen(Color.Blue), path, options);
             SaveBitmapData($"{(antiAliased ? "AA" : "NA")}", bmp);
+        }
+
+        [Test]
+        public void EdgeCasesTest()
+        {
+            Color32 backColor = Color.Cyan;
+            Color32 color = Color.Blue;
+            using var bmp = BitmapDataFactory.CreateBitmapData(100, 100);
+            bmp.Clear(backColor);
+
+            var optionsNoFastThinLines = new DrawingOptions { FastThinLines = false };
+            var optionsTwoPassQuantizer = new DrawingOptions { Quantizer = OptimizedPaletteQuantizer.Wu() };
+
+            // Horizontal line from -∞ to +∞
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Single.NegativeInfinity, 1, Single.PositiveInfinity, 1)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Single.NegativeInfinity, 1, Single.PositiveInfinity, 1, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Single.NegativeInfinity, 1, Single.PositiveInfinity, 1))); // shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Single.NegativeInfinity, 1, Single.PositiveInfinity, 1), optionsNoFastThinLines)); // no shortcut, cache
+
+            // NaN
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Single.NaN, 1, 1, 1)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Single.NaN, 1, 1, 1, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Single.NaN, 1, 1, 1))); // shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Single.NaN, 1, 1, 1), optionsNoFastThinLines)); // no shortcut, cache
+
+            // Horizontal line from Int32.MinValue to Int32.MaxValue: direct shortcut is OK, but Path-drawing bounds are not (Bounds.Width overflows)
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, Int32.MinValue, 1, Int32.MaxValue, 1)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Int32.MinValue, 1, Int32.MaxValue, 1, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Int32.MinValue, 1, Int32.MaxValue, 1))); // shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Int32.MinValue, 1, Int32.MaxValue, 1), optionsNoFastThinLines)); // no shortcut, cache
+
+            // Diagonal line from Int32.MinValue to Int32.MaxValue: direct shortcut is OK, but Path-drawing bounds are not (Bounds.Width overflows)
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue)); // shortcut
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawLine(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue))); // shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddLine(Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue), optionsNoFastThinLines)); // no shortcut, cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, -1, -1, Int32.MaxValue - 127, Int32.MaxValue - 127, optionsNoFastThinLines)); // no shortcut, not cached due to size - note that result is not visible because the "widened" line is a very thin triangle, with equal p and q for the long sides.
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, -1, -1, UInt16.MaxValue, UInt16.MaxValue, optionsNoFastThinLines)); // no shortcut, not cached due to size
+
+            // DrawRectangle
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawRectangle(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawRectangle(color, Int32.MaxValue, Int32.MaxValue, Int32.MaxValue, Int32.MaxValue)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawRectangle(color, (float)(Int32.MaxValue - 127), (Int32.MaxValue - 127), (Int32.MaxValue - 127), (Int32.MaxValue - 127))); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.DrawRectangle(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, optionsNoFastThinLines)); // no shortcut, no cache: Int32.MaxValue + 1 is the closest float to Int32.MaxValue. The previous one is Int32.MaxValue - 127.
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawRectangle(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue - 127, Int32.MaxValue - 127, optionsNoFastThinLines)); // no shortcut, no cache: Int32.MaxValue + 1 is the closest float to Int32.MaxValue. The previous one is Int32.MaxValue - 127.
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddRectangle(Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue))); // shortcut, no cache
+            Assert.Throws<OverflowException>(() => bmp.DrawPath(color, new Path().AddRectangle(Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue), optionsNoFastThinLines)); // no shortcut, cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddRectangle(Int32.MinValue, Int32.MinValue, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsNoFastThinLines)); // no shortcut, no cache due to size
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddRectangle(0, 0, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsNoFastThinLines)); // no shortcut, no cache due to size, visible part is drawn
+
+            // FillRectangle
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.FillRectangle(color, 1, 1, Int32.MaxValue, Int32.MaxValue)); // shortcut
+            Assert.Throws<OverflowException>(() => bmp.FillRectangle(color, 1.5f, 1.5f, Int32.MaxValue, Int32.MaxValue)); // no shortcut, no cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.FillRectangle(color, 1.5f, 1.5f, Int32.MaxValue - 127, Int32.MaxValue - 127)); // no shortcut, no cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.FillPath(color, new Path().AddRectangle(1, 1, Int32.MaxValue - 127, Int32.MaxValue - 127))); // no shortcut, no cache due to size, visible part is drawn
+
+            // DrawEllipse/Arc
+            Assert.Throws<OverflowException>(() => bmp.DrawEllipse(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue)); // shortcut, not visible
+            Assert.Throws<OverflowException>(() => bmp.DrawEllipse(color, 0, 0, Int32.MaxValue / 2343, 916_552)); // shortcut, not visible
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 0, 916_396, 916_395)); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344]
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 5, Int32.MaxValue / 2, 0)); // shortcut, visible part is drawn - very slow!
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 5, 0, 1, Int32.MaxValue / 2)); // shortcut, visible part is drawn - very slow!
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 0, 916_396, 916_395))); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344]
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 5, Int32.MaxValue >> 1, 0))); // shortcut, visible part is drawn - it would throw if it called DrawEllipse with the rounded float bounds
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(5, 0, 1, Int32.MaxValue >> 1))); // shortcut, visible part is drawn - it would throw if it called DrawEllipse with the rounded float bounds
+            Assert.Throws<OverflowException>(() => bmp.DrawEllipse(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, optionsNoFastThinLines)); // no shortcut, no cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 10, Int32.MaxValue, 10)); // shortcut, visible part is drawn
+            Assert.Throws<OverflowException>(() => bmp.DrawEllipse(color, 0, 10, Int32.MaxValue, 10, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 0, 916_396, 916_395, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 5, Int32.MaxValue / 2, 0, optionsNoFastThinLines)); // no shortcut, no cache
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 5, 0, 1, Int32.MaxValue / 2, optionsNoFastThinLines)); // no shortcut, no cache
+
+            // DrawArc // TODO
+            //bmp.Clear(backColor);
+            //Assert.DoesNotThrow(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, 0, 270)); // shortcut, not visible
+            //Assert.Throws<OverflowException>(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, 0, 270, optionsNoFastThinLines)); // no shortcut, no cache
+            //Assert.Throws<OverflowException>(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, Single.NaN, 270)); // shortcut
+            //Assert.Throws<OverflowException>(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, 0, Single.NaN)); // shortcut
+            //Assert.Throws<OverflowException>(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, Single.PositiveInfinity, 90)); // shortcut
+            //Assert.DoesNotThrow(() => bmp.DrawArc(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, 90, Single.PositiveInfinity)); // shortcut
+            //bmp.Clear(backColor);
+            //Assert.DoesNotThrow(() => bmp.DrawArc(color, 0, 10, Int32.MaxValue, 10, 90, 90)); // shortcut, visible part is drawn
+            //Assert.Throws<OverflowException>(() => bmp.DrawArc(color, 0, 10, Int32.MaxValue, 10, 90, 90, optionsNoFastThinLines)); // no shortcut, no cache
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.FillPath(color, new Path().AddArc(1, 1, Int32.MaxValue - 127, 10, 90, 90))); // no shortcut, no cache due to size, visible part is drawn
+
+            // Mandatory region for two-pass processing
+            Assert.DoesNotThrow(() => bmp.FillPath(color, new Path().AddRectangle(1, 1, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddRectangle(1, 1, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawRectangle(color, 1, 1, Int32.MaxValue - 127, Int32.MaxValue - 127, optionsTwoPassQuantizer)); // no shortcut, no cache, visible part is drawn
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawLine(color, -1, -1, Int32.MaxValue - 127, Int32.MaxValue - 127, optionsTwoPassQuantizer)); // no shortcut, no cache, visible part is drawn
+            Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 1, 10, Int32.MaxValue - 127, 10, optionsTwoPassQuantizer)); // no shortcut, no cache, visible part is drawn
+            Assert.DoesNotThrow(() => bmp.DrawArc(color, 0, 20, Int32.MaxValue, 10, 90, 90, optionsTwoPassQuantizer)); // no shortcut, no cache, visible part is drawn
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddLine(-1, -1, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(1, 10, Int32.MaxValue - 127, 10), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(1, 10, Int32.MaxValue - 127, 10), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddArc(1, 20, Int32.MaxValue - 127, 10, 90, 90), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+
+            ;
+            // TODO: NaN, Bezier, FillRectangle with[out] caching
+            throw null;
         }
 
         #endregion

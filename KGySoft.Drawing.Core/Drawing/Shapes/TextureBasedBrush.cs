@@ -1284,12 +1284,12 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
+                long width = (p2.X - p1.X).Abs();
+                long height = (p2.Y - p1.Y).Abs();
 
-                if (width > height)
+                if (width >= height)
                 {
-                    int numerator = width >> 1;
+                    long numerator = width >> 1;
                     if (p1.X > p2.X)
                         (p1, p2) = (p2, p1);
                     int step = p2.Y > p1.Y ? 1 : -1;
@@ -1328,7 +1328,7 @@ namespace KGySoft.Drawing.Shapes
                 }
                 else
                 {
-                    int numerator = height >> 1;
+                    long numerator = height >> 1;
                     if (p1.Y > p2.Y)
                         (p1, p2) = (p2, p1);
                     int step = p2.X > p1.X ? 1 : -1;
@@ -1370,56 +1370,70 @@ namespace KGySoft.Drawing.Shapes
             internal override void DrawEllipse(RectangleF bounds)
             {
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
+                Size size = BitmapData.Size;
+
                 (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
-
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
 
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
+                if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
+                    return;
+
+                int oddHeightCorrection = height & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepX = 1L - width;
+                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                long stepY = (oddHeightCorrection + 1L) * widthSquared;
+                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                long err = oddHeightCorrection * widthSquared;
+                err = checked(stepX + stepY + err);
+
+                bottom = top + ((height + 1) >> 1);
+                top = bottom - oddHeightCorrection;
                 long scaledWidth = widthSquared << 3;
                 long scaledHeight = heightSquared << 3;
 
                 TMapper map = mapper;
                 TAccessor accSrc = accessorSrc;
                 TAccessor accDst = accessorDst;
-                Size size = BitmapData.Size;
 
                 do
                 {
-                    SetPixel(right, top);
                     SetPixel(left, top);
+                    SetPixel(right, top);
                     SetPixel(left, bottom);
                     SetPixel(right, bottom);
-                    long err2 = err << 1;
+                    long err2 = checked(err * 2);
                     if (err2 <= stepY)
                     {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
+                        top -= 1;
+                        bottom += 1;
+                        stepY = checked(stepY + scaledWidth);
+                        err += stepY;
                     }
 
-                    if (err2 >= stepX || (err << 1) > stepY)
+                    if (err2 >= stepX || err2 > stepY)
                     {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
+                        left += 1;
+                        right -= 1;
+                        stepX = checked(stepX + scaledHeight);
+                        err += stepX;
                     }
                 } while (left <= right);
 
-                while (top - bottom <= height)
+                if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
+                    return;
+
+                while (bottom - top <= height)
                 {
                     SetPixel(left - 1, top);
-                    SetPixel(right + 1, top++);
+                    SetPixel(right + 1, top);
+                    top -= 1;
                     SetPixel(left - 1, bottom);
-                    SetPixel(right + 1, bottom--);
+                    SetPixel(right + 1, bottom);
+                    bottom += 1;
                 }
 
                 #region Local Methods

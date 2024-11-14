@@ -53,6 +53,7 @@ namespace KGySoft.Drawing.Imaging
 
         // Remarks:
         // - When cannot do a shortcut, a Path is created internally. In such case DrawPath with caching may perform better.
+        // - Possible OverflowException when a Path is created internally and bounds.With overflows.
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, int x1, int y1, int x2, int y2, DrawingOptions? drawingOptions = null)
             => DrawLine(bitmapData, color, new Point(x1, y1), new Point(x2, y2), drawingOptions);
@@ -73,6 +74,8 @@ namespace KGySoft.Drawing.Imaging
             DoDrawLine(AsyncHelper.DefaultContext, bitmapData, new Pen(color), p1, p2, drawingOptions ?? DrawingOptions.Default);
         }
 
+        // Remarks:
+        // - Possible OverflowException
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, float x1, float y1, float x2, float y2, DrawingOptions? drawingOptions = null)
             => DrawLine(bitmapData, color, new PointF(x1, y1), new PointF(x2, y2), drawingOptions);

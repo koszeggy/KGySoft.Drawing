@@ -1625,8 +1625,9 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
+                // NOTE: Unlike in DirectDrawer, rounding is not in a checked context here, because RawPath is already validated.
                 return (new Point((int)(p1.X.RoundTo(roundingUnit) + PixelOffset), (int)(p1.Y.RoundTo(roundingUnit) + PixelOffset)),
-                    (new Point((int)(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)(p2.Y.RoundTo(roundingUnit) + PixelOffset))));
+                    new Point((int)(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)(p2.Y.RoundTo(roundingUnit) + PixelOffset)));
             }
 
             #endregion
@@ -1658,19 +1659,24 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(!Region!.IsAntiAliased);
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(start, end);
-                Size offset = RawPath.Bounds.Location.AsSize();
+                var offset = Region.Bounds.Location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
+                Size size = Region.Bounds.Size;
 
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
                 {
+                    if ((uint)p1.Y >= (uint)(size.Height))
+                        return;
+
                     ArraySection<byte> row = mask[p1.Y];
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
-                    // TODO: optimize if possible
-                    for (int x = p1.X; x <= p2.X; x++)
+                    int max = Math.Min(p2.X, size.Width - 1);
+                    for (int x = Math.Max(p1.X, 0); x <= max; x++)
+                        // TODO: optimize if possible
                         ColorExtensions.Set1bppColorIndex(ref row.GetElementReferenceUnchecked(x >> 3), x, 1);
 
                     return;
@@ -1679,57 +1685,89 @@ namespace KGySoft.Drawing.Shapes
                 // vertical line
                 if (p1.X == p2.X)
                 {
+                    if ((uint)p1.X >= (uint)(size.Width))
+                        return;
+
                     int maskPos = p1.X >> 3;
                     if (p1.Y > p2.Y)
                         (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
-                    for (int y = p1.Y; y <= p2.Y; y++)
+                    int max = Math.Min(p2.Y, size.Height - 1);
+                    for (int y = Math.Max(p1.Y, 0); y <= max; y++)
                         ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), p1.X, 1);
                     return;
                 }
 
                 // general line
-                int width = (p2.X - p1.X).Abs();
-                int height = (p2.Y - p1.Y).Abs();
-                int numerator;
-                int step;
+                long width = (p2.X - p1.X).Abs();
+                long height = (p2.Y - p1.Y).Abs();
 
-                if (width > height)
+                if (width >= height)
                 {
-                    numerator = width >> 1;
+                    long numerator = width >> 1;
                     if (p1.X > p2.X)
                         (p1, p2) = (p2, p1);
-                    step = p2.Y > p1.Y ? 1 : -1;
+                    int step = p2.Y > p1.Y ? 1 : -1;
+                    int x = p1.X;
                     int y = p1.Y;
-                    for (int x = p1.X; x <= p2.X; x++)
+
+                    // skipping invisible X coordinates
+                    if (x < 0)
                     {
-                        Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        numerator = (numerator - height * x) % width;
+                        y -= x * step;
+                        x = 0;
+                    }
+
+                    int endX = Math.Min(p2.X, size.Width - 1);
+                    int offY = step > 0 ? Math.Min(p2.Y, size.Height - 1) + 1 : Math.Max(p2.Y, 0) - 1;
+                    for (; x <= endX; x++)
+                    {
+                        // Drawing only if Y is visible
+                        if ((uint)y < (uint)size.Height)
+                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
                         numerator += height;
                         if (numerator < width)
                             continue;
 
                         y += step;
+                        if (y == offY)
+                            return;
                         numerator -= width;
                     }
                 }
                 else
                 {
-                    numerator = height >> 1;
+                    long numerator = height >> 1;
                     if (p1.Y > p2.Y)
                         (p1, p2) = (p2, p1);
-                    step = p2.X > p1.X ? 1 : -1;
+                    int step = p2.X > p1.X ? 1 : -1;
                     int x = p1.X;
-                    for (int y = p1.Y; y <= p2.Y; y++)
+                    int y = p1.Y;
+
+                    // skipping invisible Y coordinates
+                    if (y < 0)
                     {
-                        Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        numerator = (numerator - width * y) % height;
+                        x -= y * step;
+                        y = 0;
+                    }
+
+                    int endY = Math.Min(p2.Y, size.Height - 1);
+                    int offX = step > 0 ? Math.Min(p2.X, size.Width - 1) + 1 : Math.Max(p2.X, 0) - 1;
+                    for (; y <= endY; y++)
+                    {
+                        // Drawing only if X is visible
+                        if ((uint)x < (uint)size.Width)
+                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
                         numerator += width;
                         if (numerator < height)
                             continue;
-                        
-                        numerator -= height;
+
                         x += step;
+                        if (x == offX)
+                            return;
+                        numerator -= height;
                     }
                 }
             }
@@ -1738,71 +1776,88 @@ namespace KGySoft.Drawing.Shapes
             // Main changes: converting to C#, correcting types, more descriptive variable names, and using the ColorExtensions.Set1bppColorIndex method.
             internal override void DrawEllipse(RectangleF bounds)
             {
-                #region Local Methods
-
-                [MethodImpl(MethodImpl.AggressiveInlining)]
-                static void SetPixel(int x, int y, in Array2D<byte> mask)
-                {
-                    Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
-                }
-
-                #endregion
-
                 Debug.Assert(!Region!.IsAntiAliased);
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
-                Size offset = RawPath.Bounds.Location.AsSize();
+                Size offset = Region.Bounds.Location.AsSize();
+
                 p1 -= offset;
                 p2 -= offset;
+                Size size = Region.Bounds.Size;
 
                 (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
-
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
 
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
+                if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
+                    return;
+
+                int oddHeightCorrection = height & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepX = 1L - width;
+                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                long stepY = (oddHeightCorrection + 1L) * widthSquared;
+                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                long err = oddHeightCorrection * widthSquared;
+                err = checked(stepX + stepY + err);
+
+                bottom = top + ((height + 1) >> 1);
+                top = bottom - oddHeightCorrection;
                 long scaledWidth = widthSquared << 3;
                 long scaledHeight = heightSquared << 3;
 
                 do
                 {
-                    SetPixel(right, top, mask);
-                    SetPixel(left, top, mask);
-                    SetPixel(left, bottom, mask);
-                    SetPixel(right, bottom, mask);
-                    long err2 = err << 1;
+                    SetPixel(left, top);
+                    SetPixel(right, top);
+                    SetPixel(left, bottom);
+                    SetPixel(right, bottom);
+                    long err2 = checked(err * 2);
                     if (err2 <= stepY)
                     {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
+                        top -= 1;
+                        bottom += 1;
+                        stepY = checked(stepY + scaledWidth);
+                        err += stepY;
                     }
 
-                    if (err2 >= stepX || (err << 1) > stepY)
+                    if (err2 >= stepX || err2 > stepY)
                     {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
+                        left += 1;
+                        right -= 1;
+                        stepX = checked(stepX + scaledHeight);
+                        err += stepX;
                     }
                 } while (left <= right);
 
-                while (top - bottom <= height)
+                if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
+                    return;
+
+                while (bottom - top <= height)
                 {
-                    SetPixel(left - 1, top, mask);
-                    SetPixel(right + 1, top++, mask);
-                    SetPixel(left - 1, bottom, mask);
-                    SetPixel(right + 1, bottom--, mask);
+                    SetPixel(left - 1, top);
+                    SetPixel(right + 1, top);
+                    top -= 1;
+                    SetPixel(left - 1, bottom);
+                    SetPixel(right + 1, bottom);
+                    bottom += 1;
                 }
+
+                #region Local Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                void SetPixel(int x, int y)
+                {
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
+                        return;
+                    Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
+                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                }
+
+                #endregion
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
@@ -2447,13 +2502,13 @@ namespace KGySoft.Drawing.Shapes
         internal bool FillRawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, DrawingOptions drawingOptions, bool cache)
         {
             Rectangle pathBounds = rawPath.Bounds;
-            Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
+            Rectangle visibleBounds = pathBounds.IntersectSafe(new Rectangle(Point.Empty, bitmapData.Size));
 
             if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
                 return !context.IsCancellationRequested;
 
             Region? region = null;
-            if (cache)
+            if (cache && (long)pathBounds.Width * pathBounds.Height <= drawingOptions.CacheRegionLimit)
             {
                 region = rawPath.GetCreateCachedRegion(drawingOptions);
 
@@ -2511,7 +2566,7 @@ namespace KGySoft.Drawing.Shapes
 
             RawPath rawPath = path.RawPath;
             Rectangle pathBounds = rawPath.DrawOutlineBounds;
-            Rectangle visibleBounds = Rectangle.Intersect(pathBounds, new Rectangle(Point.Empty, bitmapData.Size));
+            Rectangle visibleBounds = pathBounds.IntersectSafe(new Rectangle(Point.Empty, bitmapData.Size));
 
             if (visibleBounds.IsEmpty() || context.IsCancellationRequested)
                 return !context.IsCancellationRequested;
@@ -2519,7 +2574,9 @@ namespace KGySoft.Drawing.Shapes
             Region? region = null;
             if (NeedsRegion())
             {
-                region = rawPath.GetCreateCachedRegion(drawingOptions, true);
+                region = cache && (long)pathBounds.Width * pathBounds.Height <= drawingOptions.CacheRegionLimit
+                    ? rawPath.GetCreateCachedRegion(drawingOptions, true)
+                    : new Region(visibleBounds, drawingOptions.AntiAliasing);
 
                 // If we already have a generated region, we just re-apply it
                 if (region.IsGenerated)
@@ -2606,8 +2663,8 @@ namespace KGySoft.Drawing.Shapes
                 if (rawPath.TotalVertices < bitmapData.Width + bitmapData.Height)
                     return false;
 
-                // Returning true only if the path is expected to be re-used.
-                return cache;
+                // Returning true only if the path is expected to be re-used, and the region is not too big.
+                return cache && (long)pathBounds.Width * pathBounds.Height <= drawingOptions.CacheRegionLimit;
             }
 
             #endregion
