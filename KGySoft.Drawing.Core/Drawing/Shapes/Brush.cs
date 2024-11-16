@@ -1790,6 +1790,7 @@ namespace KGySoft.Drawing.Shapes
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
 
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
 
@@ -1797,11 +1798,11 @@ namespace KGySoft.Drawing.Shapes
                 long widthSquared = (long)width * width;
                 long heightSquared = (long)height * height;
                 long stepX = 1L - width;
-                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                stepX = (stepX * heightSquared) << 2; // should be checked(stepX * heightSquared * 4) if height could be larger than 916395
                 long stepY = (oddHeightCorrection + 1L) * widthSquared;
-                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                stepY <<= 2; // should be checked(stepY * 4) if width could be larger than 916396
                 long err = oddHeightCorrection * widthSquared;
-                err = checked(stepX + stepY + err);
+                err += stepX + stepY; //  should be checked(stepX + stepY + err) if size could be larger than 916396 x 916395
 
                 bottom = top + ((height + 1) >> 1);
                 top = bottom - oddHeightCorrection;
@@ -1815,12 +1816,12 @@ namespace KGySoft.Drawing.Shapes
                     SetPixel(left, bottom);
                     SetPixel(right, bottom);
 
-                    long err2 = checked(err * 2);
+                    long err2 = err << 1; //should be checked(err * 2) if size could be larger than 916396 x 916395
                     if (err2 <= stepY)
                     {
                         top -= 1;
                         bottom += 1;
-                        stepY = checked(stepY + scaledWidth);
+                        stepY += scaledWidth; //should be checked(stepY + scaledWidth) if width could be larger than 916396
                         err += stepY;
                     }
 
@@ -1828,7 +1829,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         left += 1;
                         right -= 1;
-                        stepX = checked(stepX + scaledHeight);
+                        stepX += scaledHeight; //should be checked(stepX + scaledHeight) if height could be larger than 916395
                         err += stepX;
                     }
                 } while (left <= right);
@@ -1879,6 +1880,7 @@ namespace KGySoft.Drawing.Shapes
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
 
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
 
@@ -1886,11 +1888,11 @@ namespace KGySoft.Drawing.Shapes
                 long widthSquared = (long)width * width;
                 long heightSquared = (long)height * height;
                 long stepX = 1L - width;
-                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                stepX = (stepX * heightSquared) << 2; // should be checked(stepX * heightSquared * 4) if height could be larger than 916395
                 long stepY = (oddHeightCorrection + 1L) * widthSquared;
-                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                stepY <<= 2; // should be checked(stepY * 4) if width could be larger than 916396
                 long err = oddHeightCorrection * widthSquared;
-                err = checked(stepX + stepY + err);
+                err += stepX + stepY; //  should be checked(stepX + stepY + err) if size could be larger than 916396 x 916395
 
                 bottom = top + ((height + 1) >> 1);
                 top = bottom - oddHeightCorrection;
@@ -1917,12 +1919,12 @@ namespace KGySoft.Drawing.Shapes
                     SetPixel(left, top, 2);
                     SetPixel(right, top, 3);
 
-                    long err2 = checked(err * 2);
+                    long err2 = err << 1; //should be checked(err * 2) if size could be larger than 916396 x 916395
                     if (err2 <= stepY)
                     {
                         top -= 1;
                         bottom += 1;
-                        stepY = checked(stepY + scaledWidth);
+                        stepY += scaledWidth; //should be checked(stepY + scaledWidth) if width could be larger than 916396
                         err += stepY;
                     }
 
@@ -1930,7 +1932,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         left += 1;
                         right -= 1;
-                        stepX = checked(stepX + scaledHeight);
+                        stepX += scaledHeight; //should be checked(stepX + scaledHeight) if height could be larger than 916395
                         err += stepX;
                     }
                 } while (left <= right);

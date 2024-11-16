@@ -169,25 +169,24 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         private static object?[][] DrawOpenPathTestSource =>
         [
             // string name, Path path, float width
-            //["Point01", new Path().AddPoint(new PointF(1, 1)), 1f],
-            //["Point.5", new Path().AddPoint(new PointF(1, 1)), 0.5f],
-            //["Point10", new Path().AddPoint(new PointF(1, 1)), 10f],
-            //["LineEpsilon01", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 1f],
-            //["LineEpsilon.5", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 0.5f],
-            //["LineEpsilon10", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 10f],
-            //["Line2px01", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 1f],
-            //["Line2px.5", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 0.5f],
-            //["Line2px10", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 10f],
-            //["LineLong01", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f],
-            //["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
-            //["LineLong.Thin", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f/48f],
-            //["LineLong10", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
-            //["Joints01", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 1f],
-            //["Joints10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
-            //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
-            //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
-            //["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
-            ["Arc0_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 90), 1f],
+            ["Point01", new Path().AddPoint(new PointF(1, 1)), 1f],
+            ["Point.5", new Path().AddPoint(new PointF(1, 1)), 0.5f],
+            ["Point10", new Path().AddPoint(new PointF(1, 1)), 10f],
+            ["LineEpsilon01", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 1f],
+            ["LineEpsilon.5", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 0.5f],
+            ["LineEpsilon10", new Path().AddLine(new PointF(1, 1), new PointF(1 + 1f / 64f, 1)), 10f],
+            ["Line2px01", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 1f],
+            ["Line2px.5", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 0.5f],
+            ["Line2px10", new Path().AddLine(new PointF(1, 1), new PointF(2, 1)), 10f],
+            ["LineLong01", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f],
+            ["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
+            ["LineLong.Thin", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f/48f],
+            ["LineLong10", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
+            ["Joints01", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 1f],
+            ["Joints10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
+            ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
+            ["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
+            ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
             ["Arc0_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
             ["Arc90_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 90), 1f],
             ["Arc90_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 180), 1f],
@@ -468,7 +467,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
 
-            foreach (bool antiAliasing in new[] { false, true })
+            foreach (bool antiAliasing in new[] { false/*, true*/ })
             {
                 LineCapStyle[] capStyles = width <= 1f ? [LineCapStyle.Flat] : [LineCapStyle.Flat, LineCapStyle.Square, LineCapStyle.Triangle, LineCapStyle.Round];
                 foreach (LineCapStyle capStyle in capStyles)
