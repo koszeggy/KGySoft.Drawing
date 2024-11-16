@@ -187,9 +187,14 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             //["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
             //["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
-            ["Arc45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 45), 1f],
-            ["Arc-45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, -45), 1f],
-            ["NegArc45Deg01", new Path().AddArc(new RectangleF(99, 49, -98, -48), 0, 45), 1f],
+            ["Arc0_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 90), 1f],
+            ["Arc0_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
+            ["Arc90_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 90), 1f],
+            ["Arc90_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 180), 1f],
+            ["Arc270_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 270, 90), 1f],
+            ["Arc270_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 270, 180), 1f],
+            ["Arc0_45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 45), 1f],
+            ["Arc0-45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, -45), 1f],
             // TODO: Bezier types
         ];
 

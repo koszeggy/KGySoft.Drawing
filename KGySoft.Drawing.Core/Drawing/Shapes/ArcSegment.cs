@@ -190,6 +190,7 @@ namespace KGySoft.Drawing.Shapes
         // Returns the sectors where the arc should be drawn. The idea is taken from https://www.scattergood.io/arc-drawing-algorithm/
         // It prevents the Atan2 calculation for each point of the arc.
         // The original circle drawing code uses 8 sectors but when generalizing it for ellipses we should use 4.
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "That's one of the reasons why we use degrees instead of radians here.")]
         internal static BitVector32 GetSectors(float startAngle, float sweepAngle)
         {
             // For NaN an OverflowException is thrown at the checked block; otherwise, we expect normalized angles here.
@@ -199,16 +200,19 @@ namespace KGySoft.Drawing.Shapes
             // Angles are not checked in the public methods, so this is a good place to do it because this method is called in the moment of drawing.
             var result = new BitVector32();
             int startSector = checked((int)(startAngle / 90));
-            int endSector = checked((int)((startAngle + sweepAngle) / 90)) & 3;
+            float endAngle = startAngle + sweepAngle;
+            if (endAngle >= 360f)
+                endAngle -= 360f;
+            int endSector = checked((int)(endAngle / 90));
 
             if (startSector == endSector)
                 result[Sectors[startSector]] = SectorStartEnd;
             else
             {
-                for (int i = startSector + 1; i < endSector; i++)
+                result[Sectors[startSector]] = startAngle == startSector * 90f ? SectorFullyDrawn : SectorStart;
+                for (int i = (startSector + 1) & 3; i != endSector; i = (i + 1) & 3)
                     result[Sectors[i]] = SectorFullyDrawn;
-                result[Sectors[startSector]] = SectorStart;
-                result[Sectors[endSector]] = SectorEnd;
+                result[Sectors[endSector]] = endAngle == endSector * 90f ? SectorNotDrawn : SectorEnd;
             }
 
             return result;
