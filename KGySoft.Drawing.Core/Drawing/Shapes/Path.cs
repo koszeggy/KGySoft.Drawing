@@ -301,7 +301,6 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        // TODO: IEnumerable
         public Path AddBeziers(params PointF[] points)
         {
             if (points == null)
@@ -616,6 +615,15 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Internal Methods
+
+        internal Path AddBeziers(List<PointF> points)
+        {
+            Debug.Assert(points.Count == 0 || (points.Count - 1) % 3 == 0);
+            if (points.Count == 0)
+                return this;
+            AddSegment(new BezierSegment(points));
+            return this;
+        }
 
         // Gets the path segments, connecting the open segments if needed.
         internal List<PathSegment> GetSegments()

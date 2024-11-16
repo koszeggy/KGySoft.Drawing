@@ -17,6 +17,8 @@
 
 #region Usings
 
+using System.Drawing.Imaging;
+
 #region Used Namespaces
 
 using System;
@@ -35,7 +37,6 @@ using NUnit.Framework;
 
 using Brush = KGySoft.Drawing.Shapes.Brush;
 using Pen = KGySoft.Drawing.Shapes.Pen;
-using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush; // TODO: remove these, use public factories
 
 #endregion
 
@@ -187,33 +188,40 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
             ["SelfCrossingStarOpen_01", new Path().AddLines(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
             ["SelfCrossingStarOpen_10", new Path().AddLines(new(60, 10), new(90, 100), new(12, 45), new(108, 45), new(31, 100)), 10f],
+            ["Bezier0", new Path().AddBeziers(), 1f],
+            ["Bezier1", new Path().AddBeziers(new PointF(1, 1)), 1f],
+            ["BezierS", new Path().AddBezier(new PointF(0, 100), new PointF(50, 100), new PointF(50, 0), new PointF(100, 0)), 1f],
+            ["BezierC", new Path().AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0)), 1f],
+            ["BezierZ", new Path().AddBezier(new PointF(0, 100), new PointF(100, 50), new PointF(0, 50), new PointF(100, 0)), 1f],
+            ["BezierL", new Path().AddBezier(new PointF(0, 100), new PointF(100, 50), new PointF(0, 0), new PointF(50, 100)), 1f],
+            ["BezierN", new Path().AddBezier(new PointF(0, 100), new PointF(100, 0), new PointF(0, 0), new PointF(100, 100)), 1f],
             ["Arc0_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
+            ["Arc0_180Deg10", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 180), 10f],
             ["Arc90_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 90), 1f],
             ["Arc90_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 90, 180), 1f],
             ["Arc270_90Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 270, 90), 1f],
             ["Arc270_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 270, 180), 1f],
             ["Arc0_45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 45), 1f],
             ["Arc0-45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, -45), 1f],
-            // TODO: Bezier types
         ];
 
         private static object?[][] DrawClosedPathTestSource =>
         [
             // string name, Path path, float width
-            //["TetragonClose01", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 1f],
-            //["TetragonClose10", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
-            //["SelfCrossingStarClose01", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
-            //["SelfCrossingStarClose10", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 10f],
+            ["TetragonClose01", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 1f],
+            ["TetragonClose10", new Path().AddPolygon(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
+            ["SelfCrossingStarClose01", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 1f],
+            ["SelfCrossingStarClose10", new Path().AddPolygon(new(51, 1), new(81, 91), new(3, 36), new(99, 36), new(22, 91)), 10f],
             ["Rectangle00_01", new Path().AddRectangle(new RectangleF(0, 0, 0, 0)), 1f],
             ["Rectangle01_01", new Path().AddRectangle(new RectangleF(0, 0, 1, 1)), 1f],
             ["Rectangle10_01", new Path().AddRectangle(new RectangleF(0, 0, 10, 10)), 1f],
-            //["Circle00_01", new Path().AddEllipse(new RectangleF(1, 1, 0, 0)), 1f],
-            //["Circle01_01", new Path().AddEllipse(new RectangleF(1, 1, 1, 1)), 1f],
-            //["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
-            //["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
-            //["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
-            //["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
-            //["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
+            ["Circle00_01", new Path().AddEllipse(new RectangleF(1, 1, 0, 0)), 1f],
+            ["Circle01_01", new Path().AddEllipse(new RectangleF(1, 1, 1, 1)), 1f],
+            ["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
+            ["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
+            ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
+            ["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
+            ["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
             // TODO: Pie
         ];
 
@@ -405,7 +413,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // re-using region from cache
             using var bitmapData3 = bitmapDataBackground.Clone();
-            bitmapData3.FillPath(context, new SolidBrush(fillColor), pathCached, options);
+            bitmapData3.FillPath(context, Brush.CreateSolid(fillColor), pathCached, options);
             AssertAreEqual(bitmapData1, bitmapData3);
 
 #if DEBUG
@@ -467,7 +475,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
 
-            foreach (bool antiAliasing in new[] { false/*, true*/ })
+            foreach (bool antiAliasing in new[] { false, true })
             {
                 LineCapStyle[] capStyles = width <= 1f ? [LineCapStyle.Flat] : [LineCapStyle.Flat, LineCapStyle.Square, LineCapStyle.Triangle, LineCapStyle.Round];
                 foreach (LineCapStyle capStyle in capStyles)
@@ -532,7 +540,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             IAsyncContext context = new SimpleContext(-1);
             var pen = new Pen(Color.Yellow);
             //var pen = new Pen(Color.FromArgb(128, Color.Yellow)); // This always uses region-draw but makes the layers visible. Non-region-draw cases are covered by DrawThinLinesWithFormatTest
-            var brush = new SolidBrush(Color.Blue);
+            var brush = Brush.CreateSolid(Color.Blue);
             foreach (bool antiAliasing in new[] { false, true })
             foreach (bool fastThinLines in new[] { true, false })
             foreach (var offset in new[] { PixelOffset.None, PixelOffset.Half })
@@ -633,7 +641,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size);
             bitmapDataBackground.Clear(Color.Cyan);
             IAsyncContext context = new SimpleContext(-1);
-            var brush = new SolidBrush(Color.Blue);
+            var brush = Brush.CreateSolid(Color.Blue);
             foreach (bool antiAliasing in new[] { false, true })
             foreach (PixelOffset pixelOffset in new[] { PixelOffset.None, PixelOffset.Half })
             {

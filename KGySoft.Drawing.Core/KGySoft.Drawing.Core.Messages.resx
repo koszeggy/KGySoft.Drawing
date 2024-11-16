@@ -208,6 +208,6 @@
     <value>A frame had an unexpected size. Set the GifEncodingOptions.SizeHandling property to allow different input sizes.</value>
   </data>
   <data name="Shapes_BezierPointsInvalid" xml:space="preserve">
-    <value>At least four points should be specified, and the number of points minus one should be divisible by 3.</value>
+    <value>If not zero or one points are specified, then the number of points minus one should be divisible by 3.</value>
   </data>
 </root>

@@ -26,15 +26,16 @@
 + BitmapDataExtensions class:
   + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
   + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
-  + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
-  + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
+  + New DrawBeziers/BeginDrawBeziers/EndDrawBeziers/DrawBeziersAsync methods
+  + New DrawPolygon/BeginDrawPolygon/EndDrawPolygon/DrawPolygonAsync methods
+  + New FillPolygon/BeginFillPolygon/EndFillPolygon/FillPolygonAsync methods
   + New DrawRectangle/BeginDrawRectangle/EndDrawRectangle/DrawRectangleAsync methods
   + New FillRectangle/BeginFillRectangle/EndFillRectangle/FillRectangleAsync methods
   + New DrawEllipse/BeginDrawEllipse/EndDrawEllipse/DrawEllipseAsync methods
   + New FillEllipse/BeginFillEllipse/EndFillEllipse/FillEllipseAsync methods
   + New DrawArc/BeginDrawArc/EndDrawArc/DrawArcAsync methods
-  + New DrawPolygon/BeginDrawPolygon/EndDrawPolygon/DrawPolygonAsync methods
-  + New FillPolygon/BeginFillPolygon/EndFillPolygon/FillPolygonAsync methods
+  + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
+  + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================

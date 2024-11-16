@@ -130,7 +130,7 @@ namespace KGySoft
 
         #region Shapes
 
-        /// <summary>At least four points should be specified, and the number of points minus one should be divisible by 3.</summary>
+        /// <summary>If not zero or one points are specified, then the number of points minus one should be divisible by 3.</summary>
         internal static string ShapesBezierPointsInvalid => Get("Shapes_BezierPointsInvalid");
 
         #endregion

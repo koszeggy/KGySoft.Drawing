@@ -1273,17 +1273,6 @@ namespace KGySoft.Drawing.Shapes
 
         internal void DrawThinLinesDirect(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
         {
-            IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
-            int count = pointList.Count;
-            if (count < 1)
-                return;
-
-            if (count == 1)
-            {
-                DrawThinLineDirect(bitmapData, pointList[0], pointList[0]);
-                return;
-            }
-
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
@@ -1291,63 +1280,79 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], ColorF.ToPColorF());
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, ColorF.ToPColorF());
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], ColorF);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, ColorF);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color64.ToPColor64());
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, Color64.ToPColor64());
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color64);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, Color64);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                for (int i = 1; i < count; i++)
-                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color32.ToPColor32());
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, Color32.ToPColor32());
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                for (int i = 1; i < count; i++)
-                    DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(Color32));
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32));
                 return;
             }
 
-            for (int i = 1; i < count; i++)
-                DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color32);
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32);
         }
 
         internal void DrawThinLinesDirect(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
         {
-            IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
-            int count = pointList.Count;
-            if (count < 1)
-                return;
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
-            if (count == 1)
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
-                DrawThinLineDirect(bitmapData, pointList[0], pointList[0], offset);
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, ColorF, offset);
                 return;
             }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32, offset);
+        }
+
+        internal void DrawThinBeziersDirect(IReadWriteBitmapData bitmapData, List<PointF> points, float offset = 0f)
+        {
+            if (points.Count == 0)
+                return;
 
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1356,49 +1361,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], ColorF.ToPColorF(), offset);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawBeziers(bitmap, points, ColorF.ToPColorF(), offset);
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], ColorF, offset);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawBeziers(bitmap, points, ColorF, offset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color64.ToPColor64(), offset);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawBeziers(bitmap, points, Color64.ToPColor64(), offset);
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color64, offset);
-                }
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawBeziers(bitmap, points, Color64, offset);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                for (int i = 1; i < count; i++)
-                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color32.ToPColor32(), offset);
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawBeziers(bitmap, points, Color32.ToPColor32(), offset);
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                for (int i = 1; i < count; i++)
-                    DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawBeziers(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
                 return;
             }
 
-            for (int i = 1; i < count; i++)
-                DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color32, offset);
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawBeziers(bitmap, points, Color32, offset);
         }
 
         internal void DrawThinPolygonDirect(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)

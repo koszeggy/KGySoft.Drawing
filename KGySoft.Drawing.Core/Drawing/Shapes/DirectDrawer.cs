@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -196,7 +195,7 @@ namespace KGySoft.Drawing.Shapes
                 int count = pointList.Count;
                 switch (count)
                 {
-                    case < 1:
+                    case 0:
                         return;
                     case 1:
                         DrawLine(bitmapData, pointList[0], pointList[0], c, offset, arg);
@@ -206,6 +205,12 @@ namespace KGySoft.Drawing.Shapes
                             DrawLine(bitmapData, pointList[i - 1], pointList[i], c, offset, arg);
                         return;
                 }
+            }
+
+            internal static void DrawBeziers(IBitmapDataInternal bitmapData, List<PointF> points, TColor c, float offset, TArg arg = default!)
+            {
+                Debug.Assert((points.Count - 1) % 3 == 0);
+                DrawLines(bitmapData, new BezierSegment(points).GetFlattenedPoints(), c, offset, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -729,6 +734,49 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, color, offset);
+        }
+
+        internal static void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, Color32 color, float offset = 0f)
+        {
+            Debug.Assert(points.Count == 0 || (points.Count - 1) % 3 == 0);
+            if (points.Count == 0)
+                return;
+
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawBeziers(bitmap, points, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawBeziers(bitmap, points, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawBeziers(bitmap, points, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawBeziers(bitmap, points, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawBeziers(bitmap, points, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawBeziers(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawBeziers(bitmap, points, color, offset);
         }
 
         internal static void DrawPolygon(IReadWriteBitmapData bitmapData, IEnumerable<Point> points, Color32 color)
