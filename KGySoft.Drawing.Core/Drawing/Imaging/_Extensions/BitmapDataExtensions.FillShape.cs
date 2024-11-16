@@ -30,6 +30,12 @@ using KGySoft.Threading;
 
 #endregion
 
+#region Suppressions
+
+// ReSharper disable PossibleMultipleEnumeration - Validation methods just check null. Note: ReSharper 2024.2.6 simply ignores NoEnumerationAttribute added to an Annotations.cs file.
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
     partial class BitmapDataExtensions
@@ -37,6 +43,158 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+
+        #region Polygon
+
+        #region Sync
+
+        #region Default Context
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points);
+            DoFillPolygon(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points);
+            DoFillPolygon(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        // Into remarks: when shortcutting, the operation cannot be cancelled, there is no report progress, and we always return true. To avoid that, use DrawPath instead.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return DoFillPolygon(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return DoFillPolygon(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return DoFillPolygon(context ?? AsyncHelper.DefaultContext, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPolygon(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return DoFillPolygon(context ?? AsyncHelper.DefaultContext, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginFillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.BeginOperation(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.BeginOperation(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPolygon(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.BeginOperation(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPolygon(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.BeginOperation(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndFillPolygon(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginFillPolygon));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> FillPolygonAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPolygonAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPolygon(ctx, bitmapData, new SolidBrush(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPolygonAsync(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPolygonAsync(this IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush, points);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPolygon(ctx, bitmapData, brush, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
 
         #region Rectangle
 
@@ -620,6 +778,16 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
         }
 
+        private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush, IEnumerable points)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (brush == null)
+                throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
+            if (points == null)
+                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
+        }
+
         private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush, Path path)
         {
             if (bitmapData == null)
@@ -633,6 +801,14 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region DoFillXXX
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<Point> points, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddPolygon(points.Select(p => (PointF)p)), brush, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<PointF> points, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddPolygon(points), brush, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, DrawingOptions drawingOptions)
