@@ -298,7 +298,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }))
             {
-                return AsyncHelper.DoOperationSynchronously(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rectangle), parallelConfig);
+                return AsyncHelper.DoOperationSynchronously(ctx => solidBrush.FillRectangle(ctx, bitmapData, rectangle), parallelConfig);
             }
 
             return AsyncHelper.DoOperationSynchronously(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
@@ -316,7 +316,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 Rectangle rect = Rectangle.Truncate(rectangle);
                 if (rect == rectangle)
-                    return AsyncHelper.DoOperationSynchronously(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rect), parallelConfig);
+                    return AsyncHelper.DoOperationSynchronously(ctx => solidBrush.FillRectangle(ctx, bitmapData, rect), parallelConfig);
             }
 
             return AsyncHelper.DoOperationSynchronously(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
@@ -368,7 +368,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }))
             {
-                return solidBrush.FillRectangleDirect(context ?? AsyncHelper.DefaultContext, bitmapData, rectangle);
+                return solidBrush.FillRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, rectangle);
             }
 
             return DoFillRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default);
@@ -386,7 +386,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 Rectangle rect = Rectangle.Truncate(rectangle);
                 if (rect == rectangle)
-                    return solidBrush.FillRectangleDirect(context ?? AsyncHelper.DefaultContext, bitmapData, rect);
+                    return solidBrush.FillRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, rect);
             }
 
             return DoFillRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default);
@@ -437,7 +437,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }))
             {
-                return AsyncHelper.BeginOperation(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rectangle), asyncConfig);
+                return AsyncHelper.BeginOperation(ctx => solidBrush.FillRectangle(ctx, bitmapData, rectangle), asyncConfig);
             }
 
             return AsyncHelper.BeginOperation(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
@@ -454,7 +454,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 Rectangle rect = Rectangle.Truncate(rectangle);
                 if (rect == rectangle)
-                    return AsyncHelper.BeginOperation(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rect), asyncConfig);
+                    return AsyncHelper.BeginOperation(ctx => solidBrush.FillRectangle(ctx, bitmapData, rect), asyncConfig);
             }
 
             return AsyncHelper.BeginOperation(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions), asyncConfig);
@@ -506,7 +506,7 @@ namespace KGySoft.Drawing.Imaging
                 && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }
                     || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, Quantizer: null, Ditherer: null }))
             {
-                return AsyncHelper.DoOperationAsync(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rectangle), asyncConfig);
+                return AsyncHelper.DoOperationAsync(ctx => solidBrush.FillRectangle(ctx, bitmapData, rectangle), asyncConfig);
             }
 
             return AsyncHelper.DoOperationAsync(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
@@ -523,7 +523,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 Rectangle rect = Rectangle.Truncate(rectangle);
                 if (rect == rectangle)
-                    return AsyncHelper.DoOperationAsync(ctx => solidBrush.FillRectangleDirect(ctx, bitmapData, rect), asyncConfig);
+                    return AsyncHelper.DoOperationAsync(ctx => solidBrush.FillRectangle(ctx, bitmapData, rect), asyncConfig);
             }
 
             return AsyncHelper.DoOperationAsync(ctx => DoFillRectangle(ctx, bitmapData, brush, rectangle, drawingOptions), asyncConfig);

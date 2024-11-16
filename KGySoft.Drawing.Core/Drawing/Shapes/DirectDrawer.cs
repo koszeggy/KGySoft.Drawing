@@ -171,6 +171,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawLines(IBitmapDataInternal bitmapData, IEnumerable<Point> points, TColor c, TArg arg = default!)
             {
                 IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
@@ -189,6 +190,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawLines(IBitmapDataInternal bitmapData, IEnumerable<PointF> points, TColor c, float offset, TArg arg = default!)
             {
                 IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
@@ -207,6 +209,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawBeziers(IBitmapDataInternal bitmapData, List<PointF> points, TColor c, float offset, TArg arg = default!)
             {
                 Debug.Assert((points.Count - 1) % 3 == 0);
@@ -283,6 +286,14 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 DoDrawArc(bitmapData, bounds, startAngle, sweepAngle, c, arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawPie(IBitmapDataInternal bitmapData, RectangleF bounds, float startAngle, float sweepAngle, TColor c, float offset, TArg arg = default!)
+            {
+                var arc = new ArcSegment(bounds, startAngle, sweepAngle);
+                DrawArc(bitmapData, arc, c, offset, arg);
+                DrawLines(bitmapData, new[] { arc.EndPoint, arc.Center, arc.StartPoint }, c, offset, arg);
             }
 
             internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
@@ -973,6 +984,45 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color, offset);
+        }
+
+        internal static void DrawPie(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, Color32 color, float offset = 0f)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color, offset);
         }
 
         internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)

@@ -1193,7 +1193,7 @@ namespace KGySoft.Drawing.Shapes
         #region Internal Methods
         // These direct drawing methods perform the drawing without creating a session.
 
-        internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, Point p1, Point p2)
+        internal void DrawLine(IReadWriteBitmapData bitmapData, Point p1, Point p2)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1232,7 +1232,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32);
         }
 
-        internal void DrawThinLineDirect(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, float offset)
+        internal void DrawLine(IReadWriteBitmapData bitmapData, PointF p1, PointF p2, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1271,7 +1271,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, offset);
         }
 
-        internal void DrawThinLinesDirect(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
+        internal void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1310,7 +1310,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32);
         }
 
-        internal void DrawThinLinesDirect(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
+        internal void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1349,7 +1349,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32, offset);
         }
 
-        internal void DrawThinBeziersDirect(IReadWriteBitmapData bitmapData, List<PointF> points, float offset = 0f)
+        internal void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, float offset = 0f)
         {
             if (points.Count == 0)
                 return;
@@ -1391,7 +1391,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawBeziers(bitmap, points, Color32, offset);
         }
 
-        internal void DrawThinPolygonDirect(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
+        internal void DrawPolygon(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
         {
             IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
             if (pointList.Count == 0)
@@ -1405,10 +1405,10 @@ namespace KGySoft.Drawing.Shapes
                     pointList.Add(pointList[0]);
             }
 
-            DrawThinLinesDirect(bitmapData, pointList);
+            DrawLines(bitmapData, pointList);
         }
 
-        internal void DrawThinPolygonDirect(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
+        internal void DrawPolygon(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
         {
             IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
             if (pointList.Count == 0)
@@ -1422,16 +1422,16 @@ namespace KGySoft.Drawing.Shapes
                     pointList.Add(pointList[0]);
             }
 
-            DrawThinLinesDirect(bitmapData, pointList, offset);
+            DrawLines(bitmapData, pointList, offset);
         }
 
-        internal void DrawThinRectangleDirect(IReadWriteBitmapData bitmapData, Rectangle rectangle)
-            => DrawThinLinesDirect(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location });
+        internal void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle)
+            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location });
 
-        internal void DrawThinRectangleDirect(IReadWriteBitmapData bitmapData, RectangleF rectangle, float offset)
-            => DrawThinLinesDirect(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, offset);
+        internal void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, float offset)
+            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, offset);
 
-        internal void DrawThinEllipseDirect(IReadWriteBitmapData bitmapData, Rectangle bounds)
+        internal void DrawEllipse(IReadWriteBitmapData bitmapData, Rectangle bounds)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1470,7 +1470,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32);
         }
 
-        internal void DrawThinEllipseDirect(IReadWriteBitmapData bitmapData, RectangleF bounds, float offset)
+        internal void DrawEllipse(IReadWriteBitmapData bitmapData, RectangleF bounds, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1509,7 +1509,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32, offset);
         }
 
-        internal void DrawThinArcDirect(IReadWriteBitmapData bitmapData, Rectangle bounds, float startAngle, float sweepAngle)
+        internal void DrawArc(IReadWriteBitmapData bitmapData, Rectangle bounds, float startAngle, float sweepAngle)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1548,7 +1548,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32);
         }
 
-        internal void DrawThinArcDirect(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, float offset)
+        internal void DrawArc(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
@@ -1587,7 +1587,46 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
         }
 
-        internal bool FillRectangleDirect(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle)
+        internal void DrawPie(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, float offset = 0f)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, ColorF, offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
+        }
+
+        internal bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle)
         {
             rectangle = rectangle.IntersectSafe(new Rectangle(Point.Empty, bitmapData.Size));
             if (rectangle.IsEmpty())
