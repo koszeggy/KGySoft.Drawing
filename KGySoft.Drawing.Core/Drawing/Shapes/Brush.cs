@@ -1781,7 +1781,6 @@ namespace KGySoft.Drawing.Shapes
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
                 Size offset = Region.Bounds.Location.AsSize();
-
                 p1 -= offset;
                 p2 -= offset;
                 Size size = Region.Bounds.Size;
@@ -1815,6 +1814,7 @@ namespace KGySoft.Drawing.Shapes
                     SetPixel(right, top);
                     SetPixel(left, bottom);
                     SetPixel(right, bottom);
+
                     long err2 = checked(err * 2);
                     if (err2 <= stepY)
                     {
@@ -1869,24 +1869,31 @@ namespace KGySoft.Drawing.Shapes
                 RectangleF bounds = arc.Bounds;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
-                Size offset = RawPath.Bounds.Location.AsSize();
+                Size offset = Region.Bounds.Location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
+                Size size = Region.Bounds.Size;
 
                 (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
-
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
 
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
+                if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
+                    return;
+
+                int oddHeightCorrection = height & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepX = 1L - width;
+                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                long stepY = (oddHeightCorrection + 1L) * widthSquared;
+                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                long err = oddHeightCorrection * widthSquared;
+                err = checked(stepX + stepY + err);
+
+                bottom = top + ((height + 1) >> 1);
+                top = bottom - oddHeightCorrection;
                 long scaledWidth = widthSquared << 3;
                 long scaledHeight = heightSquared << 3;
 
@@ -1905,39 +1912,49 @@ namespace KGySoft.Drawing.Shapes
 
                 do
                 {
-                    SetPixel(left, top, 1);
-                    SetPixel(right, top, 0);
-                    SetPixel(left, bottom, 2);
-                    SetPixel(right, bottom, 3);
+                    SetPixel(right, bottom, 0);
+                    SetPixel(left, bottom, 1);
+                    SetPixel(left, top, 2);
+                    SetPixel(right, top, 3);
 
-                    long err2 = err << 1;
+                    long err2 = checked(err * 2);
                     if (err2 <= stepY)
                     {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
+                        top -= 1;
+                        bottom += 1;
+                        stepY = checked(stepY + scaledWidth);
+                        err += stepY;
                     }
 
-                    if (err2 >= stepX || (err << 1) > stepY)
+                    if (err2 >= stepX || err2 > stepY)
                     {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
+                        left += 1;
+                        right -= 1;
+                        stepX = checked(stepX + scaledHeight);
+                        err += stepX;
                     }
                 } while (left <= right);
 
-                while (top - bottom <= height)
+                if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
+                    return;
+
+                while (bottom - top <= height)
                 {
-                    SetPixel(left - 1, top, 1);
-                    SetPixel(right + 1, top, 0);
-                    SetPixel(left - 1, bottom, 2);
-                    SetPixel(right + 1, bottom--, 3);
+                    SetPixel(right + 1, bottom, 0);
+                    SetPixel(left - 1, bottom, 1);
+                    bottom += 1;
+                    SetPixel(left - 1, top, 2);
+                    SetPixel(right + 1, top, 3);
+                    top -= 1;
                 }
 
                 #region Local Methods
 
                 void SetPixel(int x, int y, int sector)
                 {
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
+                        return;
+
                     int sectorType = sectors[ArcSegment.Sectors[sector]];
                     if (sectorType == ArcSegment.SectorNotDrawn)
                         return;
@@ -2597,7 +2614,7 @@ namespace KGySoft.Drawing.Shapes
                         return false;
 
                     // Special handling for arcs for nicer Bresenham-like results. Not needed for wide pens or anti-aliased paths.
-                    if (segment is ArcSegment arc)
+                    if (segment is ArcSegment arc && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold)
                     {
                         if (Math.Abs(arc.SweepAngle) >= 360f)
                             session.DrawEllipse(arc.Bounds);

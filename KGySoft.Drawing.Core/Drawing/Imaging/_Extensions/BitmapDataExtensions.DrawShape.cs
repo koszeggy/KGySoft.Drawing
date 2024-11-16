@@ -1367,6 +1367,339 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Arc
+
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        // Remarks:
+        // - When cannot do a shortcut, a Path is created internally. In such case DrawPath with caching may perform better.
+        // - When drawing, bounds right/bottom are inclusive, so zero width or height means 1 pixel wide/high bounds.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+            => DrawArc(bitmapData, color, new Rectangle(x, y, width, height), startAngle, sweepAngle, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color);
+                return;
+            }
+
+            DoDrawArc(AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float startAngle, float sweepAngle, float height, DrawingOptions? drawingOptions = null)
+            => DrawArc(bitmapData, color, new RectangleF(x, y, width, height), startAngle, sweepAngle, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color, drawingOptions?.PixelOffset ?? 0f);
+                return;
+            }
+
+            DoDrawArc(AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawArc(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawArc(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawArc(context ?? AsyncHelper.DefaultContext, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawArc(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle, drawingOptions?.PixelOffset ?? 0f);
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawArc(context ?? AsyncHelper.DefaultContext, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginDrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawArc(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawArc(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginDrawArc(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndDrawArc(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawArc));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawArc(bitmapData, bounds, startAngle, sweepAngle, color, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen);
+
+            // Shortcut for non-blended, non-AA thin lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawThinArcDirect(bitmapData, bounds, startAngle, sweepAngle, drawingOptions?.PixelOffset ?? 0f);
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawArc(ctx, bitmapData, pen, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region Path
 
         // Remarks:
@@ -1507,6 +1840,10 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawEllipse(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions drawingOptions)
             => DoDrawPath(context, bitmapData, new Path(false).AddEllipse(rectangle), pen, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoDrawArc(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, float startAngle, float sweepAngle, DrawingOptions drawingOptions)
+            => DoDrawPath(context, bitmapData, new Path(false).AddArc(rectangle, startAngle, sweepAngle), pen, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Pen pen, DrawingOptions drawingOptions)

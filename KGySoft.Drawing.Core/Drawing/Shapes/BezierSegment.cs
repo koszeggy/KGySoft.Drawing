@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
         {
-            Debug.Assert(Math.Abs(radiusX) > 0f && Math.Abs(radiusY) > 0f);
+            Debug.Assert(Math.Abs(radiusX) > 0f && Math.Abs(radiusY) > 0f, "Handle flat arcs in the caller");
             Debug.Assert(sweepRad < MathF.PI * 2f, "The caller should have called FromEllipse. If the caller of this overload may create full ellipses, then add if (Math.Abs(sweepRad) >= MathF.PI * 2f) FromEllipse(...) here.");
 
             // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
@@ -108,7 +108,6 @@ namespace KGySoft.Drawing.Shapes
                 ArcToBezier(centerPoint, radiusX, radiusY, currentStart, currentStart + currentEnd, result);
                 completed += currentEnd;
             }
-
 
             return new BezierSegment(result);
         }
@@ -180,8 +179,18 @@ namespace KGySoft.Drawing.Shapes
                 result.Add(new PointF(startX, startY));
             }
 
-            result.Add(new PointF(center.X + radiusX * (cosStart - controlPoint * sinStart), center.Y + radiusY * (sinStart + controlPoint * cosStart)));
-            result.Add(new PointF(center.X + radiusX * (cosEnd + controlPoint * sinEnd), center.Y + radiusY * (sinEnd - controlPoint * cosEnd)));
+            // mid was zero or near to it: repeating the start point twice
+            if (Single.IsNaN(controlPoint) || Single.IsInfinity(controlPoint))
+            {
+                result.Add(result[result.Count - 1]);
+                result.Add(result[result.Count - 1]);
+            }
+            else
+            {
+                result.Add(new PointF(center.X + radiusX * (cosStart - controlPoint * sinStart), center.Y + radiusY * (sinStart + controlPoint * cosStart)));
+                result.Add(new PointF(center.X + radiusX * (cosEnd + controlPoint * sinEnd), center.Y + radiusY * (sinEnd - controlPoint * cosEnd)));
+            }
+
             result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
         }
 

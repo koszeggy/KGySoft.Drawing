@@ -171,14 +171,172 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            internal static void DrawLines(IBitmapDataInternal bitmapData, IEnumerable<Point> points, TColor c, TArg arg = default!)
+            {
+                IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
+                int count = pointList.Count;
+                switch (count)
+                {
+                    case < 1:
+                        return;
+                    case 1:
+                        DrawLine(bitmapData, pointList[0], pointList[0], c, arg);
+                        return;
+                    default:
+                        for (int i = 1; i < count; i++)
+                            DrawLine(bitmapData, pointList[i - 1], pointList[i], c, arg);
+                        return;
+                }
+            }
+
+            internal static void DrawLines(IBitmapDataInternal bitmapData, IEnumerable<PointF> points, TColor c, float offset, TArg arg = default!)
+            {
+                IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
+                int count = pointList.Count;
+                switch (count)
+                {
+                    case < 1:
+                        return;
+                    case 1:
+                        DrawLine(bitmapData, pointList[0], pointList[0], c, offset, arg);
+                        return;
+                    default:
+                        for (int i = 1; i < count; i++)
+                            DrawLine(bitmapData, pointList[i - 1], pointList[i], c, offset, arg);
+                        return;
+                }
+            }
+
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, float offset, TArg arg = default!)
             {
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                {
+                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPoints(), c, offset);
+                    return;
+                }
+
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
-                DrawEllipse(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), c, arg);
+                DoDrawEllipse(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), c, arg);
             }
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
+            {
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                {
+                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPoints(), c, 0f);
+                    return;
+                }
+
+                DoDrawEllipse(bitmapData, bounds, c, arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
+            {
+                Debug.Assert(Math.Abs(arc.SweepAngle) < 360f && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold);
+                RectangleF bounds = arc.Bounds;
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
+                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
+                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+
+                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
+                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
+                float centerX = (left + right + 1) / 2f;
+                float radiusX = ((right - left) + 1) / 2f;
+                float radiusY = ((bottom - top) + 1) / 2f;
+
+                (float startRad, float endRad) = arc.GetStartEndRadians();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                DoDrawArc(bitmapData, left, top, right, bottom, c, arc.GetSectors(),
+                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawArc(IBitmapDataInternal bitmapData, RectangleF bounds, float startAngle, float sweepAngle, TColor c, float offset, TArg arg = default!)
+            {
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                {
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, offset);
+                    return;
+                }
+
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
+                DoDrawArc(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), startAngle, sweepAngle, c, arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawArc(IBitmapDataInternal bitmapData, Rectangle bounds, float startAngle, float sweepAngle, TColor c, TArg arg = default!)
+            {
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                {
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, 0f);
+                    return;
+                }
+
+                DoDrawArc(bitmapData, bounds, startAngle, sweepAngle, c, arg);
+            }
+
+            internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
+            {
+                Debug.Assert(!rectangle.IsEmpty() && new Rectangle(Point.Empty, bitmapData.Size).Contains(rectangle));
+                
+                // sequential fill
+                if (rectangle.Width < parallelThreshold)
+                {
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(rectangle.Top);
+                    var accessor = new TAccessor();
+                    accessor.InitRow(row);
+
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    for (int y = 0; y < rectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return false;
+
+                        int right = rectangle.Right;
+                        for (int x = rectangle.Left; x < right; x++)
+                            accessor.SetColor(x, color);
+                        context.Progress?.Increment();
+                        row.MoveNextRow();
+                    }
+
+                    return true;
+                }
+
+                // parallel fill
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, rectangle.Top, rectangle.Bottom, y =>
+                {
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
+                    var accessor = new TAccessor();
+                    accessor.InitRow(row);
+                    TColor c = color;
+
+                    int right = rectangle.Right;
+                    for (int x = rectangle.Left; x < right; x++)
+                        accessor.SetColor(x, c);
+                });
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
+            {
+                p1.X = p1.X.RoundTo(roundingUnit) + offset;
+                p1.Y = p1.Y.RoundTo(roundingUnit) + offset;
+                p2.X = p2.X.RoundTo(roundingUnit) + offset;
+                p2.Y = p2.Y.RoundTo(roundingUnit) + offset;
+
+                // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
+                return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
+            }
+
+            private static void DoDrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
             {
                 int top = bounds.Top;
                 int left = bounds.Left;
@@ -193,6 +351,7 @@ namespace KGySoft.Drawing.Shapes
                 int width = right - left; // Not bounds.Width, because that can be negative. Exclusive: the actual drawn width is width + 1.
                 int height = bottom - top; // Not bounds.Height, because that can be negative. Exclusive: the actual drawn height is height + 1
 
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
 
@@ -263,34 +422,34 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
             }
 
-            internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
+            private static void DoDrawArc(IBitmapDataInternal bitmapData, Rectangle bounds, float startAngle, float sweepAngle, TColor c, TArg arg = default!)
             {
-                RectangleF bounds = arc.Bounds;
-                (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
-                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
-                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                {
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, 0f);
+                    return;
+                }
 
-                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
-                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
-                float centerX = (left + right + 1) / 2f;
-                float radiusX = ((right - left) + 1) / 2f;
-                float radiusY = ((bottom - top) + 1) / 2f;
+                ArcSegment.NormalizeAngles(ref startAngle, ref sweepAngle);
+                if (sweepAngle >= 360f)
+                {
+                    DrawEllipse(bitmapData, bounds, c, arg);
+                    return;
+                }
 
-                (float startRad, float endRad) = arc.GetStartEndRadians();
-                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+                int top = bounds.Top;
+                int left = bounds.Left;
+                int right = bounds.RightChecked();
+                int bottom = bounds.BottomChecked();
+                Size size = bitmapData.Size;
 
-                DrawArc(bitmapData, left, top, right, bottom, c, arc.GetSectors(),
-                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
-            }
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
-                TColor c, float startAngle, float sweepAngle, TArg arg = default!)
-            {
                 if (left > right)
                     (left, right) = (right, left);
                 if (top > bottom)
                     (top, bottom) = (bottom, top);
+
+                if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
+                    return;
 
                 float centerX = (left + right + 1) / 2f;
                 float radiusX = (right - left + 1) / 2f;
@@ -300,118 +459,73 @@ namespace KGySoft.Drawing.Shapes
                 ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
-                DrawArc(bitmapData, left, top, right, bottom, c, ArcSegment.GetSectors(startAngle, sweepAngle),
+                DoDrawArc(bitmapData, left, top, right, bottom, c, ArcSegment.GetSectors(startAngle, sweepAngle),
                     (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
             }
 
-            internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
-            {
-                Debug.Assert(!rectangle.IsEmpty() && new Rectangle(Point.Empty, bitmapData.Size).Contains(rectangle));
-                
-                // sequential fill
-                if (rectangle.Width < parallelThreshold)
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(rectangle.Top);
-                    var accessor = new TAccessor();
-                    accessor.InitRow(row);
-
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    for (int y = 0; y < rectangle.Height; y++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return false;
-
-                        int right = rectangle.Right;
-                        for (int x = rectangle.Left; x < right; x++)
-                            accessor.SetColor(x, color);
-                        context.Progress?.Increment();
-                        row.MoveNextRow();
-                    }
-
-                    return true;
-                }
-
-                // parallel fill
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, rectangle.Top, rectangle.Bottom, y =>
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
-                    var accessor = new TAccessor();
-                    accessor.InitRow(row);
-                    TColor c = color;
-
-                    int right = rectangle.Right;
-                    for (int x = rectangle.Left; x < right; x++)
-                        accessor.SetColor(x, c);
-                });
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
-            {
-                p1.X = p1.X.RoundTo(roundingUnit) + offset;
-                p1.Y = p1.Y.RoundTo(roundingUnit) + offset;
-                p2.X = p2.X.RoundTo(roundingUnit) + offset;
-                p2.Y = p2.Y.RoundTo(roundingUnit) + offset;
-
-                // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
-                return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
-            }
-
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
-            private static void DrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
+            private static void DoDrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
                 TColor c, BitVector32 sectors, int startX, int endX, TArg arg)
             {
-                int width = right - left; // exclusive: the actual drawn width is width + 1
-                int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                int oddHeightCorrection = height & 1;
-                long widthSquared = width * width;
-                long heightSquared = height * height;
-                long stepX = ((1 - width) * heightSquared) << 2;
-                long stepY = ((oddHeightCorrection + 1) * widthSquared) << 2;
-                long err = stepX + stepY + oddHeightCorrection * widthSquared;
+                int width = right - left; // Exclusive: the actual drawn width is width + 1.
+                int height = bottom - top; // Exclusive: the actual drawn height is height + 1
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
+                Size size = bitmapData.Size;
 
-                top += (height + 1) >> 1;
-                bottom = top - oddHeightCorrection;
+                int oddHeightCorrection = height & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepX = 1L - width;
+                stepX = checked(stepX * heightSquared * 4); // << 2 would be faster, but it ignores the checked context
+                long stepY = (oddHeightCorrection + 1L) * widthSquared;
+                stepY = checked(stepY * 4); // << 2 would be faster, but it ignores the checked context
+                long err = oddHeightCorrection * widthSquared;
+                err = checked(stepX + stepY + err);
+
+                bottom = top + ((height + 1) >> 1);
+                top = bottom - oddHeightCorrection;
                 long scaledWidth = widthSquared << 3;
                 long scaledHeight = heightSquared << 3;
 
                 var accessor = new TAccessor();
                 accessor.InitBitmapData(bitmapData, arg);
-                Size size = bitmapData.Size;
 
                 do
                 {
-                    SetPixel(left, top, 1);
-                    SetPixel(right, top, 0);
-                    SetPixel(left, bottom, 2);
-                    SetPixel(right, bottom, 3);
+                    SetPixel(right, bottom, 0);
+                    SetPixel(left, bottom, 1);
+                    SetPixel(left, top, 2);
+                    SetPixel(right, top, 3);
 
-                    long err2 = err << 1;
+                    long err2 = checked(err * 2);
                     if (err2 <= stepY)
                     {
-                        top += 1;
-                        bottom -= 1;
-                        err += stepY += scaledWidth;
+                        top -= 1;
+                        bottom += 1;
+                        stepY = checked(stepY + scaledWidth);
+                        err += stepY;
                     }
 
-                    if (err2 >= stepX || (err << 1) > stepY)
+                    if (err2 >= stepX || err2 > stepY)
                     {
-                        left++;
-                        right--;
-                        err += stepX += scaledHeight;
+                        left += 1;
+                        right -= 1;
+                        stepX = checked(stepX + scaledHeight);
+                        err += stepX;
                     }
                 } while (left <= right);
 
-                while (top - bottom <= height)
+                if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
+                    return;
+
+                while (bottom - top <= height)
                 {
-                    SetPixel(left - 1, top, 1);
-                    SetPixel(right + 1, top, 0);
-                    SetPixel(left - 1, bottom, 2);
-                    SetPixel(right + 1, bottom--, 3);
+                    SetPixel(right + 1, bottom, 0);
+                    SetPixel(left - 1, bottom, 1);
+                    bottom += 1;
+                    SetPixel(left - 1, top, 2);
+                    SetPixel(right + 1, top, 3);
+                    top -= 1;
                 }
 
                 #region Local Methods
@@ -539,17 +653,6 @@ namespace KGySoft.Drawing.Shapes
 
         internal static void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<Point> points, Color32 color)
         {
-            IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
-            int count = pointList.Count;
-            if (count < 1)
-                return;
-
-            if (count == 1)
-            {
-                DrawLine(bitmapData, pointList[0], pointList[0], color);
-                return;
-            }
-
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
@@ -557,64 +660,38 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColorF());
-                }
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, color.ToPColorF());
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColorF());
-                }
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, color.ToColorF());
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor64());
-                }
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, color.ToPColor64());
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColor64());
-                }
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, color.ToColor64());
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                for (int i = 1; i < count; i++)
-                    GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor32());
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, color.ToPColor32());
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                for (int i = 1; i < count; i++)
-                    GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(color));
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(color));
                 return;
             }
 
-            for (int i = 1; i < count; i++)
-                GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color);
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, color);
         }
 
         internal static void DrawLines(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, Color32 color, float offset)
         {
-            IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
-            int count = pointList.Count;
-            if (count < 1)
-                return;
-
-            if (count == 1)
-            {
-                DrawLine(bitmapData, pointList[0], pointList[0], color, offset);
-                return;
-            }
-
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
@@ -622,49 +699,34 @@ namespace KGySoft.Drawing.Shapes
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColorF(), offset);
-                }
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, color.ToPColorF(), offset);
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColorF(), offset);
-                }
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, color.ToColorF(), offset);
                 return;
             }
 
             if (pixelFormat.Prefers64BitColors)
             {
                 if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor64(), offset);
-                }
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, color.ToPColor64(), offset);
                 else
-                {
-                    for (int i = 1; i < count; i++)
-                        GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToColor64(), offset);
-                }
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, color.ToColor64(), offset);
                 return;
             }
 
             if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
             {
-                for (int i = 1; i < count; i++)
-                    GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color.ToPColor32(), offset);
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, color.ToPColor32(), offset);
                 return;
             }
 
             if (pixelFormat.Indexed)
             {
-                for (int i = 1; i < count; i++)
-                    GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(color), offset);
                 return;
             }
 
-            for (int i = 1; i < count; i++)
-                GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], color, offset);
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, color, offset);
         }
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
@@ -749,6 +811,84 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, color, offset);
+        }
+
+        internal static void DrawArc(IReadWriteBitmapData bitmapData, Rectangle bounds, float startAngle, float sweepAngle, Color32 color)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColorF());
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToColorF());
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColor64());
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToColor64());
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(color));
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color);
+        }
+
+        internal static void DrawArc(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, Color32 color, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color, offset);
         }
 
         internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
