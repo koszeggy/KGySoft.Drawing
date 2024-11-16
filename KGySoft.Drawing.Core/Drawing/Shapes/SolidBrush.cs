@@ -1401,6 +1401,40 @@ namespace KGySoft.Drawing.Shapes
                 DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, pointList[i - 1], pointList[i], Color32, offset);
         }
 
+        internal void DrawThinPolygonDirect(IReadWriteBitmapData bitmapData, IEnumerable<Point> points)
+        {
+            IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
+            if (pointList.Count == 0)
+                return;
+
+            if (pointList[0] != pointList[pointList.Count - 1])
+            {
+                if (ReferenceEquals(points, pointList))
+                    pointList = new List<Point>(pointList) { pointList[0] };
+                else
+                    pointList.Add(pointList[0]);
+            }
+
+            DrawThinLinesDirect(bitmapData, pointList);
+        }
+
+        internal void DrawThinPolygonDirect(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, float offset)
+        {
+            IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
+            if (pointList.Count == 0)
+                return;
+
+            if (pointList[0] != pointList[pointList.Count - 1])
+            {
+                if (ReferenceEquals(points, pointList))
+                    pointList = new List<PointF>(pointList) { pointList[0] };
+                else
+                    pointList.Add(pointList[0]);
+            }
+
+            DrawThinLinesDirect(bitmapData, pointList, offset);
+        }
+
         internal void DrawThinRectangleDirect(IReadWriteBitmapData bitmapData, Rectangle rectangle)
             => DrawThinLinesDirect(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location });
 

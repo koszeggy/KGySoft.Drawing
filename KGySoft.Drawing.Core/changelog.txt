@@ -33,6 +33,7 @@
   + New DrawEllipse/BeginDrawEllipse/EndDrawEllipse/DrawEllipseAsync methods
   + New FillEllipse/BeginFillEllipse/EndFillEllipse/FillEllipseAsync methods
   + New DrawArc/BeginDrawArc/EndDrawArc/DrawArcAsync methods
+  + New DrawPolygon/BeginDrawPolygon/EndDrawPolygon/DrawPolygonAsync methods
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================

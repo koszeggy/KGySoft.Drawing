@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -728,6 +729,40 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, color, offset);
+        }
+
+        internal static void DrawPolygon(IReadWriteBitmapData bitmapData, IEnumerable<Point> points, Color32 color)
+        {
+            IList<Point> pointList = points as IList<Point> ?? new List<Point>(points);
+            if (pointList.Count == 0)
+                return;
+
+            if (pointList[0] != pointList[pointList.Count - 1])
+            {
+                if (ReferenceEquals(points, pointList))
+                    pointList = new List<Point>(pointList) { pointList[0] };
+                else
+                    pointList.Add(pointList[0]);
+            }
+
+            DrawLines(bitmapData, pointList, color);
+        }
+
+        internal static void DrawPolygon(IReadWriteBitmapData bitmapData, IEnumerable<PointF> points, Color32 color, float offset)
+        {
+            IList<PointF> pointList = points as IList<PointF> ?? new List<PointF>(points);
+            if (pointList.Count == 0)
+                return;
+
+            if (pointList[0] != pointList[pointList.Count - 1])
+            {
+                if (ReferenceEquals(points, pointList))
+                    pointList = new List<PointF>(pointList) { pointList[0] };
+                else
+                    pointList.Add(pointList[0]);
+            }
+
+            DrawLines(bitmapData, pointList, color, offset);
         }
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)

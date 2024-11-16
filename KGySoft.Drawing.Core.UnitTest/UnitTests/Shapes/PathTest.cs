@@ -908,9 +908,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 0, 5, Int32.MaxValue - 127, 0)); // shortcut, visible part is drawn - would be very slow without switching to lines drawing
             Assert.DoesNotThrow(() => bmp.DrawEllipse(color, 5, 0, 0, Int32.MaxValue - 127)); // shortcut, visible part is drawn - would be very slow without switching to lines drawing
             bmp.Clear(backColor);
-            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 0, 916_396, 916_395))); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344]
-            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 5, Int32.MaxValue >> 1, 0))); // shortcut, visible part is drawn - it would throw if it called DrawEllipse with the rounded float bounds
-            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(5, 0, 1, Int32.MaxValue >> 1))); // shortcut, visible part is drawn - it would throw if it called DrawEllipse with the rounded float bounds
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 0, 916_396, 916_395))); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344], though it's above the threshold so drawn as Béziers
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 5, Int32.MaxValue - 127, 0))); // shortcut, visible part is drawn - drawn as flattened Béziers
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(5, 0, 0, Int32.MaxValue - 127))); // shortcut, visible part is drawn - drawn as flattened Béziers
+            bmp.Clear(backColor);
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(0, 5, UInt16.MaxValue, 0))); // shortcut, visible part is drawn - the largest width drawn as Ellipse
+            Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(5, 0, 0, UInt16.MaxValue))); // shortcut, visible part is drawn - the largest height drawn as Ellipse
             bmp.Clear(backColor);
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(1, 1, Int32.MaxValue - 127, 10), optionsNoFastThinLines)); // no shortcut, no cache due to size, visible part is drawn
             Assert.Throws<OverflowException>(() => bmp.DrawEllipse(color, Int32.MinValue, Int32.MinValue, Int32.MaxValue, Int32.MaxValue, optionsNoFastThinLines)); // no shortcut, no cache
