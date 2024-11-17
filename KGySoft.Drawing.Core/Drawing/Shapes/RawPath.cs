@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -301,7 +302,7 @@ namespace KGySoft.Drawing.Shapes
                             float distY = endPoint.Y - startPoint.Y;
                             float startAngle = MathF.Atan2(distY, distX);
                             float length = MathF.Sqrt(distX * distX + distY * distY);
-                            if (penOptions.Width >= length)
+                            if (penOptions.Width >= length && !length.TolerantIsZero(Constants.EqualityTolerance))
                             {
                                 // Unlike in WidenPath, adding the Bézier points from arc because it's simpler with the dynamic start/end angle
                                 float halfSweepAngle = MathF.Asin(length / penOptions.Width);

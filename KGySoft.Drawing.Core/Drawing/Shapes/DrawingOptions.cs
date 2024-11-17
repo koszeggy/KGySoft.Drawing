@@ -122,8 +122,6 @@ namespace KGySoft.Drawing.Shapes
             : Equals(Default) ? DefaultNonZero
             : new DrawingOptions(this) { FillMode = ShapeFillMode.NonZero };
 
-        internal float PixelOffset => DrawPathPixelOffset == Shapes.PixelOffset.Half ? 0.5f : 0f;
-
         #endregion
 
         #endregion

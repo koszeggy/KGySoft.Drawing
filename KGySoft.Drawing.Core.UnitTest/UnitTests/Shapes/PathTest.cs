@@ -17,8 +17,6 @@
 
 #region Usings
 
-using System.Drawing.Imaging;
-
 #region Used Namespaces
 
 using System;
@@ -222,7 +220,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
             ["RoundedRectangle01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
             ["RoundedRectangleAssymetric01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f, 6f, 7f, 8f), 1f],
-            // TODO: Pie
+            ["Pie0_180Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 0, 180), 1f],
+            ["Pie0_180Deg10", new Path().AddPie(new RectangleF(1, 1, 98, 48), 0, 180), 10f],
+            ["Pie90_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 90, 90), 1f],
+            ["Pie90_180Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 90, 180), 1f],
+            ["Pie270_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 270, 90), 1f],
+            ["Pie270_180Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 270, 180), 1f],
+            ["Pie0_45Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 0, 45), 1f],
+            ["Pie0-45Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 0, -45), 1f],
+            ["Pie45_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 45, 90), 1f],
+            ["Pie135_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 135, 90), 1f],
+            ["Pie225_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 225, 90), 1f],
+            ["Pie315_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 315, 90), 1f],
+            ["Pie225_90Deg01", new Path().AddPie(new RectangleF(1, 1, 50, 50), 225, 90), 1f],
         ];
 
         private static object?[][] DrawThinLinesTestSource =>
@@ -505,7 +515,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
 
-            foreach (bool antiAliasing in new[] { false, /*true*/ })
+            foreach (bool antiAliasing in new[] { false, true })
             foreach (bool fastThinLines in new[] { false, true })
             {
                 if (fastThinLines && (width > 1f || antiAliasing))

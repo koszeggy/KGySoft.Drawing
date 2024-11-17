@@ -1349,7 +1349,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32, offset);
         }
 
-        internal void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, float offset = 0f)
+        internal void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, float offset)
         {
             if (points.Count == 0)
                 return;
@@ -1587,7 +1587,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
         }
 
-        internal void DrawPie(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, float offset = 0f)
+        internal void DrawPie(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, float offset)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);

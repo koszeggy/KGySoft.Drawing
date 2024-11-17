@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.Shapes
                 else
                 {
                     // for very small remaining section breaking without actually adding it
-                    if (currentEnd.TolerantIsZero(tolerance))
+                    if (currentEnd.TolerantIsZero(tolerance) && result.Count > 0)
                         break;
 
                     finished = true;
