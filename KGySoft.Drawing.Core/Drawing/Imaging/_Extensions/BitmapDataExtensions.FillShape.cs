@@ -699,6 +699,166 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Pie
+
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPie(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+            => FillPie(bitmapData, color, new Rectangle(x, y, width, height), startAngle, sweepAngle, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPie(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillPie(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPie(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+            => FillPie(bitmapData, color, new RectangleF(x, y, width, height), startAngle, sweepAngle, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillPie(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillPie(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillPie(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillPie(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillPie(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillPie(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillPie(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginFillPie(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPie(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPie(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillPie(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndFillPie(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginFillPie));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> FillPieAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPieAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPie(ctx, bitmapData, new SolidBrush(color), bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPieAsync(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillPieAsync(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillPie(ctx, bitmapData, brush, bounds, startAngle, sweepAngle, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region Path
 
         // Remarks:
@@ -817,6 +977,10 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillEllipse(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, DrawingOptions drawingOptions)
             => DoFillPath(context, bitmapData, new Path(false).AddEllipse(rectangle), brush, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillPie(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, float startAngle, float sweepAngle, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddPie(rectangle, startAngle, sweepAngle), brush, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions)
