@@ -137,9 +137,12 @@ namespace KGySoft.Drawing.Shapes
                         // Skipping point only if the orientation is 0 also in a shifted order.
                         // This prevents skipping false alarms at coordinates where float precision is less accurate (e.g. very long and thin widened lines).
                         && GetOrientation(points[i], points[next], lastPoint) == 0
-                        // And if points[i] is between lastPoint and points[next]. This prevents skipping the last point before the direction changes.
-                        && points[i].X >= Math.Min(lastPoint.X, points[next].X) && points[i].X <= Math.Max(lastPoint.X, points[next].X)
-                        && points[i].Y >= Math.Min(lastPoint.Y, points[next].Y) && points[i].Y <= Math.Max(lastPoint.Y, points[next].Y))
+                        // TODO: this would be needed when adding points on the same line while changing direction, so this would ensure to add also the side points (e.g.: EdgeCaseTests, totally flat, MaxInt wide ellipse).
+                        //       But when doing this, the inner points should be removed, leaving the sides only. Without that, the figure may be filled incorrectly (e.g.: DrawClosedPathTest, RoundedRectangle25_01)
+                        //// And if points[i] is between lastPoint and points[next]. This prevents skipping the last point before the direction changes.
+                        //&& points[i].X >= Math.Min(lastPoint.X, points[next].X) && points[i].X <= Math.Max(lastPoint.X, points[next].X)
+                        //&& points[i].Y >= Math.Min(lastPoint.Y, points[next].Y) && points[i].Y <= Math.Max(lastPoint.Y, points[next].Y)
+                        )
                     {
                         continue;
                     }

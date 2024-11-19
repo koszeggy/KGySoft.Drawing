@@ -1191,7 +1191,7 @@ namespace KGySoft.Drawing.Shapes
         #region Methods
 
         #region Internal Methods
-        // These direct drawing methods perform the drawing without creating a session.
+        // These direct drawing methods perform thin line drawing without creating a session.
 
         internal void DrawLine(IReadWriteBitmapData bitmapData, Point p1, Point p2)
         {
@@ -1426,10 +1426,82 @@ namespace KGySoft.Drawing.Shapes
         }
 
         internal void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle)
-            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location });
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, ColorF.ToPColorF());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, ColorF);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, Color64.ToPColor64());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, Color64);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, Color32.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, Color32);
+        }
 
         internal void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, float offset)
-            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, offset);
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, ColorF, offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, Color32, offset);
+        }
 
         internal void DrawEllipse(IReadWriteBitmapData bitmapData, Rectangle bounds)
         {
@@ -1624,6 +1696,124 @@ namespace KGySoft.Drawing.Shapes
             }
 
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
+        }
+
+        internal void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, Rectangle bounds, int cornerRadius)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF.ToPColorF());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64.ToPColor64());
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32);
+        }
+
+        internal void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, RectangleF bounds, float cornerRadius, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF, offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32, offset);
+        }
+
+        internal void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, ColorF.ToPColorF(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, ColorF, offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color64.ToPColor64(), offset);
+                else
+                    DirectDrawer.GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color64, offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color32.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                DirectDrawer.GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                return;
+            }
+
+            DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color32, offset);
         }
 
         internal bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle)

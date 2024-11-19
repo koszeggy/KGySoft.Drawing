@@ -37,6 +37,7 @@
   + New DrawPath/BeginDrawPath/EndDrawPath/DrawPathAsync methods
   + New DrawPie/BeginDrawPie/EndDrawPie/DrawPieAsync methods
   + New FillPie/BeginFillPie/EndFillPie/FillPieAsync methods
+  + New DrawRoundedRectangle/BeginDrawRoundedRectangle/EndDrawRoundedRectangle/DrawRoundedRectangleAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
 
 + New KGySoft.Drawing.Shapes namespace

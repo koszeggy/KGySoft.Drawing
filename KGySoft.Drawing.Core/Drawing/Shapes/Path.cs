@@ -360,17 +360,18 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        public Path AddRoundedRectangle(float x, float y, float width, float height, float radius)
-            => AddRoundedRectangle(new RectangleF(x, y, width, height), radius);
+        public Path AddRoundedRectangle(float x, float y, float width, float height, float cornerRadius)
+            => AddRoundedRectangle(new RectangleF(x, y, width, height), cornerRadius);
 
-        public Path AddRoundedRectangle(RectangleF bounds, float radius)
+        public Path AddRoundedRectangle(RectangleF bounds, float cornerRadius)
         {
             // TODO: validation (bounds width/height, etc)
-            if (radius <= 0f)
+            if (cornerRadius == 0f) // not using tolerance because the path still can be scaled
                 return AddRectangle(bounds);
 
+            bounds.Normalize();
             StartFigure();
-            float diameter = radius * 2f;
+            float diameter = Math.Min(Math.Abs(cornerRadius) * 2f, Math.Min(Math.Abs(bounds.Width), Math.Abs(bounds.Height)));
             var corner = new RectangleF(bounds.Location, new SizeF(diameter, diameter));
 
             // top left
@@ -398,7 +399,24 @@ namespace KGySoft.Drawing.Shapes
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "(In)equality is handled correctly")]
         public Path AddRoundedRectangle(RectangleF bounds, float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft)
         {
+            bounds.Normalize();
             StartFigure();
+
+            // Adjusting radii to the bounds
+            radiusTopLeft = Math.Abs(radiusTopLeft);
+            radiusTopRight = Math.Abs(radiusTopRight);
+            radiusBottomRight = Math.Abs(radiusBottomRight);
+            radiusBottomLeft = Math.Abs(radiusBottomLeft);
+            float maxDiameterWidth = Math.Max(radiusTopLeft + radiusTopRight, radiusBottomLeft + radiusBottomRight);
+            float maxDiameterHeight = Math.Max(radiusTopLeft + radiusBottomLeft, radiusTopRight + radiusBottomRight);
+            if (maxDiameterWidth > bounds.Width || maxDiameterHeight > bounds.Height)
+            {
+                float scale = Math.Min(bounds.Width / maxDiameterWidth, bounds.Height / maxDiameterHeight);
+                radiusTopLeft *= scale;
+                radiusTopRight *= scale;
+                radiusBottomRight *= scale;
+                radiusBottomLeft *= scale;
+            }
 
             // top left
             var corner = new RectangleF(bounds.Location, new SizeF(radiusTopLeft * 2f, radiusTopLeft * 2f));

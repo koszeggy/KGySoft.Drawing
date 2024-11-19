@@ -1626,8 +1626,8 @@ namespace KGySoft.Drawing.Shapes
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
                 // NOTE: Unlike in DirectDrawer, rounding is not in a checked context here, because RawPath is already validated.
-                return (new Point((int)(p1.X.RoundTo(roundingUnit) + PixelOffset), (int)(p1.Y.RoundTo(roundingUnit) + PixelOffset)),
-                    new Point((int)(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)(p2.Y.RoundTo(roundingUnit) + PixelOffset)));
+                return (new Point((int)MathF.Floor(p1.X.RoundTo(roundingUnit) + PixelOffset), (int)MathF.Floor(p1.Y.RoundTo(roundingUnit) + PixelOffset)),
+                    new Point((int)MathF.Floor(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)MathF.Floor(p2.Y.RoundTo(roundingUnit) + PixelOffset)));
             }
 
             #endregion

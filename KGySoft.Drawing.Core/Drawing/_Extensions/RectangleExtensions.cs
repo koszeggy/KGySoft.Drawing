@@ -54,5 +54,38 @@ namespace KGySoft.Drawing
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static int BottomChecked(this Rectangle rectangle) => checked(rectangle.Y + rectangle.Height);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static void Normalize(this ref Rectangle rect)
+        {
+            if (rect.Width < 0)
+            {
+                rect.X += rect.Width;
+                rect.Width = -rect.Width;
+            }
+
+            if (rect.Height < 0)
+            {
+                rect.Y += rect.Height;
+                rect.Height = -rect.Height;
+            }
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static void Normalize(this ref RectangleF rect)
+        {
+            if (rect.Width < 0f)
+            {
+                rect.X += rect.Width;
+                rect.Width = -rect.Width;
+            }
+
+            if (rect.Height < 0f)
+            {
+                rect.Y += rect.Height;
+                rect.Height = -rect.Height;
+            }
+        }
+
     }
 }

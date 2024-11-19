@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -217,6 +218,26 @@ namespace KGySoft.Drawing.Shapes
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawRectangle(IBitmapDataInternal bitmapData, RectangleF rectangle, TColor c, float offset, TArg arg = default!)
+            {
+                (Point p1, Point p2) = Round(rectangle.Location, rectangle.Size.ToPointF(), offset);
+                DrawRectangle(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), c, arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal static void DrawRectangle(IBitmapDataInternal bitmapData, Rectangle rectangle, TColor c, TArg arg = default!)
+            {
+                int left = rectangle.Left;
+                int top = rectangle.Top;
+                int right = rectangle.RightChecked();
+                int bottom = rectangle.BottomChecked();
+                DrawLine(bitmapData, new Point(left, top), new Point(right, top), c, arg);
+                DrawLine(bitmapData, new Point(right, top), new Point(right, bottom), c, arg);
+                DrawLine(bitmapData, new Point(right, bottom), new Point(left, bottom), c, arg);
+                DrawLine(bitmapData, new Point(left, bottom), new Point(left, top), c, arg);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, float offset, TArg arg = default!)
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
@@ -296,6 +317,170 @@ namespace KGySoft.Drawing.Shapes
                 DrawLines(bitmapData, new[] { arc.EndPoint, arc.Center, arc.StartPoint }, c, offset, arg);
             }
 
+            internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, RectangleF bounds, float cornerRadius, TColor c, float offset, TArg arg = default!)
+            {
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
+                DrawRoundedRectangle(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), (int)MathF.Round(cornerRadius, MidpointRounding.AwayFromZero), c, arg);
+            }
+
+            internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, Rectangle bounds, int cornerRadius, TColor c, TArg arg = default!)
+            {
+                bounds.Normalize();
+                if (cornerRadius == 0)
+                {
+                    DrawRectangle(bitmapData, bounds, c, arg);
+                    return;
+                }
+
+                int diameter = Math.Min(Math.Abs(cornerRadius) << 1, Math.Min(Math.Abs(bounds.Width), Math.Abs(bounds.Height)));
+                var corner = new Rectangle(bounds.Location, new Size(diameter, diameter));
+                cornerRadius = diameter >> 1;
+
+                // top-left corner
+                DrawArc(bitmapData, corner, 180f, 90f, c, arg);
+
+                // top-right corner
+                corner.X = bounds.Right - diameter;
+                DrawArc(bitmapData, corner, 270f, 90f, c, arg);
+
+                // bottom-right corner
+                corner.Y = bounds.Bottom - diameter;
+                DrawArc(bitmapData, corner, 0f, 90f, c, arg);
+
+                // bottom-left corner
+                corner.X = bounds.Left;
+                DrawArc(bitmapData, corner, 90f, 90f, c, arg);
+
+                int from = bounds.Left + cornerRadius + 1;
+                int to = bounds.Right - cornerRadius - 1;
+
+                // top and bottom edges
+                if (from <= to)
+                {
+                    DrawLine(bitmapData, new Point(from, bounds.Top), new Point(to, bounds.Top), c, arg);
+                    DrawLine(bitmapData, new Point(from, bounds.Bottom), new Point(to, bounds.Bottom), c, arg);
+                }
+
+                from = bounds.Top + cornerRadius + 1;
+                to = bounds.Bottom - cornerRadius - 1;
+
+                // right and left edges
+                if (from <= to)
+                {
+                    DrawLine(bitmapData, new Point(bounds.Right, bounds.Top + cornerRadius), new Point(bounds.Right, bounds.Bottom - cornerRadius), c, arg);
+                    DrawLine(bitmapData, new Point(bounds.Left, bounds.Top + cornerRadius), new Point(bounds.Left, bounds.Bottom - cornerRadius), c, arg);
+                }
+            }
+
+            [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended")]
+            internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, RectangleF bounds,
+                float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, TColor c, float offset, TArg arg = default!)
+            {
+                // NOTE: Unlike the equal radius version, this method works with floats because of the possible scaling for big radii.
+                //       This ensures the same behavior as in Path.AddRoundedRectangle.
+
+                // Adjusting radii to the bounds
+                radiusTopLeft = Math.Abs(radiusTopLeft);
+                radiusTopRight = Math.Abs(radiusTopRight);
+                radiusBottomRight = Math.Abs(radiusBottomRight);
+                radiusBottomLeft = Math.Abs(radiusBottomLeft);
+                float maxDiameterWidth = Math.Max(radiusTopLeft + radiusTopRight, radiusBottomLeft + radiusBottomRight);
+                float maxDiameterHeight = Math.Max(radiusTopLeft + radiusBottomLeft, radiusTopRight + radiusBottomRight);
+                if (maxDiameterWidth > bounds.Width || maxDiameterHeight > bounds.Height)
+                {
+                    float scale = Math.Min(bounds.Width / maxDiameterWidth, bounds.Height / maxDiameterHeight);
+                    radiusTopLeft *= scale;
+                    radiusTopRight *= scale;
+                    radiusBottomRight *= scale;
+                    radiusBottomLeft *= scale;
+                }
+
+                // top left
+                var corner = new RectangleF(bounds.Location, new SizeF(radiusTopLeft * 2f, radiusTopLeft * 2f));
+                if (radiusTopLeft > 0f)
+                    DrawArc(bitmapData, corner, 180f, 90f, c, offset, arg);
+
+                // top right
+                if (radiusTopRight != radiusTopLeft)
+                    corner.Size = new SizeF(radiusTopRight * 2f, radiusTopRight * 2f);
+                corner.X = bounds.Right - corner.Width;
+                if (radiusTopRight > 0f)
+                    DrawArc(bitmapData, corner, 270f, 90f, c, offset, arg);
+
+                // bottom right
+                if (radiusBottomRight != radiusTopRight)
+                {
+                    corner.Size = new SizeF(radiusBottomRight * 2f, radiusBottomRight * 2f);
+                    corner.X = bounds.Right - corner.Width;
+                }
+
+                corner.Y = bounds.Bottom - corner.Height;
+                if (radiusBottomRight > 0f)
+                    DrawArc(bitmapData, corner, 0f, 90f, c, offset, arg);
+
+                // bottom left
+                if (radiusBottomLeft != radiusBottomRight)
+                {
+                    corner.Size = new SizeF(radiusBottomLeft * 2f, radiusBottomLeft * 2f);
+                    corner.Y = bounds.Bottom - corner.Height;
+                }
+
+                corner.X = bounds.Left;
+                if (radiusBottomLeft > 0f)
+                    DrawArc(bitmapData, corner, 90f, 90f, c, offset, arg);
+
+                // Unlike in the equal radius version, we always draw the edges (without +- 1) because we may have skipped zero-radius corners.
+                DrawLine(bitmapData, new PointF(bounds.Left + radiusTopLeft, bounds.Top), new PointF(bounds.Right - radiusTopRight, bounds.Top), c, offset, arg);
+                DrawLine(bitmapData, new PointF(bounds.Right, bounds.Top + radiusTopRight), new PointF(bounds.Right, bounds.Bottom - radiusBottomRight), c, offset, arg);
+                DrawLine(bitmapData, new PointF(bounds.Left + radiusBottomLeft, bounds.Bottom), new PointF(bounds.Right - radiusBottomRight, bounds.Bottom), c, offset, arg);
+                DrawLine(bitmapData, new PointF(bounds.Left, bounds.Top + radiusTopLeft), new PointF(bounds.Left, bounds.Bottom - radiusBottomLeft), c, offset, arg);
+            }
+
+            //internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, Rectangle bounds,
+            //    int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, TColor c, TArg arg = default!)
+            //{
+            //    bounds.Normalize();
+
+            //    int diameter = Math.Min(Math.Abs(cornerRadius) << 1, Math.Min(Math.Abs(bounds.Width), Math.Abs(bounds.Height)));
+            //    var corner = new Rectangle(bounds.Location, new Size(diameter, diameter));
+            //    cornerRadius = diameter >> 1;
+
+            //    // top-left corner
+            //    DrawArc(bitmapData, corner, 180f, 90f, c, arg);
+
+            //    // top-right corner
+            //    corner.X = bounds.Right - diameter;
+            //    DrawArc(bitmapData, corner, 270f, 90f, c, arg);
+
+            //    // bottom-right corner
+            //    corner.Y = bounds.Bottom - diameter;
+            //    DrawArc(bitmapData, corner, 0f, 90f, c, arg);
+
+            //    // bottom-left corner
+            //    corner.X = bounds.Left;
+            //    DrawArc(bitmapData, corner, 90f, 90f, c, arg);
+
+            //    int from = bounds.Left + cornerRadius + 1;
+            //    int to = bounds.Right - cornerRadius - 1;
+
+            //    // top and bottom edges
+            //    if (from <= to)
+            //    {
+            //        DrawLine(bitmapData, new Point(from, bounds.Top), new Point(to, bounds.Top), c, arg);
+            //        DrawLine(bitmapData, new Point(from, bounds.Bottom), new Point(to, bounds.Bottom), c, arg);
+            //    }
+
+            //    from = bounds.Top + cornerRadius + 1;
+            //    to = bounds.Bottom - cornerRadius - 1;
+
+            //    // right and left edges
+            //    if (from <= to)
+            //    {
+            //        DrawLine(bitmapData, new Point(bounds.Right, bounds.Top + cornerRadius), new Point(bounds.Right, bounds.Bottom - cornerRadius), c, arg);
+            //        DrawLine(bitmapData, new Point(bounds.Left, bounds.Top + cornerRadius), new Point(bounds.Left, bounds.Bottom - cornerRadius), c, arg);
+            //    }
+            //}
+
             internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
             {
                 Debug.Assert(!rectangle.IsEmpty() && new Rectangle(Point.Empty, bitmapData.Size).Contains(rectangle));
@@ -344,10 +529,10 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
             {
-                p1.X = p1.X.RoundTo(roundingUnit) + offset;
-                p1.Y = p1.Y.RoundTo(roundingUnit) + offset;
-                p2.X = p2.X.RoundTo(roundingUnit) + offset;
-                p2.Y = p2.Y.RoundTo(roundingUnit) + offset;
+                p1.X = MathF.Floor(p1.X.RoundTo(roundingUnit) + offset);
+                p1.Y = MathF.Floor(p1.Y.RoundTo(roundingUnit) + offset);
+                p2.X = MathF.Floor(p2.X.RoundTo(roundingUnit) + offset);
+                p2.Y = MathF.Floor(p2.Y.RoundTo(roundingUnit) + offset);
 
                 // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
                 return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
@@ -825,10 +1010,82 @@ namespace KGySoft.Drawing.Shapes
         }
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
-            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.RightChecked(), rectangle.BottomChecked()), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color);
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, color.ToPColorF());
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, color.ToColorF());
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, color.ToPColor64());
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, color.ToColor64());
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, color.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(color));
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, color);
+        }
 
         internal static void DrawRectangle(IReadWriteBitmapData bitmapData, RectangleF rectangle, Color32 color, float offset)
-            => DrawLines(bitmapData, new[] { rectangle.Location, new(rectangle.Right, rectangle.Top), new(rectangle.Right, rectangle.Bottom), new(rectangle.Left, rectangle.Bottom), rectangle.Location }, color, offset);
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, color, offset);
+        }
 
         internal static void DrawEllipse(IReadWriteBitmapData bitmapData, Rectangle bounds, Color32 color)
         {
@@ -1023,6 +1280,124 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, color, offset);
+        }
+
+        internal static void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, Rectangle bounds, int cornerRadius, Color32 color)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColorF());
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToColorF());
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColor64());
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToColor64());
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColor32());
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(color));
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color);
+        }
+
+        internal static void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, RectangleF bounds, float cornerRadius, Color32 color, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, color, offset);
+        }
+
+        internal static void DrawRoundedRectangle(IReadWriteBitmapData bitmapData, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, Color32 color, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, color, offset);
         }
 
         internal static bool FillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Rectangle rectangle, Color32 color)
