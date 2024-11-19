@@ -133,6 +133,9 @@ namespace KGySoft
         /// <summary>If not zero or one points are specified, then the number of points minus one should be divisible by 3.</summary>
         internal static string ShapesBezierPointsInvalid => Get("Shapes_BezierPointsInvalid");
 
+        /// <summary>Start and end points are too close to each other.</summary>
+        internal static string ShapesStartEndTooClose => Get("Shapes_StartEndTooClose");
+
         #endregion
 
         #endregion

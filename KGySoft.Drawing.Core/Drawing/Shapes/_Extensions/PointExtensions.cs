@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -79,6 +80,10 @@ namespace KGySoft.Drawing.Shapes
             point = new Point((int)pointF.X, (int)pointF.Y);
             return pointF.X == point.X && pointF.Y == point.Y;
         }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static bool HasNaNOrInfinity(this PointF point)
+            => Single.IsNaN(point.X) || Single.IsInfinity(point.X) || Single.IsNaN(point.Y) || Single.IsInfinity(point.Y);
 
         #endregion
     }

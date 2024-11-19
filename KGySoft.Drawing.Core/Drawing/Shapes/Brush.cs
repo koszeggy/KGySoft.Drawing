@@ -26,6 +26,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -2461,32 +2462,75 @@ namespace KGySoft.Drawing.Shapes
         public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
 
-        // TODO: clip Rectangle
         public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, Point offset = default, bool hasAlphaHint = true)
             => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint, offset);
 
-        // TODO: Color64/ColorF/Point
+        public static Brush CreateTexture(IReadableBitmapData texture, Rectangle textureBounds, TextureMapMode mapMode = TextureMapMode.Tile, Point offset = default, bool hasAlphaHint = true)
+            => CreateTexture(texture.Clip(textureBounds), mapMode, offset, hasAlphaHint);
+
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
             GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => CreateLinearGradient(startPoint, endPoint, startColor.ToColor64(), endColor.ToColor64(), mapMode, workingColorSpace);
+
+        public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
+            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
-            // TODO: validate points (infinity, NaN
-            //if (startPoint.HasInfinityOrNaN)
-            //    throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
-            //if (endPoint.HasInfinityOrNaN)
-            //    throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
-            //if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
-            //    throw new ArgumentException(Res.ShapesStartEndTooClose);
+            if (startPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
+            if (endPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
+            if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
+                throw new ArgumentException(Res.ShapesStartEndTooClose);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+          
             if (startColor == endColor && mapMode != GradientMapMode.Clip)
                 return CreateSolid(startColor);
-
             bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
+            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
+        }
+
+        public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
+            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            if (startPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
+            if (endPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
+            if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
+                throw new ArgumentException(Res.ShapesStartEndTooClose);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+
+            if (startColor == endColor && mapMode != GradientMapMode.Clip)
+                return CreateSolid(startColor);
+            bool isLinear = workingColorSpace != WorkingColorSpace.Srgb;
             return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
         }
 
         // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
         public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => CreateLinearGradient(angle, startColor.ToColor64(), endColor.ToColor64(), workingColorSpace);
+
+        public static Brush CreateLinearGradient(float angle, Color64 startColor, Color64 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
+            if (Single.IsNaN(angle) || Single.IsInfinity(angle))
+                throw new ArgumentOutOfRangeException(nameof(angle), PublicResources.ArgumentOutOfRange);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+
             bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
+            return new LinearGradientBrush(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
+        }
+
+        public static Brush CreateLinearGradient(float angle, ColorF startColor, ColorF endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            if (Single.IsNaN(angle) || Single.IsInfinity(angle))
+                throw new ArgumentOutOfRangeException(nameof(angle), PublicResources.ArgumentOutOfRange);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+
+            bool isLinear = workingColorSpace != WorkingColorSpace.Srgb;
             return new LinearGradientBrush(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
         }
 
