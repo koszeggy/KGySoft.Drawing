@@ -18,13 +18,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-#if NETCOREAPP3_0_OR_GREATER
-using System.Runtime.CompilerServices;
-#endif
+
 #if !NET35
 using System.Threading.Tasks;
 #endif
 
+using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
 
 #endregion
@@ -287,7 +286,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 if (ditherer == null || !accessor.PixelFormat.CanBeDithered)
-                    ClearDirect(context, accessor, color);
+                    return DirectDrawer.FillRectangle(context, accessor, new Rectangle(Point.Empty, bitmapData.Size), color);
                 else
                     ClearWithDithering(context, accessor, color, ditherer);
                 return !context.IsCancellationRequested;
@@ -299,351 +298,58 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "False alarm, the new analyzer includes the complexity of local methods")] 
-        private static void ClearDirect(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color)
-        {
-            #region Local Methods to Reduce Complexity
-
-            static void Clear64Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
-            {
-                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
-                int longWidth = bitmapData.RowSize >> 3;
-
-                // writing as longs
-                if (longWidth > 0)
-                {
-                    ulong value = bitmapData.PixelFormat.AsKnownPixelFormatInternal is KnownPixelFormat.Format64bppArgb
-                        ? new Color64(color).Value
-                        : new PColor64(color).Value;
-                    ClearRaw(context, bitmapData, longWidth, value);
-                }
-
-                // handling the rest (can be even the whole content if RowSize is 0)
-                int left = longWidth;
-                if (left < width && !context.IsCancellationRequested)
-                    ClearDirectFallback(context, bitmapData, color, left);
-            }
-
-            static void Clear32Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
-            {
-                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
-                int longWidth = bitmapData.RowSize >> 3;
-
-                // writing as longs
-                if (longWidth > 0)
-                {
-                    uint argb;
-                    switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
-                    {
-                        case KnownPixelFormat.Format32bppPArgb:
-                            argb = color.ToPremultiplied().Value;
-                            break;
-                        case KnownPixelFormat.Format32bppRgb:
-                            argb = (color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending())).Value;
-                            break;
-                        case KnownPixelFormat.Format32bppGrayScale:
-                            float f = (bitmapData.LinearBlending()
-                                ? new GrayF(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
-                                : new GrayF(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value;
-#if NETCOREAPP3_0_OR_GREATER
-                            argb = Unsafe.As<float, uint>(ref f);
-#else
-                            unsafe { argb = *(uint*)&f; }
-#endif
-                            break;
-
-                        default:
-                            argb = color.Value;
-                            break;
-                    }
-
-                    ClearRaw(context, bitmapData, longWidth, ((ulong)argb << 32) | argb);
-                }
-
-                // handling the rest (can be either the last column if width is odd, or even the whole content if RowSize is 0)
-                int left = longWidth << 1;
-                if (left < width && !context.IsCancellationRequested)
-                    ClearDirectFallback(context, bitmapData, color, left);
-            }
-
-            static void Clear16Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
-            {
-                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
-                int longWidth = bitmapData.RowSize >> 3;
-
-                // writing as longs
-                if (longWidth > 0)
-                {
-                    ushort shortValue = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
-                    {
-                        KnownPixelFormat.Format16bppArgb1555 => new Color16Argb1555(
-                            color.A == Byte.MaxValue ? color
-                            : color.A >= bitmapData.AlphaThreshold ? color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)
-                            : default).Value,
-                        KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
-                        KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
-                        _ => (bitmapData.LinearBlending()
-                            ? new Gray16(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
-                            : new Gray16(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value
-                    };
-
-                    uint uintValue = (uint)((shortValue << 16) | shortValue);
-                    ClearRaw(context, bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
-                }
-
-                // handling the rest (or even the whole content if RowSize is 0)
-                int left = longWidth << 2;
-                if (left < width && !context.IsCancellationRequested)
-                    ClearDirectFallback(context, bitmapData, color, left);
-            }
-
-            static void Clear8Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
-            {
-                Debug.Assert(bitmapData.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format8bppGrayScale);
-                int longWidth = bitmapData.RowSize >> 3;
-
-                // writing as longs
-                if (longWidth > 0)
-                {
-                    byte byteValue = (bitmapData.LinearBlending()
-                        ? new Gray8(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
-                        : new Gray8(color.A == Byte.MaxValue ? color : color.BlendWithBackgroundSrgb(bitmapData.BackColor))).Value;
-
-                    ushort shortValue = (ushort)((byteValue << 8) | byteValue);
-                    uint uintValue = (uint)((shortValue << 16) | shortValue);
-                    ClearRaw(context, bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
-                }
-
-                // handling the rest (or even the whole content if RowSize is 0)
-                int left = longWidth << 2;
-                if (left < width && !context.IsCancellationRequested)
-                    ClearDirectFallback(context, bitmapData, color, left);
-            }
-
-            static void ClearIndexed(IAsyncContext context, IBitmapDataInternal bitmapData, int bpp, Color32 color, int width)
-            {
-                int index = bitmapData.Palette?.GetNearestColorIndex(color) ?? 0;
-                byte byteValue = bpp == 8 ? (byte)index
-                    : bpp == 4 ? (byte)((index << 4) | index)
-                    : index == 1 ? Byte.MaxValue : Byte.MinValue;
-                int left = 0;
-
-                if (bitmapData.RowSize > 0)
-                {
-                    int factor = bpp == 8 ? 0
-                        : bpp == 4 ? 1
-                        : 3;
-
-                    // writing as longs
-                    if ((bitmapData.RowSize & 0b111) == 0)
-                    {
-                        int longWidth = bitmapData.RowSize >> 3;
-                        uint intValue = (uint)((byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
-                        ClearRaw(context, bitmapData, longWidth, ((ulong)intValue << 32) | intValue);
-                        left = (longWidth << 3) << factor;
-                    }
-                    // writing as integers
-                    else if ((bitmapData.RowSize & 0b11) == 0)
-                    {
-                        int intWidth = bitmapData.RowSize >> 2;
-                        ClearRaw(context, bitmapData, intWidth, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
-                        left = (intWidth << 2) << factor;
-                    }
-                    // writing as bytes
-                    else
-                    {
-                        ClearRaw(context, bitmapData, bitmapData.RowSize, byteValue);
-                        left = bitmapData.RowSize << factor;
-                    }
-                }
-
-                if (left >= width || context.IsCancellationRequested)
-                    return;
-
-                // handling the rest if needed (occurs if RowSize is 0 or right edge does not fall on byte boundary, eg. clipped bitmap data)
-                // we could simply jump to default here but as we already know the palette index we can optimize it a bit
-                if (width - left < parallelThreshold)
-                {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
-                    do
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        for (int x = left; x < width; x++)
-                            row.DoSetColorIndex(x, index);
-                        context.Progress?.Increment();
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // parallel clear
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
-                    int l = left;
-                    int w = width;
-                    int c = index;
-                    for (int x = l; x < w; x++)
-                        row.DoSetColorIndex(x, c);
-                });
-            }
-
-            static void ClearDirectFallback(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int offsetLeft)
-            {
-                int width = bitmapData.Width;
-                if (width - offsetLeft < parallelThreshold)
-                {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
-                    do
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        for (int x = offsetLeft; x < width; x++)
-                            row.DoSetColor32(x, color);
-                        context.Progress?.Increment();
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // parallel clear
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
-                    int l = offsetLeft;
-                    int w = width;
-                    Color32 c = color;
-                    for (int x = l; x < w; x++)
-                        row.DoSetColor32(x, c);
-                });
-            }
-
-            #endregion
-
-            if (!bitmapData.IsCustomPixelFormat && bitmapData.RowSize > 0)
-            {
-                int bpp = bitmapData.PixelFormat.BitsPerPixel;
-                int width = bitmapData.Width;
-                switch (bpp)
-                {
-                    // note: not using a spacial case for 128 bpp because with 1 pixel already 16 bytes are written
-                    //       and since a Color32 is specified for clearing the fallback is just good enough
-                    case 64:
-                        Clear64Bpp(context, bitmapData, color, width);
-                        return;
-
-                    case 32:
-                        Clear32Bpp(context, bitmapData, color, width);
-                        return;
-
-                    case 16:
-                        Clear16Bpp(context, bitmapData, color, width);
-                        return;
-
-                    case 8 when !bitmapData.PixelFormat.Indexed:
-                        Clear8Bpp(context, bitmapData, color, width);
-                        return;
-
-                    case <= 8 when bitmapData.PixelFormat.Indexed:
-                        ClearIndexed(context, bitmapData, bpp, color, width);
-                        return;
-                }
-            }
-
-            // Direct color-based clear (24/48/96/128 bit formats as well as raw-inaccessible and custom bitmap data)
-            ClearDirectFallback(context, bitmapData, color, 0);
-        }
-
-        private static void ClearRaw<T>(IAsyncContext context, IBitmapDataInternal bitmapData, int width, T data)
-            where T : unmanaged
-        {
-            // small width: going with sequential clear
-            if (width < parallelThreshold)
-            {
-                context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
-                do
-                {
-                    if (context.IsCancellationRequested)
-                        return;
-                    for (int x = 0; x < width; x++)
-                        row.DoWriteRaw(x, data);
-                    context.Progress?.Increment();
-                } while (row.MoveNextRow());
-                return;
-            }
-
-            // parallel clear
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-            {
-                IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
-                int w = width;
-                T raw = data;
-                for (int x = 0; x < w; x++)
-                    row.DoWriteRaw(x, raw);
-            });
-        }
-
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
             context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
+            using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+            if (context.IsCancellationRequested)
+                return;
+            IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
+                ? new SolidBitmapData(bitmapData.Size, color)
+                : bitmapData;
+
+            try
             {
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
                 if (context.IsCancellationRequested)
                     return;
-                IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
-                    ? new SolidBitmapData(bitmapData.Size, color)
-                    : bitmapData;
+                if (ditheringSession == null)
+                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
 
-                try
+                // sequential clear
+                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                 {
-                    context.Progress?.New(DrawingOperation.InitializingDitherer);
-                    using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
+                    int y = 0;
+                    do
                     {
                         if (context.IsCancellationRequested)
                             return;
-                        if (ditheringSession == null)
-                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
+                        y += 1;
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
 
-                        // sequential clear
-                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
-                        {
-                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
-                            int y = 0;
-                            do
-                            {
-                                if (context.IsCancellationRequested)
-                                    return;
-                                for (int x = 0; x < bitmapData.Width; x++)
-                                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
-                                y += 1;
-                                context.Progress?.Increment();
-                            } while (row.MoveNextRow());
-
-                            return;
-                        }
-
-                        // parallel clear
-                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
-                        {
-                            IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
-                            for (int x = 0; x < bitmapData.Width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
-                        });
-                    }
+                    return;
                 }
-                finally
+
+                // parallel clear
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
-                    if (!ReferenceEquals(initSource, bitmapData))
-                        initSource.Dispose();
-                }
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
+                });
+            }
+            finally
+            {
+                if (!ReferenceEquals(initSource, bitmapData))
+                    initSource.Dispose();
             }
         }
 
