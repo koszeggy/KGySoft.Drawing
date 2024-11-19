@@ -859,6 +859,314 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region RoundedRectangle
+
+        #region Sync
+
+        #region Default Context
+        // NOTE: Only this section has separate int/float overloads for convenience reasons.
+
+        // Remarks:
+        // - When cannot do a shortcut, a Path is created internally. In such case DrawPath with caching may perform better.
+        // - When drawing, bounds right/bottom are inclusive, so zero width or height means 1 pixel wide/high bounds.
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height, int cornerRadius, DrawingOptions? drawingOptions = null)
+            => FillRoundedRectangle(bitmapData, color, new Rectangle(x, y, width, height), cornerRadius, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, int x, int y, int width, int height,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null)
+            => FillRoundedRectangle(bitmapData, color, new Rectangle(x, y, width, height), radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillRoundedRectangle(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillRoundedRectangle(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height, float cornerRadius, DrawingOptions? drawingOptions = null)
+            => FillRoundedRectangle(bitmapData, color, new RectangleF(x, y, width, height), cornerRadius, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, float x, float y, float width, float height,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null)
+            => FillRoundedRectangle(bitmapData, color, new RectangleF(x, y, width, height), radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillRoundedRectangle(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            DoFillRoundedRectangle(AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool FillRoundedRectangle(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Brush brush, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return DoFillRoundedRectangle(context ?? AsyncHelper.DefaultContext, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static IAsyncResult BeginFillRoundedRectangle(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.BeginOperation(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static bool EndFillRoundedRectangle(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginFillRoundedRectangle));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, new SolidBrush(color), bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Brush brush, Rectangle bounds,
+            int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, cornerRadius, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        public static Task<bool> FillRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Brush brush, RectangleF bounds,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, brush);
+            return AsyncHelper.DoOperationAsync(ctx => DoFillRoundedRectangle(ctx, bitmapData, brush, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region Path
 
         // Remarks:
@@ -981,6 +1289,16 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPie(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, float startAngle, float sweepAngle, DrawingOptions drawingOptions)
             => DoFillPath(context, bitmapData, new Path(false).AddPie(rectangle, startAngle, sweepAngle), brush, drawingOptions);
+
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillRoundedRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, float cornerRadius, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddRoundedRectangle(rectangle, cornerRadius), brush, drawingOptions);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static bool DoFillRoundedRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle,
+            float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions drawingOptions)
+            => DoFillPath(context, bitmapData, new Path(false).AddRoundedRectangle(rectangle, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft), brush, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, Brush brush, DrawingOptions drawingOptions)
