@@ -137,12 +137,9 @@ namespace KGySoft.Drawing.Shapes
                         // Skipping point only if the orientation is 0 also in a shifted order.
                         // This prevents skipping false alarms at coordinates where float precision is less accurate (e.g. very long and thin widened lines).
                         && GetOrientation(points[i], points[next], lastPoint) == 0
-                        // TODO: this would be needed when adding points on the same line while changing direction, so this would ensure to add also the side points (e.g.: EdgeCaseTests, totally flat, MaxInt wide ellipse).
-                        //       But when doing this, the inner points should be removed, leaving the sides only. Without that, the figure may be filled incorrectly (e.g.: DrawClosedPathTest, RoundedRectangle25_01)
-                        //// And if points[i] is between lastPoint and points[next]. This prevents skipping the last point before the direction changes.
-                        //&& points[i].X >= Math.Min(lastPoint.X, points[next].X) && points[i].X <= Math.Max(lastPoint.X, points[next].X)
-                        //&& points[i].Y >= Math.Min(lastPoint.Y, points[next].Y) && points[i].Y <= Math.Max(lastPoint.Y, points[next].Y)
-                        )
+                        // And if points[i] is between lastPoint and points[next]. This prevents skipping the side points if the direction changes (e.g. a totally flat ellipse).
+                        && points[i].X >= Math.Min(lastPoint.X, points[next].X) && points[i].X <= Math.Max(lastPoint.X, points[next].X)
+                        && points[i].Y >= Math.Min(lastPoint.Y, points[next].Y) && points[i].Y <= Math.Max(lastPoint.Y, points[next].Y))
                     {
                         continue;
                     }
@@ -151,13 +148,6 @@ namespace KGySoft.Drawing.Shapes
                     orientations.Add(orientation);
                     lastPoint = points[i];
                 }
-
-                // removing points lying on the same line from the end
-                count = result.Count;
-                while (count > 2 && orientations[count - 1] == 0)
-                    count -= 1;
-                if (count < result.Count)
-                    result.RemoveRange(count, result.Count - count);
 
                 VertexCount = result.Count;
                 foreach (PointF vertex in result)
@@ -231,9 +221,12 @@ namespace KGySoft.Drawing.Shapes
             PointF slope2 = p3 - new SizeF(p2);
 #endif
             float result = (slope1.Y * slope2.X) - (slope1.X * slope2.Y);
-            return (sbyte)(result.TolerantIsZero(Constants.EqualityTolerance) ? 0
-                : result > 0f ? 1
-                : -1);
+            return result switch
+            {
+                > 0f => 1,
+                < 0f => -1,
+                _ => 0, // not using tolerance here because we need the exact result to be able to filter collinear points correctly in the caller
+            };
         }
 
         private static void DoOffset(IList<PointF> points)

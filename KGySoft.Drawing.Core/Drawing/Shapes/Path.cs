@@ -219,6 +219,8 @@ namespace KGySoft.Drawing.Shapes
 
         public Path AddLine(float x1, float y1, float x2, float y2) => AddLine(new PointF(x1, y1), new PointF(x2, y2));
 
+        // Points are not validated here but in the moment of drawing the possibly transformed path points must fall into the bounds of Int32;
+        // otherwise, an OverflowException will be thrown.
         public Path AddLine(PointF p1, PointF p2)
         {
             AppendPoints([p1, p2]);
@@ -331,7 +333,6 @@ namespace KGySoft.Drawing.Shapes
 
         public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
-            // TODO: validation (bounds width/height, etc)
             AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
             return this;
         }
@@ -341,7 +342,6 @@ namespace KGySoft.Drawing.Shapes
 
         public Path AddPie(RectangleF bounds, float startAngle, float sweepAngle)
         {
-            // TODO: validation (bounds width/height, etc)
             StartFigure();
             AddPoint(new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f));
             AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
@@ -353,7 +353,6 @@ namespace KGySoft.Drawing.Shapes
 
         public Path AddEllipse(RectangleF bounds)
         {
-            // TODO: validation (bounds width/height, etc)
             StartFigure();
             AddSegment(new ArcSegment(bounds));
             CloseFigure();
@@ -365,7 +364,6 @@ namespace KGySoft.Drawing.Shapes
 
         public Path AddRoundedRectangle(RectangleF bounds, float cornerRadius)
         {
-            // TODO: validation (bounds width/height, etc)
             if (cornerRadius == 0f) // not using tolerance because the path still can be scaled
                 return AddRectangle(bounds);
 

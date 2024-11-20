@@ -2154,7 +2154,6 @@ namespace KGySoft.Drawing.Shapes
 
             return mapMode switch
             {
-                // TODO: tile with offset
                 TextureMapMode.Tile => new TextureBrush<TextureMapperTileOffset>(texture, hasAlphaHint, mapMode, offset),
                 TextureMapMode.TileFlipX => new TextureBrush<TextureMapperTileFlipXOffset>(texture, hasAlphaHint, mapMode, offset),
                 TextureMapMode.TileFlipY => new TextureBrush<TextureMapperTileFlipYOffset>(texture, hasAlphaHint, mapMode, offset),

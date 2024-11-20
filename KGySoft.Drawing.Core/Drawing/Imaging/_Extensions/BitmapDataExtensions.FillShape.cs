@@ -1177,7 +1177,6 @@ namespace KGySoft.Drawing.Imaging
             DoFillPath(AsyncHelper.DefaultContext, bitmapData, path, new SolidBrush(color), drawingOptions ?? DrawingOptions.Default);
         }
 
-        // TODO: remove? Now it's for symmetry, but at DrawLine(s)/etc. it's justified because it has a special handling for thin lines, but here this is just a shortcut with new Pen(color)
         public static bool FillPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
             ValidateArguments(bitmapData, path);

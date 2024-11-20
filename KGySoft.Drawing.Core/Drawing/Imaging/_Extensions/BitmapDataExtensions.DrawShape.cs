@@ -3333,7 +3333,6 @@ namespace KGySoft.Drawing.Imaging
             DoDrawPath(AsyncHelper.DefaultContext, bitmapData, path, new Pen(color), drawingOptions ?? DrawingOptions.Default);
         }
 
-        // TODO: remove? Now it's for symmetry, but at DrawLine(s)/etc. it's justified because it has a special handling for thin lines, but here this is just a shortcut with new Pen(color)
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
             ValidateArguments(bitmapData, path);
@@ -3346,7 +3345,6 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawPath(ctx, bitmapData, path, pen, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
-        // TODO: remove? Now it's for symmetry, but at DrawLine(s)/etc. it's justified because it has a special handling for thin lines, but here this is just a shortcut with new Pen(color)
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Path path, DrawingOptions? drawingOptions = null)
         {
             ValidateArguments(bitmapData, path);
@@ -3374,7 +3372,6 @@ namespace KGySoft.Drawing.Imaging
         public static bool EndDrawPath(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawPath));
 
 #if !NET35
-        // TODO: remove? Now it's for symmetry, but at DrawLine(s)/etc. it's justified because it has a special handling for thin lines, but here this is just a shortcut with new Pen(color)
         public static Task<bool> DrawPathAsync(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, path);

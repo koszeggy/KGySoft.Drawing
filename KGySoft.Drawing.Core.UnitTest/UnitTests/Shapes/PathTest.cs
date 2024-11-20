@@ -384,28 +384,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             path.AddPolygon(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
             path.AddPolygon(new(50, 300), new(90, 200), new(0, 260), new(100, 260), new(10, 200));
 
-            // shapes with an almost horizontal top line
-            //path.AddLines(new(1, 1), new(260, 2), new(260, 15)/*, new(1, 15)*/);
-            //path.CloseFigure();
-            //path.AddLines(new(1, 16), new(260, 17), new(260, 30), new(1, 30));
-
-            // A rectangle implicitly closes the previous figure
-            //path.AddLines(new(1, 1), new(25, 2), new(25, 15)/*, new(1, 15)*/);
-            //path.AddRectangle(new RectangleF(1, 16, 24, 13));
-
-            //path.AddRectangle(new Rectangle(0, 0, 1, 1));
-            //path.AddRectangle(new Rectangle(1, 1, 1, 1));
-
-            // beziers
-            //path.AddBeziers(new(10, 10), new(42, 10), new(42, 42), new(10, 42));
-
-            //path.AddArc(new RectangleF(1, 1, 98, 48), 0, 180);
-            //path.AddPie(new RectangleF(1, 1, 98, 98), 45, 45);
-
-            //path.AddEllipse(new RectangleF(1, 1, 1920, 1440));
-            //path.AddEllipse(new RectangleF(1, 1, 98, 48));
-            //path.AddEllipse(new RectangleF(1, 1, 3, 3));
-
             using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(path.Bounds.Size + new Size(path.Bounds.Location) + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y) /*path.Bounds.Location*/), pixelFormat, colorSpace);
             if (backColor != Color.Empty)
                 bitmapDataBackground.Clear(backColor, options.Ditherer);
@@ -429,12 +407,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             using var bitmapData3 = bitmapDataBackground.Clone();
             bitmapData3.FillPath(context, Brush.CreateSolid(fillColor), pathCached, options);
             AssertAreEqual(bitmapData1, bitmapData3);
-
-#if DEBUG
-            return;
-            Assert.Fail("Execute performance test in Release");
-#endif
-
         }
 
         [TestCaseSource(nameof(FillPathTestSource))]
