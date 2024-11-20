@@ -21,7 +21,6 @@
 
 using System;
 using System.Drawing;
-using System.Numerics;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
@@ -152,8 +151,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["128bppPRgba_Alternate_NQ_Srgb_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
             ["128bppPRgba_Alternate_NQ_Linear_AA_AB_A128", KnownPixelFormat.Format128bppPRgba, WorkingColorSpace.Linear, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true } ],
 
-            ["32bppArgb_Alternate_NQ_Srgb_NA_NB_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
-            ["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = new TransformationMatrix(Matrix3x2.CreateRotation(13, new(100, 100))) } ],
+            ["32bppArgb_Alternate_NQ_Srgb_NA_NB_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false, Transformation = TransformationMatrix.CreateRotation(13, new(100, 100)) } ],
+            ["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = TransformationMatrix.CreateRotation(13, new(100, 100)) } ],
         ];
 
         private static object?[][] ScanPixelOffsetTestSource =>
@@ -420,7 +419,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //    .AddEllipse(new RectangleF(0, 0, 100, 100))
             //    .AddRectangle(new RectangleF(0, 0, 100, 100));
 
-            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData((path.Bounds.Size + offset * 2).ToSize(), pixelFormat, colorSpace);
+            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData((path.Bounds.Size + new SizeF(offset.Width * 2, offset.Height * 2)).ToSize(), pixelFormat, colorSpace);
             if (backColor != Color.Empty)
                 bitmapDataBackground.Clear(backColor, options.Ditherer);
             else
@@ -471,7 +470,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                         continue;
                     bitmapData.Clear(Color.Cyan);
 
-                    var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)MathF.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
+                    var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)Math.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
                     var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
                     bitmapData.DrawPath(context, pen, path, drawingOptions);
                     SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
@@ -482,11 +481,11 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCaseSource(nameof(DrawClosedPathTestSource))]
         public void DrawClosedPathTest(string name, Path path, float width)
         {
+            path.TransformAdded(TransformationMatrix.CreateTranslation(width, width));
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
             var colorSpace = WorkingColorSpace.Linear;
             var bounds = path.Bounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y)) + new Size((int)width * 2, (int)width * 2);
-            path.TransformAdded(TransformationMatrix.CreateTranslation(width, width));
 
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);
@@ -496,7 +495,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             {
                 if (fastThinLines && (width > 1f || antiAliasing))
                     continue;
-                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)MathF.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
+                var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)Math.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
                 LineJoinStyle[] joinStyles = [LineJoinStyle.Miter, LineJoinStyle.Bevel, LineJoinStyle.Round];
                 foreach (LineJoinStyle joinStyle in joinStyles)
                 {
@@ -666,7 +665,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //if (backColor != default)
             //    background.Clear(backColor);
 
-            using IReadWriteBitmapData fillTexture = GenerateAlphaGradientBitmapData(size / 4);
+            using IReadWriteBitmapData fillTexture = GenerateAlphaGradientBitmapData(new Size(size.Width / 4, size.Height / 4));
 
             //using IReadWriteBitmapData fillTexture = GetInfoIcon16();
 

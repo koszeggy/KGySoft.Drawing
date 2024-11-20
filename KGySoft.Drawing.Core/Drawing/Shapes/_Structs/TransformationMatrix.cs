@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
@@ -101,13 +102,118 @@ namespace KGySoft.Drawing.Shapes
 
         #region Operators
 
+        /// <summary>
+        /// Returns a boolean indicating whether the given matrices are equal.
+        /// </summary>
+        /// <param name="a">The first source matrix.</param>
+        /// <param name="b">The second source matrix.</param>
+        /// <returns><see langword="true"/> if the matrices are equal; otherwise, <see langword="false"/>.</returns>
         public static bool operator ==(TransformationMatrix a, TransformationMatrix b) => a.Equals(b);
-        
+
+        /// <summary>
+        /// Returns a boolean indicating whether the given matrices are not equal.
+        /// </summary>
+        /// <param name="a">The first source matrix.</param>
+        /// <param name="b">The second source matrix.</param>
+        /// <returns><see langword="true"/> if the matrices are not equal; otherwise, <see langword="false"/>.</returns>
         public static bool operator !=(TransformationMatrix a, TransformationMatrix b) => !(a == b);
-        
+
+        /// <summary>
+        /// Negates the given matrix by multiplying all values by -1.
+        /// </summary>
+        /// <param name="value">The source matrix.</param>
+        /// <returns>The negated matrix.</returns>
+        public static TransformationMatrix operator -(TransformationMatrix value)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new TransformationMatrix(-value.Matrix);
+#else
+            return new TransformationMatrix(-value.M11, -value.M12, -value.M21, -value.M22, -value.M31, -value.M32);
+#endif
+        }
+
+        /// <summary>
+        /// Adds each matrix element in value1 with its corresponding element in value2.
+        /// </summary>
+        /// <param name="a">The first source matrix.</param>
+        /// <param name="b">The second source matrix.</param>
+        /// <returns>The matrix containing the summed values.</returns>
+        public static TransformationMatrix operator +(TransformationMatrix a, TransformationMatrix b)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new TransformationMatrix(a.Matrix + b.Matrix);
+#else
+            return new TransformationMatrix(
+                a.M11 + b.M11,
+                a.M12 + b.M12,
+                a.M21 + b.M21,
+                a.M22 + b.M22,
+                a.M31 + b.M31,
+                a.M32 + b.M32);
+#endif
+        }
+
+        /// <summary>
+        /// Subtracts each matrix element in value2 from its corresponding element in value1.
+        /// </summary>
+        /// <param name="a">The first source matrix.</param>
+        /// <param name="b">The second source matrix.</param>
+        /// <returns>The matrix containing the resulting values.</returns>
+        public static TransformationMatrix operator -(TransformationMatrix a, TransformationMatrix b)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new TransformationMatrix(a.Matrix - b.Matrix);
+#else
+            return new TransformationMatrix(
+                a.M11 - b.M11,
+                a.M12 - b.M12,
+                a.M21 - b.M21,
+                a.M22 - b.M22,
+                a.M31 - b.M31,
+                a.M32 - b.M32);
+#endif
+        }
+
+        /// <summary>
+        /// Multiplies two matrices together and returns the resulting matrix.
+        /// </summary>
+        /// <param name="a">The first source matrix.</param>
+        /// <param name="b">The second source matrix.</param>
+        /// <returns>The product matrix.</returns>
         public static TransformationMatrix operator *(TransformationMatrix a, TransformationMatrix b)
         {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(a.Matrix * b.Matrix);
+#else
+            return new TransformationMatrix(
+                a.M11 * b.M11 + a.M12 * b.M21,
+                a.M11 * b.M12 + a.M12 * b.M22,
+                a.M21 * b.M11 + a.M22 * b.M21,
+                a.M21 * b.M12 + a.M22 * b.M22,
+                a.M31 * b.M11 + a.M32 * b.M21 + b.M31,
+                a.M31 * b.M12 + a.M32 * b.M22 + b.M32);
+#endif
+        }
+
+        /// <summary>
+        /// Scales all elements in a matrix by the given scalar factor.
+        /// </summary>
+        /// <param name="matrix">The source matrix.</param>
+        /// <param name="scalar">The scaling value to use.</param>
+        /// <returns>The resulting matrix.</returns>
+        public static TransformationMatrix operator *(TransformationMatrix matrix, float scalar)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new TransformationMatrix(matrix.Matrix * scalar);
+#else
+            return new TransformationMatrix(
+                matrix.M11 * scalar,
+                matrix.M12 * scalar,
+                matrix.M21 * scalar,
+                matrix.M22 * scalar,
+                matrix.M31 * scalar,
+                matrix.M32 * scalar);
+#endif
         }
 
         #endregion
@@ -162,23 +268,123 @@ namespace KGySoft.Drawing.Shapes
 
         public static TransformationMatrix CreateTranslation(float x, float y)
         {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(Matrix3x2.CreateTranslation(x, y));
+#else
+            return new TransformationMatrix(1f, 0f, 0f, 1f, x, y);
+#endif
         }
 
         public static TransformationMatrix CreateRotation(float radians)
         {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(Matrix3x2.CreateRotation(radians));
+#else
+            // It would be much better to use degrees here but the original Matrix3x2 implementation also uses radians.
+            const float rotationEpsilon = 0.001f * MathF.PI / 180f;
+            float cos, sin;
+            switch (radians)
+            {
+                // 0 degrees
+                case > -rotationEpsilon and < rotationEpsilon:
+                    cos = 1;
+                    sin = 0;
+                    break;
+
+                // 90 degrees
+                case > MathF.PI / 2 - rotationEpsilon and < MathF.PI / 2 + rotationEpsilon:
+                    cos = 0;
+                    sin = 1;
+                    break;
+
+                // 180 degrees
+                case > MathF.PI - rotationEpsilon and < MathF.PI + rotationEpsilon:
+                    cos = -1;
+                    sin = 0;
+                    break;
+                
+                // 270 degrees
+                case > -MathF.PI / 2 - rotationEpsilon and < -MathF.PI / 2 + rotationEpsilon:
+                    cos = 0;
+                    sin = -1;
+                    break;
+                
+                // Arbitrary rotation
+                default:
+                    cos = MathF.Cos(radians);
+                    sin = MathF.Sin(radians);
+                    break;
+            }
+
+            return new TransformationMatrix(cos, sin, -sin, cos, 0f, 0f);
+#endif
+        }
+
+        public static TransformationMatrix CreateRotation(float radians, PointF centerPoint)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new TransformationMatrix(Matrix3x2.CreateRotation(radians, centerPoint.AsVector2()));
+#else
+            // It would be much better to use degrees here but the original Matrix3x2 implementation also uses radians.
+            const float rotationEpsilon = 0.001f * MathF.PI / 180f;
+            float cos, sin;
+            switch (radians)
+            {
+                // 0 degrees
+                case > -rotationEpsilon and < rotationEpsilon:
+                    cos = 1;
+                    sin = 0;
+                    break;
+
+                // 90 degrees
+                case > MathF.PI / 2 - rotationEpsilon and < MathF.PI / 2 + rotationEpsilon:
+                    cos = 0;
+                    sin = 1;
+                    break;
+
+                // 180 degrees
+                case > MathF.PI - rotationEpsilon and < MathF.PI + rotationEpsilon:
+                    cos = -1;
+                    sin = 0;
+                    break;
+
+                // 270 degrees
+                case > -MathF.PI / 2 - rotationEpsilon and < -MathF.PI / 2 + rotationEpsilon:
+                    cos = 0;
+                    sin = -1;
+                    break;
+
+                // Arbitrary rotation
+                default:
+                    cos = MathF.Cos(radians);
+                    sin = MathF.Sin(radians);
+                    break;
+            }
+
+            return new TransformationMatrix(cos, sin, -sin, cos,
+                centerPoint.X * (1 - cos) + centerPoint.Y * sin,
+                centerPoint.Y * (1 - cos) - centerPoint.X * sin);
+#endif
         }
 
         public static TransformationMatrix CreateScale(float x, float y)
         {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(Matrix3x2.CreateScale(x, y));
+#else
+            return new TransformationMatrix(x, 0f, 0f, y, 0f, 0f);
+#endif
         }
 
         #endregion
 
         #region Instance Methods
 
+        /// <summary>
+        /// Returns a boolean indicating whether the matrix is equal to the other given matrix.
+        /// </summary>
+        /// <param name="other">The other matrix to test equality against.</param>
+        /// <returns><see langword="true"/> if this matrix is equal to <paramref name="other"/>; otherwise, <see langword="false"/>.</returns>
         public bool Equals(TransformationMatrix other)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -190,11 +396,20 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+        /// <summary>
+        /// Returns a boolean indicating whether the given <see cref="object"/> is equal to this matrix instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object"/> to compare against.</param>
+        /// <returns><see langword="true"/> if the object is equal to this matrix; otherwise, <see langword="false"/>.</returns>
         public override bool Equals(object? obj)
         {
             return obj is TransformationMatrix other && Equals(other);
         }
 
+        /// <summary>
+        /// Returns the hash code for this instance.
+        /// </summary>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -203,6 +418,14 @@ namespace KGySoft.Drawing.Shapes
             return ((M11, M12), (M21, M22), (M31, M32)).GetHashCode();
 #endif
         }
+
+        /// <summary>
+        /// Returns a string that represents this matrix.
+        /// </summary>
+        /// <returns>The string representation of this matrix.</returns>
+        /// <remarks>The numeric values in the returned string are formatted by using the conventions of the current culture.</remarks>
+        public override readonly string ToString()
+            => $"{{ {{M11:{M11} M12:{M12}}} {{M21:{M21} M22:{M22}}} {{M31:{M31} M32:{M32}}} }}";
 
         #endregion
 

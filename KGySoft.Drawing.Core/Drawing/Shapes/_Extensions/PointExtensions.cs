@@ -60,6 +60,10 @@ namespace KGySoft.Drawing.Shapes
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return Vector2.Transform(point.AsVector2(), matrix.Matrix).AsPointF();
+#else
+            return new PointF(
+                matrix.M11 * point.X + matrix.M21 * point.Y + matrix.M31,
+                matrix.M12 * point.X + matrix.M22 * point.Y + matrix.M32);
 #endif
         }
 

@@ -15,6 +15,8 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Drawing;
 
@@ -23,6 +25,18 @@ using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
 
 using NUnit.Framework;
+
+#endregion
+
+#region Used Aliases
+
+#if NETFRAMEWORK
+using Brush = KGySoft.Drawing.Shapes.Brush;
+using Pen = KGySoft.Drawing.Shapes.Pen;
+using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
+#endif
+
+#endregion
 
 #endregion
 
@@ -504,8 +518,9 @@ namespace KGySoft.Drawing.PerformanceTests
             Color32 color = Color.Blue;
             var pen = new Pen(color, 1f);
 
-            using var bitmapData1 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + path.Bounds.Location.AsSize() * 2);
-            using var bitmapData2 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + path.Bounds.Location.AsSize() * 2);
+            Point location = path.Bounds.Location;
+            using var bitmapData1 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + new Size(location.X * 2, location.Y * 2));
+            using var bitmapData2 = BitmapDataFactory.CreateBitmapData(path.RawPath.DrawOutlineBounds.Size + new Size(location.X * 2, location.Y * 2));
 
             bitmapData1.Clear(Color.Cyan);
             bitmapData2.Clear(Color.Cyan);

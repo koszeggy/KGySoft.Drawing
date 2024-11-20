@@ -98,7 +98,6 @@ namespace KGySoft.Drawing.Shapes
             // the try-finally block is just because of the return
             try
             {
-                var orientations = new List<sbyte>();
                 int count = points.Count;
                 int prev = count;
 
@@ -120,18 +119,19 @@ namespace KGySoft.Drawing.Shapes
                 } while (points[0].TolerantEquals(points[prev], Constants.EqualityTolerance));
 
                 count = prev + 1;
-                PointF lastPoint = points[prev];
-
-                result.Add(points[0]);
-                orientations.Add(GetOrientation(lastPoint, points[0], points[1]));
-                lastPoint = points[0];
+                PointF lastPoint = points[0];
+                result.Add(lastPoint);
 
                 for (int i = 1; i < count; i++)
                 {
+                    // Skipping points that are too close to the previous one
+                    if (points[i].TolerantEquals(lastPoint, Constants.EqualityTolerance))
+                        continue;
+
                     int next = i + 1;
                     if (next >= count)
                         next -= count;
-                    sbyte orientation = GetOrientation(lastPoint, points[i], points[next]);
+                    int orientation = GetOrientation(lastPoint, points[i], points[next]);
 
                     if (orientation == 0 && next != 0
                         // Skipping point only if the orientation is 0 also in a shifted order.
@@ -145,7 +145,6 @@ namespace KGySoft.Drawing.Shapes
                     }
 
                     result.Add(points[i]);
-                    orientations.Add(orientation);
                     lastPoint = points[i];
                 }
 
@@ -210,7 +209,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        private static sbyte GetOrientation(PointF p1, PointF p2, PointF p3)
+        private static int GetOrientation(PointF p1, PointF p2, PointF p3)
         {
             // https://www.tutorialspoint.com/how-to-check-orientation-of-3-ordered-points-in-java
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
