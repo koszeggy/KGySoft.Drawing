@@ -179,9 +179,14 @@ namespace KGySoft.Drawing.Shapes
 
         public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is DrawingOptions other && Equals(other);
 
-        // TODO: do combinations like in PenOptions
         // CacheRegionLimit is not in hash code, which is intended
-        public override int GetHashCode() => (Transformation, AntiAliasing, AlphaBlending, FillMode, ScanPathPixelOffset, DrawPathPixelOffset, Quantizer, Ditherer).GetHashCode();
+        public override int GetHashCode() => (Transformation, Quantizer, Ditherer,
+                Convert.ToInt32(AntiAliasing)
+                | Convert.ToInt32(AlphaBlending) << 1
+                | (int)FillMode << 2
+                | (int)ScanPathPixelOffset << 3
+                | (int)DrawPathPixelOffset << 4)
+            .GetHashCode();
 
         #endregion
     }

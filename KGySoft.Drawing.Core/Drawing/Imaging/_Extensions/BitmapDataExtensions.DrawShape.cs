@@ -15,6 +15,8 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +30,17 @@ using System.Threading.Tasks;
 
 using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
+
+#endregion
+
+#region Used Aliases
+
+#if NETFRAMEWORK
+using Pen = KGySoft.Drawing.Shapes.Pen;
+using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
+#endif
+
+#endregion
 
 #endregion
 

@@ -80,8 +80,9 @@ namespace KGySoft.Drawing
                 : 0f;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static float RoundTo(this float value, float smallestUnit, MidpointRounding mode = MidpointRounding.ToEven) 
-            => MathF.Round(value / smallestUnit, mode) * smallestUnit;
+        internal static float RoundTo(this float value, float smallestUnit)
+            // Always rounding halves up, even for negative values
+            => MathF.Floor(value / smallestUnit + 0.5f) * smallestUnit;
 
         internal static float ToRadian(this float degree) => degree * oneDegreeInRadian;
 

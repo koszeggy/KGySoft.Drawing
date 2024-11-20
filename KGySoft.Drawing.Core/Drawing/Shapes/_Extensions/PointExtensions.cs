@@ -21,9 +21,7 @@ using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
-#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#endif
 
 #if !(NETCOREAPP || NET45_OR_GREATER || NETSTANDARD)
 using KGySoft.CoreLibraries;
@@ -55,7 +53,7 @@ namespace KGySoft.Drawing.Shapes
         internal static Vector2 AsVector2(this PointF point) => Unsafe.As<PointF, Vector2>(ref point);
 #elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector2 AsVector2(this PointF point) => new Vector2(point.X, point.Y);
+        internal static unsafe Vector2 AsVector2(this PointF point) => *(Vector2*)&point;
 #endif
 
         internal static PointF Transform(this PointF point, TransformationMatrix matrix)
@@ -70,7 +68,7 @@ namespace KGySoft.Drawing.Shapes
         internal static Size AsSize(this Point point) => Unsafe.As<Point, Size>(ref point);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Size AsSize(this Point point) => new Size(point);
+        internal static unsafe Size AsSize(this Point point) => *(Size*)&point;
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

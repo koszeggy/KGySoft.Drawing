@@ -4,14 +4,23 @@ namespace System
 {
     internal static class MathF
     {
+        #region Constants
+
+        internal const float PI = (float)Math.PI;
+
+        #endregion
+
         #region Methods
 
-        public static float Round(float x) => (float)Math.Round(x);
-        public static float Round(float x, MidpointRounding mode) => (float)Math.Round(x, mode);
-        
-        public static float Floor(float x) => (float)Math.Floor(x);
-
-        public static float Pow(float x, float y) => (float)Math.Pow(x, y);
+        internal static float Round(float x) => (float)Math.Round(x);
+        internal static float Round(float x, MidpointRounding mode) => (float)Math.Round(x, mode);
+        internal static float Floor(float x) => (float)Math.Floor(x);
+        internal static float Pow(float x, float y) => (float)Math.Pow(x, y);
+        internal static float Sin(float x) => (float)Math.Sin(x);
+        internal static float Cos(float x) => (float)Math.Cos(x);
+        internal static float Sqrt(float x) => (float)Math.Sqrt(x);
+        internal static float Atan2(float y, float x) => (float)Math.Atan2(y, x);
+        internal static float Asin(float x) => (float)Math.Asin(x);
 
         #endregion
     }

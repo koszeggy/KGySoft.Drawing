@@ -17,9 +17,7 @@
 
 using System;
 using System.Drawing;
-#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#endif
 using System.Runtime.InteropServices;
 
 #endregion

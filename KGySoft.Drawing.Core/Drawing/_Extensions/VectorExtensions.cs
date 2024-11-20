@@ -83,7 +83,7 @@ namespace KGySoft.Drawing
         internal static PointF AsPointF(this Vector2 vector) => Unsafe.As<Vector2, PointF>(ref vector);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static PointF AsPointF(this Vector2 vector) => new PointF(vector.X, vector.Y);
+        internal static unsafe PointF AsPointF(this Vector2 vector) => *(PointF*)&vector;
 #endif
 
         #endregion
