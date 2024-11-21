@@ -29,21 +29,10 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        #region Internal Fields
-
         /// <summary>
         /// The pixel buffer where the underlying array is a single dimensional one.
-        /// It is a field rather than a property so Dispose allows mutating it.
         /// </summary>
         internal Array2D<T> Buffer;
-
-        #endregion
-
-        #region Private Fields
-
-        private readonly bool ownsBuffer;
-
-        #endregion
 
         #endregion
 
@@ -54,8 +43,16 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(!cfg.PixelFormat.IsCustomFormat, "In this overload known pixel format is expected");
             Debug.Assert(cfg.DisposeCallback == null, "No dispose callback is expected from the self-allocating constructor");
-            Buffer = new Array2D<T>(cfg.Size.Height, typeof(T) == typeof(byte) ? cfg.PixelFormat.GetByteWidth(cfg.Size.Width) : cfg.Size.Width);
-            ownsBuffer = true;
+
+            // Passing an array to the Array2D constructor to avoid array pooling.
+            if (typeof(T) == typeof(byte))
+            {
+                int byteWidth = cfg.PixelFormat.GetByteWidth(cfg.Size.Width);
+                Buffer = new Array2D<T>(new T[cfg.Size.Height * byteWidth], cfg.Size.Height, byteWidth);
+            }
+            else
+                Buffer = new Array2D<T>(new T[cfg.Size.Height * cfg.Size.Width], cfg.Size.Height, cfg.Size.Width);
+
             RowSize = Buffer.Width * sizeof(T);
         }
 
@@ -116,21 +113,6 @@ namespace KGySoft.Drawing.Imaging
                     return ref ((TPixel*)&((byte*)pBuf)[y * RowSize])[x];
             }
 #endif
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (IsDisposed)
-                return;
-
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                if (ownsBuffer)
-                    Buffer.Dispose();
-                else
-                    Buffer = default;
-            }
         }
 
         #endregion

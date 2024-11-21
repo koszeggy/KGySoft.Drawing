@@ -40,6 +40,8 @@
   + New DrawRoundedRectangle/BeginDrawRoundedRectangle/EndDrawRoundedRectangle/DrawRoundedRectangleAsync methods
   + New FillRoundedRectangle/BeginFillRoundedRectangle/EndFillRoundedRectangle/FillRoundedRectangleAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
+* BitmapDataFactory class:
+  * Self-allocating CreateBitmapData overloads: No longer using array pooling automatically.
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================
