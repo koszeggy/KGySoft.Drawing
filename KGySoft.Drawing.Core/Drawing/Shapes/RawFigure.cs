@@ -195,11 +195,18 @@ namespace KGySoft.Drawing.Shapes
                     DoOffset(result);
                 }
 
-                // For performance reasons there are no checks in the public Path.AddXXX methods (which actually allows transformations into the valid range before drawing),
-                // but here we throw an OverflowException for extreme cases.
-                // Not using Rectangle.FromLTRB because it allows overflow.
-                Bounds = checked(new Rectangle((int)minX.TolerantFloor(Constants.EqualityTolerance), (int)minY.TolerantFloor(Constants.EqualityTolerance),
-                    (int)(maxX - minX).TolerantCeiling(Constants.EqualityTolerance), (int)(maxY - minY).TolerantCeiling(Constants.EqualityTolerance)));
+                // For performance reasons there are no checks in the public Path.AddXXX methods (which actually allows
+                // transformations into the valid range before drawing), but here we throw an OverflowException for extreme cases.
+                checked
+                {
+                    int left = (int)minX.TolerantFloor(Constants.EqualityTolerance);
+                    int top = (int)minY.TolerantFloor(Constants.EqualityTolerance);
+                    int right = (int)maxX.TolerantCeiling(Constants.EqualityTolerance);
+                    int bottom = (int)maxY.TolerantCeiling(Constants.EqualityTolerance);
+
+                    // Not using Rectangle.FromLTRB because it allows overflow.
+                    Bounds = new Rectangle(left, top, right - left, bottom - top);
+                }
 
                 IsClosed = isClosed;
             }
