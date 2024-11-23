@@ -4034,7 +4034,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 int x = actualTargetRectangle.X - targetRectangle.X + sourceRectangle.X;
                 int y = actualTargetRectangle.Y - targetRectangle.Y + sourceRectangle.Y;
-                actualSourceRectangle.IntersectSafe(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
+                actualSourceRectangle = actualSourceRectangle.IntersectSafe(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
             }
 
             // adjusting target by clipped source
@@ -4042,7 +4042,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 int x = actualSourceRectangle.X - sourceRectangle.X + targetRectangle.X;
                 int y = actualSourceRectangle.Y - sourceRectangle.Y + targetRectangle.Y;
-                actualTargetRectangle.IntersectSafe(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
+                actualTargetRectangle = actualTargetRectangle.IntersectSafe(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
             }
 
             return (actualSourceRectangle, actualTargetRectangle);

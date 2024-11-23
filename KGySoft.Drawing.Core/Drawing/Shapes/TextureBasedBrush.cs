@@ -1529,7 +1529,7 @@ namespace KGySoft.Drawing.Shapes
                 if (left > size.Width || right < -1 || top < 0 && bottom >= size.Height)
                     return;
 
-                while (top - bottom <= height)
+                while (bottom - top <= height)
                 {
                     SetPixel(right + 1, bottom, 0);
                     SetPixel(left - 1, bottom, 1);

@@ -552,7 +552,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 int y = scanline.RowIndex - VisibleBounds.Top;
                 Debug.Assert(y < BitmapData.Height);
-                IBitmapDataRowInternal row = BitmapData.GetRowCached(y);
+                IBitmapDataRowInternal row = BitmapData.GetRowCached(scanline.RowIndex);
                 Color32 c = color;
                 int left = scanline.Left;
                 IQuantizingSession session = quantizingSession;

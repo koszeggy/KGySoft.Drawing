@@ -35,6 +35,8 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Fields
 
+        private static readonly bool addTimestamp = true;
+
         private static Color32[] paletteRgb565;
         private static Color32[] paletteArgb4444;
         private static Color32[] paletteArgb2222;
@@ -140,7 +142,8 @@ namespace KGySoft.Drawing.UnitTests
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.{extension}");
+            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}{GetTimestamp()}.{extension}");
+            CheckFileName(fileName);
             using (var fs = File.Create(fileName))
                 ms.WriteTo(fs);
         }
@@ -176,8 +179,8 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
-
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{GetTimestamp()}");
+            CheckFileName($"{fileName}.gif");
             Assert.IsTrue(source.PixelFormat.BitsPerPixel <= 8 && source.Palette != null);
             using var stream = File.Create($"{fileName}.gif");
             GifEncoder.EncodeImage(source, stream);
@@ -462,6 +465,9 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Private Methods
 
+        private static string GetTimestamp() => addTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+        private static void CheckFileName(string fileName) => Assert.IsFalse(File.Exists(fileName), $"File already exists: {fileName}");
+
         private static void SaveBitmap(string imageName, Bitmap bitmap, string testName)
         {
             if (!SaveToFile)
@@ -471,11 +477,12 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{GetTimestamp()}");
 
             int bpp = Image.GetPixelFormatSize(bitmap.PixelFormat);
             if (bpp > 8)
             {
+                CheckFileName($"{fileName}.png");
                 bitmap.Save($"{fileName}.png", ImageFormat.Png);
                 return;
             }
@@ -495,6 +502,7 @@ namespace KGySoft.Drawing.UnitTests
                 toSave.UnlockBits(dstBitmapData);
             }
 
+            CheckFileName($"{fileName}.gif");
             bitmap.Save($"{fileName}.gif", ImageFormat.Gif);
             if (!ReferenceEquals(bitmap, toSave))
                 toSave.Dispose();

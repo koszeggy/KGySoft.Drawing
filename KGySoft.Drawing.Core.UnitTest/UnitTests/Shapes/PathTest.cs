@@ -237,7 +237,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["Pie135_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 135, 90), 1f],
             ["Pie225_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 225, 90), 1f],
             ["Pie315_90Deg01", new Path().AddPie(new RectangleF(1, 1, 98, 48), 315, 90), 1f],
-            ["Pie225_90Deg01", new Path().AddPie(new RectangleF(1, 1, 50, 50), 225, 90), 1f],
         ];
 
         private static object?[][] DrawThinLinesTestSource =>

@@ -2208,8 +2208,8 @@ namespace KGySoft.Drawing.Shapes
                 PointF pStart = edgeInfo.Start;
                 PointF pEnd = edgeInfo.End;
                 PointF center = (pStart + new SizeF(pEnd));
-                center.X *= 0.05f;
-                center.Y *= 0.05f;
+                center.X *= 0.5f;
+                center.Y *= 0.5f;
                 pStart.X -= center.X;
                 pStart.Y -= center.Y;
                 pEnd.X -= center.X;

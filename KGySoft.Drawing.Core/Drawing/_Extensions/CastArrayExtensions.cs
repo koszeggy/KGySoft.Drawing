@@ -32,10 +32,10 @@ namespace KGySoft.Drawing
             where T : unmanaged
         {
             // TODO: an optionally parallel sort, especially if it's faster than the original
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
             array.AsSpan.Sort();
 #else
-            if (array.Length < 1)
+            if (array.Length < 2)
                 return;
 
             T[] temp = array.ToArray()!;
@@ -43,7 +43,6 @@ namespace KGySoft.Drawing
             for (int i = 0; i < array.Length; i++)
                 array.SetElementUnsafe(i, temp[i]);
 #endif
-
         }
 
         internal static void Sort<TKeyBase, TKey, TItemBase, TItem>(this CastArray<TKeyBase, TKey> keys, CastArray<TItemBase, TItem> items)
@@ -52,17 +51,20 @@ namespace KGySoft.Drawing
             where TItemBase : unmanaged
             where TItem : unmanaged
         {
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
             keys.AsSpan.Sort(items.AsSpan);
 #else
-            if (keys.Length < 1)
+            if (keys.Length < 2)
                 return;
-            TItem[] temp = items.ToArray()!;
-            Array.Sort(keys.ToArray()!, temp);
+            TItem[] itemsArr = items.ToArray()!;
+            TKey[] keysArr = keys.ToArray()!;
+            Array.Sort(keysArr, itemsArr);
             for (int i = 0; i < items.Length; i++)
-                items.SetElementUnsafe(i, temp[i]);
+            {
+                keys.SetElementUnsafe(i, keysArr[i]);
+                items.SetElementUnsafe(i, itemsArr[i]);
+            }
 #endif
-
         }
 
         #endregion

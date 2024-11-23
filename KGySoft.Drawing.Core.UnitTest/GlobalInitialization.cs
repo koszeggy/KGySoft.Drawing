@@ -51,7 +51,7 @@ namespace KGySoft.Drawing
 #endif
 
 #if NET7_0_OR_GREATER && !WINDOWS
-            Assert.Inconclusive("When targeting .NET 7 or later, executing the tests require Windows. For Linux or macOS target .NET 6 or earlier.");
+            Assert.Inconclusive("When targeting .NET 7 or later, executing the tests requires Windows. For Linux or macOS target .NET 6 or earlier.");
 #endif
         }
 
