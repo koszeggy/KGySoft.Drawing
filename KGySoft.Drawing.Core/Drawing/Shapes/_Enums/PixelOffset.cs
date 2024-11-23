@@ -20,6 +20,5 @@ namespace KGySoft.Drawing.Shapes
     {
         None,
         Half,
-        //Auto // TODO - makes sense for draw only. Maybe not needed
     }
 }

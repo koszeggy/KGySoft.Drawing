@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: GradientMapMode.cs
+//  File: GradientWrapMode.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -15,7 +15,10 @@
 
 namespace KGySoft.Drawing.Shapes
 {
-    public enum GradientMapMode
+    /// <summary>
+    /// Represents the mode how a gradient is treated when the gradient area is exceeded.
+    /// </summary>
+    public enum GradientWrapMode
     {
         Stop,
         Clip,

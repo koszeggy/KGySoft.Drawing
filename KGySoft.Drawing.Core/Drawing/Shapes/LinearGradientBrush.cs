@@ -123,22 +123,22 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// This constructor creates a gradient texture with specific start/end points that is not bound to any path.
         /// </summary>
-        internal LinearGradientBrush(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor, GradientMapMode mapMode, bool isLinearColorSpace)
+        internal LinearGradientBrush(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor, GradientWrapMode wrapMode, bool isLinearColorSpace)
         {
             this.startColor = startColor;
             this.endColor = endColor;
             this.isLinearColorSpace = isLinearColorSpace;
-            HasAlpha = startColor.A < 1f || endColor.A < 1f || mapMode == GradientMapMode.Clip;
+            HasAlpha = startColor.A < 1f || endColor.A < 1f || wrapMode == GradientWrapMode.Clip;
 
             // the actual size does not matter because as an IBitmapDataInternal any pixel coordinate can be read without range check
             var size = new Size(1, 1);
-            texture = mapMode switch
+            texture = wrapMode switch
             {
-                GradientMapMode.Stop => new GradientBitmapData<StoppingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
-                GradientMapMode.Clip => new GradientBitmapData<ClippingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
-                GradientMapMode.Repeat => new GradientBitmapData<RepeatingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
-                GradientMapMode.Mirror => new GradientBitmapData<MirroringInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
-                _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(mapMode))
+                GradientWrapMode.Stop => new GradientBitmapData<StoppingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
+                GradientWrapMode.Clip => new GradientBitmapData<ClippingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
+                GradientWrapMode.Repeat => new GradientBitmapData<RepeatingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
+                GradientWrapMode.Mirror => new GradientBitmapData<MirroringInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinearColorSpace),
+                _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(wrapMode))
             };
         }
 

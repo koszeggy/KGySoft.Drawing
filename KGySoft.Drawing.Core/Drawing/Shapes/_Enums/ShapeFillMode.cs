@@ -10,7 +10,7 @@
         /// Specifies the alternate fill mode. If a scanline of the region to fill crosses an odd number of path segments,
         /// the starting point is inside the closed region and is therefore part of the fill area. An even number of crossings means
         /// that the point is not in an area to be filled. This strategy is faster than the <see cref="NonZero"/> mode, though
-        /// it may produce "holes" inside a complex polygon.
+        /// it may produce "holes" when a polygon has self-crossing lines.
         /// </summary>
         Alternate,
 

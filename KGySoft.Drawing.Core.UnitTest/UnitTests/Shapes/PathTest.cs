@@ -155,12 +155,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["32bppArgb_Alternate_NQ_Srgb_AA_AB_A128_Rotated", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Empty, Color.FromArgb(128, Color.Blue), new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = true, AntiAliasing = true, Transformation = TransformationMatrix.CreateRotation(13, new(100, 100)) } ],
         ];
 
-        private static object?[][] ScanPixelOffsetTestSource =>
+        private static object?[][] PixelOffsetTestSource =>
         [
             // string name, Path path
-            ["Rectangle", new Path().AddRectangle(new RectangleF(1, 1, 10, 5))],
-            ["AlmostRectangle", new Path().AddLines(new(2, 1), new(23, 2), new(24, 8), new(1, 9))],
-            ["Star", new Path().AddLines(new(50, 0), new(90, 100), new(0, 40), new(100, 40), new(10, 100))],
+            ["Rectangle", new Path().AddRectangle(new RectangleF(2, 2, 10, 5))],
+            ["AlmostRectangle", new Path().AddPolygon(new(2, 1), new(23, 2), new(24, 8), new(1, 9))],
+            ["Star", new Path().AddPolygon(new(50, 0), new(90, 100), new(0, 40), new(100, 40), new(10, 100))],
             ["Ellipse", new Path().AddEllipse(new RectangleF(1, 1, 98, 48))],
         ];
 
@@ -180,6 +180,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["LineLong.5", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 0.5f],
             ["LineLong.Thin", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 1f/48f],
             ["LineLong10", new Path().AddLine(new PointF(1, 1), new PointF(13, 2)), 10f],
+            ["LineLongHorizontal10", new Path().AddLine(new PointF(1, 5), new PointF(100, 5)), 10f],
             ["Joints01", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 1f],
             ["Joints10", new Path().AddLines(new(0, 100), new(50, 20), new(100, 100)), 10f],
             ["TetragonOpen", new Path().AddLines(new PointF(1, 1), new PointF(40, 1), new PointF(100, 50), new PointF(0, 50)), 10f],
@@ -217,6 +218,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
             ["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
             ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
+            ["RotatedEllipse01", new Path().SetTransformation(TransformationMatrix.CreateRotation(45f.ToRadian(), new PointF(50, 25))).AddEllipse(new RectangleF(2, 20, 95, 45)), 1f],
             ["RoundedRectangle5_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
             ["RoundedRectangle25_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 25f), 1f],
             ["RoundedRectangle50_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 50f), 1f],
@@ -372,12 +374,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             //path.AddLines(new(30, 20), new(26, 30), new(35, 24), new(25, 24), new(34, 30));
 
             // star, big
-            //path.AddLines(new(300, 200), new(260, 300), new(350, 240), new(250, 240), new(340, 300), new(300, 200));
+            //path.AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90));
             //path.AddLines(new(300, 200), new(260, 300), new(350, 240), new(250, 240), new(340, 300));
             //path.CloseFigure(); // combine with the following to mix two closed figures - note: causes holes even with Alternate mode, but the same happens for GDI+, too
 
             // Multiple stars with all possible edge relations (to test EdgeInfo.ConfigureEdgeRelation)
-            //path.TransformTranslation(50, 0);
+            path.TransformTranslation(50, 0);
             path.AddPolygon(new(300, 300), new(260, 200), new(350, 260), new(250, 260), new(340, 200));
             path.AddPolygon(new(50, 50), new(90, 150), new(0, 90), new(100, 90), new(10, 150));
             path.AddPolygon(new(300, 50), new(260, 150), new(350, 90), new(250, 90), new(340, 150));
@@ -481,7 +483,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCaseSource(nameof(DrawClosedPathTestSource))]
         public void DrawClosedPathTest(string name, Path path, float width)
         {
-            path.TransformAdded(TransformationMatrix.CreateTranslation(width, width));
+            path.TransformAdded(TransformationMatrix.CreateTranslation(width * 2, width * 2));
             var pixelFormat = KnownPixelFormat.Format32bppArgb;
             var colorSpace = WorkingColorSpace.Linear;
             var bounds = path.Bounds;
@@ -560,8 +562,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var path = new Path(false)
                 .TransformTranslation(1, 1)
                 .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))
-                .AddEllipse(new RectangleF(0, 0, 100, 100))
-                .AddRoundedRectangle(new RectangleF(0, 0, 100, 100), 10);
+                .AddEllipse(0, 0, 100, 100)
+                .AddRoundedRectangle(0, 0, 100, 100, cornerRadius: 10);
 
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
@@ -616,7 +618,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             AssertAreEqual(bitmapData1, bitmapData3);
         }
 
-        [TestCaseSource(nameof(ScanPixelOffsetTestSource))]
+        [TestCaseSource(nameof(PixelOffsetTestSource))]
         public void ScanPixelOffsetTest(string name, Path path)
         {
             var bounds = path.RawPath.Bounds;
@@ -643,6 +645,38 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
                 using var bitmapData3 = bitmapDataBackground.Clone();
                 bitmapData3.FillPath(context, brush, path, options);
+                AssertAreEqual(bitmapData1, bitmapData3);
+            }
+        }
+
+        [TestCaseSource(nameof(PixelOffsetTestSource))]
+        public void DrawPathPixelOffsetTest(string name, Path path)
+        {
+            var bounds = path.RawPath.DrawOutlineBounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+            Assert.IsFalse(bounds.IsEmpty());
+
+            using var bitmapDataBackground = BitmapDataFactory.CreateBitmapData(size);
+            bitmapDataBackground.Clear(Color.Cyan);
+            IAsyncContext context = new SimpleContext(-1);
+            foreach (float width in new[] { 1f, 2f })
+            foreach (PixelOffset pixelOffset in new[] { PixelOffset.None, PixelOffset.Half })
+            {
+                // Missing right/bottom line
+                var pen = new Pen(Color.Blue, width);
+                var options = new DrawingOptions { DrawPathPixelOffset = pixelOffset, AntiAliasing = true };
+                path.PreferCaching = false;
+                using var bitmapData1 = bitmapDataBackground.Clone();
+                bitmapData1.DrawPath(context, pen, path, options);
+                SaveBitmapData($"{name}_{width}_{pixelOffset}", bitmapData1);
+
+                path.PreferCaching = true;
+                using var bitmapData2 = bitmapDataBackground.Clone();
+                bitmapData2.DrawPath(context, pen, path, options);
+                AssertAreEqual(bitmapData1, bitmapData2);
+
+                using var bitmapData3 = bitmapDataBackground.Clone();
+                bitmapData3.DrawPath(context, pen, path, options);
                 AssertAreEqual(bitmapData1, bitmapData3);
             }
         }
@@ -745,12 +779,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             using var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
 
-            foreach (GradientMapMode mapMode in new[] { GradientMapMode.Stop, GradientMapMode.Clip, GradientMapMode.Repeat, GradientMapMode.Mirror })
+            foreach (GradientWrapMode mapMode in new[] { GradientWrapMode.Stop, GradientWrapMode.Clip, GradientWrapMode.Repeat, GradientWrapMode.Mirror })
             foreach (bool blend in new[] { false, true })
             foreach (bool antiAliasing in new[] { false, true })
             {
                 bitmap.Clear(Color.Navy);
-                var brush = Brush.CreateLinearGradient(new PointF(x1, y1), new PointF(x2, y2), Color.Red, Color.Blue, mapMode);
+                var brush = Brush.CreateLinearGradient(new PointF(x1, y1), new PointF(x2, y2), Color.Red, Color.Blue, mapMode, WorkingColorSpace.Linear);
                 foreach (int offset in new[] { -50, 0, 50 })
                     bitmap.FillPath(null, brush, path, new DrawingOptions { AlphaBlending = blend, AntiAliasing = antiAliasing, Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50) });
 

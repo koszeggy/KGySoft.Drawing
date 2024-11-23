@@ -2469,11 +2469,11 @@ namespace KGySoft.Drawing.Shapes
             => CreateTexture(texture.Clip(textureBounds), mapMode, offset, hasAlphaHint);
 
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
-            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
-            => CreateLinearGradient(startPoint, endPoint, startColor.ToColor64(), endColor.ToColor64(), mapMode, workingColorSpace);
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => CreateLinearGradient(startPoint, endPoint, startColor.ToColor64(), endColor.ToColor64(), wrapMode, workingColorSpace);
 
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
-            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (startPoint.HasNaNOrInfinity())
                 throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
@@ -2484,14 +2484,14 @@ namespace KGySoft.Drawing.Shapes
             if (!workingColorSpace.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
           
-            if (startColor == endColor && mapMode != GradientMapMode.Clip)
+            if (startColor == endColor && wrapMode != GradientWrapMode.Clip)
                 return CreateSolid(startColor);
             bool isLinear = workingColorSpace == WorkingColorSpace.Linear;
-            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
+            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), wrapMode, isLinear);
         }
 
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
-            GradientMapMode mapMode = GradientMapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (startPoint.HasNaNOrInfinity())
                 throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
@@ -2502,10 +2502,10 @@ namespace KGySoft.Drawing.Shapes
             if (!workingColorSpace.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
-            if (startColor == endColor && mapMode != GradientMapMode.Clip)
+            if (startColor == endColor && wrapMode != GradientWrapMode.Clip)
                 return CreateSolid(startColor);
             bool isLinear = workingColorSpace != WorkingColorSpace.Srgb;
-            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), mapMode, isLinear);
+            return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), wrapMode, isLinear);
         }
 
         // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
