@@ -18,12 +18,12 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
 3. [Documentation](#documentation)
 4. [Release Notes](#release-notes)
 5. [Examples](#examples)
-   - [Icon Manipulation](#icon-manipulation)
    - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
    - [Fast GetPixel/SetPixel For Any Bitmaps](#fast-getpixelsetpixel-for-any-bitmaps)
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
    - [3rd Party Bitmap Types Support](#3rd-party-bitmap-types-support)
    - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
+   - [Shape Drawing](#shape-drawing)
    - [Color Correct Alpha Blending](#color-correct-alpha-blending)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
@@ -158,23 +158,8 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 
 ## Examples
 
-### Icon Manipulation
-<sub>(Requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Icon` type)</sub>
-
-Icon images of different resolutions and color depth can be extracted from an `Icon`, whereas `Bitmap` and `Icon` instances can be combined into a new `Icon`. PNG compressed icons are also supported.
-
-```cs
-// extracting the 256x256 image from an icon:
-Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-
-// combining an existing icon with a bitmap:
-Icon combined = myIcon.Combine(bmp);
-```
-
-> 💡 _Tip:_ See more details at the [Icons](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Icons.htm) and [IconExtensions](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_IconExtensions.htm) classes.
-
 ### Fast Bitmap Manipulation
-<sub>(This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but works similarly also for any other bitmaps you can create an [`IBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)</sub>
+<sub>(This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but works similarly also for other bitmap types (e.g. `WriteableBitmap` of WPF/UWP/WinUI) you can create an [`IBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)</sub>
 
 As it is well known, `Bitmap.SetPixel`/`GetPixel` methods are very slow, and `Bitmap.SetPixel` does not even support every pixel format. A typical solution can be to obtain a `BitmapData` by the `LockBits` method, which has further drawbacks: you need to use unsafe code and pointers, and the way you need to access the bitmap data depends on the actual `PixelFormat` of the bitmap.
 
@@ -311,6 +296,112 @@ return BitmapDataFactory.CreateBitmapData(
 > 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/8ac1a38317660a954ac6cf416c55d1fc3108c2fc/Examples/Maui/Extensions/SKBitmapExtensions.cs#L85) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
+
+### Shape Drawing
+
+KGy SOFT Drawing Libraries offer several extension methods for drawing shapes on bitmaps. It does not matter if you are using a managed bitmap data, a GDI+ `Bitmap`, `WriteableBitmap`, `SKBitmap` or any other bitmap type, the result will be the same for the same pixel formats. Even indexed formats are supported, which usually isn't the case for the native built-in drawing methods of the bitmap types. You can use several brushes and pens to draw or fill shapes with different colors and patterns, and you can use the [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm) to specify several parameters, such as the quality of the rendering, or even quantizing and dithering.
+
+There are specific methods for drawing rectangles, ellipses, lines, polygons, Bézier-curves, arcs, pies and rounded rectangles, and you can specify paths for more complex compound shapes. The drawing methods are available as extension methods for the `IReadWriteBitmapData` interface (both in sync and async flavors), so you can use them with any bitmap type mentioned above.
+
+The following example demonstrates the possible shape drawing approaches with ellipse drawing:
+
+```cs
+// Using a managed bitmap here, but you can also use the GetReadWriteBitmapData
+// extension method of the specific libraries.
+using var bitmap = BitmapDataFactory.CreateBitmapData(64, 64, KnownPixelFormat.Format32bppArgb);
+
+// Drawing a filled ellipse with an implicit solid brush:
+bitmap.FillEllipse(Color.Red, new Rectangle(8, 8, 48, 48));
+
+// Drawing a filled ellipse with an explicit brush:
+bitmap.FillEllipse(Brush.CreateSolid(Color.Yellow), new Rectangle(20, 20, 24, 24));
+
+// Drawing an outlined ellipse with an implicit solid 1 pixel width pen:
+bitmap.DrawEllipse(Color.Green, new Rectangle(16, 16, 32, 32));
+
+// Drawing an outlined ellipse with an explicit pen:
+bitmap.DrawEllipse(new Pen(Color.Blue, 2f), new Rectangle(24, 24, 16, 16));
+
+// Similar as above, but asynchronously:
+await bitmap.FillEllipseAsync(Color.Red, new Rectangle(8, 8, 48, 48));
+```
+
+#### Path
+
+For more complex shapes, you can use the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) class to define a sequence of lines, curves, and other shapes. As it allows caching the path region, you may want to use it also for simple shapes if you plan to draw them multiple times.
+
+The following example demonstrates how to use the `Path` class:
+
+```cs
+// It supports flow syntax, so you could even inline it into a Draw/FillPath call:
+var path = new Path(false)
+    .TransformTranslation(1, 1)
+    .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))
+    .AddEllipse(0, 0, 100, 100)
+    .AddRoundedRectangle(0, 0, 100, 100, cornerRadius: 10);
+
+// Calculating required the size of the bitmap, adding symmetric padding:
+var bounds = path.Bounds;
+var size = bounds.Size + new Size(bounds.Location) * 2;
+
+// Or: GetReadWriteBitmapData for a GDI+ bitmap, WPF WriteableBitmap, SKBitmap, etc.
+using var bitmapData = BitmapDataFactory.CreateBitmapData(size);
+bitmapData.Clear(Color.Cyan);
+
+// Using implicit 1 pixel width solid pen and default drawing options:
+bitmapData.DrawPath(Color.Blue, path);
+```
+
+#### Drawing Options
+
+The examples above didn't specify the drawing options, so the default values were used. The [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm) class allows you to specify several parameters for the drawing methods, such as anti-aliasing, alpha blending, fill mode, special handling for drawing thin lines, pixel offset for scanning and paths, and even quantizing and dithering.
+
+The following table demonstrates a few examples of the different drawing options:
+
+| Description | Image Example |
+| -- | -- |
+| `FillMode = ShapeFillMode.Alternate` (default): When scanning the region of a polygon to be filled, a point is considered to be the part of the polygon if the scanline crosses odd number of lines before reaching the point to be drawn, and is considered not to be the part of the polygon if the scanline crosses even number of lines. This strategy is faster than the `NonZero` mode, though it may produce "holes" when a polygon has self-crossing lines. | ![Fill mode alternate](Help/Images/DrawingOptionsFillModeAlternate.png)|
+| `FillMode = ShapeFillMode.NonZero`: It considers the direction of the path segments at each intersection, adding/subtracting one at every clockwise/counterclockwise intersection. The point is considered to be the part of the polygon if the sum is not zero. | ![Fill mode non-zero](Help/Images/DrawingOptionsFillModeNonZero.png)|
+| `AntiAliasing = false`, `FastThinLines = true` (default): When anti-aliasing is disabled, 1 pixel width paths are drawn in a special way, optimized for performance and accuracy. The example is enlarged to show the effect. If it's shrunk, open the image in a new tab to see the difference. | ![Ellipse with fast thin lines enabled](Help/Images/DrawingOptionsFastThinLinesEnabled.png)|
+| `AntiAliasing = false`, `FastThinLines = false`: With disabled `FastThinLines` the 1 pixel width paths are drawn with the same algorithm as wider ones, which may cause a bit jagged appearance. The example is enlarged to show the effect. If it's shrunk, open the image in a new tab to see the difference. | ![Ellipse with fast thin lines disabled](Help/Images/DrawingOptionsFastThinLinesDisabled.png)|
+| `AntiAliasing = true`: When anti-aliasing is enabled, the edges of the shapes are smoothed by blending the colors of the shape and the background. The example is enlarged to show the individual pixels better. If it's shrunk, open the image in a new tab to see the difference. | ![Ellipse with anti-aliasing enabled](Help/Images/DrawingOptionsAntiAliasingEnabled.png)|
+| `AlphaBlending = true` (default): Possible alpha pixels are blended with the background. The used color space depends on the [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_IBitmapData_WorkingColorSpace.htm) of the target bitmap data. In this example the shape is drawn with solid brush, using blue color with 50% transparency, and the bitmap has linear working color space. | ![Alpha blending enabled](Help/Images/DrawingOptionsAlphaBlendingEnabled.png)|
+| `AlphaBlending = false`: Turns off alpha blending. Unless drawing on a transparent background, it's not recommended to combine disabled alpha blending with anti-aliasing, because unexpected alpha pixels may appear at the edges of the shapes. In the example image the brush uses transparent color, which 'cuts' a transparent 'hole' in the image. | ![Alpha blending disabled](Help/Images/DrawingOptionsAlphaBlendingDisabled.png)|
+| `ScanPixelOffset = PixelOffset.None`, `AntiAliasing = false`: When filling shapes, the scanning of edges occurs at the top of the pixels. The shape in the example has integer coordinates, the top edge is descending, whereas the bottom is ascending 1 pixel from the left to the right. The example is enlarged to show the effect. | ![Almost rectangular shape with ScanPixelOffset = PixelOffset.None](Help/Images/DrawingOptionsScanPixelOffsetNone.png)|
+| `ScanPixelOffset = PixelOffset.Half`, `AntiAliasing = false` (default): The scanning of edges occurs at the center of the pixels. The shape is the same as above. The example is enlarged to show the effect. | ![Almost rectangular shape with ScanPixelOffset = PixelOffset.Half](Help/Images/DrawingOptionsScanPixelOffsetHalf.png)|
+| `ScanPixelOffset = PixelOffset.None`, `AntiAliasing = true`: When filling shapes, the scanning of edges occurs at the top of the subpixels. When anti-aliasing is enabled, `ScanPixelOffset` makes a much less noticeable difference, though the gradients of the top and bottom lines are a bit different. The example is enlarged to show the effect. | ![Almost rectangular shape with ScanPixelOffset = PixelOffset.None and anti-aliasing](Help/Images/DrawingOptionsScanPixelOffsetNoneAA.png)|
+| `ScanPixelOffset = PixelOffset.Half`, `AntiAliasing = true`: The scanning of edges occurs at the center of the subpixels. The result is almost the same as above, though the gradients of the top and bottom lines are more symmetric. The example is enlarged to show the effect. | ![Almost rectangular shape with ScanPixelOffset = PixelOffset.Half and anti-aliasing](Help/Images/DrawingOptionsScanPixelOffsetHalfAA.png)|
+| `DrawPathPixelOffset = PixelOffset.None`: When drawing paths, the point coordinates are not adjusted before applying the pen width. For polygons with every point at integer coordinates, this causes blurry horizontal and vertical lines for odd pen widths and sharp ones for even pen widths. When anti-aliasing is disabled and all points are at integer coordinates, this option makes no difference. The left rectangle was drawn with 1 pixel width pen, and the right one with 2 pixel width pen. | ![Rectangle with DrawPathPixelOffset = PixelOffset.None](Help/Images/DrawingOptionsDrawPathPixelOffsetNone.png)|
+| `DrawPathPixelOffset = PixelOffset.Half` (default): The point coordinates are shifted with half pixel right and down before applying the pen width. For polygons with every point at integer coordinates, this causes sharp horizontal and vertical lines for odd pen widths and blurry ones for even pen widths. When anti-aliasing is disabled and all points are at integer coordinates, this option makes no difference. The left rectangle was drawn with 1 pixel width pen, and the right one with 2 pixel width pen. | ![Rectangle with DrawPathPixelOffset = PixelOffset.Half](Help/Images/DrawingOptionsDrawPathPixelOffsetHalf.png)|
+| `Quantizer` and `Ditherer`: Specifying a quantizer allows drawing shapes with limited number of colors, whereas a ditherer can preserve the tone of the original colors. When drawing into a bitmap with indexed pixel format, quantizing is automatically applied to the colors of the palette. This example is a 1 bit-per-pixel bitmap, the background was cleared with cyan, and the polygon was filled with blue color, and both operation used a [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm). | ![Shape drawn with quantizing and Bayer 8x8 dithering](Help/Images/DrawingOptionsDithering.png)|
+| `Transformation`: It allows specifying a transformation matrix for the drawing operation. The example demonstrates a simple rotation by 45 degrees from the center. Please note that if a `Path` is drawn multiple times with the same transformation, it's generally recommended to apply the transformation to the `Path` directly rather than to the `DrawingOptions`, because the latter prevents the `Path` region from being cached. | ![Ellipse drawn with a 45 degree rotation](Help/Images/DrawingOptionsTransformation.png)|
+
+#### Brushes
+
+The abstract [`Brush`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm) class has several `Create...` factory methods to create different types of brushes. The following table demonstrates a few examples:
+
+| Description | Image Example |
+|--|--|
+| `Brush.CreateSolid`: Creates a solid brush with a single color. `Color32`, `Color64` and `ColorF` overloads are available, and you can also use the named `Color` members to cast them to `Color32` implicitly. For example, `Brush.CreateSolid(Color32.FromArgb(128, Color.Blue))` creates a blue solid brush with 50% transparency that can produce a similar result to the one in the image. | ![Solid brush with alpha](Help/Images/DrawingOptionsAlphaBlendingEnabled.png)|
+| `Brush.CreateLinearGradient`: Creates a linear gradient brush. There are two groups of overloads: one for specifying a pair of start/end points optionally with some wrapping mode, and another one with an angle, which automatically stretches the gradient for the paths to fill.<br/><br/>The top image uses specific start/end points without repeating the gradient, whereas the bottom one just specified a zero angle to create a horizontal gradient. Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations. | ![Linear gradient brush with start/end points](Help/Images/BrushLinearGradientStartEndPoints.png)<br/>![Linear gradient brush with an angle](Help/Images/BrushLinearGradientAngle.png)|
+| `Brush.CreateTexture`: Creates a texture brush. A map mode can be specified, which allows tiling, stretching, centering and a few other modes.<br/><br/>The top image uses a texture with a map mode of tiling with mirroring on both axes, whereas the bottom one centers the same texture and uses no alpha blending, so where there is no texture pixel to set, the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations. | ![Texture brush with TileFlipXY map mode](Help/Images/BrushTextureTileFlipXY.png)<br/>![Texture brush with Center map mode](Help/Images/BrushTextureCenter.png)|
+
+#### Pens
+
+The [`Pen`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) class can be instantiated with a brush or a single color, and a width. Some other parameters, such as the start/end cap, the line join and the miter limit can be configured as well. The following table highlights a few properties:
+
+| Description | Image Example |
+|--|--|
+| `LineJoin`: Specifies how to join the consecutive line segments. Can be `Miter`, `Bevel` or `Round`. The example images demonstrate these join types from the top to the bottom. All examples use a 10 pixel width pen. | ![Line join style Miter](Help/Images/PenLineJoinStyleMiter.png)<br/>![Line join style Bevel](Help/Images/PenLineJoinStyleBevel.png)<br/>![Line join style Round](Help/Images/PenLineJoinStyleRound.png)|
+| `StartCap` and `EndCap`: Specifies the style of the start and end points of an open figure. Can be `Flat`, `Square`, `Round` or `Triangle`. The example images demonstrate these cap types from the top to the bottom, using the same cap style at both ends. Please note that the only difference between `Flat` and `Square` styles is that the `Flat` style has the originally specified length, whereas the `Square` style extends the line by half of the pen width. All examples use a 10 pixel width pen. | ![Line cap style Flat](Help/Images/PenLineCapStyleFlat.png)<br/>![Line cap style Square](Help/Images/PenLineCapStyleSquare.png)<br/>![Line cap style Round](Help/Images/PenLineCapStyleRound.png)<br/>![Line cap style Triangle](Help/Images/PenLineCapStyleTriangle.png)|
+| `Brush`: The pen can be instantiated with a `Brush`, which can be any kind of brushes described above. The example demonstrates a 10 pixel width pen with a diagonal linear gradient brush using mirrored wrapping mode. | ![Pen with linear gradient brush](Help/Images/PenWithBrush.png)|
+
+
+#### Asynchronous Drawing, Multi-Threading
+
+The basic `Draw...` and `Fill...` methods are synchronous, they automatically adjust the number of used threads, they cannot be canceled and they don't report progress. The overloads with a [`ParallelConfig`](https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm) parameter are still synchronous, but they allow you to specify the number of threads to be used, and you can also specify a `CancellationToken` to cancel the operation. They also allows you to specify a progress handler to report the progress of the operation.
+
+To draw shapes asynchronously, you can use the `Draw...Async` and `Fill...Async` methods on .NET Framework 4.0 or newer targets, or the old-fashioned `BeginDraw...`/`EndDraw...` and `BeginFill...`/`EndFill...` methods on every target starting with .NET Framework 3.5.
 
 ### Color Correct Alpha Blending
 
