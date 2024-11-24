@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>8.2.0</version>
+    <version>9.0.0-preview.1</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,10 +11,11 @@
     <readme>readme.md</readme>
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Advanced drawing features for completely managed and technology-agnostic bitmap data on multiple platforms. Among others: fast bitmap manipulation, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
+    <summary>Advanced drawing features for completely managed and technology-agnostic bitmap data on multiple platforms. Among others: fast bitmap manipulation, shape drawing, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
     <description xml:space="preserve">KGy SOFT Drawing Core Libraries offer advanced features in a technology-agnostic way.
 
 Among others:
+- Shape drawing
 - Creating managed bitmap data of any pixel format on every platform
 - Creating bitmap data for any managed or unmanaged buffer
 - Supporting custom pixel formats
@@ -39,39 +40,42 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
         <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
         <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="net6.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
       <group targetFramework="net8.0" >
-        <dependency id="KGySoft.CoreLibraries" version="8.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
+      </group>
+      <group targetFramework="net9.0" >
+        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
     </dependencies>
   </metadata>
@@ -103,5 +107,7 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <file src="..\bin\Release\net6.0\KGySoft.Drawing.Core.xml" target="lib\net6.0" />
     <file src="..\bin\Release\net8.0\KGySoft.Drawing.Core.dll" target="lib\net8.0" />
     <file src="..\bin\Release\net8.0\KGySoft.Drawing.Core.xml" target="lib\net8.0" />
+    <file src="..\bin\Release\net9.0\KGySoft.Drawing.Core.dll" target="lib\net9.0" />
+    <file src="..\bin\Release\net9.0\KGySoft.Drawing.Core.xml" target="lib\net9.0" />
   </files>
 </package>
