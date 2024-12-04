@@ -250,9 +250,8 @@ namespace KGySoft.Drawing.Shapes
                     sortedIndexYStart[i] = sortedIndexYEnd[i] = i;
                 }
 
-                sortedIndexYStartKeys.Sort(sortedIndexYStart);
-                sortedIndexYEndKeys.Sort(sortedIndexYEnd);
-
+                ParallelHelper.Sort(session.Context, sortedIndexYStartKeys, sortedIndexYStart);
+                ParallelHelper.Sort(session.Context, sortedIndexYEndKeys, sortedIndexYEnd);
                 SortedIndexYStart = sortedIndexYStart;
                 SortedIndexYEnd = sortedIndexYEnd;
             }

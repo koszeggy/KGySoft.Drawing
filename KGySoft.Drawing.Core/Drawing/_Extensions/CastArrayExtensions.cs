@@ -18,6 +18,9 @@
 using System;
 
 using KGySoft.Collections;
+#if !NET5_0_OR_GREATER
+using KGySoft.Threading;
+#endif
 
 #endregion
 
@@ -31,17 +34,10 @@ namespace KGySoft.Drawing
             where TBase : unmanaged
             where T : unmanaged
         {
-            // TODO: an optionally parallel sort, especially if it's faster than the original
 #if NET5_0_OR_GREATER
             array.AsSpan.Sort();
 #else
-            if (array.Length < 2)
-                return;
-
-            T[] temp = array.ToArray()!;
-            Array.Sort(temp);
-            for (int i = 0; i < array.Length; i++)
-                array.SetElementUnsafe(i, temp[i]);
+            ParallelHelper.Sort(AsyncHelper.SingleThreadContext, array);
 #endif
         }
 
@@ -54,16 +50,7 @@ namespace KGySoft.Drawing
 #if NET5_0_OR_GREATER
             keys.AsSpan.Sort(items.AsSpan);
 #else
-            if (keys.Length < 2)
-                return;
-            TItem[] itemsArr = items.ToArray()!;
-            TKey[] keysArr = keys.ToArray()!;
-            Array.Sort(keysArr, itemsArr);
-            for (int i = 0; i < items.Length; i++)
-            {
-                keys.SetElementUnsafe(i, keysArr[i]);
-                items.SetElementUnsafe(i, itemsArr[i]);
-            }
+            ParallelHelper.Sort(AsyncHelper.SingleThreadContext, keys, items);
 #endif
         }
 

@@ -20,9 +20,7 @@ using System;
 using System.Buffers;
 #endif
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 using KGySoft.Collections;
 using KGySoft.Threading;
@@ -87,12 +85,6 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 #endregion
-
-                #endregion
-
-                #region Constants
-
-                private const int parallelThreshold = 16;
 
                 #endregion
 
@@ -166,75 +158,6 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Methods
 
-                #region Static Methods
-
-                [SuppressMessage("ReSharper", "SwapViaDeconstruction",
-                    Justification = "Performance. The deconstruction would create additional locals and references.")]
-                private static int Partition(Color32[] array, int startIndex, int count, IComparer<Color32> comparer)
-                {
-                    #region Local Methods
-                    
-                    static void Swap(Color32[] array, int i, int j)
-                    {
-                        var temp = array[i];
-                        array[i] = array[j];
-                        array[j] = temp;
-                    }
-
-                    #endregion
-
-                    Debug.Assert(count > 1);
-                    if (count == 2)
-                    {
-                        if (comparer.Compare(array[startIndex], array[startIndex + 1]) > 0)
-                            Swap(array, startIndex, startIndex + 1);
-
-                        return 1;
-                    }
-
-                    // taking the pivot from the middle
-                    int pivotIndex = startIndex + (count >> 1);
-                    Color32 pivotValue = array[pivotIndex];
-
-                    int left = startIndex;
-                    int right = startIndex + count - 1;
-
-                    do
-                    {
-                        while (left <= right && comparer.Compare(array[left], pivotValue) <= 0)
-                            left += 1;
-                        while (left < right && comparer.Compare(pivotValue, array[right]) < 0)
-                            right -= 1;
-                        if (left >= right)
-                            break;
-
-                        Swap(array, left, right);
-                        if (pivotIndex == right)
-                            pivotIndex = left;
-
-                        left++;
-                        right--;
-                    } while (left <= right);
-
-                    // left - 1 is now the new place of the pivot
-                    if (pivotIndex != left - 1)
-                    {
-                        Swap(array, pivotIndex, left - 1);
-                        pivotIndex = left - 1;
-                    }
-
-#if DEBUG
-                    int endIndex = startIndex + count - 1;
-                    for (int i = startIndex; i < pivotIndex; i++)
-                        Debug.Assert(comparer.Compare(array[i], pivotValue) <= 0);
-                    for (int i = pivotIndex + 1; i < endIndex + 1; i++)
-                        Debug.Assert(comparer.Compare(array[i], pivotValue) > 0);
-#endif
-                    return pivotIndex - startIndex;
-                }
-
-                #endregion
-
                 #region Internal Methods
 
                 internal void AddColor(Color32 c)
@@ -278,7 +201,7 @@ namespace KGySoft.Drawing.Imaging
                         _ => blueSorter,
                     };
 
-                    Sort(context, sorter);
+                    ParallelHelper.Sort(context, colors, start, Count, sorter);
                     if (context.IsCancellationRequested)
                         return;
 
@@ -344,116 +267,6 @@ namespace KGySoft.Drawing.Imaging
                         bMin = c.B;
                     if (c.B > bMax)
                         bMax = c.B;
-                }
-
-                [MethodImpl(MethodImpl.AggressiveInlining)]
-                private void Sort(IAsyncContext context, IComparer<Color32> comparer)
-                {
-                    // We could just use Array.Sort(colors, start, Count, comparer) here but that's surprisingly slow even in .NET8
-                    int maxTasks = context.MaxDegreeOfParallelism;
-                    if (maxTasks <= 0)
-                        maxTasks = EnvironmentHelper.CoreCount;
-
-                    // Due to the recursive binary branching the allowed subtask count is logarithmic, eg. 3 if there are 8 cores.
-#if NETCOREAPP3_0_OR_GREATER
-                    DoSort(context, start, Count, comparer, (int)Math.Ceiling(Math.Log2(maxTasks)));
-#else
-                    DoSort(context, start, Count, comparer, (int)Math.Ceiling(Math.Log(maxTasks, 2)));
-#endif
-                }
-
-                /// <summary>
-                /// A special quick sort that is faster than Array.Sort even on single core but is able to use more cores when allowed.
-                /// </summary>
-                private void DoSort(IAsyncContext context, int startIndex, int count, IComparer<Color32> comparer, int freeDepth)
-                {
-                    // pivot index relative to startIndex, it's always between 0 and count
-                    int pivotIndex;
-
-                    // This is to prevent real recursion in trivial cases. We could use a stack to avoid real recursion,
-                    // but in practice that is slower and due to the nature of colors sorting no more than 128 depth is possible,
-                    // though in practice more than 24 recursion depth is very rare.
-                    while (true)
-                    {
-                        Debug.Assert(count > 1);
-                        if (context.IsCancellationRequested)
-                            return;
-
-                        // Separating two partitions and then sorting the halves recursively.
-                        pivotIndex = Partition(colors, startIndex, count, comparer);
-                        Debug.Assert(pivotIndex < count);
-
-                        // Left half has <= 1 element: doing the right half only
-                        if (pivotIndex <= 1)
-                        {
-                            // Narrowing from the left if possible. Can happen if the values are the same according to the comparer.
-                            int endIndex = count - 1;
-                            while (pivotIndex < endIndex && comparer.Compare(colors[startIndex + pivotIndex], colors[startIndex + pivotIndex + 1]) == 0)
-                                pivotIndex += 1;
-
-                            // there is nothing left to sort
-                            if (count - pivotIndex <= 1)
-                                return;
-
-                            // "Recursion" with the right half only so free depth can remain the same
-                            startIndex += pivotIndex;
-                            count -= pivotIndex;
-                            continue;
-                        }
-
-                        // Right half has <= 1 element
-                        if (count - pivotIndex <= 1)
-                        {
-                            // Narrowing from the right if possible. Can happen if the values are the same according to the comparer.
-                            while (pivotIndex > 1 && comparer.Compare(colors[startIndex + pivotIndex], colors[startIndex + pivotIndex - 1]) == 0)
-                                pivotIndex -= 1;
-
-                            // there is nothing left to sort
-                            if (pivotIndex <= 1)
-                                return;
-
-                            // "Recursion" with the left half only so free depth can remain the same
-                            count = pivotIndex;
-                            continue;
-                        }
-
-                        // Only real recursions from here so breaking the loop.
-                        break;
-                    }
-
-                    // Here we have two partitions that we can sort independently. If we have free depth we can spawn a new thread.
-                    if (freeDepth > 0 && Math.Min(pivotIndex, count - pivotIndex) >= parallelThreshold)
-                    {
-                        // Only one of them is spawned on a new thread because the current thread can do one of the jobs just fine.
-                        // Always the smaller half is assigned to the new thread because of the overhead and to prevent the wait handle
-                        // from starting sleeping if possible.
-                        using var handle = new ManualResetEventSlim(false);
-                        if (pivotIndex <= count >> 1)
-                        {
-                            ThreadPool.UnsafeQueueUserWorkItem(_ =>
-                            {
-                                DoSort(context, startIndex, pivotIndex, comparer, freeDepth - 1);
-                                handle.Set();
-                            }, null);
-                            DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth - 1);
-                        }
-                        else
-                        {
-                            ThreadPool.UnsafeQueueUserWorkItem(_ =>
-                            {
-                                DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth - 1);
-                                handle.Set();
-                            }, null);
-                            DoSort(context, startIndex, pivotIndex, comparer, freeDepth - 1);
-                        }
-
-                        handle.Wait();
-                        return;
-                    }
-
-                    // Otherwise, doing the recursions on the current thread. Note that we push the tasks in the stack in reversed order.
-                    DoSort(context, startIndex, pivotIndex, comparer, freeDepth);
-                    DoSort(context, startIndex + pivotIndex, count - pivotIndex, comparer, freeDepth);
                 }
 
                 #endregion
