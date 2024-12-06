@@ -43,10 +43,17 @@ namespace KGySoft.Drawing.Imaging
 
         internal static int CoreCount { get; } = GetCoreCount();
 
+#if NET6_0_OR_GREATER
+        internal static int MaxByteArrayLength => Array.MaxLength;
+#else
+        // Based on the internal Array.MaxByteArrayLength constant
+        internal static int MaxByteArrayLength => 0x7FFFFFC7;
+#endif
+
         #endregion
 
         #region Methods
-        
+
         #region Internal Methods
 
         internal static int GetThreadBasedCacheSize() => GetThreadBasedCacheSize(CoreCount);

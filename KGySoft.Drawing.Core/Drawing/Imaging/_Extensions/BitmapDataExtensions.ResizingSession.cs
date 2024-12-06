@@ -609,8 +609,763 @@ namespace KGySoft.Drawing.Imaging
 
         [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
             Justification = "Rectangles are not read-only to prevent creating defensive copies on older platform targets where getters are not read-only.")]
-        private sealed class ResizingSessionInterpolated : IDisposable
+        private abstract class ResizingSessionInterpolated : IDisposable
         {
+            #region Nested Classes
+
+            private sealed class ResizingSessionInterpolatedGeneric<T> : ResizingSessionInterpolated
+                where T : unmanaged
+            {
+                #region Fields
+
+                private ArraySection<T> underlyingBuffer;
+                private CastArray2D<T, PColorF> transposedFirstPassBuffer;
+
+                #endregion
+
+                #region Constructors
+
+                [SecuritySafeCritical]
+                internal unsafe ResizingSessionInterpolatedGeneric(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+                    Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
+                    : base(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
+                {
+                    Debug.Assert(default(T) is byte or PColorF);
+
+                    // Using target width and source height is intended.
+                    // Using the self-allocating constructor for byte element type only to avoid array pooling for non-byte element types.
+                    underlyingBuffer = typeof(T) == typeof(byte)
+                        ? new ArraySection<T>(targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF))
+                        : new ArraySection<T>(new T[targetRectangle.Width * sourceRectangle.Height]);
+
+                    // Flipping height/width is also intended (hence transposed).
+                    transposedFirstPassBuffer = new CastArray2D<T, PColorF>(underlyingBuffer, height: targetRectangle.Width, width: sourceRectangle.Height);
+                    currentWindow = (0, sourceRectangle.Height);
+
+                    CalculateFirstPassValues(currentWindow.Top, currentWindow.Bottom, true);
+                }
+
+                #endregion
+
+                #region Methods
+
+                #region Public Methods
+
+                public override void Dispose()
+                {
+                    underlyingBuffer.Release();
+                    base.Dispose();
+                }
+
+                #endregion
+
+                #region Internal Methods
+
+                internal override void PerformResize(IQuantizer? quantizer, IDitherer? ditherer)
+                {
+                    if (quantizer == null)
+                    {
+                        PerformResizeDirect();
+                        return;
+                    }
+
+                    IReadableBitmapData initSource = targetRectangle.Size == target.Size
+                        ? target
+                        : target.Clip(targetRectangle);
+
+                    try
+                    {
+                        Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
+                        context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                        using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+                            if (quantizingSession == null)
+                                throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                            // quantizing without dithering
+                            if (ditherer == null)
+                            {
+                                PerformResizeWithQuantizer(quantizingSession);
+                                return;
+                            }
+
+                            // quantizing with dithering
+                            Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+
+                            context.Progress?.New(DrawingOperation.InitializingDitherer);
+                            using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                            if (context.IsCancellationRequested)
+                                return;
+                            if (ditheringSession == null)
+                                throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                            PerformResizeWithDithering(quantizingSession, ditheringSession);
+                        }
+                    }
+                    finally
+                    {
+                        if (!ReferenceEquals(initSource, target))
+                            initSource.Dispose();
+                    }
+                }
+
+                [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                    Justification = "False alarm, the new analyzer includes the complexity of local methods")]
+                internal override void PerformResizeDirect()
+                {
+                    PixelFormatInfo targetPixelFormat = target.PixelFormat;
+                    if (targetPixelFormat.Prefers128BitColors || useLinearColorSpace && targetPixelFormat.LinearGamma)
+                    {
+                        if (useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                            PerformResizePColorF();
+                        else
+                            PerformResizeColorF();
+                    }
+                    else if (targetPixelFormat.Prefers64BitColors)
+                    {
+                        if (!useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                            PerformResizePColor64();
+                        else
+                            PerformResizeColor64();
+                    }
+                    else
+                    {
+                        if (!useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                            PerformResizePColor32();
+                        else
+                            PerformResizeColor32();
+                    }
+
+                    #region Local Methods
+
+                    void PerformResizeColor32()
+                    {
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                            bool linear = useLinearColorSpace;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                // the result color either in sRGB or linear color space
+                                PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (resultF.A <= 0f)
+                                    continue;
+
+                                // this is now an sRGB color in every case
+                                Color32 colorSrc = resultF.ToColor32(linear);
+
+                                // fully solid source: overwrite
+                                if (colorSrc.A == Byte.MaxValue)
+                                {
+                                    row.DoSetColor32(x + targetLeft, colorSrc);
+                                    continue;
+                                }
+
+                                // checking full transparency again (means almost zero resultF.A)
+                                if (colorSrc.A == 0)
+                                    continue;
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                Color32 colorDst = row.DoGetColor32(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A != 0)
+                                {
+                                    // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
+                                    // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
+                                    // conversion from Color32 to linear again is fast due to the lookup tables.
+                                    colorSrc = colorDst.A == Byte.MaxValue
+                                        // target pixel is fully solid: simple blending
+                                        ? colorSrc.BlendWithBackground(colorDst, linear)
+                                        // both source and target pixels are partially transparent: complex blending
+                                        : colorSrc.BlendWith(colorDst, linear);
+                                }
+
+                                // overwriting target color only if blended color has high enough alpha
+                                if (colorSrc.A < alphaThreshold)
+                                    continue;
+
+                                row.DoSetColor32(targetX, colorSrc);
+                            }
+                        });
+                    }
+
+                    void PerformResizePColor32()
+                    {
+                        Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers128BitColors: false, Prefers64BitColors: false, HasPremultipliedAlpha: true, LinearGamma: false });
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                PColorF srgbF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (srgbF.A <= 0f)
+                                    continue;
+
+                                PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange();
+                                Debug.Assert(colorSrc.IsValid);
+
+                                // fully solid source: overwrite
+                                if (colorSrc.A == Byte.MaxValue)
+                                {
+                                    row.DoSetPColor32(x + targetLeft, colorSrc);
+                                    continue;
+                                }
+
+                                // checking full transparency again (means almost zero colorF.A)
+                                if (colorSrc.A == 0)
+                                    continue;
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                PColor32 colorDst = row.DoGetPColor32(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A != 0)
+                                    colorSrc = colorSrc.BlendWithSrgb(colorDst);
+
+                                row.DoSetPColor32(targetX, colorSrc);
+                            }
+                        });
+                    }
+
+                    void PerformResizeColor64()
+                    {
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            ushort alphaThreshold = ColorSpaceHelper.ToUInt16(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                            bool linear = useLinearColorSpace;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                // the result color either in sRGB or linear color space
+                                PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (resultF.A <= 0f)
+                                    continue;
+
+                                // this is now an sRGB color in every case
+                                Color64 colorSrc = resultF.ToColor64(linear);
+
+                                // fully solid source: overwrite
+                                if (colorSrc.A == UInt16.MaxValue)
+                                {
+                                    row.DoSetColor64(x + targetLeft, colorSrc);
+                                    continue;
+                                }
+
+                                // checking full transparency again (means almost zero resultF.A)
+                                if (colorSrc.A == 0)
+                                    continue;
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                Color64 colorDst = row.DoGetColor64(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A != 0)
+                                {
+                                    // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
+                                    // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
+                                    // conversion from Color64 to linear again is fast due to the lookup tables.
+                                    colorSrc = colorDst.A == UInt16.MaxValue
+                                        // target pixel is fully solid: simple blending
+                                        ? colorSrc.BlendWithBackground(colorDst, linear)
+                                        // both source and target pixels are partially transparent: complex blending
+                                        : colorSrc.BlendWith(colorDst, linear);
+                                }
+
+                                // overwriting target color only if blended color has high enough alpha
+                                if (colorSrc.A < alphaThreshold)
+                                    continue;
+
+                                row.DoSetColor64(targetX, colorSrc);
+                            }
+                        });
+                    }
+
+                    void PerformResizePColor64()
+                    {
+                        Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers64BitColors: true, HasPremultipliedAlpha: true, LinearGamma: false });
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                PColorF srgbF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (srgbF.A <= 0f)
+                                    continue;
+
+                                PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange();
+                                Debug.Assert(colorSrc.IsValid);
+
+                                // fully solid source: overwrite
+                                if (colorSrc.A == UInt16.MaxValue)
+                                {
+                                    row.DoSetPColor64(x + targetLeft, colorSrc);
+                                    continue;
+                                }
+
+                                // checking full transparency again (means almost zero colorF.A)
+                                if (colorSrc.A == 0)
+                                    continue;
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                PColor64 colorDst = row.DoGetPColor64(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A != 0)
+                                    colorSrc = colorSrc.BlendWithSrgb(colorDst);
+
+                                row.DoSetPColor64(targetX, colorSrc);
+                            }
+                        });
+                    }
+
+                    void PerformResizeColorF()
+                    {
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            float alphaThreshold = ColorSpaceHelper.ToFloat(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
+                            bool linear = useLinearColorSpace;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                // the result color either in sRGB or linear color space
+                                PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (resultF.A <= 0f)
+                                    continue;
+
+                                // Note that here the color still can be either sRGB or linear
+                                ColorF colorSrc = resultF.ToStraight();
+
+                                // fully solid source: overwrite
+                                if (resultF.A >= 1f)
+                                {
+                                    row.DoSetColorF(x + targetLeft, linear ? colorSrc : colorSrc.ToLinear());
+                                    continue;
+                                }
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                ColorF colorDst = row.DoGetColorF(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A > 0f)
+                                {
+                                    // Note that we always use "linear" blending because the source colors are already in the target color space.
+                                    // This way we can spare an unnecessary back and forth conversion for colorSrc, keeping it in sRGB color space
+                                    // until setting the final color not using working linear color space.
+                                    if (!linear)
+                                        colorDst = colorDst.ToSrgb();
+                                    colorSrc = colorDst.A >= 1f
+                                        // target pixel is fully solid: simple blending
+                                        ? colorSrc.BlendWithBackgroundLinear(colorDst)
+                                        // both source and target pixels are partially transparent: complex blending
+                                        : colorSrc.BlendWithLinear(colorDst);
+                                }
+
+                                // overwriting target color only if blended color has high enough alpha
+                                if (colorSrc.A < alphaThreshold)
+                                    continue;
+
+                                row.DoSetColorF(targetX, linear ? colorSrc : colorSrc.ToLinear());
+                            }
+                        });
+                    }
+
+                    void PerformResizePColorF()
+                    {
+                        Debug.Assert(useLinearColorSpace && target.PixelFormat.LinearGamma);
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                        {
+                            ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                            while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                                Slide();
+
+                            IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                            int topLine = kernel.StartIndex - currentWindow.Top;
+                            int targetWidth = targetRectangle.Width;
+                            int targetLeft = targetRectangle.Left;
+                            for (int x = 0; x < targetWidth; x++)
+                            {
+                                PColorF colorSrc = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                                // fully transparent source: skip
+                                if (colorSrc.A <= 0f)
+                                    continue;
+
+                                // fully solid source: overwrite
+                                if (colorSrc.A >= 1f)
+                                {
+                                    row.DoSetPColorF(x + targetLeft, colorSrc);
+                                    continue;
+                                }
+
+                                // source here has a partial transparency: we need to read the target color
+                                int targetX = x + targetLeft;
+                                PColorF colorDst = row.DoGetPColorF(targetX);
+
+                                // non-transparent target: blending
+                                if (colorDst.A != 0)
+                                    colorSrc = colorSrc.BlendWithLinear(colorDst);
+
+                                row.DoSetPColorF(targetX, colorSrc);
+                            }
+                        });
+                    }
+
+                    #endregion
+                }
+
+                #endregion
+
+                #region Private Methods
+
+                private void CalculateFirstPassValues(int top, int bottom, bool isInitializing)
+                {
+                    #region Local Methods
+
+                    [SecuritySafeCritical]
+                    unsafe void ProcessRowSrgb32(int y)
+                    {
+                        Debug.Assert(!useLinearColorSpace && source.PixelFormat is { Prefers128BitColors: false, Prefers64BitColors: false });
+                        var bytes = new ArraySection<byte>(sourceRectangle.Width * sizeof(PColorF));
+                        var sourceRowBuffer = new CastArray<byte, PColorF>(bytes);
+                        IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
+
+                        int width = sourceRectangle.Width;
+                        int left = sourceRectangle.Left;
+                        for (int x = 0; x < width; x++)
+                            sourceRowBuffer.GetElementReferenceUnsafe(x) = PColorF.FromPColor32NoColorSpaceChange(sourceRow.DoGetPColor32(x + left));
+
+                        int firstPassBaseIndex = y - currentWindow.Top;
+                        width = targetRectangle.Width;
+                        KernelMap map = horizontalKernelMap;
+                        CastArray2D<T, PColorF> buffer = transposedFirstPassBuffer;
+                        for (int x = 0; x < width; x++)
+                        {
+                            ResizeKernel kernel = map.GetKernel(x);
+                            buffer.GetElementReferenceUnsafe(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
+                        }
+
+                        bytes.Release();
+                    }
+
+                    [SecuritySafeCritical]
+                    unsafe void ProcessRowSrgb64(int y)
+                    {
+                        Debug.Assert(!useLinearColorSpace && source.PixelFormat.Prefers64BitColors);
+                        var bytes = new ArraySection<byte>(sourceRectangle.Width * sizeof(PColorF));
+                        var sourceRowBuffer = new CastArray<byte, PColorF>(bytes);
+                        IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
+
+                        int width = sourceRectangle.Width;
+                        int left = sourceRectangle.Left;
+                        for (int x = 0; x < width; x++)
+                            sourceRowBuffer.GetElementReferenceUnsafe(x) = PColorF.FromPColor64NoColorSpaceChange(sourceRow.DoGetPColor64(x + left));
+
+                        int firstPassBaseIndex = y - currentWindow.Top;
+                        width = targetRectangle.Width;
+                        KernelMap map = horizontalKernelMap;
+                        CastArray2D<T, PColorF> buffer = transposedFirstPassBuffer;
+                        for (int x = 0; x < width; x++)
+                        {
+                            ResizeKernel kernel = map.GetKernel(x);
+                            buffer.GetElementReferenceUnsafe(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
+                        }
+
+                        bytes.Release();
+                    }
+
+                    [SecuritySafeCritical]
+                    unsafe void ProcessRowSrgbF(int y)
+                    {
+                        Debug.Assert(!useLinearColorSpace && source.PixelFormat.Prefers128BitColors);
+                        var bytes = new ArraySection<byte>(sourceRectangle.Width * sizeof(PColorF));
+                        var sourceRowBuffer = new CastArray<byte, PColorF>(bytes);
+                        IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
+
+                        int width = sourceRectangle.Width;
+                        int left = sourceRectangle.Left;
+                        for (int x = 0; x < width; x++)
+                            sourceRowBuffer.GetElementReferenceUnsafe(x) = sourceRow.DoGetColorF(x + left).ToSrgb().ToPremultiplied();
+
+                        int firstPassBaseIndex = y - currentWindow.Top;
+                        width = targetRectangle.Width;
+                        KernelMap map = horizontalKernelMap;
+                        CastArray2D<T, PColorF> buffer = transposedFirstPassBuffer;
+                        for (int x = 0; x < width; x++)
+                        {
+                            ResizeKernel kernel = map.GetKernel(x);
+                            buffer.GetElementReferenceUnsafe(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
+                        }
+
+                        bytes.Release();
+                    }
+
+                    [SecuritySafeCritical]
+                    unsafe void ProcessRowLinear(int y)
+                    {
+                        Debug.Assert(useLinearColorSpace);
+                        var bytes = new ArraySection<byte>(sourceRectangle.Width * sizeof(PColorF));
+                        var sourceRowBuffer = new CastArray<byte, PColorF>(bytes);
+                        IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
+
+                        int width = sourceRectangle.Width;
+                        int left = sourceRectangle.Left;
+                        for (int x = 0; x < width; x++)
+                            sourceRowBuffer.GetElementReferenceUnsafe(x) = sourceRow.DoGetPColorF(x + left);
+
+                        int firstPassBaseIndex = y - currentWindow.Top;
+                        width = targetRectangle.Width;
+                        KernelMap map = horizontalKernelMap;
+                        CastArray2D<T, PColorF> buffer = transposedFirstPassBuffer;
+                        for (int x = 0; x < width; x++)
+                        {
+                            ResizeKernel kernel = map.GetKernel(x);
+                            buffer.GetElementReferenceUnsafe(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
+                        }
+
+                        bytes.Release();
+                    }
+
+                    #endregion
+
+                    PixelFormatInfo sourcePixelFormat;
+                    Action<int> processRow = useLinearColorSpace ? ProcessRowLinear
+                        : (sourcePixelFormat = source.PixelFormat).Prefers128BitColors ? ProcessRowSrgbF
+                        : sourcePixelFormat.Prefers64BitColors ? ProcessRowSrgb64
+                        : ProcessRowSrgb32;
+
+                    if (isInitializing)
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, top, bottom, processRow);
+                    else
+                    {
+                        // We are already in a possibly parallel progress here so not allowing parallel and not reporting progress here
+                        for (int y = top; y < bottom; y++)
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+                            processRow.Invoke(y);
+                        }
+                    }
+                }
+
+                [SecuritySafeCritical]
+                private void Slide()
+                {
+                    var windowBandHeight = verticalKernelMap.MaxDiameter;
+                    int minY = currentWindow.Bottom - windowBandHeight;
+                    int maxY = Math.Min(minY + sourceRectangle.Height, sourceRectangle.Height);
+
+                    // Copying previous bottom band to the new top:
+                    CopyColumns(ref transposedFirstPassBuffer, sourceRectangle.Height - windowBandHeight, 0, windowBandHeight);
+                    currentWindow = (minY, maxY);
+
+                    // Calculating the remainder:
+                    CalculateFirstPassValues(currentWindow.Top + windowBandHeight, currentWindow.Bottom, false);
+                }
+
+                private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
+                {
+                    CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                    {
+                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                            Slide();
+
+                        IQuantizingSession session = quantizingSession;
+                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                        int topLine = kernel.StartIndex - currentWindow.Top;
+                        int targetWidth = targetRectangle.Width;
+                        int targetLeft = targetRectangle.Left;
+                        byte alphaThreshold = session.AlphaThreshold;
+                        bool linear = useLinearColorSpace;
+                        for (int x = 0; x < targetWidth; x++)
+                        {
+                            // Destination color components
+                            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                            // fully transparent source: skip
+                            if (colorF.A <= 0f)
+                                continue;
+
+                            Color32 colorSrc = colorF.ToColor32(linear);
+
+                            // fully solid source: overwrite
+                            if (colorSrc.A == Byte.MaxValue)
+                            {
+                                row.DoSetColor32(x + targetLeft, session.GetQuantizedColor(colorSrc));
+                                continue;
+                            }
+
+                            // checking full transparency again (means almost zero colorF.A)
+                            if (colorSrc.A == 0)
+                                continue;
+
+                            // source here has a partial transparency: we need to read the target color
+                            int targetX = x + targetLeft;
+                            Color32 colorDst = row.DoGetColor32(targetX);
+
+                            // non-transparent target: blending
+                            if (colorDst.A != 0)
+                            {
+                                colorSrc = colorDst.A == Byte.MaxValue
+                                    // target pixel is fully solid: simple blending
+                                    ? colorSrc.BlendWithBackground(colorDst, linear)
+                                    // both source and target pixels are partially transparent: complex blending
+                                    : colorSrc.BlendWith(colorDst, linear);
+                            }
+
+                            // overwriting target color only if blended color has high enough alpha
+                            if (colorSrc.A < alphaThreshold)
+                                continue;
+
+                            row.DoSetColor32(targetX, session.GetQuantizedColor(colorSrc));
+                        }
+                    });
+                }
+
+                private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
+                {
+                    // Sequential processing (ignoring threshold, always parallel if possible)
+                    if (ditheringSession.IsSequential)
+                    {
+                        for (int y = 0; y < targetRectangle.Height; y++)
+                            ProcessRow(y);
+                        return;
+                    }
+
+                    // Parallel processing
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
+
+                    #region Local Methods
+
+                    void ProcessRow(int y)
+                    {
+                        CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                            Slide();
+
+                        IDitheringSession session = ditheringSession;
+                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                        int topLine = kernel.StartIndex - currentWindow.Top;
+                        int targetWidth = targetRectangle.Width;
+                        int targetLeft = targetRectangle.Left;
+                        byte alphaThreshold = quantizingSession.AlphaThreshold;
+                        bool linear = useLinearColorSpace;
+                        for (int x = 0; x < targetWidth; x++)
+                        {
+                            // Destination color components
+                            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                            // fully transparent source: skip
+                            if (colorF.A <= 0f)
+                                continue;
+
+                            Color32 colorSrc = colorF.ToColor32(linear);
+
+                            // fully solid source: overwrite
+                            if (colorSrc.A == Byte.MaxValue)
+                            {
+                                row.DoSetColor32(x + targetLeft, session.GetDitheredColor(colorSrc, x, y));
+                                continue;
+                            }
+
+                            // checking full transparency again (means almost zero colorF.A)
+                            if (colorSrc.A == 0)
+                                continue;
+
+                            // source here has a partial transparency: we need to read the target color
+                            int targetX = x + targetLeft;
+                            Color32 colorDst = row.DoGetColor32(targetX);
+
+                            // non-transparent target: blending
+                            if (colorDst.A != 0)
+                            {
+                                colorSrc = colorDst.A == Byte.MaxValue
+                                    // target pixel is fully solid: simple blending
+                                    ? colorSrc.BlendWithBackground(colorDst, linear)
+                                    // both source and target pixels are partially transparent: complex blending
+                                    : colorSrc.BlendWith(colorDst, linear);
+                            }
+
+                            // overwriting target color only if blended color has high enough alpha
+                            if (colorSrc.A < alphaThreshold)
+                                continue;
+
+                            row.DoSetColor32(targetX, session.GetDitheredColor(colorSrc, x, y));
+                        }
+                    }
+
+                    #endregion
+                }
+
+                #endregion
+
+                #endregion
+            }
+
+            #endregion
+
             #region Fields
 
             private readonly IAsyncContext context;
@@ -622,14 +1377,13 @@ namespace KGySoft.Drawing.Imaging
 
             private Rectangle sourceRectangle;
             private Rectangle targetRectangle;
-            private Array2D<PColorF> transposedFirstPassBuffer;
             private (int Top, int Bottom) currentWindow;
 
             #endregion
 
             #region Constructors
 
-            internal ResizingSessionInterpolated(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+            private ResizingSessionInterpolated(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
                 Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
             {
                 this.context = context;
@@ -644,12 +1398,6 @@ namespace KGySoft.Drawing.Imaging
                 (float radius, Func<float, float> interpolation) = scalingMode.GetInterpolation();
                 horizontalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Width, targetRectangle.Width);
                 verticalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Height, targetRectangle.Height);
-
-                // Flipping height/width is intended (hence transposed). It contains target width and source height dimensions, which is also intended.
-                transposedFirstPassBuffer = new Array2D<PColorF>(height: targetRectangle.Width, width: sourceRectangle.Height);
-                currentWindow = (0, sourceRectangle.Height);
-
-                CalculateFirstPassValues(currentWindow.Top, currentWindow.Bottom, true);
             }
 
             #endregion
@@ -658,31 +1406,34 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
+            #region Internal Methods
+
+            [SecuritySafeCritical]
+            internal unsafe static ResizingSessionInterpolated Create(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+                Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
+            {
+                // Using the target width and source height is intended, see the derived constructor
+                long len = (long)targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF);
+                return len > EnvironmentHelper.MaxByteArrayLength
+                    ? new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
+                    : new ResizingSessionInterpolatedGeneric<byte>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+            }
+
+            #endregion
+
             private static ScalingMode GetAutoScalingMode(Size sourceSize, Size targetSize)
             {
                 Debug.Assert(sourceSize != targetSize, "Different sizes are expected");
                 return targetSize.Width > sourceSize.Width || targetSize.Height > sourceSize.Height ? ScalingMode.MitchellNetravali : ScalingMode.Bicubic;
             }
 
-            [SecurityCritical]
-            private static unsafe void CopyColumns<T>(ref Array2D<T> array2d, int sourceIndex, int destIndex, int columnCount)
+            [SecuritySafeCritical]
+            private static void CopyColumns<T>(ref CastArray2D<T, PColorF> array2d, int sourceIndex, int destIndex, int columnCount)
                 where T : unmanaged
             {
-                int elementSize = sizeof(T);
-                int width = array2d.Width * elementSize;
-                int srcOffset = sourceIndex * elementSize;
-                int dstOffset = destIndex * elementSize;
-                int count = columnCount * elementSize;
-
-                fixed (T* ptr = array2d)
-                {
-                    byte* basePtr = (byte*)ptr;
-                    for (int y = 0; y < array2d.Height; y++)
-                    {
-                        MemoryHelper.CopyMemory(basePtr + srcOffset, basePtr + dstOffset, count);
-                        basePtr += width;
-                    }
-                }
+                for (int y = 0; y < array2d.Height; y++)
+                for (int x = 0; x < columnCount; x++)
+                    array2d.GetElementReferenceUnsafe(y, x + destIndex) = array2d.GetElementUnsafe(y, x + sourceIndex);
             }
 
             #endregion
@@ -691,9 +1442,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Dispose()
+            /// <summary>
+            /// Not the usual Dispose pattern because the class is used internally only.
+            /// </summary>
+            public virtual void Dispose()
             {
-                transposedFirstPassBuffer.Dispose();
                 horizontalKernelMap.Dispose();
                 verticalKernelMap.Dispose();
             }
@@ -702,694 +1455,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
-            internal void PerformResize(IQuantizer? quantizer, IDitherer? ditherer)
-            {
-                if (quantizer == null)
-                {
-                    PerformResizeDirect();
-                    return;
-                }
-
-                IReadableBitmapData initSource = targetRectangle.Size == target.Size
-                    ? target
-                    : target.Clip(targetRectangle);
-
-                try
-                {
-                    Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
-                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        if (quantizingSession == null)
-                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                        // quantizing without dithering
-                        if (ditherer == null)
-                        {
-                            PerformResizeWithQuantizer(quantizingSession);
-                            return;
-                        }
-
-                        // quantizing with dithering
-                        Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
-
-                        context.Progress?.New(DrawingOperation.InitializingDitherer);
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
-                        if (context.IsCancellationRequested)
-                            return;
-                        if (ditheringSession == null)
-                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-
-                        PerformResizeWithDithering(quantizingSession, ditheringSession);
-                    }
-                }
-                finally
-                {
-                    if (!ReferenceEquals(initSource, target))
-                        initSource.Dispose();
-                }
-            }
+            internal abstract void PerformResize(IQuantizer? quantizer, IDitherer? ditherer);
 
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
-            internal void PerformResizeDirect()
-            {
-                PixelFormatInfo targetPixelFormat = target.PixelFormat;
-                if (targetPixelFormat.Prefers128BitColors || useLinearColorSpace && targetPixelFormat.LinearGamma)
-                {
-                    if (useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
-                        PerformResizePColorF();
-                    else
-                        PerformResizeColorF();
-                }
-                else if (targetPixelFormat.Prefers64BitColors)
-                {
-                    if (!useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                        PerformResizePColor64();
-                    else
-                        PerformResizeColor64();
-                }
-                else
-                {
-                    if (!useLinearColorSpace && targetPixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
-                        PerformResizePColor32();
-                    else
-                        PerformResizeColor32();
-                }
-
-                #region Local Methods
-
-                void PerformResizeColor32()
-                {
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                        bool linear = useLinearColorSpace;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            // the result color either in sRGB or linear color space
-                            PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (resultF.A <= 0f)
-                                continue;
-
-                            // this is now an sRGB color in every case
-                            Color32 colorSrc = resultF.ToColor32(linear);
-
-                            // fully solid source: overwrite
-                            if (colorSrc.A == Byte.MaxValue)
-                            {
-                                row.DoSetColor32(x + targetLeft, colorSrc);
-                                continue;
-                            }
-
-                            // checking full transparency again (means almost zero resultF.A)
-                            if (colorSrc.A == 0)
-                                continue;
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            Color32 colorDst = row.DoGetColor32(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A != 0)
-                            {
-                                // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
-                                // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
-                                // conversion from Color32 to linear again is fast due to the lookup tables.
-                                colorSrc = colorDst.A == Byte.MaxValue
-                                    // target pixel is fully solid: simple blending
-                                    ? colorSrc.BlendWithBackground(colorDst, linear)
-                                    // both source and target pixels are partially transparent: complex blending
-                                    : colorSrc.BlendWith(colorDst, linear);
-                            }
-
-                            // overwriting target color only if blended color has high enough alpha
-                            if (colorSrc.A < alphaThreshold)
-                                continue;
-
-                            row.DoSetColor32(targetX, colorSrc);
-                        }
-                    });
-                }
-
-                void PerformResizePColor32()
-                {
-                    Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers128BitColors: false, Prefers64BitColors: false, HasPremultipliedAlpha: true, LinearGamma: false });
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            PColorF srgbF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (srgbF.A <= 0f)
-                                continue;
-
-                            PColor32 colorSrc = srgbF.ToPColor32NoColorSpaceChange();
-                            Debug.Assert(colorSrc.IsValid);
-
-                            // fully solid source: overwrite
-                            if (colorSrc.A == Byte.MaxValue)
-                            {
-                                row.DoSetPColor32(x + targetLeft, colorSrc);
-                                continue;
-                            }
-
-                            // checking full transparency again (means almost zero colorF.A)
-                            if (colorSrc.A == 0)
-                                continue;
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            PColor32 colorDst = row.DoGetPColor32(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A != 0)
-                                colorSrc = colorSrc.BlendWithSrgb(colorDst);
-
-                            row.DoSetPColor32(targetX, colorSrc);
-                        }
-                    });
-                }
-
-                void PerformResizeColor64()
-                {
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        ushort alphaThreshold = ColorSpaceHelper.ToUInt16(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
-                        bool linear = useLinearColorSpace;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            // the result color either in sRGB or linear color space
-                            PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (resultF.A <= 0f)
-                                continue;
-
-                            // this is now an sRGB color in every case
-                            Color64 colorSrc = resultF.ToColor64(linear);
-
-                            // fully solid source: overwrite
-                            if (colorSrc.A == UInt16.MaxValue)
-                            {
-                                row.DoSetColor64(x + targetLeft, colorSrc);
-                                continue;
-                            }
-
-                            // checking full transparency again (means almost zero resultF.A)
-                            if (colorSrc.A == 0)
-                                continue;
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            Color64 colorDst = row.DoGetColor64(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A != 0)
-                            {
-                                // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
-                                // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
-                                // conversion from Color64 to linear again is fast due to the lookup tables.
-                                colorSrc = colorDst.A == UInt16.MaxValue
-                                    // target pixel is fully solid: simple blending
-                                    ? colorSrc.BlendWithBackground(colorDst, linear)
-                                    // both source and target pixels are partially transparent: complex blending
-                                    : colorSrc.BlendWith(colorDst, linear);
-                            }
-
-                            // overwriting target color only if blended color has high enough alpha
-                            if (colorSrc.A < alphaThreshold)
-                                continue;
-
-                            row.DoSetColor64(targetX, colorSrc);
-                        }
-                    });
-                }
-
-                void PerformResizePColor64()
-                {
-                    Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers64BitColors: true, HasPremultipliedAlpha: true, LinearGamma: false });
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            PColorF srgbF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (srgbF.A <= 0f)
-                                continue;
-
-                            PColor64 colorSrc = srgbF.ToPColor64NoColorSpaceChange();
-                            Debug.Assert(colorSrc.IsValid);
-
-                            // fully solid source: overwrite
-                            if (colorSrc.A == UInt16.MaxValue)
-                            {
-                                row.DoSetPColor64(x + targetLeft, colorSrc);
-                                continue;
-                            }
-
-                            // checking full transparency again (means almost zero colorF.A)
-                            if (colorSrc.A == 0)
-                                continue;
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            PColor64 colorDst = row.DoGetPColor64(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A != 0)
-                                colorSrc = colorSrc.BlendWithSrgb(colorDst);
-
-                            row.DoSetPColor64(targetX, colorSrc);
-                        }
-                    });
-                }
-
-                void PerformResizeColorF()
-                {
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        float alphaThreshold = ColorSpaceHelper.ToFloat(target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold);
-                        bool linear = useLinearColorSpace;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            // the result color either in sRGB or linear color space
-                            PColorF resultF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (resultF.A <= 0f)
-                                continue;
-
-                            // Note that here the color still can be either sRGB or linear
-                            ColorF colorSrc = resultF.ToStraight();
-
-                            // fully solid source: overwrite
-                            if (resultF.A >= 1f)
-                            {
-                                row.DoSetColorF(x + targetLeft, linear ? colorSrc : colorSrc.ToLinear());
-                                continue;
-                            }
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            ColorF colorDst = row.DoGetColorF(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A > 0f)
-                            {
-                                // Note that we always use "linear" blending because the source colors are already in the target color space.
-                                // This way we can spare an unnecessary back and forth conversion for colorSrc, keeping it in sRGB color space
-                                // until setting the final color not using working linear color space.
-                                if (!linear)
-                                    colorDst = colorDst.ToSrgb();
-                                colorSrc = colorDst.A >= 1f
-                                    // target pixel is fully solid: simple blending
-                                    ? colorSrc.BlendWithBackgroundLinear(colorDst)
-                                    // both source and target pixels are partially transparent: complex blending
-                                    : colorSrc.BlendWithLinear(colorDst);
-                            }
-
-                            // overwriting target color only if blended color has high enough alpha
-                            if (colorSrc.A < alphaThreshold)
-                                continue;
-
-                            row.DoSetColorF(targetX, linear ? colorSrc : colorSrc.ToLinear());
-                        }
-                    });
-                }
-
-                void PerformResizePColorF()
-                {
-                    Debug.Assert(useLinearColorSpace && target.PixelFormat.LinearGamma);
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                    {
-                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                            Slide();
-
-                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                        int topLine = kernel.StartIndex - currentWindow.Top;
-                        int targetWidth = targetRectangle.Width;
-                        int targetLeft = targetRectangle.Left;
-                        for (int x = 0; x < targetWidth; x++)
-                        {
-                            PColorF colorSrc = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                            // fully transparent source: skip
-                            if (colorSrc.A <= 0f)
-                                continue;
-
-                            // fully solid source: overwrite
-                            if (colorSrc.A >= 1f)
-                            {
-                                row.DoSetPColorF(x + targetLeft, colorSrc);
-                                continue;
-                            }
-
-                            // source here has a partial transparency: we need to read the target color
-                            int targetX = x + targetLeft;
-                            PColorF colorDst = row.DoGetPColorF(targetX);
-
-                            // non-transparent target: blending
-                            if (colorDst.A != 0)
-                                colorSrc = colorSrc.BlendWithLinear(colorDst);
-
-                            row.DoSetPColorF(targetX, colorSrc);
-                        }
-                    });
-                }
-
-                #endregion
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            private void CalculateFirstPassValues(int top, int bottom, bool isInitializing)
-            {
-                #region Local Methods
-
-                void ProcessRowSrgb32(int y)
-                {
-                    Debug.Assert(!useLinearColorSpace && source.PixelFormat is { Prefers128BitColors: false, Prefers64BitColors: false });
-                    var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
-
-                    int width = sourceRectangle.Width;
-                    int left = sourceRectangle.Left;
-                    for (int x = 0; x < width; x++)
-                        sourceRowBuffer.GetElementReference(x) = PColorF.FromPColor32NoColorSpaceChange(sourceRow.DoGetPColor32(x + left));
-
-                    int firstPassBaseIndex = y - currentWindow.Top;
-                    width = targetRectangle.Width;
-                    KernelMap map = horizontalKernelMap;
-                    Array2D<PColorF> buffer = transposedFirstPassBuffer;
-                    for (int x = 0; x < width; x++)
-                    {
-                        ResizeKernel kernel = map.GetKernel(x);
-                        buffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
-                    }
-
-                    sourceRowBuffer.Release();
-                }
-
-                void ProcessRowSrgb64(int y)
-                {
-                    Debug.Assert(!useLinearColorSpace && source.PixelFormat.Prefers64BitColors);
-                    var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
-
-                    int width = sourceRectangle.Width;
-                    int left = sourceRectangle.Left;
-                    for (int x = 0; x < width; x++)
-                        sourceRowBuffer.GetElementReference(x) = PColorF.FromPColor64NoColorSpaceChange(sourceRow.DoGetPColor64(x + left));
-
-                    int firstPassBaseIndex = y - currentWindow.Top;
-                    width = targetRectangle.Width;
-                    KernelMap map = horizontalKernelMap;
-                    Array2D<PColorF> buffer = transposedFirstPassBuffer;
-                    for (int x = 0; x < width; x++)
-                    {
-                        ResizeKernel kernel = map.GetKernel(x);
-                        buffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
-                    }
-                    sourceRowBuffer.Release();
-                }
-
-                void ProcessRowSrgbF(int y)
-                {
-                    Debug.Assert(!useLinearColorSpace && source.PixelFormat.Prefers128BitColors);
-                    var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
-
-                    int width = sourceRectangle.Width;
-                    int left = sourceRectangle.Left;
-                    for (int x = 0; x < width; x++)
-                        sourceRowBuffer.GetElementReference(x) = sourceRow.DoGetColorF(x + left).ToSrgb().ToPremultiplied();
-
-                    int firstPassBaseIndex = y - currentWindow.Top;
-                    width = targetRectangle.Width;
-                    KernelMap map = horizontalKernelMap;
-                    Array2D<PColorF> buffer = transposedFirstPassBuffer;
-                    for (int x = 0; x < width; x++)
-                    {
-                        ResizeKernel kernel = map.GetKernel(x);
-                        buffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
-                    }
-
-                    sourceRowBuffer.Release();
-                }
-
-                void ProcessRowLinear(int y)
-                {
-                    Debug.Assert(useLinearColorSpace);
-                    var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
-
-                    int width = sourceRectangle.Width;
-                    int left = sourceRectangle.Left;
-                    for (int x = 0; x < width; x++)
-                        sourceRowBuffer.GetElementReference(x) = sourceRow.DoGetPColorF(x + left);
-
-                    int firstPassBaseIndex = y - currentWindow.Top;
-                    width = targetRectangle.Width;
-                    KernelMap map = horizontalKernelMap;
-                    Array2D<PColorF> buffer = transposedFirstPassBuffer;
-                    for (int x = 0; x < width; x++)
-                    {
-                        ResizeKernel kernel = map.GetKernel(x);
-                        buffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
-                    }
-
-                    sourceRowBuffer.Release();
-                }
-
-                #endregion
-
-                PixelFormatInfo sourcePixelFormat;
-                Action<int> processRow = useLinearColorSpace ? ProcessRowLinear
-                    : (sourcePixelFormat = source.PixelFormat).Prefers128BitColors ? ProcessRowSrgbF
-                    : sourcePixelFormat.Prefers64BitColors ? ProcessRowSrgb64
-                    : ProcessRowSrgb32;
-
-                if (isInitializing)
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, top, bottom, processRow);
-                else
-                {
-                    // We are already in a possibly parallel progress here so not allowing parallel and not reporting progress here
-                    for (int y = top; y < bottom; y++)
-                    {
-                        if (context.IsCancellationRequested)
-                            return;
-                        processRow.Invoke(y);
-                    }
-                }
-            }
-
-            [SecuritySafeCritical]
-            private void Slide()
-            {
-                var windowBandHeight = verticalKernelMap.MaxDiameter;
-                int minY = currentWindow.Bottom - windowBandHeight;
-                int maxY = Math.Min(minY + sourceRectangle.Height, sourceRectangle.Height);
-
-                // Copying previous bottom band to the new top:
-                CopyColumns(ref transposedFirstPassBuffer, sourceRectangle.Height - windowBandHeight, 0, windowBandHeight);
-                currentWindow = (minY, maxY);
-
-                // Calculating the remainder:
-                CalculateFirstPassValues(currentWindow.Top + windowBandHeight, currentWindow.Bottom, false);
-            }
-
-            private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
-            {
-                ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                        Slide();
-
-                    IQuantizingSession session = quantizingSession;
-                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                    int topLine = kernel.StartIndex - currentWindow.Top;
-                    int targetWidth = targetRectangle.Width;
-                    int targetLeft = targetRectangle.Left;
-                    byte alphaThreshold = session.AlphaThreshold;
-                    bool linear = useLinearColorSpace;
-                    for (int x = 0; x < targetWidth; x++)
-                    {
-                        // Destination color components
-                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                        // fully transparent source: skip
-                        if (colorF.A <= 0f)
-                            continue;
-
-                        Color32 colorSrc = colorF.ToColor32(linear);
-
-                        // fully solid source: overwrite
-                        if (colorSrc.A == Byte.MaxValue)
-                        {
-                            row.DoSetColor32(x + targetLeft, session.GetQuantizedColor(colorSrc));
-                            continue;
-                        }
-
-                        // checking full transparency again (means almost zero colorF.A)
-                        if (colorSrc.A == 0)
-                            continue;
-
-                        // source here has a partial transparency: we need to read the target color
-                        int targetX = x + targetLeft;
-                        Color32 colorDst = row.DoGetColor32(targetX);
-
-                        // non-transparent target: blending
-                        if (colorDst.A != 0)
-                        {
-                            colorSrc = colorDst.A == Byte.MaxValue
-                                // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst, linear)
-                                // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst, linear);
-                        }
-
-                        // overwriting target color only if blended color has high enough alpha
-                        if (colorSrc.A < alphaThreshold)
-                            continue;
-
-                        row.DoSetColor32(targetX, session.GetQuantizedColor(colorSrc));
-                    }
-                });
-            }
-
-            private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
-            {
-                // Sequential processing (ignoring threshold, always parallel if possible)
-                if (ditheringSession.IsSequential)
-                {
-                    for (int y = 0; y < targetRectangle.Height; y++)
-                        ProcessRow(y);
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
-
-                #region Local Methods
-
-                void ProcessRow(int y)
-                {
-                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                        Slide();
-
-                    IDitheringSession session = ditheringSession;
-                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                    int topLine = kernel.StartIndex - currentWindow.Top;
-                    int targetWidth = targetRectangle.Width;
-                    int targetLeft = targetRectangle.Left;
-                    byte alphaThreshold = quantizingSession.AlphaThreshold;
-                    bool linear = useLinearColorSpace;
-                    for (int x = 0; x < targetWidth; x++)
-                    {
-                        // Destination color components
-                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                        // fully transparent source: skip
-                        if (colorF.A <= 0f)
-                            continue;
-
-                        Color32 colorSrc = colorF.ToColor32(linear);
-
-                        // fully solid source: overwrite
-                        if (colorSrc.A == Byte.MaxValue)
-                        {
-                            row.DoSetColor32(x + targetLeft, session.GetDitheredColor(colorSrc, x, y));
-                            continue;
-                        }
-
-                        // checking full transparency again (means almost zero colorF.A)
-                        if (colorSrc.A == 0)
-                            continue;
-
-                        // source here has a partial transparency: we need to read the target color
-                        int targetX = x + targetLeft;
-                        Color32 colorDst = row.DoGetColor32(targetX);
-
-                        // non-transparent target: blending
-                        if (colorDst.A != 0)
-                        {
-                            colorSrc = colorDst.A == Byte.MaxValue
-                                // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst, linear)
-                                // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst, linear);
-                        }
-
-                        // overwriting target color only if blended color has high enough alpha
-                        if (colorSrc.A < alphaThreshold)
-                            continue;
-
-                        row.DoSetColor32(targetX, session.GetDitheredColor(colorSrc, x, y));
-                    }
-                }
-
-                #endregion
-            }
+            internal abstract void PerformResizeDirect();
 
             #endregion
 
@@ -1482,8 +1552,9 @@ namespace KGySoft.Drawing.Imaging
             private readonly float scale;
             private readonly int radius;
             private readonly ResizeKernel[] kernels;
+            private readonly CastArray2D<byte, float> data;
 
-            private Array2D<float> data;
+            private ArraySection<byte> dataBuffer;
 
             #endregion
 
@@ -1506,7 +1577,8 @@ namespace KGySoft.Drawing.Imaging
                 this.sourceLength = sourceLength;
                 this.targetLength = targetLength;
                 MaxDiameter = (radius << 1) + 1;
-                data = new Array2D<float>(bufferHeight, MaxDiameter);
+                dataBuffer = new ArraySection<byte>(bufferHeight * MaxDiameter * sizeof(float));
+                data = new CastArray2D<byte, float>(dataBuffer, bufferHeight, MaxDiameter);
                 kernels = new ResizeKernel[targetLength];
             }
 
@@ -1575,7 +1647,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Dispose() => data.Dispose();
+            public void Dispose() => dataBuffer.Release();
 
             #endregion
 
@@ -1618,8 +1690,8 @@ namespace KGySoft.Drawing.Imaging
                     right = sourceLength - 1;
 
                 int length = right - left + 1;
-                ArraySection<float> buffer = data.Buffer.Slice(dataRowIndex * data.Width);
-                ResizeKernel kernel = new ResizeKernel(buffer, left, length);
+                CastArray<byte, float> buffer = data.Buffer.Slice(dataRowIndex * data.Width);
+                var kernel = new ResizeKernel(buffer, left, length);
 
                 float* weights = stackalloc float[MaxDiameter];
                 float sum = 0;
@@ -1670,7 +1742,7 @@ namespace KGySoft.Drawing.Imaging
             [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                 Justification = "False alarm, dispose mutates instance, and if it was read-only, a defensive copy would be created")]
             [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
-            private ArraySection<float> kernelBuffer;
+            private CastArray<byte, float> kernelBuffer;
 
             #endregion
 
@@ -1683,7 +1755,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizeKernel(ArraySection<float> kernelMapBuffer, int startIndex, int length)
+            internal ResizeKernel(CastArray<byte, float> kernelMapBuffer, int startIndex, int length)
             {
                 kernelBuffer = kernelMapBuffer;
                 StartIndex = startIndex;
@@ -1697,14 +1769,16 @@ namespace KGySoft.Drawing.Imaging
             /// <summary>
             /// Computes the sum of colors weighted by weight values, pointed by this <see cref="ResizeKernel"/> instance.
             /// </summary>
-            internal PColorF ConvolveWith(ref ArraySection<PColorF> colors, int startIndex)
+            [SecuritySafeCritical]
+            internal PColorF ConvolveWith<T>(ref CastArray<T, PColorF> colors, int startIndex)
+                where T : unmanaged
             {
                 PColorF result = default;
 
                 for (int i = 0; i < Length; i++)
                 {
-                    float weight = kernelBuffer[i];
-                    ref PColorF c = ref colors.GetElementReference(startIndex + i);
+                    float weight = kernelBuffer.GetElementUnsafe(i);
+                    ref PColorF c = ref colors.GetElementReferenceUnsafe(startIndex + i);
                     result += c * weight;
                 }
 
