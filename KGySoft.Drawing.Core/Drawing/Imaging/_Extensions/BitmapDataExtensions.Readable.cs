@@ -1899,7 +1899,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndCopyTo(this IAsyncResult asyncResult)
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginCopyTo));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginCopyTo));
 
         #endregion
 
@@ -2268,9 +2268,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndDrawInto(this IAsyncResult asyncResult)
+        public static void EndDrawInto(this IAsyncResult asyncResult) 
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginDrawInto));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawInto));
 
         #endregion
 
@@ -3983,7 +3983,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
+                    using var session = ResizingSessionInterpolated.Create(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
                     if (context.IsCancellationRequested)
                         return false;
 
