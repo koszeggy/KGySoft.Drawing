@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ArraySectionExtensions.cs
+//  File: Array2DExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -21,16 +21,16 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing
 {
-    internal static class ArraySectionExtensions
+    internal static class Array2DExtensions
     {
         #region Methods
 
-        internal static unsafe CastArray<byte, T> Allocate<T>(this ref ArraySection<byte> buffer, int elementCount)
-            where T : unmanaged
+        internal unsafe static CastArray2D<TFrom, TTo> Cast<TFrom, TTo>(this Array2D<TFrom> array2D)
+            where TFrom : unmanaged
+            where TTo : unmanaged
         {
-            ArraySection<byte> result = buffer.Slice(0, elementCount * sizeof(T));
-            buffer = buffer.Slice(result.Length);
-            return result.Cast<byte, T>();
+            Debug.Assert(sizeof(TFrom) * array2D.Width % sizeof(TTo) == 0, $"Wrong stride: byte width should be divisible by {sizeof(TTo)}");
+            return new CastArray2D<TFrom, TTo>(array2D.Buffer, array2D.Height, sizeof(TFrom) * array2D.Width / sizeof(TTo));
         }
 
         #endregion

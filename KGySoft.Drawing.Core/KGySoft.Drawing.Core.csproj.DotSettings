@@ -2,8 +2,8 @@
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F1darraybased/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F1darraybased_005C_005Fgenericbuffertype/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F1darraybased_005C_005Fspecificbuffertype/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F1darraybased_005C_005Farray2dbuffer/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F1darraybased_005C_005Fcastarray2dbuffer/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Fmanaged_005C_005F2darraybased/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fbitmapdata_005C_005Funmanaged/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=drawing_005Cimaging_005C_005Fditherers/@EntryIndexedValue">True</s:Boolean>

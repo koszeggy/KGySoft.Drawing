@@ -2049,43 +2049,43 @@ namespace KGySoft.Drawing.Imaging
             {
                 KnownPixelFormat.Format32bppArgb => buffer is Array2D<Color32> buf
                     ? new ManagedBitmapData32Argb(buf, cfg)
-                    : new ManagedBitmapData32Argb<T>(buffer, cfg),
+                    : new ManagedBitmapData32Argb<T>(buffer.Cast<T, Color32>(), cfg),
                 KnownPixelFormat.Format32bppPArgb => buffer is Array2D<PColor32> buf
                     ? new ManagedBitmapData32PArgb(buf, cfg)
-                    : new ManagedBitmapData32PArgb<T>(buffer, cfg),
+                    : new ManagedBitmapData32PArgb<T>(buffer.Cast<T, PColor32>(), cfg),
                 KnownPixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
                     ? new ManagedBitmapData32Rgb(buf, cfg)
-                    : new ManagedBitmapData32Rgb<T>(buffer, cfg),
-                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb<T>(buffer, cfg),
+                    : new ManagedBitmapData32Rgb<T>(buffer.Cast<T, Color32>(), cfg),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb<T>(buffer.Cast<T, Color24>(), cfg),
                 KnownPixelFormat.Format8bppIndexed => buffer is Array2D<byte> buf
                     ? new ManagedBitmapData8I(buf, cfg)
-                    : new ManagedBitmapData8I<T>(buffer, cfg),
+                    : new ManagedBitmapData8I<T>(buffer.Cast<T, byte>(), cfg),
                 KnownPixelFormat.Format4bppIndexed => buffer is Array2D<byte> buf
                     ? new ManagedBitmapData4I(buf, cfg)
-                    : new ManagedBitmapData4I<T>(buffer, cfg),
+                    : new ManagedBitmapData4I<T>(buffer.Cast<T, byte>(), cfg),
                 KnownPixelFormat.Format1bppIndexed => buffer is Array2D<byte> buf
                     ? new ManagedBitmapData1I(buf, cfg)
-                    : new ManagedBitmapData1I<T>(buffer, cfg),
+                    : new ManagedBitmapData1I<T>(buffer.Cast<T, byte>(), cfg),
                 KnownPixelFormat.Format64bppArgb => buffer is Array2D<Color64> buf
                     ? new ManagedBitmapData64Argb(buf, cfg)
-                    : new ManagedBitmapData64Argb<T>(buffer, cfg),
+                    : new ManagedBitmapData64Argb<T>(buffer.Cast<T, Color64>(), cfg),
                 KnownPixelFormat.Format64bppPArgb => buffer is Array2D<PColor64> buf
                     ? new ManagedBitmapData64PArgb(buf, cfg)
-                    : new ManagedBitmapData64PArgb<T>(buffer, cfg),
-                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555<T>(buffer, cfg),
-                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray<T>(buffer, cfg),
+                    : new ManagedBitmapData64PArgb<T>(buffer.Cast<T, PColor64>(), cfg),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb<T>(buffer.Cast<T, Color48>(), cfg),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565<T>(buffer.Cast<T, Color16Rgb565>(), cfg),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555<T>(buffer.Cast<T, Color16Rgb555>(), cfg),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555<T>(buffer.Cast<T, Color16Argb1555>(), cfg),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray<T>(buffer.Cast<T, Gray16>(), cfg),
                 KnownPixelFormat.Format128bppRgba => buffer is Array2D<ColorF> buf
                     ? new ManagedBitmapData128Rgba(buf, cfg)
-                    : new ManagedBitmapData128Rgba<T>(buffer, cfg),
+                    : new ManagedBitmapData128Rgba<T>(buffer.Cast<T, ColorF>(), cfg),
                 KnownPixelFormat.Format128bppPRgba => buffer is Array2D<PColorF> buf
                     ? new ManagedBitmapData128PRgba(buf, cfg)
-                    : new ManagedBitmapData128PRgba<T>(buffer, cfg),
-                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb<T>(buffer, cfg),
-                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray<T>(buffer, cfg),
-                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray<T>(buffer, cfg),
+                    : new ManagedBitmapData128PRgba<T>(buffer.Cast<T, PColorF>(), cfg),
+                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb<T>(buffer.Cast<T, RgbF>(), cfg),
+                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray<T>(buffer.Cast<T, Gray8>(), cfg),
+                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray<T>(buffer.Cast<T, GrayF>(), cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
