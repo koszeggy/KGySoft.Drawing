@@ -16,9 +16,6 @@
 #region Usings
 
 using System;
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-using System.Buffers;
-#endif
 using System.Collections.Generic;
 using System.Security;
 
@@ -49,35 +46,45 @@ namespace KGySoft.Drawing.Imaging
 
             /// <summary>
             /// Similar to <see cref="Array3D{T}"/> (it allows both 3D and 1D access) but allows negative indices, which returns default value.
-            /// The original algorithm uses 33x33x33 arrays, where 0 indices are never set in any dimensions so they always were 0.
+            /// The original algorithm uses 33x33x33 arrays, where 0 indices are never set in any dimensions so they were always 0.
             /// This was acceptable for the original algorithm but with 8 bit resolution (257x257x257 * sizeof(T)) the waste is much more significant,
             /// especially with array pooling, which allocates almost twice as much memory as needed when dimensions are 2^n + 1.
             /// </summary>
-            private readonly struct CubicBuffer<T>
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-                : IDisposable
-#endif
+            private readonly struct CubicBuffer<T> : IDisposable
                 where T : unmanaged
             {
                 #region Fields
 
                 private readonly int bitSize;
-                private readonly T[] buf;
+                private readonly CastArray3D<byte, T> buf;
 
                 #endregion
 
                 #region Indexers
 
-                internal T this[int index] => index < 0 ? default : buf[index];
+                internal T this[int index]
+                {
+                    [SecuritySafeCritical]
+                    get
+                    {
+                        if (index < 0)
+                            return default;
+
+                        Debug.Assert(index < buf.Length);
+                        return buf.Buffer.GetElementUnsafe(index);
+                    }
+                }
 
                 internal T this[int r, int g, int b]
                 {
+                    [SecuritySafeCritical]
                     get
                     {
-                        if (r == -1 || g == -1 || b == -1)
+                        if (r < 0 || g < 0 || b < 0)
                             return default;
 
-                        return buf[(r << (bitSize << 1)) + (g << bitSize) + b];
+                        Debug.Assert(r < (1 << bitSize) && g < (1 << bitSize) && b < (1 << bitSize));
+                        return buf.Buffer.GetElementUnsafe((r << (bitSize << 1)) + (g << bitSize) + b);
                     }
                 }
 
@@ -85,16 +92,12 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
-                internal CubicBuffer(int bitSize)
+                [SecuritySafeCritical]
+                internal unsafe CubicBuffer(int bitSize)
                 {
                     this.bitSize = bitSize;
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-                    int len = 1 << (bitSize * 3);
-                    buf = ArrayPool<T>.Shared.Rent(len);
-                    Array.Clear(buf, 0, len);
-#else
-                    buf = new T[1 << (bitSize * 3)];
-#endif
+                    int dimSize = 1 << bitSize;
+                    buf = new CastArray3D<byte, T>(new ArraySection<byte>((1 << (bitSize * 3)) * sizeof(T)), dimSize, dimSize, dimSize);
                 }
 
                 #endregion
@@ -103,18 +106,17 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Public Methods
 
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-                public void Dispose() => ArrayPool<T>.Shared.Return(buf);
-#endif
+                public void Dispose() => buf.Buffer.Buffer.Release();
 
                 #endregion
 
                 #region Internal Methods
 
+                [SecuritySafeCritical]
                 internal ref T GetRef(int index)
                 {
-                    Debug.Assert(index >= 0);
-                    return ref buf[index];
+                    Debug.Assert(index >= 0 && index < buf.Length);
+                    return ref buf.Buffer.GetElementReferenceUnsafe(index);
                 }
 
                 #endregion
@@ -488,8 +490,8 @@ namespace KGySoft.Drawing.Imaging
                 int colorCount = maxColors - (hasTransparency ? 1 : 0);
                 var cubes = new List<Box>(colorCount);
 
-                // Adding an initial item with largest possible size. We split it until we
-                // have the needed colors or we cannot split further any of the boxes.
+                // Adding an initial item with the largest possible size. We split it until we
+                // have the needed colors, or we cannot split further any of the boxes.
                 cubes.Add(new Box { RMin = -1, RMax = histSize - 1, GMin = -1, GMax = histSize - 1, BMin = -1, BMax = histSize - 1 });
 
                 float[] vv = new float[colorCount];
