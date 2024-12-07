@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -163,7 +164,9 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
-            private Array2D<float> offsets;
+            private readonly CastArray2D<byte, float> offsets;
+
+            private ArraySection<byte> offsetsBuffer;
 
             #endregion
 
@@ -175,16 +178,16 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
+            [SecuritySafeCritical]
             internal OrderedDitheringSessionLinear(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
                 : base(quantizingSession)
             {
                 const float norm = 256f;
-                offsets = new Array2D<float>(ditherer.matrixHeight, ditherer.matrixWidth);
+                offsetsBuffer = new ArraySection<byte>(ditherer.matrixHeight * ditherer.matrixWidth * sizeof(float));
+                offsets = new CastArray2D<byte, float>(offsetsBuffer, ditherer.matrixHeight, ditherer.matrixWidth);
                 for (int y = 0; y < offsets.Height; y++)
-                {
-                    for (int x = 0; x < offsets.Width; x++)
-                        offsets[y, x] = ditherer.premultipliedMatrix[y, x] / norm;
-                }
+                for (int x = 0; x < offsets.Width; x++)
+                    offsets.GetElementReferenceUnsafe(y, x) = ditherer.premultipliedMatrix[y, x] / norm;
 
                 if (ditherer.strength > 0f)
                 {
@@ -199,11 +202,12 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
-            protected override float GetOffset(int x, int y) => offsets[y % offsets.Height, x % offsets.Width];
+            [SecuritySafeCritical]
+            protected override float GetOffset(int x, int y) => offsets.GetElementUnsafe(y % offsets.Height, x % offsets.Width);
 
             protected override void Dispose(bool disposing)
             {
-                offsets.Dispose();
+                offsetsBuffer.Release();
                 base.Dispose(disposing);
             }
 
