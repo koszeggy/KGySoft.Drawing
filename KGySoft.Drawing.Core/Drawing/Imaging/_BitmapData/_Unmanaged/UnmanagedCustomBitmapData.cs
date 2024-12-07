@@ -146,17 +146,31 @@ namespace KGySoft.Drawing.Imaging
                 return (size, workingColorSpace) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
-                    Array2D<byte> newBuffer;
+                    Array2D<byte> newBufferByte = default;
+                    Array2D<ulong> newBufferUInt64 = default;
+                    int stride = size.Width == origWidth ? origStride : pixelFormat.GetByteWidth(size.Width);
 
-                    // original width: the original stride must be alright
-                    if (size.Width == origWidth)
-                        newBuffer = new Array2D<byte>(size.Height, origStride);
+                    // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
+                    if (size.Width != origWidth)
+                        stride += 16 - stride % 16;
+
+                    long byteLength = (long)stride * size.Height;
+                    if (byteLength / sizeof(ulong) > EnvironmentHelper.MaxByteArrayLength)
+                        throw new NotSupportedException(Res.ImagingUnmanagedBufferTooLarge);
+                    bool useByteBuffer = byteLength <= EnvironmentHelper.MaxByteArrayLength;
+                    bool autoAllocate = useByteBuffer && BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased || BitmapDataFactory.PoolingStrategy == ArrayPoolingStrategy.AnyElementType;
+
+                    if (useByteBuffer)
+                    {
+                        newBufferByte = autoAllocate
+                            ? new Array2D<byte>(size.Height, stride)
+                            : new Array2D<byte>(new byte[byteLength], size.Height, stride);
+                    }
                     else
                     {
-                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
-                        int stride = pixelFormat.GetByteWidth(size.Width);
-                        stride += 16 - stride % 16;
-                        newBuffer = new Array2D<byte>(size.Height, stride);
+                        newBufferUInt64 = autoAllocate
+                            ? new Array2D<ulong>(size.Height, stride / sizeof(ulong))
+                            : new Array2D<ulong>(new ulong[byteLength / sizeof(ulong)], size.Height, stride / sizeof(ulong));
                     }
 
                     var cfg = new CustomBitmapDataConfig
@@ -177,10 +191,12 @@ namespace KGySoft.Drawing.Imaging
                         RowSetPColor64 = setPColor64,
                         RowSetColorF = setColorF,
                         RowSetPColorF = setPColorF,
-                        DisposeCallback = newBuffer.Dispose
+                        DisposeCallback = useByteBuffer ? newBufferByte.Dispose : newBufferUInt64.Dispose,
                     };
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, cfg);
+                    return useByteBuffer
+                        ? BitmapDataFactory.CreateManagedCustomBitmapData(newBufferByte, size.Width, cfg)
+                        : BitmapDataFactory.CreateManagedCustomBitmapData(newBufferUInt64, size.Width, cfg);
                 };
             }
         }

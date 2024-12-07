@@ -101,6 +101,9 @@ namespace KGySoft
         /// <summary>At least one of the pixel access delegates should be specified.</summary>
         internal static string ImagingNoPixelAccessSpecified => Get("Imaging_NoPixelAccessSpecified");
 
+        /// <summary>Cannot create a clone of the unmanaged bitmap of this size because the created buffer would be too large.</summary>
+        internal static string ImagingUnmanagedBufferTooLarge => Get("Imaging_UnmanagedBufferTooLarge");
+
         #endregion
 
         #region GifEncoder

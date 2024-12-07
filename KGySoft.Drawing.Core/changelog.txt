@@ -23,7 +23,7 @@
   ! New GetColorIndex/ReadRaw<T> methods
 ! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
   ! New SetColorIndex/WriteRaw<T> methods
-+ BitmapDataExtensions class:
+* BitmapDataExtensions class:
   + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
   + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
   + New DrawBeziers/BeginDrawBeziers/EndDrawBeziers/DrawBeziersAsync methods
@@ -40,6 +40,9 @@
   + New DrawRoundedRectangle/BeginDrawRoundedRectangle/EndDrawRoundedRectangle/DrawRoundedRectangleAsync methods
   + New FillRoundedRectangle/BeginFillRoundedRectangle/EndFillRoundedRectangle/FillRoundedRectangleAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
+  - Cloning a bitmap with a custom pixel format may have failed if the source bitmap was so huge that the cloned
+    bitmap could not be created with a byte array buffer. If the bitmap is too big even for an UInt64 array buffer,
+    then a NotSupportedException is thrown.
 * BitmapDataFactory class:
   * Self-allocating CreateBitmapData overloads: By default, no longer using array pooling if the natural element
     type of the underlying array is other than byte. This can be adjusted by the new PoolingStrategy property.
@@ -52,7 +55,7 @@
 + New Pen class
 + New Path class
 + New DrawingOptions class
-+ New TransformMatrix struct
++ New TransformationMatrix struct
 + New LineCapStyle, LineJoinStyle, PixelOffset, ShapeFillMode, GradientWrapMode, TextureMapMode enumerations
 
 

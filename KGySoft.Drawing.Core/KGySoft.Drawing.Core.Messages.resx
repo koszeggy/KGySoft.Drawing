@@ -183,6 +183,9 @@
   <data name="Imaging_NoPixelAccessSpecified" xml:space="preserve">
     <value>At least one of the pixel access delegates should be specified.</value>
   </data>
+  <data name="Imaging_UnmanagedBufferTooLarge" xml:space="preserve">
+    <value>Cannot create a clone of the unmanaged bitmap of this size because the created buffer would be too large.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
