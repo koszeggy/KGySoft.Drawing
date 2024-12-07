@@ -17,9 +17,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-using System.Buffers;
-#endif
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -49,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
             /// Some implementation ideas were inspired by Kevin Weiner's Java encoder from here: http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm
             /// Basically it uses a variant of Knuth's algorithm along with G. Knott's relatively-prime secondary probe.
             /// </summary>
-            private struct CodeTable : IDisposable
+            private ref struct CodeTable : IDisposable
             {
                 #region Constants
 
@@ -80,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
                 /// - If equality check by match key fails (collision), then using a secondary hash to jump from entry to entry.
                 /// The idea was taken from here: http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm
                 /// </summary>
-                private readonly (int MatchKey, int Value)[]? entries;
+                private readonly CastArray<byte, (int MatchKey, int Value)> entries;
 
                 [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                     Justification = "Though the used members are read-only, pre C# 8 compilers may emit a defensive copy for members access if the field is read-only")]
@@ -107,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
-                public CodeTable(IReadableBitmapData imageData, GifCompressionMode compressionMode) : this()
+                public unsafe CodeTable(IReadableBitmapData imageData, GifCompressionMode compressionMode) : this()
                 {
                     Debug.Assert(imageData.Palette?.Count <= 256);
                     currentPosition = -1;
@@ -130,11 +127,7 @@ namespace KGySoft.Drawing.Imaging
                     if (compressionMode == GifCompressionMode.Uncompressed)
                         return;
 
-#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    entries = ArrayPool<(int, int)>.Shared.Rent(tableSize);
-#else
-                    entries = new (int, int)[tableSize];
-#endif
+                    entries = new CastArray<byte, (int, int)>(new ArraySection<byte>(tableSize * sizeof((int, int)), false));
 
                     // Initializing the shift size for hash calculations. Basically we upscale the table size to >16 bits.
                     for (int i = tableSize; i < (1 << 16); i <<= 1)
@@ -148,14 +141,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Public Method
 
-                public void Dispose()
-                {
-                    if (entries == null)
-                        return;
-#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    ArrayPool<(int, int)>.Shared.Return(entries);
-#endif
-                }
+                public void Dispose() => entries.Buffer.Release();
 
                 #endregion
 
@@ -164,9 +150,9 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal void Reset()
                 {
-                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
+                    Debug.Assert(!entries.IsNull, "Should not be called in Uncompressed mode");
 
-                    Array.Clear(entries!, 0, tableSize);
+                    entries.Clear();
                     CurrentCodeSize = MinimumCodeSize + 1;
                     nextFreeCode = FirstAvailableCode;
                 }
@@ -199,14 +185,15 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
+                [SecuritySafeCritical]
                 internal bool TryGetNextCode(int previousCode, out int code)
                 {
-                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
+                    Debug.Assert(!entries.IsNull, "Should not be called in Uncompressed mode");
                     primaryHash = (CurrentIndex << hashShiftSize) ^ previousCode;
                     matchKey = (CurrentIndex << maxBits) + previousCode + 1;
 
                     Debug.Assert(primaryHash is >= 0 and < tableSize, "The primary hash should be a valid index in code table entries");
-                    ref var entry = ref entries![primaryHash];
+                    ref var entry = ref entries.GetElementReferenceUnsafe(primaryHash);
 
                     // a code for previousCode + CurrentIndex has been found
                     if (entry.MatchKey == matchKey)
@@ -224,7 +211,7 @@ namespace KGySoft.Drawing.Imaging
                             if ((primaryHash -= secondaryHash) < 0)
                                 primaryHash += tableSize;
 
-                            entry = ref entries[primaryHash];
+                            entry = ref entries.GetElementReferenceUnsafe(primaryHash);
                             if (entry.MatchKey == matchKey)
                             {
                                 code = entry.Value;
@@ -240,13 +227,13 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool TryAddNextCode()
                 {
-                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
+                    Debug.Assert(!entries.IsNull, "Should not be called in Uncompressed mode");
                     if (nextFreeCode == maxCodeCount || compressionMode == GifCompressionMode.DoNotIncreaseBitSize && nextFreeCode + 1 == NextSizeLimit)
                         return false;
 
                     if (nextFreeCode == NextSizeLimit)
                         CurrentCodeSize += 1;
-                    ref var entry = ref entries![primaryHash];
+                    ref var entry = ref entries.GetElementReferenceUnsafe(primaryHash);
                     entry.Value = nextFreeCode;
                     entry.MatchKey = matchKey;
                     nextFreeCode += 1;
@@ -277,10 +264,7 @@ namespace KGySoft.Drawing.Imaging
                 private int accumulator;
                 private int accumulatorSize;
                 private int bufferLength;
-
-#pragma warning disable CS0649 // field is never assigned - false alarm, a fixed buffer should not be assigned
                 private fixed byte buffer[bufferCapacity];
-#pragma warning restore CS0649
 
                 #endregion
 
