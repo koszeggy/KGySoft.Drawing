@@ -57,6 +57,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        internal ManagedBitmapData32PArgb(in BitmapDataConfig cfg)
+            : base(cfg)
+        {
+        }
+
         internal ManagedBitmapData32PArgb(CastArray2D<T, PColor32> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {

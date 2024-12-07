@@ -41,7 +41,10 @@
   + New FillRoundedRectangle/BeginFillRoundedRectangle/EndFillRoundedRectangle/FillRoundedRectangleAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
 * BitmapDataFactory class:
-  * Self-allocating CreateBitmapData overloads: No longer using array pooling automatically.
+  * Self-allocating CreateBitmapData overloads: By default, no longer using array pooling if the natural element
+    type of the underlying array is other than byte. This can be adjusted by the new PoolingStrategy property.
+  + New PoolingStrategy property
++ New ArrayPoolingStrategy enumeration
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================
@@ -50,7 +53,7 @@
 + New Path class
 + New DrawingOptions class
 + New TransformMatrix struct
-+ New LineCapStyle, LineJoinStyle, PixelOffset, ShapeFillMode, GradientWrapMode, TextureMapMode enums
++ New LineCapStyle, LineJoinStyle, PixelOffset, ShapeFillMode, GradientWrapMode, TextureMapMode enumerations
 
 
 ~~~~~~~~~

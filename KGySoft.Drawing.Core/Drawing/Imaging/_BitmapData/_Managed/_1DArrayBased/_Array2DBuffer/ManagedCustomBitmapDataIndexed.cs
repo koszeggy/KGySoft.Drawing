@@ -134,10 +134,15 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
                     Array2D<T> newBuffer;
+                    bool autoAllocate = BitmapDataFactory.PoolingStrategy == ArrayPoolingStrategy.AnyElementType || typeof(T) == typeof(byte) && BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased;
 
                     // original width: the original stride must be alright
                     if (size.Width == origWidth)
-                        newBuffer = new Array2D<T>(size.Height, origBufferWidth);
+                    {
+                        newBuffer = autoAllocate
+                            ? new Array2D<T>(size.Height, origBufferWidth)
+                            : new Array2D<T>(new T[size.Height * origBufferWidth], size.Height, origBufferWidth);
+                    }
                     else
                     {
                         // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
@@ -145,7 +150,9 @@ namespace KGySoft.Drawing.Imaging
                         stride += 16 - stride % 16;
                         if (16 % sizeof(T) != 0)
                             stride += sizeof(T) - stride % sizeof(T);
-                        newBuffer = new Array2D<T>(size.Height, stride / sizeof(T));
+                        newBuffer = autoAllocate
+                            ? new Array2D<T>(size.Height, stride / sizeof(T))
+                            : new Array2D<T>(new T[size.Height * stride / sizeof(T)], size.Height, stride / sizeof(T));
                     }
 
                     var cfg = new CustomIndexedBitmapDataConfig

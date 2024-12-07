@@ -53,17 +53,19 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(!cfg.PixelFormat.IsCustomFormat, "In this overload known pixel format is expected");
             Debug.Assert(cfg.DisposeCallback == null, "No dispose callback is expected from the self-allocating constructor");
-            Debug.Assert(typeof(T) == typeof(byte) || sizeof(T) * 8 == cfg.PixelFormat.BitsPerPixel, "In the self-allocating constructor the underlying type expected to be a type of the same matching the pixel format.");
+            Debug.Assert(typeof(T) == typeof(byte) && cfg.PixelFormat.Indexed || sizeof(T) * 8 == cfg.PixelFormat.BitsPerPixel, "In the self-allocating constructor the underlying type expected to be a type of the same matching the pixel format. Otherwise, a CastArray2D-based bitmap data should be used.");
             
-            if (typeof(T) == typeof(byte))
+            int bufferWidth = typeof(T) == typeof(byte) ? cfg.PixelFormat.GetByteWidth(cfg.Size.Width) : cfg.Size.Width;
+            if (BitmapDataFactory.PoolingStrategy == ArrayPoolingStrategy.AnyElementType || typeof(T) == typeof(byte) && BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased)
             {
-                Buffer = new Array2D<T>(cfg.Size.Height, cfg.PixelFormat.GetByteWidth(cfg.Size.Width));
+                // Using the self-allocating constructor that allows array pooling.
+                Buffer = new Array2D<T>(cfg.Size.Height, bufferWidth);
                 ownsBuffer = true;
             }
             else
             {
                 // Passing an array to the buffer to avoid array pooling.
-                Buffer = new Array2D<T>(new T[cfg.Size.Height * cfg.Size.Width], cfg.Size.Height, cfg.Size.Width);
+                Buffer = new Array2D<T>(new T[cfg.Size.Height * bufferWidth], cfg.Size.Height, bufferWidth);
             }
 
             RowSize = Buffer.Width * sizeof(T);

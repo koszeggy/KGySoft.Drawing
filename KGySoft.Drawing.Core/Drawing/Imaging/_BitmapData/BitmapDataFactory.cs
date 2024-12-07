@@ -54,6 +54,32 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Fields
+
+        private static ArrayPoolingStrategy poolingStrategy = ArrayPoolingStrategy.IfByteArrayBased;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// On platforms where array pooling is available, gets or sets the strategy to be used when allocating buffer for managed bitmap data
+        /// instances by the self-allocating <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> methods.
+        /// <br/>Default value: <see cref="ArrayPoolingStrategy.IfByteArrayBased"/>.
+        /// </summary>
+        public static ArrayPoolingStrategy PoolingStrategy
+        {
+            get => poolingStrategy;
+            set
+            {
+                if (!Enum<ArrayPoolingStrategy>.IsDefined(value))
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
+                poolingStrategy = value;
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -83,7 +109,8 @@ namespace KGySoft.Drawing.Imaging
         /// <overloads>There are quite a few overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">CreateBitmapData</see> method but they can be grouped into different categories:
         /// <list type="bullet">
         /// <item>The ones whose first parameter is <see cref="Size"/>, or the first couple of parameters are integers for width and height,
-        /// are allocating the buffer for the created bitmap data by themselves, whereas the others use pre-allocated buffers.</item>
+        /// are allocating the buffer for the created bitmap data by themselves, whereas the others use preallocated buffers.
+        /// These overloads may use array pooling. See also the <see cref="PoolingStrategy"/> property.</item>
         /// <item>The overloads whose first parameter name is <c>buffer</c> can be used to create a bitmap data for a preallocated buffer. This buffer can be a one or two-dimensional array,
         /// an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> or <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a>
         /// value wrapping a one dimensional array that represents a section of the array as a one or two-dimensional view, or it can be an <see cref="IntPtr"/> representing a potentially unmanaged buffer.</item>
@@ -134,6 +161,8 @@ namespace KGySoft.Drawing.Imaging
         /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual
         /// pixel format is not in the linear color space, and the result is different from the results of most applications including popular image processors and web browsers.
         /// See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</para>
+        /// <para>This method allocates the underlying managed buffer internally. On platforms where array pooling is available, the underlying buffer may be rented from a pool.
+        /// The actual behavior can be controlled by the <see cref="PoolingStrategy"/> property.</para>
         /// <note type="tip">
         /// <list type="bullet">
         /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>
@@ -150,6 +179,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
+        /// <seealso cref="PoolingStrategy"/>
         public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat,
             WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
         {
@@ -2006,30 +2036,73 @@ namespace KGySoft.Drawing.Imaging
         internal static IBitmapDataInternal CreateManagedBitmapData(Size size, KnownPixelFormat pixelFormat,
             Color32 backColor, byte alphaThreshold, WorkingColorSpace workingColorSpace, Palette? palette)
         {
+            #region Local Methods
+
+#if NETFRAMEWORK
+            static bool IsForcedByteArrayBuffer(Size size, KnownPixelFormat format) => false;
+#else
+            static bool IsForcedByteArrayBuffer(Size size, KnownPixelFormat format) =>
+                poolingStrategy == ArrayPoolingStrategy.IfCanUseByteArray && !format.IsIndexed()
+                    && (long)size.Height * format.GetByteWidth(size.Width) <= EnvironmentHelper.MaxByteArrayLength;
+#endif
+
+            #endregion
+
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             var cfg = new BitmapDataConfig(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, workingColorSpace, palette);
             return pixelFormat switch
             {
-                // for types that have exact public color type using specific non-generic versions; otherwise, using a byte[] back buffer
-                KnownPixelFormat.Format32bppArgb => new ManagedBitmapData32Argb(cfg),
-                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData32PArgb(cfg),
-                KnownPixelFormat.Format32bppRgb => new ManagedBitmapData32Rgb(cfg),
-                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb(cfg),
+                KnownPixelFormat.Format32bppArgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData32Argb<byte>(cfg)
+                    : new ManagedBitmapData32Argb(cfg),
+                KnownPixelFormat.Format32bppPArgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData32PArgb<byte>(cfg)
+                    : new ManagedBitmapData32PArgb(cfg),
+                KnownPixelFormat.Format32bppRgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData32Rgb<byte>(cfg)
+                    : new ManagedBitmapData32Rgb(cfg),
+                KnownPixelFormat.Format24bppRgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData24Rgb<byte>(cfg)
+                    : new ManagedBitmapData24Rgb(cfg),
                 KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData8I(cfg),
                 KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData4I(cfg),
                 KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData1I(cfg),
-                KnownPixelFormat.Format64bppArgb => new ManagedBitmapData64Argb(cfg),
-                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData64PArgb(cfg),
-                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb(cfg),
-                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565(cfg),
-                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555(cfg),
-                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555(cfg),
-                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray(cfg),
-                KnownPixelFormat.Format128bppRgba => new ManagedBitmapData128Rgba(cfg),
-                KnownPixelFormat.Format128bppPRgba => new ManagedBitmapData128PRgba(cfg),
-                KnownPixelFormat.Format96bppRgb => new ManagedBitmapData96Rgb(cfg),
-                KnownPixelFormat.Format8bppGrayScale => new ManagedBitmapData8Gray(cfg),
-                KnownPixelFormat.Format32bppGrayScale => new ManagedBitmapData32Gray(cfg),
+                KnownPixelFormat.Format64bppArgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData64Argb<byte>(cfg)
+                    : new ManagedBitmapData64Argb(cfg),
+                KnownPixelFormat.Format64bppPArgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData64PArgb<byte>(cfg)
+                    : new ManagedBitmapData64PArgb(cfg),
+                KnownPixelFormat.Format48bppRgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData48Rgb<byte>(cfg)
+                    : new ManagedBitmapData48Rgb(cfg),
+                KnownPixelFormat.Format16bppRgb565 => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData16Rgb565<byte>(cfg)
+                    : new ManagedBitmapData16Rgb565(cfg),
+                KnownPixelFormat.Format16bppRgb555 => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData16Rgb555<byte>(cfg)
+                    : new ManagedBitmapData16Rgb555(cfg),
+                KnownPixelFormat.Format16bppArgb1555 => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData16Argb1555<byte>(cfg)
+                    : new ManagedBitmapData16Argb1555(cfg),
+                KnownPixelFormat.Format16bppGrayScale => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData16Gray<byte>(cfg)
+                    : new ManagedBitmapData16Gray(cfg),
+                KnownPixelFormat.Format128bppRgba => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData128Rgba<byte>(cfg)
+                    : new ManagedBitmapData128Rgba(cfg),
+                KnownPixelFormat.Format128bppPRgba => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData128PRgba<byte>(cfg)
+                    : new ManagedBitmapData128PRgba(cfg),
+                KnownPixelFormat.Format96bppRgb => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData96Rgb<byte>(cfg)
+                    : new ManagedBitmapData96Rgb(cfg),
+                KnownPixelFormat.Format8bppGrayScale => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData8Gray<byte>(cfg)
+                    : new ManagedBitmapData8Gray(cfg),
+                KnownPixelFormat.Format32bppGrayScale => IsForcedByteArrayBuffer(size, pixelFormat)
+                    ? new ManagedBitmapData32Gray<byte>(cfg)
+                    : new ManagedBitmapData32Gray(cfg),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
