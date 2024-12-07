@@ -618,7 +618,6 @@ namespace KGySoft.Drawing.Imaging
             {
                 #region Fields
 
-                private ArraySection<T> underlyingBuffer;
                 private CastArray2D<T, PColorF> transposedFirstPassBuffer;
 
                 #endregion
@@ -634,12 +633,12 @@ namespace KGySoft.Drawing.Imaging
 
                     // Using target width and source height is intended.
                     // Using the self-allocating constructor for byte element type only to avoid array pooling for non-byte element types.
-                    underlyingBuffer = typeof(T) == typeof(byte)
-                        ? new ArraySection<T>(targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF))
+                    var buf = typeof(T) == typeof(byte)
+                        ? new ArraySection<T>(targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF), false)
                         : new ArraySection<T>(new T[targetRectangle.Width * sourceRectangle.Height]);
 
                     // Flipping height/width is also intended (hence transposed).
-                    transposedFirstPassBuffer = new CastArray2D<T, PColorF>(underlyingBuffer, height: targetRectangle.Width, width: sourceRectangle.Height);
+                    transposedFirstPassBuffer = new CastArray2D<T, PColorF>(buf, height: targetRectangle.Width, width: sourceRectangle.Height);
                     currentWindow = (0, sourceRectangle.Height);
 
                     CalculateFirstPassValues(currentWindow.Top, currentWindow.Bottom, true);
@@ -653,7 +652,7 @@ namespace KGySoft.Drawing.Imaging
 
                 public override void Dispose()
                 {
-                    underlyingBuffer.Release();
+                    transposedFirstPassBuffer.Buffer.Buffer.Release();
                     base.Dispose();
                 }
 
@@ -1554,8 +1553,6 @@ namespace KGySoft.Drawing.Imaging
             private readonly ResizeKernel[] kernels;
             private readonly CastArray2D<byte, float> data;
 
-            private ArraySection<byte> dataBuffer;
-
             #endregion
 
             #region Properties
@@ -1577,8 +1574,7 @@ namespace KGySoft.Drawing.Imaging
                 this.sourceLength = sourceLength;
                 this.targetLength = targetLength;
                 MaxDiameter = (radius << 1) + 1;
-                dataBuffer = new ArraySection<byte>(bufferHeight * MaxDiameter * sizeof(float));
-                data = new CastArray2D<byte, float>(dataBuffer, bufferHeight, MaxDiameter);
+                data = new CastArray2D<byte, float>(new ArraySection<byte>(bufferHeight * MaxDiameter * sizeof(float)), bufferHeight, MaxDiameter);
                 kernels = new ResizeKernel[targetLength];
             }
 
@@ -1647,7 +1643,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Dispose() => dataBuffer.Release();
+            public void Dispose() => data.Buffer.Buffer.Release();
 
             #endregion
 

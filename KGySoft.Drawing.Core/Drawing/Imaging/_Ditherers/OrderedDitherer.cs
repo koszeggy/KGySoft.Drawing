@@ -166,8 +166,6 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly CastArray2D<byte, float> offsets;
 
-            private ArraySection<byte> offsetsBuffer;
-
             #endregion
 
             #region Properties
@@ -183,8 +181,8 @@ namespace KGySoft.Drawing.Imaging
                 : base(quantizingSession)
             {
                 const float norm = 256f;
-                offsetsBuffer = new ArraySection<byte>(ditherer.matrixHeight * ditherer.matrixWidth * sizeof(float));
-                offsets = new CastArray2D<byte, float>(offsetsBuffer, ditherer.matrixHeight, ditherer.matrixWidth);
+                var buffer = new ArraySection<byte>(ditherer.matrixHeight * ditherer.matrixWidth * sizeof(float), false);
+                offsets = new CastArray2D<byte, float>(buffer, ditherer.matrixHeight, ditherer.matrixWidth);
                 for (int y = 0; y < offsets.Height; y++)
                 for (int x = 0; x < offsets.Width; x++)
                     offsets.GetElementReferenceUnsafe(y, x) = ditherer.premultipliedMatrix[y, x] / norm;
@@ -207,7 +205,7 @@ namespace KGySoft.Drawing.Imaging
 
             protected override void Dispose(bool disposing)
             {
-                offsetsBuffer.Release();
+                offsets.Buffer.Buffer.Release();
                 base.Dispose(disposing);
             }
 

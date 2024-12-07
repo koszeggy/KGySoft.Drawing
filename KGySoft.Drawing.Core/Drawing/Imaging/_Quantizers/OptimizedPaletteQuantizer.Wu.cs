@@ -411,13 +411,11 @@ namespace KGySoft.Drawing.Imaging
 
             public void Dispose()
             {
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
                 m2.Dispose();
                 wt.Dispose();
                 mr.Dispose();
                 mg.Dispose();
                 mb.Dispose();
-#endif
             }
 
             #endregion
