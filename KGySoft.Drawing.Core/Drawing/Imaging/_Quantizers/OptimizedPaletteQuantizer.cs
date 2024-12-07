@@ -528,7 +528,9 @@ namespace KGySoft.Drawing.Imaging
             return algorithm switch
             {
                 Algorithm.Octree => new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source, context),
-                Algorithm.MedianCut => new OptimizedPaletteQuantizerSession<MedianCutQuantizer>(this, source, context),
+                Algorithm.MedianCut => (long)source.Height * source.PixelFormat.GetByteWidth(source.Width) > EnvironmentHelper.MaxByteArrayLength
+                    ? new OptimizedPaletteQuantizerSession<MedianCutQuantizer<Color32>>(this, source, context)
+                    : new OptimizedPaletteQuantizerSession<MedianCutQuantizer<byte>>(this, source, context),
                 Algorithm.Wu => new OptimizedPaletteQuantizerSession<WuQuantizer>(this, source, context),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected algorithm: {algorithm}"))
             };

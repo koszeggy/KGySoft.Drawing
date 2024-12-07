@@ -16,11 +16,9 @@
 #region Usings
 
 using System;
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-using System.Buffers;
-#endif
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.Threading;
@@ -31,7 +29,8 @@ namespace KGySoft.Drawing.Imaging
 {
     public sealed partial class OptimizedPaletteQuantizer
     {
-        private sealed class MedianCutQuantizer : IOptimizedPaletteQuantizer
+        private sealed class MedianCutQuantizer<T> : IOptimizedPaletteQuantizer
+            where T : unmanaged
         {
             #region Nested Types
 
@@ -100,9 +99,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Instance Fields
 
-                private readonly Color32[] colors;
-                private readonly int start;
-
+                private CastArray<T, Color32> colors;
                 private int rMin;
                 private int rMax;
                 private int gMin;
@@ -126,33 +123,18 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
-                #region Internal Constructors
-
-                internal ColorBucket(Color32[] buf)
+                [SecuritySafeCritical]
+                internal ColorBucket(CastArray<T, Color32> buf, bool isRoot)
                 {
                     colors = buf;
                     rMin = gMin = bMin = Byte.MaxValue;
+                    if (isRoot)
+                        return;
+
+                    Count = buf.Length;
+                    for (int i = 0; i < buf.Length; i++)
+                        AdjustRanges(buf.GetElementUnsafe(i));
                 }
-
-                #endregion
-
-                #region Private Constructors
-
-                private ColorBucket(Color32[] buf, int startIndex, int count)
-                {
-                    Debug.Assert(startIndex >= 0 && startIndex < buf.Length && count > 0 && count < buf.Length, "A valid subrange is expected");
-
-                    colors = buf;
-                    start = startIndex;
-                    Count = count;
-                    rMin = gMin = bMin = Byte.MaxValue;
-
-                    int end = startIndex + count;
-                    for (int i = startIndex; i < end; i++)
-                        AdjustRanges(colors[i]);
-                }
-
-                #endregion
 
                 #endregion
 
@@ -160,27 +142,28 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Internal Methods
 
+                [SecuritySafeCritical]
                 internal void AddColor(Color32 c)
                 {
                     Debug.Assert(Count < colors.Length, "Buffer is too small");
-                    Debug.Assert(start == 0, "Adding colors is expected for root only");
-                    colors[Count] = c;
+                    Debug.Assert(colors.Buffer.Offset == 0, "Adding colors is expected for root only");
+                    colors.SetElementUnsafe(Count, c);
                     Count += 1;
                     AdjustRanges(c);
                 }
 
+                [SecuritySafeCritical]
                 internal Color32 ToColor()
                 {
                     int count = Count;
                     Debug.Assert(count != 0, "Empty bucket");
                     if (count <= 0)
-                        return count == 0 ? default : colors[start];
+                        return default;
 
                     int rSum = 0, gSum = 0, bSum = 0;
-                    int end = start + count;
-                    for (int i = start; i < end; i++)
+                    for (int i = 0; i < count; i++)
                     {
-                        Color32 color = colors[i];
+                        Color32 color = colors.GetElementUnsafe(i);
                         rSum += color.R;
                         gSum += color.G;
                         bSum += color.B;
@@ -191,9 +174,18 @@ namespace KGySoft.Drawing.Imaging
                         (byte)(bSum / count));
                 }
 
+                internal void Freeze()
+                {
+                    Debug.Assert(colors.Buffer.Offset == 0, "Freezing expected for root only");
+                    if (colors.Length != Count)
+                        colors = colors.Slice(0, Count);
+                }
+
+                [SecuritySafeCritical]
                 internal void Split(IAsyncContext context, ColorComponent component, ColorBucketCollection buckets, ref int bucketIndex, ref int buckedEndIndex)
                 {
                     Debug.Assert(Count > 1);
+                    Debug.Assert(Count == colors.Length, "Unfrozen root bucket");
                     var sorter = component switch
                     {
                         ColorComponent.R => redSorter,
@@ -201,26 +193,26 @@ namespace KGySoft.Drawing.Imaging
                         _ => blueSorter,
                     };
 
-                    ParallelHelper.Sort(context, colors, start, Count, sorter);
-                    if (context.IsCancellationRequested)
+                    CastArray<T, Color32> buf = colors;
+                    if (!ParallelHelper.Sort(context, buf, sorter))
                         return;
 
-                    int medianIndex = Count >> 1;
+                    int medianIndex = buf.Length >> 1;
 
                     // single color check is correct because we sorted by all the components
-                    bool isLeftSingleColor = colors[start] == colors[start + medianIndex - 1];
-                    bool isRightSingleColor = colors[start + medianIndex] == colors[start + Count - 1];
-                    ColorBucket? left = isLeftSingleColor ? null : new ColorBucket(colors, start, medianIndex);
-                    ColorBucket? right = isRightSingleColor ? null : new ColorBucket(colors, start + medianIndex, Count - medianIndex);
+                    bool isLeftSingleColor = buf.GetElementUnsafe(0) == buf.GetElementUnsafe(medianIndex - 1);
+                    bool isRightSingleColor = buf.GetElementUnsafe(medianIndex) == buf.GetElementUnsafe(buf.Length - 1);
+                    ColorBucket? left = isLeftSingleColor ? null : new ColorBucket(buf.Slice(0, medianIndex), false);
+                    ColorBucket? right = isRightSingleColor ? null : new ColorBucket(buf.Slice(medianIndex, buf.Length - medianIndex), false);
 
                     if (isLeftSingleColor)
                     {
-                        buckets.AddFinalColor(colors[start]);
+                        buckets.AddFinalColor(buf.GetElementUnsafe(0));
 
                         // if none of the halves could be added, we remove the current bucket and reduce the number of buckets to scan
                         if (isRightSingleColor)
                         {
-                            buckets.AddFinalColor(colors[start + medianIndex]);
+                            buckets.AddFinalColor(buf.GetElementUnsafe(medianIndex));
                             buckets.RemoveBucket(bucketIndex);
                             buckedEndIndex -= 1;
                             return;
@@ -238,7 +230,7 @@ namespace KGySoft.Drawing.Imaging
 
                     if (isRightSingleColor)
                     {
-                        buckets.AddFinalColor(colors[start + medianIndex]);
+                        buckets.AddFinalColor(buf.GetElementUnsafe(medianIndex));
                         return;
                     }
 
@@ -315,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
                     buckets.Add(item);
                 }
 
-                public void ReplaceBucket(int index, ColorBucket bucket) => buckets[index] = bucket;
+                internal void ReplaceBucket(int index, ColorBucket bucket) => buckets[index] = bucket;
 
                 internal ColorBucket? RemoveFirstBucket()
                 {
@@ -326,7 +318,7 @@ namespace KGySoft.Drawing.Imaging
                     return result;
                 }
 
-                public void RemoveBucket(int index) => buckets.RemoveAt(index);
+                internal void RemoveBucket(int index) => buckets.RemoveAt(index);
 
                 internal bool SplitBuckets(IAsyncContext context, ref int bucketIndex)
                 {
@@ -381,7 +373,7 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private int maxColors;
-            private Color32[] colors = null!;
+            private CastArray<T, Color32> colors;
             private ColorBucket root = null!;
 
             private bool hasTransparency;
@@ -398,15 +390,15 @@ namespace KGySoft.Drawing.Imaging
 
             public void Initialize(int requestedColors, byte? bitLevel, IBitmapData source)
             {
+                Debug.Assert(default(T) is byte or Color32);
                 int maxLevels = 1 << (bitLevel ?? 8);
                 maxColors = Math.Min(requestedColors, maxLevels * maxLevels * maxLevels);
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-                // note: rented arrays can be dirty, but it's alright because count is 0 initially.
-                colors = ArrayPool<Color32>.Shared.Rent(source.Width * source.Height);
-#else
-                colors = new Color32[source.Width * source.Height];
-#endif
-                root = new ColorBucket(colors);
+
+                // Renting byte arrays only. Allowing dirty arrays because root.Count is 0 initially.
+                colors = typeof(T) == typeof(byte)
+                    ? new ArraySection<T>((source.Width * source.Height) << 2, false)
+                    : new ArraySection<T>(new T[source.Width * source.Height]);
+                root = new ColorBucket(colors, true);
             }
 
             public void AddColor(Color32 color)
@@ -419,7 +411,7 @@ namespace KGySoft.Drawing.Imaging
             
             public Color32[]? GeneratePalette(IAsyncContext context)
             {
-                // Occurs when bitmap is completely transparent
+                // Occurs when the bitmap is completely transparent
                 if (root.Count == 0)
                 {
                     Debug.Assert(hasTransparency);
@@ -436,6 +428,7 @@ namespace KGySoft.Drawing.Imaging
 
                 context.Progress?.New(DrawingOperation.GeneratingPalette, MaxActualColors, 1);
                 var buckets = new ColorBucketCollection(MaxActualColors);
+                root.Freeze();
                 buckets.AddBucket(root);
 
                 // splitting the initial bucket until no more split can be done or desired color amount is reached
@@ -474,10 +467,8 @@ namespace KGySoft.Drawing.Imaging
 
             public void Dispose()
             {
-#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
-                ArrayPool<Color32>.Shared.Return(colors);
-#endif
-                colors = null!;
+                colors.Buffer.Release();
+                colors = CastArray<T, Color32>.Null;
                 root = null!;
             }
 
