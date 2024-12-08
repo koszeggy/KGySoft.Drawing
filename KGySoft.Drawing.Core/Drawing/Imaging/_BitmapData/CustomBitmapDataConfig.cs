@@ -40,12 +40,6 @@ namespace KGySoft.Drawing.Imaging
     /// </remarks>
     public sealed class CustomBitmapDataConfig : CustomBitmapDataConfigBase
     {
-        #region Nested structs
-
-        private struct _ { }
-
-        #endregion
-
         #region Properties
 
         #region Public sProperties

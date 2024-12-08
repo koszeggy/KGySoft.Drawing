@@ -20,6 +20,8 @@
 using System;
 using System.Drawing;
 
+using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
@@ -158,6 +160,80 @@ namespace KGySoft.Drawing.PerformanceTests
                 //.AddCase(() => bitmapData5.DrawPath(context, path, pen, options5), "Generic accessor")
                 .DoTest()
                 .DumpResults(Console.Out);
+        }
+
+        [Test]
+        public void DrawIntoCustomBitmapDataPerfTest()
+        {
+            var path = new Path(false)
+                .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))
+                .AddEllipse(new RectangleF(0, 0, 100, 100))
+                .AddRectangle(new RectangleF(0, 0, 100, 100));
+            var bounds = path.RawPath.DrawOutlineBounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+
+            using IReadWriteBitmapData texture = BitmapDataFactory.CreateBitmapData(2, 2);
+            texture.SetPixel(0, 0, Color32.FromArgb(64, Color32.White));
+            texture.SetPixel(1, 0, Color32.FromArgb(64, Color.Red));
+            texture.SetPixel(0, 1, Color32.FromArgb(64, Color.Lime));
+            texture.SetPixel(1, 1, Color32.FromArgb(64, Color.Blue));
+            var pen = new Pen(Color.Blue);
+            //var pen = new Pen(Brush.CreateTexture(texture));
+
+            using var bitmapDataNative = BitmapDataFactory.CreateBitmapData(size);
+            bitmapDataNative.DrawPath(pen, path);
+
+            using var bitmapDataCustom = BitmapDataFactory.CreateBitmapData(new Color32[size.Width * size.Height], size, size.Width * 4, new PixelFormatInfo(KnownPixelFormat.Format32bppArgb),
+                (row, x) => row[x], (row, x, c) => row[x] = c);
+            bitmapDataCustom.DrawPath(pen, path);
+
+            new PerformanceTest { Repeat = 3, TestTime = 5000, TestName = $"Draw thin path - Size: {size}; Vertices: {path.RawPath.TotalVertices}" }
+                .AddCase(() => bitmapDataNative.DrawPath(null, pen, path), "Native")
+                .AddCase(() => bitmapDataCustom.DrawPath(null, pen, path), "Custom")
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // Before custom drawing optimization:
+            // ==[Draw thin path - Size: {Width=101, Height=101}; Vertices: 73 (.NET Core 9.0.0) Results]================================================
+            // Test Time: 5 000 ms
+            // Warming up: Yes
+            // Test cases: 2
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. Native: 5 185 637 iterations in 15 000,06 ms. Adjusted for 5 000 ms: 1 728 539,01
+            //   #1  1 650 747 iterations in 5 000,00 ms. Adjusted: 1 650 746,14	 <---- Worst
+            //   #2  1 779 226 iterations in 5 000,05 ms. Adjusted: 1 779 207,07	 <---- Best
+            //   #3  1 755 664 iterations in 5 000,00 ms. Adjusted: 1 755 663,82
+            //   Worst-Best difference: 128 460,93 (7,78%)
+            // 2. Custom: 747 659 iterations in 15 000,03 ms. Adjusted for 5 000 ms: 249 219,23 (-1 479 319,78 / 14,42%)
+            //   #1  253 095 iterations in 5 000,00 ms. Adjusted: 253 094,75	 <---- Best
+            //   #2  245 772 iterations in 5 000,02 ms. Adjusted: 245 771,15	 <---- Worst
+            //   #3  248 792 iterations in 5 000,00 ms. Adjusted: 248 791,79
+            //   Worst-Best difference: 7 323,60 (2,98%)
+
+            // After custom drawing optimization:
+            // ==[Draw thin path - Size: {Width=101, Height=101}; Vertices: 73 (.NET Core 9.0.0) Results]================================================
+            // Test Time: 5 000 ms
+            // Warming up: Yes
+            // Test cases: 2
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. Native: 5 219 015 iterations in 15 000,00 ms. Adjusted for 5 000 ms: 1 739 671,14
+            //   #1  1 712 635 iterations in 5 000,00 ms. Adjusted: 1 712 634,62	 <---- Worst
+            //   #2  1 765 012 iterations in 5 000,00 ms. Adjusted: 1 765 011,44	 <---- Best
+            //   #3  1 741 368 iterations in 5 000,00 ms. Adjusted: 1 741 367,37
+            //   Worst-Best difference: 52 376,81 (3,06%)
+            // 2. Custom: 1 951 245 iterations in 15 000,01 ms. Adjusted for 5 000 ms: 650 414,36 (-1 089 256,79 / 37,39%)
+            //   #1  652 911 iterations in 5 000,01 ms. Adjusted: 652 910,28	 <---- Best
+            //   #2  651 140 iterations in 5 000,01 ms. Adjusted: 651 139,10
+            //   #3  647 194 iterations in 5 000,00 ms. Adjusted: 647 193,69	 <---- Worst
+            //   Worst-Best difference: 5 716,59 (0,88%)
         }
 
         [Test]
@@ -530,8 +606,6 @@ namespace KGySoft.Drawing.PerformanceTests
 
             bitmapData1.DrawPath(null, pen, path, options1);
             bitmapData2.DrawPath(null, pen, path, options2);
-
-            ;
 
             new PerformanceTest { TestName = nameof(DrawLineShortcutTest), TestTime = 5000, Repeat = 3 }
                 .AddCase(() => bitmapData1.DrawPath(null, pen, path, options1), "SolidDrawSession<IndexedAccessor, int>")

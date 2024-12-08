@@ -1594,6 +1594,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
+        #region Private Protected Methods
+        
         private protected sealed override FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
@@ -1662,6 +1664,9 @@ namespace KGySoft.Drawing.Shapes
                 return base.CreateDrawThinPathSession(context, bitmapData, rawPath, bounds, drawingOptions, region);
 
             Debug.Assert(!drawingOptions.AntiAliasing && (!drawingOptions.AlphaBlending || !HasAlpha));
+            if (bitmapData is ICustomBitmapData)
+                return CreateDrawThinPathSessionCustom(context, bitmapData, rawPath, bounds, drawingOptions);
+
             IQuantizer? quantizer = drawingOptions.Quantizer;
             IDitherer? ditherer = drawingOptions.Ditherer;
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
@@ -1716,6 +1721,69 @@ namespace KGySoft.Drawing.Shapes
                 ? new DrawSession<BitmapDataAccessorPColor32, PColor32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions)
                 : new DrawSession<BitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions);
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private DrawThinPathSession? CreateDrawThinPathSessionCustom(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions)
+        {
+            IQuantizer? quantizer = drawingOptions.Quantizer;
+            IDitherer? ditherer = drawingOptions.Ditherer;
+            bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
+
+            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true);
+
+            // Quantizing with or without dithering
+            if (quantizer != null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                {
+                    quantizingSession.Dispose();
+                    return null;
+                }
+
+                if (ditherer == null)
+                {
+                    return new DrawSession<CustomBitmapDataAccessorQuantizing, Color32, IQuantizingSession>(this, context, bitmapData, rawPath, bounds, drawingOptions,
+                        quantizingSession, () => quantizingSession.Dispose());
+                }
+
+                // Quantizing with dithering
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                var ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+
+                return new DrawSession<CustomBitmapDataAccessorDithering, Color32, IDitheringSession>(this, context, bitmapData, rawPath, bounds, drawingOptions,
+                    ditheringSession, () => { ditheringSession.Dispose(); quantizingSession.Dispose(); });
+
+            }
+
+            // There is no quantizing: picking the most appropriate way for the best quality and performance.
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
+                    ? new DrawSession<CustomBitmapDataAccessorPColorF, PColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions)
+                    : new DrawSession<CustomBitmapDataAccessorColorF, ColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions);
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                    ? new DrawSession<CustomBitmapDataAccessorPColor64, PColor64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions)
+                    : new DrawSession<CustomBitmapDataAccessorColor64, Color64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions);
+            }
+
+            return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                ? new DrawSession<CustomBitmapDataAccessorPColor32, PColor32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions)
+                : new DrawSession<CustomBitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions);
+        }
+
+        #endregion
 
         #endregion
     }

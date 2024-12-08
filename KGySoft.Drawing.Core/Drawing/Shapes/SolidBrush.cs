@@ -29,7 +29,9 @@ using KGySoft.Threading;
 
 namespace KGySoft.Drawing.Shapes
 {
-    // NOTE: The base class would be somewhat smaller (no nested interfaces and structs) if we just used a delegate call in the generic classes.
+    // NOTE: This class would be much smaller (and less performant) if we just combined a lot of cases, e.g. the separated int/float overloads,
+    // or if we called the more primitive shape drawing methods earlier, letting them creating the accessors in each step again and again.
+    // Also, we would not need the IBitmapDataAccessor and any of its implementations if we just used a delegate call in the generic classes.
     // But unfortunately the performance of delegates and function pointers is much worse than direct call or generics:
     // 
     //  ==[Draw thin path - Size: {Width=101, Height=101}; Vertices: 73 Results]================================================
@@ -1198,6 +1200,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1236,6 +1275,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawLine(bitmap, p1, p2, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawLine(bitmap, p1, p2, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawLine(bitmap, p1, p2, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawLine(bitmap, p1, p2, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawLine(bitmap, p1, p2, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawLine(bitmap, p1, p2, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawLine(bitmap, p1, p2, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1276,6 +1352,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1314,6 +1427,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawLines(bitmap, points, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawLines(bitmap, points, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawLines(bitmap, points, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawLines(bitmap, points, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawLines(bitmap, points, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawLines(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1356,6 +1506,43 @@ namespace KGySoft.Drawing.Shapes
 
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawBeziers(bitmap, points, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawBeziers(bitmap, points, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawBeziers(bitmap, points, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawBeziers(bitmap, points, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawBeziers(bitmap, points, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawBeziers(bitmap, points, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawBeziers(bitmap, points, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1430,6 +1617,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, Color32);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1468,6 +1692,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawRectangle(bitmap, rectangle, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawRectangle(bitmap, rectangle, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawRectangle(bitmap, rectangle, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawRectangle(bitmap, rectangle, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawRectangle(bitmap, rectangle, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawRectangle(bitmap, rectangle, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawRectangle(bitmap, rectangle, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1508,6 +1769,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1546,6 +1844,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawEllipse(bitmap, bounds, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawEllipse(bitmap, bounds, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawEllipse(bitmap, bounds, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawEllipse(bitmap, bounds, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawEllipse(bitmap, bounds, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawEllipse(bitmap, bounds, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawEllipse(bitmap, bounds, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1586,6 +1921,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1624,6 +1996,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1664,6 +2073,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawPie(bitmap, bounds, startAngle, sweepAngle, Color32, offset);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1702,6 +2148,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF.ToPColorF());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64.ToPColor64());
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32.ToPColor32());
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(Color32));
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1742,6 +2225,43 @@ namespace KGySoft.Drawing.Shapes
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
 
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, cornerRadius, Color32, offset);
+                return;
+            }
+
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
             {
@@ -1781,6 +2301,43 @@ namespace KGySoft.Drawing.Shapes
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
             IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, ColorF.ToPColorF(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, ColorF, offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color64.ToPColor64(), offset);
+                    else
+                        DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color64, offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color32.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    DirectDrawer.GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, bitmapData.Palette!.GetNearestColorIndex(Color32), offset);
+                    return;
+                }
+
+                DirectDrawer.GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawRoundedRectangle(bitmap, bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft, Color32, offset);
+                return;
+            }
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
             if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
@@ -1923,7 +2480,10 @@ namespace KGySoft.Drawing.Shapes
                 return base.CreateDrawThinPathSession(context, bitmapData, rawPath, bounds, drawingOptions, region);
 
             Debug.Assert(!drawingOptions.AntiAliasing && (!drawingOptions.AlphaBlending || !HasAlpha));
-            IQuantizer? quantizer = drawingOptions.Quantizer;
+            if (bitmapData is ICustomBitmapData)
+                return CreateDrawThinPathSessionCustom(context, bitmapData, rawPath, bounds, drawingOptions);
+
+            IQuantizer ? quantizer = drawingOptions.Quantizer;
             IDitherer? ditherer = drawingOptions.Ditherer;
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
@@ -1989,6 +2549,71 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Private Methods
+
+        private DrawThinPathSession? CreateDrawThinPathSessionCustom(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions)
+        {
+            IQuantizer? quantizer = drawingOptions.Quantizer;
+            IDitherer? ditherer = drawingOptions.Ditherer;
+            bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
+
+            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true);
+
+            // With regular dithering (which implies quantizing, too)
+            if (ditherer != null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                IQuantizingSession quantizingSession = quantizer!.Initialize(bitmapData, context);
+                if (context.IsCancellationRequested)
+                {
+                    quantizingSession.Dispose();
+                    return null;
+                }
+
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+
+                return new SolidDrawSession<CustomBitmapDataAccessorDithering, Color32, IDitheringSession>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32,
+                    ditheringSession, () => { ditheringSession.Dispose(); quantizingSession.Dispose(); });
+            }
+
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+
+            // Quantizing without dithering. As we don't have blending we need to quantize a single color that we can do before creating the drawing session.
+            if (quantizer != null)
+            {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                Color32 quantizedColor;
+                using (var quantizingSession = quantizer.Initialize(bitmapData, context))
+                    quantizedColor = quantizingSession.GetQuantizedColor(Color32);
+
+                if (pixelFormat.Indexed)
+                    return new SolidDrawSession<CustomBitmapDataAccessorIndexed, int, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, bitmapData.Palette!.GetNearestColorIndex(quantizedColor));
+                return new SolidDrawSession<CustomBitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, quantizedColor);
+            }
+
+            // There is no quantizing: picking the most appropriate way for the best quality and performance.
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true }
+                    ? new SolidDrawSession<CustomBitmapDataAccessorPColorF, PColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, ColorF.ToPColorF())
+                    : new SolidDrawSession<CustomBitmapDataAccessorColorF, ColorF, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, ColorF);
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                    ? new SolidDrawSession<CustomBitmapDataAccessorPColor64, PColor64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color64.ToPColor64())
+                    : new SolidDrawSession<CustomBitmapDataAccessorColor64, Color64, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color64);
+            }
+
+            return pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false }
+                ? new SolidDrawSession<CustomBitmapDataAccessorPColor32, PColor32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32.ToPColor32())
+                : pixelFormat.Indexed
+                    ? new SolidDrawSession<CustomBitmapDataAccessorIndexed, int, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, bitmapData.Palette!.GetNearestColorIndex(Color32))
+                    : new SolidDrawSession<CustomBitmapDataAccessorColor32, Color32, _>(this, context, bitmapData, rawPath, bounds, drawingOptions, Color32);
+        }
 
         // The invalid branches will be optimized away by the JIT compiler
         private TColor GetColor<TColor>() => typeof(TColor) == typeof(Color32) ? (TColor)(object)Color32

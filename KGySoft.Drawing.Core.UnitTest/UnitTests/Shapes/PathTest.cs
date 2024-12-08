@@ -17,6 +17,8 @@
 
 #region Usings
 
+using KGySoft.Collections;
+
 #region Used Namespaces
 
 using System;
@@ -984,6 +986,55 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(1, 10, Int32.MaxValue - 127, 10), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddEllipse(1, 10, Int32.MaxValue - 127, 10), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddArc(1, 20, Int32.MaxValue - 127, 10, 90, 90), optionsTwoPassQuantizer)); // no shortcut, no cache due to size, visible part is drawn
+        }
+
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        public void DrawThinPathFormatsTest(KnownPixelFormat pixelFormat)
+        {
+            var path = new Path(false)
+                .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))
+                .AddEllipse(new RectangleF(0, 0, 100, 100))
+                .AddRoundedRectangle(new RectangleF(0, 0, 100, 100), 10);
+            var bounds = path.RawPath.DrawOutlineBounds;
+            Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
+            IAsyncContext context = new SimpleContext(-1);
+
+            using var texture = BitmapDataFactory.CreateBitmapData(2, 2, KnownPixelFormat.Format8bppGrayScale);
+            texture.SetPixel(0, 0, Color.Black);
+            texture.SetPixel(1, 0, Color.Gray);
+            texture.SetPixel(0, 1, Color.Silver);
+            texture.SetPixel(1, 1, Color.White);
+
+            Pen[] pens = [new Pen(Color.White), new Pen(Brush.CreateTexture(texture))];
+            DrawingOptions?[] options = pixelFormat.IsIndexed()
+                ? [null, new DrawingOptions { Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() }, new DrawingOptions { Ditherer = OrderedDitherer.Bayer8x8 }]
+                : [null];
+
+            foreach (Pen pen in pens)
+            foreach (DrawingOptions? option in options)
+            {
+                using IReadWriteBitmapData bitmapDataKnown = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+                bitmapDataKnown.Clear(Color.Black);
+                bitmapDataKnown.DrawPath(context, pen, path, option);
+
+                // Ignoring actual pixel format width: encoding everything on 1 byte with every format. We just want to cover all the IBitmapDataAccessor implementations.
+                // Stride and buffer size is still calculated correctly because the factory method validates it.
+                int stride = pixelFormat.GetByteWidth(size.Width);
+                var buffer = new byte[stride * size.Height];
+                using IReadWriteBitmapData bitmapDataCustom = pixelFormat.IsIndexed()
+                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(pixelFormat), (row, x) => row[x], (row, x, i) => row[x] = (byte)i, Palette.Grayscale256())
+                    : BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(pixelFormat), (row, x) => Color32.FromGray(row[x]), (row, x, c) => row[x] = c.GetBrightness());
+                bitmapDataCustom.Clear(Color.Black);
+                bitmapDataCustom.DrawPath(context, pen, path, option);
+
+                AssertAreEqual(bitmapDataKnown, bitmapDataCustom);
+            }
         }
 
         #endregion
