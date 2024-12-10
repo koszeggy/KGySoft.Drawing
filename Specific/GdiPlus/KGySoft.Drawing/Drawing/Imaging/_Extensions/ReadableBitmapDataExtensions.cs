@@ -414,9 +414,13 @@ namespace KGySoft.Drawing.Imaging
                 bool isGray = source.PixelFormat.Grayscale;
                 return pixelFormat switch
                 {
-                    PixelFormat.Format8bppIndexed => isGray ? Palette.Grayscale256(source.WorkingColorSpace, source.BackColor) : Palette.SystemDefault8BppPalette(source.WorkingColorSpace, source.BackColor, source.AlphaThreshold),
-                    PixelFormat.Format4bppIndexed => isGray ? Palette.Grayscale16(source.WorkingColorSpace, source.BackColor) : Palette.SystemDefault4BppPalette(source.WorkingColorSpace, source.BackColor),
-                    PixelFormat.Format1bppIndexed => Palette.BlackAndWhite(source.WorkingColorSpace, source.BackColor),
+                    PixelFormat.Format8bppIndexed => isGray
+                        ? Palette.Grayscale256(source.WorkingColorSpace, source.BackColor, source.AlphaThreshold)
+                        : Palette.SystemDefault8BppPalette(source.WorkingColorSpace, source.BackColor, source.AlphaThreshold),
+                    PixelFormat.Format4bppIndexed => isGray
+                        ? Palette.Grayscale16(source.WorkingColorSpace, source.BackColor, false, source.AlphaThreshold)
+                        : Palette.SystemDefault4BppPalette(source.WorkingColorSpace, source.BackColor, source.AlphaThreshold),
+                    PixelFormat.Format1bppIndexed => Palette.BlackAndWhite(source.WorkingColorSpace, source.BackColor, 128, source.AlphaThreshold),
                     _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
                 };
             }

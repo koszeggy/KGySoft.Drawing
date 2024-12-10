@@ -201,7 +201,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         public static PredefinedColorsQuantizer GetMatchingQuantizer(this PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
-            => PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor, alphaThreshold)
+            => PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToColor32(), alphaThreshold)
                 .ConfigureColorSpace(pixelFormat.HasLinearGamma() ? WorkingColorSpace.Linear : WorkingColorSpace.Default);
 
         #endregion
@@ -227,7 +227,7 @@ namespace KGySoft.Drawing
         {
             if (OSUtils.IsWindows)
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
-            return pixelFormat is not PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565
+            return pixelFormat is not (PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565)
                 && pixelFormat.IsSupportedNatively();
         }
 

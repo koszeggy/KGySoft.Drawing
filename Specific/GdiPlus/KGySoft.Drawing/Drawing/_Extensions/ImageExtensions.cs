@@ -142,7 +142,7 @@ namespace KGySoft.Drawing
         /// or <see cref="BitmapDataExtensions.ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> overloads with a grayscale palette,
-        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
+        /// quantizer (e.g. <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make a <see cref="Bitmap"/> grayscale without creating a new instance use the <see cref="BitmapExtensions.MakeGrayscale">BitmapExtensions.MakeGrayscale</see> method.</para>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.ToGrayscale"/>
@@ -1604,8 +1604,8 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="image"/> is an animated GIF, then the whole animation will be saved (can depend on the operating system).</para>
         /// <para>The GIF format supports single bit transparency only.</para>
         /// <para>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
-        /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method
-        /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method for any other pixel formats.</para>
+        /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see> method
+        /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method for any other pixel formats.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, then no ditherer will be auto-selected for the quantization.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
@@ -1676,7 +1676,7 @@ namespace KGySoft.Drawing
         /// <param name="allowDithering"><see langword="true"/>  to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
-        /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer.</para>
+        /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">SystemDefault8BppPalette</see> quantizer.</para>
         /// <para>This method no longer relies on the dithering logic of the built-in GIF encoder. Instead, the ditherer is obtained by the <see cref="ErrorDiffusionDitherer.FloydSteinberg">ErrorDiffusionDitherer.FloydSteinberg</see> property if <paramref name="allowDithering"/> is <see langword="true"/>.</para>
         /// </remarks>
         [Obsolete("This overload is kept for compatibility reasons. Use the SaveAsGif(Image, Stream, IQuantizer, IDitherer) overload instead.")]
@@ -1708,7 +1708,7 @@ namespace KGySoft.Drawing
         /// then a default 100 ms delay will be used for all frames.
         /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
-        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1777,7 +1777,7 @@ namespace KGySoft.Drawing
         /// then a default 100 ms delay will be used for all frames.
         /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
-        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1802,7 +1802,7 @@ namespace KGySoft.Drawing
         /// then a default 100 ms delay will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
-        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1820,7 +1820,7 @@ namespace KGySoft.Drawing
         /// then a default 100 ms delay will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
-        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1855,8 +1855,8 @@ namespace KGySoft.Drawing
         /// Though it usually produces more layers, the final size will not be necessarily larger, especially for true color images.</para>
         /// <note type="tip">You can prequantize true color images using a 16-bit quantizer (with or without dithering) to produce fairly compact, still high color GIF images.
         /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/> value typically produces more compact results.
-        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
-        /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
+        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555(Color32,byte)">Argb1555</see> quantizer for images with transparency,
+        /// or the <see cref="PredefinedColorsQuantizer.Rgb565(Color32,byte)">Rgb565</see> quantizer for non-transparent images.</note>
         /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
         /// </remarks>
         public static void SaveAsHighColorGif(this Image image, Stream stream, bool allowFullScan = false, Color backColor = default, byte alphaThreshold = 128)

@@ -193,7 +193,7 @@ namespace KGySoft.Drawing
                 if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                     return ExtractIconImages(image);
 
-                return new Bitmap[] { image.CloneCurrentFrame() };
+                return new[] { image.CloneCurrentFrame() };
             }
 
             // extracting frames
@@ -979,7 +979,7 @@ namespace KGySoft.Drawing
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap with <see cref="PixelFormat.Format32bppArgb"/> format,
         /// or the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)">ConvertPixelFormat</see> method with a grayscale
-        /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
+        /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
