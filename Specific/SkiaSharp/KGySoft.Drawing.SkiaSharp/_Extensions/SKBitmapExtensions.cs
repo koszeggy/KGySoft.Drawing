@@ -327,8 +327,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <br/><paramref name="colorType"/> = <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolortype">Argb4444</a>, using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. No quantizer is specified so a default black back color was applied.
         /// As this dithering does not support partial transparency, the alpha pixels were blended with black and the bottom 16 lines are fully transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientArgb1555WhiteA16Dithered.png" alt="Color hues quantized to ARGB1555 color space with white background and dithered by dotted halftone dithering."/>
-        /// <br/>Using <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer with white background, alpha threshold = 16 along with <see cref="OrderedDitherer.DottedHalftone">Dotted Halftone</see> dithering.
-        /// All of the other parameters have their default value so the result color type and alpha type are the same as the original, it's just the specified quantizer that reduces the number of colors
+        /// <br/>Using <see cref="PredefinedColorsQuantizer.Argb1555(Color32,byte)">Argb1555</see> quantizer with white background, alpha threshold = 16 along with <see cref="OrderedDitherer.DottedHalftone">Dotted Halftone</see> dithering.
+        /// All the other parameters have their default value so the result color type and alpha type are the same as the original, it's just the specified quantizer that reduces the number of colors
         /// and turns the bottom 16 lines completely transparent.</para></div></td>
         /// </tr>
         /// </tbody></table></para>
