@@ -47,6 +47,14 @@
   * Self-allocating CreateBitmapData overloads: By default, no longer using array pooling if the natural element
     type of the underlying array is other than byte. This can be adjusted by the new PoolingStrategy property.
   + New PoolingStrategy property
++ Palette class:
+  + Now every factory method has an overload that allow specifying the alpha threshold, not just the ones that
+    return a palette with alpha colors.
+* PredefinedColorsQuantizer class:
+  + New FromCustomPalette overload that allows specifying the palette entries as Color32 values.
+  * Every method with Color parameter now has an overload with Color32 parameter. The old overloads are now hidden,
+    though they are still there for binary compatibility.
+  + Alpha threshold can be specified for all quantizers, not just for the ones that have alpha colors.
 + New ArrayPoolingStrategy enumeration
 
 + New KGySoft.Drawing.Shapes namespace

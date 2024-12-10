@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <value>
         /// If <see langword="null"/>, then the possibly existing palette of already indexed input frames are preserved.
-        /// For frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used.
+        /// For frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used.
         /// <br/>If not <see langword="null"/>, then all frames will be quantized, even the already indexed ones. If does not support transparency,
         /// then <see cref="AllowDeltaFrames"/> will be ignored.
         /// </value>
@@ -139,11 +139,11 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <see cref="Quantizer"/> is set to an <see cref="OptimizedPaletteQuantizer"/> that allows creating a specific palette for each frame,
         /// then setting this property to <see langword="true"/> might also allow producing high color frames.</para>
         /// <para>If <see cref="AllowClippedFrames"/> is <see langword="false"/>, then this property is ignored for quantizers with no transparency support.
-        /// Therefore make sure that you set also the <see cref="AllowClippedFrames"/> to <see langword="true"/> if you use a quantizer without transparency support.</para>
+        /// Therefore, make sure that you set also the <see cref="AllowClippedFrames"/> to <see langword="true"/> if you use a quantizer without transparency support.</para>
         /// <note>The difference to be encoded is always determined by the <em>original</em> images. If you use an <see cref="OptimizedPaletteQuantizer"/>, then it can occur
         /// that the first frame has a poorer mapping of the original colors than the delta images, which can cause a "ghosting image" effect (the traces of the changes
         /// can be seen in the animation). It can be avoided by using a fix palette instead. To minimize it by using an <see cref="OptimizedPaletteQuantizer"/>
-        /// it is recommended to use the <see cref="OptimizedPaletteQuantizer.MedianCut">MedianCut</see> quantizer.</note>
+        /// it is recommended to use the <see cref="OptimizedPaletteQuantizer.MedianCut(int,Color32,byte)">MedianCut</see> quantizer.</note>
         /// </remarks>
         public bool AllowDeltaFrames { get; set; } = true;
 

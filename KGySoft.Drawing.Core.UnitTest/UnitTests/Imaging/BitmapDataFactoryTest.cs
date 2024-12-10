@@ -574,7 +574,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // Indexed specific tests
             int bpp = pixelFormat.BitsPerPixel;
             int maxColors = 1 << bpp;
-            foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[] { OptimizedPaletteQuantizer.Octree, OptimizedPaletteQuantizer.MedianCut, OptimizedPaletteQuantizer.Wu })
+            foreach (var getQuantizer in new Func<int, Color32, byte, OptimizedPaletteQuantizer>[] { OptimizedPaletteQuantizer.Octree, OptimizedPaletteQuantizer.MedianCut, OptimizedPaletteQuantizer.Wu })
             {
                 using IReadableBitmapData optimizedReferenceBitmapData = GetInfoIcon256()
                     .Clone(bpp <= 8 ? KnownPixelFormat.Format8bppIndexed : KnownPixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);

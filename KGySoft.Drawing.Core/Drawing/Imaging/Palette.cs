@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -30,6 +31,12 @@ using System.Runtime.Intrinsics.X86;
 using System.Threading;
 
 using KGySoft.Collections;
+
+#endregion
+
+#region Suppressions
+
+// ReSharper disable RedundantArgumentDefaultValue - Justification: prevents self recursion on platforms that don't know [OverloadResolutionPriority]
 
 #endregion
 
@@ -59,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para>The palette can have any number of colors but as the typical usage is quantizing colors for indexed bitmaps the typical maximum palette size
     /// is 256. Generally, the more colors the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
     /// </remarks>
-    /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multi-threaded operations.
+    /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multithreaded operations.
     /// If this type is initialized with a custom lookup logic, then thread-safety depends on the custom lookup implementation.</threadsafety>
     [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     public sealed class Palette : IPalette
@@ -573,7 +580,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
         /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the palette entries,
@@ -583,7 +590,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 8-bit palette.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)"/>
         public static Palette SystemDefault8BppPalette(Color32 backColor = default, byte alphaThreshold = 128)
             => SystemDefault8BppPalette(default, backColor, alphaThreshold);
 
@@ -591,120 +598,179 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
         /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the palette entries,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 8-bit palette.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)"/>
         public static Palette SystemDefault8BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
             => new Palette(System8BppPalette, backColor, alphaThreshold, workingColorSpace, null);
 
-        /// <summary>
-        /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
-        /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
-        /// </summary>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette"/>
-        public static Palette SystemDefault4BppPalette(Color32 backColor = default)
-            => SystemDefault4BppPalette(default, backColor);
+        /// <inheritdoc cref="SystemDefault4BppPalette(Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette SystemDefault4BppPalette(Color32 backColor) => SystemDefault4BppPalette(default, backColor, 128);
+
+        /// <inheritdoc cref="SystemDefault4BppPalette(Imaging.WorkingColorSpace,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette SystemDefault4BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor) => SystemDefault4BppPalette(workingColorSpace, backColor, 128);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
         /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette(Color32,byte)"/>
+        public static Palette SystemDefault4BppPalette(Color32 backColor = default, byte alphaThreshold = 128)
+            => SystemDefault4BppPalette(default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
+        /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette"/>
-        public static Palette SystemDefault4BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default)
-            => new Palette(System4BppPalette, backColor, 128, workingColorSpace, null);
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette(Color32,byte)"/>
+        public static Palette SystemDefault4BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
+            => new Palette(System4BppPalette, backColor, alphaThreshold, workingColorSpace, null);
+
+        /// <inheritdoc cref="SystemDefault1BppPalette(Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette SystemDefault1BppPalette(Color32 backColor) => SystemDefault1BppPalette(default, backColor, 128);
+
+        /// <inheritdoc cref="SystemDefault1BppPalette(Imaging.WorkingColorSpace,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette SystemDefault1BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor) => SystemDefault1BppPalette(workingColorSpace, backColor, 128);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
         /// This palette consists of the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
-        public static Palette SystemDefault1BppPalette(Color32 backColor = default)
-            => SystemDefault1BppPalette(default, backColor);
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette(Color32,byte)"/>
+        public static Palette SystemDefault1BppPalette(Color32 backColor = default, byte alphaThreshold = 128) => SystemDefault1BppPalette(default, backColor, alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
         /// This palette consists of the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette(Color32,byte)">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
-        public static Palette SystemDefault1BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default)
-            => new Palette(BlackAndWhitePalette, backColor, 128, workingColorSpace, null);
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette(Color32,byte)"/>
+        public static Palette SystemDefault1BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
+            => new Palette(BlackAndWhitePalette, backColor, alphaThreshold, workingColorSpace, null);
+
+        /// <inheritdoc cref="Rgb332(Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Rgb332(Color32 backColor, bool directMapping) => Rgb332(default, backColor, directMapping, 128);
+
+        /// <inheritdoc cref="Rgb332(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Rgb332(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Rgb332(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
-        /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
+        /// Gets a <see cref="Palette"/> instance that uses an 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332(Color32,bool,byte)">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
-        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false) => Rgb332(default, backColor, directMapping);
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses an 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Rgb332(Color32,bool,byte)"/>
+        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128) => Rgb332(default, backColor, directMapping, alphaThreshold);
 
         /// <summary>
-        /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
+        /// Gets a <see cref="Palette"/> instance that uses an 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332(Color32,bool,byte)">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
         /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses an 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
-        public static Palette Rgb332(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
+        /// <seealso cref="PredefinedColorsQuantizer.Rgb332(Color32,bool,byte)"/>
+        public static Palette Rgb332(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
@@ -714,35 +780,55 @@ namespace KGySoft.Drawing.Imaging
                 return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
             }
 
-            return new Palette(Rgb332Palette, workingColorSpace, backColor, 0, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Rgb332Palette, workingColorSpace, backColor, alphaThreshold, directMapping ? GetNearestColorIndex : default);
         }
 
-        /// <summary>
-        /// Gets a <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
-        /// </summary>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale"/>
-        public static Palette Grayscale256(Color32 backColor = default) => Grayscale256(default, backColor);
+        /// <inheritdoc cref="Grayscale256(Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale256(Color32 backColor) => Grayscale256(default, backColor, 128);
+
+        /// <inheritdoc cref="Grayscale256(Imaging.WorkingColorSpace,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale256(WorkingColorSpace workingColorSpace, Color32 backColor) => Grayscale256(workingColorSpace, backColor, 128);
 
         /// <summary>
-        /// Gets a <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
+        /// Gets a <see cref="Palette"/> instance that uses an 8-bit grayscale palette of 256 shades.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses an 8-bit grayscale palette of 256 shades.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)"/>
+        public static Palette Grayscale256(Color32 backColor = default, byte alphaThreshold = 128) => Grayscale256(default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses an 8-bit grayscale palette of 256 shades.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.</returns>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses an 8-bit grayscale palette of 256 shades.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale"/>
-        public static Palette Grayscale256(WorkingColorSpace workingColorSpace, Color32 backColor = default)
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)"/>
+        public static Palette Grayscale256(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
@@ -754,43 +840,63 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness(palette.WorkingColorSpace);
             }
 
-            return new Palette(Grayscale256Palette, backColor, 0, workingColorSpace, GetNearestColorIndex);
+            return new Palette(Grayscale256Palette, backColor, alphaThreshold, workingColorSpace, GetNearestColorIndex);
         }
+
+        /// <inheritdoc cref="Grayscale16(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale16(Color32 backColor, bool directMapping) => Grayscale16(default, backColor, directMapping, 128);
+
+        /// <inheritdoc cref="Grayscale16(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale16(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Grayscale16(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16(Color32,bool,byte)">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
-        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false) => Grayscale16(default, backColor, directMapping);
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale16(Color32,bool,byte)"/>
+        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128) => Grayscale16(default, backColor, directMapping, alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16(Color32,bool,byte)">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
-        public static Palette Grayscale16(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale16(Color32,bool,byte)"/>
+        public static Palette Grayscale16(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
@@ -802,43 +908,63 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness(palette.WorkingColorSpace) >> 4;
             }
 
-            return new Palette(Grayscale16Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Grayscale16Palette, backColor, alphaThreshold, workingColorSpace, directMapping ? GetNearestColorIndex : default);
         }
+
+        /// <inheritdoc cref="Grayscale4(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale4(Color32 backColor, bool directMapping) => Grayscale4(default, backColor, directMapping, 128);
+
+        /// <inheritdoc cref="Grayscale4(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette Grayscale4(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Grayscale4(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4(Color32,bool,byte)">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
-        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false) => Grayscale4(default, backColor, directMapping);
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale4(Color32,bool,byte)"/>
+        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128) => Grayscale4(default, backColor, directMapping, alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4(Color32,bool,byte)">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
-        public static Palette Grayscale4(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale4(Color32,bool,byte)"/>
+        public static Palette Grayscale4(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false, byte alphaThreshold = 128)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
@@ -850,41 +976,61 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness(palette.WorkingColorSpace) >> 6;
             }
 
-            return new Palette(Grayscale4Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Grayscale4Palette, backColor, alphaThreshold, workingColorSpace, directMapping ? GetNearestColorIndex : default);
         }
+
+        /// <inheritdoc cref="BlackAndWhite(Color32,byte,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette BlackAndWhite(Color32 backColor, byte whiteThreshold) => BlackAndWhite(default, backColor, whiteThreshold, 128);
+
+        /// <inheritdoc cref="BlackAndWhite(Imaging.WorkingColorSpace,Color32,byte,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static Palette BlackAndWhite(WorkingColorSpace workingColorSpace, Color32 backColor, byte whiteThreshold) => BlackAndWhite(workingColorSpace, backColor, whiteThreshold, 128);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="whiteThreshold">Specifies a threshold value for the brightness of the colors, under which the result of a color lookup is considered black.
         /// If 0, then all colors are mapped to white. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the black and white colors.</returns>
-        /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite"/>
-        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128) => BlackAndWhite(default, backColor, whiteThreshold);
+        /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)"/>
+        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128, byte alphaThreshold = 128) => BlackAndWhite(default, backColor, whiteThreshold, alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
         /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
-        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="whiteThreshold">Specifies a threshold value for the brightness of the colors, under which the result of a color lookup is considered black.
         /// If 0, then all colors are mapped to white. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a quantized color
+        /// is considered completely transparent. Though the palette returned from this method does not contain alpha colors, it can be relevant in some cases, for example when drawing a partially
+        /// transparent bitmap onto a solid background with a quantizer using this palette. The source pixels, whose alpha value is below the <paramref name="alphaThreshold"/> will be skipped,
+        /// whereas alpha pixels with higher opacity will be blended with the specified <paramref name="backColor"/>. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the black and white colors.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite"/>
-        public static Palette BlackAndWhite(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte whiteThreshold = 128)
+        /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)"/>
+        public static Palette BlackAndWhite(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte whiteThreshold = 128, byte alphaThreshold = 128)
         {
             // NOTE: unlike the other custom functions this one captures a parameter, whiteThreshold,
             //       which is not a problem as long as it cannot be modified by the copy constructors
@@ -902,7 +1048,7 @@ namespace KGySoft.Drawing.Imaging
                     : c.GetBrightness() >= whiteThreshold ? 1 : 0;
             }
 
-            return new Palette(BlackAndWhitePalette, backColor, 0, workingColorSpace, GetNearestColorIndex);
+            return new Palette(BlackAndWhitePalette, backColor, alphaThreshold, workingColorSpace, GetNearestColorIndex);
         }
 
         #endregion

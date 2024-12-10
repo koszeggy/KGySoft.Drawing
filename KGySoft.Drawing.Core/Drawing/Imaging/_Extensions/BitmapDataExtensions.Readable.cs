@@ -72,7 +72,7 @@ namespace KGySoft.Drawing.Imaging
         /// even between different pixel formats with wide colors.</item>
         /// <item>The overloads with a <see cref="Rectangle"/> parameter allow to create a copy only of a portion of the source bitmap.</item>
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the format would allow more colors.</item>
-        /// <item>If the result pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
+        /// <item>If the result pixel format has a low bit-per-pixel value, or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
         /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item>
@@ -2990,7 +2990,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
-        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
+        /// quantizer (e.g. <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale">MakeGrayscale</see> method.</para>
         /// </remarks>
         /// <seealso cref="MakeGrayscale"/>

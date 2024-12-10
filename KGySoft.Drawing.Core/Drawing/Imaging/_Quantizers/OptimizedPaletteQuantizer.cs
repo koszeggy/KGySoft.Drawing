@@ -16,8 +16,10 @@
 #region Usings
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 using KGySoft.Threading;
 
@@ -38,24 +40,24 @@ namespace KGySoft.Drawing.Imaging
     /// have <see cref="PixelFormatInfo"/> or <see cref="CustomIndexedBitmapDataConfig"/> parameters. Please note though that a large palette may have impact
     /// on both memory usage and performance.</note></para>
     /// <para>This class supports palette optimization by three different algorithms (see the
-    /// <see cref="Octree">Octree</see>, <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> methods)</para>
+    /// <see cref="Octree(int,Color32,byte)">Octree</see>, <see cref="MedianCut(int,Color32,byte)">MedianCut</see> and <see cref="Wu(int,Color32,byte)">Wu</see> methods)</para>
     /// <para>The following table compares the algorithms supported by the <see cref="OptimizedPaletteQuantizer"/> class:
     /// <list type="table">
-    /// <listheader><term></term><term><see cref="Octree">Octree</see></term><term><see cref="MedianCut">MedianCut</see></term><term><see cref="Wu">Wu</see></term></listheader>
+    /// <listheader><term></term><term><see cref="Octree(int,Color32,byte)">Octree</see></term><term><see cref="MedianCut(int,Color32,byte)">MedianCut</see></term><term><see cref="Wu(int,Color32,byte)">Wu</see></term></listheader>
     /// <item>
     /// <term><strong>Speed</strong></term>
-    /// <term>With default settings usually slower than the <see cref="Wu">Wu</see>'s algorithm and has a similar speed as <see cref="MedianCut">MedianCut</see>.
+    /// <term>With default settings usually slower than the <see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm and has a similar speed as <see cref="MedianCut(int,Color32,byte)">MedianCut</see>.
     /// When using high <see cref="ConfigureBitLevel">bit levels</see> and the source is a true color image, then it is generally faster for high requested colors,
-    /// and can be faster even than <see cref="Wu">Wu</see>'s algorithm using the same bit level.</term>
+    /// and can be faster even than <see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm using the same bit level.</term>
     /// <term>When using a low bit level or just a few colors, this one is the slowest one of the three algorithms, especially for larger images.
-    /// When producing 256 or more colors its speed is similar to the <see cref="Octree">Octree</see> algorithm.</term>
+    /// When producing 256 or more colors its speed is similar to the <see cref="Octree(int,Color32,byte)">Octree</see> algorithm.</term>
     /// <term>With default settings this is almost always the fastest one of the three algorithms
     /// (still much slower though than the quantizers of the <see cref="PredefinedColorsQuantizer"/> class).
     /// When using high <see cref="ConfigureBitLevel">bit levels</see> it can be the slowest one for small images and gets to be the fastest one for larger image sizes.</term>
     /// </item>
     /// <item>
     /// <term><strong>Memory consumption<sup>*</sup></strong></term>
-    /// <term>Generating the palette may consume quite a large amount of memory but it also depends on the number of different colors
+    /// <term>Generating the palette may consume quite a large amount of memory, but it also depends on the number of different colors
     /// of the source image and the requested color count. The memory is continuously allocated on demand and in extreme cases it may consume a huge amount of memory.
     /// The memory usage can be limited by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
     /// <term>The memory usage mainly depends on the image size and somewhat on the requested color count. Quantizing a large image may consume a large amount of memory
@@ -69,17 +71,17 @@ namespace KGySoft.Drawing.Imaging
     /// <term><strong>Quality</strong></term>
     /// <term><list type="bullet">
     /// <item>Usually poorer quality for smaller palettes (below 16 colors).</item>
-    /// <item>Banding may appear in images with large low-frequency areas (eg. sky or water in photos).</item>
+    /// <item>Banding may appear in images with large low-frequency areas (e.g. sky or water in photos).</item>
     /// <item>Balanced quality for larger palettes and photo-like images.</item>
     /// </list></term>
     /// <term><list type="bullet">
     /// <item>Usually better quality for smaller palettes.</item>t
-    /// <item>Excellent, nearly banding-free results with images with large low-frequency areas (eg. sky or water in photos).</item>
-    /// <item>May provide poorer quality for small areas with unique colors (eg. a smaller human face in a large photo).</item>
+    /// <item>Excellent, nearly banding-free results with images with large low-frequency areas (e.g. sky or water in photos).</item>
+    /// <item>May provide poorer quality for small areas with unique colors (e.g. a smaller human face in a large photo).</item>
     /// </list></term>
     /// <term><list type="bullet">
     /// <item>Usually very good quality even for smaller palettes.</item>
-    /// <item>Banding may appear in images with large low-frequency areas (eg. sky or water in photos).
+    /// <item>Banding may appear in images with large low-frequency areas (e.g. sky or water in photos).
     /// By default, banding may appear for monochromatic images even if the requested number of colors would allow a banding-free result
     /// but this can be configured by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</item>
     /// <item>Very good quality for photo-like images, especially if the image has no homogeneous low-frequency areas.</item>
@@ -90,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para><sup>*</sup>Memory consumption mentioned in the table affects palette generation only.
     /// That occurs when the <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method of an <see cref="OptimizedPaletteQuantizer"/> instance
     /// is called. As soon as this method returns with an <see cref="IQuantizingSession"/> instance, the memory mentioned in the table can be reclaimed
-    /// (which does not necessarily happen immediately on platforms that support array pooling, which is utilized by the <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> algorithms).</para>
+    /// (which does not necessarily happen immediately on platforms that support array pooling, which is utilized by the <see cref="MedianCut(int,Color32,byte)">MedianCut</see> and <see cref="Wu(int,Color32,byte)">Wu</see> algorithms).</para>
     /// <para>On the other hand, the <see cref="IQuantizingSession"/> can also consume a large amount of memory during the quantization
     /// because its <see cref="Palette"/> caches the quantization results of the source image pixels, though this caching does not
     /// depend on the chosen algorithm and the used memory can also be reclaimed when the <see cref="IQuantizingSession"/> is disposed.</para>
@@ -98,7 +100,7 @@ namespace KGySoft.Drawing.Imaging
     /// </note>
     /// </para>
     /// <para>The following table compares the results of the <see cref="OptimizedPaletteQuantizer"/> instances returned by the
-    /// <see cref="Octree">Octree</see>, <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> methods.
+    /// <see cref="Octree(int,Color32,byte)">Octree</see>, <see cref="MedianCut(int,Color32,byte)">MedianCut</see> and <see cref="Wu(int,Color32,byte)">Wu</see> methods.
     /// <note>For better comparison none of the images are dithered in the examples, though the visual quality can be improved by using dithering.
     /// See the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/> and <see cref="InterleavedGradientNoiseDitherer"/>
     /// classes for some built-in <see cref="IDitherer"/> implementations.</note>
@@ -110,29 +112,29 @@ namespace KGySoft.Drawing.Imaging
     /// <br/>Color hues with alpha gradient</para></div></td>
     /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientOctree256Silver.gif" alt="Color hues quantized by Octree algorithm using 256 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Octree">Octree</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
+    /// <br/><see cref="Octree(int,Color32,byte)">Octree</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientMedianCut256Silver.gif" alt="Color hues quantized by Median Cut algorithm using 256 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
+    /// <br/><see cref="MedianCut(int,Color32,byte)">MedianCut</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientWu256Silver.gif" alt="Color hues quantized by Wu's algorithm using 256 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para></div></td>
+    /// <br/><see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para></div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/Information256.png" alt="Information icon with transparent background"/>
     /// <br/>Information icon with transparency</para></div></td>
     /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/InformationOctree4Silver.gif" alt="Information icon quantized by Octree algorithm using 4 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Octree">Octree</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
+    /// <br/><see cref="Octree(int,Color32,byte)">Octree</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/InformationMedianCut4Silver.gif" alt="Information icon quantized by Median Cut algorithm using 4 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
+    /// <br/><see cref="MedianCut(int,Color32,byte)">MedianCut</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/InformationWu4Silver.gif" alt="Information icon quantized by Wu's algorithm using 4 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Wu">Wu</see>'s algorithm, 4 colors, silver background, zero alpha threshold</para>
+    /// <br/><see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm, 4 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/InformationOctree256Black.gif" alt="Information icon quantized by Octree algorithm using 256 colors, black background, alpha threshold = 128"/>
-    /// <br/><see cref="Octree">Octree</see> algorithm, 256 colors, black background, alpha threshold = 128. Banding appeared in the result.</para>
+    /// <br/><see cref="Octree(int,Color32,byte)">Octree</see> algorithm, 256 colors, black background, alpha threshold = 128. Banding appeared in the result.</para>
     /// <para><img src="../Help/Images/InformationMedianCut256Black.gif" alt="Information icon quantized by Median Cut algorithm using 256 colors, black background, alpha threshold = 128"/>
-    /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 256 colors, black background, alpha threshold = 128. Practically there is no banding in the result.</para>
+    /// <br/><see cref="MedianCut(int,Color32,byte)">MedianCut</see> algorithm, 256 colors, black background, alpha threshold = 128. Practically there is no banding in the result.</para>
     /// <para><img src="../Help/Images/InformationWu256Black.gif" alt="Information icon quantized by Wu's algorithm using 256 colors, black background, alpha threshold = 128"/>
-    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
-    /// as if the source image had been prequantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
+    /// <br/><see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
+    /// as if the source image had been prequantized by the <see cref="PredefinedColorsQuantizer.Argb1555(Color32,byte)">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
     /// You get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits (which is the default for Wu with 256 colors).
     /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para></div></td>
     /// </tr>
@@ -358,22 +360,27 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        /// <inheritdoc cref="Octree(int,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static OptimizedPaletteQuantizer Octree(int maxColors, Color backColor, byte alphaThreshold) => Octree(maxColors, backColor.ToColor32(), alphaThreshold);
+
         /// <summary>
-        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Octree quantizing algorithm.
+        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Octree quantizing algorithm.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Octree quantizing algorithm.</returns>
+        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Octree quantizing algorithm.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
-        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later, it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");
@@ -389,27 +396,32 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">For more image examples and side-by-side comparison with the other algorithms see the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> class.</note>
         /// </example>
         /// <seealso cref="OptimizedPaletteQuantizer"/>
-        /// <seealso cref="MedianCut"/>
-        /// <seealso cref="Wu"/>
-        public static OptimizedPaletteQuantizer Octree(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.Octree, maxColors, new Color32(backColor), alphaThreshold);
+        /// <seealso cref="MedianCut(int,Color32,byte)"/>
+        /// <seealso cref="Wu(int,Color32,byte)"/>
+        public static OptimizedPaletteQuantizer Octree(int maxColors = 256, Color32 backColor = default, byte alphaThreshold = 128)
+            => new OptimizedPaletteQuantizer(Algorithm.Octree, maxColors, backColor, alphaThreshold);
+
+        /// <inheritdoc cref="MedianCut(int,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static OptimizedPaletteQuantizer MedianCut(int maxColors, Color backColor, byte alphaThreshold) => MedianCut(maxColors, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.
+        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Median Cut quantizing algorithm.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.</returns>
+        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Median Cut quantizing algorithm.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
-        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later, it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");
@@ -425,27 +437,32 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">For more image examples and side-by-side comparison with the other algorithms see the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> class.</note>
         /// </example>
         /// <seealso cref="OptimizedPaletteQuantizer"/>
-        /// <seealso cref="Octree"/>
-        /// <seealso cref="Wu"/>
-        public static OptimizedPaletteQuantizer MedianCut(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.MedianCut, maxColors, new Color32(backColor), alphaThreshold);
+        /// <seealso cref="Octree(int,Color32,byte)"/>
+        /// <seealso cref="Wu(int,Color32,byte)"/>
+        public static OptimizedPaletteQuantizer MedianCut(int maxColors = 256, Color32 backColor = default, byte alphaThreshold = 128)
+            => new OptimizedPaletteQuantizer(Algorithm.MedianCut, maxColors, backColor, alphaThreshold);
+
+        /// <inheritdoc cref="Wu(int,Color32,byte)"/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [OverloadResolutionPriority(-1)]
+        public static OptimizedPaletteQuantizer Wu(int maxColors, Color backColor, byte alphaThreshold) => Wu(maxColors, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
-        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using Xiaolin Wu's quantizing algorithm.
+        /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using Xiaolin Wu's quantizing algorithm.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image by Xiaolin Wu's quantizing algorithm.</returns>
+        /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image by Xiaolin Wu's quantizing algorithm.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
-        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later, it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");
@@ -461,10 +478,10 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">For more image examples and side-by-side comparison with the other algorithms see the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> class.</note>
         /// </example>
         /// <seealso cref="OptimizedPaletteQuantizer"/>
-        /// <seealso cref="Octree"/>
-        /// <seealso cref="MedianCut"/>
-        public static OptimizedPaletteQuantizer Wu(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.Wu, maxColors, new Color32(backColor), alphaThreshold);
+        /// <seealso cref="Octree(int,Color32,byte)"/>
+        /// <seealso cref="MedianCut(int,Color32,byte)"/>
+        public static OptimizedPaletteQuantizer Wu(int maxColors = 256, Color32 backColor = default, byte alphaThreshold = 128)
+            => new OptimizedPaletteQuantizer(Algorithm.Wu, maxColors, backColor, alphaThreshold);
 
         #endregion
 
@@ -484,14 +501,14 @@ namespace KGySoft.Drawing.Imaging
         /// <para>As a primary effect, <paramref name="bitLevel"/> determines the upper limit of the possible colors in the generated palette.
         /// For example, if <paramref name="bitLevel"/> is 1, then the result palette will not have more than 8 colors, or when it is 2, more than 64 colors.
         /// If you want to quantize an image using the allowed maximum of 65536 colors, then <paramref name="bitLevel"/> should be at least 6 because 5 allows up to 32768 colors.</para>
-        /// <para>When using the <see cref="MedianCut">MedianCut</see> algorithm, configuring the bit level has no other effects.
-        /// When using the <see cref="Octree">Octree</see> or <see cref="Wu">Wu</see>'s algorithms, <paramref name="bitLevel"/> determines also the amount of
+        /// <para>When using the <see cref="MedianCut(int,Color32,byte)">MedianCut</see> algorithm, configuring the bit level has no other effects.
+        /// When using the <see cref="Octree(int,Color32,byte)">Octree</see> or <see cref="Wu(int,Color32,byte)">Wu</see>'s algorithms, <paramref name="bitLevel"/> determines also the amount of
         /// minimum distinguishable monochromatic shades. For example, when <paramref name="bitLevel"/> is 5, then up to 32 monochromatic shades can be differentiated
         /// so close shades might be merged even if the requested number of colors would allow returning all the shades.</para>
-        /// <para>For the <see cref="Octree">Octree</see> algorithm the default value is the ceiling of the base 2 logarithm of the requested number of colors
-        /// (eg. 1 for 2 colors, 8 for 129 or more colors). This is alright for most cases. You can increase the default value if the image has only a few but very close colors
+        /// <para>For the <see cref="Octree(int,Color32,byte)">Octree</see> algorithm the default value is the ceiling of the base 2 logarithm of the requested number of colors
+        /// (e.g. 1 for 2 colors, 8 for 129 or more colors). This is alright for most cases. You can increase the default value if the image has only a few but very close colors
         /// or decrease it if the image has so many colors that the quantization would use too much memory.</para>
-        /// <para>For <see cref="Wu">Wu</see>'s algorithm the default value is 5 for no more than 256 colors (requires about 1.5 MB fix memory) and 6 for more colors (requires about 10 MB).
+        /// <para>For <see cref="Wu(int,Color32,byte)">Wu</see>'s algorithm the default value is 5 for no more than 256 colors (requires about 1.5 MB fix memory) and 6 for more colors (requires about 10 MB).
         /// This provides good enough quality in most cases but may cause visible banding if the input image is monochrome. To avoid that you can increase the bit level,
         /// which dramatically increases also the memory requirement: 7 bits requires about 80 MB memory, whereas 8 bits demands about 650 MB, regardless of
         /// the actual number of colors in the source image.</para>

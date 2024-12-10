@@ -57,11 +57,11 @@ namespace KGySoft.Drawing.Imaging
         /// Encodes the specified <paramref name="imageData"/> as a GIF image and writes it into the specified <paramref name="stream"/>.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
-        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
-        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -85,11 +85,11 @@ namespace KGySoft.Drawing.Imaging
         /// Begins to encode the specified <paramref name="imageData"/> as a GIF image and to write it into the specified <paramref name="stream"/>.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
-        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
-        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -126,11 +126,11 @@ namespace KGySoft.Drawing.Imaging
         /// Encodes the specified <paramref name="imageData"/> as a GIF image asynchronously, and writes it into the specified <paramref name="stream"/>.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
-        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
-        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -267,8 +267,8 @@ namespace KGySoft.Drawing.Imaging
         /// Though it usually produces more layers, the final size will not be necessarily larger, especially for true color images.</para>
         /// <note type="tip">You can prequantize true color images using a 16-bit quantizer (with or without dithering) to produce fairly compact, still high color GIF images.
         /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/> value typically produces more compact results.
-        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
-        /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
+        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555(Color32,byte)">Argb1555</see> quantizer for images with transparency,
+        /// or the <see cref="PredefinedColorsQuantizer.Rgb565(Color32,byte)">Rgb565</see> quantizer for non-transparent images.</note>
         /// <para>To encode an <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsHighColorGif">ImageExtensions.SaveAsHighColorGif</see> methods.</para>
         /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
         /// </remarks>

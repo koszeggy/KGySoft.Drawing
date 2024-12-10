@@ -120,25 +120,25 @@ namespace KGySoft.Drawing.Imaging
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringBWSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with back and white palette, quantized in the sRGB color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white</see> palette in the sRGB color space.</div></td>
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white</see> palette in the sRGB color space.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringBWLinear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with back and white palette, quantized in the linear color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white</see> palette in the linear color space.</div></td>
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white</see> palette in the linear color space.</div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the sRGB color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">RGB111</see> palette in the sRGB color space.</div></td>
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Palette)">RGB111</see> palette in the sRGB color space.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111Linear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the linear color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">RGB111</see> palette in the linear color space.</div></td>
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Palette)">RGB111</see> palette in the linear color space.</div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringDefault8bppSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP</see> palette in the sRGB color space.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP</see> palette in the sRGB color space.
     /// For more colors the difference is much less noticeable but the background is slightly brighter than in the original image.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringDefault8bppLinear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP  palette, quantized in the linear color space"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP</see> palette in the linear color space.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP</see> palette in the linear color space.
     /// For more colors the difference is much less noticeable but the background is slightly darker than in the sRGB result.</div></td>
     /// </tr>
     /// </tbody></table>
@@ -155,29 +155,29 @@ namespace KGySoft.Drawing.Imaging
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringBWDitheredB8Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with back and white palette, quantized in the sRGB color space using Bayer 8x8 dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white</see> palette in the sRGB color space using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white</see> palette in the sRGB color space using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
     /// The result is too bright. Please note though that if your browser resizes the image in the sRGB color space it might appear correct, in which case make sure you open it in a new tab and set the zoom to 100%.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringBWDitheredB8Linear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with back and white palette, quantized in the linear color space using Bayer 8x8 dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white</see> palette in the linear color space using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white</see> palette in the linear color space using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
     /// The result has correct brightness. Please note though that if your browser resizes the image in the sRGB color space it might appear too dark, in which case make sure you open it in a new tab and set the zoom to 100%.</div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111DitheredFSSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the sRGB color space using Floyd-Steinberg dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">RGB111</see> palette in the sRGB color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Palette)">RGB111</see> palette in the sRGB color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
     /// The result is too bright. Please note though that if your browser resizes the image in the sRGB color space it might appear correct, in which case make sure you open it in a new tab and set the zoom to 100%.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111DitheredFSLinear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the linear color space using Floyd-Steinberg dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">RGB111</see> palette in the linear color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Palette)">RGB111</see> palette in the linear color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
     /// The result has correct brightness. Please note though that if your browser resizes the image in the sRGB color space it might appear too dark, in which case make sure you open it in a new tab and set the zoom to 100%.</div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredFSSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space using Floyd-Steinberg dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP</see> palette in the sRGB color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP</see> palette in the sRGB color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
     /// The background is slightly brighter than in the original image but due to the number of colors the difference is barely noticeable.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredFSLinear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP  palette, quantized in the linear color space using Floyd-Steinberg dithering"/>
-    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP</see> palette in the linear color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+    /// <br/>Quantizing by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP</see> palette in the linear color space using <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
     /// Due to the number of colors the difference is barely noticeable between the sRGB and the linear result.</div></td>
     /// </tr>
     /// </tbody></table>
@@ -190,7 +190,7 @@ namespace KGySoft.Drawing.Imaging
     /// <tbody>
     /// <tr><td colspan="2"><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111DitheredB8Linear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the linear color space using Bayer 8x8 dithering"/>
-    /// <br/>Test image "Girl with a Pearl Earring" quantized by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">RGB111</see> palette in the linear color space
+    /// <br/>Test image "Girl with a Pearl Earring" quantized by <see cref="PredefinedColorsQuantizer.FromCustomPalette(Palette)">RGB111</see> palette in the linear color space
     /// using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.</div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">

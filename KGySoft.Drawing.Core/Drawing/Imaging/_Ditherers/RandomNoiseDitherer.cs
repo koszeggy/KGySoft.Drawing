@@ -44,18 +44,18 @@ namespace KGySoft.Drawing.Imaging
     /// <br/>Color hues with alpha gradient</para></div></td>
     /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredRN.gif" alt="Color hues with system default 8 BPP palette, using silver background and random noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and random noise dithering</para></div></td>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP palette</see> and random noise dithering</para></div></td>
     /// </tr>
     /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
     /// <br/>Grayscale color shades</para></div></td>
     /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredRN.gif" alt="Grayscale color shades with black and white palette using random noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and random noise dithering</para></div></td>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white palette</see> and random noise dithering</para></div></td>
     /// </tr>
     /// </tbody></table></para>
     /// </remarks>
@@ -222,14 +222,14 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Color hues with alpha gradient</para></div></td>
         /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredRN.gif" alt="Color hues with system default 8 BPP palette, using silver background and random noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(Color32,byte)">system default 8 BPP palette</see></para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
         /// <br/>Grayscale color shades</para></div></td>
         /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredRN.gif" alt="Grayscale color shades with black and white palette using random noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white palette</see></para></div></td>
         /// </tr>
         /// </tbody></table></para>
         /// </example>

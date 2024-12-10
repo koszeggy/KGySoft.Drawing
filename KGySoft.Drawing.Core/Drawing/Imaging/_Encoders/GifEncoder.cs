@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="GifEncoder"/> class for details and examples.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
-        /// by the system default 8-bpp "web-safe" palette (see also <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see>)
+        /// by the system default 8-bpp "web-safe" palette (see also <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette(KGySoft.Drawing.Imaging.Color32,byte)">PredefinedColorsQuantizer.SystemDefault8BppPalette</see>)
         /// using no dithering.</param>
         /// <param name="location">Specifies the location of the current image within the logical screen.</param>
         /// <param name="delay">Specifies the delay before rendering the next image in hundredths of a second. <c>0</c> is usually interpreted as 100ms by browsers (as if 10 was specified),
@@ -339,7 +339,7 @@ namespace KGySoft.Drawing.Imaging
                 if (String.IsNullOrEmpty(comment))
                     continue;
 
-                if (comment!.Length > 255)
+                if (comment.Length > 255)
                     throw new ArgumentException(Res.GifEncoderCommentTooLong, nameof(comments));
                 if (comment.Any(c => c >= 128))
                     throw new ArgumentException(Res.GifEncoderCommentNotAscii, nameof(comments));
@@ -485,7 +485,7 @@ namespace KGySoft.Drawing.Imaging
                 if (String.IsNullOrEmpty(comment))
                     continue;
 
-                writer.Write((byte)comment!.Length);
+                writer.Write((byte)comment.Length);
 
                 // ReSharper disable once ForCanBeConvertedToForeach - performance
                 for (int i = 0; i < comment.Length; i++)

@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             IReadWriteBitmapData source = GenerateAlphaGradientBitmapData(new Size(256, 128));
 
-            foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[]
+            foreach (var getQuantizer in new Func<int, Color32, byte, OptimizedPaletteQuantizer>[]
                 {
                     OptimizedPaletteQuantizer.Octree,
                     OptimizedPaletteQuantizer.MedianCut,

@@ -175,10 +175,10 @@ namespace KGySoft.Drawing.Imaging
                 {
                     > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
                     8 => Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
-                    > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                    4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor),
-                    > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                    _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor)
+                    > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
+                    4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
+                    > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
+                    _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold)
                 };
 
             AlphaThreshold = Palette!.AlphaThreshold;

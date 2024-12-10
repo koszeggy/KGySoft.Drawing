@@ -991,7 +991,7 @@ namespace KGySoft.Drawing.Imaging
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
                         default, 0, WorkingColorSpace, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
-                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureColorSpace(WorkingColorSpace));
+                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor).ConfigureColorSpace(WorkingColorSpace));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
                 else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())
