@@ -3,6 +3,7 @@
     /// <summary>
     /// Specifies how to the interior of a path is filled when it contains intersecting edges.
     /// If a path has no intersecting edges, then both strategies produce the same result.
+    /// <br/>See the <strong>Remarks</strong> section of the <see cref="DrawingOptions.FillMode">DrawingOptions.FillMode</see> property for image examples.
     /// </summary>
     public enum ShapeFillMode
     {

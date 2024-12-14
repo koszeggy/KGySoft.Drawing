@@ -35,7 +35,7 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>8.2.0</HelpFileVersion>
+    <HelpFileVersion>9.0.0-rc.1</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -1405,6 +1405,57 @@
     </Content>
     <Content Include="Help\Images\AlphaGradientArgb1555WhiteA16Dithered.png">
       <ImageId>AlphaGradientArgb1555WhiteA16Dithered</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsTransformation.png">
+      <ImageId>DrawingOptionsTransformation</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFastThinLinesEnabled.png">
+      <ImageId>DrawingOptionsFastThinLinesEnabled</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFastThinLinesDisabled.png">
+      <ImageId>DrawingOptionsFastThinLinesDisabled</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAntiAliasingEnabled.png">
+      <ImageId>DrawingOptionsAntiAliasingEnabled</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFastThinLinesEnabledZoomed.png">
+      <ImageId>DrawingOptionsFastThinLinesEnabledZoomed</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFastThinLinesDisabledZoomed.png">
+      <ImageId>DrawingOptionsFastThinLinesDisabledZoomed</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAntiAliasingEnabledZoomed.png">
+      <ImageId>DrawingOptionsAntiAliasingEnabledZoomed</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillModeAlternate.png">
+      <ImageId>DrawingOptionsFillModeAlternate</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillModeNonZero.png">
+      <ImageId>DrawingOptionsFillModeNonZero</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillModeAlternateAntiAliasing.png">
+      <ImageId>DrawingOptionsFillModeAlternateAntiAliasing</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillWithFastThinLinesEnabled.png">
+      <ImageId>DrawingOptionsFillWithFastThinLinesEnabled</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillWithFastThinLinesDisabled.png">
+      <ImageId>DrawingOptionsFillWithFastThinLinesDisabled</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAlphaBlendingDisabledNoAA.png">
+      <ImageId>DrawingOptionsAlphaBlendingDisabledNoAA</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAlphaBlendingEnabledNoAA.png">
+      <ImageId>DrawingOptionsAlphaBlendingEnabledNoAA</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAlphaBlendingDisabledTr.png">
+      <ImageId>DrawingOptionsAlphaBlendingDisabledTr</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsAlphaBlendingDisabledAA.png">
+      <ImageId>DrawingOptionsAlphaBlendingDisabledAA</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsFillModeAlternateAntiAliasing.png">
+      <ImageId>DrawingOptionsFillModeAlternateAntiAliasing</ImageId>
     </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.

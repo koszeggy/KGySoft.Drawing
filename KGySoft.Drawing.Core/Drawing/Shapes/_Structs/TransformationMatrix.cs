@@ -27,8 +27,20 @@ using System.Runtime.InteropServices;
 
 #endregion
 
+#region Suppressions
+
+#if !(NETCOREAPP || NET45_OR_GREATER || NETSTANDARD)
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - The documentation uses types that are not available on all platforms
+#endif
+
+#endregion
+
 namespace KGySoft.Drawing.Shapes
 {
+    /// <summary>
+    /// Represents a 3x2 matrix for 2D transformations. It's similar to <see cref="Matrix3x2"/>;
+    /// in fact, on platforms where it is available, it uses a <see cref="Matrix3x2"/> internally.
+    /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Explicit)]
     public struct TransformationMatrix : IEquatable<TransformationMatrix>
@@ -37,6 +49,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Fields
 
+        /// <summary>
+        /// Gets the identity matrix. This field is read-only.
+        /// </summary>
         public static readonly TransformationMatrix Identity =
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             new TransformationMatrix(Matrix3x2.Identity);
@@ -92,6 +107,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
+        /// <summary>
+        /// Gets whether this matrix is the identity matrix.
+        /// </summary>
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         public readonly bool IsIdentity => Matrix.IsIdentity;
 #else
@@ -248,6 +266,10 @@ namespace KGySoft.Drawing.Shapes
         }
 
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Creates a <see cref="TransformationMatrix"/> instance from the specified <see cref="Matrix3x2"/> instance.
+        /// </summary>
+        /// <param name="matrix">The <see cref="Matrix3x2"/> instance to create the <see cref="TransformationMatrix"/> from.</param>
         public TransformationMatrix(Matrix3x2 matrix)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing the other fields
@@ -266,6 +288,12 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
+        /// <summary>
+        /// Creates a translation matrix from the specified offsets.
+        /// </summary>
+        /// <param name="x">The distance to translate along the X axis.</param>
+        /// <param name="y">The distance to translate along the Y axis.</param>
+        /// <returns>The translation matrix.</returns>
         public static TransformationMatrix CreateTranslation(float x, float y)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -275,6 +303,11 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle.
+        /// </summary>
+        /// <param name="radians">The angle, in radians, by which to rotate the matrix.</param>
+        /// <returns>The rotation matrix.</returns>
         public static TransformationMatrix CreateRotation(float radians)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -320,6 +353,12 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle and center point.
+        /// </summary>
+        /// <param name="radians">The angle, in radians, by which to rotate the matrix.</param>
+        /// <param name="centerPoint">The center point of the rotation.</param>
+        /// <returns>The rotation matrix.</returns>
         public static TransformationMatrix CreateRotation(float radians, PointF centerPoint)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -367,6 +406,12 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+        /// <summary>
+        /// Creates a scale matrix from the specified <paramref name="x"/> and <paramref name="y"/> components.
+        /// </summary>
+        /// <param name="x">The value to scale by on the X axis.</param>
+        /// <param name="y">The value to scale by on the Y axis.</param>
+        /// <returns></returns>
         public static TransformationMatrix CreateScale(float x, float y)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
