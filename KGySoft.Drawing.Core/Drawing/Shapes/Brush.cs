@@ -35,8 +35,34 @@ using KGySoft.Threading;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// Represents a brush shape filling operations.
+    /// Represents a brush for shape filling operations. Use the static factory methods to create an instance.
     /// </summary>
+    /// <remarks>
+    /// <para>Brushes are used for filling shapes. There are several shape-filling methods in the <see cref="ReadWriteBitmapDataExtensions"/> class, whose names start with <c>Fill</c> or <c>BeginFill</c>.
+    /// The ones that have no <see cref="Brush"/> parameter use a solid brush implicitly, created from the specified <see cref="Color32"/> instance.</para>
+    /// <para>The <see cref="Brush"/> class is abstract, and you can create instances by using the static factory methods. The created instances are immutable.</para>
+    /// <para>The following table lists the available brushes:
+    /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
+    ///
+    /// <tr><td><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateSolid">CreateSolid</see>: Creates a solid brush with a single color. <see cref="Color32"/>, <see cref="Color64"/>
+    /// and <see cref="ColorF"/> overloads are available, and you can also use the named <see cref="Color"/> members to cast them to <see cref="Color32"/> implicitly.
+    /// For example, <c>Brush.CreateSolid(Color32.FromArgb(128, Color.Blue))</c> creates a blue solid brush with 50% transparency that can produce a similar result to the one in the image.</td>
+    /// <td><img src="../Help/Images/DrawingOptionsAlphaBlendingEnabledNoAA.png" alt="Polygon filled with 50% transparency, AntiAliasing = false, AlphaBlending = true."/></td></tr>
+    /// <tr><td><para><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateLinearGradient">CreateLinearGradient</see>: Creates a linear gradient brush. There are two groups of overloads:
+    /// one for specifying a pair of start/end points optionally with some <see cref="GradientWrapMode"/>, and another one with an angle, which automatically stretches the gradient for the paths to fill.</para>
+    /// <para>The top image uses specific start/end points without repeating the gradient, whereas the bottom one just specified a zero angle to create a horizontal gradient.
+    /// Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations.</para></td>
+    /// <td><img src="../Help/Images/BrushLinearGradientStartEndPoints.png" alt="Linear gradient brush with start/end points"/>
+    /// <br/><img src="../Help/Images/BrushLinearGradientAngle.png" alt="Linear gradient brush with an angle"/></td></tr>
+    /// <tr><td><para><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateTexture">CreateTexture</see>: Creates a texture brush. A <see cref="TextureMapMode"/> can be specified, which allows tiling, stretching, centering and a few other modes.</para>
+    /// <para>The top image uses a texture with a map mode of tiling with mirroring on both axes, whereas the bottom one centers the same texture and uses no alpha blending, so where there is no texture pixel to set,
+    /// the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations.</para></td>
+    /// <td><img src="../Help/Images/BrushTextureTileFlipXY.png" alt="Texture brush with TileFlipXY map mode"/>
+    /// <br/><img src="../Help/Images/BrushTextureCenter.png" alt="Texture brush with Center map mode"/></td></tr>
+    /// </tbody></table></para>
+    /// <note>In fact, even a <see cref="Pen"/> uses a <see cref="Brush"/> internally for drawing the outlines of shapes.
+    /// You can use the appropriate constructor, or the <see cref="Pen.Brush"/> property to set a brush for a <see cref="Pen"/>.</note>
+    /// </remarks>
     public abstract class Brush
     {
         #region Nested Types

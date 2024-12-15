@@ -1484,6 +1484,18 @@
     <Content Include="Help\Images\DrawingOptionsDitheringBN.png">
       <ImageId>DrawingOptionsDitheringBN</ImageId>
     </Content>
+    <Content Include="Help\Images\BrushLinearGradientStartEndPoints.png">
+      <ImageId>BrushLinearGradientStartEndPoints</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushLinearGradientAngle.png">
+      <ImageId>BrushLinearGradientAngle</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureTileFlipXY.png">
+      <ImageId>BrushTextureTileFlipXY</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureCenter.png">
+      <ImageId>BrushTextureCenter</ImageId>
+    </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
