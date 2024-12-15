@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataExtensions.FillShape.cs
+//  File: ReadWriteBitmapDataExtensions.Fill.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -27,7 +27,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 #endif
 
-using KGySoft.Drawing.Shapes;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
 #endregion
@@ -49,9 +49,9 @@ using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
 
 #endregion
 
-namespace KGySoft.Drawing.Imaging
+namespace KGySoft.Drawing.Shapes
 {
-    partial class BitmapDataExtensions
+    partial class ReadWriteBitmapDataExtensions
     {
         #region Methods
 
@@ -1250,7 +1250,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Validation
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Brush brush)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1258,7 +1258,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush, IEnumerable points)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Brush brush, IEnumerable points)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1268,7 +1268,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Brush brush, Path path)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Brush brush, Path path)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);

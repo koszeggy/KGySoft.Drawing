@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataExtensions.DrawShape.cs
+//  File: ReadWriteBitmapDataExtensions.Draw.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -28,7 +28,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 #endif
 
-using KGySoft.Drawing.Shapes;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
 #endregion
@@ -50,9 +50,12 @@ using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
 
 #endregion
 
-namespace KGySoft.Drawing.Imaging
+namespace KGySoft.Drawing.Shapes
 {
-    partial class BitmapDataExtensions
+    /// <summary>
+    /// Provides extension methods for the <see cref="IReadWriteBitmapData"/> type that are related to shape drawing and filling.
+    /// </summary>
+    public static partial class ReadWriteBitmapDataExtensions
     {
         #region Methods
 
@@ -3406,7 +3409,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Validation
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Pen pen)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3414,7 +3423,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(pen), PublicResources.ArgumentNull);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, IEnumerable points)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IEnumerable points)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3423,7 +3432,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Validation")]
-        private static void ValidateArguments(IWritableBitmapData bitmapData, IEnumerable points, out List<PointF> pointsList)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IEnumerable points, out List<PointF> pointsList)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3440,7 +3449,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Pen pen, IEnumerable points)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, IEnumerable points)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3451,7 +3460,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Validation")]
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Pen pen, IEnumerable points, out List<PointF> pointsList)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, IEnumerable points, out List<PointF> pointsList)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3470,7 +3479,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Path path)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Path path)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -3478,7 +3487,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
         }
 
-        private static void ValidateArguments(IWritableBitmapData bitmapData, Pen pen, Path path)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, Path path)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
