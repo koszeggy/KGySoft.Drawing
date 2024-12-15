@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets or sets the desired <see cref="IBitmapData.Palette"/> of the created custom bitmap data.
         /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.
-        /// It can contain less colors than the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/> can handle.
+        /// It can contain fewer colors than the specified <see cref="CustomBitmapDataConfigBase.PixelFormat"/> can handle.
         /// <br/>Default value: <see langword="null"/>.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapDataFactory.CreateBitmapData{T}(T[], Size, int, CustomIndexedBitmapDataConfig)"/> method for more details.
         /// </summary>

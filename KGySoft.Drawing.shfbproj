@@ -1457,6 +1457,33 @@
     <Content Include="Help\Images\DrawingOptionsFillModeAlternateAntiAliasing.png">
       <ImageId>DrawingOptionsFillModeAlternateAntiAliasing</ImageId>
     </Content>
+    <Content Include="Help\Images\DrawingOptionsScanPixelOffsetNone.png">
+      <ImageId>DrawingOptionsScanPixelOffsetNone</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsScanPixelOffsetHalf.png">
+      <ImageId>DrawingOptionsScanPixelOffsetHalf</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsScanPixelOffsetNoneAA.png">
+      <ImageId>DrawingOptionsScanPixelOffsetNoneAA</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsScanPixelOffsetHalfAA.png">
+      <ImageId>DrawingOptionsScanPixelOffsetHalfAA</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsDrawPathPixelOffsetNone.png">
+      <ImageId>DrawingOptionsDrawPathPixelOffsetNone</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsDrawPathPixelOffsetHalf.png">
+      <ImageId>DrawingOptionsDrawPathPixelOffsetHalf</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsQuantizing.png">
+      <ImageId>DrawingOptionsQuantizing</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsDitheringIGN.png">
+      <ImageId>DrawingOptionsDitheringIGN</ImageId>
+    </Content>
+    <Content Include="Help\Images\DrawingOptionsDitheringBN.png">
+      <ImageId>DrawingOptionsDitheringBN</ImageId>
+    </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.

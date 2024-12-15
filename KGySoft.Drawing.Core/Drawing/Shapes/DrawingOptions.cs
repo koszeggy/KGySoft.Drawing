@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -29,7 +30,7 @@ namespace KGySoft.Drawing.Shapes
     /// The default options (which is also used when <see langword="null"/> is passed to the drawing methods) uses alpha blending but no anti-aliasing,
     /// and uses fast shape-filling and thin path drawing strategies.
     /// </summary>
-    public sealed class DrawingOptions : IEquatable<DrawingOptions>
+    public sealed class DrawingOptions
     {
         #region Fields
 
@@ -184,7 +185,7 @@ namespace KGySoft.Drawing.Shapes
         /// using a solid brush with 50% transparency on an alpha gradient background. The blending uses the color space of the target <see cref="IReadWriteBitmapData"/>, which is linear in this case.</td>
         /// <td><img src="../Help/Images/DrawingOptionsAlphaBlendingEnabledNoAA.png" alt="Polygon filled with 50% transparency, AntiAliasing = false, AlphaBlending = true."/></td></tr>
         /// <tr><td>Filling a polygon with <c><see cref="AlphaBlending"/> = <see langword="false"/></c>, using a completely transparent brush.
-        /// Note that this way we can "cut" transparent "holes" into bitmap. If the target does not support transparency, the shape will be filled with the <see cref="IBitmapData.BackColor"/> color of the target bitmap data.</td>
+        /// Note that this way we can "cut" transparent "holes" into a bitmap. If the target does not support transparency, the shape will be filled with the <see cref="IBitmapData.BackColor"/> color of the target bitmap data.</td>
         /// <td><img src="../Help/Images/DrawingOptionsAlphaBlendingDisabledTr.png" alt="Polygon filled with transparency, AlphaBlending = false."/></td></tr>
         /// <tr><td>Filling a polygon with <c><see cref="AntiAliasing"/> = <see langword="true"/></c>, <c><see cref="AlphaBlending"/> = <see langword="false"/></c>.
         /// When anti-aliasing is enabled, it's not recommended to turn off alpha blending (unless the background is transparent), because it may produce alpha pixels along the edges of the shapes, even when the background is fully opaque.</td>
@@ -224,7 +225,33 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
-        // TODO: add images
+        /// <summary>
+        /// Gets or sets the pixel offset to use for the scanlines when scanning the region of a <see cref="Path"/> instance.
+        /// <br/>Default value: <see cref="PixelOffset.Half"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>When filling a <see cref="Path"/> instance, the region is scanned by horizontal lines (scanlines) to determine which pixels are inside the path.
+        /// When the value of this property is <see cref="PixelOffset.None"/>, the scanning is performed at the top of the pixels, whereas when it is <see cref="PixelOffset.Half"/>,
+        /// the scanning is performed at the center of the pixels.</para>
+        /// <para>When <see cref="AntiAliasing"/> is <see langword="true"/>, the pixel offset refers to the subpixels, and the difference is much less noticeable.</para>
+        /// <para>The following images provide a few examples:
+        /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
+        /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c>, <c><see cref="AntiAliasing"/> = <see langword="false"/></c>:
+        /// When filling shapes, the scanning of edges occurs at the top of the pixels. The shape in the example has integer coordinates, the top edge is descending,
+        /// whereas the bottom is ascending 1 pixel from the left to the right. The example is enlarged to show the effect.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetNone.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.None"/></td></tr>
+        /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.Half">PixelOffset.Half</see></c>, <c><see cref="AntiAliasing"/> = <see langword="false"/></c> (default):
+        /// The scanning of edges occurs at the center of the pixels. The shape is the same as above. The example is enlarged to show the effect.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetHalf.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.Half"/></td></tr>
+        /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c>, <c><see cref="AntiAliasing"/> = <see langword="true"/></c>:
+        /// When filling shapes, the scanning of edges occurs at the top of the subpixels. When anti-aliasing is enabled, <see cref="ScanPathPixelOffset"/> makes a much less noticeable difference,
+        /// though the gradients of the top and bottom lines are a bit different. The example is enlarged to show the effect.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetNoneAA.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.None, AntiAliasing = true"/></td></tr>
+        /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.Half">PixelOffset.Half</see></c>, <c><see cref="AntiAliasing"/> = <see langword="true"/></c>:
+        /// The scanning of edges occurs at the center of the subpixels. The result is almost the same as above, though the gradients of the top and bottom lines are more symmetric. The example is enlarged to show the effect.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetHalfAA.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.Half, AntiAliasing = true"/></td></tr>
+        /// </tbody></table></para>
+        /// </remarks>
         public PixelOffset ScanPathPixelOffset
         {
             get => scanPathPixelOffset;
@@ -236,6 +263,28 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        /// <summary>
+        /// Gets or sets the pixel offset to use before applying the <see cref="Pen.Width">Pen.Width</see> when drawing a shape.
+        /// <br/>Default value: <see cref="PixelOffset.None"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>When drawing a shape, the pen width is applied around the path. When the value of this property is <see cref="PixelOffset.Half"/>,
+        /// the point coordinates of the path are shifted by half a pixel before applying the pen width.</para>
+        /// <para>When <see cref="FastThinLines"/> is <see langword="true"/> and <see cref="AntiAliasing"/> is <see langword="false"/>, and all points are at integer coordinates, the value of this property makes no difference.</para>
+        /// <para>The following images provide a few examples:
+        /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
+        /// <tr><td><c><see cref="DrawPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c> (default):
+        /// When drawing paths, the point coordinates are not adjusted before applying the pen width.
+        /// When <see cref="AntiAliasing"/> is <see langword="true"/>, for polygons with every point at integer coordinates, this causes blurry horizontal and vertical lines for odd pen widths and sharp ones for even pen widths.
+        /// The left rectangle was drawn with a 1 pixel width pen, and the right one with a 2 pixel width pen.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsDrawPathPixelOffsetNone.png" alt="Rectangles with DrawPathPixelOffset = PixelOffset.None"/></td></tr>
+        /// <tr><td><c><see cref="DrawPathPixelOffset"/> = <see cref="PixelOffset.Half">PixelOffset.Half</see></c>:
+        /// The point coordinates are shifted by a half pixel right and down before applying the pen width.
+        /// When <see cref="AntiAliasing"/> is <see langword="true"/>, for polygons with every point at integer coordinates, this causes sharp horizontal and vertical lines for odd pen widths and blurry ones for even pen widths.
+        /// The left rectangle was drawn with a 1 pixel width pen, and the right one with a 2 pixel width pen.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsDrawPathPixelOffsetHalf.png" alt="Rectangles with DrawPathPixelOffset = PixelOffset.Half"/></td></tr>
+        /// </tbody></table></para>
+        /// </remarks>
         public PixelOffset DrawPathPixelOffset
         {
             get => drawPathPixelOffset;
@@ -247,12 +296,61 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        /// <summary>
+        /// Gets or sets an <see cref="IQuantizer"/> instance to use when drawing shapes.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>Setting a quantizer allows using fewer colors than the target <see cref="IReadWriteBitmapData"/> supports.
+        /// Even when this property is <see langword="null"/>, the colors are automatically quantized to the target's supported color range.</para>
+        /// <note>See the <strong>Remarks</strong> section of the <see cref="Ditherer"/> property for an example.</note>
+        /// </remarks>
         public IQuantizer? Quantizer { get; set; }
 
+        /// <summary>
+        /// Gets or sets an <see cref="IDitherer"/> instance to use when drawing shapes.
+        /// </summary>
+        /// <remarks>
+        /// <para>If the target <see cref="IReadWriteBitmapData"/> does not support the color depth of the drawn shape,
+        /// or when <see cref="Quantizer"/> is also set, setting a ditherer can help to preserve the original details.</para>
+        /// <para>If <see cref="Quantizer"/> is <see langword="null"/>, and the target <see cref="IReadWriteBitmapData"/> is not a low-color bitmap, then this property might be ignored.</para>
+        /// </remarks>
+        /// <example>
+        /// <para>The following example demonstrates how to draw a shape with dithering:
+        /// <code lang="C#"><![CDATA[
+        /// public IReadWriteBitmapData CreateBlackAndWhiteDrawing(IDitherer? ditherer)
+        /// {
+        ///     // Creating a 1bpp image, which has a black white palette by default
+        ///     IReadWriteBitmapData bmp = BitmapDataFactory.CreateBitmapData(100, 100, KnownPixelFormat.Format1bppIndexed);
+        ///
+        ///     // Clearing the image with Cyan, using the ditherer
+        ///     bmp.Clear(Color.Cyan, ditherer);
+        ///
+        ///     // Specifying a path with a star shape, translated to the center of the 100 x 100 bitmap
+        ///     var path = new Path(false)
+        ///         .TransformTranslation(1, 5)
+        ///         .AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90));
+        ///
+        ///     // Filling the star shape with a blue brush
+        ///     bmp.FillPath(Color.Blue, path, new DrawingOptions { Ditherer = ditherer });
+        ///
+        ///     return bmp;
+        /// }]]></code></para>
+        /// <para>
+        /// The example above may produce the following results:
+        /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
+        /// <tr><td>Ditherer is <see langword="null"/>. The colors are automatically quantized to the black and white target. Cyan becomes white, whereas blue becomes black.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsQuantizing.png" alt="Shape drawing with black and white quantizing."/></td></tr>
+        /// <tr><td>Using <see cref="InterleavedGradientNoiseDitherer"/>. The shades of cyan and blue appear in dithering patterns.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsDitheringIGN.png" alt="Shape drawing with black and white quantizing, using interleaved gradient noise dithering."/></td></tr>
+        /// <tr><td>Using <see cref="OrderedDitherer.BlueNoise"/> dithering. The shades of cyan and blue appear in dithering patterns.</td>
+        /// <td><img src="../Help/Images/DrawingOptionsDitheringBN.png" alt="Shape drawing with black and white quantizing, using blue noise dithering."/></td></tr>
+        /// </tbody></table></para>
+        /// </example>
         public IDitherer? Ditherer { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum pixel size to cache the region of a <see cref="Path"/> instance.
+        /// Gets or sets the maximum pixel size for caching the region of a <see cref="Path"/> instance.
         /// If the region has more pixels than this value, it will be re-scanned in each drawing session.
         /// <br/>Default value: 16777216, which is 16 MB for anti-aliased regions or 2 MB for aliased regions.
         /// </summary>
@@ -279,6 +377,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DrawingOptions"/> class.
+        /// </summary>
         public DrawingOptions()
         {
             transformation = TransformationMatrix.Identity;
@@ -308,15 +409,21 @@ namespace KGySoft.Drawing.Shapes
 
         #region Methods
 
-        public bool Equals(DrawingOptions? other)
+        /// <summary>
+        /// Determines whether the specified <see cref="object"/> is equal to this <see cref="DrawingOptions"/> instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this <see cref="DrawingOptions"/> instance.</param>
+        /// <returns><see langword="true"/>, if the current <see cref="DrawingOptions"/> instance is equal to the <paramref name="obj" /> parameter; otherwise, <see langword="false" />.</returns>
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(other, null))
+            if (ReferenceEquals(obj, null))
                 return false;
 
-            if (ReferenceEquals(this, other))
+            if (ReferenceEquals(this, obj))
                 return true;
 
-            return Transformation == other.Transformation
+            return obj is DrawingOptions other
+                && Transformation == other.Transformation
                 && AntiAliasing == other.AntiAliasing
                 && AlphaBlending == other.AlphaBlending
                 && FillMode == other.FillMode
@@ -327,9 +434,15 @@ namespace KGySoft.Drawing.Shapes
                 && CacheRegionLimit == other.CacheRegionLimit;
         }
 
-        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is DrawingOptions other && Equals(other);
-
-        // CacheRegionLimit is not in hash code, which is intended
+        // NOTE: CacheRegionLimit is not in hash code, which is intended
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
+        /// <remarks>
+        /// <para>You should not change the public properties of this class after using it as a key in a hash table.</para>
+        /// </remarks>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "It's documented")]
         public override int GetHashCode() => (Transformation, Quantizer, Ditherer,
                 Convert.ToInt32(AntiAliasing)
                 | Convert.ToInt32(AlphaBlending) << 1
