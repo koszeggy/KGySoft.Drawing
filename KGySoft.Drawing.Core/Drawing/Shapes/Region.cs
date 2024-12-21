@@ -27,7 +27,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// Represents the region mask of a brush. Can be either anti-aliased or aliased.
+    /// Represents the region mask of a raw path. Can be either anti-aliased or aliased.
     /// Should not be disposable because can be cached in RawPath, and should not allocate from the pool array for the same reason.
     /// </summary>
     internal sealed class Region
@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Shapes
         /// Returns false if we need to generate the region in a thread-safe way.
         /// Might be a blocking call if called concurrently while a previous generation is still in progress.
         /// </summary>
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] // to avoid blocking the debugger
         internal bool IsGenerated
         {
             get

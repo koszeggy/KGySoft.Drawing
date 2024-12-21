@@ -35,15 +35,19 @@ using KGySoft.Threading;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// Represents a brush for shape filling operations. Use the static factory methods to create an instance.
+    /// Represents a brush for shape filling operations. Use the static <c>Create...</c> methods to create an instance.
+    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>Brushes are used for filling shapes. There are several shape-filling methods in the <see cref="ReadWriteBitmapDataExtensions"/> class, whose names start with <c>Fill</c> or <c>BeginFill</c>.
     /// The ones that have no <see cref="Brush"/> parameter use a solid brush implicitly, created from the specified <see cref="Color32"/> instance.</para>
-    /// <para>The <see cref="Brush"/> class is abstract, and you can create instances by using the static factory methods. The created instances are immutable.</para>
+    /// <para>The <see cref="Brush"/> class is abstract, and you can create instances by using the static <c>Create...</c> methods. The created instances are immutable.</para>
+    /// <note>In fact, even a <see cref="Pen"/> uses a <see cref="Brush"/> internally for drawing the outlines of shapes.
+    /// You can use the appropriate constructor, or the <see cref="Pen.Brush"/> property to set a brush for a <see cref="Pen"/>.</note>
+    /// </remarks>
+    /// <example>
     /// <para>The following table lists the available brushes:
     /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
-    ///
     /// <tr><td><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateSolid">CreateSolid</see>: Creates a solid brush with a single color. <see cref="Color32"/>, <see cref="Color64"/>
     /// and <see cref="ColorF"/> overloads are available, and you can also use the named <see cref="Color"/> members to cast them to <see cref="Color32"/> implicitly.
     /// For example, <c>Brush.CreateSolid(Color32.FromArgb(128, Color.Blue))</c> creates a blue solid brush with 50% transparency that can produce a similar result to the one in the image.</td>
@@ -51,18 +55,18 @@ namespace KGySoft.Drawing.Shapes
     /// <tr><td><para><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateLinearGradient">CreateLinearGradient</see>: Creates a linear gradient brush. There are two groups of overloads:
     /// one for specifying a pair of start/end points optionally with some <see cref="GradientWrapMode"/>, and another one with an angle, which automatically stretches the gradient for the paths to fill.</para>
     /// <para>The top image uses specific start/end points without repeating the gradient, whereas the bottom one just specified a zero angle to create a horizontal gradient.
-    /// Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations.</para></td>
-    /// <td><img src="../Help/Images/BrushLinearGradientStartEndPoints.png" alt="Linear gradient brush with start/end points"/>
+    /// Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations.</para>
+    /// <para>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration and the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> method for more image examples.</para></td>
+    /// <td><img src="../Help/Images/BrushLinearGradientWrapModeStop.png" alt="Linear gradient brush with start/end points"/>
     /// <br/><img src="../Help/Images/BrushLinearGradientAngle.png" alt="Linear gradient brush with an angle"/></td></tr>
     /// <tr><td><para><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateTexture">CreateTexture</see>: Creates a texture brush. A <see cref="TextureMapMode"/> can be specified, which allows tiling, stretching, centering and a few other modes.</para>
     /// <para>The top image uses a texture with a map mode of tiling with mirroring on both axes, whereas the bottom one centers the same texture and uses no alpha blending, so where there is no texture pixel to set,
-    /// the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations.</para></td>
+    /// the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations.</para>
+    /// <para>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for more image examples.</para></td>
     /// <td><img src="../Help/Images/BrushTextureTileFlipXY.png" alt="Texture brush with TileFlipXY map mode"/>
     /// <br/><img src="../Help/Images/BrushTextureCenter.png" alt="Texture brush with Center map mode"/></td></tr>
     /// </tbody></table></para>
-    /// <note>In fact, even a <see cref="Pen"/> uses a <see cref="Brush"/> internally for drawing the outlines of shapes.
-    /// You can use the appropriate constructor, or the <see cref="Pen.Brush"/> property to set a brush for a <see cref="Pen"/>.</note>
-    /// </remarks>
+    /// </example>
     public abstract class Brush
     {
         #region Nested Types
@@ -2483,20 +2487,133 @@ namespace KGySoft.Drawing.Shapes
 
         #region Public Methods
 
+        /// <summary>
+        /// Creates a solid <see cref="Brush"/> with the specified 32-bit color.
+        /// </summary>
+        /// <param name="color">A <see cref="Color32"/> value that represents the color of the brush.
+        /// This overload can be used also for <see cref="Color"/> instances as there is an implicit cast from <see cref="Color"/> to <see cref="Color32"/>.</param>
+        /// <returns>A <see cref="Brush"/> that uses the specified color.</returns>
+        /// <remarks>
+        /// <para>Though a solid brush generally uses a single color, filling a <see cref="Path"/> or a directly supported simple shape may use more colors
+        /// if <see cref="DrawingOptions.AntiAliasing">DrawingOptions.AntiAliasing</see> is <see langword="true"/>,
+        /// or when <paramref name="color"/> has alpha (transparency), and <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> is <see langword="true"/>.</para>
+        /// <para>If the <paramref name="color"/> has alpha and <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> is <see langword="true"/>,
+        /// the color space used for blending is determined by the specified <see cref="DrawingOptions.Quantizer"/>, or, when it is <see langword="null"/>, by the <see cref="IBitmapData.WorkingColorSpace"/>
+        /// of the target <see cref="IReadWriteBitmapData"/>.</para>
+        /// <para>The following image was created with a solid brush created from 50% transparent blue color, and <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> was <see langword="true"/>,
+        /// whereas the target bitmap data had <see cref="WorkingColorSpace.Linear"/> working color space:
+        /// <br/><img src="../Help/Images/DrawingOptionsAlphaBlendingEnabledNoAA.png" alt="Polygon filled with 50% transparency, AntiAliasing = false, AlphaBlending = true."/></para>
+        /// </remarks>
         public static Brush CreateSolid(Color32 color) => new SolidBrush(color);
+
+        /// <summary>
+        /// Creates a solid <see cref="Brush"/> with the specified 64-bit color.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateSolid(Color32)"/> overload for details.
+        /// </summary>
+        /// <param name="color">A <see cref="Color64"/> value that represents the color of the brush.</param>
+        /// <returns>A <see cref="Brush"/> that uses the specified color.</returns>
         public static Brush CreateSolid(Color64 color) => new SolidBrush(color);
+
+        /// <summary>
+        /// Creates a solid <see cref="Brush"/> with the specified 128-bit color.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateSolid(Color32)"/> overload for details.
+        /// </summary>
+        /// <param name="color">A <see cref="ColorF"/> value that represents the color of the brush.</param>
+        /// <returns>A <see cref="Brush"/> that uses the specified color.</returns>
         public static Brush CreateSolid(ColorF color) => new SolidBrush(color);
 
+        /// <summary>
+        /// Creates a texture <see cref="Brush"/> with the specified <paramref name="texture"/>.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
+        /// </summary>
+        /// <param name="texture">The texture to use for the <see cref="Brush"/>.</param>
+        /// <param name="mapMode">Determines how the texture is mapped to the target area. This parameter is optional.
+        /// <br/>Default value: <see cref="TextureMapMode.Tile"/>.</param>
+        /// <param name="offset">Specifies an offset to apply when mapping the texture to the target area. This parameter is optional.
+        /// <br/>Default value: <see cref="Point.Empty">Point.Empty</see>.</param>
+        /// <param name="hasAlphaHint"><see langword="true"/> to indicate that the <paramref name="texture"/> uses the alpha channel (has transparency); otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="true"/>.</param>
+        /// <returns>A <see cref="Brush"/> that uses the specified <paramref name="texture"/>.</returns>
+        /// <remarks>
+        /// <para>This overload maps the entire <paramref name="texture"/> to the target <see cref="IReadWriteBitmapData"/>. To use only a smaller region of it,
+        /// use the <see cref="CreateTexture(IReadableBitmapData,Rectangle,TextureMapMode,Point,bool)"/> overload instead.</para>
+        /// <para>If the pixel format of the <paramref name="texture"/> has alpha channel, but the <paramref name="texture"/> does not use it,
+        /// you can set the <paramref name="hasAlphaHint"/> parameter to <see langword="false"/> to improve performance.
+        /// If the pixel format of the <paramref name="texture"/> does not have an alpha channel, then this parameter is ignored.</para>
+        /// </remarks>
         public static Brush CreateTexture(IReadableBitmapData texture, TextureMapMode mapMode = TextureMapMode.Tile, Point offset = default, bool hasAlphaHint = true)
             => TextureBasedBrush.Create(texture, mapMode, hasAlphaHint, offset);
 
+        /// <summary>
+        /// Creates a texture <see cref="Brush"/>, using the specified <paramref name="textureBounds"/> for the <paramref name="texture"/> parameter.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
+        /// </summary>
+        /// <param name="texture">The texture to use for the <see cref="Brush"/>.</param>
+        /// <param name="textureBounds">A <see cref="Rectangle"/> that specifies the actual bounds of the specified <paramref name="texture"/>.</param>
+        /// <param name="mapMode">Determines how the texture is mapped to the target area. This parameter is optional.
+        /// <br/>Default value: <see cref="TextureMapMode.Tile"/>.</param>
+        /// <param name="offset">Specifies an offset to apply when mapping the texture to the target area. This parameter is optional.
+        /// <br/>Default value: <see cref="Point.Empty">Point.Empty</see>.</param>
+        /// <param name="hasAlphaHint"><see langword="true"/> to indicate that the <paramref name="texture"/> uses the alpha channel (has transparency); otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="true"/>.</param>
+        /// <returns>A <see cref="Brush"/> that uses the specified <paramref name="texture"/>.</returns>
+        /// <remarks>
+        /// <para>This overload allows you to map only a smaller region of the <paramref name="texture"/> bitmap for the brush. It can be useful when a single bitmap contains multiple textures.</para>
+        /// <para>If the pixel format of the <paramref name="texture"/> has alpha channel, but the <paramref name="texture"/> does not use it,
+        /// you can set the <paramref name="hasAlphaHint"/> parameter to <see langword="false"/> to improve performance.
+        /// If the pixel format of the <paramref name="texture"/> does not have an alpha channel, then this parameter is ignored.</para>
+        /// </remarks>
         public static Brush CreateTexture(IReadableBitmapData texture, Rectangle textureBounds, TextureMapMode mapMode = TextureMapMode.Tile, Point offset = default, bool hasAlphaHint = true)
             => CreateTexture(texture.Clip(textureBounds), mapMode, offset, hasAlphaHint);
 
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// </summary>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with fix coordinates. To automatically apply the gradient to the bounds of each <see cref="Path"/>, use the overloads with an <c>angle</c> parameter,
+        /// such as the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
             => CreateLinearGradient(startPoint, endPoint, startColor.ToColor64(), endColor.ToColor64(), wrapMode, workingColorSpace);
 
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// </summary>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with fix coordinates. To automatically apply the gradient to the bounds of each <see cref="Path"/>, use the overloads with an <c>angle</c> parameter,
+        /// such as the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color64"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2515,6 +2632,28 @@ namespace KGySoft.Drawing.Shapes
             return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), wrapMode, isLinear);
         }
 
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// </summary>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Linear"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with fix coordinates. To automatically apply the gradient to the bounds of each <see cref="Path"/>, use the overloads with an <c>angle</c> parameter,
+        /// such as the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
         public static Brush CreateLinearGradient(PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2533,10 +2672,78 @@ namespace KGySoft.Drawing.Shapes
             return new LinearGradientBrush(startPoint, endPoint, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), wrapMode, isLinear);
         }
 
-        // this always stretches the gradient in each session to the full size of the bounding rectangle so the mapping modes wouldn't make any difference
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
+        /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateLinearGradient_3.htm">online help</a> for an example with image.</div>
+        /// </summary>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with dynamic coordinates, applying the gradient automatically to the bounds of each <see cref="Path"/>. To use fix coordinates instead,
+        /// use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters, such as the <see cref="CreateLinearGradient(PointF,PointF,Color32,Color32,GradientWrapMode,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
+        /// <example>
+        /// <para>The following example demonstrates how to create a horizontal linear gradient brush that blends from white to black, adjusted always to the currently filled shape:
+        /// <code lang="C#"><![CDATA[
+        /// public IReadWriteBitmapData CreateBitmap()
+        /// {
+        ///     var bitmap = BitmapDataFactory.CreateBitmapData(100, 150);
+        ///     bitmap.Clear(Color.Cyan);
+        ///
+        ///     // Zero angle means horizontal gradient
+        ///     var brush = Brush.CreateLinearGradient(angle: 0f, Color.White, Color.Black);
+        ///
+        ///     // Filling the same ellipse three times with different offsets
+        ///     foreach (int offset in new[] { -50, 0, 50 })
+        ///     {
+        ///         var options = new DrawingOptions
+        ///         {
+        ///             AntiAliasing = true,
+        ///             Transformation = TransformationMatrix.CreateTranslation(offset, offset + 50)
+        ///         };
+        ///
+        ///         bitmap.FillEllipse(brush, new Rectangle(0, 0, 100, 50), options);
+        ///     }
+        ///
+        ///     return bitmap;
+        /// }]]></code></para>
+        /// <para>The example above produces the result below. Note that the gradient always starts from the left edge of the ellipse and ends at the right edge, regardless of the ellipse's location.
+        /// As a contrast, see the examples at the <see cref="GradientWrapMode"/> enumeration, where the gradients always use specific start and end points.
+        /// <br/><img src="../Help/Images/BrushLinearGradientAngle.png" alt="Three ellipses filled with horizontal linear gradient from white to black."/></para>
+        /// </example>
         public static Brush CreateLinearGradient(float angle, Color32 startColor, Color32 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
             => CreateLinearGradient(angle, startColor.ToColor64(), endColor.ToColor64(), workingColorSpace);
 
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
+        /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
+        /// </summary>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with dynamic coordinates, applying the gradient automatically to the bounds of each <see cref="Path"/>. To use fix coordinates instead,
+        /// use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters, such as the <see cref="CreateLinearGradient(PointF,PointF,Color32,Color32,GradientWrapMode,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
         public static Brush CreateLinearGradient(float angle, Color64 startColor, Color64 endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (Single.IsNaN(angle) || Single.IsInfinity(angle))
@@ -2548,6 +2755,26 @@ namespace KGySoft.Drawing.Shapes
             return new LinearGradientBrush(angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
         }
 
+        /// <summary>
+        /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
+        /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
+        /// </summary>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The starting color of the gradient.</param>
+        /// <param name="endColor">The end color of the gradient.</param>
+        /// <param name="workingColorSpace">Determines the color space in which the gradient is calculated. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>A linear gradient <see cref="Brush"/> that uses the specified parameters.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient with dynamic coordinates, applying the gradient automatically to the bounds of each <see cref="Path"/>. To use fix coordinates instead,
+        /// use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters, such as the <see cref="CreateLinearGradient(PointF,PointF,Color32,Color32,GradientWrapMode,WorkingColorSpace)"/> overload.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter affects only the color interpolation, not the blending with the background,
+        /// which is determined by the color space of the target bitmap data (or by <see cref="DrawingOptions.Quantizer">DrawingOptions.Quantizer</see>, if specified).</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// </remarks>
         public static Brush CreateLinearGradient(float angle, ColorF startColor, ColorF endColor, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (Single.IsNaN(angle) || Single.IsInfinity(angle))

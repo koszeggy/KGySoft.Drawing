@@ -68,6 +68,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the transformation matrix to apply when drawing shapes.
         /// <br/>Default value: <see cref="TransformationMatrix.Identity">TransformationMatrix.Identity</see>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Transformation.htm">online help</a> for an example with image.</div>
         /// </summary>
         /// <remarks>
         /// <para>This property allows applying transformations (e.g. translation, rotation, zoom, etc.) when drawing shapes.
@@ -102,10 +103,13 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets whether anti-aliasing is enabled when drawing shapes.
         /// <br/>Default value: <see langword="false"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AntiAliasing.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When anti-aliasing is enabled, the shapes are drawn with smooth edges, which affects both shape filling and path drawing.</para>
         /// <para>Anti-aliasing uses 16x16 subpixels per pixel to achieve smooth edges. This means that anti-aliased drawing is slower than aliased drawing.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following images provide a few examples regarding anti-aliasing:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td>Filling a polygon with <c><see cref="AntiAliasing"/> = <see langword="false"/></c>.</td>
@@ -127,17 +131,20 @@ namespace KGySoft.Drawing.Shapes
         /// <tr><td>Drawing an ellipse with <c><see cref="AntiAliasing"/> = <see langword="true"/></c>, <c><see cref="DrawPathPixelOffset"/> = <see cref="PixelOffset.Half"/></c>. The image is zoomed in for better visibility.</td>
         /// <td><img src="../Help/Images/DrawingOptionsAntiAliasingEnabledZoomed.png" alt="Zoomed ellipse with AntiAliasing = true."/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public bool AntiAliasing { get; set; }
 
         /// <summary>
         /// Gets or sets whether drawing <see cref="Path"/>s and primitive shapes with thin lines are drawn with a faster algorithm when <see cref="AntiAliasing"/> is <see langword="false"/>.
         /// <br/>Default value: <see langword="true"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FastThinLines.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When <see cref="FastThinLines"/> is <see langword="true"/>, thin lines (that is, when <see cref="Pen.Width">Pen.Width</see> is less or equal to 1) and arcs
         /// are drawn with a Bresenham-like algorithm, which is both faster and produces better results than the default algorithm.</para>
         /// <para>This property has no effect when <see cref="AntiAliasing"/> is <see langword="true"/>.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following images provide a few examples:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td>Drawing a <see cref="Path"/> with <c><see cref="AntiAliasing"/> = <see langword="false"/></c>, <c><see cref="FastThinLines"/> = <see langword="true"/></c>. This is the default configuration of these properties.</td>
@@ -161,12 +168,13 @@ namespace KGySoft.Drawing.Shapes
         /// <tr><td>Filling and drawing the same polygon with <c><see cref="AntiAliasing"/> = <see langword="false"/></c>, <c><see cref="FastThinLines"/> = <see langword="false"/></c>. Now there is no alignment issue</td>
         /// <td><img src="../Help/Images/DrawingOptionsFillWithFastThinLinesDisabled.png" alt="Polygon fill + draw with AntiAliasing = false, FastThinLines = false."/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public bool FastThinLines { get; set; }
 
         /// <summary>
         /// Gets or sets whether alpha blending is enabled when drawing shapes.
         /// <br/>Default value: <see langword="true"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AlphaBlending.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When this property is <see langword="true"/>, the alpha channel of the colors is blended with the target image.
@@ -176,6 +184,8 @@ namespace KGySoft.Drawing.Shapes
         /// because it may produce alpha pixels along the edges of the shapes, even when the background is fully opaque.</para>
         /// <para>When <see cref="AlphaBlending"/> is <see langword="true"/>, drawing or filling a shape with a completely transparent <see cref="Brush"/> will not affect the target image,
         /// whereas when it is <see langword="false"/>, a transparent <see cref="Brush"/> can be used to draw transparent shapes.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following images provide a few examples regarding alpha blending:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td>Filling a polygon with <c><see cref="AntiAliasing"/> = <see langword="false"/></c>, <c><see cref="AlphaBlending"/> = <see langword="false"/></c>,
@@ -193,15 +203,18 @@ namespace KGySoft.Drawing.Shapes
         /// <tr><td>Filling a polygon with <c><see cref="AntiAliasing"/> = <see langword="true"/></c>, <c><see cref="AlphaBlending"/> = <see langword="true"/></c>.</td>
         /// <td><img src="../Help/Images/DrawingOptionsFillModeAlternateAntiAliasing.png" alt="Filling a polygin with AntiAliasing = true, AlphaBlending = true."/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public bool AlphaBlending { get; set; }
 
         /// <summary>
         /// Gets or sets the fill mode to use when filling shapes.
         /// <br/>Default value: <see cref="ShapeFillMode.Alternate"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FillMode.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>If a polygon has no self-crossing lines, then both fill modes produce the same result, in which case the default <see cref="ShapeFillMode.Alternate"/> mode can be a better choice because it is faster.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following examples demonstrate the difference between the two fill modes:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td><c><see cref="FillMode"/> = <see cref="ShapeFillMode.Alternate">ShapeFillMode.Alternate</see></c> (default): When scanning the region of a polygon to be filled,
@@ -213,7 +226,7 @@ namespace KGySoft.Drawing.Shapes
         /// adding/subtracting one at every clockwise/counterclockwise intersection. The point is considered to be the part of the polygon if the sum is not zero.</td>
         /// <td><img src="../Help/Images/DrawingOptionsFillModeNonZero.png" alt="FillMode = ShapeFillMode.NonZero"/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public ShapeFillMode FillMode
         {
             get => fillMode;
@@ -228,12 +241,15 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the pixel offset to use for the scanlines when scanning the region of a <see cref="Path"/> instance.
         /// <br/>Default value: <see cref="PixelOffset.Half"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_ScanPathPixelOffset.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When filling a <see cref="Path"/> instance, the region is scanned by horizontal lines (scanlines) to determine which pixels are inside the path.
         /// When the value of this property is <see cref="PixelOffset.None"/>, the scanning is performed at the top of the pixels, whereas when it is <see cref="PixelOffset.Half"/>,
         /// the scanning is performed at the center of the pixels.</para>
         /// <para>When <see cref="AntiAliasing"/> is <see langword="true"/>, the pixel offset refers to the subpixels, and the difference is much less noticeable.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following images provide a few examples:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c>, <c><see cref="AntiAliasing"/> = <see langword="false"/></c>:
@@ -251,7 +267,7 @@ namespace KGySoft.Drawing.Shapes
         /// The scanning of edges occurs at the center of the subpixels. The result is almost the same as above, though the gradients of the top and bottom lines are more symmetric. The example is enlarged to show the effect.</td>
         /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetHalfAA.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.Half, AntiAliasing = true"/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public PixelOffset ScanPathPixelOffset
         {
             get => scanPathPixelOffset;
@@ -266,25 +282,28 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the pixel offset to use before applying the <see cref="Pen.Width">Pen.Width</see> when drawing a shape.
         /// <br/>Default value: <see cref="PixelOffset.None"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When drawing a shape, the pen width is applied around the path. When the value of this property is <see cref="PixelOffset.Half"/>,
         /// the point coordinates of the path are shifted by half a pixel before applying the pen width.</para>
         /// <para>When <see cref="FastThinLines"/> is <see langword="true"/> and <see cref="AntiAliasing"/> is <see langword="false"/>, and all points are at integer coordinates, the value of this property makes no difference.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following images provide a few examples:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td><c><see cref="DrawPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c> (default):
         /// When drawing paths, the point coordinates are not adjusted before applying the pen width.
         /// When <see cref="AntiAliasing"/> is <see langword="true"/>, for polygons with every point at integer coordinates, this causes blurry horizontal and vertical lines for odd pen widths and sharp ones for even pen widths.
-        /// The left rectangle was drawn with a 1 pixel width pen, and the right one with a 2 pixel width pen.</td>
+        /// The left rectangle was drawn with a 1 pixel wide pen, and the right one with a 2 pixel wide pen.</td>
         /// <td><img src="../Help/Images/DrawingOptionsDrawPathPixelOffsetNone.png" alt="Rectangles with DrawPathPixelOffset = PixelOffset.None"/></td></tr>
         /// <tr><td><c><see cref="DrawPathPixelOffset"/> = <see cref="PixelOffset.Half">PixelOffset.Half</see></c>:
         /// The point coordinates are shifted by a half pixel right and down before applying the pen width.
         /// When <see cref="AntiAliasing"/> is <see langword="true"/>, for polygons with every point at integer coordinates, this causes sharp horizontal and vertical lines for odd pen widths and blurry ones for even pen widths.
-        /// The left rectangle was drawn with a 1 pixel width pen, and the right one with a 2 pixel width pen.</td>
+        /// The left rectangle was drawn with a 1 pixel wide pen, and the right one with a 2 pixel wide pen.</td>
         /// <td><img src="../Help/Images/DrawingOptionsDrawPathPixelOffsetHalf.png" alt="Rectangles with DrawPathPixelOffset = PixelOffset.Half"/></td></tr>
         /// </tbody></table></para>
-        /// </remarks>
+        /// </example>
         public PixelOffset DrawPathPixelOffset
         {
             get => drawPathPixelOffset;
@@ -299,16 +318,18 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets an <see cref="IQuantizer"/> instance to use when drawing shapes.
         /// <br/>Default value: <see langword="null"/>.
+        /// <br/>See the <strong>Example</strong> section of the <see cref="Ditherer"/> property for an example.
         /// </summary>
         /// <remarks>
         /// <para>Setting a quantizer allows using fewer colors than the target <see cref="IReadWriteBitmapData"/> supports.
         /// Even when this property is <see langword="null"/>, the colors are automatically quantized to the target's supported color range.</para>
-        /// <note>See the <strong>Remarks</strong> section of the <see cref="Ditherer"/> property for an example.</note>
         /// </remarks>
         public IQuantizer? Quantizer { get; set; }
 
         /// <summary>
         /// Gets or sets an <see cref="IDitherer"/> instance to use when drawing shapes.
+        /// <br/>Default value: <see langword="null"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Ditherer.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <remarks>
         /// <para>If the target <see cref="IReadWriteBitmapData"/> does not support the color depth of the drawn shape,

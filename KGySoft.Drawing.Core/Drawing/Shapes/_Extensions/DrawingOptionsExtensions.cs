@@ -19,7 +19,7 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Methods
 
-        internal static float PixelOffset(this DrawingOptions? options) => options?.DrawPathPixelOffset is Shapes.PixelOffset.None ? 0f : 0.5f;
+        internal static float PixelOffset(this DrawingOptions? options) => options?.DrawPathPixelOffset is Shapes.PixelOffset.Half ? 0.5f : 0f;
 
         #endregion
     }

@@ -15,10 +15,25 @@
 
 namespace KGySoft.Drawing.Shapes
 {
+    /// <summary>
+    /// Represents the possible styles for joining two lines.
+    /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+    /// </summary>
     public enum LineJoinStyle
     {
+        /// <summary>
+        /// Represents a miter join. This produces a sharp corner or a bevel join if the miter limit is exceeded.
+        /// </summary>
         Miter,
+
+        /// <summary>
+        /// Represents a bevel join, which produces a diagonal corner.
+        /// </summary>
         Bevel,
+
+        /// <summary>
+        /// Represents a round join, which produces a rounded corner.
+        /// </summary>
         Round
     }
 }

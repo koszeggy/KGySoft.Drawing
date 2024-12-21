@@ -58,7 +58,7 @@ namespace KGySoft.Drawing.Shapes
         {
             #region Fields
 
-            // TODO: LineStart/End, DashPattern
+            // TODO: DashPattern
             internal readonly float Width;
             internal readonly float MiterLimit;
             internal readonly LineJoinStyle LineJoin;

@@ -74,9 +74,6 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
       <group targetFramework="net8.0" >
         <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
-      <group targetFramework="net9.0" >
-        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
-      </group>
     </dependencies>
   </metadata>
   <files>
@@ -107,7 +104,5 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <file src="..\bin\Release\net6.0\KGySoft.Drawing.Core.xml" target="lib\net6.0" />
     <file src="..\bin\Release\net8.0\KGySoft.Drawing.Core.dll" target="lib\net8.0" />
     <file src="..\bin\Release\net8.0\KGySoft.Drawing.Core.xml" target="lib\net8.0" />
-    <file src="..\bin\Release\net9.0\KGySoft.Drawing.Core.dll" target="lib\net9.0" />
-    <file src="..\bin\Release\net9.0\KGySoft.Drawing.Core.xml" target="lib\net9.0" />
   </files>
 </package>

@@ -16,7 +16,7 @@
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// Represents pixel offset strategies for the see <see cref="DrawingOptions.ScanPathPixelOffset">DrawingOptions.ScanPathPixelOffset</see>
+    /// Represents pixel offset strategies for the <see cref="DrawingOptions.ScanPathPixelOffset">DrawingOptions.ScanPathPixelOffset</see>
     /// and <see cref="DrawingOptions.DrawPathPixelOffset">DrawingOptions.DrawPathPixelOffset</see> properties.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="DrawingOptions.ScanPathPixelOffset">DrawingOptions.ScanPathPixelOffset</see>
     /// and <see cref="DrawingOptions.DrawPathPixelOffset">DrawingOptions.DrawPathPixelOffset</see> properties for details and image examples.

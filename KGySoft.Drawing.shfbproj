@@ -1484,17 +1484,77 @@
     <Content Include="Help\Images\DrawingOptionsDitheringBN.png">
       <ImageId>DrawingOptionsDitheringBN</ImageId>
     </Content>
-    <Content Include="Help\Images\BrushLinearGradientStartEndPoints.png">
-      <ImageId>BrushLinearGradientStartEndPoints</ImageId>
-    </Content>
     <Content Include="Help\Images\BrushLinearGradientAngle.png">
       <ImageId>BrushLinearGradientAngle</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureCenter.png">
+      <ImageId>BrushTextureCenter</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineJoinStyleMiter.png">
+      <ImageId>PenLineJoinStyleMiter</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineJoinStyleBevel.png">
+      <ImageId>PenLineJoinStyleBevel</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineJoinStyleRound.png">
+      <ImageId>PenLineJoinStyleRound</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineCapStyleFlat.png">
+      <ImageId>PenLineCapStyleFlat</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineCapStyleSquare.png">
+      <ImageId>PenLineCapStyleSquare</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineCapStyleRound.png">
+      <ImageId>PenLineCapStyleRound</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenLineCapStyleTriangle.png">
+      <ImageId>PenLineCapStyleTriangle</ImageId>
+    </Content>
+    <Content Include="Help\Images\PenWithBrush.png">
+      <ImageId>PenWithBrush</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureTile.png">
+      <ImageId>BrushTextureTile</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureTileFlipX.png">
+      <ImageId>BrushTextureTileFlipX</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureTileFlipY.png">
+      <ImageId>BrushTextureTileFlipY</ImageId>
     </Content>
     <Content Include="Help\Images\BrushTextureTileFlipXY.png">
       <ImageId>BrushTextureTileFlipXY</ImageId>
     </Content>
+    <Content Include="Help\Images\BrushTextureClip.png">
+      <ImageId>BrushTextureClip</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureExtend.png">
+      <ImageId>BrushTextureExtend</ImageId>
+    </Content>
     <Content Include="Help\Images\BrushTextureCenter.png">
       <ImageId>BrushTextureCenter</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureCenterExtend.png">
+      <ImageId>BrushTextureCenterExtend</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureStretch.png">
+      <ImageId>BrushTextureStretch</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushTextureZoom.png">
+      <ImageId>BrushTextureZoom</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushLinearGradientWrapModeStop.png">
+      <ImageId>BrushLinearGradientWrapModeStop</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushLinearGradientWrapModeClip.png">
+      <ImageId>BrushLinearGradientWrapModeClip</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushLinearGradientWrapModeRepeat.png">
+      <ImageId>BrushLinearGradientWrapModeRepeat</ImageId>
+    </Content>
+    <Content Include="Help\Images\BrushLinearGradientWrapModeMirror.png">
+      <ImageId>BrushLinearGradientWrapModeMirror</ImageId>
     </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
