@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
@@ -112,7 +112,7 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
@@ -176,7 +176,7 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
@@ -225,13 +225,13 @@ namespace KGySoft.Drawing.Shapes
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
-        /// <para>If the line is drawn by using a shortcut, then the operation is not parallelized, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
@@ -268,13 +268,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
-        /// <para>If the line is drawn by using a shortcut, then the operation is not parallelized, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -314,13 +314,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
-        /// <para>If the line is drawn by using a shortcut, then the operation is not parallelized, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -361,13 +361,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
-        /// <para>If the line is drawn by using a shortcut, then the operation is not parallelized, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -408,7 +408,7 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
@@ -455,7 +455,7 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
@@ -502,7 +502,7 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
@@ -550,7 +550,7 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
@@ -607,13 +607,13 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
@@ -649,13 +649,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -691,13 +691,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -734,13 +734,13 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -793,11 +793,11 @@ namespace KGySoft.Drawing.Shapes
         /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
@@ -836,11 +836,11 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -879,11 +879,11 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -923,11 +923,11 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> for the line. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously and is not parallelized, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -960,6 +960,28 @@ namespace KGySoft.Drawing.Shapes
 
         #region Default Context
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
@@ -976,6 +998,28 @@ namespace KGySoft.Drawing.Shapes
             DoDrawLines(AsyncHelper.DefaultContext, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default);
         }
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
@@ -997,7 +1041,35 @@ namespace KGySoft.Drawing.Shapes
         #region ParallelConfig
         // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
 
-        // Into remarks: when shortcutting, the operation cannot be cancelled, there is no report progress, and we always return true. To avoid that, use DrawPath instead.
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1014,6 +1086,35 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1030,6 +1131,38 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1047,6 +1180,38 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawLines(ctx, bitmapData, pen, points, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1067,7 +1232,39 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region IAsyncContext
-        
+
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
@@ -1084,6 +1281,38 @@ namespace KGySoft.Drawing.Shapes
             return DoDrawLines(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default);
         }
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
@@ -1100,6 +1329,38 @@ namespace KGySoft.Drawing.Shapes
             return DoDrawLines(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
@@ -1117,6 +1378,38 @@ namespace KGySoft.Drawing.Shapes
             return DoDrawLines(context ?? AsyncHelper.DefaultContext, bitmapData, pen, points, drawingOptions ?? DrawingOptions.Default);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of the <see cref="Path.Bounds"/> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
@@ -1140,6 +1433,34 @@ namespace KGySoft.Drawing.Shapes
 
         #region Async APM
 
+        /// <summary>
+        /// Begins to draw a series of connected, one-pixel wide lines with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, points);
@@ -1155,6 +1476,34 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.BeginOperation(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to draw a series of connected, one-pixel wide lines with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, points);
@@ -1170,6 +1519,34 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.BeginOperation(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to draw a series of connected lines with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the line.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, pen, points);
@@ -1186,6 +1563,34 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.BeginOperation(ctx => DoDrawLines(ctx, bitmapData, pen, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to draw a series of connected lines with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the line.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, pen, points);
@@ -1202,6 +1607,13 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.BeginOperation(ctx => DoDrawLines(ctx, bitmapData, pen, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawLines(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawLines));
 
         #endregion
@@ -1209,6 +1621,33 @@ namespace KGySoft.Drawing.Shapes
         #region Async TAP
 #if !NET35
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, points);
@@ -1224,6 +1663,33 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationAsync(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the lines to draw.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, points);
@@ -1239,6 +1705,33 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationAsync(ctx => DoDrawLines(ctx, bitmapData, new Pen(color), points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, pen, points);
@@ -1255,6 +1748,33 @@ namespace KGySoft.Drawing.Shapes
             return AsyncHelper.DoOperationAsync(ctx => DoDrawLines(ctx, bitmapData, pen, points, drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
+        /// <summary>
+        /// Draws a series of connected lines with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
+        /// <param name="points">The points of the line segments to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
+        /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
+        /// <para>This method tries to use a shortcut to draw the lines directly, which is faster than creating a <see cref="Path"/> and adding the lines to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="pen"/> has a width between 0.25 and 1, and it uses a solid <see cref="Brush"/> with an opaque color, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// and it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, pen, points);
