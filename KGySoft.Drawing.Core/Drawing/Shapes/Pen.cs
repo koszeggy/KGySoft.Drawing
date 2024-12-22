@@ -75,7 +75,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the <see cref="Shapes.Brush"/> that determines the color or texture of the <see cref="Pen"/>.
         /// <br/>Default value: The <see cref="Shapes.Brush"/> instance that was either passed to the constructor, or was created implicitly by the constructor.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
         public Brush Brush
         {
@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the <see cref="LineJoinStyle"/> that specifies how to join the consecutive line segments.
         /// <br/>Default value: <see cref="LineJoinStyle.Miter"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
         public LineJoinStyle LineJoin
         {
@@ -138,7 +138,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the <see cref="LineCapStyle"/> that specifies the style of the start point of an open figure.
         /// <br/>Default value: <see cref="LineCapStyle.Flat"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
         public LineCapStyle StartCap
         {
@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the <see cref="LineCapStyle"/> that specifies the style of the end point of an open figure.
         /// <br/>Default value: <see cref="LineCapStyle.Flat"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
         public LineCapStyle EndCap
         {

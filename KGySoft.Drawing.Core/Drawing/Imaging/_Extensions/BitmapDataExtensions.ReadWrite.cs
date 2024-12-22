@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginQuantize">BeginQuantize</see> or <see cref="QuantizeAsync">QuantizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
@@ -333,7 +333,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginDither">BeginDither</see> or <see cref="DitherAsync">DitherAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
@@ -550,7 +550,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance

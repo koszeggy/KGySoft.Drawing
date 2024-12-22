@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.Shapes
     /// <td><img src="../Help/Images/BrushLinearGradientWrapModeMirror.png" alt="Linear gradient brush with Mirror wrap mode. AntiAliasing = true, AlphaBlending = true."/></td></tr>
     /// </tbody></table></para>
     /// <note>A <see cref="GradientWrapMode"/> value is used only when the gradient is specified by two points. When just an angle is specified, the gradient is always stretched to the bounds of the shape.
-    /// <br/>See the <strong>Example</strong> section of the <see cref="Brush.CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> method for an example for such a gradient.
+    /// <br/>See the <strong>Examples</strong> section of the <see cref="Brush.CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> method for an example for such a gradient.
     /// </note>
     /// </example>
     public enum GradientWrapMode

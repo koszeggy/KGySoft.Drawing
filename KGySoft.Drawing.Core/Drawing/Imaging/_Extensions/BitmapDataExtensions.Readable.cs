@@ -513,7 +513,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData,TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -538,7 +538,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginClone(IReadableBitmapData, WorkingColorSpace, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, WorkingColorSpace, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -597,7 +597,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -642,7 +642,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -686,7 +686,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -734,7 +734,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -777,7 +777,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -818,7 +818,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
@@ -860,7 +860,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
@@ -902,7 +902,7 @@ namespace KGySoft.Drawing.Imaging
         /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/> or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
@@ -1760,7 +1760,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -1796,7 +1796,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginCopyTo">BeginCopyTo</see> or <see cref="CopyToAsync">CopyToAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -2125,7 +2125,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/> or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -2164,7 +2164,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)"/> or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)"/>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -2544,7 +2544,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
         /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -2589,7 +2589,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism, cancellation and progress reporting. Use
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
         /// the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/>
         /// or <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>

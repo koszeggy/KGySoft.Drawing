@@ -17,7 +17,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents the possible styles for the ends of open figures.
-    /// <br/>See the <strong>Example</strong> section of the <see cref="Pen"/> class for image examples.
+    /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
     /// </summary>
     public enum LineCapStyle
     {

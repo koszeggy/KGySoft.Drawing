@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows you to configure the degree of parallelism,
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginClear">BeginClear</see> or <see cref="ClearAsync">ClearAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>

@@ -318,7 +318,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets an <see cref="IQuantizer"/> instance to use when drawing shapes.
         /// <br/>Default value: <see langword="null"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="Ditherer"/> property for an example.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="Ditherer"/> property for an example.
         /// </summary>
         /// <remarks>
         /// <para>Setting a quantizer allows using fewer colors than the target <see cref="IReadWriteBitmapData"/> supports.

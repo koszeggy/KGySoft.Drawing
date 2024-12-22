@@ -56,13 +56,13 @@ namespace KGySoft.Drawing.Shapes
     /// one for specifying a pair of start/end points optionally with some <see cref="GradientWrapMode"/>, and another one with an angle, which automatically stretches the gradient for the paths to fill.</para>
     /// <para>The top image uses specific start/end points without repeating the gradient, whereas the bottom one just specified a zero angle to create a horizontal gradient.
     /// Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations.</para>
-    /// <para>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration and the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> method for more image examples.</para></td>
+    /// <para>See the <strong>Examples</strong> section of the <see cref="GradientWrapMode"/> enumeration and the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> method for more image examples.</para></td>
     /// <td><img src="../Help/Images/BrushLinearGradientWrapModeStop.png" alt="Linear gradient brush with start/end points"/>
     /// <br/><img src="../Help/Images/BrushLinearGradientAngle.png" alt="Linear gradient brush with an angle"/></td></tr>
     /// <tr><td><para><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateTexture">CreateTexture</see>: Creates a texture brush. A <see cref="TextureMapMode"/> can be specified, which allows tiling, stretching, centering and a few other modes.</para>
     /// <para>The top image uses a texture with a map mode of tiling with mirroring on both axes, whereas the bottom one centers the same texture and uses no alpha blending, so where there is no texture pixel to set,
     /// the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations.</para>
-    /// <para>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for more image examples.</para></td>
+    /// <para>See the <strong>Examples</strong> section of the <see cref="TextureMapMode"/> enumeration for more image examples.</para></td>
     /// <td><img src="../Help/Images/BrushTextureTileFlipXY.png" alt="Texture brush with TileFlipXY map mode"/>
     /// <br/><img src="../Help/Images/BrushTextureCenter.png" alt="Texture brush with Center map mode"/></td></tr>
     /// </tbody></table></para>
@@ -2524,7 +2524,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a texture <see cref="Brush"/> with the specified <paramref name="texture"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
         /// </summary>
         /// <param name="texture">The texture to use for the <see cref="Brush"/>.</param>
         /// <param name="mapMode">Determines how the texture is mapped to the target area. This parameter is optional.
@@ -2546,7 +2546,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a texture <see cref="Brush"/>, using the specified <paramref name="textureBounds"/> for the <paramref name="texture"/> parameter.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="TextureMapMode"/> enumeration for image examples.
         /// </summary>
         /// <param name="texture">The texture to use for the <see cref="Brush"/>.</param>
         /// <param name="textureBounds">A <see cref="Rectangle"/> that specifies the actual bounds of the specified <paramref name="texture"/>.</param>
@@ -2568,7 +2568,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
         /// </summary>
         /// <param name="startPoint">The starting point of the gradient.</param>
         /// <param name="endPoint">The end point of the gradient.</param>
@@ -2594,7 +2594,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
         /// </summary>
         /// <param name="startPoint">The starting point of the gradient.</param>
         /// <param name="endPoint">The end point of the gradient.</param>
@@ -2634,7 +2634,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line specified by <paramref name="startPoint"/> and <paramref name="endPoint"/>.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="GradientWrapMode"/> enumeration for image examples.
         /// </summary>
         /// <param name="startPoint">The starting point of the gradient.</param>
         /// <param name="endPoint">The end point of the gradient.</param>
@@ -2727,7 +2727,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
         /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
         /// </summary>
         /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
         /// <param name="startColor">The starting color of the gradient.</param>
@@ -2758,7 +2758,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
         /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
-        /// <br/>See the <strong>Example</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
+        /// <br/>See the <strong>Examples</strong> section of the <see cref="CreateLinearGradient(float,Color32,Color32,WorkingColorSpace)"/> overload for an example with image.
         /// </summary>
         /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
         /// <param name="startColor">The starting color of the gradient.</param>
