@@ -763,10 +763,10 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="y">The y-coordinate of the upper-left corner of the bounding rectangle that defines the rounded rectangle.</param>
         /// <param name="width">The width of the bounding rectangle that defines the rounded rectangle.</param>
         /// <param name="height">The height of the bounding rectangle that defines the rounded rectangle.</param>
-        /// <param name="radiusTopLeft">The size of the top-left corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusTopRight">The size of the top-right corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusBottomRight">The size of the bottom-right corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusBottomLeft">The size of the bottom-left corner's corner radius of the rounded rectangle.</param>
+        /// <param name="radiusTopLeft">The size of the top-left corner radius of the rounded rectangle.</param>
+        /// <param name="radiusTopRight">The size of the top-right corner radius of the rounded rectangle.</param>
+        /// <param name="radiusBottomRight">The size of the bottom-right corner radius of the rounded rectangle.</param>
+        /// <param name="radiusBottomLeft">The size of the bottom-left corner radius of the rounded rectangle.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>The rounded rectangle is added as a new closed figure.</para>
@@ -782,10 +782,10 @@ namespace KGySoft.Drawing.Shapes
         /// Adds a rounded rectangle to this <see cref="Path"/>, applying a custom corner radius to each corner.
         /// </summary>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
-        /// <param name="radiusTopLeft">The size of the top-left corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusTopRight">The size of the top-right corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusBottomRight">The size of the bottom-right corner's corner radius of the rounded rectangle.</param>
-        /// <param name="radiusBottomLeft">The size of the bottom-left corner's corner radius of the rounded rectangle.</param>
+        /// <param name="radiusTopLeft">The size of the top-left corner radius of the rounded rectangle.</param>
+        /// <param name="radiusTopRight">The size of the top-right corner radius of the rounded rectangle.</param>
+        /// <param name="radiusBottomRight">The size of the bottom-right corner radius of the rounded rectangle.</param>
+        /// <param name="radiusBottomLeft">The size of the bottom-left corner radius of the rounded rectangle.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>The rounded rectangle is added as a new closed figure.</para>
