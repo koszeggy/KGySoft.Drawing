@@ -345,7 +345,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Adds a series of connected lines to the current figure of this <see cref="Path"/> instance.
         /// </summary>
-        /// <param name="points">The points of the line segments to add to the current figure if this <see cref="Path"/>.</param>
+        /// <param name="points">The points of the line segments to add to the current figure of this <see cref="Path"/>.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="points"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -369,7 +369,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Adds a series of connected lines to the current figure of this <see cref="Path"/> instance.
         /// </summary>
-        /// <param name="points">The points of the line segments to add to the current figure if this <see cref="Path"/>.</param>
+        /// <param name="points">The points of the line segments to add to the current figure of this <see cref="Path"/>.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="points"/> is <see langword="null"/>.</exception>
         /// <remarks>
