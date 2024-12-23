@@ -321,7 +321,7 @@ namespace KGySoft.Drawing.Shapes
             internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, RectangleF bounds, float cornerRadius, TColor c, float offset, TArg arg = default!)
             {
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
-                DrawRoundedRectangle(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), (int)MathF.Round(cornerRadius, MidpointRounding.AwayFromZero), c, arg);
+                DrawRoundedRectangle(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), checked((int)MathF.Round(cornerRadius, MidpointRounding.AwayFromZero)), c, arg);
             }
 
             internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, Rectangle bounds, int cornerRadius, TColor c, TArg arg = default!)
@@ -436,51 +436,6 @@ namespace KGySoft.Drawing.Shapes
                 DrawLine(bitmapData, new PointF(bounds.Left + radiusBottomLeft, bounds.Bottom), new PointF(bounds.Right - radiusBottomRight, bounds.Bottom), c, offset, arg);
                 DrawLine(bitmapData, new PointF(bounds.Left, bounds.Top + radiusTopLeft), new PointF(bounds.Left, bounds.Bottom - radiusBottomLeft), c, offset, arg);
             }
-
-            //internal static void DrawRoundedRectangle(IBitmapDataInternal bitmapData, Rectangle bounds,
-            //    int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, TColor c, TArg arg = default!)
-            //{
-            //    bounds.Normalize();
-
-            //    int diameter = Math.Min(Math.Abs(cornerRadius) << 1, Math.Min(Math.Abs(bounds.Width), Math.Abs(bounds.Height)));
-            //    var corner = new Rectangle(bounds.Location, new Size(diameter, diameter));
-            //    cornerRadius = diameter >> 1;
-
-            //    // top-left corner
-            //    DrawArc(bitmapData, corner, 180f, 90f, c, arg);
-
-            //    // top-right corner
-            //    corner.X = bounds.Right - diameter;
-            //    DrawArc(bitmapData, corner, 270f, 90f, c, arg);
-
-            //    // bottom-right corner
-            //    corner.Y = bounds.Bottom - diameter;
-            //    DrawArc(bitmapData, corner, 0f, 90f, c, arg);
-
-            //    // bottom-left corner
-            //    corner.X = bounds.Left;
-            //    DrawArc(bitmapData, corner, 90f, 90f, c, arg);
-
-            //    int from = bounds.Left + cornerRadius + 1;
-            //    int to = bounds.Right - cornerRadius - 1;
-
-            //    // top and bottom edges
-            //    if (from <= to)
-            //    {
-            //        DrawLine(bitmapData, new Point(from, bounds.Top), new Point(to, bounds.Top), c, arg);
-            //        DrawLine(bitmapData, new Point(from, bounds.Bottom), new Point(to, bounds.Bottom), c, arg);
-            //    }
-
-            //    from = bounds.Top + cornerRadius + 1;
-            //    to = bounds.Bottom - cornerRadius - 1;
-
-            //    // right and left edges
-            //    if (from <= to)
-            //    {
-            //        DrawLine(bitmapData, new Point(bounds.Right, bounds.Top + cornerRadius), new Point(bounds.Right, bounds.Bottom - cornerRadius), c, arg);
-            //        DrawLine(bitmapData, new Point(bounds.Left, bounds.Top + cornerRadius), new Point(bounds.Left, bounds.Bottom - cornerRadius), c, arg);
-            //    }
-            //}
 
             internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
             {

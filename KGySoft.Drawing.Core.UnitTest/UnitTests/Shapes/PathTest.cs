@@ -17,8 +17,6 @@
 
 #region Usings
 
-using KGySoft.Collections;
-
 #region Used Namespaces
 
 using System;
@@ -661,11 +659,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             bitmapDataBackground.Clear(Color.Cyan);
             IAsyncContext context = new SimpleContext(-1);
             foreach (float width in new[] { 1f, 2f })
+            foreach (bool antiAliasing in new[] { false, true })
             foreach (PixelOffset pixelOffset in new[] { PixelOffset.None, PixelOffset.Half })
             {
                 // Missing right/bottom line
                 var pen = new Pen(Color.Blue, width);
-                var options = new DrawingOptions { DrawPathPixelOffset = pixelOffset, AntiAliasing = true };
+                var options = new DrawingOptions { DrawPathPixelOffset = pixelOffset, AntiAliasing = antiAliasing, FastThinLines = false };
                 path.PreferCaching = false;
                 using var bitmapData1 = bitmapDataBackground.Clone();
                 bitmapData1.DrawPath(context, pen, path, options);
@@ -918,6 +917,10 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddRectangle(Int32.MinValue, Int32.MinValue, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsNoFastThinLines)); // no shortcut, no cache due to size
             bmp.Clear(backColor);
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddRectangle(0, 0, Int32.MaxValue - 127, Int32.MaxValue - 127), optionsNoFastThinLines)); // no shortcut, no cache due to size, visible part is drawn
+
+            // RoundedRectangle
+            Assert.Throws<OverflowException>(() => bmp.DrawRoundedRectangle(color, 0, 0, 100, 50, Single.NaN));
+            Assert.Throws<OverflowException>(() => bmp.DrawRoundedRectangle(color, 0, 0, 100, 50, Single.NaN, Single.NaN, Single.NaN, Single.NaN));
 
             // FillRectangle
             bmp.Clear(backColor);
