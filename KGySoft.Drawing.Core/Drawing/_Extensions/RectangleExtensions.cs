@@ -25,6 +25,8 @@ namespace KGySoft.Drawing
 {
     internal static class RectangleExtensions
     {
+        #region Methods
+        
         /// <summary>
         /// Gets whether the rectangle has zero Width OR Height.
         /// Not just faster than the IsEmpty property but also works better when Intersect returns a non-default practically zero rectangle.
@@ -86,6 +88,20 @@ namespace KGySoft.Drawing
                 rect.Height = -rect.Height;
             }
         }
+
+        internal static Rectangle TruncateChecked(this RectangleF rect)
+        {
+            checked
+            {
+                int x = (int)rect.X;
+                int y = (int)rect.Y;
+                int width = (int)rect.Width;
+                int height = (int)rect.Height;
+                return new Rectangle(x, y, width, height);
+            }
+        }
+
+        #endregion
 
     }
 }
