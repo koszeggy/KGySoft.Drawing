@@ -240,6 +240,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -284,6 +285,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, PointF p1, PointF p2, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -331,6 +333,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -379,6 +382,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1094,6 +1098,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1139,6 +1144,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1187,6 +1193,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1236,6 +1243,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1966,6 +1974,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2013,6 +2022,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2063,6 +2073,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -2114,6 +2125,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -2859,6 +2871,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2903,6 +2916,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2950,6 +2964,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -2998,6 +3013,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -3766,6 +3782,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -3810,6 +3827,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -3856,6 +3874,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -3903,6 +3922,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -4665,6 +4685,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -4709,6 +4730,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -4755,6 +4777,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -4802,6 +4825,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -5574,6 +5598,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -5620,6 +5645,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -5669,6 +5695,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -5719,6 +5746,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -6521,6 +6549,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -6567,6 +6596,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -6616,6 +6646,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -6666,6 +6697,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -7634,6 +7666,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7684,6 +7717,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
@@ -7732,6 +7766,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7782,6 +7817,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
@@ -7832,6 +7868,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -7885,6 +7922,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
@@ -7936,6 +7974,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -7989,6 +8028,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
@@ -9300,6 +9340,8 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
             ValidateArguments(bitmapData, path);
@@ -9333,6 +9375,8 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, Pen pen, Path path, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
             ValidateArguments(bitmapData, pen, path);
