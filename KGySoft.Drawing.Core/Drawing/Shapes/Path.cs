@@ -116,18 +116,23 @@ namespace KGySoft.Drawing.Shapes
                 return true;
             }
 
-            internal IList<PointF> GetPoints()
+            internal IList<PointF> GetPoints(bool ensureClosed)
             {
                 switch (Segments.Count)
                 {
                     case 0:
                         return Reflector.EmptyArray<PointF>();
                     case 1:
-                        return Segments[0].GetFlattenedPoints();
+                        var points = Segments[0].GetFlattenedPoints();
+                        if (ensureClosed && IsClosed && points.Count > 2 && points[0] != points[points.Count - 1])
+                            points = [..points, points[0]];
+                        return points;
                     default:
                         var result = new List<PointF>();
                         foreach (PathSegment segment in Segments)
                             result.AddRange(segment.GetFlattenedPoints());
+                        if (ensureClosed && IsClosed && result.Count > 2 && result[0] != result[result.Count - 1])
+                            result.Add(result[0]);
                         return result;
                 }
             }
@@ -916,15 +921,16 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The returned list contains the points of the figures in the order they were added to the <see cref="Path"/> instance.
         /// Every figure is represented by an array of flattened points that can be interpreted as a series of connected lines.</para>
+        /// <para>If a figure is closed and has at least 3 points, then it is ensured that the last point of the figure is the same as the first point.</para>
         /// <para>This method can be used to provide a bridge between the <see cref="Path"/> class and other graphics libraries or APIs.</para>
         /// </remarks>
         public IList<PointF[]> GetPoints()
         {
             if (figures == null)
-                return [currentFigure.GetPoints().ToArray()];
+                return [currentFigure.GetPoints(true).ToArray()];
             var result = new List<PointF[]>(figures.Count);
             foreach (Figure figure in figures)
-                result.Add(figure.GetPoints().ToArray());
+                result.Add(figure.GetPoints(true).ToArray());
             return result;
         }
 
@@ -1198,11 +1204,11 @@ namespace KGySoft.Drawing.Shapes
         {
             var result = new RawPath(figures?.Count ?? 1);
             if (figures == null)
-                result.AddRawFigure(currentFigure.GetPoints(), currentFigure.IsClosed, false);
+                result.AddRawFigure(currentFigure.GetPoints(false), currentFigure.IsClosed, false);
             else
             {
                 foreach (Figure figure in figures)
-                    result.AddRawFigure(figure.GetPoints(), figure.IsClosed, false);
+                    result.AddRawFigure(figure.GetPoints(false), figure.IsClosed, false);
             }
 
             return result;

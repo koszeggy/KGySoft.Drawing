@@ -17,6 +17,8 @@
 
 #region Usings
 
+using System.Collections.Generic;
+
 #region Used Namespaces
 
 using System;
@@ -1038,6 +1040,22 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
                 AssertAreEqual(bitmapDataKnown, bitmapDataCustom);
             }
+        }
+
+        [Test]
+        public void GetPointsTest()
+        {
+            var points = new PointF[] { new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90) };
+
+            var path1 = new Path().AddLines(points); // open
+            IList<PointF[]> points1 = path1.GetPoints();
+            Assert.AreEqual(1, points1.Count);
+            Assert.AreEqual(points.Length, points1[0].Length);
+
+            var path2 = new Path().AddPolygon(points); // closed
+            IList<PointF[]> points2 = path2.GetPoints();
+            Assert.AreEqual(1, points2.Count);
+            Assert.AreEqual(points.Length + 1, points2[0].Length);
         }
 
         #endregion
