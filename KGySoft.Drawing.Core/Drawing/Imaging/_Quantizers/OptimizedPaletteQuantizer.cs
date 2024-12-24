@@ -30,6 +30,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a quantizer that can generate an optimized set of colors best matching to the original image.
     /// Use the static methods to retrieve an instance. For using predefined colors see the <see cref="PredefinedColorsQuantizer"/> class.
+    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="OptimizedPaletteQuantizer"/> class can be used to reduce colors of an <see cref="IReadableBitmapData"/> using a
@@ -41,6 +42,8 @@ namespace KGySoft.Drawing.Imaging
     /// on both memory usage and performance.</note></para>
     /// <para>This class supports palette optimization by three different algorithms (see the
     /// <see cref="Octree(int,Color32,byte)">Octree</see>, <see cref="MedianCut(int,Color32,byte)">MedianCut</see> and <see cref="Wu(int,Color32,byte)">Wu</see> methods)</para>
+    /// </remarks>
+    /// <example>
     /// <para>The following table compares the algorithms supported by the <see cref="OptimizedPaletteQuantizer"/> class:
     /// <list type="table">
     /// <listheader><term></term><term><see cref="Octree(int,Color32,byte)">Octree</see></term><term><see cref="MedianCut(int,Color32,byte)">MedianCut</see></term><term><see cref="Wu(int,Color32,byte)">Wu</see></term></listheader>
@@ -140,7 +143,7 @@ namespace KGySoft.Drawing.Imaging
     /// </tr>
     /// </tbody></table>
     /// </para>
-    /// </remarks>
+    /// </example>
     /// <seealso cref="IQuantizer"/>
     /// <seealso cref="PredefinedColorsQuantizer"/>
     /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
@@ -367,6 +370,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Octree quantizing algorithm.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer_Octree.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
@@ -408,6 +412,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using the Median Cut quantizing algorithm.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer_MedianCut.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
@@ -449,6 +454,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that can quantize colors of an image using Xiaolin Wu's quantizing algorithm.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer_Wu.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>

@@ -30,6 +30,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
     /// Use the static properties of this class to use predefined patterns or the <see cref="OrderedDitherer(byte[,],float)">constructor</see> to create a custom ordered ditherer.
+    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="OrderedDitherer(byte[,],float)">constructor</see> can be used to create an ordered ditherer using a custom matrix.</para>
@@ -38,6 +39,8 @@ namespace KGySoft.Drawing.Imaging
     /// <para>The <see cref="OrderedDitherer"/> class offers a very fast dithering technique based on an ordered pattern specified in a matrix of bytes.
     /// The more different values the matrix has the more number of different patterns can be mapped to the shades of the original pixels.
     /// While quantizing lighter and lighter colors, the different patterns appear in the order of the values in the specified matrix.</para>
+    /// </remarks>
+    /// <example>
     /// <para>The following table demonstrates the effect of the dithering:
     /// <table class="table is-hoverable">
     /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
@@ -100,7 +103,7 @@ namespace KGySoft.Drawing.Imaging
     /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
     /// </tr></tbody></table></para>
     /// <note type="tip">See the <strong>Examples</strong> section of the static properties for more examples.</note>
-    /// </remarks>
+    /// </example>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="ErrorDiffusionDitherer"/>
     /// <seealso cref="RandomNoiseDitherer"/>
@@ -251,6 +254,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer2x2.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -296,6 +300,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 3x3 matrix.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer3x3.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -342,6 +347,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 4x4 matrix.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer4x4.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -389,6 +395,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 8x8 matrix.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -458,6 +465,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using a 8x8 matrix of a dotted halftone pattern.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_DottedHalftone.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -510,6 +518,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using a fixed 64x64 blue noise pattern of 256 different values.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_BlueNoise.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <remarks>
         /// <note>Generating random blue noise patterns is a very resource intensive operation but this method uses a pregenerated fix pattern, which is very fast.
@@ -638,6 +647,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderedDitherer"/> class using the specified <paramref name="matrix"/> and <paramref name="strength"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_OrderedDitherer__ctor.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value between zero
         /// and the maximum value in the matrix. Repeated values will appear always together for the same input colors.</param>
@@ -776,6 +786,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_OrderedDitherer_ConfigureStrength.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
@@ -789,6 +800,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="strength"/> is 0, then strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
         /// This is the default for <see cref="OrderedDitherer"/> instances returned by the static properties.</para>
         /// <para>The auto strength strategy itself can be specified by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see> method.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following table demonstrates the effect of different strengths:
         /// <table class="table is-hoverable">
         /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
@@ -808,8 +821,7 @@ namespace KGySoft.Drawing.Imaging
         /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
         /// </tr>
         /// </tbody></table></para>
-        /// </remarks>
-        /// <example>
+        /// <para>
         /// The following example demonstrates how to specify the strength for a predefined ordered ditherer:
         /// <code lang="C#"><![CDATA[
         /// // getting a predefined ditherer with custom strength:
@@ -817,7 +829,7 @@ namespace KGySoft.Drawing.Imaging
         /// 
         /// // getting a predefined ditherer with custom auto strength strategy:
         /// ditherer = OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Interpolated);
-        /// ]]></code>
+        /// ]]></code></para>
         /// </example>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "No conflict, a new instance is created")]

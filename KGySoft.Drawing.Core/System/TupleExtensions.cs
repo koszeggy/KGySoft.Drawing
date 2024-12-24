@@ -1,4 +1,4 @@
-﻿#if NETFRAMEWORK && !NET47_OR_GREATER
+﻿#if NETFRAMEWORK && !(NET35 || NET47_OR_GREATER)
 
 // ReSharper disable once CheckNamespace
 namespace System

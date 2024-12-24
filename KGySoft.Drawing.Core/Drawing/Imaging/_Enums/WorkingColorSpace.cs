@@ -23,8 +23,9 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents the preferred working color space for various operations such as alpha blending, measuring distance of colors, interpolation,
-    /// quantizing, dithering and some other operations. The working color space can be specified independently from the color space of the actual pixel format
+    /// quantizing, dithering and some other operations. The working color space can be specified independently of the color space of the actual pixel format
     /// of an <see cref="IBitmapData"/> instance.
+    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The working color space can be specified at various places in KGy SOFT Drawing Libraries:
@@ -35,8 +36,8 @@ namespace KGySoft.Drawing.Imaging
     /// such as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
     /// or by the <c>GetReadWriteBitmapData</c> methods for the technology-specific bitmap types.
     /// The <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see> property is considered when setting pixels with transparency
-    /// and the pixel format of the bitmap data does not support transparency so the color has to be blended with <see cref="IBitmapData.BackColor">IBitmapData.BackColor</see>,
-    /// or when bitmap data instances are drawn into each other.</item>
+    /// and the pixel format of the bitmap data does not support transparency so the color has to be blended with <see cref="IBitmapData.BackColor">IBitmapData.BackColor</see>.
+    /// The color space of the target bitmap is considered also when drawing shapes, or when bitmap data instances are drawn into each other.</item>
     /// <item>The <see cref="Palette"/> class also has a <see cref="Palette.WorkingColorSpace"/> property, which is used by the <see cref="Palette.GetNearestColor"/>
     /// and <see cref="Palette.GetNearestColorIndex"/> methods.</item>
     /// <item>Quantizers also have their own working color space configuration. You can use the <see cref="PredefinedColorsQuantizer.ConfigureColorSpace">PredefinedColorsQuantizer.ConfigureColorSpace</see>
@@ -45,11 +46,13 @@ namespace KGySoft.Drawing.Imaging
     /// <item>Ditherers may also have specific behavior for the different color spaces. The ditherer implementations in KGy SOFT Drawing Libraries
     /// always take the working color space of the corresponding quantizer exposed by the <see cref="IQuantizingSession.WorkingColorSpace">IQuantizingSession.WorkingColorSpace</see> property.</item>
     /// </list></para>
+    /// </remarks>
+    /// <example>
     /// <para>Most common color representations (just like the <see cref="Color"/> or <see cref="Color32"/> types that use 8 bit color channels) use the sRGB color space
     /// that has gamma corrected color values. In a color type that uses the sRGB color space the consecutive RGB values don't represent linear light intensity increase.
     /// Instead, a gamma correction of approximately γ = 2.2 is applied to the actual light intensity, so it is adjusted for the perception of the human eye
     /// (in fact, the sRGB color space is linear for the darkest values and uses a γ = 2.4 correction above a threshold limit so the overall average is
-    /// somewhere around 2.2). This representation helps distributing RGB values so that 50% represents the apparently half-bright tones:</para>
+    /// somewhere around 2.2). This representation helps to distribute RGB values so that 50% represents the apparently half-bright tones:</para>
     /// <list type="table"><item><term>
     /// <div style="text-align:center;">
     /// <img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
@@ -196,13 +199,13 @@ namespace KGySoft.Drawing.Imaging
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111ResizedSrgb.png" alt="Quantized test image &quot;Girl with a Pearl Earring&quot; resized in the sRGB color space"/>
     /// <br/>Resizing the quantized image with bicubic interpolation in the sRGB color space. The result is too dark.
-    /// Ironically, if the source image would have been quantized in the sRGB color space so it was too bright, then the resized result would seem quite correct.</div></td>
+    /// Ironically, if the source image had been quantized in the sRGB color space so it was too bright, then the resized result would seem quite correct.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/GirlWithAPearlEarringRgb111ResizedLinear.png" alt="Quantized test image &quot;Girl with a Pearl Earring&quot; resized in the linear color space"/>
     /// <br/>Resizing the quantized image with bicubic interpolation in the linear color space. The result preserved the original brightness.</div></td>
     /// </tr>
     /// </tbody></table>
-    /// </remarks>
+    /// </example>
     public enum WorkingColorSpace
     {
         /// <summary>

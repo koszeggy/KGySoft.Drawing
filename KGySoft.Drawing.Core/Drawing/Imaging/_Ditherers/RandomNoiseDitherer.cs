@@ -28,6 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for random noise dithering. This class applies a random white noise to the result. For other noise-like
     /// ditherers see the <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> property and the <see cref="InterleavedGradientNoiseDitherer"/> class.
+    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="RandomNoiseDitherer"/> generates some random white noise to the quantized source.</para>
@@ -35,6 +36,8 @@ namespace KGySoft.Drawing.Imaging
     /// the <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> property and the <see cref="InterleavedGradientNoiseDitherer"/> class.</note>
     /// <para>To get always the same result for the same source image and quantizer you can specify a <em>seed</em> when initializing a <see cref="RandomNoiseDitherer"/> instance.
     /// Please note though that specifying a seed prevents parallel processing, which makes performance worse on multi-core systems.</para>
+    /// </remarks>
+    /// <example>
     /// <para>The following table demonstrates the effect of the dithering:
     /// <table class="table is-hoverable">
     /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
@@ -58,7 +61,7 @@ namespace KGySoft.Drawing.Imaging
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite(Color32,byte,byte)">black and white palette</see> and random noise dithering</para></div></td>
     /// </tr>
     /// </tbody></table></para>
-    /// </remarks>
+    /// </example>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="OrderedDitherer" />
     /// <seealso cref="ErrorDiffusionDitherer" />
@@ -189,6 +192,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomNoiseDitherer"/> class.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_RandomNoiseDitherer__ctor_1.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.

@@ -19,13 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 #if NET35 || NET40
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 #endif
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+#if !(NET35 || NET40)
 using System.Threading;
+#endif
 
 #if NET35 || NET40
 using KGySoft.Collections; 
@@ -389,6 +390,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to the 32-bit ARGB color space.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Argb8888.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Determines the <see cref="IQuantizingSession.BackColor"/> property of the returned quantizer.
         /// Considering that this quantizer can return alpha colors it has effect only when the returned quantizer is used with
@@ -400,7 +402,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to the 32-bit ARGB color space.</returns>
         /// <remarks>
-        /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space
+        /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space,
         /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
         /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with more than 32 bpp) without specifying a quantizer.</para>
         /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
@@ -477,6 +479,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 24-bit ones where each color component is encoded in 8 bits.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb888.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -549,6 +552,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 16-bit ones where red,
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -627,6 +631,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 16-bit ones where each color component is encoded in 5 bits.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb555.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -705,6 +710,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 16-bit ones where alpha, red,
         /// green and blue components are encoded in 1, 5, 5 and 5 bits, respectively.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Argb1555.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
@@ -783,6 +789,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 8-bit ones where red,
         /// green and blue components are encoded in 3, 3 and 2 bits, respectively.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb332.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -889,6 +896,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 8-bit grayscale ones of 256 shades.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Grayscale.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -954,6 +962,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 4-bit grayscale ones of 16 shades.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Grayscale16.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -1045,6 +1054,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to 2-bit grayscale ones of 4 shades.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Grayscale4.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -1147,6 +1157,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -1250,6 +1261,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the system default 8-bit palette.
         /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
@@ -1347,6 +1359,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the system default 4-bit palette.
         /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault4BppPalette.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -1511,6 +1524,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the specified <paramref name="palette"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomPalette.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="palette">The <see cref="Palette"/> to be used by the returned instance.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the specified <paramref name="palette"/>.</returns>
@@ -1602,6 +1616,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomFunction.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
@@ -1664,6 +1679,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomFunction_2.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>

@@ -2493,6 +2493,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a solid <see cref="Brush"/> with the specified 32-bit color.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateSolid.htm">online help</a> for an image example.</div>
         /// </summary>
         /// <param name="color">A <see cref="Color32"/> value that represents the color of the brush.
         /// This overload can be used also for <see cref="Color"/> instances as there is an implicit cast from <see cref="Color"/> to <see cref="Color32"/>.</param>
@@ -2504,10 +2505,12 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <paramref name="color"/> has alpha and <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> is <see langword="true"/>,
         /// the color space used for blending is determined by the specified <see cref="DrawingOptions.Quantizer"/>, or, when it is <see langword="null"/>, by the <see cref="IBitmapData.WorkingColorSpace"/>
         /// of the target <see cref="IReadWriteBitmapData"/>.</para>
+        /// </remarks>
+        /// <example>
         /// <para>The following image was created with a solid brush created from 50% transparent blue color, and <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> was <see langword="true"/>,
         /// whereas the target bitmap data had <see cref="WorkingColorSpace.Linear"/> working color space:
         /// <br/><img src="../Help/Images/DrawingOptionsAlphaBlendingEnabledNoAA.png" alt="Polygon filled with 50% transparency, AntiAliasing = false, AlphaBlending = true."/></para>
-        /// </remarks>
+        /// </example>
         public static Brush CreateSolid(Color32 color) => new SolidBrush(color);
 
         /// <summary>
