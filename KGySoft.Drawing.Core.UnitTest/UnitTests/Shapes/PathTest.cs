@@ -220,7 +220,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["Circle10_01", new Path().AddEllipse(new RectangleF(1, 1, 10, 10)), 1f],
             ["Ellipse01", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 1f],
             ["Ellipse10", new Path().AddEllipse(new RectangleF(2, 2, 95, 45)), 10f],
-            ["RotatedEllipse01", new Path().SetTransformation(TransformationMatrix.CreateRotation(45f.ToRadian(), new PointF(50, 25))).AddEllipse(new RectangleF(2, 20, 95, 45)), 1f],
+            ["RotatedEllipse01", new Path().SetTransformation(TransformationMatrix.CreateRotationDegrees(45f, new PointF(50, 25))).AddEllipse(new RectangleF(2, 20, 95, 45)), 1f],
             ["RoundedRectangle5_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 5f), 1f],
             ["RoundedRectangle25_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 25f), 1f],
             ["RoundedRectangle50_01", new Path().AddRoundedRectangle(new RectangleF(2, 2, 95, 45), 50f), 1f],

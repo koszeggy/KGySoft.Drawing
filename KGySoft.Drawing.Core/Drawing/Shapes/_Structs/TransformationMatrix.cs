@@ -313,7 +313,9 @@ namespace KGySoft.Drawing.Shapes
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(Matrix3x2.CreateRotation(radians));
 #else
-            // It would be much better to use degrees here but the original Matrix3x2 implementation also uses radians.
+            radians = MathF.IEEERemainder(radians, MathF.PI * 2f);
+
+            // It would be much better to use degrees only but the original Matrix3x2 implementation also uses radians, so we have this overload, too.
             const float rotationEpsilon = 0.001f * MathF.PI / 180f;
             float cos, sin;
             switch (radians)
@@ -364,7 +366,9 @@ namespace KGySoft.Drawing.Shapes
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return new TransformationMatrix(Matrix3x2.CreateRotation(radians, centerPoint.AsVector2()));
 #else
-            // It would be much better to use degrees here but the original Matrix3x2 implementation also uses radians.
+            radians = MathF.IEEERemainder(radians, MathF.PI * 2f);
+
+            // It would be much better to use degrees only but the original Matrix3x2 implementation also uses radians, so we have this overload, too.
             const float rotationEpsilon = 0.001f * MathF.PI / 180f;
             float cos, sin;
             switch (radians)
@@ -404,6 +408,99 @@ namespace KGySoft.Drawing.Shapes
                 centerPoint.X * (1 - cos) + centerPoint.Y * sin,
                 centerPoint.Y * (1 - cos) - centerPoint.X * sin);
 #endif
+        }
+
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle in degrees.
+        /// </summary>
+        /// <param name="angle">The angle, in degrees, by which to rotate the matrix.</param>
+        /// <returns>The rotation matrix.</returns>
+        public static TransformationMatrix CreateRotationDegrees(float angle)
+        {
+            float cos, sin;
+            angle = angle is >= 0f and <= 360f ? angle : angle % 360f;
+            if (angle < 0)
+                angle += 360f;
+
+            switch (angle)
+            {
+                case 0f:
+                    cos = 1;
+                    sin = 0;
+                    break;
+
+                case 90f:
+                    cos = 0;
+                    sin = 1;
+                    break;
+
+                case 180f:
+                    cos = -1;
+                    sin = 0;
+                    break;
+
+                case 270f:
+                    cos = 0;
+                    sin = -1;
+                    break;
+
+                // Arbitrary rotation
+                default:
+                    float radians = angle.ToRadian();
+                    cos = MathF.Cos(radians);
+                    sin = MathF.Sin(radians);
+                    break;
+            }
+
+            return new TransformationMatrix(cos, sin, -sin, cos, 0f, 0f);
+        }
+
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle and center point.
+        /// </summary>
+        /// <param name="angle">The angle, in degrees, by which to rotate the matrix.</param>
+        /// <param name="centerPoint">The center point of the rotation.</param>
+        /// <returns>The rotation matrix.</returns>
+        public static TransformationMatrix CreateRotationDegrees(float angle, PointF centerPoint)
+        {
+            float cos, sin;
+            angle = angle is >= 0f and <= 360f ? angle : angle % 360f;
+            if (angle < 0)
+                angle += 360f;
+
+            switch (angle)
+            {
+                case 0f:
+                    cos = 1;
+                    sin = 0;
+                    break;
+
+                case 90f:
+                    cos = 0;
+                    sin = 1;
+                    break;
+
+                case 180f:
+                    cos = -1;
+                    sin = 0;
+                    break;
+
+                case 270f:
+                    cos = 0;
+                    sin = -1;
+                    break;
+
+                // Arbitrary rotation
+                default:
+                    float radians = angle.ToRadian();
+                    cos = MathF.Cos(radians);
+                    sin = MathF.Sin(radians);
+                    break;
+            }
+
+            return new TransformationMatrix(cos, sin, -sin, cos,
+                centerPoint.X * (1 - cos) + centerPoint.Y * sin,
+                centerPoint.Y * (1 - cos) - centerPoint.X * sin);
         }
 
         /// <summary>

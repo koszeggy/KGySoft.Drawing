@@ -1084,8 +1084,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         public Path TransformRotation(float angle)
         {
-            //transformation = TransformationMatrix.CreateRotationDegrees(angle) * transformation; // TODO
-            transformation = TransformationMatrix.CreateRotation(angle.ToRadian()) * transformation;
+            transformation = TransformationMatrix.CreateRotationDegrees(angle) * transformation;
             return this;
         }
 

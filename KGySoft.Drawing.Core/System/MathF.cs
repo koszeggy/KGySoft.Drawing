@@ -1,7 +1,11 @@
 ﻿#if NETFRAMEWORK || NETSTANDARD2_0
+
+using System.Diagnostics.CodeAnalysis;
+
 // ReSharper disable once CheckNamespace
 namespace System
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Compatibility")]
     internal static class MathF
     {
         #region Constants
@@ -21,8 +25,10 @@ namespace System
         internal static float Sqrt(float x) => (float)Math.Sqrt(x);
         internal static float Atan2(float y, float x) => (float)Math.Atan2(y, x);
         internal static float Asin(float x) => (float)Math.Asin(x);
+        internal static float IEEERemainder(float x, float y) => (float)Math.IEEERemainder(x, y);
 
         #endregion
+
     }
 } 
 #endif
