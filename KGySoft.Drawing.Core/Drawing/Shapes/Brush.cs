@@ -1684,6 +1684,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(!Region!.IsAntiAliased);
@@ -1892,6 +1894,8 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal override void DrawArc(ArcSegment arc)
             {
                 Debug.Assert(!Region!.IsAntiAliased);
@@ -2875,6 +2879,8 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "False alarm, the new analyzer includes the complexity of local methods")]
         internal bool DrawThinPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions, bool cache)
         {
             Debug.Assert(!drawingOptions.AntiAliasing);

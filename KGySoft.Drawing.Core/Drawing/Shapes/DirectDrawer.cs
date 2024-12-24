@@ -59,6 +59,8 @@ namespace KGySoft.Drawing.Shapes
                 DrawLine(bitmapData, p1, p2, c, arg);
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, TArg arg = default!)
             {
                 var accessor = new TAccessor();
@@ -623,6 +625,8 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             private static void DoDrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
                 TColor c, BitVector32 sectors, int startX, int endX, TArg arg)
             {

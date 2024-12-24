@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -1213,7 +1214,9 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             #region Internal Methods
-            
+
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal override void DrawLine(PointF start, PointF end)
             {
                 Debug.Assert(Region == null && !DrawingOptions.AntiAliasing && !Blend);
@@ -1454,6 +1457,8 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal override void DrawArc(ArcSegment arc)
             {
                 RectangleF bounds = arc.Bounds;
@@ -1595,7 +1600,9 @@ namespace KGySoft.Drawing.Shapes
         #region Methods
 
         #region Private Protected Methods
-        
+
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
         private protected sealed override FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;

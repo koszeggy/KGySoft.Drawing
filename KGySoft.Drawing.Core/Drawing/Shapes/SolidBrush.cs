@@ -2408,6 +2408,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Protected Methods
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
         private protected override FillPathSession CreateFillSession(IAsyncContext context, IReadWriteBitmapData bitmapData, RawPath rawPath, Rectangle bounds, DrawingOptions drawingOptions, Region? region)
         {
             IQuantizer? quantizer = drawingOptions.Quantizer;
