@@ -23,7 +23,31 @@
   ! New GetColorIndex/ReadRaw<T> methods
 ! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
   ! New SetColorIndex/WriteRaw<T> methods
-* BitmapDataExtensions class:
+! BitmapDataFactory class:
+  ! CreateBitmapData overloads with T[] or Array2D<T> buffer and KnownPixelFormat parameters:
+    ! The stride must be a multiple of the pixel size of the specified pixel format as well, not just the element
+      size of the underlying array type. Unmanaged buffers, buffers of T[,], and custom pixel formats are not
+      affected by this new constraint.
+  * Self-allocating CreateBitmapData overloads: By default, no longer using array pooling if the natural element
+    type of the underlying array is other than byte. This can be adjusted by the new PoolingStrategy property.
+  + New PoolingStrategy property
+- BitmapDataExtensions class:
+  - Cloning a bitmap with a custom pixel format may have failed if the source bitmap was so huge that the cloned
+    bitmap could not be created with a byte array buffer. If the bitmap is too big even for an UInt64 array buffer,
+    then a NotSupportedException is thrown.
++ Palette class:
+  + Now every factory method has an overload that allow specifying the alpha threshold, not just the ones that
+    return a palette with alpha colors.
+* PredefinedColorsQuantizer class:
+  + New FromCustomPalette overload that allows specifying the palette entries as Color32 values.
+  * Every method with Color parameter now has an overload with Color32 parameter. The old overloads are now hidden,
+    though they are still there for binary compatibility.
+  + Alpha threshold can be specified for all quantizers, not just for the ones that have alpha colors.
++ New ArrayPoolingStrategy enumeration
+
++ New KGySoft.Drawing.Shapes namespace
+======================================
++ New ReadWriteBitmapDataExtensions class
   + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
   + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
   + New DrawBeziers/BeginDrawBeziers/EndDrawBeziers/DrawBeziersAsync methods
@@ -40,25 +64,6 @@
   + New DrawRoundedRectangle/BeginDrawRoundedRectangle/EndDrawRoundedRectangle/DrawRoundedRectangleAsync methods
   + New FillRoundedRectangle/BeginFillRoundedRectangle/EndFillRoundedRectangle/FillRoundedRectangleAsync methods
   + New FillPath/BeginFillPath/EndFillPath/FillPathAsync methods
-  - Cloning a bitmap with a custom pixel format may have failed if the source bitmap was so huge that the cloned
-    bitmap could not be created with a byte array buffer. If the bitmap is too big even for an UInt64 array buffer,
-    then a NotSupportedException is thrown.
-* BitmapDataFactory class:
-  * Self-allocating CreateBitmapData overloads: By default, no longer using array pooling if the natural element
-    type of the underlying array is other than byte. This can be adjusted by the new PoolingStrategy property.
-  + New PoolingStrategy property
-+ Palette class:
-  + Now every factory method has an overload that allow specifying the alpha threshold, not just the ones that
-    return a palette with alpha colors.
-* PredefinedColorsQuantizer class:
-  + New FromCustomPalette overload that allows specifying the palette entries as Color32 values.
-  * Every method with Color parameter now has an overload with Color32 parameter. The old overloads are now hidden,
-    though they are still there for binary compatibility.
-  + Alpha threshold can be specified for all quantizers, not just for the ones that have alpha colors.
-+ New ArrayPoolingStrategy enumeration
-
-+ New KGySoft.Drawing.Shapes namespace
-======================================
 + New Brush class
 + New Pen class
 + New Path class

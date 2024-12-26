@@ -21,6 +21,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -420,8 +421,17 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // indexed pixel format is too large
             buffer = new short[2];
-            e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, new Size(1, 1), 4, new PixelFormatInfo(32) {Indexed = true}, (row, x) => row.GetRefAs<int>(x), (row, x, c) => row.GetRefAs<int>(x) = c));
+            e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, new Size(1, 1), 4, new PixelFormatInfo(32) { Indexed = true }, (row, x) => row.GetRefAs<int>(x), (row, x, c) => row.GetRefAs<int>(x) = c));
             Assert.IsTrue(e.Message.StartsWith(Res.ImagingIndexedPixelFormatTooLarge, StringComparison.Ordinal));
+
+            // stride is not a multiple of the reinterpreted element type
+            buffer = new short[10];
+            e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, new Size(1, 5), 4, KnownPixelFormat.Format24bppRgb));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingStrideFormatInvalid(KnownPixelFormat.Format24bppRgb, 3), StringComparison.Ordinal));
+
+            // row size is not a multiple of the reinterpreted element type
+            e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(new Array2D<short>(buffer, 5, 2), 1, KnownPixelFormat.Format24bppRgb));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingPixelWidthInvalid(typeof(short), KnownPixelFormat.Format24bppRgb, 2, 3), StringComparison.Ordinal));
         }
 
         [Test]

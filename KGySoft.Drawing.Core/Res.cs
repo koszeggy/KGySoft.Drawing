@@ -179,8 +179,14 @@ namespace KGySoft
         /// <summary>For element type '{0}' stride must be a multiple of {1}.</summary>
         internal static string ImagingStrideInvalid(Type t, int size) => Get("Imaging_StrideInvalidFormat", t, size);
 
+        /// <summary>For known pixel format '{0}' stride must be a multiple of {1}.</summary>
+        internal static string ImagingStrideFormatInvalid(KnownPixelFormat pixelFormat, int size) => Get("Imaging_StrideFormatInvalidFormat", pixelFormat, size);
+
         /// <summary>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</summary>
         internal static string ImagingBufferLengthTooSmall(int minSize) => Get("Imaging_BufferLengthTooSmallFormat", minSize);
+
+        /// <summary>For buffer element type '{0}' and known pixel format '{1}', the pixel width multiplied by {2} must be a multiple also of {3}.</summary>
+        internal static string ImagingPixelWidthInvalid(Type t, KnownPixelFormat pixelFormat, int elementSize, int pixelSize) => Get("Imaging_PixelWidthInvalidFormat", t, pixelFormat, elementSize, pixelSize);
 
         /// <summary>Palette index {0} is invalid. It must be greater than or equal to 0 and less than palette count {1}.</summary>
         internal static string ImagingInvalidPaletteIndex(int index, int count) => Get("Imaging_InvalidPaletteIndexFormat", index, count);

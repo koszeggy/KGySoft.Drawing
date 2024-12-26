@@ -150,8 +150,14 @@
   <data name="Imaging_StrideInvalidFormat" xml:space="preserve">
     <value>For element type '{0}' stride must be a multiple of {1}.</value>
   </data>
+  <data name="Imaging_StrideFormatInvalidFormat" xml:space="preserve">
+    <value>For known pixel format '{0}' stride must be a multiple of {1}.</value>
+  </data>
   <data name="Imaging_BufferLengthTooSmallFormat" xml:space="preserve">
     <value>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</value>
+  </data>
+  <data name="Imaging_PixelWidthInvalidFormat" xml:space="preserve">
+    <value>For buffer element type '{0}' and known pixel format '{1}', the pixel width multiplied by {2} must be a multiple also of {3}.</value>
   </data>
   <data name="Imaging_InvalidPaletteIndexFormat" xml:space="preserve">
     <value>Palette index {0} is invalid. It must be greater than or equal to 0 and less than palette count {1}.</value>

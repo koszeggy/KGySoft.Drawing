@@ -17,13 +17,19 @@
 
 using System;
 using System.Drawing;
+#if !USE_SKIA
 using System.Drawing.Imaging;
+#endif
 using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
+
+#if USE_SKIA
+using SkiaSharp;
+#endif
 
 #endregion
 
@@ -552,10 +558,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColor32(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int byteWidth = pixelFormat.GetByteWidth(size.Width);
+                byte[] bufManaged = new byte[size.Height * byteWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<byte>(bufManaged, size.Height, byteWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetColor32(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColor32(0, 0));
@@ -565,6 +571,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColor32(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -745,10 +752,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     AreEqual(testColor, row.GetPColor32(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int byteWidth = pixelFormat.GetByteWidth(size.Width);
+                byte[] bufManaged = new byte[size.Height * byteWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<byte>(bufManaged, size.Height, byteWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor32(0, 0, testColor);
                     AreEqual(testColor, managedBitmapData.GetPColor32(0, 0));
@@ -758,6 +765,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     AreEqual(testColor, row.GetPColor32(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -947,10 +955,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColor64(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int byteWidth = pixelFormat.GetByteWidth(size.Width);
+                byte[] bufManaged = new byte[size.Height * byteWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<byte>(bufManaged, size.Height, byteWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetColor64(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColor64(0, 0));
@@ -960,6 +968,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColor64(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -1151,10 +1160,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     AreEqual(testColor, row.GetPColor64(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int wordWidth = pixelFormat.GetByteWidth(size.Width) / 2;
+                short[] bufManaged = new short[size.Height * wordWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<short>(bufManaged, size.Height, wordWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColor64(0, 0, testColor);
                     AreEqual(testColor, managedBitmapData.GetPColor64(0, 0));
@@ -1164,6 +1173,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     AreEqual(testColor, row.GetPColor64(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -1350,10 +1360,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColorF(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int intWidth = pixelFormat.ToBitsPerPixel() / 32;
+                int[] bufManaged = new int[size.Height * intWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<int>(bufManaged, size.Height, intWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetColorF(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetColorF(0, 0));
@@ -1363,6 +1373,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetColorF(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -1550,10 +1561,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetPColorF(0));
                 }
 
-                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
-                long[] bufManaged = new long[size.Height * longWidth];
+                int intWidth = pixelFormat.GetByteWidth(size.Width) / 4;
+                int[] bufManaged = new int[size.Height * intWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(
-                           new Array2D<long>(bufManaged, size.Height, longWidth), size.Width, pixelFormat))
+                           new Array2D<int>(bufManaged, size.Height, intWidth), size.Width, pixelFormat))
                 {
                     managedBitmapData.SetPColorF(0, 0, testColor);
                     Assert.AreEqual(testColor, managedBitmapData.GetPColorF(0, 0));
@@ -1563,6 +1574,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Assert.AreEqual(testColor, row.GetPColorF(0));
                 }
 
+                int longWidth = pixelFormat.ToBitsPerPixel() > 64 ? size.Width * 2 : size.Width;
                 long[,] bufManaged2D = new long[size.Height, longWidth];
                 using (IReadWriteBitmapData managedBitmapData = BitmapDataFactory.CreateBitmapData(bufManaged2D, size.Width, pixelFormat))
                 {
@@ -1767,11 +1779,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             // unmanaged dependent (intentionally bad implementation)
+#if USE_SKIA
+            Size size = new Size(10, 10);
+            using SKBitmap bmp = new SKBitmap(size.Width, size.Height, SKColorType.Bgra8888, SKAlphaType.Unpremul);
+            IntPtr address = bmp.GetPixels();
+            using (var bitmapData = BitmapDataFactory.CreateBitmapData(address, size, bmp.RowBytes, new PixelFormatInfo(32) { HasAlpha = true },
+                       (r, x) => ((Color32*)address)[r.Index * size.Width + x], (r, x, c) => ((Color32*)address)[r.Index * size.Width + x] = c,
+                       disposeCallback: bmp.NotifyPixelsChanged))
+#else
             using Bitmap bmp = new Bitmap(10, 10, PixelFormat.Format32bppArgb);
             var bmpData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadWrite, bmp.PixelFormat);
             using (var bitmapData = BitmapDataFactory.CreateBitmapData(bmpData.Scan0, new Size(bmpData.Width, bmpData.Height), bmpData.Stride, new PixelFormatInfo(32) { HasAlpha = true },
                        (r, x) => ((Color32*)bmpData.Scan0)[r.Index * bmpData.Width + x], (r, x, c) => ((Color32*)bmpData.Scan0)[r.Index * bmpData.Width + x] = c,
                        disposeCallback: () => bmp.UnlockBits(bmpData)))
+#endif
             {
                 bitmapData.SetColor32(0, 0, Color.Red);
                 Assert.AreEqual(Color.Red.ToColor32(), bitmapData.GetColor32(0, 0));

@@ -2397,6 +2397,9 @@ namespace KGySoft.Drawing.Imaging
             int elementWidth = stride / elementSize;
             if (buffer.Length < elementWidth * size.Height)
                 throw new ArgumentException(Res.ImagingBufferLengthTooSmall(elementWidth * size.Height), nameof(buffer));
+            int pixelSize = pixelFormat.ToBitsPerPixel() >> 3;
+            if (pixelSize > 1 && stride % pixelSize != 0)
+                throw new ArgumentException(Res.ImagingStrideFormatInvalid(pixelFormat, pixelSize), nameof(stride));
             if (!pixelFormat.IsIndexed() || palette == null)
                 return elementWidth;
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
@@ -2631,6 +2634,9 @@ namespace KGySoft.Drawing.Imaging
             int stride = sizeof(T) * buffer.Width;
             if (stride < pixelFormat.GetByteWidth(pixelWidth))
                 throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
+            int pixelSize = pixelFormat.ToBitsPerPixel() >> 3;
+            if (pixelSize > 1 && stride % pixelSize != 0)
+                throw new ArgumentException(Res.ImagingPixelWidthInvalid(typeof(T), pixelFormat, sizeof(T), pixelSize), nameof(pixelWidth));
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             if (!pixelFormat.IsIndexed() || palette == null)
