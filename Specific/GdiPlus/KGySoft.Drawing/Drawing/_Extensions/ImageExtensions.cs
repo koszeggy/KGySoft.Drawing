@@ -977,8 +977,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
 
             // just some quick checks if there is nothing to draw
-            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
-                || Rectangle.Intersect(new Rectangle(targetLocation, sourceRectangle.Size), new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            if (sourceRectangle.IntersectSafe(new Rectangle(Point.Empty, source.Size)).IsEmpty()
+                || new Rectangle(targetLocation, sourceRectangle.Size).IntersectSafe(new Rectangle(Point.Empty, target.Size)).IsEmpty())
             {
                 return;
             }
@@ -1223,8 +1223,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
 
             // just some quick checks if there is nothing to draw
-            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
-                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            if (sourceRectangle.IntersectSafe(new Rectangle(Point.Empty, source.Size)).IsEmpty()
+                || targetRectangle.IntersectSafe(new Rectangle(Point.Empty, target.Size)).IsEmpty())
             {
                 return;
             }

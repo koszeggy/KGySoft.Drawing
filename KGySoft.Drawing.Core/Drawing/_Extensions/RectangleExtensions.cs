@@ -36,6 +36,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Like Rectangle.Intersect, but works with big ranges, and returns Rectangle.Empty if the result would be a practically zero rectangle.
         /// </summary>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Rectangle IntersectSafe(this Rectangle a, Rectangle b)
         {
             int x1 = Math.Max(a.X, b.X);
@@ -89,6 +90,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Rectangle TruncateChecked(this RectangleF rect)
         {
             checked
