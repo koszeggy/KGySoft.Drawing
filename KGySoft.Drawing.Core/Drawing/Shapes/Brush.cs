@@ -2978,6 +2978,10 @@ namespace KGySoft.Drawing.Shapes
                     // because the small advantage would be negligible due to the multiple passes anyway.
                     if (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true)
                         return true;
+
+                    // Region is needed for thin paths if the known ditherer requires sequential processing, or if we can't tell whether IDitheringSession.IsSequential is true.
+                    if (ditherer != null && (ditherer is ErrorDiffusionDitherer or RandomNoiseDitherer { HasSeed: true } || ditherer.GetType().Assembly != typeof(IDitherer).Assembly))
+                        return true;
                 }
 
                 // From this point it's not a must to use a region so we can decide on practical reasons.

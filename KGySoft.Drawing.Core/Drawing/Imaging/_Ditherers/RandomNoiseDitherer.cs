@@ -184,7 +184,17 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Internal Properties
+
+        internal bool HasSeed => seed.HasValue;
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
         bool IDitherer.InitializeReliesOnContent => false;
+
+        #endregion
 
         #endregion
 

@@ -1678,7 +1678,7 @@ namespace KGySoft.Drawing.Shapes
             IDitherer? ditherer = drawingOptions.Ditherer;
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
-            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true);
+            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true && ditherer is not (ErrorDiffusionDitherer or RandomNoiseDitherer { HasSeed: true }));
 
             // Quantizing with or without dithering
             if (quantizer != null)
@@ -1703,7 +1703,6 @@ namespace KGySoft.Drawing.Shapes
 
                 return new DrawSession<BitmapDataAccessorDithering, Color32, IDitheringSession>(this, context, bitmapData, rawPath, bounds, drawingOptions,
                     ditheringSession, () => { ditheringSession.Dispose(); quantizingSession.Dispose(); });
-
             }
 
             // There is no quantizing: picking the most appropriate way for the best quality and performance.

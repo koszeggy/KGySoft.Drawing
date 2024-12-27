@@ -1018,7 +1018,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             Pen[] pens = [new Pen(Color.White), new Pen(Brush.CreateTexture(texture))];
             DrawingOptions?[] options = pixelFormat.IsIndexed()
-                ? [null, new DrawingOptions { Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() }, new DrawingOptions { Ditherer = OrderedDitherer.Bayer8x8 }]
+                ? [null, new DrawingOptions { Quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette() }, new DrawingOptions { Ditherer = OrderedDitherer.Bayer8x8 }, new DrawingOptions { Ditherer = ErrorDiffusionDitherer.FloydSteinberg }]
                 : [null];
 
             foreach (Pen pen in pens)
@@ -1033,7 +1033,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 int stride = pixelFormat.GetByteWidth(size.Width);
                 var buffer = new byte[stride * size.Height];
                 using IReadWriteBitmapData bitmapDataCustom = pixelFormat.IsIndexed()
-                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(pixelFormat), (row, x) => row[x], (row, x, i) => row[x] = (byte)i, Palette.Grayscale256())
+                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(pixelFormat), (row, x) => row[x], (row, x, i) => row[x] = (byte)i, bitmapDataKnown.Palette)
                     : BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(pixelFormat), (row, x) => Color32.FromGray(row[x]), (row, x, c) => row[x] = c.GetBrightness());
                 bitmapDataCustom.Clear(Color.Black);
                 bitmapDataCustom.DrawPath(context, pen, path, option);

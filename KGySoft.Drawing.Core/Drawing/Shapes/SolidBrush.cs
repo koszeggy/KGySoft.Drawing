@@ -2489,7 +2489,7 @@ namespace KGySoft.Drawing.Shapes
             IDitherer? ditherer = drawingOptions.Ditherer;
             bitmapData.AdjustQuantizerAndDitherer(ref quantizer, ref ditherer);
 
-            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true);
+            Debug.Assert(quantizer?.InitializeReliesOnContent != true && ditherer?.InitializeReliesOnContent != true && ditherer is not (ErrorDiffusionDitherer or RandomNoiseDitherer { HasSeed: true }));
 
             // With regular dithering (which implies quantizing, too)
             if (ditherer != null)

@@ -111,6 +111,7 @@ namespace KGySoft.Drawing.Imaging
 
             protected Color32 DoErrorDiffusion(Color32 origColor, int x, int y)
             {
+                Debug.Assert(errorsBuffer.Count > 0 && (uint)x < (uint)errorsBuffer[0].Length, "Invalid usage. Was IsSequential respected?");
                 Color32 currentColor;
 
                 // handling alpha
@@ -265,6 +266,7 @@ namespace KGySoft.Drawing.Imaging
 
             protected Color32 DoErrorDiffusion(Color32 origColor, int x, int y)
             {
+                Debug.Assert(errorsBuffer.Count > 0 && (uint)x < (uint)errorsBuffer[0].Length, "Invalid usage. Was IsSequential respected?");
                 Color32 currentColor;
 
                 // handling alpha
@@ -288,7 +290,6 @@ namespace KGySoft.Drawing.Imaging
                 ColorF quantizedColorF = quantizedColor.ToColorF();
 
                 // determining the quantization error for the current pixel
-
                 RgbF errorCurrent = byBrightness
                     ? new RgbF(currentColorF.GetBrightness() - quantizedColorF.GetBrightness())
                     : currentColorF.RgbF - quantizedColorF.RgbF;
