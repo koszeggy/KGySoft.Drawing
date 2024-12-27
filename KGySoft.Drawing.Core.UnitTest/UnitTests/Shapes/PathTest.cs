@@ -458,7 +458,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 + Size.Ceiling(new SizeF(width, width));
 
             if (width > 1f)
-                path = Path.Transform(path, TransformationMatrix.CreateTranslation(MathF.Floor(width / 2f), MathF.Floor(width / 2f)));
+                path = Path.Transform(path, TransformationMatrix.CreateTranslation((float)Math.Floor(width / 2f), (float)Math.Floor(width / 2f)));
 
             using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
             IAsyncContext context = new SimpleContext(-1);

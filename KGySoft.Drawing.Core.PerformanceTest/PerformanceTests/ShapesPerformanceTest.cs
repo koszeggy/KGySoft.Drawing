@@ -42,6 +42,8 @@ using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
 
 #endregion
 
+#nullable enable
+
 namespace KGySoft.Drawing.PerformanceTests
 {
     [TestFixture]
@@ -601,8 +603,8 @@ namespace KGySoft.Drawing.PerformanceTests
             bitmapData1.Clear(Color.Cyan);
             bitmapData2.Clear(Color.Cyan);
 
-            DrawingOptions options1 = null;//new DrawingOptions { TestBehavior = 1 };
-            DrawingOptions options2 = null;//new DrawingOptions { TestBehavior = 2 };
+            DrawingOptions? options1 = null;//new DrawingOptions { TestBehavior = 1 };
+            DrawingOptions? options2 = null;//new DrawingOptions { TestBehavior = 2 };
 
             bitmapData1.DrawPath(null, pen, path, options1);
             bitmapData2.DrawPath(null, pen, path, options2);

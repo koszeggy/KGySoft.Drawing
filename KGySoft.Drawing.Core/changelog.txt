@@ -9,6 +9,12 @@
 ! v9.0.0:
 ~~~~~~~~~
 
+! Assembly changes:
+===================
+! Dropping support for .NET Core 2.0. Manual compilation for .NET Core 2.0 is still possible but the public NuGet
+  packages are not going to support this platform anymore. If you target the .NET Core 2.0 platform in your project,
+  the v9.0.0 version will map to the .NET Standard 2.0 build instead.
+
 ! General changes:
 ===================
 ! All methods with a ParallelConfig/AsyncConfig/TaskConfig parameter (breaking only on Windows .NET 5.0 and below):
@@ -24,7 +30,7 @@
 ! IWritableBitmapData interface: (breaking only if you implement it, which is normally not needed)
   ! New SetColorIndex/WriteRaw<T> methods
 ! BitmapDataFactory class:
-  ! CreateBitmapData overloads with T[] or Array2D<T> buffer and KnownPixelFormat parameters:
+  ! CreateBitmapData overloads with T[], ArraySection<T> or Array2D<T> buffer and KnownPixelFormat parameters:
     ! The stride must be a multiple of the pixel size of the specified pixel format as well, not just the element
       size of the underlying array type. Unmanaged buffers, buffers of T[,], and custom pixel formats are not
       affected by this new constraint.
@@ -36,7 +42,7 @@
     bitmap could not be created with a byte array buffer. If the bitmap is too big even for an UInt64 array buffer,
     then a NotSupportedException is thrown.
 + Palette class:
-  + Now every factory method has an overload that allow specifying the alpha threshold, not just the ones that
+  + Now every factory method has an overload that allows specifying the alpha threshold, not just the ones that
     return a palette with alpha colors.
 * PredefinedColorsQuantizer class:
   + New FromCustomPalette overload that allows specifying the palette entries as Color32 values.

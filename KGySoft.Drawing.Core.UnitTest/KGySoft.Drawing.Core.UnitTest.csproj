@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0</TargetFrameworks>-->
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>
+    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
+
+    <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them (if the targets are enabled in the main project, too). -->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>-->
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
 
@@ -22,8 +25,7 @@
     <GenerateProgramFile>false</GenerateProgramFile>
 
     <!--Suppressions
-      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - the unit test requires to target the supported versions
-      - NU1903: netcoreapp2.0 has known vulnerabilities - the unit test requires to target the supported versions
+      - NETSDK1138: The target framework 'tfm' is out of support - the unit test requires to target the supported versions
       -->
     <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
   </PropertyGroup>

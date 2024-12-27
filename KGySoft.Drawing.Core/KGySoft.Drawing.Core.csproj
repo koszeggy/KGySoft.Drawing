@@ -1,8 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0</TargetFrameworks>-->
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>
+    <!--<TargetFrameworks>netstandard2.0;net9.0</TargetFrameworks>-->
+
+    <!--For UnitTesting the .NET Standard versions-->
+    <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
+
+    <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -20,8 +26,7 @@
     <Nullable>enable</Nullable>
 
     <!--Suppressions
-      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
-      - NU1903: netcoreapp2.0 has known vulnerabilities - it's a targeted platform and not a referenced package. A consumer of this library can also pick newer supported platforms.
+      - NETSDK1138: The target framework 'tfm' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
       -->
     <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
   </PropertyGroup>
