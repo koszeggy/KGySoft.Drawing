@@ -6,6 +6,30 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v9.0.0:
+~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves performance of
+  accessing IReadWriteBitmapData instances
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+! KGySoft.Drawing namespace
+===========================
+! GraphicsExtensions class:
+  ! DrawRoundRectangle/FillRoundRectangle methods:
+    ! When the corner radius/radii was/were negative or too large, the result was incorrect. From now on always the
+      absolute value of the corner radius parameters is used, and if they are too large, they are automatically
+      adjusted to the maximum possible value. Though this is actually a fix, it's indicated as a breaking change
+      because the result will be different for invalid corner radius values.
+    + New overloads with floating-point parameters.
++ New GraphicsPathExtensions class:
+  + New AddRoundRectangle methods - just exposing the old private implementation for GraphicsPath with the improved
+    corner radius handling mentioned above.
+
+
+~~~~~~~~~
 ! v8.1.0:
 ~~~~~~~~~
 
