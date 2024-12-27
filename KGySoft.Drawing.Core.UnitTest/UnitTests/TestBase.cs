@@ -17,15 +17,24 @@
 
 using System;
 using System.Drawing;
+#if !USE_SKIA
 using System.Drawing.Imaging;
+#endif
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+#if USE_SKIA
+using System.Runtime.InteropServices;
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
+
+#if USE_SKIA
+using SkiaSharp;
+#endif
 
 #endregion
 
@@ -33,6 +42,55 @@ namespace KGySoft.Drawing.UnitTests
 {
     public abstract class TestBase
     {
+        #region Nested Structs
+
+#if USE_SKIA
+        /// <summary>
+        /// Represents the same color as <see cref="PColor32"/> with RGBA order.
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        private struct ColorRgba8888
+        {
+            #region Fields
+
+            [FieldOffset(0)]private readonly byte r;
+            [FieldOffset(1)]private readonly byte g;
+            [FieldOffset(2)]private readonly byte b;
+            [FieldOffset(3)]private readonly byte a;
+
+            #endregion
+
+            #region Constructors
+
+            internal ColorRgba8888(Color32 c)
+            {
+                r = c.R;
+                g = c.G;
+                b = c.B;
+                a = c.A;
+            }
+
+            internal ColorRgba8888(PColor32 c)
+            {
+                r = c.R;
+                g = c.G;
+                b = c.B;
+                a = c.A;
+            }
+
+            #endregion
+
+            #region Methods
+
+            internal Color32 AsColor32() => new Color32(a, r, g, b);
+            internal PColor32 AsPColor32() => new PColor32(a, r, g, b);
+
+            #endregion
+        } 
+#endif
+
+        #endregion
+
         #region Fields
 
         private static readonly bool addTimestamp = true;
@@ -159,18 +217,7 @@ namespace KGySoft.Drawing.UnitTests
                 return;
             }
 
-            using var bmp = new Bitmap(source.Width, source.Height,
-                source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
-
-            // copying content
-            BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            using (var target = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat,
-                source.Palette, disposeCallback: () => bmp.UnlockBits(bitmapData)))
-            {
-                source.CopyTo(target);
-            }
-
-            SaveBitmap(imageName, bmp, testName);
+            SaveWithCodec(imageName, source, testName);
         }
 
         protected static void SaveGif(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
@@ -194,8 +241,7 @@ namespace KGySoft.Drawing.UnitTests
             IReadableBitmapData[] sourceFrames = config.Frames.ToArray(); // actually 2nd enumeration
             ms.Position = 0;
 
-            using Bitmap restored = new Bitmap(ms);
-            Bitmap[] actualFrames = ExtractBitmaps(restored);
+            var actualFrames = ExtractGifFrames(ms);
             try
             {
                 int expectedLength = sourceFrames.Length + (config.AnimationMode == AnimationMode.PingPong ? Math.Max(0, sourceFrames.Length - 2) : 0);
@@ -204,7 +250,6 @@ namespace KGySoft.Drawing.UnitTests
                 if (!performCompare)
                     return;
 
-                var size = restored.Size;
                 var quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
                 for (int i = 0; i < actualFrames.Length; i++)
                 {
@@ -212,8 +257,7 @@ namespace KGySoft.Drawing.UnitTests
                     if (sourceFrame.IsDisposed)
                         continue;
                     Console.Write($"Frame #{i}: ");
-                    BitmapData bitmapData = actualFrames[i].LockBits(new Rectangle(Point.Empty, size), ImageLockMode.ReadOnly, actualFrames[i].PixelFormat);
-                    using IReadableBitmapData actualFrame = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, KnownPixelFormat.Format32bppArgb, disposeCallback: () => actualFrames[i].UnlockBits(bitmapData));
+                    using IReadableBitmapData actualFrame = ToBitmapData(actualFrames[i]);
                     IReadWriteBitmapData expectedFrame;
                     if (sourceFrame.Size == actualFrame.Size)
                         expectedFrame = sourceFrames[i].Clone(KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
@@ -246,11 +290,27 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
-        protected static Bitmap[] ExtractBitmaps(Bitmap image)
+#if USE_SKIA
+        protected static SKBitmap[] ExtractGifFrames(Stream stream)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            var codec = SKCodec.Create(stream);
+            var info = codec.Info;
+            var frames = codec.FrameInfo;
+            var result = new SKBitmap[frames.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                var options = new SKCodecOptions(i);
+                var frame = new SKBitmap(codec.Info);
+                codec.GetPixels(info, frame.GetPixels(), options);
+                result[i] = frame;
+            }
 
+            return result;
+        }
+#else
+        protected static Bitmap[] ExtractGifFrames(Stream stream)
+        {
+            var image = new Bitmap(stream);
             var dimension = FrameDimension.Time;
             int frameCount = image.FrameDimensionsList.Length == 0 ? 1 : image.GetFrameCount(dimension);
 
@@ -270,6 +330,7 @@ namespace KGySoft.Drawing.UnitTests
 
             return result;
         }
+#endif
 
         protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size)
         {
@@ -390,6 +451,41 @@ namespace KGySoft.Drawing.UnitTests
         protected static IReadWriteBitmapData GetShieldIcon16() => GetBitmapData(@"..\..\..\..\Help\Images\Shield16.png");
         protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
 
+#if USE_SKIA
+        protected static SKBitmap LoadBitmap(Stream stream)
+        {
+            using var data = SKData.Create(stream); // SKBitmap.Decode disposes the stream, so using SKData to prevent it: https://github.com/mono/SkiaSharp/issues/2263
+            return SKBitmap.Decode(data);
+        }
+
+        protected static IReadWriteBitmapData ToBitmapData(SKBitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)
+        {
+            var info = bmp.Info;
+            Assert.IsTrue(info.ColorType is SKColorType.Bgra8888 or SKColorType.Rgba8888);
+            Assert.IsTrue(info.ColorSpace?.IsSrgb != false);
+
+            if (info.ColorType == SKColorType.Bgra8888)
+                return BitmapDataFactory.CreateBitmapData(bmp.GetPixels(), new Size(info.Width, info.Height), info.RowBytes,
+                    info.AlphaType is SKAlphaType.Premul ? KnownPixelFormat.Format32bppPArgb : KnownPixelFormat.Format32bppArgb,
+                    workingColorSpace, backColor).Clone();
+
+            // Rgba8888 (used eg. on Android)
+            return BitmapDataFactory.CreateBitmapData(bmp.GetPixels(), new Size(info.Width, info.Height), info.RowBytes,
+                new CustomBitmapDataConfig
+                {
+                    PixelFormat = new PixelFormatInfo(32) { HasPremultipliedAlpha = info.AlphaType is SKAlphaType.Premul },
+                    BackColor = backColor,
+                    BackBufferIndependentPixelAccess = true,
+                    WorkingColorSpace = workingColorSpace,
+                    RowGetColor32 = info.AlphaType is not SKAlphaType.Premul ? (row, x) => row.UnsafeGetRefAs<ColorRgba8888>(x).AsColor32() : null,
+                    RowSetColor32 = info.AlphaType is not SKAlphaType.Premul ? (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c) : null,
+                    RowGetPColor32 = info.AlphaType is SKAlphaType.Premul ? (row, x) => row.UnsafeGetRefAs<ColorRgba8888>(x).AsPColor32() : null,
+                    RowSetPColor32 = info.AlphaType is SKAlphaType.Premul ? (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c) : null,
+                }).Clone();
+        }
+#else
+        protected static Bitmap LoadBitmap(Stream stream) => new Bitmap(stream);
+
         protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)
         {
             Assert.IsTrue(bmp.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed, PixelFormat.Format24bppRgb));
@@ -402,13 +498,14 @@ namespace KGySoft.Drawing.UnitTests
                 : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, palette, disposeCallback: () => bmp.UnlockBits(bitmapData));
             return src.Clone();
         }
+#endif
 
         protected static IReadWriteBitmapData GetBitmapData(string fileName, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)
         {
 #if !WINDOWS
             fileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
 #endif
-            using var bmp = new Bitmap(Path.Combine(Files.GetExecutingPath(), fileName));
+            using var bmp = LoadBitmap(File.OpenRead(Path.Combine(Files.GetExecutingPath(), fileName)));
             return ToBitmapData(bmp, workingColorSpace, backColor);
         }
 
@@ -468,6 +565,53 @@ namespace KGySoft.Drawing.UnitTests
         private static string GetTimestamp() => addTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
         private static void CheckFileName(string fileName) => Assert.IsFalse(File.Exists(fileName), $"File already exists: {fileName}");
 
+#if USE_SKIA
+        private static void SaveWithCodec(string imageName, IReadWriteBitmapData source, string testName)
+        {
+            using var bmp = new SKBitmap(source.Width, source.Height, SKColorType.Bgra8888, source.HasAlpha() ? SKAlphaType.Unpremul : SKAlphaType.Opaque);
+
+            // copying content
+            using (var target = BitmapDataFactory.CreateBitmapData(bmp.GetPixels(), source.Size, bmp.Info.RowBytes, source.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppRgb,
+                disposeCallback: bmp.NotifyPixelsChanged))
+            {
+                source.CopyTo(target);
+            }
+
+            SaveBitmap(imageName, bmp, testName);
+        }
+
+        private static void SaveBitmap(string imageName, SKBitmap bitmap, string testName)
+        {
+            if (!SaveToFile)
+                return;
+
+            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{GetTimestamp()}");
+
+            CheckFileName($"{fileName}.png");
+            using var file = File.Create($"{fileName}.png");
+            bitmap.Encode(file, SKEncodedImageFormat.Png, 100);
+        }
+#else
+        private static void SaveWithCodec(string imageName, IReadWriteBitmapData source, string testName)
+        {
+            using var bmp = new Bitmap(source.Width, source.Height,
+                source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
+
+            // copying content
+            BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            using (var target = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat,
+                       source.Palette, disposeCallback: () => bmp.UnlockBits(bitmapData)))
+            {
+                source.CopyTo(target);
+            }
+
+            SaveBitmap(imageName, bmp, testName);
+        }
+
         private static void SaveBitmap(string imageName, Bitmap bitmap, string testName)
         {
             if (!SaveToFile)
@@ -507,6 +651,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!ReferenceEquals(bitmap, toSave))
                 toSave.Dispose();
         }
+#endif
 
         #endregion
 

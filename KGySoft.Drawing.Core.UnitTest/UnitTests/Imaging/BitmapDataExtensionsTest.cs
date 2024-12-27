@@ -1001,7 +1001,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (string file in files)
             {
                 string fileName = Path.IsPathRooted(file) ? file : Path.Combine(Files.GetExecutingPath(), file);
-                using var bitmap = new Bitmap(fileName);
+                using var bitmap = LoadBitmap(File.OpenRead(fileName));
                 using var src = ToBitmapData(bitmap);
                 foreach (var (quantizer, quantizerName) in quantizers)
                 {

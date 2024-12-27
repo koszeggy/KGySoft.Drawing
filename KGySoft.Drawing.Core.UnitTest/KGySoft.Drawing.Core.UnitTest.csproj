@@ -32,9 +32,14 @@
     <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
+  <!-- .NET 7.0 or newer references: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+    <UseSkia>true</UseSkia>
+    <DefineConstants>$(DefineConstants);USE_SKIA</DefineConstants>
+  </PropertyGroup>
+
   <!-- Common NuGet references -->
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
@@ -47,10 +52,13 @@
     <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
   </ItemGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no nonger supported -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  <!-- .NET 7.0 or newer references: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
+  <ItemGroup Condition="'$(UseSkia)'=='true'">
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
   </ItemGroup>
+  <!--<ItemGroup Condition="'$(UseSkia)'!='true'">
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>-->
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">

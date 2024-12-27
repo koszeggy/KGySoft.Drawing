@@ -13,23 +13,34 @@
 
 #endregion
 
-#nullable  enable
+#nullable enable
 
 #region Usings
+
+#region Used Namespaces
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Reflection;
 using KGySoft.Threading;
 
 using NUnit.Framework;
+
+#endregion
+
+#region Used Aliases
+
+using Path = System.IO.Path;
+using Pen = KGySoft.Drawing.Shapes.Pen;
+
+#endregion
 
 #endregion
 
@@ -114,10 +125,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Red });
-            var frame = new Bitmap(48, 48);
-            using (Graphics g = Graphics.FromImage(frame))
-                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-            IReadWriteBitmapData imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+            var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+            frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
+            IReadWriteBitmapData imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
                 {
@@ -168,10 +178,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Transparent });
-            var frame = new Bitmap(48, 48);
-            using (Graphics g = Graphics.FromImage(frame))
-                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-            IReadWriteBitmapData imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+            var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+            frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
+            IReadWriteBitmapData imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
                 {
@@ -221,32 +230,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void AnimationLowLevelSolidTest()
         {
             using var stream = new MemoryStream();
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                GlobalPalette = Palette.SystemDefault4BppPalette(),
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.GlobalPalette = Palette.SystemDefault4BppPalette();
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -259,32 +260,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent });
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                GlobalPalette = palette,
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.GlobalPalette = palette;
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, palette))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, palette))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, palette))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, palette))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -297,32 +290,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.White };
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
                 palette[4] = Color.Transparent;
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -335,32 +320,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent };
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
                 palette[4] = Color.White;
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -373,33 +350,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.White };
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                GlobalPalette = new Palette(palette),
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.GlobalPalette = new Palette(palette);
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
                 palette[4] = Color.Transparent;
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -412,33 +381,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent };
-            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+            using (var encoder = new GifEncoder(stream, new Size(64, 64)))
             {
-                RepeatCount = 0,
-                BackColorIndex = 2,
-                GlobalPalette = new Palette(palette),
-                AddMetaInfo = true
-            })
-            {
-                var frame = new Bitmap(48, 48);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-                }
+                encoder.RepeatCount = 0;
+                encoder.BackColorIndex = 2;
+                encoder.GlobalPalette = new Palette(palette);
+                encoder.AddMetaInfo = true;
+                var frame = BitmapDataFactory.CreateBitmapData(48, 48);
+                frame.FillEllipse(Color.Cyan, 0, 0, 48, 48);
 
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
-                frame = new Bitmap(32, 32);
-                using (Graphics g = Graphics.FromImage(frame))
-                {
-                    using var pen = new Pen(Brushes.Red, 3);
-                    g.DrawRectangle(pen, 4, 4, 24, 24);
-                }
+                frame = BitmapDataFactory.CreateBitmapData(32, 32);
+                var pen = new Pen(Color.Red, 3);
+                frame.DrawRectangle(pen, new Rectangle(4, 4, 24, 24));
 
                 palette[4] = Color.White;
-                using (var imageData = ToBitmapData(frame).Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -447,7 +408,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [TestCase(GifCompressionMode.Auto)]
-#if WINDOWS
+#if WINDOWS || USE_SKIA
         [TestCase(GifCompressionMode.DoNotClear)]
 #endif
         [TestCase(GifCompressionMode.DoNotIncreaseBitSize)]
@@ -466,10 +427,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     .FinalizeEncoding();
 
                 ms.Position = 0;
-                using Bitmap gif = new Bitmap(ms);
+                using var gif = LoadBitmap(ms);
                 using IReadableBitmapData actual = ToBitmapData(gif);
                 SaveStream($"{bpp}bpp_{compressionMode}", ms);
+#if USE_SKIA
+                AssertAreEqual(quantized, actual, allowDifferentPixelFormats: true);
+#else
                 AssertAreEqual(quantized, actual);
+#endif
             }
         }
 
@@ -486,7 +451,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveStream(sourcePixelFormat.ToString(), ms);
             ms.Position = 0;
 
-            using Bitmap restored = new Bitmap(ms);
+            using var restored = LoadBitmap(ms);
             using IReadableBitmapData actual = ToBitmapData(restored);
             AssertAreEqual(bitmapData, actual, true);
         }
@@ -513,22 +478,16 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             static IEnumerable<IReadableBitmapData> DisposingIterator()
             {
-                IReadableBitmapData? bitmapData = null;
-                Bitmap? bitmap = null;
+                IReadWriteBitmapData? bitmapData = null;
                 for (int i = 0; i < 3; i++)
                 {
                     bitmapData?.Dispose();
-                    bitmap?.Dispose();
-                    bitmap = new Bitmap(16, 16);
-                    using (var g = Graphics.FromImage(bitmap))
-                        g.DrawString(i.ToString(), SystemFonts.DefaultFont, Brushes.Black, 0, 0);
-                    using (var bmpDataNative = ToBitmapData(bitmap))
-                        bitmapData = bmpDataNative.Clone(KnownPixelFormat.Format8bppIndexed);
+                    bitmapData = BitmapDataFactory.CreateBitmapData(16, 16, KnownPixelFormat.Format8bppIndexed);
+                    bitmapData.FillEllipse(Color.Black, i * 5, 0, 5, 5);
                     yield return bitmapData;
                 }
 
                 bitmapData?.Dispose();
-                bitmap?.Dispose();
             }
 
             EncodeAnimatedGif(new AnimatedGifConfiguration(DisposingIterator()));
@@ -751,12 +710,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
-            using var bmp = new Bitmap(@"..\..\..\..\Help\Images\GifAnimationTrueColor.gif");
-            Bitmap[] frames = ExtractBitmaps(bmp);
+            using var file = File.OpenRead(@"..\..\..\..\Help\Images\GifAnimationTrueColor.gif");
+            var frames = ExtractGifFrames(file);
 
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
-                foreach (Bitmap? bitmap in frames)
+                foreach (var bitmap in frames)
                 {
                     IReadableBitmapData currentFrame = ToBitmapData(bitmap);
                     yield return currentFrame;
@@ -828,15 +787,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 128));
             bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
-            using var ms = new MemoryStream();
+            var ms = new MemoryStream();
             GifEncoder.EncodeHighColorImage(bitmapData, ms);
             SaveStream(null, ms);
             ms.Position = 0;
             
-            using var reloaded = new Bitmap(ms);
+            using var reloaded = LoadBitmap(ms);
             using var actual = ToBitmapData(reloaded);
 
-#if !DEBUG // in debug it is animated on purpose
+#if !USE_SKIA && !DEBUG // in DEBUG build it is animated on purpose; SkiaSharp decodes high color GIFs as animated ones
             AssertAreEqual(bitmapData, actual);
 #endif
         }
