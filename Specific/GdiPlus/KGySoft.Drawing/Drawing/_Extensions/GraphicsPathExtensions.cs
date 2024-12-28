@@ -16,9 +16,13 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Shapes;
 #if NET
 using System.Runtime.Versioning;
 #endif
@@ -35,6 +39,20 @@ namespace KGySoft.Drawing
 #endif
     internal static class GraphicsPathExtensions
     {
+        #region Nested Enumerations
+
+        [Flags]
+        private enum PathType
+        {
+            Start = 0,
+            Line = 1,
+            Bezier = 3,
+            TypeMask = 7,
+            Close = 1 << 7,
+        }
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -167,6 +185,94 @@ namespace KGySoft.Drawing
             path.CloseFigure();
         }
 
+        /// <summary>
+        /// Converts a <see cref="GraphicsPath"/> instance to a <see cref="Path"/>.
+        /// </summary>
+        /// <param name="path">The <see cref="GraphicsPath"/> instance to convert to a <see cref="Path"/>.</param>
+        /// <returns>A <see cref="Path"/> instance that represents the same geometry as the specified <see cref="GraphicsPath"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        public static Path ToPath(this GraphicsPath path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+
+            var result = new Path();
+            int count = path.PointCount;
+            if (count == 0)
+                return result;
+
+            PointF[] points = path.PathPoints;
+            byte[] types = path.PathTypes;
+            PathType currentType = PathType.Start;
+            PathType nextType = currentType;
+
+            int segmentStart = 0;
+
+            while (segmentStart < count)
+            {
+                int segmentEnd = segmentStart;
+
+                // Finding the end of the current segment and determining the type
+                while (segmentEnd < count)
+                {
+                    // Current segment ends if...
+                    // 1.) the figure is closed
+                    if (((PathType)types[segmentEnd] & PathType.Close) == PathType.Close)
+                        break;
+
+                    // 2.) there are no more points
+                    if (segmentEnd + 1 == count)
+                        break;
+
+                    // 3.) next point is a new start point
+                    nextType = (PathType)types[segmentEnd + 1] & PathType.TypeMask;
+                    if (nextType == PathType.Start)
+                        break;
+
+                    if (currentType == PathType.Start)
+                        currentType = nextType;
+
+                    // 4.) the type changes
+                    if (nextType != currentType)
+                        break;
+
+                    segmentEnd += 1;
+                }
+
+                // Adding the current segment
+                if (((PathType)types[segmentStart] & PathType.TypeMask) == PathType.Start)
+                    result.StartFigure();
+                switch (currentType)
+                {
+                    case PathType.Line:
+                        result.AddLines(points.AsSection(segmentStart, segmentEnd - segmentStart + 1));
+                        break;
+                    case PathType.Bezier:
+                        result.AddBeziers(points.AsSection(segmentStart, segmentEnd - segmentStart + 1));
+                        break;
+                    default:
+                        // Actually KGySoft Path supports single points but GDI+ ignores them, so skipping them.
+                        Debug.Assert(currentType == PathType.Start && segmentEnd == segmentStart);
+                        break;
+                }
+
+                if (((PathType)types[segmentEnd] & PathType.Close) == PathType.Close)
+                {
+                    result.CloseFigure();
+                    currentType = PathType.Start;
+                    segmentStart =  segmentEnd + 1;
+                    continue;
+                }
+
+                if (segmentEnd + 1 == count)
+                    break;
+
+                currentType = nextType;
+                segmentStart = currentType == PathType.Start ? segmentEnd + 1 : segmentEnd;
+            }
+
+            return result;
+        }
 
         #endregion
     }
