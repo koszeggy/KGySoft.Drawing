@@ -299,6 +299,8 @@ namespace KGySoft.Drawing.Shapes
 
         internal override PathSegment Clone() => new ArcSegment(Center, RadiusX, RadiusY)
         {
+            StartAngle = StartAngle,
+            SweepAngle = SweepAngle,
             StartRad = StartRad,
             SweepRad = SweepRad,
         };
