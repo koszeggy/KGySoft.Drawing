@@ -86,6 +86,12 @@ namespace KGySoft.Drawing.UnitTests
                 return this;
             }
 
+            internal Builder AddString(string s, Font font, PointF origin, StringFormat format = null)
+            {
+                path.AddString(s, font.FontFamily, (int)font.Style, font.SizeInPoints * 96f / 72f, origin, format);
+                return this;
+            }
+
             #endregion
         }
 
@@ -95,19 +101,31 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Properties
 
-        private static object[][] GraphicsPathToPathTestSource => new[]
-        {
-            new object[] { "Empty", new GraphicsPath() },
-            new object[] { "Single point", new Builder().AddLines(new Point(0, 0)).Path },
-            new object[] { "Single point closed", new Builder().AddLines(new Point(0, 0)).CloseFigure().Path },
-            new object[] { "Single line", new Builder().AddLines(new(0, 0), new(10, 10)).Path },
-            new object[] { "Single bezier arc", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).Path },
-            new object[] { "Multi bezier arc", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 300).Path },
-            new object[] { "Point-bezier", new Builder().AddLines(new Point(50, 50)).AddArc(new Rectangle(0, 0, 100, 100), 90, 90).Path },
-            new object[] { "Bezier-point", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).AddLines(new Point(50, 50)).Path },
-            new object[] { "Open-close", new Builder().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).Path },
-            new object[] { "Closed figures", new Builder().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).AddRoundedRectangle(new Rectangle(0, 0, 100, 100), 10).Path },
-        };
+        private static object[][] GraphicsPathToPathTestSource =>
+        [
+            ["Empty", new GraphicsPath()],
+            ["Single point", new Builder().AddLines(new Point(0, 0)).Path],
+            ["Single point closed", new Builder().AddLines(new Point(0, 0)).CloseFigure().Path],
+            ["Single line", new Builder().AddLines(new(0, 0), new(10, 10)).Path],
+            ["Single bezier arc", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).Path],
+            ["Multi bezier arc", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 300).Path],
+            ["Point-bezier", new Builder().AddLines(new Point(50, 50)).AddArc(new Rectangle(0, 0, 100, 100), 90, 90).Path],
+            ["Bezier-point", new Builder().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).AddLines(new Point(50, 50)).Path],
+            ["Open-close", new Builder().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).Path],
+            ["Closed figures", new Builder().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).AddRoundedRectangle(new Rectangle(0, 0, 100, 100), 10).Path],
+            ["Text", new Builder().AddString("Hello World", SystemFonts.MessageBoxFont, PointF.Empty).Path],
+        ];
+
+        private static object[][] PathToGraphicsPathTestSource =>
+        [
+            ["Single line", new Path().AddLines(new(0, 0), new(10, 10))],
+            ["Single bezier arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 90)],
+            ["Multi bezier arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 300)],
+            ["Point-bezier", new Path().AddLines(new Point(50, 50)).AddArc(new Rectangle(0, 0, 100, 100), 90, 90)],
+            ["Bezier-point", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).AddLines(new Point(50, 50))],
+            ["Open-close", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100))],
+            ["Closed figures", new Path().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).AddRoundedRectangle(new Rectangle(0, 0, 100, 100), 10)],
+        ];
 
         #endregion
 
@@ -116,29 +134,60 @@ namespace KGySoft.Drawing.UnitTests
         [TestCaseSource(nameof(GraphicsPathToPathTestSource))]
         public void GraphicsPathToPathTest(string name, GraphicsPath graphicsPath)
         {
-            using var bmpRef = new Bitmap(103, 103);
+            var bounds = graphicsPath.GetBounds();
+            using var bmpRef = new Bitmap((int)bounds.Width + 2, (int)bounds.Height + 2);
             using (var g = Graphics.FromImage(bmpRef))
             {
                 g.Clear(Color.Cyan);
-                g.TranslateTransform(1, 1);
+                g.TranslateTransform(-bounds.Left + 1, -bounds.Top + 1);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.DrawPath(Pens.Blue, graphicsPath);
             }
 
             SaveImage($"{name}_orig", bmpRef);
 
             Path path = graphicsPath.ToPath();
-            using var bmp = new Bitmap(103, 103);
-            using var bmpData = bmp.GetReadWriteBitmapData();
-            bmpData.Clear(Color.Cyan);
-            bmpData.DrawPath(Color.Blue, path, new DrawingOptions { Transformation = TransformationMatrix.CreateTranslation(1, 1) });
+            using var bmp = new Bitmap(bmpRef.Width, bmpRef.Height);
+            using (var bmpData = bmp.GetReadWriteBitmapData())
+            {
+                bmpData.Clear(Color.Cyan);
+                bmpData.DrawPath(Color.Blue, path, new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half, Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1) });
+            }
 
             SaveImage($"{name}_converted", bmp);
 
-            // The equality is not pixel perfect so it should be compared visually
+            // The equality may not be pixel perfect so it should be compared visually
             //using var refData = bmpRef.GetReadableBitmapData();
             //AssertAreEqual(refData, bmpData);
 
             graphicsPath.Dispose();
+        }
+
+        [TestCaseSource(nameof(PathToGraphicsPathTestSource))]
+        public void PathToGraphicsPathTest(string name, Path path)
+        {
+            var bounds = path.Bounds;
+            using var bmpRef = new Bitmap(bounds.Width + 3, bounds.Height + 3);
+            using var bmpRefData = bmpRef.GetReadWriteBitmapData();
+            bmpRefData.Clear(Color.Cyan);
+            bmpRefData.DrawPath(Color.Blue, path, new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half, Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1) });
+
+            SaveImage($"{name}_orig", bmpRef);
+            using var bmp = new Bitmap(bmpRef.Width, bmpRef.Height);
+            using (var graphicsPath = path.ToGraphicsPath())
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.Cyan);
+                g.TranslateTransform(-bounds.Left + 1, -bounds.Top + 1);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawPath(Pens.Blue, graphicsPath);
+            }
+
+            SaveImage($"{name}_converted", bmp);
+
+            // The equality may not be pixel perfect so it should be compared visually
+            //using var bmpData = bmp.GetReadableBitmapData();
+            //AssertAreEqual(bmpRefData, bmpData);
         }
 
         #endregion

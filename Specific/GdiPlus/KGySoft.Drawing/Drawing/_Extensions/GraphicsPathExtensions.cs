@@ -274,6 +274,39 @@ namespace KGySoft.Drawing
             return result;
         }
 
+        /// <summary>
+        /// Converts a <see cref="Path"/> instance to a <see cref="GraphicsPath"/>.
+        /// </summary>
+        /// <param name="path">The <see cref="Path"/> instance to convert to a <see cref="GraphicsPath"/>.</param>
+        /// <returns>A <see cref="GraphicsPath"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        public static GraphicsPath ToGraphicsPath(this Path path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+
+            var result = new GraphicsPath();
+            if (path.IsEmpty)
+                return result;
+
+            IList<PointF[]> figures = path.GetPoints();
+            foreach (PointF[] points in figures)
+            {
+                // Skipping single points as GDI+ does not support them. A single point is not drawn even if adding it as a line with two endpoints.
+                if (points.Length < 2)
+                    continue;
+
+                result.AddLines(points);
+
+                if (points.Length > 3 && points[0] == points[points.Length - 1])
+                    result.CloseFigure();
+                else
+                    result.StartFigure();
+            }
+
+            return result;
+        }
+
         #endregion
     }
 }

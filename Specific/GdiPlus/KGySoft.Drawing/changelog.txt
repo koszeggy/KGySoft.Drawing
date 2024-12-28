@@ -28,6 +28,7 @@
   + New AddRoundRectangle methods - just exposing the old private implementation for GraphicsPath with the improved
     corner radius handling mentioned above.
   + New ToPath method
+  + New ToGraphicsPath method
 
 
 ~~~~~~~~~
