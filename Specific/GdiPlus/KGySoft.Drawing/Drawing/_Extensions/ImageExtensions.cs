@@ -159,6 +159,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_2.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -246,6 +247,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_1.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -271,6 +273,49 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates the possible results of this method:
+        /// <code lang="C#"><![CDATA[
+        /// using (Bitmap original = Icons.Shield.ExtractBitmap(new Size(256, 256)))
+        /// {
+        ///     // The original bitmap has 32 bpp color depth with transparency
+        ///     original.SaveAsPng(@"c:\temp\original.png");
+        ///
+        ///     // 24 BPP format has no transparency. If backColor is not specified the background will be black.
+        ///     using (Bitmap converted24BppBlack = original.ConvertPixelFormat(PixelFormat.Format24bppRgb))
+        ///         converted24BppBlack.SaveAsPng(@"c:\temp\24 bpp black.png");
+        ///
+        ///     // Using Color.Cyan as backColor. Source pixels with alpha will be blended with this color.
+        ///     using (Bitmap converted24BppCyan = original.ConvertPixelFormat(PixelFormat.Format24bppRgb, Color.Cyan))
+        ///         converted24BppCyan.SaveAsPng(@"c:\temp\24 bpp cyan.png");
+        ///
+        ///     // Converting to 16 BPP grayscale. The cyan back color will be a light gray shade in the result.
+        ///     // As a PNG will be saved as a 24 BPP image.
+        ///     using (Bitmap converted16Bpp = original.ConvertPixelFormat(PixelFormat.Format16bppGrayScale, Color.Cyan))
+        ///         converted16Bpp.SaveAsPng(@"c:\temp\16bpp grayscale.png");
+        /// 
+        ///     // The default 8 BPP palette has the transparent color. The default values (backColor = Color.Black,
+        ///     // alphaThreshold = 128) specify that source pixels with alpha < 128 will be transparent
+        ///     // and alpha >= 1 will be blended with Color.Black.
+        ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed))
+        ///         converted8Bpp.SaveAsGif(@"c:\temp\default 8 bpp palette.gif");
+        /// }]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="32 BPP shield icon with transparent background"/></term></item>
+        /// <item><term><c>24 bpp black.png</c></term><term><img src="../Help/Images/ShieldRgb888Black.png" alt="24 BPP shield icon with black background"/></term></item>
+        /// <item><term><c>24 bpp cyan.png</c></term><term><img src="../Help/Images/Shield24bppCyan.png" alt="24 BPP shield icon with cyan background"/></term></item>
+        /// <item><term><c>16 bpp grayscale.png</c></term><term><img src="../Help/Images/ShieldGrayscaleCyan.png" alt="16 BPP grayscale shield icon with cyan background. The cyan color turned light gray."/></term></item>
+        /// <item><term><c>default 8 bpp palette.gif</c></term><term><img src="../Help/Images/ShieldDefault8bppBlack.gif" alt="8 BPP shield icon with system default palette"/></term></item>
+        /// </list></para>
+        /// <note type="tip">
+        /// <list type="bullet">
+        /// <item>To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</item>
+        /// <item>To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
+        /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</item>
+        /// </list>
+        /// </note>
         /// <h2>Restrictions of Possible Pixel Formats on Different Platforms</h2>
         /// <para>The support of <see cref="Bitmap"/>s with different <see cref="PixelFormat"/>s may vary from platform to platform.
         /// Though the types in KGySoft Drawing Libraries support every <see cref="PixelFormat"/> the standard <c>System.Drawing</c> libraries has some restrictions.
@@ -444,49 +489,6 @@ namespace KGySoft.Drawing
         /// <note type="tip">To convert an image to any <see cref="PixelFormat"/> on any platform obtain an <see cref="IReadWriteBitmapData"/> from a <see cref="Bitmap"/> by
         /// the <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use
         /// the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
-        /// </remarks>
-        /// <example>
-        /// The following example demonstrates the possible results of this method:
-        /// <code lang="C#"><![CDATA[
-        /// using (Bitmap original = Icons.Shield.ExtractBitmap(new Size(256, 256)))
-        /// {
-        ///     // The original bitmap has 32 bpp color depth with transparency
-        ///     original.SaveAsPng(@"c:\temp\original.png");
-        ///
-        ///     // 24 BPP format has no transparency. If backColor is not specified the background will be black.
-        ///     using (Bitmap converted24BppBlack = original.ConvertPixelFormat(PixelFormat.Format24bppRgb))
-        ///         converted24BppBlack.SaveAsPng(@"c:\temp\24 bpp black.png");
-        ///
-        ///     // Using Color.Cyan as backColor. Source pixels with alpha will be blended with this color.
-        ///     using (Bitmap converted24BppCyan = original.ConvertPixelFormat(PixelFormat.Format24bppRgb, Color.Cyan))
-        ///         converted24BppCyan.SaveAsPng(@"c:\temp\24 bpp cyan.png");
-        ///
-        ///     // Converting to 16 BPP grayscale. The cyan back color will be a light gray shade in the result.
-        ///     // As a PNG will be saved as a 24 BPP image.
-        ///     using (Bitmap converted16Bpp = original.ConvertPixelFormat(PixelFormat.Format16bppGrayScale, Color.Cyan))
-        ///         converted16Bpp.SaveAsPng(@"c:\temp\16bpp grayscale.png");
-        /// 
-        ///     // The default 8 BPP palette has the transparent color. The default values (backColor = Color.Black,
-        ///     // alphaThreshold = 128) specify that source pixels with alpha < 128 will be transparent
-        ///     // and alpha >= 1 will be blended with Color.Black.
-        ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed))
-        ///         converted8Bpp.SaveAsGif(@"c:\temp\default 8 bpp palette.gif");
-        /// }]]></code>
-        /// <para>The example above produces the following results:
-        /// <list type="table">
-        /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="32 BPP shield icon with transparent background"/></term></item>
-        /// <item><term><c>24 bpp black.png</c></term><term><img src="../Help/Images/ShieldRgb888Black.png" alt="24 BPP shield icon with black background"/></term></item>
-        /// <item><term><c>24 bpp cyan.png</c></term><term><img src="../Help/Images/Shield24bppCyan.png" alt="24 BPP shield icon with cyan background"/></term></item>
-        /// <item><term><c>16 bpp grayscale.png</c></term><term><img src="../Help/Images/ShieldGrayscaleCyan.png" alt="16 BPP grayscale shield icon with cyan background. The cyan color turned light gray."/></term></item>
-        /// <item><term><c>default 8 bpp palette.gif</c></term><term><img src="../Help/Images/ShieldDefault8bppBlack.gif" alt="8 BPP shield icon with system default palette"/></term></item>
-        /// </list></para>
-        /// <note type="tip">
-        /// <list type="bullet">
-        /// <item>To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</item>
-        /// <item>To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
-        /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</item>
-        /// </list>
-        /// </note>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
@@ -498,6 +500,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
