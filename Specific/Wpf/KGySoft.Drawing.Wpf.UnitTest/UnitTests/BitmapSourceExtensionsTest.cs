@@ -25,6 +25,7 @@ using System.Linq.Expressions;
 using System.Runtime.ExceptionServices;
 #endif
 using System.Threading;
+using System.Windows;
 #if !NET35
 using System.Threading.Tasks;
 #endif
@@ -588,6 +589,21 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             SaveBitmap(null, result!);
             finished.Set();
         });
+#endif
+
+#if NET10_0_OR_GREATER // In older WPF version it does not work due to a bug at WPF side: https://github.com/dotnet/wpf/issues/9438
+        [Test]
+        public void HugeBitmapTest()
+        {
+            int size = 30_000;
+            var bitmap = new WriteableBitmap(size, size, 96, 96, PixelFormats.Bgra32, null);
+            var bitmapSource = new CachedBitmap(bitmap, BitmapCreateOptions.None, BitmapCacheOption.None);
+
+            Assert.DoesNotThrow((() =>
+            {
+                using var bitmapData = bitmapSource.GetReadableBitmapData();
+            }));
+        } 
 #endif
 
         #endregion

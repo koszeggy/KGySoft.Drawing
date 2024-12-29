@@ -119,9 +119,67 @@ namespace KGySoft.Drawing.Wpf
         /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
-        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long but straightforward cases for the possible pixel formats.")]
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long but straightforward cases for the possible pixel formats. Also, the new analyzer includes the complexity of local methods.")]
         public static IReadableBitmapData GetReadableBitmapData(this BitmapSource bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
+            #region Local Methods
+
+            static Array AllocateBuffer(long byteSize, int stride)
+            {
+                if (byteSize <= EnvironmentHelper.MaxArrayLength)
+                    return new byte[byteSize];
+
+                if (byteSize / 2 <= EnvironmentHelper.MaxArrayLength && (stride & 1) == 0)
+                    return new ushort[byteSize / 2];
+
+                if (byteSize / 4 <= EnvironmentHelper.MaxArrayLength && (stride & 3) == 0)
+                    return new uint[byteSize / 2];
+
+                // WPF does not allow ulong/long buffers, so double is the only supported 64-bit element type
+                if (byteSize / 8 <= EnvironmentHelper.MaxArrayLength && (stride & 7) == 0)
+                    return new double[byteSize / 8];
+
+                throw new ArgumentException(nameof(bitmap), Res.BitmapSourceDataTooLarge);
+            }
+
+            static IReadableBitmapData CreateKnownIndexed(Array array, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette, Func<Palette, bool> trySetPalette) => array switch
+            {
+                byte[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, palette, trySetPalette),
+                ushort[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, palette, trySetPalette),
+                uint[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, palette, trySetPalette),
+                double[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, palette, trySetPalette),
+                _ => throw new InvalidOperationException(Res.InternalError("Unexpected buffer type")),
+            };
+
+            static IReadableBitmapData CreateKnown(Array array, Size size, int stride, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold) => array switch
+            {
+                byte[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, workingColorSpace, backColor, alphaThreshold),
+                ushort[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, workingColorSpace, backColor, alphaThreshold),
+                uint[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, workingColorSpace, backColor, alphaThreshold),
+                double[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, pixelFormat, workingColorSpace, backColor, alphaThreshold),
+                _ => throw new InvalidOperationException(Res.InternalError("Unexpected buffer type")),
+            };
+
+            static IReadableBitmapData CreateCustom(Array array, Size size, int stride, CustomBitmapDataConfig cfg) => array switch
+            {
+                byte[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                ushort[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                uint[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                double[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                _ => throw new InvalidOperationException(Res.InternalError("Unexpected buffer type")),
+            };
+
+            static IReadableBitmapData CreateCustomIndexed(Array array, Size size, int stride, CustomIndexedBitmapDataConfig cfg) => array switch
+            {
+                byte[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                ushort[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                uint[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                double[] buf => BitmapDataFactory.CreateBitmapData(buf, size, stride, cfg),
+                _ => throw new InvalidOperationException(Res.InternalError("Unexpected buffer type")),
+            };
+
+            #endregion
+
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
@@ -136,56 +194,52 @@ namespace KGySoft.Drawing.Wpf
             Color32 backColor32 = backColor.ToColor32();
             int stride = (size.Width * sourceFormat.BitsPerPixel + 7) >> 3;
 
-            // using an ArraySection as buffer because it can array pooling depending on size and platform
-            var buffer = new ArraySection<byte>(size.Height * stride, false);
-            Action dispose = () => buffer.Release();
-
-            bitmap.CopyPixels(buffer.UnderlyingArray!, stride, 0);
+            long byteSize = (long)stride * size.Height;
+            Array buffer = AllocateBuffer(byteSize, stride);
+            bitmap.CopyPixels(buffer, stride, 0);
 
             // Known pixel formats
             if (knownFormat != KnownPixelFormat.Undefined)
+            {
                 return knownFormat.IsIndexed()
-                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat,
-                        bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose)
-                    : BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat, workingColorSpace, backColor32, alphaThreshold, dispose);
+                    ? CreateKnownIndexed(buffer, size, stride, knownFormat, bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette)
+                    : CreateKnown(buffer, size, stride, knownFormat, workingColorSpace, backColor32, alphaThreshold);
+            }
 
             // NOTE: For custom formats that can be dithered and have no palette we set RoSetColor* so PredefinedColorsQuantizer.FromBitmapData can work correctly
 
             // Custom pixel formats
             if (sourceFormat == PixelFormats.Rgb24)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(24),
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
-                    DisposeCallback = dispose,
                     BackBufferIndependentPixelAccess = true,
                     RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
                 });
 
             if (sourceFormat == PixelFormats.Indexed2)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomIndexedBitmapDataConfig
+                return CreateCustomIndexed(buffer, size, stride, new CustomIndexedBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(2) { Indexed = true },
                     Palette = bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold),
                     TrySetPaletteCallback = IndexedFormatsHelper.TrySetPalette,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColorIndex = IndexedFormatsHelper.GetColorIndexI2,
                 });
 
             if (sourceFormat == PixelFormats.BlackWhite)
             {
                 Palette colors = Palette.BlackAndWhite(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(1) { Grayscale = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI1(row, x)),
                     RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI1(row, x, colors.GetNearestColorIndex(c)),
                 });
@@ -194,14 +248,13 @@ namespace KGySoft.Drawing.Wpf
             if (sourceFormat == PixelFormats.Gray2)
             {
                 Palette colors = Palette.Grayscale4(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(2) { Grayscale = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI2(row, x)),
                     RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
                 });
@@ -210,89 +263,82 @@ namespace KGySoft.Drawing.Wpf
             if (sourceFormat == PixelFormats.Gray4)
             {
                 Palette colors = Palette.Grayscale16(workingColorSpace, backColor32);
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(4) { Grayscale = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor32 = (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI4(row, x)),
                     RowSetColor32 = (row, x, c) => IndexedFormatsHelper.SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
                 });
             }
 
             if (sourceFormat == PixelFormats.Bgr101010)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(32) { Prefers64BitColors = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
                     RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgb48)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(48) { Prefers64BitColors = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgba64)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(64) { HasAlpha = true, Prefers64BitColors = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Prgba64)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(64) { HasPremultipliedAlpha = true, Prefers64BitColors = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba64>(x).ToPColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgb128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(128) { LinearGamma = true, Prefers128BitColors = true },
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToOpaque(),
                 });
 
             if (sourceFormat == PixelFormats.Cmyk32)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new CustomBitmapDataConfig
+                return CreateCustom(buffer, size, stride, new CustomBitmapDataConfig
                 {
                     PixelFormat = new PixelFormatInfo(32),
                     BackColor = backColor.ToColor32(),
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    DisposeCallback = dispose,
                     RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
                     RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
                         new ColorCmyk32(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace))

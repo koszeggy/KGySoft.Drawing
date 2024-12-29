@@ -60,6 +60,9 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>The bitmap data has an invalid size.</summary>
         internal static string InvalidBitmapDataSize => Get("InvalidBitmapDataSize");
 
+        /// <summary>The size of the BitmapSource is too large.</summary>
+        internal static string BitmapSourceDataTooLarge => Get("BitmapSourceDataTooLarge");
+
         #endregion
 
         #region Methods

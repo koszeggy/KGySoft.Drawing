@@ -18,10 +18,12 @@
 ! KGySoft.Drawing.Wpf namespace
 ===============================
 ! BitmapSourceExtensions class:
-  ! GetReadableBitmapData overloads: This method always created a copy of the source BitmapSource. From now on, if
-    the source is a WriteableBitmap, the returned IReadableBitmapData will be a view on the actual source data. This
-    prevents unnecessary copying, but it also keeps the source WriteableBitmap locked until the returned bitmap data
-    is disposed.
+  ! GetReadableBitmapData overloads:
+    ! This method always created a copy of the source BitmapSource. From now on, if the source is a WriteableBitmap,
+      the returned IReadableBitmapData will be a view on the actual source data. This prevents unnecessary copying,
+      but it also keeps the source WriteableBitmap locked until the returned bitmap data is disposed.
+    - Fixing buffer size check for very large images. Please note that it could be fixed only partially here because
+      WPF also needs to be fixed: https://github.com/dotnet/wpf/issues/9438
 
 
 ~~~~~~~~~

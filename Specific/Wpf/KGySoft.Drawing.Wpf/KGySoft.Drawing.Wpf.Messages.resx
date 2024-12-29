@@ -135,4 +135,7 @@
   <data name="InvalidBitmapDataSize" xml:space="preserve">
     <value>The bitmap data has an invalid size.</value>
   </data>
+  <data name="BitmapSourceDataTooLarge" xml:space="preserve">
+    <value>The size of the BitmapSource is too large.</value>
+  </data>
 </root>
