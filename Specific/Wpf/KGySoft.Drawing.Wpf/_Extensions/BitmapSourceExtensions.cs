@@ -355,6 +355,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> of the desired <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat_1.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -418,7 +419,7 @@ namespace KGySoft.Drawing.Wpf
         /// This overload does not use dithering, the bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
-        /// were not blended with any back color so the vertical gradient has been just disappeared.</para></div></td>
+        /// were not blended with any back color so the vertical gradient has just been disappeared.</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
@@ -428,7 +429,7 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Rgb24"/> format, silver background.
         /// The alpha pixels were blended with the silver color (alpha threshold is ignored because this format does not support alpha).</para>
         /// <para><img src="../Help/Images/ShieldRgb24_WPF.png" alt="Shield icon converted to RGB24 format by FormatConvertedBitmap"/>
-        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The alpha pixels were just turned opaque
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The alpha pixels just turned opaque
         /// without blending them with any color. Some light pixels appeared where RGB values of the alpha pixels were not completely black.</para></div></td>
         /// </tr>
         /// </tbody></table>
@@ -493,6 +494,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> with the desired <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
