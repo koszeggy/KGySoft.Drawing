@@ -9,10 +9,16 @@
 ! v9.0.0:
 ~~~~~~~~~
 
+! Assembly changes:
+===================
+! Dropping support for .NET Core 2.0. Manual compilation for .NET Core 2.0 is still possible but the public NuGet
+  packages are not going to support this platform anymore. If you target the .NET Core 2.0 platform in your project,
+  the v9.0.0 version of the NuGet package will pick the .NET Standard 2.0 build instead.
+
 * Common changes
 ================
 * Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves performance of
-  accessing IReadWriteBitmapData instances
+  accessing IReadWriteBitmapData instances.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
 ! KGySoft.Drawing namespace

@@ -18,9 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-#if !NETFRAMEWORK
-using System.Runtime.InteropServices;
-#endif
+
 using KGySoft.CoreLibraries;
 
 using NUnit.Framework.Api;
