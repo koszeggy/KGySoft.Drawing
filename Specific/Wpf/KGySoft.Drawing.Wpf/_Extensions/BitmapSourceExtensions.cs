@@ -79,6 +79,11 @@ namespace KGySoft.Drawing.Wpf
         /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <remarks>
+        /// <note>In general, this method copies the content of the <paramref name="bitmap"/> to a new managed buffer to access its pixels. But if <paramref name="bitmap"/> is a non-frozen <see cref="WriteableBitmap"/>,
+        /// then this method calls the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap,WorkingColorSpace,Color,byte)">WriteableBitmapExtensions.GetReadWriteBitmapData</see> method,
+        /// which avoids the need of copying the content; however, in this case the <see cref="IReadWriteBitmapData"/> instance is locked until the returned <see cref="IReadableBitmapData"/> instance is disposed.</note>
+        /// </remarks>
         /// <seealso cref="WriteableBitmapExtensions.GetWritableBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
@@ -105,6 +110,11 @@ namespace KGySoft.Drawing.Wpf
         /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <remarks>
+        /// <note>In general, this method copies the content of the <paramref name="bitmap"/> to a new managed buffer to access its pixels. But if <paramref name="bitmap"/> is a non-frozen <see cref="WriteableBitmap"/>,
+        /// then this method calls the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap,WorkingColorSpace,Color,byte)">WriteableBitmapExtensions.GetReadWriteBitmapData</see> method,
+        /// which avoids the need of copying the content; however, in this case the <see cref="IReadWriteBitmapData"/> instance is locked until the returned <see cref="IReadableBitmapData"/> instance is disposed.</note>
+        /// </remarks>
         /// <seealso cref="WriteableBitmapExtensions.GetWritableBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
@@ -116,6 +126,9 @@ namespace KGySoft.Drawing.Wpf
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+
+            if (bitmap is WriteableBitmap { IsFrozen: false } writeableBitmap)
+                return writeableBitmap.GetBitmapDataInternal(true, workingColorSpace, backColor, alphaThreshold);
 
             PixelFormat sourceFormat = bitmap.Format;
             KnownPixelFormat knownFormat = sourceFormat.AsKnownPixelFormat();

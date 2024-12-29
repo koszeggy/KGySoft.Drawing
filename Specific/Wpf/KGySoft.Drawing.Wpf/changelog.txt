@@ -6,6 +6,25 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v9.0.0:
+~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves the performance of
+  accessing IReadWriteBitmapData instances.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+! KGySoft.Drawing.Wpf namespace
+===============================
+! BitmapSourceExtensions class:
+  ! GetReadableBitmapData overloads: This method always created a copy of the source BitmapSource. From now on, if
+    the source is a WriteableBitmap, the returned IReadableBitmapData will be a view on the actual source data. This
+    prevents unnecessary copying, but it also keeps the source WriteableBitmap locked until the returned bitmap data
+    is disposed.
+
+
+~~~~~~~~~
 * v8.1.0:
 ~~~~~~~~~
 
