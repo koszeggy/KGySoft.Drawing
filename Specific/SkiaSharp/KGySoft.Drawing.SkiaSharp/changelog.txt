@@ -6,6 +6,21 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v9.0.0:
+~~~~~~~~~
+
+! Assembly changes
+==================
+! Upgrading SkiaSharp package from 2.88.6 to 3.116.1. This is required to support the new color formats.
+* Referencing KGySoft.Drawing.Core v9.0.0, which improves performance and adds direct shape drawing support.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ General changes
+=================
++ Supporting the new Bgr101010xXR color type.
+
+
+~~~~~~~~~
 * v8.1.0:
 ~~~~~~~~~
 

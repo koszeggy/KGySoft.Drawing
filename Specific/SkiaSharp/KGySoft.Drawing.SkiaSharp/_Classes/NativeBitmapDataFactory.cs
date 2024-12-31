@@ -341,6 +341,16 @@ namespace KGySoft.Drawing.SkiaSharp
                         : ColorRgF16Srgb.FromSrgb(c.ToSrgb().Blend(row.BitmapData.BackColor.ToColorF(false)));
                     break;
 
+                case (SKColorType.Bgr101010xXR, _):
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor32().ToOpaque();
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor64().ToOpaque();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x) =
+                        new ColorBgr101010XRSrgb(c.A == UInt16.MaxValue ? c : c.Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace));
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x) = new ColorBgr101010XRSrgb(c.A >= 1f ? c.ToColor64()
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear ? c.Blend(row.BitmapData.BackColor.ToColorF()).ToColor64()
+                        : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()));
+                    break;
+
                 default:
                     throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly in the sRGB color space. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."));
             }
@@ -673,6 +683,16 @@ namespace KGySoft.Drawing.SkiaSharp
                     config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorRgF16Linear>(x).ToColorF();
                     config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgF16Linear>(x) =
                         new ColorRgF16Linear(c.A >= 1f ? c : c.Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace));
+                    break;
+
+                case (SKColorType.Bgr101010xXR, _):
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x).ToColor64().ToOpaque();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x) = c.A == UInt16.MaxValue ? new ColorBgr101010XRLinear(c)
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new ColorBgr101010XRLinear(c.Blend(row.BitmapData.BackColor.ToColor64()))
+                        : new ColorBgr101010XRLinear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()));
+                    config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x).ToColorF();
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x) =
+                        new ColorBgr101010XRLinear(c.A >= 1f ? c : c.Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace));
                     break;
 
                 default:

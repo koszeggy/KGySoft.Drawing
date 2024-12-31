@@ -84,7 +84,7 @@ namespace KGySoft.Drawing.SkiaSharp
             if (imageInfo.ColorSpace.IsDefaultLinear())
                 info.LinearGamma = true;
 
-            // [P]ColorF preference: always if the range demands it (RgbaF32) or it's simpler (AlphaF16 is just a float -> half conversion with no extra division)
+            // [P]ColorF preference: always if the range demands it (RgbaF32) or when it's simpler (AlphaF16 is just a float -> half conversion with no extra division)
             if (imageInfo.ColorType is SKColorType.RgbaF32 or SKColorType.AlphaF16
                 // or when precision could be lost otherwise (16 bits per channel but in linear color space)
                 || info.LinearGamma && imageInfo.ColorType is SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Rg1616 or SKColorType.Rgba16161616)
@@ -92,7 +92,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 info.Prefers128BitColors = true;
             }
             // [P]Color64 preference: when the range demands it (>8 bit color channels)
-            else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x
+            else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16
+                         or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x or SKColorType.Bgr101010xXR
                 // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha and < 8 channel per color formats
                 || info.LinearGamma && imageInfo.ColorType is not (SKColorType.Alpha8 or SKColorType.Rgb565 or SKColorType.Argb4444))
             {

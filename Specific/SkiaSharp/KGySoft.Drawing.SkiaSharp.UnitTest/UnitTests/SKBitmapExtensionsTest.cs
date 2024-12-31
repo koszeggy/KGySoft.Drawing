@@ -100,6 +100,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [TestCase(SKColorType.Rg88, SKAlphaType.Opaque)]
         [TestCase(SKColorType.Rg1616, SKAlphaType.Opaque)]
         [TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Bgr101010xXR, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
             #region Local Methods
@@ -141,11 +143,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 Assert.AreEqual(alphaType, bitmap.AlphaType);
 
                 bitmap.SetPixel(0, 0, testColor.ToSKColor());
-                var actualNative = bitmap.GetPixel(0, 0);
+                SKColor actualNative = bitmap.GetPixel(0, 0);
 
                 using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
-                bitmapData.SetPixel(1, 1, testColor);
-                Color actual = bitmapData.GetPixel(1, 1);
+                var raw = new List<byte>();
+                for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
+                    raw.Insert(0, bitmapData.ReadRaw<byte>(i, 0));
+
                 byte tolerance = (byte)(colorSpace.IsSrgb
                     ? colorType switch { SKColorType.Argb4444 => 17, SKColorType.Rgb565 => 5, _ => 1 } // allowing 1 shade difference
                     : colorType switch
@@ -157,16 +161,15 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 #endif
                         _ => 2
                     });
-
-                var raw = new List<byte>();
-                for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
-                    raw.Insert(0, bitmapData[0].ReadRaw<byte>(i));
                 Console.WriteLine($"{"by SkiaSharp",-32}- {actualNative.ToColor32()} ({raw.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).Join('_')}) {(expectedResult.TolerantEquals(actualNative.ToColor32(), tolerance) ? "OK" : "!")}");
+
+                bitmapData.SetPixel(1, 1, testColor);
+                Color actual = bitmapData.GetPixel(1, 1);
 
                 raw.Clear();
                 int offset = info.BytesPerPixel;
                 for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
-                    raw.Insert(0, bitmapData[1].ReadRaw<byte>(i + offset));
+                    raw.Insert(0, bitmapData.ReadRaw<byte>(i + offset, 1));
                 Console.WriteLine($"{"by KGySoft",-32}- {actual.ToColor32()} ({raw.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).Join('_')}) {(expectedResult.TolerantEquals(actual.ToColor32(), tolerance) ? "OK" : "!")}");
                 Console.WriteLine();
 
@@ -227,7 +230,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Argb4444 }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Bgr101010xXR }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -250,7 +253,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         if (info.Grayscale)
                             testColor = testColor.ToGray();
 
-                        // Pre-blending the color for opaque types because Skia handles alpha for them oddly:
+                        // Pre-blending the color for opaque types because Skia handles alpha of such types oddly:
                         // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
                         // Pre-blending also for types with discrete alpha because Skia uses an arbitrary transformation
                         if (!info.HasAlpha)
@@ -291,6 +294,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         {
                             SKColorType.Argb4444 => 17, // the increment of one shade in 8 bits (255/15)
                             SKColorType.Bgra1010102 or SKColorType.Rgba1010102 => 85, // 255/3 due to A channel
+                            SKColorType.Bgr101010xXR => 255, // SkiaSharp bug (3.116.1): SKBitmap.GetPixel returns default color if the color type is Bgr101010xXR // TODO: check in newer versions
                             _ => 1
                         };
 
@@ -319,7 +323,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Argb4444 }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Bgr101010xXR }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -333,7 +337,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         continue;
 
                     bool skiaSaved = false;
-                    foreach (WorkingColorSpace workingColorSpace in new[] { WorkingColorSpace.Linear })
+                    foreach (WorkingColorSpace workingColorSpace in new[] { WorkingColorSpace.Linear/*, WorkingColorSpace.Srgb*/ })
                     {
                         PixelFormatInfo info = bitmap.Info.GetInfo();
                         var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();
@@ -342,7 +346,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         if (info.Grayscale)
                             testColor = testColor.ToGray();
 
-                        // Pre-blending the color for opaque types because Skia handles alpha for them oddly:
+                        // Pre-blending the color for opaque types because Skia handles alpha of such types oddly:
                         // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
                         // Pre-blending also for types with discrete alpha because Skia uses an arbitrary transformation
                         if (!info.HasAlpha)
@@ -393,6 +397,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                             SKColorType.Rgb565 => 49, // for 5 bit linear colors the first non-black shade is 49
                             SKColorType.Argb4444 => 68, // for 4 bit linear colors the first non-black shade is 68
                             SKColorType.Bgra1010102 or SKColorType.Rgba1010102 => 85, // 255/3 due to A channel
+                            SKColorType.Bgr101010xXR => 255, // SkiaSharp bug (3.116.1): SKBitmap.GetPixel returns default color if the color type is Bgr101010xXR // TODO: check in newer versions
                             _ => 2
                         };
 
@@ -417,13 +422,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             using var bitmap = new SKBitmap(info);
             GenerateAlphaGradient(bitmap);
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
+            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Bgr101010xXR })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
                 // by KGySoft
-                using var result = bitmap.ConvertPixelFormat(colorType, backColor: SKColors.Green);
+                using var result = bitmap.ConvertPixelFormat(colorType/*, backColor: SKColors.Green*/);
                 Assert.AreEqual(colorType, result.ColorType);
                 SaveBitmap($"{colorType} KGy", result);
 
@@ -455,18 +460,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     SaveBitmap($"{colorType} {colorSpace}", result);
                 }
             }
-        }
-
-        [Test]
-        public void Test()
-        {
-            HashSet<ushort> values = new();
-            for (int i = 0; i < 256; i++)
-            {
-                values.Add(((byte)i).ToSrgb());
-            }
-
-            Console.WriteLine(values.Count);
         }
 
         #endregion
