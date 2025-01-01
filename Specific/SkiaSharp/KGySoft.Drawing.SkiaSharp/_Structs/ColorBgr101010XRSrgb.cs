@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
@@ -25,8 +26,8 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// https://issues.skia.org/issues/40045149 tells that this is MTLPixelFormatBGR10_XR.
-    /// See https://developer.apple.com/documentation/metal/mtlpixelformat/mtlpixelformatbgr10_xr_srgb
+    /// https://issues.skia.org/issues/40045149 tells that this is MTLPixelFormatBGR10_XR (NOT MTLPixelFormatBGR10_XR_sRGB, even though this is also an sRGB format, so the range is different)
+    /// See https://developer.apple.com/documentation/metal/mtlpixelformat/mtlpixelformatbgr10_xr
     /// </summary>
     internal readonly struct ColorBgr101010XRSrgb
     {
@@ -35,6 +36,11 @@ namespace KGySoft.Drawing.SkiaSharp
         private const uint redMask = 0b00111111_11110000_00000000_00000000;
         private const uint greenMask = 0b00001111_11111100_00000000;
         private const uint blueMask = 0b00000011_11111111;
+
+        private const float min = -0.752941f;
+        private const float max = 1.25098f;
+        private const float range = max - min;
+        private const float maxEncoded = 1023f;
 
         #endregion
 
@@ -54,6 +60,8 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
+        #region Internal Constructors
+        
         // TODO: vectorize
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ColorBgr101010XRSrgb(Color64 c) => value =
@@ -61,9 +69,35 @@ namespace KGySoft.Drawing.SkiaSharp
             | (uint)(((c.G >> 7) + 384) << 10)
             | (uint)((c.B >> 7) + 384);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ColorBgr101010XRSrgb(ColorF c) => FromSrgb(c.ToSrgb());
+
+        #endregion
+
+        #region Private Constructors
+
+        /// <summary>
+        /// Creating from a float sRGB color, where extended range is preserved between -0.752941 and 1.25098.
+        /// </summary>
+        private ColorBgr101010XRSrgb(Vector3 rgb)
+        {
+            var uInt10 = (rgb.Clip(min, max) - new Vector3(min)) * (maxEncoded / range) + new Vector3(0.5f);
+            value = ((uint)uInt10.X << 20) | ((uint)uInt10.Y << 10) | (uint)uInt10.Z;
+        }
+
+        #endregion
+
         #endregion
 
         #region Methods
+
+        #region Static Methods
+
+        internal static ColorBgr101010XRSrgb FromSrgb(ColorF c) => new ColorBgr101010XRSrgb(c.ToRgb());
+
+        #endregion
+
+        #region Instance Methods
 
         // TODO: vectorize
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,6 +118,14 @@ namespace KGySoft.Drawing.SkiaSharp
                 (ushort)(g | (g >> 10)),
                 (ushort)(b | (b >> 10)));
         }
+
+        /// <summary>
+        /// This restores extended range between -0.752941 and 1.25098, so the result ColorF.IsValid can be false
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ColorF ToColorF() => ColorF.FromRgb(new Vector3(R, G, B) * (range / maxEncoded) + new Vector3(min)).ToLinear();
+
+        #endregion
 
         #endregion
     }

@@ -19,6 +19,8 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 using KGySoft.Drawing.Imaging;
 
@@ -115,7 +117,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constants
 
-        internal const SKColorType MaxColorType = SKColorType.Bgr101010xXR;
+        internal const SKColorType MaxColorType = SKColorType.Srgba8888;
         internal const SKAlphaType MaxAlphaType = SKAlphaType.Unpremul;
 
         #endregion
@@ -590,8 +592,29 @@ namespace KGySoft.Drawing.SkiaSharp
         internal static ushort ToLinear(this ushort b) => Cache16Bpp.LookupTableSrgbToLinear[b];
         internal static ushort ToSrgb(this ushort b) => Cache16Bpp.LookupTableLinearToSrgb[b];
         internal static ushort ToSrgbUInt16(this byte b) => Cache16Bpp.LookupTableLinearToSrgb[ColorSpaceHelper.ToUInt16(b)];
+        internal static ushort ToLinearUInt16(this byte b) => Cache16Bpp.LookupTableSrgbToLinear[ColorSpaceHelper.ToUInt16(b)];
         internal static ColorF ToSrgb(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba()));
         internal static ColorF ToLinear(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(c.ToRgba()));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector3 Clip(this Vector3 v, float min, float max)
+        {
+            // Vector*.Min/Max/Clamp are not reliable in handling NaN: https://github.com/dotnet/runtime/discussions/83683
+            // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+                return Sse.Min(Sse.Max(v.AsVector128(), Vector128.Create(min)), Vector128.Create(max)).AsVector3();
+#endif
+            // The non-accelerated fallback version that returns min for NaN
+            return new Vector3(v.X.Clip(min, max), v.Y.Clip(min, max), v.Z.Clip(min, max));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static float Clip(this float value, float min, float max)
+            // Unlike Math.Clamp/Min/Max this returns min for NaN
+            => value >= max ? max
+                : value >= min ? value
+                : min;
 
         #endregion
 

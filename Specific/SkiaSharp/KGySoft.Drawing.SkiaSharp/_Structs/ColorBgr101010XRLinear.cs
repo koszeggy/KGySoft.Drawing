@@ -16,6 +16,8 @@
 #region Usings
 
 using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using KGySoft.Drawing.Imaging;
 
@@ -35,6 +37,11 @@ namespace KGySoft.Drawing.SkiaSharp
         private const uint redMask = 0b00111111_11110000_00000000_00000000;
         private const uint greenMask = 0b00001111_11111100_00000000;
         private const uint blueMask = 0b00000011_11111111;
+
+        private const float min = -0.752941f;
+        private const float max = 1.25098f;
+        private const float range = max - min;
+        private const float maxEncoded = 1023f;
 
         #endregion
 
@@ -60,44 +67,36 @@ namespace KGySoft.Drawing.SkiaSharp
             | (uint)(((c.G.ToLinear() >> 7) + 384) << 10)
             | (uint)((c.B.ToLinear() >> 7) + 384);
 
+        /// <summary>
+        /// Creating from float linear RGB values, where extended range is preserved between -0.752941 and 1.25098.
+        /// </summary>
         internal ColorBgr101010XRLinear(ColorF c)
         {
-            Color64 linear64 = c.ToColor64(false);
-            value = (uint)(((linear64.R >> 7) + 384) << 20)
-                | (uint)(((linear64.G >> 7) + 384) << 10)
-                | (uint)((linear64.B >> 7) + 384);
+            var uInt10 = (c.ToRgb().Clip(min, max) - new Vector3(min)) * (maxEncoded / range) + new Vector3(0.5f);
+            value = ((uint)uInt10.X << 20) | ((uint)uInt10.Y << 10) | (uint)uInt10.Z;
         }
 
         #endregion
 
         #region Methods
 
-        #region Internal Methods
-
         internal Color64 ToColor64()
-        {
-            Color64 linear64 = ToLinear64();
-            return new Color64(linear64.A, linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
-        }
-
-        internal ColorF ToColorF() => ToLinear64().ToColorF(false);
-
-        #endregion
-
-        #region Private Methods
-
-        private Color64 ToLinear64()
         {
             uint r = (Math.Clamp(R, 384, 895) - 384) << 7;
             uint g = (Math.Clamp(G, 384, 895) - 384) << 7;
             uint b = (Math.Clamp(B, 384, 895) - 384) << 7;
-
-            return new Color64((ushort)(r | (r >> 10)),
+            var linear64 = new Color64((ushort)(r | (r >> 10)),
                 (ushort)(g | (g >> 10)),
                 (ushort)(b | (b >> 10)));
+
+            return new Color64(linear64.A, linear64.R.ToSrgb(), linear64.G.ToSrgb(), linear64.B.ToSrgb());
         }
 
-        #endregion
+        /// <summary>
+        /// This restores extended range between -0.752941 and 1.25098, so the result ColorF.IsValid can be false
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ColorF ToColorF() => ColorF.FromRgb(new Vector3(R, G, B) * (range / maxEncoded) + new Vector3(min));
 
         #endregion
     }
