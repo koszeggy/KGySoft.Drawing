@@ -102,6 +102,11 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
 
         [TestCase(SKColorType.Bgr101010xXR, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Srgba8888, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Srgba8888, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Srgba8888, SKAlphaType.Opaque)]
+
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
             #region Local Methods
@@ -115,7 +120,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
             #endregion
 
-            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear(), })
+            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear() })
             {
                 var info = new SKImageInfo(2, 2, colorType, alphaType, colorSpace);
                 var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();
@@ -184,6 +189,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 #if NETCOREAPP3_0_OR_GREATER // Keeping the original tolerance if a shade difference can occur due to non-accelerated truncating conversions (especially for premultiplied colors)
                 tolerance = linear && alphaType is SKAlphaType.Opaque
                     || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102
+                    || alphaType is SKAlphaType.Premul && colorType is SKColorType.Srgba8888
                         ? (byte)1
                         : (byte)0;
 #endif
@@ -230,12 +236,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Bgr101010xXR }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Srgba8888 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Premul }*/)
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -323,12 +329,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Bgr101010xXR }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Srgba8888 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Unpremul }*/)
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues()/* new[] { SKAlphaType.Opaque }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -422,13 +428,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             using var bitmap = new SKBitmap(info);
             GenerateAlphaGradient(bitmap);
 
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Bgr101010xXR })
+            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Srgba8888 })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
                 // by KGySoft
-                using var result = bitmap.ConvertPixelFormat(colorType/*, backColor: SKColors.Green*/);
+                using var result = bitmap.ConvertPixelFormat(colorType, backColor: SKColors.Green);
                 Assert.AreEqual(colorType, result.ColorType);
                 SaveBitmap($"{colorType} KGy", result);
 
@@ -448,7 +454,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height));
             GenerateAlphaGradient(bitmap);
 
-            foreach (SKColorType colorType in new[]{ SKColorType.Argb4444, SKColorType.Rgb565, SKColorType.Rg88, SKColorType.Rgba8888 })
+            // Srgba8888: Makes difference only for bigger image width (e.g. 2048)
+            foreach (SKColorType colorType in new[]{ SKColorType.Argb4444, SKColorType.Rgb565, SKColorType.Rg88, SKColorType.Rgba8888/*, SKColorType.Srgba8888*/ })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;

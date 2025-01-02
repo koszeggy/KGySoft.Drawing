@@ -188,6 +188,14 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Gray8, _, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorGray8Linear(c.ToColorF()).ToColor32(), backColor32, KnownPixelFormat.Format16bppGrayScale),
 
+                // Srgba8888 with sRGB color space as it gets quantized during the sRGB -> "double sRGB" conversion so ditherers can improve the result
+                (SKColorType.Srgba8888, SKAlphaType.Unpremul, WorkingColorSpace.Srgb)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorSrgba8888Srgb(c).ToColor32(), backColor32, alphaThreshold, false),
+                (SKColorType.Srgba8888, SKAlphaType.Premul, WorkingColorSpace.Srgb)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPsrgba8888Srgb(c.ToPremultiplied()).ToPColor32().ToStraight(), backColor32, alphaThreshold, false),
+                (SKColorType.Srgba8888, SKAlphaType.Opaque, WorkingColorSpace.Srgb)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorSrgba8888Srgb(c).ToColor32(), backColor32),
+
                 // Fallback: some default quantizer from the closest known pixel format
                 _ => PredefinedColorsQuantizer.FromPixelFormat(imageInfo.GetInfo().ToKnownPixelFormat(), backColor32, alphaThreshold)
             }).ConfigureColorSpace(imageInfo.GetWorkingColorSpace());
