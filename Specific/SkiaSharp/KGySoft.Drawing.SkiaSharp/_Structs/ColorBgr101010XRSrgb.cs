@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -102,17 +101,17 @@ namespace KGySoft.Drawing.SkiaSharp
         // TODO: vectorize
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Color32 ToColor32() => new Color32(
-            (byte)((Math.Clamp(R, 384, 895) - 384) >> 1),
-            (byte)((Math.Clamp(G, 384, 895) - 384) >> 1),
-            (byte)((Math.Clamp(B, 384, 895) - 384) >> 1));
+            (byte)((R.Clip(384, 895) - 384) >> 1),
+            (byte)((G.Clip(384, 895) - 384) >> 1),
+            (byte)((B.Clip(384, 895) - 384) >> 1));
 
         // TODO: vectorize
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal Color64 ToColor64()
         {
-            uint r = (Math.Clamp(R, 384, 895) - 384) << 7;
-            uint g = (Math.Clamp(G, 384, 895) - 384) << 7;
-            uint b = (Math.Clamp(B, 384, 895) - 384) << 7;
+            uint r = (R.Clip(384, 895) - 384) << 7;
+            uint g = (G.Clip(384, 895) - 384) << 7;
+            uint b = (B.Clip(384, 895) - 384) << 7;
 
             return new Color64((ushort)(r | (r >> 10)),
                 (ushort)(g | (g >> 10)),

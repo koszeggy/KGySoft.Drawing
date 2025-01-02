@@ -12,6 +12,9 @@
 ! Assembly changes
 ==================
 ! Upgrading SkiaSharp package from 2.88.6 to 3.116.1. This is required to support the new color formats.
+! Dropping support for .NET Core 2.0. Manual compilation for .NET Core 2.0 is still possible but the public NuGet
+  packages are not going to support this platform anymore. If you target the .NET Core 2.0 platform in your project,
+  the v9.0.0 version of the NuGet package will pick the .NET Standard 2.0 build instead.
 * Referencing KGySoft.Drawing.Core v9.0.0, which improves performance and adds direct shape drawing support.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 

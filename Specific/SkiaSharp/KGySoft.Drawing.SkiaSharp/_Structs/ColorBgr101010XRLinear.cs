@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -82,9 +81,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal Color64 ToColor64()
         {
-            uint r = (Math.Clamp(R, 384, 895) - 384) << 7;
-            uint g = (Math.Clamp(G, 384, 895) - 384) << 7;
-            uint b = (Math.Clamp(B, 384, 895) - 384) << 7;
+            uint r = (R.Clip(384, 895) - 384) << 7;
+            uint g = (G.Clip(384, 895) - 384) << 7;
+            uint b = (B.Clip(384, 895) - 384) << 7;
             var linear64 = new Color64((ushort)(r | (r >> 10)),
                 (ushort)(g | (g >> 10)),
                 (ushort)(b | (b >> 10)));

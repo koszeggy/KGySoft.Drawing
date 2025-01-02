@@ -15,7 +15,7 @@
     <description xml:space="preserve">KGy SOFT Drawing Libraries for SkiaSkarp offer KGySoft.Drawing.Core features for SkiaSharp types.
 
 Among others:
-- Fast direct native SKBitmap and SKPixmap data access of any pixel format
+- Fast direct native SKBitmap and SKPixmap data access of any pixel format. This provides a working GetPixel/SetPixel even when SKBitmap.GetPixel fails to get the correct color.
 - Read-only access to SKImage instances
 - Read-write access to SKSurface instances
 - Supporting every SKColorType and SKAlphaType

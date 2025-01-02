@@ -19,8 +19,10 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 
 using KGySoft.Drawing.Imaging;
 
@@ -596,6 +598,13 @@ namespace KGySoft.Drawing.SkiaSharp
         internal static ColorF ToSrgb(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.LinearToSrgbVectorRgba(c.ToRgba()));
         internal static ColorF ToLinear(this ColorF c) => ColorF.FromRgba(ColorSpaceHelper.SrgbToLinearVectorRgba(c.ToRgba()));
 
+#if NETCOREAPP3_0
+        internal static Vector128<float> AsVector128(this Vector3 v) => new Vector4(v, default).AsVector128();
+        internal static Vector128<float> AsVector128(this Vector4 v) => Unsafe.As<Vector4, Vector128<float>>(ref v);
+        internal static Vector3 AsVector3(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector3>(ref v);
+        internal static Vector4 AsVector4(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector4>(ref v);
+#endif
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Vector3 Clip(this Vector3 v, float min, float max)
         {
@@ -612,6 +621,13 @@ namespace KGySoft.Drawing.SkiaSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float Clip(this float value, float min, float max)
             // Unlike Math.Clamp/Min/Max this returns min for NaN
+            => value >= max ? max
+                : value >= min ? value
+                : min;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static uint Clip(this uint value, uint min, uint max)
+            // Like Math.Clamp but without min/max check
             => value >= max ? max
                 : value >= min ? value
                 : min;

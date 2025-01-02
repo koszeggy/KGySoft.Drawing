@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net462;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.0;net5.0</TargetFrameworks>
+    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard 2.0 version-->
     <!--<TargetFrameworks>netcoreapp2.0</TargetFrameworks>-->
+
+    <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
+    <!--<TargetFrameworks>net462;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
