@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>9.0.0-preview.1</version>
+    <version>9.0.0-rc.1</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -59,9 +59,6 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
       <group targetFramework="netstandard2.1" >
         <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
-      <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
-      </group>
       <group targetFramework="netcoreapp3.0" >
         <dependency id="KGySoft.CoreLibraries" version="9.0.0-preview.1" />
       </group>
@@ -94,8 +91,6 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <file src="..\bin\Release\netstandard2.0\KGySoft.Drawing.Core.xml" target="lib\netstandard2.0" />
     <file src="..\bin\Release\netstandard2.1\KGySoft.Drawing.Core.dll" target="lib\netstandard2.1" />
     <file src="..\bin\Release\netstandard2.1\KGySoft.Drawing.Core.xml" target="lib\netstandard2.1" />
-    <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.Core.dll" target="lib\netcoreapp2.0" />
-    <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.Core.xml" target="lib\netcoreapp2.0" />
     <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.Core.dll" target="lib\netcoreapp3.0" />
     <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.Core.xml" target="lib\netcoreapp3.0" />
     <file src="..\bin\Release\net5.0\KGySoft.Drawing.Core.dll" target="lib\net5.0" />
