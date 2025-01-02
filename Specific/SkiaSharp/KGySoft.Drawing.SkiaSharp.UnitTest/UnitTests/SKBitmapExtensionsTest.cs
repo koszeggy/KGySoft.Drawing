@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -27,7 +26,6 @@ using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 
 using SkiaSharp;
 
@@ -107,6 +105,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [TestCase(SKColorType.Srgba8888, SKAlphaType.Premul)]
         [TestCase(SKColorType.Srgba8888, SKAlphaType.Opaque)]
 
+        [TestCase(SKColorType.R8Unorm, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
             #region Local Methods
@@ -135,10 +134,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 else if (alphaType == SKAlphaType.Opaque)
                     expectedResult = expectedResult.Blend(Color.Black, linear ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb);
 
-                if (colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102)
-                    expectedResult = new ColorBgra1010102Srgb(expectedResult).ToColor32();
-                else if (colorType is SKColorType.Rg88 or SKColorType.Rg1616 or SKColorType.RgF16)
-                    expectedResult = new Color32(expectedResult.R, expectedResult.G, 0);
+                expectedResult = colorType switch
+                {
+                    SKColorType.Bgra1010102 or SKColorType.Rgba1010102 => new ColorBgra1010102Srgb(expectedResult).ToColor32(),
+                    SKColorType.Rg88 or SKColorType.Rg1616 or SKColorType.RgF16 => new Color32(expectedResult.R, expectedResult.G, 0),
+                    SKColorType.R8Unorm => new Color32(expectedResult.R, 0, 0),
+                    _ => expectedResult
+                };
 
                 Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{(colorSpace.GammaIsLinear ? nameof(WorkingColorSpace.Linear) : nameof(WorkingColorSpace.Srgb))}");
                 Console.WriteLine($"{$"{colorType}/{alphaType}/{(colorSpace.GammaIsLinear ? nameof(WorkingColorSpace.Linear) : nameof(WorkingColorSpace.Srgb))}",-32}- {testColor}");
@@ -236,7 +238,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Srgba8888 }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.R8Unorm }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -329,7 +331,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 fileName = null;
             SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
 
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Srgba8888 }*/)
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.R8Unorm }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -424,27 +426,33 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void ConvertPixelFormatDirectTest()
         {
             var size = new SKSizeI(512, 256);
-            var info = new SKImageInfo(size.Width, size.Height)/*.WithColorSpace(SKColorSpace.CreateSrgbLinear())*/;
-            using var bitmap = new SKBitmap(info);
-            GenerateAlphaGradient(bitmap);
+            var info = new SKImageInfo(size.Width, size.Height);
 
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Srgba8888 })
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues()/* new[] { SKColorType.R8Unorm }*/)
+            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear() })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
+                using var bitmap = new SKBitmap(info.WithColorSpace(colorSpace));
+                GenerateAlphaGradient(bitmap);
+                bool linear = colorSpace.GammaIsLinear;
+
                 // by KGySoft
-                using var result = bitmap.ConvertPixelFormat(colorType, backColor: SKColors.Green);
+                using var result = bitmap.ConvertPixelFormat(colorType/*, backColor: SKColors.Green*/);
                 Assert.AreEqual(colorType, result.ColorType);
-                SaveBitmap($"{colorType} KGy", result);
+                SaveBitmap($"{colorType}_KGy_{(linear ? "Linear" : "Srgb")}", result);
 
                 // by SkiaSharp
                 using var resultSkia = new SKBitmap(bitmap.Info.WithColorType(colorType));
                 using var canvas = new SKCanvas(resultSkia);
                 canvas.DrawBitmap(bitmap, SKPoint.Empty);
                 Assert.AreEqual(colorType, resultSkia.ColorType);
-                SaveBitmap($"{colorType} Skia", resultSkia);
+                SaveBitmap($"{colorType}_Skia_{(linear ? "Linear" : "Srgb")}", resultSkia);
             }
+
+            if (!SaveToFile)
+                Assert.Inconclusive("This test is mainly for visual inspection");
         }
 
         [Test]
@@ -455,7 +463,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             GenerateAlphaGradient(bitmap);
 
             // Srgba8888: Makes difference only for bigger image width (e.g. 2048)
-            foreach (SKColorType colorType in new[]{ SKColorType.Argb4444, SKColorType.Rgb565, SKColorType.Rg88, SKColorType.Rgba8888/*, SKColorType.Srgba8888*/ })
+            foreach (SKColorType colorType in new[]{ SKColorType.Argb4444, SKColorType.Rgb565, SKColorType.Rg88, SKColorType.Rgba8888, SKColorType.Srgba8888, SKColorType.R8Unorm })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -467,6 +475,9 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     SaveBitmap($"{colorType} {colorSpace}", result);
                 }
             }
+
+            if (!SaveToFile)
+                Assert.Inconclusive("This test is mainly for visual inspection");
         }
 
         #endregion

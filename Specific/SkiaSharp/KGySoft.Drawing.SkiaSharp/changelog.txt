@@ -18,8 +18,9 @@
 + KGySoft.Drawing.SkiaSharp namespace
 =====================================
 + SKImageInfoExtensions, SKBitmapExtensions, SKPixmapExtensions, SKImageExtensions, SKSurfaceExtensions classes:
-  + Supporting the new Bgr101010xXR color type.
-  + Supporting the new Srgba8888 color type.
+  + Supporting the new Bgr101010xXR color type directly.
+  + Supporting the new Srgba8888 color type directly.
+  + Supporting the new R8Unorm color type directly.
 
 
 ~~~~~~~~~

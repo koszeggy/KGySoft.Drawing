@@ -179,9 +179,9 @@ namespace KGySoft.Drawing.SkiaSharp
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPbgra8888Linear(c.ToPColorF()).ToColor32(), backColor32, alphaThreshold, false),
 
                 // Opaque RG[B] 8bpp/channel color types with linear color spaces: like above
-                // NOTE: using the same quantizer for RG88 so no extra compensation will occur for the blue channel
+                // NOTE: using the same quantizer for RG88/R8Unorm so no extra compensation will occur for the blue(/green) channel(s)
                 (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Opaque, WorkingColorSpace.Linear)
-                    or (SKColorType.Rgb888x or SKColorType.Rg88, _, WorkingColorSpace.Linear)
+                    or (SKColorType.Rgb888x or SKColorType.Rg88 or SKColorType.R8Unorm, _, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32(), backColor32),
 
                 // Gray8 with linear color space as it gets quantized during the sRGB -> linear conversion so ditherers can improve the result
@@ -266,8 +266,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static bool CanBeDithered(this SKImageInfo imageInfo)
             => imageInfo.ColorType is SKColorType.Rgb565 or SKColorType.Argb4444 && imageInfo.IsDirectlySupported()
-                || imageInfo.ColorSpace.IsDefaultLinear() && imageInfo.ColorType
-                    is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888 or SKColorType.Gray8 or SKColorType.Rg88
+                || imageInfo.ColorType is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888
+                    or SKColorType.Gray8 or SKColorType.Rg88 or SKColorType.R8Unorm
+                    && imageInfo.ColorSpace.IsDefaultLinear()
                 || imageInfo.ColorType is SKColorType.Srgba8888 && imageInfo.ColorSpace.IsDefaultSrgb();
 
         /// <summary>
