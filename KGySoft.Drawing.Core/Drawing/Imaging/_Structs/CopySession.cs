@@ -229,7 +229,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            PerformCopyWithQuantizer(quantizingSession);
+            PerformCopyWithDithering(quantizingSession, ditheringSession);
         }
 
         internal void PerformDraw(IQuantizer? quantizer, IDitherer? ditherer)
