@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v9.0.0:
+~~~~~~~~~
+
+* Assembly changes:
+===================
+* Upgrading KGySoft.Drawing.Core dependency to 9.0.0.
+  See https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+
+~~~~~~~~~
 * v8.1.0:
 ~~~~~~~~~
 

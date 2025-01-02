@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 if (status == TestStatus.Skipped && state.Site == FailureSite.Parent)
                     return;
 
-                string? message = result.Message;
+                string message = result.Message;
                 ConsoleColor origColor = console.ForegroundColor;
                 console.ForegroundColor = status switch
                 {
