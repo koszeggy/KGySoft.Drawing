@@ -18,7 +18,6 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.Drawing.Imaging;
@@ -26,8 +25,6 @@ using KGySoft.Threading;
 
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
-
-using Windows.UI.Core;
 
 #endregion
 

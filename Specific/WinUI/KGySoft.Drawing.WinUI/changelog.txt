@@ -6,6 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v9.0.0:
+~~~~~~~~~
+
+! Assembly changes:
+===================
+! Changing the target framework to .NET 6.0 because compiling against .NET 5.0 does not work with the latest SDKs.
+* Upgrading KGySoft.Drawing.Core dependency to 9.0.0.
+  See https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+
+~~~~~~~~~
 * v8.1.0:
 ~~~~~~~~~
 

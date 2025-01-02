@@ -1,21 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>
-    <!--<TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>-->
+
+    <TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
+    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
+    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
+
+    <!--<TargetFrameworks>net9.0-windows10.0.19041.0</TargetFrameworks>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>-->
+
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>KGySoft.Drawing.WinUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;arm64</Platforms>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <GenerateProgramFile>false</GenerateProgramFile>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 
-    <!--Suppression NETSDK1138: The target framework 'net5.0' is out of support - the unit test requires to target the supported versions -->
-    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <!--Suppressions:
+      - NETSDK1138: The target framework 'tfm' is out of support - the unit test requires to target the versions supported by the library
+      - NETSDK1198: A publish profile with the name 'win10-x64.pubxml' was not found in the project. Set the PublishProfile property to a valid file name. - may appear after the first build when .NET 6.0 is targeted
+      -->
+    <NoWarn>$(NoWarn);NETSDK1138;NETSDK1198</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,8 +35,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
 

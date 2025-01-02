@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>
-    
-    <!--<TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>-->
+    <TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
+    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
+
+    <!--<TargetFrameworks>net9.0-windows10.0.19041.0</TargetFrameworks>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -20,7 +21,9 @@
     <Authors>György Kőszeg</Authors>
     <Nullable>enable</Nullable>
 
-    <!--Suppression NETSDK1138: The target framework 'net5.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
+    <!--Suppressions:
+      - NETSDK1138: The target framework 'tfm' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
+      -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
@@ -34,12 +37,12 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
   </ItemGroup>
 
   <!-- Debug only project references -->
@@ -49,7 +52,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="8.1.0" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="9.0.0-preview.2" />
   </ItemGroup>
 
   <!--<ItemGroup>
