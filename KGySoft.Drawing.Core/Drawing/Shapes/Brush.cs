@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Shapes
     /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
-    /// <para>Brushes are used for filling shapes. There are several shape-filling methods in the <see cref="ReadWriteBitmapDataExtensions"/> class, whose names start with <c>Fill</c> or <c>BeginFill</c>.
+    /// <para>Brushes are used for filling shapes. There are several shape-filling methods in the <see cref="BitmapDataExtensions"/> class, whose names start with <c>Fill</c> or <c>BeginFill</c>.
     /// The ones that have no <see cref="Brush"/> parameter use a solid brush implicitly, created from the specified <see cref="Color32"/> instance.</para>
     /// <para>The <see cref="Brush"/> class is abstract, and you can create instances by using the static <c>Create...</c> methods. The created instances are immutable.</para>
     /// <note>In fact, even a <see cref="Pen"/> uses a <see cref="Brush"/> internally for drawing the outlines of shapes.

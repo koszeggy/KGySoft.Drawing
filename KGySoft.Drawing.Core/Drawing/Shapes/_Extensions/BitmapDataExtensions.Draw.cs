@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ReadWriteBitmapDataExtensions.Draw.cs
+//  File: BitmapDataExtensions.Draw.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Shapes
     /// <para>To obtain an <see cref="IReadWriteBitmapData"/> instance, use the <see cref="BitmapDataFactory"/> class
     /// or the <c>GetReadWriteBitmapData</c> extension methods for various platform-dependent bitmap implementations.</para>
     /// </remarks>
-    public static partial class ReadWriteBitmapDataExtensions
+    public static partial class BitmapDataExtensions
     {
         #region Methods
 
@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -159,7 +159,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -185,7 +185,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -234,7 +234,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -279,7 +279,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -327,7 +327,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -376,7 +376,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the line is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -627,7 +627,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -670,7 +670,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -713,7 +713,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -757,7 +757,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -781,8 +781,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -1004,7 +1004,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1043,7 +1043,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1092,7 +1092,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -1138,7 +1138,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -1187,7 +1187,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -1237,7 +1237,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the lines are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -1491,7 +1491,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -1535,7 +1535,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -1579,7 +1579,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -1624,7 +1624,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -1648,8 +1648,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -1875,7 +1875,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1916,7 +1916,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1967,7 +1967,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2015,7 +2015,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2066,7 +2066,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2118,7 +2118,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2382,7 +2382,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -2428,7 +2428,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -2474,7 +2474,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -2521,7 +2521,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -2546,8 +2546,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -2779,7 +2779,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2817,7 +2817,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2865,7 +2865,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the polygon is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2910,7 +2910,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the polygon is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -2958,7 +2958,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the polygon is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -3007,7 +3007,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the polygon is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -3256,7 +3256,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -3299,7 +3299,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -3342,7 +3342,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -3386,7 +3386,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -3410,8 +3410,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -3635,7 +3635,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3661,7 +3661,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3702,7 +3702,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3728,7 +3728,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3776,7 +3776,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -3821,7 +3821,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -3868,7 +3868,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -3916,7 +3916,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -4163,7 +4163,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -4206,7 +4206,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -4248,7 +4248,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -4291,7 +4291,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -4315,8 +4315,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -4538,7 +4538,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4564,7 +4564,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4605,7 +4605,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4631,7 +4631,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4679,7 +4679,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -4724,7 +4724,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -4771,7 +4771,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -4819,7 +4819,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -5066,7 +5066,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -5109,7 +5109,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -5151,7 +5151,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -5194,7 +5194,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -5218,8 +5218,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -5443,7 +5443,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5471,7 +5471,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5514,7 +5514,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5542,7 +5542,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5592,7 +5592,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the arc is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -5639,7 +5639,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the arc is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -5689,7 +5689,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the arc is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -5740,7 +5740,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the arc is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -5999,7 +5999,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -6044,7 +6044,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -6089,7 +6089,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -6135,7 +6135,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -6159,8 +6159,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -6394,7 +6394,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6422,7 +6422,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6465,7 +6465,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6493,7 +6493,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6544,7 +6544,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6591,7 +6591,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6641,7 +6641,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6692,7 +6692,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6950,7 +6950,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -6995,7 +6995,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -7040,7 +7040,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -7086,7 +7086,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -7110,8 +7110,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -7346,7 +7346,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7381,7 +7381,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7411,7 +7411,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7455,7 +7455,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7499,7 +7499,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7534,7 +7534,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7564,7 +7564,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7608,7 +7608,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7660,7 +7660,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7711,7 +7711,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7760,7 +7760,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7811,7 +7811,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7862,7 +7862,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7916,7 +7916,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -7968,7 +7968,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -8022,7 +8022,7 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
         /// </remarks>
@@ -8513,7 +8513,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8562,7 +8562,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8609,7 +8609,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8658,7 +8658,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8704,7 +8704,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8753,7 +8753,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8800,7 +8800,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8849,7 +8849,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
@@ -8874,8 +8874,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -9305,7 +9305,7 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -9335,7 +9335,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -9370,7 +9370,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -9471,7 +9471,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPath">EndDrawPath</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -9501,7 +9501,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPath">EndDrawPath</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -9514,8 +9514,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.

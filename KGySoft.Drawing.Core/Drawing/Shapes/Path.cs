@@ -33,12 +33,12 @@ namespace KGySoft.Drawing.Shapes
     /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm">online help</a> for an example with image.</div>
     /// </summary>
     /// <remarks>
-    /// <para>Though you can use the dedicated methods of the <see cref="ReadWriteBitmapDataExtensions"/> class to draw or fill simple shapes, the <see cref="Path"/> class
+    /// <para>Though you can use the dedicated methods of the <see cref="BitmapDataExtensions"/> class to draw or fill simple shapes, the <see cref="Path"/> class
     /// provides a more effective way to define custom shapes. The <see cref="Path"/> class can be used to define complex shapes consisting of multiple figures, which can be
     /// then drawn or filled in a single operation.</para>
     /// <para>But even if you need to draw or fill a simple shape multiple times, using a <see cref="Path"/> instance can be more effective, because the region of the path
     /// can be cached for faster drawing. The caching can be enabled by setting the <see cref="PreferCaching"/> property to <see langword="true"/>.</para>
-    /// <note>Please note that in some cases , the <see cref="Path"/> class can be less effective than using the dedicated methods of the <see cref="ReadWriteBitmapDataExtensions"/> class.
+    /// <note>Please note that in some cases , the <see cref="Path"/> class can be less effective than using the dedicated methods of the <see cref="BitmapDataExtensions"/> class.
     /// For example, drawing 1 pixel wide lines with no anti-aliasing may use a different algorithm that never uses caching. Also, very large regions may not be cached
     /// (this can be adjusted by the <see cref="DrawingOptions.CacheRegionLimit">DrawingOptions.CacheRegionLimit</see> property).</note>
     /// </remarks>

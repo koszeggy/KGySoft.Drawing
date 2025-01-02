@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ReadWriteBitmapDataExtensions.Fill.cs
+//  File: BitmapDataExtensions.Fill.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2024 - All Rights Reserved
 //
@@ -51,7 +51,7 @@ using SolidBrush = KGySoft.Drawing.Shapes.SolidBrush;
 
 namespace KGySoft.Drawing.Shapes
 {
-    partial class ReadWriteBitmapDataExtensions
+    partial class BitmapDataExtensions
     {
         #region Methods
 
@@ -77,7 +77,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -171,7 +171,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -206,7 +206,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -241,7 +241,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -426,7 +426,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPolygon">EndFillPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -456,7 +456,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPolygon">EndFillPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -486,7 +486,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPolygon">EndFillPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -516,7 +516,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPolygon">EndFillPolygon</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -529,8 +529,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPolygon">BeginFillPolygon</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPolygonAsync">FillPolygonAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -700,7 +700,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -726,7 +726,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -767,7 +767,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -793,7 +793,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -844,7 +844,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -886,7 +886,7 @@ namespace KGySoft.Drawing.Shapes
         /// and <paramref name="drawingOptions"/> is <see langword="null"/> and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -933,7 +933,7 @@ namespace KGySoft.Drawing.Shapes
         /// is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -979,7 +979,7 @@ namespace KGySoft.Drawing.Shapes
         /// the specified <paramref name="brush"/> is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -1223,7 +1223,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRectangle">EndFillRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -1263,7 +1263,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the location and size are integer values,
         /// and <paramref name="drawingOptions"/> is <see langword="null"/> and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRectangle">EndFillRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -1305,7 +1305,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="brush"/>
         /// is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRectangle">EndFillRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -1346,7 +1346,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the location and size are integer values,
         /// the specified <paramref name="brush"/> is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRectangle">EndFillRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -1370,8 +1370,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRectangle">BeginFillRectangle</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRectangleAsync">FillRectangleAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -1586,7 +1586,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1609,7 +1609,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1638,7 +1638,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1661,7 +1661,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1696,7 +1696,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1728,7 +1728,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1763,7 +1763,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -1798,7 +1798,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -1983,7 +1983,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillEllipse">EndFillEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2013,7 +2013,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillEllipse">EndFillEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2043,7 +2043,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillEllipse">EndFillEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2073,7 +2073,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillEllipse">EndFillEllipse</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2086,8 +2086,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillEllipse">BeginFillEllipse</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillEllipseAsync">FillEllipseAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -2256,7 +2256,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2281,7 +2281,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2312,7 +2312,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2337,7 +2337,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2375,7 +2375,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2409,7 +2409,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2446,7 +2446,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -2483,7 +2483,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -2678,7 +2678,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPie">EndFillPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2710,7 +2710,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPie">EndFillPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2742,7 +2742,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPie">EndFillPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2774,7 +2774,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPie">EndFillPie</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2787,8 +2787,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPie">BeginFillPie</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPie">BeginFillPie</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPieAsync">FillPieAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -2966,7 +2966,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2998,7 +2998,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3025,7 +3025,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3057,7 +3057,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3089,7 +3089,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3121,7 +3121,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3148,7 +3148,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3180,7 +3180,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3220,7 +3220,7 @@ namespace KGySoft.Drawing.Shapes
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3258,7 +3258,7 @@ namespace KGySoft.Drawing.Shapes
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3294,7 +3294,7 @@ namespace KGySoft.Drawing.Shapes
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3332,7 +3332,7 @@ namespace KGySoft.Drawing.Shapes
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -3371,7 +3371,7 @@ namespace KGySoft.Drawing.Shapes
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -3412,7 +3412,7 @@ namespace KGySoft.Drawing.Shapes
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -3451,7 +3451,7 @@ namespace KGySoft.Drawing.Shapes
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -3492,7 +3492,7 @@ namespace KGySoft.Drawing.Shapes
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="brush"/> is <see langword="null"/>.</exception>
@@ -3873,7 +3873,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -3909,7 +3909,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -3943,7 +3943,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -3979,7 +3979,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4013,7 +4013,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4049,7 +4049,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4083,7 +4083,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4119,7 +4119,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillRoundedRectangle">EndFillRoundedRectangle</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4133,8 +4133,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillRoundedRectangle">BeginFillRoundedRectangle</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillRoundedRectangleAsync">FillRoundedRectangleAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
@@ -4457,7 +4457,7 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -4488,7 +4488,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -4523,7 +4523,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
-        /// the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see>
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/>, or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -4626,7 +4626,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPath">EndFillPath</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4657,7 +4657,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations on the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndFillPath">EndFillPath</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -4671,8 +4671,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.BeginFillPath">BeginFillPath</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.ReadWriteBitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
