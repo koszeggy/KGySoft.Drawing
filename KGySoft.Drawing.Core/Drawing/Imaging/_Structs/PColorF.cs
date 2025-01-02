@@ -226,7 +226,7 @@ namespace KGySoft.Drawing.Imaging
         public static PColorF operator +(PColorF left, float right)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return new PColorF(left.Rgba * new Vector4(right));
+            return new PColorF(left.Rgba + new Vector4(right));
 #else
             return new PColorF(left.A + right, left.R + right, left.G + right, left.B + right);
 #endif
