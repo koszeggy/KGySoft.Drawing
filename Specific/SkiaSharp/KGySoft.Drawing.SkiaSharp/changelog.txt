@@ -15,9 +15,11 @@
 * Referencing KGySoft.Drawing.Core v9.0.0, which improves performance and adds direct shape drawing support.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
-+ General changes
-=================
-+ Supporting the new Bgr101010xXR color type.
++ KGySoft.Drawing.SkiaSharp namespace
+=====================================
++ SKImageInfoExtensions, SKBitmapExtensions, SKPixmapExtensions, SKImageExtensions, SKSurfaceExtensions classes:
+  + Supporting the new Bgr101010xXR color type.
+  + Supporting the new Srgba8888 color type.
 
 
 ~~~~~~~~~

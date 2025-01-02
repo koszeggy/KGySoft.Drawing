@@ -342,11 +342,36 @@ namespace KGySoft.Drawing.SkiaSharp
                     break;
 
                 case (SKColorType.Bgr101010xXR, _):
-                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor32().ToOpaque();
-                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor64().ToOpaque();
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor32();
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColor64();
+                    config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x).ToColorF();
                     config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x) =
                         new ColorBgr101010XRSrgb(c.A == UInt16.MaxValue ? c : c.Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace));
-                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x) = new ColorBgr101010XRSrgb(c.A >= 1f ? c.ToColor64()
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRSrgb>(x) = c.A >= 1f ? new ColorBgr101010XRSrgb(c)
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear ? new ColorBgr101010XRSrgb(c.Blend(row.BitmapData.BackColor.ToColorF()))
+                        : ColorBgr101010XRSrgb.FromSrgb(c.ToSrgb().Blend(row.BitmapData.BackColor.ToColorF(false)));
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Unpremul):
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x).ToColor32();
+                    config.RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x) = new ColorSrgba8888Srgb(c);
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x) = new ColorSrgba8888Srgb(c);
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Premul):
+                    config.RowGetPColor32 = (row, x) => row.UnsafeGetRefAs<ColorPsrgba8888Srgb>(x).ToPColor32();
+                    config.RowSetPColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorPsrgba8888Srgb>(x) = new ColorPsrgba8888Srgb(c);
+                    config.RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPsrgba8888Srgb>(x).ToPColor64();
+                    config.RowSetPColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorPsrgba8888Srgb>(x) = new ColorPsrgba8888Srgb(c);
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Opaque):
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x).ToColor32().ToOpaque();
+                    //config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x).ToColor64().ToOpaque();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x) =
+                        new ColorSrgba8888Srgb(c.A == UInt16.MaxValue ? c : c.Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace));
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorSrgba8888Srgb>(x) = new ColorSrgba8888Srgb(c.A >= 1f ? c.ToColor64()
                         : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear ? c.Blend(row.BitmapData.BackColor.ToColorF()).ToColor64()
                         : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()));
                     break;
@@ -693,6 +718,29 @@ namespace KGySoft.Drawing.SkiaSharp
                     config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x).ToColorF();
                     config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010XRLinear>(x) =
                         new ColorBgr101010XRLinear(c.A >= 1f ? c : c.Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace));
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Unpremul):
+                    // Note that there is no ColorSrgba8888Linear type, because that would be the same as the existing ColorRgba8888Srgb, and that's exactly what we use here
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgba8888Srgb>(x).ToColor32();
+                    config.RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888Srgb>(x) = new ColorRgba8888Srgb(c);
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Premul):
+                    config.RowGetPColorF = (row, x) => row.UnsafeGetRefAs<ColorPsrgba8888Linear>(x).ToPColorF();
+                    config.RowSetPColorF = (row, x, c) => row.UnsafeGetRefAs<ColorPsrgba8888Linear>(x) = new ColorPsrgba8888Linear(c);
+                    break;
+
+                case (SKColorType.Srgba8888, SKAlphaType.Opaque):
+                    // Note that there is no ColorSrgba8888Linear type, because that would be the same as the existing ColorRgba8888Srgb, and that's exactly what we use here.
+                    // Please note though that the blending is different from the (SKColorType.Rgba8888, SKAlphaType.Opaque) case, because default working color space is linear here.
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgba8888Srgb>(x).ToColor32().ToOpaque();
+                    config.RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888Srgb>(x) = new ColorRgba8888Srgb(c.A == Byte.MaxValue ? c
+                        : row.BitmapData.WorkingColorSpace != WorkingColorSpace.Srgb ? c.Blend(row.BitmapData.BackColor, WorkingColorSpace.Linear)
+                        : c.Blend(row.BitmapData.BackColor));
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888Srgb>(x) = new ColorRgba8888Srgb(c.A >= 1f ? c.ToColor32()
+                        : row.BitmapData.WorkingColorSpace != WorkingColorSpace.Srgb ? c.Blend(row.BitmapData.BackColor.ToColorF()).ToColor32()
+                        : c.ToColor32().Blend(row.BitmapData.BackColor));
                     break;
 
                 default:

@@ -86,16 +86,22 @@ namespace KGySoft.Drawing.SkiaSharp
 
             // [P]ColorF preference: always if the range demands it (RgbaF32) or when it's simpler (AlphaF16 is just a float -> half conversion with no extra division)
             if (imageInfo.ColorType is SKColorType.RgbaF32 or SKColorType.AlphaF16
+                // or when extended range could be lost otherwise
+                or SKColorType.Bgr101010xXR
                 // or when precision could be lost otherwise (16 bits per channel but in linear color space)
-                || info.LinearGamma && imageInfo.ColorType is SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Rg1616 or SKColorType.Rgba16161616)
+                || info.LinearGamma && imageInfo.ColorType is SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16 or SKColorType.Rg1616 or SKColorType.Rgba16161616
+                // or when the format is so awkward that it's the fastest if converted from PColorF
+                || imageInfo.ColorType is SKColorType.Srgba8888 && info is { LinearGamma: true, HasPremultipliedAlpha: true })
             {
                 info.Prefers128BitColors = true;
             }
             // [P]Color64 preference: when the range demands it (>8 bit color channels)
             else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16
-                         or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x or SKColorType.Bgr101010xXR
+                     or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x
                 // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha and < 8 channel per color formats
-                || info.LinearGamma && imageInfo.ColorType is not (SKColorType.Alpha8 or SKColorType.Rgb565 or SKColorType.Argb4444))
+                || info.LinearGamma && imageInfo.ColorType is not (SKColorType.Alpha8 or SKColorType.Rgb565 or SKColorType.Argb4444 or SKColorType.Srgba8888)
+                // or when 8-bit precision could be lost only in sRGB (in linear these are the same as existing sRGB formats with no precision loss)
+                || !info.LinearGamma && imageInfo.ColorType is SKColorType.Srgba8888)
             {
                 info.Prefers64BitColors = true;
             }
@@ -114,7 +120,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 || ((imageInfo.AlphaType is SKAlphaType.Unpremul or SKAlphaType.Premul)
                     && (imageInfo.ColorType is SKColorType.Bgra8888 or SKColorType.Rgba8888
                         or SKColorType.Rgba1010102 or SKColorType.Bgra1010102 or SKColorType.Argb4444
-                        or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgbaF32 or SKColorType.Rgba16161616));
+                        or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgbaF32 or SKColorType.Rgba16161616
+                        or SKColorType.Srgba8888));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="imageInfo"/>.
@@ -252,7 +259,8 @@ namespace KGySoft.Drawing.SkiaSharp
         internal static bool CanBeDithered(this SKImageInfo imageInfo)
             => imageInfo.ColorType is SKColorType.Rgb565 or SKColorType.Argb4444 && imageInfo.IsDirectlySupported()
                 || imageInfo.ColorSpace.IsDefaultLinear() && imageInfo.ColorType
-                    is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888 or SKColorType.Gray8 or SKColorType.Rg88;
+                    is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888 or SKColorType.Gray8 or SKColorType.Rg88
+                || imageInfo.ColorType is SKColorType.Srgba8888 && imageInfo.ColorSpace.IsDefaultSrgb();
 
         /// <summary>
         /// NOTE: Gets Default both for null and unsupported color spaces whereas imageInfo.ColorSpace.IsDefaultSrgb would return true for null color space.

@@ -19,10 +19,16 @@ using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
 
+using SkiaSharp;
+
 #endregion
 
 namespace KGySoft.Drawing.SkiaSharp
 {
+    /// <summary>
+    /// It's normally used for <see cref="SKColorType.Rgba8888"/> when the color space is sRGB,
+    /// but it's used also for <see cref="SKColorType.Srgba8888"/> when the color space is linear.
+    /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     internal readonly struct ColorRgba8888Srgb
     {
