@@ -508,7 +508,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="x">The value to scale by on the X axis.</param>
         /// <param name="y">The value to scale by on the Y axis.</param>
-        /// <returns></returns>
+        /// <returns>The scaling matrix.</returns>
         public static TransformationMatrix CreateScale(float x, float y)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD

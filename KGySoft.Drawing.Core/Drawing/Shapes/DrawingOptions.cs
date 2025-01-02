@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>This property allows applying transformations (e.g. translation, rotation, zoom, etc.) when drawing shapes.
         /// It can be particularly useful when drawing shapes directly, without creating a <see cref="Path"/> instance.
-        /// For example, the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawEllipse"/> methods don't offer a parameter for rotation.</para>
+        /// For example, the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipse"/> methods don't offer a parameter for rotation.</para>
         /// <para>Setting this property to a value other than the identity matrix disables path region caching for <see cref="Path"/> instances,
         /// even if <see cref="Path.PreferCaching">Path.PreferCaching</see> is <see langword="true"/>. To achieve the best performance
         /// when drawing the same shape with the same transformation multiple times, use a <see cref="Path"/> instance with caching enabled,

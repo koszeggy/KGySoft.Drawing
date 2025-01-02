@@ -24,7 +24,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
-    /// The <see cref="N:KGySoft.Drawing.Snapes"/> namespace provides types and extension methods for drawing and filling shapes on <see cref="IReadWriteBitmapData"/> instances.
+    /// The <see cref="N:KGySoft.Drawing.Shapes"/> namespace provides types and extension methods for drawing and filling shapes on <see cref="IReadWriteBitmapData"/> instances.
     /// <br/>See the properties of the <see cref="DrawingOptions"/> class, and the <strong>Remarks</strong> section of the <see cref="Brush"/>, <see cref="Pen"/> and <see cref="Path"/> classes for examples with images.
     /// </summary>
     [CompilerGenerated]
