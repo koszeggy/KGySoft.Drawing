@@ -42,6 +42,7 @@ This package contains the platform-independent core functionality that mainly re
 Main highlights:
 - Creating [managed bitmap data](http://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) of any pixel format.
 - Creating bitmap data for any preallocated buffer using any pixel format. This allows accessing the pixels of bitmaps of any technology if the bitmap data is exposed as a pointer or array.
+- [Shape drawing](https://docs.kgysoft.net/drawing/html/N_KGySoft_Drawing_Shapes.htm) with feature-rich [brushes](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm), [pens](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) and other [drawing options](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm).
 - Quantizing using [predefined](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) or [optimized](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) colors
 - Dithering using [ordered](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [error diffusion](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [random noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) or [interleaved gradient noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) dithering techniques
 - Creating [GIF animations](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) even in high color
@@ -93,7 +94,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
 #### [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.WinUI.svg)](https://www.nuget.org/packages/KGySoft.Drawing.WinUI)
 
-This package helps accessing the bitmap data of the `WriteableBitmap` type of the Windows App SDK used in WinUI applications. This library requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).
+This package helps accessing the bitmap data of the `WriteableBitmap` type of the Windows App SDK used in WinUI applications. This library requires targeting at least .NET 6 and Windows 10.0.17763.0 (October 2018 release, version 1809).
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) or by using the Package Manager Console:
 

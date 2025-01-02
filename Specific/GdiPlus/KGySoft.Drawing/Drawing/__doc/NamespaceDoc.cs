@@ -32,7 +32,7 @@ namespace KGySoft.Drawing
     /// </summary>
     /// <remarks>
     /// <note>Starting with version 7.0.0 the <c>KGySoft.Drawing</c> libraries are split into multiple packages.
-    /// The <strong>Assembly</strong> name is indicated for all types, which indicates also the the NuGet package the type is located in.</note>
+    /// The <strong>Assembly</strong> name is indicated for all types, which indicates also the NuGet package the type is located in.</note>
     /// <h2>The available packages of KGy SOFT Drawing Libraries:</h2>
     /// <para><list type="definition">
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a></term>
@@ -57,7 +57,7 @@ namespace KGySoft.Drawing
     /// which is used by <a href="https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/" target="_blank">Windows App SDK</a> in WinUI applications.
     /// It also has a <see cref="M:KGySoft.Drawing.WinUI.WriteableBitmapExtensions.GetReadWriteBitmapData(Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap)">GetReadWriteBitmapData</see>
     /// extension method to obtain an <see cref="IReadWriteBitmapData"/> instance for the bitmap.
-    /// This package requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).</description></item>
+    /// This package requires targeting at least .NET 6 and Windows 10.0.17763.0 (October 2018 release, version 1809).</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp/" target="_blank">KGySoft.Drawing.Uwp</a></term>
     /// <description>Just like the WinUI package, this one provides support for the <a href="https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
     /// used by the Universal Windows Platform (UWP) platform. Its documentation is not compiled to this combined documentation due to technical reasons

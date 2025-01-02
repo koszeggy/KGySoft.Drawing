@@ -17,7 +17,7 @@
 
 * Common changes
 ================
-* Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves performance of
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves the performance of
   accessing IReadWriteBitmapData instances.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 

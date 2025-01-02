@@ -1618,7 +1618,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomFunction.htm">online help</a> for an example with images.</div>
         /// </summary>
-        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking and it is expected to be fast.
+        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking, and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before invoking the <paramref name="quantizingFunction"/> delegate.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.</param>
@@ -1681,7 +1681,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomFunction_2.htm">online help</a> for an example with images.</div>
         /// </summary>
-        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking and it is expected to be fast.
+        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking, and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
         /// <param name="pixelFormatHint">The <see cref="KnownPixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
         /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
@@ -1741,7 +1741,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
         /// </summary>
-        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking and it is expected to be fast.
+        /// <param name="quantizingFunction">A delegate that specifies the custom quantizing logic. It must be thread-safe for parallel invoking, and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
         /// <param name="backColor">Determines the <see cref="BackColor"/> property of the result. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.
         /// <br/>If <paramref name="autoBlend"/> is <see langword="true"/>, then colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
