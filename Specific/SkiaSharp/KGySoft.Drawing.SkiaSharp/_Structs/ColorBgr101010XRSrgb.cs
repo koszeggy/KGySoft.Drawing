@@ -69,7 +69,7 @@ namespace KGySoft.Drawing.SkiaSharp
             | (uint)((c.B >> 7) + 384);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ColorBgr101010XRSrgb(ColorF c) => FromSrgb(c.ToSrgb());
+        internal ColorBgr101010XRSrgb(ColorF c) => this = FromSrgb(c.ToSrgb());
 
         #endregion
 
