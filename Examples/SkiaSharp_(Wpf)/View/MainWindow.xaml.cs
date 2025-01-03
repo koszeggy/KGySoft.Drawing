@@ -84,8 +84,8 @@ namespace KGySoft.Examples.Skia.Wpf.View
             float ratio = Math.Min((float)targetRect.Width / sourceSize.Width, (float)targetRect.Height / sourceSize.Height);
             var targetSize = new SKSizeI((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
             var targetLocation = new SKPointI((targetRect.Width >> 1) - (targetSize.Width >> 1), (targetRect.Height >> 1) - (targetSize.Height >> 1));
-            using var paint = new SKPaint { FilterQuality = SKFilterQuality.High };
-            e.Surface.Canvas.DrawBitmap(bitmap, SKRectI.Create(targetRect.Location + targetLocation,  targetSize), paint);
+            using var image = SKImage.FromBitmap(bitmap);
+            e.Surface.Canvas.DrawImage(image, SKRectI.Create(targetRect.Location + targetLocation,  targetSize), new SKSamplingOptions(SKCubicResampler.Mitchell));
         }
 
         #endregion

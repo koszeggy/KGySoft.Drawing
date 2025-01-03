@@ -15,11 +15,6 @@
 
 #region Usings
 
-using KGySoft.Drawing.SkiaSharp;
-
-using SkiaSharp;
-using SkiaSharp.Views.WPF;
-
 #region Used Namespaces
 
 using System;
@@ -37,7 +32,11 @@ using KGySoft.ComponentModel;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.SkiaSharp;
 using KGySoft.Threading;
+
+using SkiaSharp;
+using SkiaSharp.Views.WPF;
 
 #endregion
 
@@ -47,7 +46,6 @@ using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using Size = System.Drawing.Size;
 using KGySoft.CoreLibraries;
-using KGySoft.Drawing.Examples.Shared;
 
 #endregion
 
@@ -214,7 +212,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
             bool IQuantizerSettings.DirectMapping => false;
             WorkingColorSpace IQuantizerSettings.WorkingColorSpace => ColorSpace == WorkingColorSpace.Linear || ForceLinearWorkingColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
             byte? IQuantizerSettings.BitLevel => null;
-            System.Drawing.Color IQuantizerSettings.BackColor => BackColor.ToColor();
+            Color32 IQuantizerSettings.BackColor => BackColor;
             float IDithererSettings.Strength => 0f;
             bool? IDithererSettings.ByBrightness => null;
             bool IDithererSettings.DoSerpentineProcessing => false;
