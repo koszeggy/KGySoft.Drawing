@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             public bool UseLinearColorSpace { get; private set; }
             public bool UseQuantizer { get; private set; }
             public QuantizerDescriptor? SelectedQuantizer { get; private set; }
-            public System.Drawing.Color BackColor { get; private set; }
+            public Color32 BackColor { get; private set; }
             public byte AlphaThreshold { get; private set; }
             public byte WhiteThreshold { get; private set; }
             public int PaletteSize { get; private set; }
@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
                 UseLinearColorSpace = viewModel.UseLinearColorSpace,
                 UseQuantizer = viewModel.UseQuantizer,
                 SelectedQuantizer = viewModel.SelectedQuantizer,
-                BackColor = viewModel.BackColor.ToDrawingColor(),
+                BackColor = viewModel.BackColor.ToColor32(),
                 AlphaThreshold = (byte)viewModel.AlphaThreshold,
                 WhiteThreshold = (byte)viewModel.WhiteThreshold,
                 PaletteSize = viewModel.PaletteSize,
