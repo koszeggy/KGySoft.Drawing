@@ -74,7 +74,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             bool IQuantizerSettings.DirectMapping => false;
             WorkingColorSpace IQuantizerSettings.WorkingColorSpace => ColorSpace == WorkingColorSpace.Linear || ForceLinearWorkingColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
             byte? IQuantizerSettings.BitLevel => null;
-            System.Drawing.Color IQuantizerSettings.BackColor => BackColor.ToColor();
             float IDithererSettings.Strength => 0f;
             bool? IDithererSettings.ByBrightness => null;
             bool IDithererSettings.DoSerpentineProcessing => false;
