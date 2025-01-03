@@ -52,7 +52,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
             public bool UseLinearColorSpace { get; private init; }
             public bool UseQuantizer { get; private init; }
             public QuantizerDescriptor? SelectedQuantizer { get; private init; }
-            public System.Drawing.Color BackColor { get; private init; }
+            public Color32 BackColor { get; private init; }
             public byte AlphaThreshold { get; private init; }
             public byte WhiteThreshold { get; private init; }
             public int PaletteSize { get; private init; }
@@ -83,7 +83,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 UseLinearColorSpace = viewModel.UseLinearColorSpace,
                 UseQuantizer = viewModel.UseQuantizer,
                 SelectedQuantizer = viewModel.SelectedQuantizer,
-                BackColor = viewModel.BackColor.ToDrawingColor(),
+                BackColor = viewModel.BackColor.ToColor32(),
                 AlphaThreshold = (byte)viewModel.AlphaThreshold,
                 WhiteThreshold = (byte)viewModel.WhiteThreshold,
                 PaletteSize = viewModel.PaletteSize,

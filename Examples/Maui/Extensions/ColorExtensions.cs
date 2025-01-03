@@ -15,6 +15,8 @@
 
 #region Usings
 
+using KGySoft.Drawing.Imaging;
+
 using Microsoft.Maui.Graphics;
 
 #endregion
@@ -25,7 +27,7 @@ namespace KGySoft.Drawing.Examples.Maui.Extensions
     {
         #region Methods
 
-        internal static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.ToInt());
+        internal static Color32 ToColor32(this Color color) => Color32.FromArgb(color.ToInt());
 
         #endregion
     }
