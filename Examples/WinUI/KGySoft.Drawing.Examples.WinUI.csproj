@@ -32,9 +32,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing.WinUI" Version="8.1.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231115000" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
+    <PackageReference Include="KGySoft.Drawing.WinUI" Version="9.0.0-rc.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
