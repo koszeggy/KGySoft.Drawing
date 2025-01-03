@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System.Drawing;
-
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -27,7 +25,7 @@ namespace KGySoft.Drawing.Examples.Shared.Interfaces
     {
         #region Properties
 
-        Color BackColor { get; }
+        Color32 BackColor { get; }
         byte AlphaThreshold { get; }
         byte WhiteThreshold { get; }
         bool DirectMapping { get; }

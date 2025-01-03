@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -36,21 +37,21 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
         internal static readonly QuantizerDescriptor[] Quantizers =
         {
-            new("Black & White", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.BlackAndWhite)),
-            new("Grayscale (4 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale4)),
-            new("Grayscale (16 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale16)),
-            new("Grayscale (256 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale)),
-            new("System default 4 bpp palette (16 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette)),
-            new("System default 8 bpp palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette)),
-            new("RGB332 palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb332)),
-            new("RGB555 color space (32K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb555)),
-            new("RGB565 color space (64K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb565)),
-            new("ARGB1555 color space (32K colors with transparency)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Argb1555)),
-            new("RGB888 color space (16.7M colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb888)),
+            new("Black & White", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.BlackAndWhite), false),
+            new("Grayscale (4 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale4), false),
+            new("Grayscale (16 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale16), false),
+            new("Grayscale (256 shades)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Grayscale), false),
+            new("System default 4 bpp palette (16 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette), false),
+            new("System default 8 bpp palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette), true),
+            new("RGB332 palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb332), false),
+            new("RGB555 color space (32K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb555), false),
+            new("RGB565 color space (64K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb565), false),
+            new("ARGB1555 color space (32K colors with transparency)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Argb1555), true),
+            new("RGB888 color space (16.7M colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb888), false),
 
-            new("Optimized palette (Octree algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.Octree)),
-            new("Optimized palette (Median Cut algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.MedianCut)),
-            new("Optimized palette (Wu's algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.Wu)),
+            new("Optimized palette (Octree algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.Octree), true),
+            new("Optimized palette (Median Cut algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.MedianCut), true),
+            new("Optimized palette (Wu's algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.Wu), true),
         };
 
         #endregion
@@ -77,13 +78,13 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
         #region Constructors
 
-        private QuantizerDescriptor(string name, Type type, string methodName)
+        private QuantizerDescriptor(string name, Type type, string methodName, bool hasAlpha)
         {
             displayName = name;
-            MethodInfo mi = type.GetMethod(methodName)!;
+            MethodInfo mi = GetMethod(type, methodName)!;
             method = MethodAccessor.GetAccessor(mi);
             parameters = mi.GetParameters();
-            HasAlphaThreshold = parameters.Any(p => p.Name == "alphaThreshold");
+            HasAlphaThreshold = hasAlpha;
             HasWhiteThreshold = parameters.Any(p => p.Name == "whiteThreshold");
             HasDirectMapping = parameters.Any(p => p.Name == "directMapping");
             HasMaxColors = parameters.Any(p => p.Name == "maxColors");
@@ -93,6 +94,32 @@ namespace KGySoft.Drawing.Examples.Shared.Model
         #endregion
 
         #region Methods
+
+        #region Static Methods
+
+        private static MethodInfo GetMethod(Type type, string methodName)
+        {
+            MemberInfo[] methods = type.GetMember(methodName, MemberTypes.Method, BindingFlags.Public | BindingFlags.Static);
+            foreach (MemberInfo method in methods)
+            {
+                if (!Attribute.IsDefined(method, typeof(EditorBrowsableAttribute)))
+                    return (MethodInfo)method;
+            }
+
+            throw new InvalidOperationException($"Method not found: {methodName}");
+        }
+
+        #endregion
+
+        #region Instance Methods
+
+        #region Public Methods
+
+        public override string ToString() => displayName;
+
+        #endregion
+
+        #region Internal Methods
 
         internal IQuantizer Create(IQuantizerSettings settings)
         {
@@ -120,7 +147,9 @@ namespace KGySoft.Drawing.Examples.Shared.Model
             return result;
         }
 
-        public override string ToString() => displayName;
+        #endregion
+
+        #endregion
 
         #endregion
 
