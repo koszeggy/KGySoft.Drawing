@@ -25,7 +25,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 using KGySoft.ComponentModel;
 using KGySoft.CoreLibraries;
@@ -158,7 +157,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             internal bool ShowOverlay { get; private init; }
             internal PixelFormat SelectedFormat { get; private init; }
             internal bool ForceLinearColorSpace { get; private init; }
-            internal Color BackColor { get; private init; }
+            internal Color32 BackColor { get; private init; }
             internal byte AlphaThreshold { get; private init; }
             internal bool OptimizePalette { get; private init; }
             internal bool UseDithering { get; private init; }
@@ -186,7 +185,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 ShowOverlay = viewModel.ShowOverlay,
                 SelectedFormat = viewModel.SelectedFormat,
                 ForceLinearColorSpace = viewModel.ForceLinearColorSpace,
-                BackColor = viewModel.BackColor,
+                BackColor = viewModel.BackColor.ToColor32(),
                 AlphaThreshold = viewModel.AlphaThreshold,
                 OptimizePalette = viewModel.OptimizePalette,
                 UseDithering = viewModel.UseDithering,
