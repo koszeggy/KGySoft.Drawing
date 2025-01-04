@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Examples.Shared.Model
         private QuantizerDescriptor(string name, Type type, string methodName, bool hasAlpha)
         {
             displayName = name;
-            MethodInfo mi = GetMethod(type, methodName)!;
+            MethodInfo mi = GetMethod(type, methodName);
             method = MethodAccessor.GetAccessor(mi);
             parameters = mi.GetParameters();
             HasAlphaThreshold = hasAlpha;

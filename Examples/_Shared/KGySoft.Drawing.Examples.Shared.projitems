@@ -9,7 +9,9 @@
     <Import_RootNamespace>KGySoft.Drawing.Examples.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)PathFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BitmapDataHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\PathShape.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IDithererSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IQuantizerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\DithererDescriptor.cs" />
