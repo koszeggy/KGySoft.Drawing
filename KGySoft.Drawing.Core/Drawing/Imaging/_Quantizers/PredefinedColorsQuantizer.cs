@@ -1795,19 +1795,19 @@ namespace KGySoft.Drawing.Imaging
                 // if palette is null, the exception will be thrown from FromCustomPalette
                 KnownPixelFormat.Format8bppIndexed or KnownPixelFormat.Format4bppIndexed or KnownPixelFormat.Format1bppIndexed => FromCustomPalette(bitmapData.Palette!),
                 KnownPixelFormat.Format16bppArgb1555 => Argb1555(bitmapData.BackColor, bitmapData.AlphaThreshold),
-                KnownPixelFormat.Format16bppRgb565 => Rgb565(bitmapData.BackColor),
-                KnownPixelFormat.Format16bppRgb555 => Rgb555(bitmapData.BackColor),
-                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(bitmapData.BackColor),
-                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(bitmapData.BackColor),
+                KnownPixelFormat.Format16bppRgb565 => Rgb565(bitmapData.BackColor, bitmapData.AlphaThreshold),
+                KnownPixelFormat.Format16bppRgb555 => Rgb555(bitmapData.BackColor, bitmapData.AlphaThreshold),
+                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(bitmapData.BackColor, bitmapData.AlphaThreshold),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(bitmapData.BackColor, bitmapData.AlphaThreshold),
                 KnownPixelFormat.Format32bppArgb or KnownPixelFormat.Format32bppPArgb or KnownPixelFormat.Format64bppArgb or KnownPixelFormat.Format64bppPArgb
                     or KnownPixelFormat.Format128bppRgba or KnownPixelFormat.Format128bppPRgba => Argb8888(bitmapData.BackColor, bitmapData.AlphaThreshold),
                 _ => bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData is ICustomBitmapData { BackBufferIndependentPixelAccess: true, CanReadWrite: true } customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
                     : bitmapData.IsGrayscale() ? (bitmapData.HasAlpha()
                         ? (FromCustomFunction(bitmapData.LinearBlending() ? c => c.ToColorF().ToGray().ToColor32() : c => c.ToGray()))
-                        : Grayscale(bitmapData.BackColor))
+                        : Grayscale(bitmapData.BackColor, bitmapData.AlphaThreshold))
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor, bitmapData.AlphaThreshold)
-                    : Rgb888(bitmapData.BackColor)
+                    : Rgb888(bitmapData.BackColor, bitmapData.AlphaThreshold)
             }).ConfigureColorSpace(bitmapData.GetPreferredColorSpaceOrDefault());
         }
 
@@ -1856,13 +1856,13 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat switch
             {
                 KnownPixelFormat.Format8bppIndexed => SystemDefault8BppPalette(backColor, alphaThreshold),
-                KnownPixelFormat.Format4bppIndexed => SystemDefault4BppPalette(backColor),
-                KnownPixelFormat.Format1bppIndexed => SystemDefault1BppPalette(backColor),
+                KnownPixelFormat.Format4bppIndexed => SystemDefault4BppPalette(backColor, alphaThreshold),
+                KnownPixelFormat.Format1bppIndexed => SystemDefault1BppPalette(backColor, alphaThreshold),
                 KnownPixelFormat.Format16bppArgb1555 => Argb1555(backColor, alphaThreshold),
-                KnownPixelFormat.Format16bppRgb565 => Rgb565(backColor),
-                KnownPixelFormat.Format16bppRgb555 => Rgb555(backColor),
-                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(backColor),
-                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(backColor),
+                KnownPixelFormat.Format16bppRgb565 => Rgb565(backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb555 => Rgb555(backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppGrayScale or KnownPixelFormat.Format8bppGrayScale or KnownPixelFormat.Format32bppGrayScale => Grayscale(backColor, alphaThreshold),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format96bppRgb => Rgb888(backColor, alphaThreshold),
                 _ => Argb8888(backColor, alphaThreshold)
             };
         }
