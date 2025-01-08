@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="KGySoft.Drawing" Version="9.0.0-rc.1" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="9.0.0" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />

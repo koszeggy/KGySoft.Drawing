@@ -95,9 +95,28 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             txtImageFile.DataBindings.Add(nameof(txtImageFile.Text), viewModel, nameof(viewModel.ImageFile), false, DataSourceUpdateMode.OnPropertyChanged);
             //commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.ImageFile), txtImageFile, nameof(txtImageFile.Text));
 
-            // chbImageOverlay.Checked -> VM.ShowOverlay -> txtImageOverlay.Enabled
+            // chbImageOverlay.Checked -> VM.ShowOverlay -> txtImageOverlay.Enabled, tblOverlayShape.Enabled
             commandBindings.AddPropertyBinding(chbImageOverlay, nameof(chbImageOverlay.Checked), nameof(viewModel.ShowOverlay), viewModel);
-            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ShowOverlay), nameof(txtImageOverlay.Enabled), txtImageOverlay);
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ShowOverlay), nameof(Control.Enabled), txtImageOverlay, tblOverlayShape);
+
+            // VM.OutlineEnabled -> tblOutline.Enabled
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.OutlineEnabled), nameof(tblOutline.Enabled), tblOutline);
+
+            // VM.OverlayShapes -> cmbOverlayShape.DataSource (once)
+            cmbOverlayShape.DataSource = viewModel.OverlayShapes;
+
+            // VM.OverlayShape -> cmbOverlayShape.SelectedItem (cannot use two-way for SelectedItem because there is no SelectedItemChanged event)
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.OverlayShape), nameof(cmbOverlayShape.SelectedItem), cmbOverlayShape);
+
+            // VM.OverlayShape <- cmbOverlayShape.SelectedValue (cannot use two-way for SelectedValue because ValueMember is not set)
+            commandBindings.AddPropertyBinding(cmbOverlayShape, nameof(cmbOverlayShape.SelectedValue), nameof(viewModel.OverlayShape), viewModel);
+
+            // VM.OutlineWidth (int) <-> numOutline.Value (decimal)
+            commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.OutlineWidth), numOutline, nameof(numOutline.Value),
+                i => (decimal)(int)i!, d => (int)(decimal)d!);
+
+            // VM.OutlineColor -> pnlOutlineColor.BackColor
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.OutlineColor), nameof(pnlOutlineColor.BackColor), pnlOutlineColor);
 
             // VM.OverlayFile <-> txtImageOverlay.Text
             txtImageOverlay.DataBindings.Add(nameof(txtImageOverlay.Text), viewModel, nameof(viewModel.OverlayFile), false, DataSourceUpdateMode.OnPropertyChanged);
@@ -168,7 +187,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
                 b => (bool)b! ? ProgressBarStyle.Marquee : ProgressBarStyle.Blocks, pbProgress);
 
             // VM.ProgressValue -> pbProgress.Value (by UpdateProgressValue)
-            commandBindings.AddPropertyChangedHandlerBinding(viewModel, () => UpdateProgressValue(viewModel.ProgressValue, pbProgress.ProgressBar!), nameof(viewModel.ProgressValue));
+            commandBindings.AddPropertyChangedHandlerBinding(viewModel, () => UpdateProgressValue(viewModel.ProgressValue, pbProgress.ProgressBar), nameof(viewModel.ProgressValue));
 
             #region Local Methods
 
@@ -196,6 +215,10 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
         private void InitCommandBindings()
         {
+            // btnOutlineColor.Click -> OnPickOutlineColorCommand
+            commandBindings.Add(OnPickOutlineColorCommand)
+                .AddSource(btnOutlineColor, nameof(btnOutlineColor.Click));
+
             // btnBackColor.Click -> OnPickBackColorCommand
             commandBindings.Add(OnPickBackColorCommand)
                 .AddSource(btnBackColor, nameof(btnBackColor.Click));
@@ -215,11 +238,19 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         #region Command Handlers
 
         private void OnResizeProgressCommand() => pbProgress.Width = ssStatus.ClientSize.Width - lblProgress.Width - 16;
+
         private void OnPickBackColorCommand()
         {
             colorDialog.Color = viewModel.BackColor;
             if (colorDialog.ShowDialog(this) == DialogResult.OK)
                 viewModel.BackColor = colorDialog.Color;
+        }
+
+        private void OnPickOutlineColorCommand()
+        {
+            colorDialog.Color = viewModel.OutlineColor;
+            if (colorDialog.ShowDialog(this) == DialogResult.OK)
+                viewModel.OutlineColor = colorDialog.Color;
         }
 
         #endregion

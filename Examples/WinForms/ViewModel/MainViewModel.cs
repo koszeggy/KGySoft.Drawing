@@ -15,6 +15,8 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -28,10 +30,23 @@ using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Examples.Shared;
+using KGySoft.Drawing.Examples.Shared.Enums;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
+
+#endregion
+
+#region Used Aliases
+
+using Brush = KGySoft.Drawing.Shapes.Brush;
+using Path = KGySoft.Drawing.Shapes.Path;
+using Pen = KGySoft.Drawing.Shapes.Pen;
+
+#endregion
 
 #endregion
 
@@ -155,6 +170,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             internal Bitmap? Source { get; private init; }
             internal Bitmap? Overlay { get; private init; }
             internal bool ShowOverlay { get; private init; }
+            internal PathShape OverlayShape { get; private init; }
+            internal int OutlineWidth { get; private init; }
+            internal Color32 OutlineColor { get; private init; }
             internal PixelFormat SelectedFormat { get; private init; }
             internal bool ForceLinearColorSpace { get; private init; }
             internal Color32 BackColor { get; private init; }
@@ -162,6 +180,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             internal bool OptimizePalette { get; private init; }
             internal bool UseDithering { get; private init; }
             internal DithererDescriptor? SelectedDitherer { get; private init; }
+
+            // Using Half pixel offset for odd pen with, and None for even width to avoid blurry lines. See more details at https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm
+            internal DrawingOptions DrawingOptions => new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = (OutlineWidth & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
 
             #endregion
 
@@ -183,6 +204,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 Source = viewModel.sourceBitmap,
                 Overlay = viewModel.overlayBitmap,
                 ShowOverlay = viewModel.ShowOverlay,
+                OverlayShape = viewModel.OverlayShape,
+                OutlineWidth = viewModel.OutlineWidth,
+                OutlineColor = viewModel.OutlineColor.ToColor32(),
                 SelectedFormat = viewModel.SelectedFormat,
                 ForceLinearColorSpace = viewModel.ForceLinearColorSpace,
                 BackColor = viewModel.BackColor.ToColor32(),
@@ -205,16 +229,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         private static readonly HashSet<string> affectsPreview = new()
         {
-            nameof(ImageFile),
-            nameof(OverlayFile),
-            nameof(ShowOverlay),
-            nameof(SelectedFormat),
-            nameof(ForceLinearColorSpace),
-            nameof(BackColor),
-            nameof(AlphaThreshold),
-            nameof(OptimizePalette),
-            nameof(UseDithering),
-            nameof(SelectedDitherer),
+            nameof(ImageFile), nameof(OverlayFile), nameof(ShowOverlay), nameof(OverlayShape), nameof(OutlineWidth), nameof(OutlineColor), nameof(SelectedFormat),
+            nameof(ForceLinearColorSpace), nameof(BackColor), nameof(AlphaThreshold), nameof(OptimizePalette), nameof(UseDithering), nameof(SelectedDitherer),
         };
 
         #endregion
@@ -245,11 +261,17 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             .OrderBy(pf => pf & PixelFormat.Max)
             .ToArray();
 
+        public PathShape[] OverlayShapes { get; } = Enum<PathShape>.GetValues();
+
         public ICommand UpdateProgressCommand { get => Get<ICommand>(() => new SimpleCommand(OnUpdateProgressCommand)); }
 
         public string? ImageFile { get => Get<string?>(); set => Set(value); }
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
+        public bool OutlineEnabled { get => Get<bool>(); set => Set(value); }
+        public PathShape OverlayShape { get => Get<PathShape>(); set => Set(value); }
+        public int OutlineWidth { get => Get<int>(); set => Set(value); }
+        public Color OutlineColor { get => Get(Color.Black); set => Set(value); }
         public PixelFormat SelectedFormat { get => Get<PixelFormat>(); set => Set(value); }
         public bool ForceLinearColorSpace { get => Get<bool>(); set => Set(value); }
         public Color BackColor { get => Get(Color.Silver); set => Set(value); }
@@ -306,7 +328,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         public MainViewModel()
         {
             progressUpdater = new ProgressUpdater(this);
-            SelectedFormat = PixelFormat.Format8bppIndexed;
+            SelectedFormat = PixelFormat.Format32bppArgb;
             bool isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
             ImageFile =  isWindows ? @"..\..\..\..\..\Help\Images\Information256.png" : "../../../../../Help/Images/Information256.png";
             OverlayFile = isWindows ? @"..\..\..\..\..\Help\Images\AlphaGradient.png" : "../../../../../Help/Images/AlphaGradient.png";
@@ -344,6 +366,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             return result;
         }
 
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -393,6 +416,10 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
                     break;
 
+                case nameof(ShowOverlay) or nameof(OverlayShape):
+                    OutlineEnabled = ShowOverlay && OverlayShape != PathShape.None;
+                    break;
+
                 case nameof(SelectedFormat):
                     OptimizePaletteEnabled = SelectedFormat.IsIndexed();
                     break;
@@ -406,7 +433,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             {
                 PixelFormatInfo pixelFormatInfo = SelectedFormat.GetInfo();
                 AlphaThresholdEnabled = pixelFormatInfo.HasSingleBitAlpha 
-                    || pixelFormatInfo.HasAlpha && UseDithering
+                    || /*pixelFormatInfo.HasAlpha &&*/ UseDithering
                     || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
                 BackColorEnabled = !pixelFormatInfo.HasAlpha || pixelFormatInfo.HasSingleBitAlpha || UseDithering;
             }
@@ -522,12 +549,32 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 if (token.IsCancellationRequested)
                     return;
 
-                // b.2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
+                // b.2.) Drawing the overlay
                 IReadableBitmapData overlayBitmapData = CachedOverlay;
                 var targetRectangle = new Rectangle(tempBitmapData.Width / 2 - overlayBitmapData.Width / 2,
                     tempBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
-                await overlayBitmapData.DrawIntoAsync(tempBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
-                    targetRectangle, asyncConfig: asyncConfig);
+
+                Path? path = PathFactory.GetPath(targetRectangle, cfg.OverlayShape, cfg.OutlineWidth);
+
+                if (path == null)
+                {
+                    // When no shape is specified, we just draw the overlay bitmap into the target rectangle.
+                    await overlayBitmapData.DrawIntoAsync(tempBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                        targetRectangle, asyncConfig: asyncConfig);
+                }
+                else
+                {
+                    // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
+                    var options = cfg.DrawingOptions;
+                    var brush = Brush.CreateTexture(overlayBitmapData, TextureMapMode.Center);
+                    tempBitmapData.FillPath(brush, path, options);
+
+                    if (cfg.OutlineWidth > 0)
+                    {
+                        var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
+                        tempBitmapData.DrawPath(pen, path, options);
+                    }
+                }
 
                 if (token.IsCancellationRequested)
                     return;
