@@ -433,7 +433,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             {
                 PixelFormatInfo pixelFormatInfo = SelectedFormat.GetInfo();
                 AlphaThresholdEnabled = pixelFormatInfo.HasSingleBitAlpha 
-                    || /*pixelFormatInfo.HasAlpha &&*/ UseDithering
+                    || pixelFormatInfo.HasAlpha && UseDithering
                     || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
                 BackColorEnabled = !pixelFormatInfo.HasAlpha || pixelFormatInfo.HasSingleBitAlpha || UseDithering;
             }
@@ -477,7 +477,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             }
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
                 await CancelAndAwaitPendingGenerate();
 
