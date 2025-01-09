@@ -58,6 +58,7 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly PredefinedColorsQuantizer quantizer;
             private readonly Func<Color32, Color32> quantizingFunction;
+            private readonly bool hasAlpha;
 
             #endregion
 
@@ -77,6 +78,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 this.quantizer = quantizer;
                 this.quantizingFunction = quantizingFunction;
+                hasAlpha = Palette?.HasAlpha ?? quantizer.PixelFormatHint.HasAlpha();
             }
 
             #endregion
@@ -89,7 +91,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 GetQuantizedColor(Color32 c)
                 => c.A == Byte.MaxValue || !quantizer.blendAlphaBeforeQuantize && c.A >= AlphaThreshold ? quantizingFunction.Invoke(c)
-                    : c.A < AlphaThreshold ? default
+                    : hasAlpha && c.A < AlphaThreshold ? default
                     : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.WorkingColorSpace));
 
             #endregion

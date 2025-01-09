@@ -172,7 +172,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
-            public override bool IsSequential => false;
+#if DEBUG
+            public override bool IsSequential => true;
+#else
+            public override bool IsSequential => false; 
+#endif
 
             #endregion
 
