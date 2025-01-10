@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,9 +31,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 using KGySoft.ComponentModel;
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Examples.Shared;
+using KGySoft.Drawing.Examples.Shared.Enums;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Drawing.Wpf;
 using KGySoft.Threading;
 
@@ -40,6 +45,9 @@ using KGySoft.Threading;
 
 #region Used Aliases
 
+using Brush = KGySoft.Drawing.Shapes.Brush;
+using Path = KGySoft.Drawing.Shapes.Path;
+using Pen = KGySoft.Drawing.Shapes.Pen;
 using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using Size = System.Drawing.Size;
@@ -187,6 +195,9 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             internal BitmapSource? Source { get; private init; }
             internal BitmapSource? Overlay { get; private init; }
             internal bool ShowOverlay { get; private init; }
+            internal PathShape OverlayShape { get; private init; }
+            internal int OutlineWidth { get; private init; }
+            internal Color32 OutlineColor { get; private init; }
             internal PixelFormat SelectedFormat { get; private init; }
             internal bool ForceLinearColorSpace { get; private init; }
             internal Color BackColor { get; private init; }
@@ -194,6 +205,9 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             internal bool OptimizePalette { get; private init; }
             internal bool UseDithering { get; private init; }
             internal DithererDescriptor? SelectedDitherer { get; private init; }
+
+            // Using Half pixel offset for odd pen with, and None for even width to avoid blurry lines. See more details at https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm
+            internal DrawingOptions DrawingOptions => new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = (OutlineWidth & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
 
             #endregion
 
@@ -204,6 +218,9 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 Source = viewModel.sourceBitmap,
                 Overlay = viewModel.overlayBitmap,
                 ShowOverlay = viewModel.ShowOverlay,
+                OverlayShape = viewModel.OverlayShape,
+                OutlineWidth = viewModel.OutlineWidth,
+                OutlineColor = viewModel.OutlineColor.ToColor32(),
                 SelectedFormat = viewModel.SelectedFormat,
                 ForceLinearColorSpace = viewModel.ForceLinearColorSpace,
                 BackColor = viewModel.BackColor,
@@ -226,16 +243,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         private static readonly HashSet<string> affectsPreview = new()
         {
-            nameof(ImageFile),
-            nameof(OverlayFile),
-            nameof(ShowOverlay),
-            nameof(SelectedFormat),
-            nameof(ForceLinearColorSpace),
-            nameof(BackColor),
-            nameof(AlphaThreshold),
-            nameof(OptimizePalette),
-            nameof(UseDithering),
-            nameof(SelectedDitherer),
+            nameof(ImageFile), nameof(OverlayFile), nameof(ShowOverlay), nameof(OverlayShape), nameof(OutlineWidth), nameof(OutlineColor), nameof(SelectedFormat),
+            nameof(ForceLinearColorSpace), nameof(BackColor), nameof(AlphaThreshold), nameof(OptimizePalette), nameof(UseDithering), nameof(SelectedDitherer),
         };
 
         #endregion
@@ -265,15 +274,23 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             .Select(p => (PixelFormat)p.GetValue(null, null)!)
             .ToArray();
 
+        public PathShape[] OverlayShapes { get; } = Enum<PathShape>.GetValues();
+
         public DithererDescriptor[] Ditherers { get; } = DithererDescriptor.Ditherers;
         public string? ImageFile { get => Get<string?>(); set => Set(value); }
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
+        public bool OutlineEnabled { get => Get<bool>(); set => Set(value); }
+        public PathShape OverlayShape { get => Get<PathShape>(); set => Set(value); }
+        public int OutlineWidth { get => Get<int>(); set => Set(value); }
+        public string OutlineColorText { get => Get("Black"); set => Set(value); }
+        public Color OutlineColor { get => Get(Colors.Black); set => Set(value); }
+        public System.Windows.Media.Brush? OutlineColorBrush { get => Get<System.Windows.Media.Brush?>(() => new SolidColorBrush(OutlineColor)); set => Set(value); }
         public PixelFormat SelectedFormat { get => Get<PixelFormat>(); set => Set(value); }
         public bool ForceLinearColorSpace { get => Get<bool>(); set => Set(value); }
         public string BackColorText { get => Get("Silver"); set => Set(value); }
         public Color BackColor { get => Get(Colors.Silver); set => Set(value); }
-        public Brush? BackColorBrush { get => Get<Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
+        public System.Windows.Media.Brush? BackColorBrush { get => Get<System.Windows.Media.Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
         public bool BackColorEnabled { get => Get<bool>(); set => Set(value); }
         public byte AlphaThreshold { get => Get<byte>(128); set => Set(value); }
         public bool AlphaThresholdEnabled { get => Get<bool>(); set => Set(value); }
@@ -336,7 +353,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         {
             isInitializing = true;
             progressUpdater = new ProgressUpdater(this);
-            SelectedFormat = System.Windows.Media.PixelFormats.Indexed8;
+            SelectedFormat = System.Windows.Media.PixelFormats.Bgra32;
             ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
             isInitializing = false;
@@ -361,6 +378,16 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 result.AddError(nameof(OverlayFile), "The specified file does not exist");
             else if (OverlayFileError != null)
                 result.AddError(nameof(OverlayFile), OverlayFileError);
+
+            try
+            {
+                ColorConverter.ConvertFromString(OutlineColorText);
+            }
+            catch (Exception e)
+            {
+                result.AddError(nameof(OutlineColorText), e.Message);
+            }
+
             try
             {
                 ColorConverter.ConvertFromString(BackColorText);
@@ -373,6 +400,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             return result;
         }
 
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -420,8 +448,24 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
                     break;
 
+                case nameof(ShowOverlay) or nameof(OverlayShape):
+                    OutlineEnabled = ShowOverlay && OverlayShape != PathShape.None;
+                    break;
+
                 case nameof(SelectedFormat):
                     OptimizePaletteEnabled = SelectedFormat.IsIndexed();
+                    break;
+
+                case nameof(OutlineColorText):
+                    try
+                    {
+                        OutlineColor = (Color)ColorConverter.ConvertFromString(OutlineColorText);
+                        OutlineColorBrush = new SolidColorBrush(OutlineColor);
+                    }
+                    catch (FormatException)
+                    {
+                    }
+
                     break;
 
                 case nameof(BackColorText):
@@ -554,12 +598,32 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 if (token.IsCancellationRequested)
                     return;
 
-                // b.2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
+                // b.2.) Drawing the overlay
                 IReadableBitmapData overlayBitmapData = CachedOverlay;
                 var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
                     resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
-                await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
-                    targetRectangle, asyncConfig: asyncConfig);
+
+                Path? path = PathFactory.GetPath(targetRectangle, cfg.OverlayShape, cfg.OutlineWidth);
+
+                if (path == null)
+                {
+                    // When no shape is specified, we just draw the overlay bitmap into the target rectangle.
+                    await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                        targetRectangle, asyncConfig: asyncConfig);
+                }
+                else
+                {
+                    // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
+                    var options = cfg.DrawingOptions;
+                    var brush = Brush.CreateTexture(overlayBitmapData, TextureMapMode.Center);
+                    resultBitmapData.FillPath(brush, path, options);
+
+                    if (cfg.OutlineWidth > 0)
+                    {
+                        var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
+                        resultBitmapData.DrawPath(pen, path, options);
+                    }
+                }
 
                 if (token.IsCancellationRequested)
                     return;
