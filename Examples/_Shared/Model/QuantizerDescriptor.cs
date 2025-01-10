@@ -129,7 +129,8 @@ namespace KGySoft.Drawing.Examples.Shared.Model
                 args[i] = parameters[i].Name switch
                 {
                     "backColor" => settings.BackColor,
-                    "alphaThreshold" => settings.AlphaThreshold,
+                    // ReSharper disable once RedundantCast - false alarm, would be int without the cast, which causes an exception
+                    "alphaThreshold" => HasAlphaThreshold ? settings.AlphaThreshold : (byte)0,
                     "whiteThreshold" => settings.WhiteThreshold,
                     "directMapping" => settings.DirectMapping,
                     "maxColors" => settings.PaletteSize,
