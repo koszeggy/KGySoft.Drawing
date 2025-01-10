@@ -18,11 +18,13 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="130"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
@@ -34,8 +36,52 @@
             <Label Text="Image Overlay" VerticalOptions="Center"/>
         </StackLayout>
 
+        <!--Overlay Shape-->
+        <Grid Grid.Row="1" Grid.Column="1"
+              IsVisible="{Binding ShowOverlay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" VerticalOptions="Center">Overlay Shape:</Label>
+            <Picker Grid.Column="1"
+                    ItemsSource="{Binding OverlayShapes, Mode=OneTime}"
+                    SelectedItem="{Binding OverlayShape, Mode=TwoWay}"
+                    ToolTipProperties.Text="An optional shape for the overlay image."/>
+        </Grid>
+
+        <!--Outline-->
+        <Grid Grid.Row="2" Grid.Column="1"
+              IsVisible="{Binding IsOutlineVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" VerticalOptions="Center">Outline:</Label>
+                <Slider Grid.Column="1"
+                        VerticalOptions="Center"
+                        Maximum="10"
+                        Value="{Binding OutlineWidth}"
+                        ToolTipProperties.Text="The outline width of the overlay shape."/>
+                <Label Grid.Column="2" Text="{Binding OutlineWidth, Mode=OneWay}"
+                       VerticalOptions="Center"
+                       Margin="5,0,0,0"/>
+            </Grid>
+            <Editor Grid.Column="1"
+                    Text="{Binding OutlineColorText, Mode=TwoWay}"
+                    ToolTipProperties.Text="When there is a selected overlay shape and the outline width is larger than zero, picks a color for the shape outline.&#x0d;Hex #AARRGGBB format is also supported."/>
+            <Rectangle Grid.Column="2" Fill="{Binding OutlineColorBrush}" />
+        </Grid>
+
         <!--Linear Color Space-->
-        <StackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <StackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                      Orientation="Horizontal">
             <Switch IsToggled="{Binding UseLinearColorSpace, Mode=TwoWay}"
                     ToolTipProperties.Text="Forces to use the linear color space. Affects color blending, quantizing and dithering.&#x0d;&#x0d;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0d;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0d;&#x0d;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."/>
@@ -43,13 +89,13 @@
         </StackLayout>
 
         <!--Quantizer-->
-        <StackLayout Grid.Row="2" Grid.Column="0"
+        <StackLayout Grid.Row="4" Grid.Column="0"
                      Orientation="Horizontal" >
             <Switch IsToggled="{Binding UseQuantizer, Mode=TwoWay}"
                     ToolTipProperties.Text="Turn on to use a quantizer. For lower bit-per-pixel quantizers it is recommended to enable dithering."/>
             <Label Text="Quantizer:" VerticalOptions="Center"/>
         </StackLayout>
-        <Picker Grid.Row="2" Grid.Column="1"
+        <Picker Grid.Row="4" Grid.Column="1"
                 VerticalOptions="Center"
                 ItemsSource="{Binding Quantizers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
@@ -57,10 +103,10 @@
                 ToolTipProperties.Text="The desired quantizer to use. For lower bit-per-pixel formats it is recommended to enable dithering."/>
 
         <!-- a.) Back Color -->
-        <Grid Grid.Row="3" Grid.Column="1"
+        <Grid Grid.Row="5" Grid.Column="1"
               IsVisible="{Binding IsBackColorVisible}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
@@ -72,10 +118,10 @@
         </Grid>
 
         <!-- b.) Alpha Threshold -->
-        <Grid Grid.Row="4" Grid.Column="1"
+        <Grid Grid.Row="6" Grid.Column="1"
               IsVisible="{Binding IsAlphaThresholdVisible}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
@@ -91,7 +137,7 @@
         </Grid>
 
         <!-- c.) White Threshold -->
-        <Grid Grid.Row="5" Grid.Column="1"
+        <Grid Grid.Row="7" Grid.Column="1"
               IsVisible="{Binding IsWhiteThresholdVisible}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -110,7 +156,7 @@
         </Grid>
 
         <!-- d.) Palette Size -->
-        <Grid Grid.Row="6" Grid.Column="1"
+        <Grid Grid.Row="8" Grid.Column="1"
               IsVisible="{Binding IsMaxColorsVisible}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -131,14 +177,14 @@
         </Grid>
 
         <!--Ditherer-->
-        <StackLayout Grid.Row="7" Grid.Column="0"
+        <StackLayout Grid.Row="9" Grid.Column="0"
                      Orientation="Horizontal">
             <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}"
                     IsEnabled="{Binding UseQuantizer}"
                     ToolTipProperties.Text="Turn on to use a ditherer."/>
             <Label Text="Ditherer:" VerticalOptions="Center"/>
         </StackLayout>
-        <Picker Grid.Row="7" Grid.Column="1"
+        <Picker Grid.Row="9" Grid.Column="1"
                 VerticalOptions="Center"
                 ItemsSource="{Binding Ditherers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
@@ -146,7 +192,7 @@
                 ToolTipProperties.Text="The selected ditherer.&#x0d;Error diffusion ditherers do not support parallel processing but usually have high quality.&#x0d;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
 
         <!--Image-->
-        <Image Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+        <Image Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2"
                Source="{Binding DisplayImage, Mode=OneWay}"/>
 
     </Grid>
