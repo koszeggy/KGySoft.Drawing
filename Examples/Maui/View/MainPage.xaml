@@ -55,7 +55,7 @@
               IsVisible="{Binding IsOutlineVisible}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
@@ -107,7 +107,7 @@
               IsVisible="{Binding IsBackColorVisible}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Back Color:</Label>
@@ -122,7 +122,7 @@
               IsVisible="{Binding IsAlphaThresholdVisible}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Alpha Threshold:</Label>
@@ -140,8 +140,8 @@
         <Grid Grid.Row="7" Grid.Column="1"
               IsVisible="{Binding IsWhiteThresholdVisible}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">White Threshold:</Label>
@@ -159,8 +159,8 @@
         <Grid Grid.Row="8" Grid.Column="1"
               IsVisible="{Binding IsMaxColorsVisible}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Palette Size:</Label>
