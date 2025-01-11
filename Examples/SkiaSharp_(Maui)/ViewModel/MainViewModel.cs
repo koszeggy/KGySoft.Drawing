@@ -15,29 +15,43 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Examples.Shared;
+using KGySoft.Drawing.Examples.Shared.Enums;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
+using KGySoft.Drawing.Examples.SkiaSharp.Maui.Extensions;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
+using KGySoft.Drawing.SkiaSharp;
 using KGySoft.Threading;
 
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
 using Microsoft.Maui.Graphics;
 
 using SkiaSharp;
 using SkiaSharp.Views.Maui.Controls;
-using KGySoft.CoreLibraries;
-using KGySoft.Drawing.Examples.SkiaSharp.Maui.Extensions;
-using KGySoft.Drawing.SkiaSharp;
 
-using Microsoft.Maui.Devices;
+#endregion
+
+#region Used Aliases
+
+using Brush = KGySoft.Drawing.Shapes.Brush;
+using Point = System.Drawing.Point;
+using Rectangle = System.Drawing.Rectangle;
+
+#endregion
 
 #endregion
 
@@ -54,6 +68,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             #region Public Properties
 
             public bool ShowOverlay { get; private init; }
+            internal PathShape OverlayShape { get; private init; }
+            internal int OutlineWidth { get; private init; }
+            internal Color32 OutlineColor { get; private init; }
             public SKColorType ColorType { get; private init; }
             public SKAlphaType AlphaType { get; private init; }
             public WorkingColorSpace ColorSpace { get; private init; }
@@ -66,6 +83,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             public int PaletteSize { get; private init; }
             public bool UseDithering { get; private init; }
             public DithererDescriptor? SelectedDitherer { get; private init; }
+
+            // Using Half pixel offset for odd pen with, and None for even width to avoid blurry lines. See more details at https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm
+            internal DrawingOptions DrawingOptions => new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = (OutlineWidth & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
 
             #endregion
 
@@ -88,6 +108,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             internal static Configuration Capture(MainViewModel viewModel) => new Configuration
             {
                 ShowOverlay = viewModel.ShowOverlay,
+                OverlayShape = viewModel.OverlayShape,
+                OutlineWidth = viewModel.OutlineWidth,
+                OutlineColor = viewModel.OutlineColor.ToColor32(),
                 ColorType = viewModel.SelectedColorType,
                 AlphaType = viewModel.SelectedAlphaType,
                 ColorSpace = viewModel.SelectedColorSpace,
@@ -114,6 +137,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         private static readonly HashSet<string> affectsDisplayImage = new()
         {
             nameof(ShowOverlay),
+            nameof(OverlayShape),
+            nameof(OutlineWidth),
+            nameof(OutlineColor),
             nameof(SelectedColorType),
             nameof(SelectedAlphaType),
             nameof(SelectedColorSpace),
@@ -125,7 +151,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             nameof(WhiteThreshold),
             nameof(PaletteSize),
             nameof(UseDithering),
-            nameof(SelectedDitherer),
+            nameof(SelectedDitherer)
         };
 
         #endregion
@@ -155,8 +181,15 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             .ToArray();
 
         public WorkingColorSpace[] ColorSpaces { get; } = { WorkingColorSpace.Srgb, WorkingColorSpace.Linear };
+        public PathShape[] OverlayShapes { get; } = Enum<PathShape>.GetValues();
 
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
+        public bool IsOutlineVisible { get => Get<bool>(); set => Set(value); }
+        public PathShape OverlayShape { get => Get<PathShape>(); set => Set(value); }
+        public int OutlineWidth { get => Get<int>(); set => Set(value); }
+        public string OutlineColorText { get => Get("Red"); set => Set(value); }
+        public Color OutlineColor { get => Get(Colors.Red); set => Set(value); }
+        public Microsoft.Maui.Controls.Brush? OutlineColorBrush { get => Get<Microsoft.Maui.Controls.Brush?>(() => new SolidColorBrush(OutlineColor)); set => Set(value); }
         public SKColorType SelectedColorType { get => Get(SKColorType.Argb4444); set => Set(value); }
         public SKAlphaType SelectedAlphaType { get => Get(SKAlphaType.Unpremul); set => Set(value); }
         public WorkingColorSpace SelectedColorSpace { get => Get(WorkingColorSpace.Srgb); set => Set(value); }
@@ -167,7 +200,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         public bool IsBackColorEnabled { get => Get<bool>(); set => Set(value); }
         public string BackColorText { get => Get("Silver"); set => Set(value); }
         public Color BackColor { get => Get(Colors.Silver); set => Set(value); }
-        public Brush? BackColorBrush { get => Get<Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
+        public Microsoft.Maui.Controls.Brush? BackColorBrush { get => Get<Microsoft.Maui.Controls.Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
         public bool IsAlphaThresholdVisible { get => Get<bool>(); set => Set(value); }
         public int AlphaThreshold { get => Get(128); set => Set(value); }
         public bool IsWhiteThresholdVisible { get => Get<bool>(); set => Set(value); }
@@ -195,11 +228,16 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
         #region Protected Methods
 
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateDisplayImage.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
             switch (e.PropertyName)
             {
+                case nameof(ShowOverlay) or nameof(OverlayShape):
+                    IsOutlineVisible = ShowOverlay && OverlayShape != PathShape.None;
+                    break;
+
                 case nameof(UseQuantizer):
                 case nameof(UseDithering):
                 case nameof(SelectedQuantizer):
@@ -208,8 +246,17 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     SetEnabledAndVisibilities();
                     break;
 
+                case nameof(OutlineColorText):
+                    if (Color.TryParse(OutlineColorText, out Color color))
+                    {
+                        OutlineColor = color;
+                        OutlineColorBrush = new SolidColorBrush(color);
+                    }
+
+                    break;
+
                 case nameof(BackColorText):
-                    if (Color.TryParse(BackColorText, out Color color))
+                    if (Color.TryParse(BackColorText, out color))
                     {
                         BackColor = color;
                         BackColorBrush = new SolidColorBrush(color);
@@ -222,6 +269,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 await GenerateDisplayImage(Configuration.Capture(this));
         }
 
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Dispose pattern")]
         protected override async void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -251,7 +299,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             baseImage ??= SKBitmap.Decode(Images.Information256);
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
             {
                 CancelRunningGenerate();
@@ -284,7 +332,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 };
 
                 // Working color space can be different from actual color space and can be specified for creating IBitmapData, Palette and IQuantizer instances.
-                WorkingColorSpace workingColorSpace = cfg.ForceLinearWorkingColorSpace|| pixelFormat.GetInfo().LinearGamma
+                WorkingColorSpace workingColorSpace = cfg.ForceLinearWorkingColorSpace || pixelFormat.GetInfo().LinearGamma
                     ? WorkingColorSpace.Linear
                     : WorkingColorSpace.Srgb;
 
@@ -324,9 +372,28 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 if (token.IsCancellationRequested)
                     return;
 
-                // b.2.) Drawing the overlay. DrawInto supports alpha blending
+                // b.2.) Drawing the overlay.
                 overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(resultBitmapData.Size);
-                await overlayImageBitmapData.DrawIntoAsync(resultBitmapData, asyncConfig: asyncConfig);
+                Path? path = PathFactory.GetPath(new Rectangle(0, 0, overlayImageBitmapData.Width, overlayImageBitmapData.Height), cfg.OverlayShape, cfg.OutlineWidth);
+
+                if (path == null)
+                {
+                    // When no shape is specified, we just draw the overlay bitmap into the target rectangle.
+                    await overlayImageBitmapData.DrawIntoAsync(resultBitmapData, asyncConfig: asyncConfig);
+                }
+                else
+                {
+                    // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
+                    var options = cfg.DrawingOptions;
+                    var brush = Brush.CreateTexture(overlayImageBitmapData, TextureMapMode.Center);
+                    resultBitmapData.FillPath(brush, path, options);
+
+                    if (cfg.OutlineWidth > 0)
+                    {
+                        var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
+                        resultBitmapData.DrawPath(pen, path, options);
+                    }
+                }
 
                 if (token.IsCancellationRequested)
                     return;
@@ -348,7 +415,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     using (IReadableBitmapData src = result.GetReadableBitmapData())
                     using (IWritableBitmapData dst = displayResult.GetWritableBitmapData())
                     {
-                        await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                        await src.CopyToAsync(dst, new Rectangle(Point.Empty, src.Size), Point.Empty,
                             PredefinedColorsQuantizer.FromCustomFunction(c => Color32.FromGray(c.A)), // the more opaque the more white
                             asyncConfig: asyncConfig);
                     }
@@ -375,7 +442,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     using (IReadableBitmapData src = result.GetReadableBitmapData())
                     using (IWritableBitmapData dst = displayResult.GetWritableBitmapData())
                     {
-                        await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                        await src.CopyToAsync(dst, new Rectangle(Point.Empty, src.Size), Point.Empty,
                             asyncConfig: asyncConfig);
                     }
 
@@ -409,6 +476,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         {
             bool useQuantizer = UseQuantizer;
             bool useDithering = UseDithering;
+            IsOutlineVisible = ShowOverlay && OverlayShape != PathShape.None;
             SKColorType colorType = SelectedColorType;
             QuantizerDescriptor quantizer = SelectedQuantizer;
             bool isOpaque = (SelectedAlphaType == SKAlphaType.Opaque && colorType is not (SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16))
