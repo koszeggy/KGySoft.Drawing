@@ -7,21 +7,21 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 > ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp_(Maui)) or [WPF](../SkiaSharp_(Maui)) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on Windows 11" src="https://user-images.githubusercontent.com/27336165/236937972-115db525-c5d7-4e6a-b4d1-6eab465f2bcc.png"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on Windows 11" src="https://github.com/user-attachments/assets/bf3bc12f-c9a0-48dd-a90c-ceae5fdebd71"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on Windows 11</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on MacOS" src="https://user-images.githubusercontent.com/27336165/236938468-f9bd1e52-8e24-4922-93c6-ec9c4fddedfb.png"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on MacOS" src="https://github.com/user-attachments/assets/21817ec1-6bde-4c00-abf9-e2ac76e7b097"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on MacOS</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on Android Phone" src="https://user-images.githubusercontent.com/27336165/236938647-1ed3110b-aebe-4be8-80b3-9f8b83a996e2.png"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on Android Phone" src="https://github.com/user-attachments/assets/f1f7aef6-55de-49a4-9fec-fc1c10b5eecd"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on Android Phone</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on iOS" src="https://user-images.githubusercontent.com/27336165/236938980-19bbccc9-64ab-4606-ab4d-a3d9824b7c30.png"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on iOS" src="https://github.com/user-attachments/assets/a95ecb2c-99f8-46ea-b0f7-998ffd151939"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on iPhone</em>
 </p>
