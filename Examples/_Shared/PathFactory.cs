@@ -24,6 +24,8 @@ using KGySoft.Drawing.Shapes;
 
 #endregion
 
+#nullable enable
+
 namespace KGySoft.Drawing.Examples.Shared
 {
     internal static class PathFactory
