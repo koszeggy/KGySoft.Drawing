@@ -388,6 +388,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Argb8888(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Argb8888(Color backColor, byte alphaThreshold) => Argb8888(backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
@@ -477,6 +478,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Rgb888(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Rgb888(Color backColor) => Rgb888(backColor.ToColor32());
 
         /// <summary>
@@ -549,6 +551,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Rgb565(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Rgb565(Color backColor) => Rgb565(backColor.ToColor32());
 
         /// <summary>
@@ -629,6 +632,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Rgb555(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Rgb555(Color backColor) => Rgb555(backColor.ToColor32());
 
         /// <summary>
@@ -707,6 +711,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Argb1555(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Argb1555(Color backColor, byte alphaThreshold) => Argb1555(backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
@@ -786,6 +791,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Rgb332(Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Rgb332(Color backColor, bool directMapping) => Rgb332(backColor.ToColor32(), directMapping);
 
         /// <summary>
@@ -894,6 +900,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Grayscale(Color backColor) => Grayscale(backColor.ToColor32());
 
         /// <summary>
@@ -960,6 +967,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale16(Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Grayscale16(Color backColor, bool directMapping) => Grayscale16(backColor.ToColor32(), directMapping);
 
         /// <summary>
@@ -1052,6 +1060,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale4(Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer Grayscale4(Color backColor, bool directMapping) => Grayscale4(backColor.ToColor32(), directMapping);
 
         /// <summary>
@@ -1155,6 +1164,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="BlackAndWhite(Color32,byte,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor, byte whiteThreshold) => BlackAndWhite(backColor.ToColor32(), whiteThreshold);
 
         /// <summary>
@@ -1257,6 +1267,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="SystemDefault8BppPalette(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor, byte alphaThreshold) => SystemDefault8BppPalette(backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
@@ -1356,6 +1367,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="SystemDefault4BppPalette(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor) => SystemDefault4BppPalette(backColor.ToColor32());
 
         /// <summary>
@@ -1447,6 +1459,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="SystemDefault1BppPalette(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor) => SystemDefault1BppPalette(backColor.ToColor32());
 
         /// <summary>
@@ -1613,6 +1626,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="FromCustomFunction(Func{Color32,Color32},Color32,KnownPixelFormat,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, KnownPixelFormat pixelFormatHint, byte alphaThreshold)
             => FromCustomFunction(quantizingFunction, backColor.ToColor32(), pixelFormatHint, alphaThreshold);
 
@@ -1643,7 +1657,7 @@ namespace KGySoft.Drawing.Imaging
         /// <code lang="C#"><![CDATA[
         /// public static IReadWriteBitmapData ToGrayscaleOpaque(IReadWriteBitmapData source, Color32 backColor = default)
         /// {
-        ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray(), backColor, 0);
+        ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray(), backColor);
         ///
         ///     // a.) this solution returns a new bitmap data and does not change the original one:
         ///     return source.Clone(KnownPixelFormat.Format24bppRgb, quantizer);
@@ -1737,6 +1751,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="FromCustomFunction(Func{Color32,Color32},Color32,byte,bool,KnownPixelFormat)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, byte alphaThreshold, bool autoBlend, KnownPixelFormat pixelFormatHint)
             => FromCustomFunction(quantizingFunction, backColor.ToColor32(), alphaThreshold, autoBlend, pixelFormatHint);
 
@@ -1816,6 +1831,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="FromPixelFormat(KnownPixelFormat,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static PredefinedColorsQuantizer FromPixelFormat(KnownPixelFormat pixelFormat, Color backColor, byte alphaThreshold)
             => FromPixelFormat(pixelFormat, backColor.ToColor32(), alphaThreshold);
 

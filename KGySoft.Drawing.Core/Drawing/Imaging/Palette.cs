@@ -618,11 +618,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="SystemDefault4BppPalette(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette SystemDefault4BppPalette(Color32 backColor) => SystemDefault4BppPalette(default, backColor, 128);
 
         /// <inheritdoc cref="SystemDefault4BppPalette(Imaging.WorkingColorSpace,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette SystemDefault4BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor) => SystemDefault4BppPalette(workingColorSpace, backColor, 128);
 
         /// <summary>
@@ -669,11 +671,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="SystemDefault1BppPalette(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette SystemDefault1BppPalette(Color32 backColor) => SystemDefault1BppPalette(default, backColor, 128);
 
         /// <inheritdoc cref="SystemDefault1BppPalette(Imaging.WorkingColorSpace,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette SystemDefault1BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor) => SystemDefault1BppPalette(workingColorSpace, backColor, 128);
 
         /// <summary>
@@ -719,11 +723,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Rgb332(Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Rgb332(Color32 backColor, bool directMapping) => Rgb332(default, backColor, directMapping, 128);
 
         /// <inheritdoc cref="Rgb332(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Rgb332(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Rgb332(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
@@ -786,11 +792,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale256(Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale256(Color32 backColor) => Grayscale256(default, backColor, 128);
 
         /// <inheritdoc cref="Grayscale256(Imaging.WorkingColorSpace,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale256(WorkingColorSpace workingColorSpace, Color32 backColor) => Grayscale256(workingColorSpace, backColor, 128);
 
         /// <summary>
@@ -846,11 +854,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale16(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale16(Color32 backColor, bool directMapping) => Grayscale16(default, backColor, directMapping, 128);
 
         /// <inheritdoc cref="Grayscale16(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale16(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Grayscale16(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
@@ -914,11 +924,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Grayscale4(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale4(Color32 backColor, bool directMapping) => Grayscale4(default, backColor, directMapping, 128);
 
         /// <inheritdoc cref="Grayscale4(Imaging.WorkingColorSpace,Color32,bool,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette Grayscale4(WorkingColorSpace workingColorSpace, Color32 backColor, bool directMapping) => Grayscale4(workingColorSpace, backColor, directMapping, 128);
 
         /// <summary>
@@ -982,11 +994,13 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="BlackAndWhite(Color32,byte,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette BlackAndWhite(Color32 backColor, byte whiteThreshold) => BlackAndWhite(default, backColor, whiteThreshold, 128);
 
         /// <inheritdoc cref="BlackAndWhite(Imaging.WorkingColorSpace,Color32,byte,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static Palette BlackAndWhite(WorkingColorSpace workingColorSpace, Color32 backColor, byte whiteThreshold) => BlackAndWhite(workingColorSpace, backColor, whiteThreshold, 128);
 
         /// <summary>

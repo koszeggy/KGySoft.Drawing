@@ -366,6 +366,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Octree(int,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static OptimizedPaletteQuantizer Octree(int maxColors, Color backColor, byte alphaThreshold) => Octree(maxColors, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
@@ -408,6 +409,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="MedianCut(int,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static OptimizedPaletteQuantizer MedianCut(int maxColors, Color backColor, byte alphaThreshold) => MedianCut(maxColors, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
@@ -450,6 +452,7 @@ namespace KGySoft.Drawing.Imaging
         /// <inheritdoc cref="Wu(int,Color32,byte)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [OverloadResolutionPriority(-1)]
+        [Obsolete]
         public static OptimizedPaletteQuantizer Wu(int maxColors, Color backColor, byte alphaThreshold) => Wu(maxColors, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
