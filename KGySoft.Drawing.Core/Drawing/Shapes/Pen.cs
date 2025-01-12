@@ -121,7 +121,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Gets or sets the limit for the ratio of the miter length to half the <see cref="Width"/> that determines whether the join is beveled or mitered.
-        /// If the miter limit is exceeded, the join is beveled.
+        /// If the miter limit is exceeded, the join is beveled. Affects lines with <see cref="Width"/> greater than 1, if <see cref="LineJoin"/> is <see cref="LineJoinStyle.Miter"/>.
         /// <br/>Default value: 10.
         /// </summary>
         public float MiterLimit

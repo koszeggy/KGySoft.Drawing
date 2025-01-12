@@ -1058,6 +1058,25 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.AreEqual(points.Length + 1, points2[0].Length);
         }
 
+        [Test]
+        public void MiterTest()
+        {
+            using var bmp = BitmapDataFactory.CreateBitmapData(5050, 100);
+            bmp.Clear(Color.Cyan);
+
+            var options = new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half };
+            bmp.DrawLine(Color.Blue, 0, 5, bmp.Width, 5, options);
+            var pen = new Pen(Color.Blue, 1/*.01f*/) { LineJoin = LineJoinStyle.Miter, MiterLimit = 10f };
+
+            for (int x = 0, i = 1; i < 100; i++, x += i)
+                bmp.DrawLines(pen, new PointF[] {new(x, bmp.Height), new(x + i / 2f, 5), new(x + i, bmp.Height)}, options);
+
+            SaveBitmapData(null, bmp);
+
+            // No mitered edges exceed beyond the top line if the line width is 1, even with a high miter limit. This keeps consistency with the fast thin lines rendering.
+            AssertAreEqual(bmp.Clip(new Rectangle(0, 0, bmp.Width, 5)), new SolidBitmapData(new Size(bmp.Width, 5), bmp.GetColor32(0, 0)));
+        }
+
         #endregion
     }
 }

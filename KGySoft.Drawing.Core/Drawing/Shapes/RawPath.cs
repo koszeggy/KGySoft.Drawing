@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 Width = pen.Width;
                 LineJoin = pen.LineJoin;
-                MiterLimit = pen.MiterLimit;
+                MiterLimit = Width <= 1f ? 1f : pen.MiterLimit;
                 StartCap = Width <= 1f ? LineCapStyle.Flat : pen.StartCap;
                 EndCap = Width <= 1f ? LineCapStyle.Flat : pen.EndCap;
                 Offset = options.DrawPathPixelOffset == PixelOffset.Half;
