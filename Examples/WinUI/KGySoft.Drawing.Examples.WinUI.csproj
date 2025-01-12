@@ -13,6 +13,7 @@
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
+    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="View\MainPage.xaml" />
@@ -33,6 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="KGySoft.Drawing.WinUI" Version="9.0.0-rc.1" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="9.0.0" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <Manifest Include="$(ApplicationManifest)" />

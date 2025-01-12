@@ -19,6 +19,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -32,29 +34,73 @@
                   IsChecked="{Binding ShowOverlay, Mode=TwoWay}"
                   ToolTipService.ToolTip="Check to blend an overlay image with the base image">Image Overlay</CheckBox>
 
+        <!--Overlay Shape-->
+        <Grid Grid.Row="1" Grid.Column="1"
+              Visibility="{Binding OverlayShapeVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">Overlay Shape:</TextBlock>
+            <ComboBox Grid.Column="1"
+                      ItemsSource="{Binding OverlayShapes, Mode=OneTime}"
+                      SelectedItem="{Binding OverlayShape, Mode=TwoWay}"
+                      ToolTipService.ToolTip="An optional shape for the overlay image."/>
+        </Grid>
+
+        <!--Outline-->
+        <Grid Grid.Row="2" Grid.Column="1"
+              Visibility="{Binding OutlineVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" >Outline:</TextBlock>
+                <Slider Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Maximum="10"
+                        Value="{Binding OutlineWidth, Mode=TwoWay}"
+                        ToolTipService.ToolTip="The outline width of the overlay shape."/>
+                <TextBlock Grid.Column="2" Text="{Binding OutlineWidth}" 
+                           VerticalAlignment="Center"
+                           Margin="5,0,0,0"/>
+            </Grid>
+            <TextBox Grid.Column="1"
+                     VerticalAlignment="Center"
+                     Text="{Binding OutlineColorText, Mode=TwoWay}"
+                     ToolTipService.ToolTip="When there is a selected overlay shape and the outline width is larger than zero, picks a color for the shape outline.&#x0a;Hex #AARRGGBB format is also supported."/>
+            <Rectangle Grid.Column="2" Fill="{Binding OutlineColorBrush}"/>
+        </Grid>
+
         <!--Linear Color Space-->
-        <CheckBox Grid.Row="1" Grid.Column="0"
+        <CheckBox Grid.Row="3" Grid.Column="0"
                   IsChecked="{Binding UseLinearColorSpace, Mode=TwoWay}"
                   ToolTipService.ToolTip="Forces to use the linear color space. Affects color blending, quantizing and dithering.&#x0a;&#x0a;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0a;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0a;&#x0a;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."
                   Content="Linear Color Space"/>
-        
+
         <!--Quantizer-->
-        <CheckBox Grid.Row="2" Grid.Column="0"
+        <CheckBox Grid.Row="4" Grid.Column="0"
                   IsChecked="{Binding UseQuantizer, Mode=TwoWay}"
                   ToolTipService.ToolTip="Check to use a quantizer. For lower bit-per-pixel quantizers it is recommended to enable dithering.">Quantizer:</CheckBox>
-        <ComboBox Grid.Row="2" Grid.Column="1"
-                  Name="cmbQuantizer"
+        <ComboBox Grid.Row="4" Grid.Column="1"
                   ItemsSource="{Binding Quantizers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
                   IsEnabled="{Binding UseQuantizer}"
                   ToolTipService.ToolTip="The desired quantizer to use. For lower bit-per-pixel formats it is recommended to enable dithering."/>
 
         <!-- a.) Back Color -->
-        <Grid Grid.Row="3" Grid.Column="1"
+        <Grid Grid.Row="5" Grid.Column="1"
               Visibility="{Binding BackColorVisibility}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center">Back Color:</TextBlock>
@@ -65,11 +111,11 @@
         </Grid>
 
         <!-- b.) Alpha Threshold -->
-        <Grid Grid.Row="4" Grid.Column="1"
+        <Grid Grid.Row="6" Grid.Column="1"
               Visibility="{Binding AlphaThresholdVisibility}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center">Alpha Threshold:</TextBlock>
@@ -85,11 +131,11 @@
         </Grid>
 
         <!-- c.) White Threshold -->
-        <Grid Grid.Row="5" Grid.Column="1"
+        <Grid Grid.Row="7" Grid.Column="1"
               Visibility="{Binding WhiteThresholdVisibility}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center">White Threshold:</TextBlock>
@@ -105,11 +151,11 @@
         </Grid>
 
         <!-- d.) Palette Size -->
-        <Grid Grid.Row="6" Grid.Column="1"
+        <Grid Grid.Row="8" Grid.Column="1"
               Visibility="{Binding MaxColorsVisibility}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" VerticalAlignment="Center">Palette Size:</TextBlock>
@@ -126,18 +172,19 @@
         </Grid>
 
         <!--Ditherer-->
-        <CheckBox Grid.Row="7" Grid.Column="0"
+        <CheckBox Grid.Row="9" Grid.Column="0"
                   IsChecked="{Binding UseDithering, Mode=TwoWay}"
                   IsEnabled="{Binding UseQuantizer}"
                   ToolTipService.ToolTip="Check to use a ditherer. For high bit-per-pixel formats it makes little sense as for those its only practical effect is just removing possible partial transparency.">Ditherer:</CheckBox>
-        <ComboBox Grid.Row="7" Grid.Column="1"
+        <ComboBox Grid.Row="9" Grid.Column="1"
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
                   IsEnabled="{Binding DitheringEnabled}"
                   ToolTipService.ToolTip="The selected ditherer.&#x0a;Error diffusion ditherers do not support parallel processing but usually have high quality.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
 
         <!--Image-->
-        <Image Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+        <Image Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2"
                Source="{Binding DisplayImage, Mode=OneWay}"/>
+
     </Grid>
 </Page>

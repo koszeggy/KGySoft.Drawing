@@ -5,6 +5,6 @@
 This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) instance for the [`WriteableBitmap`](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.media.imaging.writeablebitmap) class in a WinUI application using the [`KGySoft.Drawing.WinUI`](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) package and perform various operations on it.
 
 <p align="center">
-  <img alt="KGy SOFT Drawing WinUI Example App on Windows 11" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/42dac14b-5cb6-41f2-8650-110991826b81"/>
+  <img alt="KGy SOFT Drawing WinUI Example App on Windows 11" src="https://github.com/user-attachments/assets/40a93914-af3f-4fe7-a3d0-e68069ebaf76"/>
   <br/><em>The KGy SOFT Drawing WinUI Example App running on Windows 11</em>
 </p>
