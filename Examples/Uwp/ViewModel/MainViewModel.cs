@@ -17,8 +17,11 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
@@ -42,6 +46,18 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 using KGySoft.Drawing.Examples.Shared;
+using KGySoft.Drawing.Examples.Shared.Enums;
+using KGySoft.Drawing.Shapes;
+
+#endregion
+
+#region Used Aliases
+
+using Brush = KGySoft.Drawing.Shapes.Brush;
+using Path = KGySoft.Drawing.Shapes.Path;
+using Rectangle = System.Drawing.Rectangle;
+
+#endregion
 
 #endregion
 
@@ -58,6 +74,9 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             #region Public Properties
 
             public bool ShowOverlay { get; private set; }
+            internal PathShape OverlayShape { get; private set; }
+            internal int OutlineWidth { get; private set; }
+            internal Color32 OutlineColor { get; private set; }
             public bool UseLinearColorSpace { get; private set; }
             public bool UseQuantizer { get; private set; }
             public QuantizerDescriptor? SelectedQuantizer { get; private set; }
@@ -67,6 +86,9 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             public int PaletteSize { get; private set; }
             public bool UseDithering { get; private set; }
             public DithererDescriptor? SelectedDitherer { get; private set; }
+
+            // Using Half pixel offset for odd pen with, and None for even width to avoid blurry lines. See more details at https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm
+            internal DrawingOptions DrawingOptions => new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = (OutlineWidth & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
 
             #endregion
 
@@ -89,6 +111,9 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             internal static Configuration Capture(MainViewModel viewModel) => new Configuration
             {
                 ShowOverlay = viewModel.ShowOverlay,
+                OverlayShape = viewModel.OverlayShape,
+                OutlineWidth = viewModel.OutlineWidth,
+                OutlineColor = viewModel.OutlineColor.ToColor32(),
                 UseLinearColorSpace = viewModel.UseLinearColorSpace,
                 UseQuantizer = viewModel.UseQuantizer,
                 SelectedQuantizer = viewModel.SelectedQuantizer,
@@ -112,6 +137,9 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         private static readonly HashSet<string> affectsDisplayImage = new()
         {
             nameof(ShowOverlay),
+            nameof(OverlayShape),
+            nameof(OutlineWidth),
+            nameof(OutlineColor),
             nameof(UseLinearColorSpace),
             nameof(UseQuantizer),
             nameof(SelectedQuantizer),
@@ -143,7 +171,16 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 
         #region Public Properties
 
+        public PathShape[] OverlayShapes { get; } = Enum<PathShape>.GetValues();
+
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
+        public Visibility OverlayShapeVisibility { get => Get<Visibility>(); set => Set(value); }
+        public PathShape OverlayShape { get => Get<PathShape>(); set => Set(value); }
+        public Visibility OutlineVisibility { get => Get<Visibility>(); set => Set(value); }
+        public int OutlineWidth { get => Get<int>(); set => Set(value); }
+        public string OutlineColorText { get => Get("Red"); set => Set(value); }
+        public Color OutlineColor { get => Get(Colors.Red); set => Set(value); }
+        public Windows.UI.Xaml.Media.Brush? OutlineColorBrush { get => Get<Windows.UI.Xaml.Media.Brush?>(() => new SolidColorBrush(OutlineColor)); set => Set(value); }
         public bool UseLinearColorSpace { get => Get<bool>(); set => Set(value); }
         public bool UseQuantizer { get => Get<bool>(); set => Set(value); }
         public QuantizerDescriptor[] Quantizers => QuantizerDescriptor.Quantizers;
@@ -151,7 +188,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         public Visibility BackColorVisibility { get => Get<Visibility>(); set => Set(value); }
         public string BackColorText { get => Get("Silver"); set => Set(value); }
         public Color BackColor { get => Get(Colors.Silver); set => Set(value); }
-        public Brush? BackColorBrush { get => Get<Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
+        public Windows.UI.Xaml.Media.Brush? BackColorBrush { get => Get<Windows.UI.Xaml.Media.Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
         public Visibility AlphaThresholdVisibility { get => Get<Visibility>(); set => Set(value); }
         public int AlphaThreshold { get => Get(128); set => Set(value); }
         public Visibility WhiteThresholdVisibility { get => Get<Visibility>(); set => Set(value); }
@@ -216,11 +253,16 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 
         #region Protected Methods
 
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateDisplayImage.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
             switch (e.PropertyName)
             {
+                case nameof(ShowOverlay) or nameof(OverlayShape):
+                    SetVisibilities();
+                    break;
+
                 case nameof(UseQuantizer):
                 case nameof(UseDithering):
                 case nameof(SelectedQuantizer):
@@ -228,8 +270,13 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
                     SetVisibilities();
                     break;
 
+                case nameof(OutlineColorText):
+                    OutlineColor = TryParseColor(OutlineColorText, out Color color) ? color : OutlineColor;
+                    OutlineColorBrush = new SolidColorBrush(OutlineColor);
+                    break;
+
                 case nameof(BackColorText):
-                    BackColor = TryParseColor(BackColorText, out Color color) ? color : BackColor;
+                    BackColor = TryParseColor(BackColorText, out color) ? color : BackColor;
                     BackColorBrush = new SolidColorBrush(BackColor);
                     break;
             }
@@ -263,7 +310,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             baseImage ??= await LoadResourceBitmap("Information256.png");
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
             {
                 CancelRunningGenerate();
@@ -318,9 +365,28 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
                 if (blendedResult == null || token.IsCancellationRequested)
                     return;
 
-                // b.2.) Drawing the overlay. DrawInto supports alpha blending
+                // b.2.) Drawing the overlay.
                 overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(baseImageBitmapData.Size);
-                await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+                Path? path = PathFactory.GetPath(new Rectangle(0, 0, overlayImageBitmapData.Width, overlayImageBitmapData.Height), cfg.OverlayShape, cfg.OutlineWidth);
+
+                if (path == null)
+                {
+                    // When no shape is specified, we just draw the overlay bitmap into the target rectangle.
+                    await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+                }
+                else
+                {
+                    // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
+                    var options = cfg.DrawingOptions;
+                    var brush = Brush.CreateTexture(overlayImageBitmapData, TextureMapMode.Center);
+                    blendedResult.FillPath(brush, path, options);
+
+                    if (cfg.OutlineWidth > 0)
+                    {
+                        var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
+                        blendedResult.DrawPath(pen, path, options);
+                    }
+                }
 
                 if (token.IsCancellationRequested)
                     return;
@@ -341,6 +407,8 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         {
             bool useQuantizer = UseQuantizer;
             QuantizerDescriptor quantizer = SelectedQuantizer;
+            OverlayShapeVisibility = ShowOverlay ? Visibility.Visible : Visibility.Collapsed;
+            OutlineVisibility = ShowOverlay && OverlayShape != PathShape.None ? Visibility.Visible : Visibility.Collapsed;
             BackColorVisibility = useQuantizer ? Visibility.Visible : Visibility.Collapsed;
             AlphaThresholdVisibility = useQuantizer && quantizer.HasAlphaThreshold ? Visibility.Visible : Visibility.Collapsed;
             WhiteThresholdVisibility = useQuantizer && quantizer.HasWhiteThreshold ? Visibility.Visible : Visibility.Collapsed;

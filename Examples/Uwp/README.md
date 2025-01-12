@@ -5,6 +5,6 @@
 This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) instance for the [`WriteableBitmap`](https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap) class in a UWP application using the [`KGySoft.Drawing.Uwp`](https://www.nuget.org/packages/KGySoft.Drawing.Uwp) package and perform various operations on it.
 
 <p align="center">
-  <img alt="KGy SOFT Drawing UWP Example App on Windows 11" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/591aeeac-b820-4cf8-8bb4-16a48d959570"/>
+  <img alt="KGy SOFT Drawing UWP Example App on Windows 11" src="https://github.com/user-attachments/assets/cec2af86-d42f-4e41-83fe-499bb1a3047c"/>
   <br/><em>The KGy SOFT Drawing UWP Example App running on Windows 11</em>
 </p>
