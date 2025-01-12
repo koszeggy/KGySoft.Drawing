@@ -9,12 +9,12 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 ## Screenshots
 
 <p align="center">
-  <img alt="KGy SOFT Drawing Xamarin Example App on Windows 11" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/563b129b-7b74-4c4f-a06b-ed7ff0f93f07"/>
+  <img alt="KGy SOFT Drawing Xamarin Example App on Windows 11" src="https://github.com/user-attachments/assets/7b7ec8ed-339c-4903-8640-2d6b98a24c4a"/>
   <br/><em>The KGy SOFT Drawing Xamarin Example App running on Windows 11</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing Xamarin Example App on Android Phone" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/f575d95f-64f3-4926-9f15-f676fad69391"/>
+  <img alt="KGy SOFT Drawing Xamarin Example App on Android Phone" src="https://github.com/user-attachments/assets/9736c4cd-c1c7-4598-9b18-f64713aa01ee"/>
   <br/><em>The KGy SOFT Drawing Xamarin Example App running on Android Phone</em>
 </p>
 
