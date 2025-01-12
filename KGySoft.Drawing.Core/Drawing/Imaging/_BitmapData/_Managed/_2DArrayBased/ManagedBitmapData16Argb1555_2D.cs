@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -33,9 +34,11 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color32 DoGetColor32(int x) => DoReadRaw<Color16Argb1555>(x).ToColor32();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
             {
@@ -65,9 +68,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color32 DoGetColor32(int x, int y) => GetPixelRef<Color16Argb1555>(y, x).ToColor32();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, int y, Color32 c)
         {

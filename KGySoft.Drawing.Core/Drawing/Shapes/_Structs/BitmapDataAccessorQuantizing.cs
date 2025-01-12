@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -39,8 +41,8 @@ namespace KGySoft.Drawing.Shapes
             session = quantizingSession;
         }
 
-        public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
-        public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, session.GetQuantizedColor(color));
+        [SecurityCritical]public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
+        [SecurityCritical]public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, session.GetQuantizedColor(color));
 
         public void InitRow(IBitmapDataRowInternal row, IQuantizingSession quantizingSession)
         {
@@ -48,8 +50,8 @@ namespace KGySoft.Drawing.Shapes
             session = quantizingSession;
         }
 
-        public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
-        public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, session.GetQuantizedColor(color));
+        [SecurityCritical]public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
+        [SecurityCritical]public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, session.GetQuantizedColor(color));
 
         #endregion
     }

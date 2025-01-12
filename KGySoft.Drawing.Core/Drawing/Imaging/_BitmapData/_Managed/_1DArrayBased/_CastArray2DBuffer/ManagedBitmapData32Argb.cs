@@ -16,6 +16,7 @@
 #region Usings
 
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -32,9 +33,11 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color32 DoGetColor32(int x) => GetPixelRef(x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => GetPixelRef(x) = c;
 
@@ -59,9 +62,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color32 DoGetColor32(int x, int y) => GetPixelRef(y, x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef(y, x) = c;
 

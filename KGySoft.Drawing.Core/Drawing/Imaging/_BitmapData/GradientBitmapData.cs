@@ -52,12 +52,12 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public override Color32 DoGetColor32(int x) => DoGetColor(x).ToColor32(BitmapData.LinearWorkingColorSpace);
-            public override Color64 DoGetColor64(int x) => DoGetColor(x).ToColor64(BitmapData.LinearWorkingColorSpace);
-            public override PColor64 DoGetPColor64(int x) => DoGetColor(x).ToPColor64(BitmapData.LinearWorkingColorSpace);
-            public override ColorF DoGetColorF(int x) => DoGetColor(x).ToColorF(BitmapData.LinearWorkingColorSpace);
-            public override PColorF DoGetPColorF(int x) => DoGetColor(x).ToPColorF(BitmapData.LinearWorkingColorSpace);
-            public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
+            [SecurityCritical]public override Color32 DoGetColor32(int x) => DoGetColor(x).ToColor32(BitmapData.LinearWorkingColorSpace);
+            [SecurityCritical]public override Color64 DoGetColor64(int x) => DoGetColor(x).ToColor64(BitmapData.LinearWorkingColorSpace);
+            [SecurityCritical]public override PColor64 DoGetPColor64(int x) => DoGetColor(x).ToPColor64(BitmapData.LinearWorkingColorSpace);
+            [SecurityCritical]public override ColorF DoGetColorF(int x) => DoGetColor(x).ToColorF(BitmapData.LinearWorkingColorSpace);
+            [SecurityCritical]public override PColorF DoGetPColorF(int x) => DoGetColor(x).ToPColorF(BitmapData.LinearWorkingColorSpace);
+            [SecurityCritical]public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
             [SecurityCritical]public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
             [SecurityCritical]public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
 
@@ -125,13 +125,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override Color32 DoGetColor32(int x, int y) => DoGetColor(x, y).ToColor32(LinearWorkingColorSpace);
-        public override Color64 DoGetColor64(int x, int y) => DoGetColor(x, y).ToColor64(LinearWorkingColorSpace);
-        public override PColor64 DoGetPColor64(int x, int y) => DoGetColor(x, y).ToPColor64(LinearWorkingColorSpace);
-        public override PColorF DoGetPColorF(int x, int y) => DoGetColor(x, y).ToPColorF(LinearWorkingColorSpace);
-        public override ColorF DoGetColorF(int x, int y) => DoGetColor(x, y).ToColorF(LinearWorkingColorSpace);
+        [SecurityCritical]public override Color32 DoGetColor32(int x, int y) => DoGetColor(x, y).ToColor32(LinearWorkingColorSpace);
+        [SecurityCritical]public override Color64 DoGetColor64(int x, int y) => DoGetColor(x, y).ToColor64(LinearWorkingColorSpace);
+        [SecurityCritical]public override PColor64 DoGetPColor64(int x, int y) => DoGetColor(x, y).ToPColor64(LinearWorkingColorSpace);
+        [SecurityCritical]public override PColorF DoGetPColorF(int x, int y) => DoGetColor(x, y).ToPColorF(LinearWorkingColorSpace);
+        [SecurityCritical]public override ColorF DoGetColorF(int x, int y) => DoGetColor(x, y).ToColorF(LinearWorkingColorSpace);
 
-        public override void DoSetColor32(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
+        [SecurityCritical]public override void DoSetColor32(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
         [SecurityCritical]public override T DoReadRaw<T>(int x, int y) => throw new NotSupportedException(PublicResources.NotSupported);
         [SecurityCritical]public override void DoWriteRaw<T>(int x, int y, T data) => throw new NotSupportedException(PublicResources.NotSupported);
 

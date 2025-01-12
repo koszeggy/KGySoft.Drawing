@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Security;
 using System.Threading;
 #if !NET35
 using System.Threading.Tasks; 
@@ -1716,6 +1717,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Quantizing/Dithering
 
+        [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
         {
@@ -1748,13 +1750,20 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     int width = bitmapData.Width;
                     IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                });
+                }
+
+                #endregion
             }
             finally
             {
@@ -1763,6 +1772,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
@@ -1805,13 +1815,20 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     int width = bitmapData.Width;
                     IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-                });
+                }
+
+                #endregion
             }
             finally
             {
@@ -1824,6 +1841,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Color Transformations
 
+        [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
@@ -1870,12 +1888,19 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
-                });
+                }
+
+                #endregion
             }
             finally
             {
@@ -1884,6 +1909,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
@@ -1946,12 +1972,19 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // parallel processing
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                });
+                }
+
+                #endregion
             }
             finally
             {

@@ -13,6 +13,8 @@
 
 #endregion
 
+using System.Security;
+
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="index">The element index of the value withing the current row to obtain.</param>
         /// <returns>A reference to the actual underlying buffer element at the specified index.</returns>
-        ref T this[int index] { get; }
+        ref T this[int index] { [SecuritySafeCritical]get; }
 
         #endregion
     }

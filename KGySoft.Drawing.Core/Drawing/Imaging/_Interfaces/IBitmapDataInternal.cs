@@ -42,22 +42,22 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         IBitmapDataRowInternal GetRowCached(int y);
 
-        Color32 DoGetColor32(int x, int y);
-        void DoSetColor32(int x, int y, Color32 c);
-        PColor32 DoGetPColor32(int x, int y);
-        void DoSetPColor32(int x, int y, PColor32 c);
-        Color64 DoGetColor64(int x, int y);
-        void DoSetColor64(int x, int y, Color64 c);
-        PColor64 DoGetPColor64(int x, int y);
-        void DoSetPColor64(int x, int y, PColor64 c);
-        ColorF DoGetColorF(int x, int y);
-        void DoSetColorF(int x, int y, ColorF c);
-        PColorF DoGetPColorF(int x, int y);
-        void DoSetPColorF(int x, int y, PColorF c);
+        [SecurityCritical]Color32 DoGetColor32(int x, int y);
+        [SecurityCritical]void DoSetColor32(int x, int y, Color32 c);
+        [SecurityCritical]PColor32 DoGetPColor32(int x, int y);
+        [SecurityCritical]void DoSetPColor32(int x, int y, PColor32 c);
+        [SecurityCritical]Color64 DoGetColor64(int x, int y);
+        [SecurityCritical]void DoSetColor64(int x, int y, Color64 c);
+        [SecurityCritical]PColor64 DoGetPColor64(int x, int y);
+        [SecurityCritical]void DoSetPColor64(int x, int y, PColor64 c);
+        [SecurityCritical]ColorF DoGetColorF(int x, int y);
+        [SecurityCritical]void DoSetColorF(int x, int y, ColorF c);
+        [SecurityCritical]PColorF DoGetPColorF(int x, int y);
+        [SecurityCritical]void DoSetPColorF(int x, int y, PColorF c);
         [SecurityCritical]T DoReadRaw<T>(int x, int y) where T : unmanaged;
         [SecurityCritical]void DoWriteRaw<T>(int x, int y, T data) where T : unmanaged;
-        int DoGetColorIndex(int x, int y);
-        void DoSetColorIndex(int x, int y, int colorIndex);
+        [SecurityCritical]int DoGetColorIndex(int x, int y);
+        [SecurityCritical]void DoSetColorIndex(int x, int y, int colorIndex);
 
         #endregion
     }

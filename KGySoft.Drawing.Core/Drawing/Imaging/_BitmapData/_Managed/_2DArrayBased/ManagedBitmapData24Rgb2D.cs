@@ -17,6 +17,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -31,18 +32,22 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color32 DoGetColor32(int x) => DoReadRaw<Color24>(x).ToColor32();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
                 => DoWriteRaw(x, new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearWorkingColorSpace)));
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorF(int x, ColorF c) => DoWriteRaw(x, new Color24(c.A >= 1f ? c.ToColor32()
                 : BitmapData.LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()).ToColor32()
                 : c.ToColor32().BlendWithBackgroundSrgb(BitmapData.BackColor)));
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
 
@@ -62,18 +67,22 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color32 DoGetColor32(int x, int y) => GetPixelRef<Color24>(y, x).ToColor32();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, int y, Color32 c)
             => GetPixelRef<Color24>(y, x) = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace));
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorF(int x, int y, ColorF c) => GetPixelRef<Color24>(y, x) = new Color24(c.A >= 1f ? c.ToColor32()
             : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
             : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 

@@ -16,6 +16,7 @@
 #region Usings
 
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -38,9 +39,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override int DoGetColorIndex(int x) => ColorExtensions.Get4bppColorIndex(GetPixelRef(x >> 1), x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorIndex(int x, int colorIndex)
                 => ColorExtensions.Set4bppColorIndex(ref GetPixelRef(x >> 1), x, colorIndex);
@@ -67,9 +70,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override int DoGetColorIndex(int x, int y) => ColorExtensions.Get4bppColorIndex(GetPixelRef(y, x >> 1), x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int y, int colorIndex)
             => ColorExtensions.Set4bppColorIndex(ref GetPixelRef(y, x >> 1), x, colorIndex);

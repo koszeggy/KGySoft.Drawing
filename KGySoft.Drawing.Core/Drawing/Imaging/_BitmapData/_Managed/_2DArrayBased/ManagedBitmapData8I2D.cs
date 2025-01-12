@@ -16,6 +16,7 @@
 #region Usings
 
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -36,9 +37,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override int DoGetColorIndex(int x) => DoReadRaw<byte>(x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorIndex(int x, int colorIndex) => DoWriteRaw(x, (byte)colorIndex);
 
@@ -64,9 +67,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override int DoGetColorIndex(int x, int y) => GetPixelRef<byte>(y, x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int y, int colorIndex) => GetPixelRef<byte>(y, x) = (byte)colorIndex;
 

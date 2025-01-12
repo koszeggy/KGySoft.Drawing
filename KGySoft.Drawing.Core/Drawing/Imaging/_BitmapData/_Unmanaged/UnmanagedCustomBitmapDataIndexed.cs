@@ -50,9 +50,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override int DoGetColorIndex(int x) => ((UnmanagedCustomBitmapDataIndexed)BitmapData).rowGetColorIndex.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorIndex(int x, int colorIndex) => ((UnmanagedCustomBitmapDataIndexed)BitmapData).rowSetColorIndex.Invoke(this, x, colorIndex);
 
@@ -179,10 +181,12 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
-        
+
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 

@@ -20,6 +20,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
@@ -99,6 +100,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -134,6 +136,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -211,6 +214,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert(Blend && (uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -251,6 +255,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert(Blend && (uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -332,6 +337,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert(Blend && (uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -372,6 +378,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert(Blend && (uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -463,6 +470,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -539,6 +547,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -695,7 +704,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             #region Internal Methods
-            
+
+            [SecuritySafeCritical]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -781,6 +791,7 @@ namespace KGySoft.Drawing.Shapes
                 }
             }
 
+            [SecuritySafeCritical]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 Debug.Assert((uint)scanline.RowIndex < (uint)BitmapData.Height);
@@ -948,11 +959,13 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
+            [SecuritySafeCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void ApplyScanlineSolid(in RegionScanline scanline)
             {
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void ProcessNoBlending(in RegionScanline scanline)
                 {
                     TMapper mapper = Mapper;
@@ -979,6 +992,7 @@ namespace KGySoft.Drawing.Shapes
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessWithBlending(in RegionScanline scanline)
                 {
                     TMapper mapper = Mapper;
@@ -1032,11 +1046,13 @@ namespace KGySoft.Drawing.Shapes
                     ProcessWithBlending(scanline);
             }
 
+            [SecuritySafeCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void ApplyScanlineAntiAliasing(in RegionScanline scanline)
             {
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void ProcessNoBlending(in RegionScanline scanline)
                 {
                     TMapper mapper = Mapper;
@@ -1075,6 +1091,7 @@ namespace KGySoft.Drawing.Shapes
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessWithBlending(in RegionScanline scanline)
                 {
                     TMapper mapper = Mapper;
@@ -1215,6 +1232,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
+            [SecuritySafeCritical]
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal override void DrawLine(PointF start, PointF end)
@@ -1443,6 +1461,7 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 void SetPixel(int x, int y)
                 {
@@ -1546,6 +1565,7 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void SetPixel(int x, int y, int sector)
                 {
                     if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)

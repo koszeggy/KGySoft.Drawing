@@ -2833,6 +2833,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Save
 
+        [SecuritySafeCritical]
         private static void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
             if (pixelFormat.IsIndexed())
@@ -2921,6 +2922,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         private static void DoSaveCustomIndexed(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
@@ -3029,6 +3031,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         private static void DoSaveRawBytes(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
@@ -3045,6 +3048,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         private static void DoSaveRawShorts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
@@ -3061,6 +3065,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         private static void DoSaveRawInts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
@@ -3077,6 +3082,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         private static void DoSaveRawLongs(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
             IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
@@ -3098,6 +3104,7 @@ namespace KGySoft.Drawing.Imaging
         #region Load
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        [SecuritySafeCritical]
         private static IReadWriteBitmapData? DoLoadBitmapData(IAsyncContext context, Stream stream)
         {
             context.Progress?.New(DrawingOperation.Loading, 1000);

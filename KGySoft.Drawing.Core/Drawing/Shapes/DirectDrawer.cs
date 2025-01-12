@@ -21,6 +21,7 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
@@ -59,6 +60,7 @@ namespace KGySoft.Drawing.Shapes
                 DrawLine(bitmapData, p1, p2, c, arg);
             }
 
+            [SecuritySafeCritical]
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal static void DrawLine(IBitmapDataInternal bitmapData, Point p1, Point p2, TColor c, TArg arg = default!)
@@ -439,6 +441,7 @@ namespace KGySoft.Drawing.Shapes
                 DrawLine(bitmapData, new PointF(bounds.Left, bounds.Top + radiusTopLeft), new PointF(bounds.Left, bounds.Bottom - radiusBottomLeft), c, offset, arg);
             }
 
+            [SecuritySafeCritical]
             internal static bool FillRectangle(IAsyncContext context, IBitmapDataInternal bitmapData, TColor color, Rectangle rectangle)
             {
                 Debug.Assert(!rectangle.IsEmpty() && new Rectangle(Point.Empty, bitmapData.Size).Contains(rectangle));
@@ -467,7 +470,12 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 // parallel fill
-                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, rectangle.Top, rectangle.Bottom, y =>
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, rectangle.Top, rectangle.Bottom, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     var accessor = new TAccessor();
@@ -477,7 +485,9 @@ namespace KGySoft.Drawing.Shapes
                     int right = rectangle.Right;
                     for (int x = rectangle.Left; x < right; x++)
                         accessor.SetColor(x, c);
-                });
+                }
+
+                #endregion
             }
 
             #endregion

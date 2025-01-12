@@ -71,6 +71,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Protected Methods
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected ref T GetPixelRef(int x) => ref Row.GetElementReferenceUnchecked(x);
 

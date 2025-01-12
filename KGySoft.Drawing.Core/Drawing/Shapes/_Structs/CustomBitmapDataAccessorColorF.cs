@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -33,6 +35,7 @@ namespace KGySoft.Drawing.Shapes
 
         public void InitBitmapData(IBitmapDataInternal bitmap, _ _) => bitmapDataRow = bitmap.GetRowCached(0);
 
+        [SecurityCritical]
         public ColorF GetColor(int x, int y)
         {
             if (bitmapDataRow.Index != y)
@@ -40,6 +43,7 @@ namespace KGySoft.Drawing.Shapes
             return bitmapDataRow.DoGetColorF(x);
         }
 
+        [SecurityCritical]
         public void SetColor(int x, int y, ColorF color)
         {
             if (bitmapDataRow.Index != y)
@@ -48,10 +52,10 @@ namespace KGySoft.Drawing.Shapes
         }
 
         public void InitRow(IBitmapDataRowInternal row, _ _) => bitmapDataRow = row;
-        public ColorF GetColor(int x) => bitmapDataRow.DoGetColorF(x);
-        public void SetColor(int x, ColorF color) => bitmapDataRow.DoSetColorF(x, color);
-        public ColorF GetBaseColor(int x) => bitmapDataRow.DoGetColorF(x);
-        public void SetBaseColor(int x, ColorF color) => bitmapDataRow.DoSetColorF(x, color);
+        [SecurityCritical]public ColorF GetColor(int x) => bitmapDataRow.DoGetColorF(x);
+        [SecurityCritical]public void SetColor(int x, ColorF color) => bitmapDataRow.DoSetColorF(x, color);
+        [SecurityCritical]public ColorF GetBaseColor(int x) => bitmapDataRow.DoGetColorF(x);
+        [SecurityCritical]public void SetBaseColor(int x, ColorF color) => bitmapDataRow.DoSetColorF(x, color);
 
         #endregion
     }

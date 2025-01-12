@@ -17,6 +17,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -56,6 +57,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override void SetColorIndex(int x, int y, int colorIndex)
         {
@@ -64,9 +66,11 @@ namespace KGySoft.Drawing.Imaging
             base.SetColorIndex(x, y, colorIndex);
         }
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override Color32 DoGetColor32(int x, int y) => Palette!.GetColor(DoGetColorIndex(x, y));
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override void DoSetColor32(int x, int y, Color32 c) => DoSetColorIndex(x, y, Palette!.GetNearestColorIndex(c));
 

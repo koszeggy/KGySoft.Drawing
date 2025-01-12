@@ -46,6 +46,7 @@ namespace KGySoft.Drawing.Imaging
                 : BitmapData.LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()).ToColor32()
                 : c.ToColor32().BlendWithBackgroundSrgb(BitmapData.BackColor));
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColorF(int x, PColorF c) => DoSetColorF(x, c.ToColorF());
 
@@ -80,6 +81,7 @@ namespace KGySoft.Drawing.Imaging
             : LinearWorkingColorSpace ? c.BlendWithBackgroundLinear(BackColor.ToColorF()).ToColor32()
             : c.ToColor32().BlendWithBackgroundSrgb(BackColor));
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColorF(int x, int y, PColorF c) => DoSetColorF(x, y, c.ToColorF());
 

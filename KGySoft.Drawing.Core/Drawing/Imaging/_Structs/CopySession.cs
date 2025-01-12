@@ -109,6 +109,7 @@ namespace KGySoft.Drawing.Imaging
                 PerformCopyColor32();
         }
 
+        [SecuritySafeCritical]
         internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession)
         {
             // Sequential processing
@@ -137,7 +138,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IQuantizingSession session = quantizingSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -147,7 +154,9 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(rowSrc.DoGetColor32(x + offsetSrc)));
-            });
+            }
+
+            #endregion
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -168,6 +177,7 @@ namespace KGySoft.Drawing.Imaging
             PerformCopyWithQuantizer(quantizingSession);
         }
 
+        [SecuritySafeCritical]
         internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
         {
             // Sequential processing
@@ -199,7 +209,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -211,7 +227,9 @@ namespace KGySoft.Drawing.Imaging
                 // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(rowSrc.DoGetColor32(x + offsetSrc), x, y));
-            });
+            }
+
+            #endregion
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -285,6 +303,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Drawing without a quantizer in 32bpp color space.
         /// </summary>
+        [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "False alarm, the new analyzer includes the complexity of local methods")]
         internal void PerformDrawDirect()
@@ -332,6 +351,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
+            [SecuritySafeCritical]
             void ProcessRowColor32(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -379,6 +399,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowPColor32(int y)
             {
                 Debug.Assert(!linearBlending && !target.PixelFormat.LinearGamma);
@@ -416,6 +437,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowColor64(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -463,6 +485,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowPColor64(int y)
             {
                 Debug.Assert(!linearBlending && !target.PixelFormat.LinearGamma);
@@ -500,6 +523,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowColorF(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -547,6 +571,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowPColorF(int y)
             {
                 Debug.Assert(linearBlending && target.PixelFormat.LinearGamma);
@@ -718,14 +743,22 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int width = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecurityCritical]
+            void ProcessRow(int y)
             {
                 byte* pSrc = sourceOrigin + (y + sourceLocation.Y) * sourceStride + sourceLocation.X;
                 byte* pDst = targetOrigin + (y + targetLocation.Y) * targetStride + targetLocation.X;
                 MemoryHelper.CopyMemory(pSrc, pDst, width);
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyColor32()
         {
             // Sequential processing
@@ -754,7 +787,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -763,9 +802,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetColor32(x + offsetDst, rowSrc.DoGetColor32(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyPColor32()
         {
             // Sequential processing
@@ -794,7 +836,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -803,9 +851,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetPColor32(x + offsetDst, rowSrc.DoGetPColor32(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyColor64()
         {
             // Sequential processing
@@ -834,7 +885,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -843,9 +900,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetColor64(x + offsetDst, rowSrc.DoGetColor64(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyPColor64()
         {
             // Sequential processing
@@ -874,7 +934,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -883,9 +949,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetPColor64(x + offsetDst, rowSrc.DoGetPColor64(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyColorF()
         {
             // Sequential processing
@@ -914,7 +983,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -923,9 +998,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetColorF(x + offsetDst, rowSrc.DoGetColorF(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyPColorF()
         {
             // Sequential processing
@@ -954,7 +1032,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -963,9 +1047,12 @@ namespace KGySoft.Drawing.Imaging
                 int width = sourceWidth;
                 for (int x = 0; x < width; x++)
                     rowDst.DoSetPColorF(x + offsetDst, rowSrc.DoGetPColorF(x + offsetSrc));
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyWithQuantizerSkipTransparent(IQuantizingSession quantizingSession)
         {
             // Sequential processing
@@ -1001,7 +1088,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IQuantizingSession session = quantizingSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -1018,9 +1111,12 @@ namespace KGySoft.Drawing.Imaging
 
                     rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
                 }
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyWithQuantizerMasked(IQuantizingSession quantizingSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
             Debug.Assert(mask.Height + maskOffset.Y >= SourceRectangle.Height && mask.Width * 8 + maskOffset.X >= SourceRectangle.Width);
@@ -1063,7 +1159,13 @@ namespace KGySoft.Drawing.Imaging
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
             var maskLocal = mask;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IQuantizingSession session = quantizingSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -1084,9 +1186,12 @@ namespace KGySoft.Drawing.Imaging
 
                     rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
                 }
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyWithDitheringSkipTransparent(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
         {
             // Sequential processing
@@ -1125,7 +1230,14 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+            
+            #region Local Methods
+            
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -1144,9 +1256,12 @@ namespace KGySoft.Drawing.Imaging
 
                     rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
                 }
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformCopyWithDitheringMasked(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent, in Array2D<byte> mask, Point maskOffset)
         {
             Debug.Assert(mask.Height + maskOffset.Y >= SourceRectangle.Height && mask.Width * 8 + maskOffset.X >= SourceRectangle.Width);
@@ -1192,7 +1307,13 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
+
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRow(int y)
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -1215,9 +1336,12 @@ namespace KGySoft.Drawing.Imaging
 
                     rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
                 }
-            });
+            }
+
+            #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformDrawWithQuantizer(IQuantizingSession quantizingSession)
         {
             IBitmapDataInternal source = Source;
@@ -1261,6 +1385,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
+            [SecuritySafeCritical]
             void ProcessRowSrgb(int y)
             {
                 IQuantizingSession session = quantizingSession;
@@ -1308,6 +1433,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowLinear(int y)
             {
                 IQuantizingSession session = quantizingSession;
@@ -1358,6 +1484,7 @@ namespace KGySoft.Drawing.Imaging
             #endregion
         }
 
+        [SecuritySafeCritical]
         private void PerformDrawWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
         {
             IBitmapDataInternal source = Source;
@@ -1400,6 +1527,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
+            [SecuritySafeCritical]
             void ProcessRowSrgb(int y)
             {
                 IDitheringSession session = ditheringSession;
@@ -1447,6 +1575,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             void ProcessRowLinear(int y)
             {
                 IDitheringSession session = ditheringSession;

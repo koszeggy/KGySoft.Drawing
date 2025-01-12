@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -188,8 +189,8 @@ namespace KGySoft.Drawing.Shapes
 
             #region Methods
 
-            internal abstract void ApplyScanlineAntiAliasing(in RegionScanline scanline);
-            internal abstract void ApplyScanlineSolid(in RegionScanline scanline);
+            [SecuritySafeCritical]internal abstract void ApplyScanlineAntiAliasing(in RegionScanline scanline);
+            [SecuritySafeCritical]internal abstract void ApplyScanlineSolid(in RegionScanline scanline);
 
             #endregion
         }
@@ -702,6 +703,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Private Methods
 
+            [SecuritySafeCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             private ref SolidScannerContext GetThreadContext(int y)
             {
@@ -1170,7 +1172,8 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             #region Private Methods
-            
+
+            [SecuritySafeCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             private ref AntiAliasingScannerContext GetThreadContext(int y)
             {
@@ -1644,7 +1647,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
-            internal abstract void DrawLine(PointF start, PointF end);
+            [SecuritySafeCritical]internal abstract void DrawLine(PointF start, PointF end);
             internal abstract void DrawEllipse(RectangleF bounds);
             internal abstract void DrawArc(ArcSegment arc);
 
@@ -1684,6 +1687,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Internal Methods
 
+            [SecuritySafeCritical]
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "Optimizations for special cases. Not extracting additional methods to prevent placing more frames on the call stack.")]
             internal override void DrawLine(PointF start, PointF end)

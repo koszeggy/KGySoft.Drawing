@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -39,8 +41,8 @@ namespace KGySoft.Drawing.Shapes
             session = ditheringSession;
         }
 
-        public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
-        public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, session.GetDitheredColor(color, x, y));
+        [SecurityCritical]public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
+        [SecurityCritical]public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, session.GetDitheredColor(color, x, y));
 
         public void InitRow(IBitmapDataRowInternal row, IDitheringSession ditheringSession)
         {
@@ -48,8 +50,8 @@ namespace KGySoft.Drawing.Shapes
             session = ditheringSession;
         }
 
-        public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
-        public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, session.GetDitheredColor(color, x, bitmapDataRow.Index));
+        [SecurityCritical]public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
+        [SecurityCritical]public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, session.GetDitheredColor(color, x, bitmapDataRow.Index));
 
         #endregion
     }

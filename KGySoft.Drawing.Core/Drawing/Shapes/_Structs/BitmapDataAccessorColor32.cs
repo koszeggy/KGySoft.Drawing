@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -33,14 +35,14 @@ namespace KGySoft.Drawing.Shapes
         #region Methods
 
         public void InitBitmapData(IBitmapDataInternal bitmap, _ _) => bitmapData = bitmap;
-        public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
-        public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, color);
+        [SecurityCritical]public Color32 GetColor(int x, int y) => bitmapData.DoGetColor32(x, y);
+        [SecurityCritical]public void SetColor(int x, int y, Color32 color) => bitmapData.DoSetColor32(x, y, color);
 
         public void InitRow(IBitmapDataRowInternal row, _ _) => bitmapDataRow = row;
-        public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
-        public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, color);
-        public Color32 GetBaseColor(int x) => bitmapDataRow.DoGetColor32(x);
-        public void SetBaseColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, color);
+        [SecurityCritical]public Color32 GetColor(int x) => bitmapDataRow.DoGetColor32(x);
+        [SecurityCritical]public void SetColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, color);
+        [SecurityCritical]public Color32 GetBaseColor(int x) => bitmapDataRow.DoGetColor32(x);
+        [SecurityCritical]public void SetBaseColor(int x, Color32 color) => bitmapDataRow.DoSetColor32(x, color);
 
         #endregion
     }

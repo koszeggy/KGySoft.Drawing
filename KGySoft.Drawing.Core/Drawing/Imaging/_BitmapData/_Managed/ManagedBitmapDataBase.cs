@@ -17,6 +17,8 @@
 
 #endregion
 
+using System.Security;
+
 namespace KGySoft.Drawing.Imaging
 {
     internal abstract class ManagedBitmapDataBase : BitmapDataBase
@@ -32,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        internal abstract ref byte GetPinnableReference();
+        [SecuritySafeCritical]internal abstract ref byte GetPinnableReference();
 
         #endregion
     }

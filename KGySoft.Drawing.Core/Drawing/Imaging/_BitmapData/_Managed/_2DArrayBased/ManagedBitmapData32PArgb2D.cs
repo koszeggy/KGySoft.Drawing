@@ -16,6 +16,7 @@
 #region Usings
 
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -30,21 +31,27 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color32 DoGetColor32(int x) => DoReadRaw<PColor32>(x).ToStraight();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => DoWriteRaw(x, c.ToPremultiplied());
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColor32 DoGetPColor32(int x) => DoReadRaw<PColor32>(x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor32(int x, PColor32 c) => DoWriteRaw(x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColor64 DoGetPColor64(int x) => DoReadRaw<PColor32>(x).ToPColor64();
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor64(int x, PColor64 c) => DoWriteRaw(x, c.ToPColor32());
 
@@ -64,21 +71,27 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color32 DoGetColor32(int x, int y) => GetPixelRef<PColor32>(y, x).ToStraight();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef<PColor32>(y, x) = c.ToPremultiplied();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override PColor32 DoGetPColor32(int x, int y) => GetPixelRef<PColor32>(y, x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColor32(int x, int y, PColor32 c) => GetPixelRef<PColor32>(y, x) = c;
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override PColor64 DoGetPColor64(int x, int y) => GetPixelRef<PColor32>(y, x).ToPColor64();
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColor64(int x, int y, PColor64 c) => GetPixelRef<PColor32>(y, x) = c.ToPColor32();
 

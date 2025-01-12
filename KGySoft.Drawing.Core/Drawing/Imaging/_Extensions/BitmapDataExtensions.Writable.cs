@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Security;
 
 #if !NET35
 using System.Threading.Tasks;
@@ -298,6 +299,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
@@ -339,12 +341,19 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // parallel clear
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+                
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
                 {
                     IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
-                });
+                }
+
+                #endregion
             }
             finally
             {

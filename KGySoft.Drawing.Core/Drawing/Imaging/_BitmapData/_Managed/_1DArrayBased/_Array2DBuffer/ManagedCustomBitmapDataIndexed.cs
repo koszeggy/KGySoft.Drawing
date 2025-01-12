@@ -56,7 +56,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Indexers
 
-            ref T ICustomBitmapDataRow<T>.this[int index] => ref Row.GetElementReference(index);
+            ref T ICustomBitmapDataRow<T>.this[int index]
+            {
+                [SecuritySafeCritical]
+                get => ref Row.GetElementReference(index);
+            }
 
             #endregion
 
@@ -64,9 +68,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override int DoGetColorIndex(int x) => ((ManagedCustomBitmapDataIndexed<T>)BitmapData).rowGetColorIndex.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorIndex(int x, int colorIndex) => ((ManagedCustomBitmapDataIndexed<T>)BitmapData).rowSetColorIndex.Invoke(this, x, colorIndex);
 
@@ -202,10 +208,12 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
-        
+
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 

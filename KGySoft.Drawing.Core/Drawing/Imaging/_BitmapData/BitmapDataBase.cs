@@ -232,9 +232,11 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color GetPixel(int x, int y) => GetColor32(x, y).ToColor();
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPixel(int x, int y, Color color) => SetColor32(x, y, new Color32(color));
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color32 GetColor32(int x, int y)
         {
@@ -247,6 +249,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColor32(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetColor32(int x, int y, Color32 color)
         {
@@ -259,6 +262,7 @@ namespace KGySoft.Drawing.Imaging
             DoSetColor32(x, y, color);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColor32 GetPColor32(int x, int y)
         {
@@ -271,6 +275,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetPColor32(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPColor32(int x, int y, PColor32 color)
         {
@@ -283,6 +288,7 @@ namespace KGySoft.Drawing.Imaging
             DoSetPColor32(x, y, color);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color64 GetColor64(int x, int y)
         {
@@ -295,6 +301,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColor64(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetColor64(int x, int y, Color64 color)
         {
@@ -307,6 +314,7 @@ namespace KGySoft.Drawing.Imaging
             DoSetColor64(x, y, color);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColor64 GetPColor64(int x, int y)
         {
@@ -319,6 +327,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetPColor64(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPColor64(int x, int y, PColor64 color)
         {
@@ -331,6 +340,7 @@ namespace KGySoft.Drawing.Imaging
             DoSetPColor64(x, y, color);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public ColorF GetColorF(int x, int y)
         {
@@ -343,6 +353,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColorF(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetColorF(int x, int y, ColorF color)
         {
@@ -355,6 +366,7 @@ namespace KGySoft.Drawing.Imaging
             DoSetColorF(x, y, color);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColorF GetPColorF(int x, int y)
         {
@@ -367,6 +379,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetPColorF(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPColorF(int x, int y, PColorF color)
         {
@@ -407,6 +420,7 @@ namespace KGySoft.Drawing.Imaging
             DoWriteRaw(x, y, data);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public int GetColorIndex(int x, int y)
         {
@@ -419,6 +433,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColorIndex(x, y);
         }
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public virtual void SetColorIndex(int x, int y, int colorIndex)
         {
@@ -454,22 +469,22 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
-        public abstract Color32 DoGetColor32(int x, int y);
-        public abstract void DoSetColor32(int x, int y, Color32 c);
-        public virtual PColor32 DoGetPColor32(int x, int y) => DoGetColor32(x, y).ToPColor32();
-        public virtual void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor32(x, y, c.ToColor32());
-        public virtual Color64 DoGetColor64(int x, int y) => DoGetColor32(x, y).ToColor64();
-        public virtual void DoSetColor64(int x, int y, Color64 c) => DoSetColor32(x, y, c.ToColor32());
-        public virtual PColor64 DoGetPColor64(int x, int y) => DoGetColor32(x, y).ToPColor64();
-        public virtual void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor32(x, y, c.ToColor32());
-        public virtual ColorF DoGetColorF(int x, int y) => DoGetColor32(x, y).ToColorF();
-        public virtual void DoSetColorF(int x, int y, ColorF c) => DoSetColor32(x, y, c.ToColor32());
-        public virtual PColorF DoGetPColorF(int x, int y) => DoGetColor32(x, y).ToPColorF();
-        public virtual void DoSetPColorF(int x, int y, PColorF c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public abstract Color32 DoGetColor32(int x, int y);
+        [SecurityCritical]public abstract void DoSetColor32(int x, int y, Color32 c);
+        [SecurityCritical]public virtual PColor32 DoGetPColor32(int x, int y) => DoGetColor32(x, y).ToPColor32();
+        [SecurityCritical]public virtual void DoSetPColor32(int x, int y, PColor32 c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public virtual Color64 DoGetColor64(int x, int y) => DoGetColor32(x, y).ToColor64();
+        [SecurityCritical]public virtual void DoSetColor64(int x, int y, Color64 c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public virtual PColor64 DoGetPColor64(int x, int y) => DoGetColor32(x, y).ToPColor64();
+        [SecurityCritical]public virtual void DoSetPColor64(int x, int y, PColor64 c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public virtual ColorF DoGetColorF(int x, int y) => DoGetColor32(x, y).ToColorF();
+        [SecurityCritical]public virtual void DoSetColorF(int x, int y, ColorF c) => DoSetColor32(x, y, c.ToColor32());
+        [SecurityCritical]public virtual PColorF DoGetPColorF(int x, int y) => DoGetColor32(x, y).ToPColorF();
+        [SecurityCritical]public virtual void DoSetPColorF(int x, int y, PColorF c) => DoSetColor32(x, y, c.ToColor32());
         [SecurityCritical]public abstract T DoReadRaw<T>(int x, int y) where T : unmanaged;
         [SecurityCritical]public abstract void DoWriteRaw<T>(int x, int y, T data) where T : unmanaged;
-        public virtual int DoGetColorIndex(int x, int y) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
-        public virtual void DoSetColorIndex(int x, int y, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        [SecurityCritical]public virtual int DoGetColorIndex(int x, int y) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        [SecurityCritical]public virtual void DoSetColorIndex(int x, int y, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
 
         public void Dispose()
         {

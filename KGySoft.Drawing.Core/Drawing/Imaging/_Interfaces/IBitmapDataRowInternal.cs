@@ -27,22 +27,22 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        Color32 DoGetColor32(int x);
-        PColor32 DoGetPColor32(int x);
-        void DoSetColor32(int x, Color32 c);
-        void DoSetPColor32(int x, PColor32 c);
-        Color64 DoGetColor64(int x);
-        PColor64 DoGetPColor64(int x);
-        void DoSetColor64(int x, Color64 c);
-        void DoSetPColor64(int x, PColor64 c);
-        ColorF DoGetColorF(int x);
-        PColorF DoGetPColorF(int x);
-        void DoSetColorF(int x, ColorF c);
-        void DoSetPColorF(int x, PColorF c);
+        [SecurityCritical]Color32 DoGetColor32(int x);
+        [SecurityCritical]PColor32 DoGetPColor32(int x);
+        [SecurityCritical]void DoSetColor32(int x, Color32 c);
+        [SecurityCritical]void DoSetPColor32(int x, PColor32 c);
+        [SecurityCritical]Color64 DoGetColor64(int x);
+        [SecurityCritical]PColor64 DoGetPColor64(int x);
+        [SecurityCritical]void DoSetColor64(int x, Color64 c);
+        [SecurityCritical]void DoSetPColor64(int x, PColor64 c);
+        [SecurityCritical]ColorF DoGetColorF(int x);
+        [SecurityCritical]PColorF DoGetPColorF(int x);
+        [SecurityCritical]void DoSetColorF(int x, ColorF c);
+        [SecurityCritical]void DoSetPColorF(int x, PColorF c);
         [SecurityCritical]T DoReadRaw<T>(int x) where T : unmanaged;
         [SecurityCritical]void DoWriteRaw<T>(int x, T data) where T : unmanaged;
-        int DoGetColorIndex(int x);
-        void DoSetColorIndex(int x, int colorIndex);
+        [SecurityCritical]int DoGetColorIndex(int x);
+        [SecurityCritical]void DoSetColorIndex(int x, int colorIndex);
         void DoMoveToRow(int y);
 
         #endregion

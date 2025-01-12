@@ -48,7 +48,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Indexers
 
-            ref T ICustomBitmapDataRow<T>.this[int index] => ref Buffer[Index, index];
+            ref T ICustomBitmapDataRow<T>.this[int index]
+            {
+                [SecuritySafeCritical]
+                get => ref Buffer[Index, index];
+            }
 
             #endregion
 
@@ -56,39 +60,51 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColor32.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColor32.Invoke(this, x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColor32 DoGetPColor32(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetPColor32.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor32(int x, PColor32 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetPColor32.Invoke(this, x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override Color64 DoGetColor64(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColor64.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor64(int x, Color64 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColor64.Invoke(this, x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColor64 DoGetPColor64(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetPColor64.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColor64(int x, PColor64 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetPColor64.Invoke(this, x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override ColorF DoGetColorF(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColorF.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColorF(int x, ColorF c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColorF.Invoke(this, x, c);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override PColorF DoGetPColorF(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetPColorF.Invoke(this, x);
 
+            [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetPColorF(int x, PColorF c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetPColorF.Invoke(this, x, c);
 
@@ -251,40 +267,52 @@ namespace KGySoft.Drawing.Imaging
         #region Protected Methods
 
         #region Public Methods
-        
+
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color32 DoGetColor32(int x, int y) => GetRowCached(y).DoGetColor32(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override PColor32 DoGetPColor32(int x, int y) => GetRowCached(y).DoGetPColor32(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColor32(int x, int y, PColor32 c) => GetRowCached(y).DoSetPColor32(x, c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override Color64 DoGetColor64(int x, int y) => GetRowCached(y).DoGetColor64(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor64(int x, int y, Color64 c) => GetRowCached(y).DoSetColor64(x, c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override PColor64 DoGetPColor64(int x, int y) => GetRowCached(y).DoGetPColor64(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColor64(int x, int y, PColor64 c) => GetRowCached(y).DoSetPColor64(x, c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override ColorF DoGetColorF(int x, int y) => GetRowCached(y).DoGetColorF(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorF(int x, int y, ColorF c) => GetRowCached(y).DoSetColorF(x, c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override PColorF DoGetPColorF(int x, int y) => GetRowCached(y).DoGetPColorF(x);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetPColorF(int x, int y, PColorF c) => GetRowCached(y).DoSetPColorF(x, c);
 

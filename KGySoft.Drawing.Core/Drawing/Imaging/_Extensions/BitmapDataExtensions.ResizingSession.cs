@@ -164,6 +164,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void ProcessRowColor32(int y)
                 {
                     float widthFactor = scalingFactor.Width;
@@ -214,6 +215,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessRowPColor32(int y)
                 {
                     Debug.Assert(!useLinearColorSpace && !target.PixelFormat.LinearGamma);
@@ -255,6 +257,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessRowColor64(int y)
                 {
                     float widthFactor = scalingFactor.Width;
@@ -305,6 +308,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessRowPColor64(int y)
                 {
                     Debug.Assert(!useLinearColorSpace && !target.PixelFormat.LinearGamma);
@@ -346,6 +350,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessRowColorF(int y)
                 {
                     float widthFactor = scalingFactor.Width;
@@ -396,6 +401,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 void ProcessRowPColorF(int y)
                 {
                     Debug.Assert(useLinearColorSpace && target.PixelFormat.LinearGamma);
@@ -444,6 +450,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
+            [SecuritySafeCritical]
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
                 // Sequential processing
@@ -466,6 +473,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void ProcessRow(int y)
                 {
                     // Scaling factors
@@ -521,6 +529,7 @@ namespace KGySoft.Drawing.Imaging
                 #endregion
             }
 
+            [SecuritySafeCritical]
             private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
             {
                 // Sequential processing
@@ -543,6 +552,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Local Methods
 
+                [SecuritySafeCritical]
                 void ProcessRow(int y)
                 {
                     // Scaling factors
@@ -710,6 +720,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                [SecuritySafeCritical]
                 [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                     Justification = "False alarm, the new analyzer includes the complexity of local methods")]
                 internal override void PerformResizeDirect()
@@ -739,6 +750,7 @@ namespace KGySoft.Drawing.Imaging
 
                     #region Local Methods
 
+                    [SecuritySafeCritical]
                     void PerformResizeColor32()
                     {
                         CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
@@ -803,6 +815,7 @@ namespace KGySoft.Drawing.Imaging
                         });
                     }
 
+                    [SecuritySafeCritical]
                     void PerformResizePColor32()
                     {
                         Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers128BitColors: false, Prefers64BitColors: false, HasPremultipliedAlpha: true, LinearGamma: false });
@@ -852,6 +865,7 @@ namespace KGySoft.Drawing.Imaging
                         });
                     }
 
+                    [SecuritySafeCritical]
                     void PerformResizeColor64()
                     {
                         CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
@@ -916,6 +930,7 @@ namespace KGySoft.Drawing.Imaging
                         });
                     }
 
+                    [SecuritySafeCritical]
                     void PerformResizePColor64()
                     {
                         Debug.Assert(!useLinearColorSpace && target.PixelFormat is { Prefers64BitColors: true, HasPremultipliedAlpha: true, LinearGamma: false });
@@ -965,6 +980,7 @@ namespace KGySoft.Drawing.Imaging
                         });
                     }
 
+                    [SecuritySafeCritical]
                     void PerformResizeColorF()
                     {
                         CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
@@ -1027,6 +1043,7 @@ namespace KGySoft.Drawing.Imaging
                         });
                     }
 
+                    [SecuritySafeCritical]
                     void PerformResizePColorF()
                     {
                         Debug.Assert(useLinearColorSpace && target.PixelFormat.LinearGamma);
@@ -1221,10 +1238,11 @@ namespace KGySoft.Drawing.Imaging
                     CalculateFirstPassValues(currentWindow.Top + windowBandHeight, currentWindow.Bottom, false);
                 }
 
+                [SecuritySafeCritical]
                 private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
                 {
                     CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, [method:SecuritySafeCritical](int y) =>
                     {
                         ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                         while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -1282,6 +1300,7 @@ namespace KGySoft.Drawing.Imaging
                     });
                 }
 
+                [SecuritySafeCritical]
                 private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
                 {
                     // Sequential processing (ignoring threshold, always parallel if possible)
@@ -1297,6 +1316,7 @@ namespace KGySoft.Drawing.Imaging
 
                     #region Local Methods
 
+                    [SecuritySafeCritical]
                     void ProcessRow(int y)
                     {
                         CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
@@ -1456,6 +1476,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal abstract void PerformResize(IQuantizer? quantizer, IDitherer? ditherer);
 
+            [SecuritySafeCritical]
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal abstract void PerformResizeDirect();
@@ -1652,7 +1673,7 @@ namespace KGySoft.Drawing.Imaging
             /// <summary>
             /// Returns a <see cref="ResizeKernel"/> for an index value between 0 and targetLength - 1.
             /// </summary>
-            internal ref ResizeKernel GetKernel(int index) => ref kernels[index];
+            [SecuritySafeCritical]internal ref ResizeKernel GetKernel(int index) => ref kernels[index];
 
             #endregion
 

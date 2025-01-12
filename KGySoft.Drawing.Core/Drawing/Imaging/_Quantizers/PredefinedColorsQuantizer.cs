@@ -24,6 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security;
 #if !(NET35 || NET40)
 using System.Threading;
 #endif
@@ -214,6 +215,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            [SecuritySafeCritical]
             public Color32 GetQuantizedColor(Color32 origColor)
             {
 #if NET35 || NET40

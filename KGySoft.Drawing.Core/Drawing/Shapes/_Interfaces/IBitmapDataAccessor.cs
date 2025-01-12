@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -27,12 +29,12 @@ namespace KGySoft.Drawing.Shapes
         #region Methods
 
         void InitBitmapData(IBitmapDataInternal bitmapData, TArg arg = default!);
-        TColor GetColor(int x, int y);
-        void SetColor(int x, int y, TColor color);
+        [SecurityCritical]TColor GetColor(int x, int y);
+        [SecurityCritical]void SetColor(int x, int y, TColor color);
 
         void InitRow(IBitmapDataRowInternal row, TArg arg = default!);
-        TColor GetColor(int x);
-        void SetColor(int x, TColor color);
+        [SecurityCritical]TColor GetColor(int x);
+        [SecurityCritical]void SetColor(int x, TColor color);
 
         #endregion
     }
@@ -43,8 +45,8 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Methods
 
-        TBaseColor GetBaseColor(int x);
-        void SetBaseColor(int x, TBaseColor color);
+        [SecurityCritical]TBaseColor GetBaseColor(int x);
+        [SecurityCritical]void SetBaseColor(int x, TBaseColor color);
 
         #endregion
     }

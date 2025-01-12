@@ -119,6 +119,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe void DoSetColor64(int x, int y, Color64 c) => *GetPixelAddress<PColor64>(y, x) = new PColor64(c);
 
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe PColor64 DoGetPColor64(int x, int y) => *GetPixelAddress<PColor64>(y, x);
 

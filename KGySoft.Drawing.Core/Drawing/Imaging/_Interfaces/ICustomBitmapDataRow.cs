@@ -50,6 +50,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
         /// <returns>A reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is not valid for <see cref="IBitmapData.RowSize"/> and <typeparamref name="T"/>.</exception>
+        [SecuritySafeCritical]
         ref T GetRefAs<T>(int x) where T : unmanaged;
 
         /// <summary>

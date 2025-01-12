@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Protected Methods
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected ref TPixel GetPixelRef(int x) => ref row.GetElementReferenceUnsafe(x);
 

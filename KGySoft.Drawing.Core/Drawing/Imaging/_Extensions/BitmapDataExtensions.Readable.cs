@@ -21,6 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 #if !NET35
@@ -4089,6 +4090,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region GetColors
 
+        [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "False alarm, up to one of the typeof comparisons are left in the release build")]
         private static ICollection<T> DoGetColors<T>(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
             where T : unmanaged
@@ -4187,6 +4189,7 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
+        [SecuritySafeCritical]
         private static int GetColorCount<T>(IAsyncContext context, IReadableBitmapData bitmapData) where T : unmanaged
         {
             Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
