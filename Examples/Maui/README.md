@@ -4,7 +4,7 @@
 
 This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) instance for the `SKBitmap` class in a MAUI application and perform various operations on it.
 
-> ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp_(Maui)) or [WPF](../SkiaSharp_(Maui)) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
+> ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp_(Maui)) or [WPF](../SkiaSharp.Maui) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
 
 <p align="center">
   <img alt="KGy SOFT Drawing MAUI Example App on Windows 11" src="https://github.com/user-attachments/assets/bf3bc12f-c9a0-48dd-a90c-ceae5fdebd71"/>
@@ -17,7 +17,7 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing MAUI Example App on Android Phone" src="https://github.com/user-attachments/assets/f1f7aef6-55de-49a4-9fec-fc1c10b5eecd"/>
+  <img alt="KGy SOFT Drawing MAUI Example App on Android Phone" src="https://github.com/user-attachments/assets/a21def91-e843-4a67-a168-88a72ec4b160"/>
   <br/><em>The KGy SOFT Drawing MAUI Example App running on Android Phone</em>
 </p>
 

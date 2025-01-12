@@ -4,7 +4,7 @@
 
 This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) instance for the `SKBitmap` class in a Xamarin application and perform various operations on it.
 
-> ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp_(Maui)) or [WPF](../SkiaSharp_(Maui)) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
+> ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp.Maui) or [WPF](../SkiaSharp.Wpf) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
 
 ## Screenshots
 
