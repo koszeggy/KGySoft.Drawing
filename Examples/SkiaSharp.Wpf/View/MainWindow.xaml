@@ -42,6 +42,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -66,9 +68,56 @@
                  ToolTip="The overlay image to display"
                  IsEnabled="{Binding ShowOverlay}"/>
 
-        <!--Pixel Format-->
-        <TextBlock Grid.Row="2" Grid.Column="0">Pixel Format:</TextBlock>
+        <!--Overlay Shape-->
         <Grid Grid.Row="2" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0">Overlay Shape:</TextBlock>
+            <ComboBox Grid.Column="1"
+                      ItemsSource="{Binding OverlayShapes, Mode=OneTime}"
+                      SelectedItem="{Binding OverlayShape}"
+                      IsEnabled="{Binding ShowOverlay}"
+                      ToolTip="An optional shape for the overlay image."/>
+        </Grid>
+
+        <!--Outline-->
+        <Grid Grid.Row="3" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0">Outline:</TextBlock>
+                <Slider Grid.Column="1"
+                        Maximum="10"
+                        TickFrequency="2"
+                        TickPlacement="BottomRight"
+                        SmallChange="1" LargeChange="5"
+                        Value="{Binding OutlineWidth}"
+                        IsEnabled="{Binding OutlineEnabled}"
+                        ToolTip="The outline width of the overlay shape."
+                        ToolTipService.ShowOnDisabled="True"/>
+                <TextBlock Grid.Column="2" Text="{Binding OutlineWidth, Mode=OneWay}"/>
+            </Grid>
+            <TextBox Grid.Column="1"
+                     Text="{Binding OutlineColorText, ValidatesOnDataErrors=True}"
+                     IsEnabled="{Binding OutlineEnabled}"
+                     ToolTip="When there is a selected overlay shape and the outline width is larger than zero, picks a color for the shape outline.&#x0a;Hex #AARRGGBB format is also supported."
+                     ToolTipService.ShowOnDisabled="True"/>
+            <Rectangle Grid.Column="2" Fill="{Binding OutlineColorBrush}" />
+        </Grid>
+
+        <!--Pixel Format-->
+        <TextBlock Grid.Row="4" Grid.Column="0">Pixel Format:</TextBlock>
+        <Grid Grid.Row="4" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -76,7 +125,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
@@ -103,10 +152,10 @@
         </Grid>
 
         <!-- Back Color -->
-        <Grid Grid.Row="3" Grid.Column="1">
+        <Grid Grid.Row="5" Grid.Column="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="75"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0">Back Color:</TextBlock>
@@ -119,24 +168,24 @@
         </Grid>
 
         <!-- Force Linear Color Space -->
-        <CheckBox Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+        <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
                   IsChecked="{Binding ForceLinearWorkingColorSpace}"
                   ToolTip="Forces to use the linear color space for blending, quantizing and dithering even if the actual color space of the pixel format is sRGB.&#x0d;&#x0d;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0d;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0d;&#x0d;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."
                   Content="Force Linear Working Color Space"/>
 
         <!--Quantizer-->
-        <CheckBox Grid.Row="5" Grid.Column="0"
+        <CheckBox Grid.Row="7" Grid.Column="0"
                      IsChecked="{Binding UseQuantizer, Mode=TwoWay}" 
                      ToolTip="Check to use a quantizer. For lower bit-per-pixel quantizers it is recommended to enable dithering."
                      Content="Quantizer:"/>
-        <ComboBox Grid.Row="5" Grid.Column="1"
+        <ComboBox Grid.Row="7" Grid.Column="1"
                 ItemsSource="{Binding Quantizers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
                 IsEnabled="{Binding UseQuantizer}"
                 ToolTip="The desired quantizer to use. For lower bit-per-pixel formats it is recommended to enable dithering."/>
 
         <!-- a.) Alpha Threshold -->
-        <Grid Grid.Row="6" Grid.Column="1"
+        <Grid Grid.Row="8" Grid.Column="1"
               Visibility="{Binding AlphaThresholdVisibility}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -156,7 +205,7 @@
         </Grid>
 
         <!-- b.) White Threshold -->
-        <Grid Grid.Row="7" Grid.Column="1"
+        <Grid Grid.Row="9" Grid.Column="1"
               Visibility="{Binding WhiteThresholdVisibility}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -176,7 +225,7 @@
         </Grid>
 
         <!-- c.) Palette Size -->
-        <Grid Grid.Row="8" Grid.Column="1"
+        <Grid Grid.Row="10" Grid.Column="1"
               Visibility="{Binding MaxColorsVisibility}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
@@ -197,10 +246,10 @@
         </Grid>
 
         <!--Ditherer-->
-        <CheckBox Grid.Row="9" Grid.Column="0"
+        <CheckBox Grid.Row="11" Grid.Column="0"
                   IsChecked="{Binding UseDithering}"
                   ToolTip="Check to use a ditherer. For high bit-per-pixel formats it makes little sense as for those its only practical effect is just removing possible partial transparency.">Ditherer:</CheckBox>
-        <ComboBox Grid.Row="9" Grid.Column="1"
+        <ComboBox Grid.Row="11" Grid.Column="1"
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedDitherer}"
                   IsEnabled="{Binding UseDithering}"
@@ -208,14 +257,14 @@
                   ToolTipService.ShowOnDisabled="True"/>
 
         <!--Image-->
-        <skia:SKElement x:Name="canvas" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2"
+        <skia:SKElement x:Name="canvas" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2"
                         PaintSurface="SKElement_OnPaintSurface"/>
 
         <!--Progress Bar-->
-        <TextBlock Grid.Row="11" Grid.Column="0"
+        <TextBlock Grid.Row="13" Grid.Column="0"
                    Text="{Binding ProgressText}"
                    Visibility="{Binding ProgressVisibility}"/>
-        <ProgressBar Grid.Row="11" Grid.Column="1"
+        <ProgressBar Grid.Row="13" Grid.Column="1"
                      IsIndeterminate="{Binding IsProgressIndeterminate}"
                      Maximum="{Binding ProgressMaxValue}"
                      Value="{Binding ProgressValue}"

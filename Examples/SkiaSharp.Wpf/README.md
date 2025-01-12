@@ -7,6 +7,6 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 > 💡 _Tip:_ There are similar example applications for [MAUI](../Maui) and [Xamarin](../Xamarin) that also work with SkiaSharp, but they do it without using the dedicated SkiaSharp-specific package. They demonstrate how to manually obtain a bitmap data for a typical 3rd party bitmap implementation. But if you need to handle all possible color types and alpha types that an `SKBitmap` can represent, then this one is the recommended example.
 
 <p align="center">
-  <img alt="KGy SOFT Drawing SkiaSharp/WPF Example App on Windows 11" src="https://github.com/koszeggy/KGySoft.Drawing/assets/27336165/11c28783-2451-4db8-91a5-5372b9009eb5"/>
+  <img alt="KGy SOFT Drawing SkiaSharp/WPF Example App on Windows 11" src="https://github.com/user-attachments/assets/c517cb34-014d-4e52-8a51-7a7bdd2e2009"/>
   <br/><em>The KGy SOFT Drawing SkiaSharp/WPF Example App running on Windows 11</em>
 </p>
