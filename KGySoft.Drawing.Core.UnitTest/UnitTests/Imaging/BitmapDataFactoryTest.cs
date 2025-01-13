@@ -494,7 +494,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using (var bmpData = GetInfoIcon256())
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
-                reference = bmpData.Clone(pixelFormat, bpp <= 8 ? OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)) : null, OrderedDitherer.Bayer8x8);
+                reference = bmpData.Clone(pixelFormat, bpp <= 8 && pixelFormat.CanBeDithered() ? OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)) : null, OrderedDitherer.Bayer8x8);
             }
 
             SaveBitmapData(pixelFormat.ToString(), reference);

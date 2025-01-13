@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>-->
+    <TargetFrameworks>net9.0</TargetFrameworks>
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
@@ -34,8 +34,11 @@
     <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
+  <!-- .NET 7.0 or newer references on non-Windows systems: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+    <Net70OrGreater>true</Net70OrGreater>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsWindows)'!='true' AND '$(Net70OrGreater)'=='true'">
     <UseSkia>true</UseSkia>
     <DefineConstants>$(DefineConstants);USE_SKIA</DefineConstants>
   </PropertyGroup>
@@ -58,9 +61,9 @@
   <ItemGroup Condition="'$(UseSkia)'=='true'">
     <PackageReference Include="SkiaSharp" Version="3.116.1" />
   </ItemGroup>
-  <!--<ItemGroup Condition="'$(UseSkia)'!='true'">
+  <ItemGroup Condition="'$(IsWindows)'=='true' AND '$(Net70OrGreater)'=='true'">
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-  </ItemGroup>-->
+  </ItemGroup>
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">

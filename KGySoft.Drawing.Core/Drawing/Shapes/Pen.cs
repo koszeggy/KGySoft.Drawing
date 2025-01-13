@@ -120,8 +120,9 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Gets or sets the limit for the ratio of the miter length to half the <see cref="Width"/> that determines whether the join is beveled or mitered.
-        /// If the miter limit is exceeded, the join is beveled. Affects lines with <see cref="Width"/> greater than 1, if <see cref="LineJoin"/> is <see cref="LineJoinStyle.Miter"/>.
+        /// If the <see cref="LineJoin"/> is <see cref="LineJoinStyle.Miter"/>, then
+        /// gets or sets the limit for the ratio of the miter length to half the <see cref="Width"/> that determines whether the join is beveled or mitered.
+        /// Makes a difference only if the <see cref="Width"/> is greater than 1.
         /// <br/>Default value: 10.
         /// </summary>
         public float MiterLimit
@@ -137,6 +138,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Gets or sets the <see cref="LineCapStyle"/> that specifies the style of the start point of an open figure.
+        /// Makes a difference only if the <see cref="Width"/> is greater than 1.
         /// <br/>Default value: <see cref="LineCapStyle.Flat"/>.
         /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
@@ -153,6 +155,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Gets or sets the <see cref="LineCapStyle"/> that specifies the style of the end point of an open figure.
+        /// Makes a difference only if the <see cref="Width"/> is greater than 1.
         /// <br/>Default value: <see cref="LineCapStyle.Flat"/>.
         /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>

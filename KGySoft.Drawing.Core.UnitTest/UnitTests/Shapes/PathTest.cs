@@ -476,7 +476,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                     var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)Math.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
                     var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
                     bitmapData.DrawPath(context, pen, path, drawingOptions);
-                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
+                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width:F2}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
                 }
             }
         }
@@ -670,7 +670,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 path.PreferCaching = false;
                 using var bitmapData1 = bitmapDataBackground.Clone();
                 bitmapData1.DrawPath(context, pen, path, options);
-                SaveBitmapData($"{name}_{width}_{pixelOffset}", bitmapData1);
+                SaveBitmapData($"{name}_{width}_{(antiAliasing ? "AA" : "NA")}_{pixelOffset}", bitmapData1);
 
                 path.PreferCaching = true;
                 using var bitmapData2 = bitmapDataBackground.Clone();

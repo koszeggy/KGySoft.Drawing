@@ -73,11 +73,18 @@ namespace KGySoft.Drawing.Shapes
             internal PenOptions(Pen pen, DrawingOptions options)
             {
                 Width = pen.Width;
-                LineJoin = pen.LineJoin;
-                MiterLimit = Width <= 1f ? 1f : pen.MiterLimit;
-                StartCap = Width <= 1f ? LineCapStyle.Flat : pen.StartCap;
-                EndCap = Width <= 1f ? LineCapStyle.Flat : pen.EndCap;
                 Offset = options.DrawPathPixelOffset == PixelOffset.Half;
+                LineJoin = pen.LineJoin;
+                if (Width <= 1f)
+                {
+                    MiterLimit = 2f;
+                    StartCap = EndCap = LineCapStyle.Flat;
+                    return;
+                }
+
+                MiterLimit = pen.MiterLimit;
+                StartCap = pen.StartCap;
+                EndCap = pen.EndCap;
             }
 
             #endregion
