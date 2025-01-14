@@ -60,6 +60,7 @@
   <!-- .NET 7.0 or newer references: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
   <ItemGroup Condition="'$(UseSkia)'=='true'">
     <PackageReference Include="SkiaSharp" Version="3.116.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(IsWindows)'=='true' AND '$(Net70OrGreater)'=='true'">
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
