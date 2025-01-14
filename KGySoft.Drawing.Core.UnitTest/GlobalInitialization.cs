@@ -49,10 +49,6 @@ namespace KGySoft.Drawing
 #if !WINDOWS && (NET5_0 || NET6_0)
             AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true);
 #endif
-
-#if NET7_0_OR_GREATER && !WINDOWS
-            Assert.Inconclusive("When targeting .NET 7 or later, executing the tests requires Windows. For Linux or macOS target .NET 6 or earlier.");
-#endif
         }
 
         #endregion

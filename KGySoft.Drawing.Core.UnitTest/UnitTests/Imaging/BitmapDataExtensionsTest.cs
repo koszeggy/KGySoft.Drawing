@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var bitmapData = new TestReadableBitmapData(GetInfoIcon256());
             using IReadWriteBitmapData clone = bitmapData.Clone();
-            AssertAreEqual(bitmapData, clone);
+            AssertAreEqual(bitmapData, clone, bitmapData.PixelFormat.IsCustomFormat);
             //SaveBitmapData("Clone", clone);
         }
 
