@@ -35,7 +35,8 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
 
 Starting with version 7.0.0 KGy SOFT Drawing Libraries are available in multiple packages:
 
-#### [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Core.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Core)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing.Core">KGySoft.Drawing.Core</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.Core.svg"/></a></summary><p/>
 
 This package contains the platform-independent core functionality that mainly resides in the [KGySoft.Drawing.Imaging](https://docs.kgysoft.net/drawing/html/N_KGySoft_Drawing_Imaging.htm) namespace.
 
@@ -50,8 +51,10 @@ Main highlights:
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Core) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.Core
+</details>
 
-#### [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.svg)](https://www.nuget.org/packages/KGySoft.Drawing)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing">KGySoft.Drawing</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.svg"/></a></summary><p/>
 
 This package provides special support for `System.Drawing` types such as `Bitmap`, `Metafile`, `Image`, `Icon`, `Graphics`. In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux based systems are also supported (if the libgdiplus library is installed).
 
@@ -70,8 +73,10 @@ Main highlights:
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing
+</details>
 
-#### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Wpf.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf">KGySoft.Drawing.Wpf</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.Wpf.svg"/></a></summary><p/>
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats. It also allows direct read-only access to the bitmap data of any `BitmapSource`.
 
@@ -83,44 +88,54 @@ Main highlights:
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.Wpf
+</details>
 
-#### [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Uwp.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Uwp)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp">KGySoft.Drawing.Uwp</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.Uwp.svg"/></a></summary><p/>
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type in UWP (Universal Windows Platform). This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Uwp) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.Uwp
+</details>
 
-#### [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.WinUI.svg)](https://www.nuget.org/packages/KGySoft.Drawing.WinUI)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing.WinUI">KGySoft.Drawing.WinUI</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing.WinUI"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.WinUI.svg"/></a></summary><p/>
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type of the Windows App SDK used in WinUI applications. This library requires targeting at least .NET 6 and Windows 10.0.17763.0 (October 2018 release, version 1809).
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.WinUI
+</details>
 
-#### [KGySoft.Drawing.SkiaSharp](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.SkiaSharp.svg)](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp)
+<details>
+<summary><strong><a href="https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp">KGySoft.Drawing.SkiaSharp</a></strong> <a href="https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp"><img alt="NuGet" src="https://img.shields.io/nuget/vpre/KGySoft.Drawing.SkiaSharp.svg"/></a></summary><p/>
 
 This package provides dedicated support for the `SKBitmap`, `SKPixmap`, `SKImage` and `SKSurface` types of SkiaSharp. All pixel formats are supported (and [unlike](https://github.com/mono/SkiaSharp/issues/2354) SkiaSharp's own `GetPixel`, `IReadableBitmapData.GetPixel` also works correctly for all pixel formats), though for the fastest direct support the color space should be either sRGB or linear. The library also offers direct [pixel format conversion](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_ConvertPixelFormat.htm) with optional quantizing and dithering.
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.SkiaSharp
+</details>
 
 ### Application Examples
 
-#### KGy SOFT Drawing Example Applications
+<details>
+<summary><strong>KGy SOFT Drawing Example Applications</strong></summary><p/>
 
 See the [Examples](Examples) folder for example applications for using KGy SOFT Drawing Libraries in various environments such as [MAUI](Examples/SkiaSharp.Maui), [UWP](Examples/Uwp), [WinForms](Examples/WinForms), [WinUI](Examples/WinUI), [WPF](Examples/Wpf) and [Xamarin](Examples/Xamarin).
 
 <p align="center">
-  <a href="Examples/Maui"><img alt="KGy SOFT Drawing MAUI Example App" src="https://user-images.githubusercontent.com/27336165/236938647-1ed3110b-aebe-4be8-80b3-9f8b83a996e2.png"/></a>
+  <a href="Examples/Maui"><img alt="KGy SOFT Drawing MAUI Example App" src="https://github.com/user-attachments/assets/a21def91-e843-4a67-a168-88a72ec4b160"/></a>
   <br/><em>KGy SOFT Drawing MAUI Example App running on Android Phone.
   <br/>See the <a href="Examples">Examples</a> folder for all of the example applications.</em>
 </p>
+</details>
 
-#### KGy SOFT Imaging Tools and Debugger Visualizers:
+<details>
+<summary><strong>KGy SOFT Imaging Tools and Debugger Visualizers</strong></summary><p/>
 
 [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a Windows Forms desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing`, `WPF`, `SkiaSharp` and `KGySoft` types including `Bitmap`, `Metafile`, `Icon`, `Graphics`, `WriteableBitmap`, `SKBitmap` and more.
 
@@ -128,15 +143,18 @@ See the [Examples](Examples) folder for example applications for using KGy SOFT 
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250655-5e760d80-db25-11eb-824f-195e5e1dbcbe.png"/></a>
   <br/><em>KGy SOFT Imaging Tools</em>
 </p>
+</details>
 
-#### ScreenToGif
+<details>
+<summary><strong>ScreenToGif</strong></summary><p/>
 
-[ScreenToGif](https://github.com/NickeManarin/ScreenToGif) is a WPF desktop application that can be used to create and save animations. Among others, it can use KGy SOFT Drawing Libraries to save GIF animations using various quantizers and ditherers.
+[ScreenToGif](https://github.com/NickeManarin/ScreenToGif) is a WPF desktop application by Nicke Manarin that can be used to create and save animations. Among others, it can use KGy SOFT Drawing Libraries to save GIF animations using various quantizers and ditherers.
 
 <p align="center">
   <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/173610775-360e10eb-5e18-4aae-ad01-a4a176d6efc6.png"/>
   <br/><em>KGy SOFT GIF encoder options in ScreenToGif</em>
 </p>
+</details>
 
 ## Project Site
 
@@ -159,8 +177,13 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 
 ## Examples
 
-### Fast Bitmap Manipulation
-<sub>(This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but works similarly also for other bitmap types (e.g. `WriteableBitmap` of WPF/UWP/WinUI) you can create an [`IBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)</sub>
+### Low-Level Bitmap Operations
+
+<details>
+<summary><strong>Fast Bitmap Manipulation</strong><a id="fast-bitmap-manipulation"/></summary><p/>
+
+> ℹ️ **Note**<p/>
+> This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but works similarly also for other bitmap types (e.g. `WriteableBitmap` of WPF/UWP/WinUI) you can create an [`IBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)
 
 As it is well known, `Bitmap.SetPixel`/`GetPixel` methods are very slow, and `Bitmap.SetPixel` does not even support every pixel format. A typical solution can be to obtain a `BitmapData` by the `LockBits` method, which has further drawbacks: you need to use unsafe code and pointers, and the way you need to access the bitmap data depends on the actual `PixelFormat` of the bitmap.
 
@@ -189,16 +212,23 @@ using (Bitmap bmpDst = new Bitmap(256, 256, targetFormat))
 }
 ```
 
-> 💡 _Tip:_ See more examples with images at the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) extension method.
+> 💡 **Tip**<p/>
+> See more examples with images at the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) extension method.
 
 If you know the actual pixel format you can also access the raw data in a managed way. See the [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods for details and examples.
+</details>
 
-### Fast GetPixel/SetPixel For Any Bitmaps
+<details>
+<summary><strong>Fast GetPixel/SetPixel For Any Bitmaps</strong><a id="fast-getpixelsetpixel-for-any-bitmaps"/></summary><p/>
 
-The previous example showed how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a GDI+ `Bitmap`. But by using the different specific [available packages](#available-packages) the corresponding `GetReadWriteBitmapData` method will be available also for other bitmap types such as `SKBitmap` of [SkiaSharp](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_GetReadWriteBitmapData.htm), or the `WriteableBitmap` type of [WPF](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm), UWP or [WinUI](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_WinUI_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) platforms offering fast [`GetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapData_GetPixel.htm) and [`SetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapData_SetPixel.htm) methods that are normally not available for a `WiteableBitmap` at all.
+The previous example showed how to obtain an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a GDI+ `Bitmap`. But by using the various specific [available packages](#available-packages) the corresponding `GetReadWriteBitmapData` method will be available also for other bitmap types such as `SKBitmap` of [SkiaSharp](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_SkiaSharp_SKBitmapExtensions_GetReadWriteBitmapData.htm), or the `WriteableBitmap` type of [WPF](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm), UWP or [WinUI](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_WinUI_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) platforms offering fast [`GetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapData_GetPixel.htm) and [`SetPixel`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapData_SetPixel.htm) methods that are normally not available for a `WiteableBitmap` at all.
+</details>
 
-### Managed Bitmap Data Manipulation
-<sub>(These examples require the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package.)</sub>
+<details>
+<summary><strong>Managed Bitmap Data Manipulation</strong><a id="managed-bitmap-data-manipulation"/></summary><p/>
+
+> ℹ️ **Note**<p/>
+> These examples require the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package.
 
 Not only for the well-known `Bitmap`, `WriteableBitmap` or `SKBitmap` types can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on a bitmap data:
 
@@ -225,15 +255,20 @@ public static IReadWriteBitmapData GetBitmapData(byte[] pixelBuffer, int width, 
          palette: Palette.Grayscale256()); // Using a palette of 256 grayscale entries
 }
 ```
+</details>
 
-### 3rd Party Bitmap Types Support
-<sup>(This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF.)</sup>
+<details>
+<summary><strong>3rd Party Bitmap Types Support</strong><a id="3rd-party-bitmap-types-support"/></summary><p/>
+
+> ℹ️ **Note**<p/>
+> This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF, so this example is just for demonstration purposes.
 
 The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has also [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads to support unmanaged memory. This makes possible to support any bitmap representation that exposes its buffer by a pointer.
 
 For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environments, which expose such a pointer or stream:
 
-> 💡 _Tip:_ In fact, if you use the `WriteableBitmap` of WPF/UWP/WinUI platforms, then you can simply use the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) extensions from their corresponding [package](#available-packages). But this is how you can turn a bitmap of any environment into a managed bitmap data that does not have direct support yet.
+> 💡 **Tip**<p/>
+> In fact, if you use the `WriteableBitmap` of WPF/UWP/WinUI platforms, then you can simply use the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) extensions from their corresponding [package](#available-packages). But this is how you can turn a bitmap of any environment into a managed bitmap data that does not have direct support yet.
 
 ```cs
 // Though naming is different, PixelFormats.Pbgra32 is the same as KnownPixelFormat.Format32bppPArgb.
@@ -253,11 +288,15 @@ using (var bitmapData = BitmapDataFactory.CreateBitmapData(
 bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
 bitmap.Unlock();
 ```
+</details>
 
-### Supporting Custom Pixel Formats
-<sup>(This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF.)</sup>
+<details>
+<summary><strong>Supporting Custom Pixel Formats</strong><a id="supporting-custom-pixel-formats"/></summary><p/>
 
-The previous example demonstrated how we can create a managed accessor for a `WriteableBitmap`. But it worked only because we used a pixel format that happens to have built-in support also in KGy SOFT Drawing Libraries. In fact, the libraries provide support for any custom pixel format. The [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) methods have several overloads that allow you to specify a custom pixel format along with a couple of delegates to be called when pixels are read or written:
+> ℹ️ **Note**<p/>
+> This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF, so this example is just for demonstration purposes.
+
+The previous example demonstrated how we can create a managed accessor for a `WriteableBitmap`. But it worked only because we used a pixel format that happens to have a built-in support also in KGy SOFT Drawing Libraries. In fact, the libraries provide support for any custom pixel format. The [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) methods have several overloads that allow you to specify a custom pixel format along with a couple of delegates to be called when pixels are read or written:
 
 ```cs
 // Though Gray8 format also has built-in support in KGySoft.Drawing.Core
@@ -274,7 +313,7 @@ var customConfig = new CustomBitmapDataConfig
     BackColor = Color.Silver.ToColor32(), // black if not specified
 
     // In this example we specify Color32 access but you can use other color types
-    // if they fit better for the format (eg. Color64, ColorF or their premultiplied counterparts).
+    // if they fit better for the format (e.g. Color64, ColorF or their premultiplied counterparts).
     // Note that the setter blends possible alpha colors with the back color.
     RowGetColor32 = (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)),
     RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
@@ -294,11 +333,16 @@ return BitmapDataFactory.CreateBitmapData(
     customConfig); 
 ```
 
-> 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/8ac1a38317660a954ac6cf416c55d1fc3108c2fc/Examples/Maui/Extensions/SKBitmapExtensions.cs#L85) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.
+> 💡 **Tip**<p/>
+> See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/8ac1a38317660a954ac6cf416c55d1fc3108c2fc/Examples/Maui/Extensions/SKBitmapExtensions.cs#L85) to create a bitmap data for SkiaSharp's `SKBitmap` type as if there was no dedicated package for SkiaSharp.
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
+</details>
 
 ### Shape Drawing
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
 
 KGy SOFT Drawing Libraries offer several extension methods for drawing shapes on bitmaps. It does not matter if you are using a managed bitmap data, a GDI+ `Bitmap`, `WriteableBitmap`, `SKBitmap` or any other bitmap type, the result will be the same for the same pixel formats. Even indexed formats are supported, which usually isn't the case for the native built-in drawing methods of the bitmap types. You can use several brushes and pens to draw or fill shapes with different colors and patterns, and you can use the [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm) to specify several parameters, such as the quality of the rendering, or even quantizing and dithering.
 
@@ -326,10 +370,12 @@ bitmap.DrawEllipse(new Pen(Color.Blue, 2f), new Rectangle(24, 24, 16, 16));
 // Similar as above, but asynchronously:
 await bitmap.FillEllipseAsync(Color.Red, new Rectangle(8, 8, 48, 48));
 ```
+</details>
 
-#### Path
+<details>
+<summary><strong>The <code><a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm">Path</a></code> class</strong></summary><p/>
 
-For more complex shapes, you can use the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) class to define a sequence of lines, curves, and other shapes. As it allows caching the path region, you may want to use it also for simple shapes if you plan to draw them multiple times.
+For more complex shapes you can use the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) class to define a sequence of lines, curves, and other shapes. As it allows caching the path region, you may want to use it also for simple shapes if you plan to draw them multiple times.
 
 The following example demonstrates how to use the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) class:
 
@@ -352,10 +398,12 @@ bitmapData.Clear(Color.Cyan);
 // Using implicit 1 pixel width solid pen and default drawing options:
 bitmapData.DrawPath(Color.Blue, path);
 ```
+</details>
 
-#### Drawing Options
+<details>
+<summary><strong>The <code><a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm">DrawingOptions</a></code> class</strong></summary><p/>
 
-The examples above didn't specify the drawing options, so the default values were used. The [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm) class allows you to specify several parameters for the drawing methods, such as anti-aliasing, alpha blending, fill mode, special handling for drawing thin lines, pixel offset for scanning and paths, and even quantizing and dithering.
+The examples above didn't specify any drawing options, so the default values were used. The [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm) class allows you to specify several parameters for the drawing methods, such as anti-aliasing, alpha blending, fill mode, special handling for drawing thin lines, pixel offset for scanning and paths, and even quantizing and dithering.
 
 The following table demonstrates a few examples of the different drawing options:
 
@@ -376,8 +424,10 @@ The following table demonstrates a few examples of the different drawing options
 | <code>[DrawPathPixelOffset](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm) = [PixelOffset.Half](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_PixelOffset.htm)</code>: The point coordinates are shifted by a half pixel right and down before applying the pen width. When [`AntiAliasing`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AntiAliasing.htm) is `true`, for polygons with every point at integer coordinates, this causes sharp horizontal and vertical lines for odd pen widths and blurry ones for even pen widths. The left rectangle was drawn with a 1 pixel wide pen, and the right one with a 2 pixel wide pen. | ![Rectangles with DrawPathPixelOffset = PixelOffset.Half](Help/Images/DrawingOptionsDrawPathPixelOffsetHalf.png)|
 | [`Quantizer`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Quantizer.htm) and [`Ditherer`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Ditherer.htm): Specifying a quantizer allows drawing shapes with limited number of colors, whereas a ditherer can preserve the tone of the original colors. When drawing into a bitmap with indexed pixel format, quantizing is automatically applied to the colors of the palette. This example is a 1 bit-per-pixel bitmap, the background was cleared with cyan, and the polygon was filled with blue color, and both operation used a [interleaved gradient noise dithering](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm). | ![Shape drawn with quantizing and Interleaved Gradient Noise dithering](Help/Images/DrawingOptionsDitheringIGN.png)|
 | [`Transformation`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Transformation.htm): It allows specifying a transformation matrix for the drawing operation. The example demonstrates a simple rotation by 45 degrees from the center. Please note that if a [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) is drawn multiple times with the same transformation, it's generally recommended to apply the transformation to the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) directly rather than to the [`DrawingOptions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm), because the latter prevents the [`Path`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm) region from being cached. | ![Ellipse drawn with a 45 degree rotation](Help/Images/DrawingOptionsTransformation.png)|
+</details>
 
-#### Brushes
+<details>
+<summary><strong>The <code><a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm">Brush</a></code> class</strong></summary><p/>
 
 The abstract [`Brush`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm) class has several `Create...` factory methods to create different types of brushes. The following table demonstrates a few examples:
 
@@ -386,8 +436,10 @@ The abstract [`Brush`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_S
 | [`Brush.CreateSolid`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Shapes_Brush_CreateSolid.htm): Creates a solid brush with a single color. [`Color32`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_Color32.htm), [`Color64`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_Color64.htm) and [`ColorF`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ColorF.htm) overloads are available, and you can also use the named `Color` members to cast them to [`Color32`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_Color32.htm) implicitly. For example, `Brush.CreateSolid(Color32.FromArgb(128, Color.Blue))` creates a blue solid brush with 50% transparency that can produce a similar result to the one in the image. | ![Solid brush with alpha](Help/Images/DrawingOptionsAlphaBlendingEnabledNoAA.png)|
 | [`Brush.CreateLinearGradient`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Shapes_Brush_CreateLinearGradient.htm): Creates a linear gradient brush. There are two groups of overloads: one for specifying a pair of start/end points optionally with a [`GradientWrapMode`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_GradientWrapMode.htm), and another one with an angle, which automatically stretches the gradient for the paths to fill.<br/><br/>The top image uses specific start/end points without repeating the gradient, whereas the bottom one just specified a zero angle to create a horizontal gradient. Note that in the bottom image the start/end points are automatically adjusted to the bounds of the shape in each fill sessions. Both examples filled a single elliptic path with three different translations. | ![Linear gradient brush with start/end points](Help/Images/BrushLinearGradientWrapModeStop.png)<br/>![Linear gradient brush with an angle](Help/Images/BrushLinearGradientAngle.png)|
 | [`Brush.CreateTexture`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Shapes_Brush_CreateTexture.htm): Creates a texture brush. A [`TextureMapMode`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm) can be specified, which allows tiling, stretching, centering and a few other modes.<br/><br/>The top image uses a texture with a map mode of tiling with mirroring on both axes, whereas the bottom one centers the same texture and uses no alpha blending, so where there is no texture pixel to set, the path region cuts a transparent hole in the image. Both examples filled a single elliptic path with three different translations. | ![Texture brush with TileFlipXY map mode](Help/Images/BrushTextureTileFlipXY.png)<br/>![Texture brush with Center map mode](Help/Images/BrushTextureCenter.png)|
+</details>
 
-#### Pens
+<details>
+<summary><strong>The <code><a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm">Pen</a></code> class</strong></summary><p/>
 
 The [`Pen`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) class can be instantiated with a brush or a single color, and a width. Some other parameters, such as the start/end cap, the line join and the miter limit can be configured as well. The following table highlights a few properties:
 
@@ -396,15 +448,20 @@ The [`Pen`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.h
 | [`LineJoin`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_Pen_LineJoin.htm): Specifies how to join the consecutive line segments. Can be [`Miter`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineJoinStyle.htm), [`Bevel`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineJoinStyle.htm) or [`Round`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineJoinStyle.htm). The example images demonstrate these join types from the top to the bottom. All examples use a 10 pixel wide pen. | ![Line join style Miter](Help/Images/PenLineJoinStyleMiter.png)<br/>![Line join style Bevel](Help/Images/PenLineJoinStyleBevel.png)<br/>![Line join style Round](Help/Images/PenLineJoinStyleRound.png)|
 | [`StartCap`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_Pen_StartCap.htm) and [`EndCap`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_Pen_EndCap.htm): Specify the style of the start and end points of an open figure. Can be [`Flat`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm), [`Square`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm), [`Round`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm) or [`Triangle`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm). The example images demonstrate these cap types from the top to the bottom, using the same cap style at both ends. Please note that the only difference between [`Flat`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm) and [`Square`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm) styles is that the [`Flat`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm) style has the originally specified length, whereas the [`Square`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_LineCapStyle.htm) style extends the line by half of the pen width. All examples use a 10 pixel wide pen. | ![Line cap style Flat](Help/Images/PenLineCapStyleFlat.png)<br/>![Line cap style Square](Help/Images/PenLineCapStyleSquare.png)<br/>![Line cap style Round](Help/Images/PenLineCapStyleRound.png)<br/>![Line cap style Triangle](Help/Images/PenLineCapStyleTriangle.png)|
 | [`Brush`](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_Pen_Brush.htm): The pen can be instantiated with a [`Brush`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm), which can be any kind of brushes described above. The example demonstrates a 10 pixel wide pen with a diagonal linear gradient brush using mirrored wrapping mode. | ![Pen with a linear gradient brush](Help/Images/PenWithBrush.png)|
+</details>
 
+<details>
+<summary><strong>Asynchronous Drawing, Multi-Threading</strong></summary><p/>
 
-#### Asynchronous Drawing, Multi-Threading
-
-The basic `Draw...` and `Fill...` methods are synchronous, they automatically adjust the number of used threads, they cannot be canceled and they don't report progress. The overloads with a [`ParallelConfig`](https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm) parameter are still synchronous, but they allow you to specify the number of threads to be used, and you can also specify a `CancellationToken` to cancel the operation. They also allows you to specify a progress handler to report the progress of the operation.
+The basic `Draw...` and `Fill...` methods are synchronous, they automatically adjust the number of used threads, they cannot be canceled and they don't report progress. The overloads with a [`ParallelConfig`](https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm) parameter are still synchronous, but they allow you to specify the number of threads to be used, and you can also specify a `CancellationToken` to cancel the operation. They also allow you to specify a progress handler to report the progress of the operation.
 
 To draw shapes asynchronously, you can use the `Draw...Async` and `Fill...Async` methods on .NET Framework 4.0 or newer targets, or the old-fashioned `BeginDraw...`/`EndDraw...` and `BeginFill...`/`EndFill...` methods on every target starting with .NET Framework 3.5.
+</details>
 
 ### Color Correct Alpha Blending
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
 
 Most pixel formats use the sRGB color space, in which alpha blending (and also other operations) may provide incorrect results.
 
@@ -415,9 +472,14 @@ Most pixel formats use the sRGB color space, in which alpha blending (and also o
 
 By default it depends on the used pixel format which color space is used in KGy SOFT Drawing Libraries. The default pixel format in most rendering engines use some sRGB format (usually a premultiplied one), which is optimized for blending in the sRGB color space. When creating a managed bitmap data by the [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads or by the `GetReadable/Writable/ReadWriteBitmapData` methods of the specific libraries you can use the overloads that have a [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) parameter.
 
-> 💡 _Tip:_ See the [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) enumeration for more information and image examples about working in the sRGB and linear color spaces.
+> 💡 **Tip**<p/>
+> See the [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) enumeration for more information and image examples about working in the sRGB and linear color spaces.
+</details>
 
 ### Quantizing and Dithering
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
 
 KGy SOFT Drawing Libraries offer quantizing (reducing the number of colors of an image) and dithering (techniques for preserving the details of a quantized image) in several ways:
 
@@ -426,9 +488,13 @@ KGy SOFT Drawing Libraries offer quantizing (reducing the number of colors of an
 * Some [`ImageExtensions.DrawInto`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_DrawInto.htm)/[`BitmapDataExtensions.DrawInto`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataExtensions_DrawInto.htm) overloads can use quantizing and dithering when drawing different instances into each other.
 * Several further extension methods in the [`BitmapExtensions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_BitmapExtensions.htm)/[`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) classes have an [`IDitherer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IDitherer.htm) parameter.
 
-> 💡 _Tip:_
+> 💡 **Tip**<p/>
 > * For built-in quantizers see the [`PredefinedColorsQuantizer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) and [`OptimizedPaletteQuantizer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) classes. See their members for code samples and image examples.
 > * For built-in ditherers see the [`OrderedDitherer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [`ErrorDiffusionDitherer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [`RandomNoiseDitherer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) and [`InterleavedGradientNoiseDitherer`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) classes. See their members for code samples and image examples.
+</details>
+
+<details>
+<summary><strong>Image Examples</strong></summary><p/>
 
 See the following table for the possible results (click the images for displaying in full size):
 
@@ -448,22 +514,28 @@ See the following table for the possible results (click the images for displayin
 | Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Test image "Cameraman" quantized with black and white palette](Help/Images/CameramanBW.gif) |
 | Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](Help/Images/CameramanBWDitheredFS.gif) |
 
-> 💡 _Tip:_
+> 💡 **Tip**<p/>
 > Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantizing and dithering in a real application. See also the [Examples](Examples) folder for example applications in vairous environments.
 
 <p align="center">
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="Quantizing and Dithering in KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250977-b3198880-db25-11eb-9f72-6fa51d54a9da.png"/></a>
   <br/><em>Quantizing and Dithering in KGy SOFT Imaging Tools</em>
 </p>
+</details>
 
 ### Advanced GIF Encoder with High Color Support
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
 
 The KGy SOFT Drawing Libraries make possible creating high quality GIF images and animations:
 * For `Image` types the simplest and highest-level access is provided by the [`ImageExtension`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_ImageExtensions.htm) class and its `SaveAs*` methods.
 * Alternatively, you can use the static methods of the [`GifEncoder`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) class to create animations or even high color still images. See also the [`AnimatedGifConfiguration`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_AnimatedGifConfiguration.htm) class.
 * To create a GIF image or animation completely manually you can instantiate the [`GifEncoder`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) class that provides you the lowest-level access.
+</details>
 
-#### Examples:
+<details>
+<summary><strong>Image Examples</strong></summary><p/>
 
 |Description|Image Example|
 |--|--|
@@ -471,7 +543,9 @@ The KGy SOFT Drawing Libraries make possible creating high quality GIF images an
 | Warning icon encoded as a high color GIF. It has only single bit transparency but otherwise its colors have been preserved. It consists of 18 layers and has 4,363 colors. | ![Warning icon as a high color GIF image](Help/Images/WarningHighColor.gif) |
 | Test image "Lena" encoded as a high color GIF. Before encoding it was prequantized with [RGB565 16-bit quantizer](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm). It consists of 18 layers and has 4,451 colors. The file size is about 80% of the original [PNG encoded version](Help/Images/Lena.png) but could be even smaller without the dithering. | ![Test image "Lena" encoded as a high color GIF. Prequantized to the 16-bit RGB565 color space using Floyd-Steinberg dithering](Help/Images/LenaRgb565DitheredFS.gif) |
 
-> ⚠️ _Note:_ Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, by the `System.Drawing.Bitmap` and `Image` classes and applications relying on GDI+ decoders such as Windows Paint or [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools).
+> ⚠️ **Note**<p/>
+Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, by the `System.Drawing.Bitmap` and `Image` classes and applications relying on GDI+ decoders such as Windows Paint or [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools).
+</details>
 
 ## License
 This repository is under the [KGy SOFT License 1.0](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE), which is a permissive GPL-like license. It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours: though you are free to change and re-use anything, do that by giving appropriate credit. See the [LICENSE](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE) file for details.
