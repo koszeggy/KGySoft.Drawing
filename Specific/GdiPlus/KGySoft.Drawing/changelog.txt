@@ -17,9 +17,10 @@
 
 * Common changes
 ================
-* Referencing KGySoft.Drawing.Core v9.0.0, which enables direct shape drawing, and improves the performance of
-  accessing IReadWriteBitmapData instances.
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables high performance shape drawing. Combined with this package
+  it makes possible to draw shapes into Bitmap instances of any pixel format, even indexed ones.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+  and also https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#shape-drawing
 
 ! KGySoft.Drawing namespace
 ===========================

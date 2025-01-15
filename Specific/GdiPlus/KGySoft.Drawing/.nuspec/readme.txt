@@ -29,8 +29,9 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
 Some Highlights of KGy SOFT Drawing Libraries:
 
-- Fast direct Bitmap data access for every PixelFormat
-- Quantizing and dithering
+- Fast direct Bitmap data access for every PixelFormat.
+- High performance shape drawing even into Bitmap instances with indexed pixel formats.
+- Quantizing and dithering.
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
 - Creating combined icons and multi-resolution bitmaps.
