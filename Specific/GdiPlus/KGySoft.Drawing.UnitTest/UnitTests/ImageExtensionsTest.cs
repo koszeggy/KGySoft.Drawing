@@ -434,6 +434,8 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
         public void DrawIntoWithResizeTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
+            if (!pixelFormat.IsSupportedNatively())
+                Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
             var targetRect = new Rectangle(Point.Empty, bmp.Size);
             targetRect.Inflate(-32, -32);
