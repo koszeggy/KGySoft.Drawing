@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -102,7 +101,7 @@ namespace KGySoft.Drawing.Examples.Shared.Model
             MemberInfo[] methods = type.GetMember(methodName, MemberTypes.Method, BindingFlags.Public | BindingFlags.Static);
             foreach (MemberInfo method in methods)
             {
-                if (!Attribute.IsDefined(method, typeof(EditorBrowsableAttribute)))
+                if (!Attribute.IsDefined(method, typeof(ObsoleteAttribute)))
                     return (MethodInfo)method;
             }
 

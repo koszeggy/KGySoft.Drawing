@@ -243,8 +243,19 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         private static readonly HashSet<string> affectsPreview = new()
         {
-            nameof(ImageFile), nameof(OverlayFile), nameof(ShowOverlay), nameof(OverlayShape), nameof(OutlineWidth), nameof(OutlineColor), nameof(SelectedFormat),
-            nameof(ForceLinearColorSpace), nameof(BackColor), nameof(AlphaThreshold), nameof(OptimizePalette), nameof(UseDithering), nameof(SelectedDitherer),
+            nameof(ImageFile),
+            nameof(OverlayFile),
+            nameof(ShowOverlay),
+            nameof(OverlayShape),
+            nameof(OutlineWidth),
+            nameof(OutlineColor),
+            nameof(SelectedFormat),
+            nameof(ForceLinearColorSpace),
+            nameof(BackColor),
+            nameof(AlphaThreshold),
+            nameof(OptimizePalette),
+            nameof(UseDithering),
+            nameof(SelectedDitherer),
         };
 
         #endregion

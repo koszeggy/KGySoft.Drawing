@@ -126,9 +126,20 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
 
         private static readonly HashSet<string> affectsDisplayImage = new()
         {
-            nameof(ShowOverlay), nameof(OverlayShape), nameof(OutlineWidth), nameof(OutlineColor), nameof(UseLinearColorSpace),
-            nameof(UseQuantizer), nameof(SelectedQuantizer), nameof(BackColor), nameof(AlphaThreshold), nameof(WhiteThreshold),
-            nameof(PaletteSize), nameof(UseDithering), nameof(SelectedDitherer) };
+            nameof(ShowOverlay),
+            nameof(OverlayShape),
+            nameof(OutlineWidth),
+            nameof(OutlineColor),
+            nameof(UseLinearColorSpace),
+            nameof(UseQuantizer),
+            nameof(SelectedQuantizer),
+            nameof(BackColor),
+            nameof(AlphaThreshold),
+            nameof(WhiteThreshold),
+            nameof(PaletteSize),
+            nameof(UseDithering),
+            nameof(SelectedDitherer)
+        };
 
         #endregion
 
@@ -233,7 +244,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 await GenerateDisplayImage(Configuration.Capture(this));
         }
 
-        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Dispose pattern.")]
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Dispose pattern")]
         protected override async void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -263,7 +274,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
             baseImage ??= SKBitmap.Decode(Images.Information256);
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
             {
                 CancelRunningGenerate();
@@ -295,7 +306,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
 
                 // NOTE: This GetReadableBitmapData is a local implementation using purely the KGySoft.Drawing.Core package.
-                //       For complete SkiaSharp support with all possible pixel formats the example at https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples/SkiaSharp_(Maui)
+                //       For complete SkiaSharp support with all possible pixel formats the example at https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples/SkiaSharp.Maui
                 using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData(workingColorSpace);
 
                 // ===== a.) No overlay: just creating a clone bitmap with the specified quantizer/ditherer =====
