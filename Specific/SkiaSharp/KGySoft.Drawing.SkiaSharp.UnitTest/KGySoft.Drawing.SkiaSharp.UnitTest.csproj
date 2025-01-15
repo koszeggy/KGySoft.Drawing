@@ -33,6 +33,11 @@
     <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
+  <!-- Non-Windows references only -->
+  <ItemGroup Condition="'$(IsWindows)'!='true'">
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
+  </ItemGroup>
+
   <!-- Common NuGet references -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
