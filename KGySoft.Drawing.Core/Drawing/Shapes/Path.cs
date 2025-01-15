@@ -52,11 +52,12 @@ namespace KGySoft.Drawing.Shapes
     ///     .AddEllipse(0, 0, 100, 100)
     ///     .AddRoundedRectangle(0, 0, 100, 100, cornerRadius: 10);
     /// 
-    /// // Calculating required the size of the bitmap, adding symmetric padding:
+    /// // Calculating the required size of the bitmap, adding symmetric padding:
     /// var bounds = path.Bounds;
     /// var size = bounds.Size + new Size(bounds.Location) * 2;
     /// 
-    /// // Or: GetReadWriteBitmapData for a GDI+ Bitmap, WPF WriteableBitmap, SKBitmap, etc.
+    /// // Now creating a managed bitmap data but you can also use the GetReadWriteBitmapData
+    /// // extensions of the dedicated packages for a GDI+ Bitmap, WPF WriteableBitmap, SKBitmap, etc.
     /// using var bitmapData = BitmapDataFactory.CreateBitmapData(size);
     /// bitmapData.Clear(Color.Cyan);
     /// 
@@ -179,7 +180,7 @@ namespace KGySoft.Drawing.Shapes
         public Rectangle Bounds => RawPath.Bounds;
 
         /// <summary>
-        /// Gets the transformation matrix that is applied to the items that are added to this <see cref="Path"/>.
+        /// Gets the currently active transformation matrix that is applied to the items that are added to this <see cref="Path"/>.
         /// </summary>
         public TransformationMatrix Transformation => transformation;
 
@@ -460,8 +461,8 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The rectangle is added as a new closed figure.</para>
         /// <para>When filling a rectangle (with identity transformation), the <paramref name="width"/> and <paramref name="height"/> parameters specify the size of the rectangle in pixels.</para>
-        /// <para>When drawing a rectangle (with identity transformation), and the width of the <see cref="Pen"/> is 1, the right and bottom values are inclusive,
-        /// so even a rectangle with zero width and height will be rendered as a single pixel.</para>
+        /// <para>When drawing a rectangle (with identity transformation), the right and bottom values are inclusive. If the width of the <see cref="Pen"/> is 1,
+        /// a rectangle with zero width and height will be rendered as a single pixel.</para>
         /// <para>The parameters are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
@@ -476,8 +477,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The rectangle is added as a new closed figure.</para>
         /// <para>When filling a rectangle (with identity transformation), the <see cref="RectangleF.Width"/> and <see cref="RectangleF.Height"/> properties specify the size of the rectangle in pixels
         /// (<see cref="RectangleF.Right"/> and <see cref="RectangleF.Bottom"/> are exclusive).</para>
-        /// <para>When drawing a rectangle (with identity transformation), and the width of the <see cref="Pen"/> is 1, the <see cref="RectangleF.Right"/> and <see cref="RectangleF.Bottom"/> values are inclusive,
-        /// so even a rectangle with zero width and height will be rendered as a single pixel.</para>
+        /// <para>When drawing a rectangle (with identity transformation), the <see cref="RectangleF.Right"/> and <see cref="RectangleF.Bottom"/> values are inclusive.
+        /// If the width of the <see cref="Pen"/> is 1, a rectangle with zero width and height will be rendered as a single pixel.</para>
         /// <para>The <paramref name="rectangle"/> parameter is not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>

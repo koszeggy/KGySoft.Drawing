@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Adds each matrix element in value1 with its corresponding element in value2.
+        /// Adds each matrix element in <paramref name="a"/> with its corresponding element in <paramref name="b"/>.
         /// </summary>
         /// <param name="a">The first source matrix.</param>
         /// <param name="b">The second source matrix.</param>
@@ -172,7 +172,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Subtracts each matrix element in value2 from its corresponding element in value1.
+        /// Subtracts each matrix element in <paramref name="b"/> from its corresponding element in <paramref name="a"/>.
         /// </summary>
         /// <param name="a">The first source matrix.</param>
         /// <param name="b">The second source matrix.</param>
@@ -304,7 +304,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Creates a rotation matrix using the specified angle.
+        /// Creates a rotation matrix using the specified angle in radians.
         /// </summary>
         /// <param name="radians">The angle, in radians, by which to rotate the matrix.</param>
         /// <returns>The rotation matrix.</returns>

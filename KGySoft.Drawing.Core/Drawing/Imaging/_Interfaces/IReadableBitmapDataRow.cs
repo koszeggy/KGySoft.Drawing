@@ -23,7 +23,7 @@ using System.Drawing;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides a fast read-only access to a single row of an <see cref="IReadableBitmapData"/>.
+    /// Provides fast read-only access to a single row of an <see cref="IReadableBitmapData"/>.
     /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IWritableBitmapDataRow"/>
@@ -187,20 +187,17 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to access the premultiplied color values of a bitmap data with premultiplied pixel format:
-        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
-        /// using (IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(
-        ///     new Size(1, 1), KnownPixelFormat.Format32bppPArgb))
-        /// {
-        ///     // setting a white pixel with 50% alpha:
-        ///     bitmapData.SetPixel(0, 0, Color.FromArgb(128, 255, 255, 255));
+        /// using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(1, 1, KnownPixelFormat.Format32bppPArgb);
+        /// 
+        /// // setting a white pixel with 50% alpha:
+        /// bitmapData.SetPixel(0, 0, Color.FromArgb(128, 255, 255, 255));
         ///
-        ///     // reading the raw premultiplied color value:
-        ///     Console.WriteLine(bitmapData[0].ReadRaw<Color32>(0)); // 80808080 [A=128; R=128; G=128; B=128]
+        /// // reading the raw premultiplied color value:
+        /// Console.WriteLine(bitmapData[0].ReadRaw<Color32>(0)); // 80808080 [A=128; R=128; G=128; B=128]
         ///
-        ///     // but reading it by the indexer (or by GetPixel/GetColor) transforms the color back:
-        ///     Console.WriteLine(bitmapData[0][0]); // 80FFFFFF [A=128; R=255; G=255; B=255]
-        /// }]]></code>
+        /// // but reading it by the indexer (or by GetPixel/GetColor) transforms the color back:
+        /// Console.WriteLine(bitmapData[0][0]); // 80FFFFFF [A=128; R=255; G=255; B=255]]]></code>
         /// <note type="tip">See also the example at the <strong>Examples</strong> section of the <see cref="IWritableBitmapDataRow.WriteRaw{T}">IWritableBitmapDataRow.WriteRaw</see> method.</note>
         /// </example>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or the memory location of the value (considering the size of <typeparamref name="T"/>)

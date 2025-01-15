@@ -28,7 +28,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// The <see cref="N:KGySoft.Drawing"/> namespace contains extension methods and types built around the types of the <a href="https://learn.microsoft.com/en-us/dotnet/api/system.drawing" target="_blank">System.Drawing</a> namespace.
     /// Among others, provides advanced support for the <see cref="Icon"/> type such as extracting, combining and converting multi-resolution icons, including hi-resolution ones,
-    /// supports saving several <see cref="Image"/> formats, including formats without built-in encoders (eg. icons and <see cref="Metafile"/>s), provides methods for pixel format conversion, quantizing, dithering, etc.
+    /// supports saving several <see cref="Image"/> formats, including formats without built-in encoders (e.g. icons and <see cref="Metafile"/>s), provides methods for pixel format conversion, quantizing, dithering, etc.
     /// </summary>
     /// <remarks>
     /// <note>Starting with version 7.0.0 the <c>KGySoft.Drawing</c> libraries are split into multiple packages.
@@ -37,7 +37,7 @@ namespace KGySoft.Drawing
     /// <para><list type="definition">
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a></term>
     /// <description>This package contains the technology and platform independent core functionality and covers most of the types in
-    /// the <see cref="N:KGySoft.Drawing.Imaging"/> and <see cref="N:KGySoft.Drawing.Imaging"/> namespaces along with a few ones in the <see cref="N:KGySoft.Drawing"/> namespace.
+    /// the <see cref="N:KGySoft.Drawing.Imaging"/> and <see cref="N:KGySoft.Drawing.Shapes"/> namespaces along with a few ones in the <see cref="N:KGySoft.Drawing"/> namespace.
     /// The other packages are dependent on this one.</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a></term>
     /// <description>Most types of the <see cref="N:KGySoft.Drawing"/> namespace are located in this package. It provides support for many GDI+ types such

@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Gets or sets the <see cref="Shapes.Brush"/> that determines the color or texture of the <see cref="Pen"/>.
-        /// <br/>Default value: The <see cref="Shapes.Brush"/> instance that was either passed to the constructor, or was created implicitly by the constructor.
+        /// <br/>Default value: The <see cref="Shapes.Brush"/> instance that was either passed to the corresponding constructor, or was created implicitly from a color by the other constructors.
         /// <br/>See the <strong>Examples</strong> section of the <see cref="Pen"/> class for image examples.
         /// </summary>
         public Brush Brush
@@ -85,7 +85,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Gets or sets the width of the <see cref="Pen"/>.
-        /// Default value: the width that was passed to the constructor, or 1, if it was not specified.
+        /// <br/>Default value: the width that was passed to the constructor, or 1, if it was not specified.
         /// </summary>
         /// <remarks>
         /// <para>A with of 1/64 or less is not visible. If <see cref="DrawingOptions.FastThinLines"/> is <see langword="true"/> and <see cref="DrawingOptions.AntiAliasing"/> is <see langword="false"/>,
@@ -189,10 +189,10 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: 1.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> is not greater than 0.</exception>
         /// <remarks>
-        /// <para>A with of 1/64 or less is not visible. If <see cref="DrawingOptions.FastThinLines"/> is <see langword="true"/> and <see cref="DrawingOptions.AntiAliasing"/> is <see langword="false"/>,
+        /// <para>A width of 1/64 or less is not visible. If <see cref="DrawingOptions.FastThinLines"/> is <see langword="true"/> and <see cref="DrawingOptions.AntiAliasing"/> is <see langword="false"/>,
         /// then a width less than 1/4 is not visible.</para>
         /// <para>If the color depth of a <see cref="Color32"/> instance is not enough to represent the specified <paramref name="color"/>,
-        /// then create brush with the desired color depth and use the <see cref="Pen(Shapes.Brush,float)"/> constructor instead.</para>
+        /// then create a solid brush with the desired color depth and use the <see cref="Pen(Shapes.Brush,float)"/> constructor instead.</para>
         /// </remarks>
         public Pen(Color32 color, float width = 1f)
         {
@@ -210,6 +210,10 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: 1.</param>
         /// <exception cref="ArgumentNullException"><paramref name="brush"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> is not greater than 0.</exception>
+        /// <remarks>
+        /// <para>A width of 1/64 or less is not visible. If <see cref="DrawingOptions.FastThinLines"/> is <see langword="true"/> and <see cref="DrawingOptions.AntiAliasing"/> is <see langword="false"/>,
+        /// then a width less than 1/4 is not visible.</para>
+        /// </remarks>
         public Pen(Brush brush, float width = 1f)
         {
             this.brush = brush ?? throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);

@@ -23,7 +23,7 @@ using System.Drawing;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides a fast write-only access to a single row of an <see cref="IWritableBitmapData"/>.
+    /// Provides fast write-only access to a single row of an <see cref="IWritableBitmapData"/>.
     /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a>method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
@@ -191,21 +191,18 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to write multiple pixels by a single <see cref="WriteRaw{T}">WriteRaw</see> call:
-        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
-        /// using (Bitmap bmp4bppIndexed = new Bitmap(8, 1, PixelFormat.Format4bppIndexed))
-        /// using (IReadWriteBitmapData bitmapData = bmp4bppIndexed.GetReadWriteBitmapData())
-        /// {
-        ///     IReadWriteBitmapDataRow row = bitmapData[0];
+        /// using IReadWriteBitmapData bmp4bppIndexed = BitmapDataFactory.CreateBitmapData(1, 1, KnownPixelFormat.Format4bppIndexed);
+        /// using IReadWriteBitmapData bitmapData = bmp4bppIndexed.GetReadWriteBitmapData();
+        /// IReadWriteBitmapDataRow row = bitmapData[0];
         ///
-        ///     // Writing as uint writes 8 pixels at once in case of a 4 BPP indexed bitmap:
-        ///     row.WriteRaw<uint>(0, 0x12345678);
+        /// // Writing as uint writes 8 pixels at once in case of a 4 BPP indexed bitmap:
+        /// row.WriteRaw<uint>(0, 0x12345678);
         ///
-        ///     // because of little endianness and 4 BPP pixel order the color indices will be printed
-        ///     // in the following order: 7, 8, 5, 6, 3, 4, 1, 2
-        ///     for (int x = 0; x < bitmapData.Width; x++)
-        ///         Console.WriteLine(row.GetColorIndex(x));
-        /// }]]></code>
+        /// // because of little endianness and 4 BPP pixel order the color indices will be printed
+        /// // in the following order: 7, 8, 5, 6, 3, 4, 1, 2
+        /// for (int x = 0; x < bitmapData.Width; x++)
+        ///     Console.WriteLine(row.GetColorIndex(x));]]></code>
         /// <note type="tip">See also the example at the <strong>Examples</strong> section of the <see cref="IReadableBitmapDataRow.ReadRaw{T}">IReadableBitmapDataRow.ReadRaw</see> method.</note>
         /// </example>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or the memory location of the value (considering the size of <typeparamref name="T"/>)

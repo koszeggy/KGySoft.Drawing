@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Shapes
     /// You can use the appropriate constructor, or the <see cref="Pen.Brush"/> property to set a brush for a <see cref="Pen"/>.</note>
     /// </remarks>
     /// <example>
-    /// <para>The following table lists the available brushes:
+    /// <para>The following table enlists the available brushes and their factory methods:
     /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
     /// <tr><td><see cref="O:KGySoft.Drawing.Shapes.Brush.CreateSolid">CreateSolid</see>: Creates a solid brush with a single color. <see cref="Color32"/>, <see cref="Color64"/>
     /// and <see cref="ColorF"/> overloads are available, and you can also use the named <see cref="Color"/> members to cast them to <see cref="Color32"/> implicitly.
@@ -2486,6 +2486,14 @@ namespace KGySoft.Drawing.Shapes
         #region Properties
 
         internal abstract bool HasAlpha { get; }
+
+        #endregion
+
+        #region Constructors
+
+        internal Brush()
+        {
+        }
 
         #endregion
 

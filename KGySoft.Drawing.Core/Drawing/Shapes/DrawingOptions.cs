@@ -73,20 +73,20 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>This property allows applying transformations (e.g. translation, rotation, zoom, etc.) when drawing shapes.
         /// It can be particularly useful when drawing shapes directly, without creating a <see cref="Path"/> instance.
-        /// For example, the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipse"/> methods don't offer a parameter for rotation.</para>
+        /// For example, the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipse">DrawEllipse</see> methods don't offer a parameter for rotation.</para>
         /// <para>Setting this property to a value other than the identity matrix disables path region caching for <see cref="Path"/> instances,
         /// even if <see cref="Path.PreferCaching">Path.PreferCaching</see> is <see langword="true"/>. To achieve the best performance
         /// when drawing the same shape with the same transformation multiple times, use a <see cref="Path"/> instance with caching enabled,
         /// apply the transformation to the <see cref="Path"/>, and use the identity matrix here.</para>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to draw a rotated ellipse directly without creating a <see cref="Path"/> instance:
+        /// The following example demonstrates how to draw a rotated ellipse directly, without creating a <see cref="Path"/> instance:
         /// <code lang="C#"><![CDATA[
         /// using IReadWriteBitmapData bmp = BitmapDataFactory.CreateBitmapData(100, 100);
         /// bmp.Clear(Color.Cyan);
         ///
         /// // Creating a rotation transformation matrix from the center of the ellipse.
-        /// var tr = TransformationMatrix.CreateRotation(45f * MathF.PI / 180f, new PointF(50f, 50f));
+        /// var tr = TransformationMatrix.CreateRotationDegrees(45f, new PointF(50f, 50f));
         /// var options = new DrawingOptions { AntiAliasing = true, Transformation = tr };
         ///
         /// // Drawing the ellipse with the transformation matrix.
@@ -178,7 +178,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <remarks>
         /// <para>When this property is <see langword="true"/>, the alpha channel of the colors is blended with the target image.
-        /// The used color space for blending is the target's <see cref="IBitmapData.WorkingColorSpace"/>, or the one that the <see cref="Quantizer"/> uses if specified.</para>
+        /// The used color space for blending is the target's <see cref="IBitmapData.WorkingColorSpace"/>, or the one that the <see cref="Quantizer"/> uses (if specified).</para>
         /// <para>Alpha blending may be required in two cases: when the used <see cref="Brush"/> has transparent colors, or when the <see cref="AntiAliasing"/> property is <see langword="true"/>.</para>
         /// <para>If this property is <see langword="false"/>, the alpha channel is written directly to the target image. This is usually not desired with anti-aliased shapes, except for already transparent background images,
         /// because it may produce alpha pixels along the edges of the shapes, even when the background is fully opaque.</para>
@@ -253,7 +253,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The following images provide a few examples:
         /// <table class="table is-hoverable"><thead><tr><th width="80%">Description</th><th width="20%">Image Example</th></tr></thead><tbody>
         /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.None">PixelOffset.None</see></c>, <c><see cref="AntiAliasing"/> = <see langword="false"/></c>:
-        /// When filling shapes, the scanning of edges occurs at the top of the pixels. The shape in the example has integer coordinates, the top edge is descending,
+        /// When filling shapes, the scanning of edges occurs at the top of the pixels. The shape in the example has integer vertex coordinates, the top edge is descending,
         /// whereas the bottom is ascending 1 pixel from the left to the right. The example is enlarged to show the effect.</td>
         /// <td><img src="../Help/Images/DrawingOptionsScanPixelOffsetNone.png" alt="Almost rectangular shape with ScanPixelOffset = PixelOffset.None"/></td></tr>
         /// <tr><td><c><see cref="ScanPathPixelOffset"/> = <see cref="PixelOffset.Half">PixelOffset.Half</see></c>, <c><see cref="AntiAliasing"/> = <see langword="false"/></c> (default):
