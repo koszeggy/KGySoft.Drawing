@@ -37,10 +37,13 @@ namespace KGySoft.Drawing.UnitTests
         #region Properties
 
         private static bool SaveToFile => false;
+        private static bool AddTimestamp => true;
 
         #endregion
 
         #region Methods
+        
+        #region Protected Methods
 
         protected static void AssertPlatformDependent(Action code, params PlatformID[] platforms)
         {
@@ -65,7 +68,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{GetTimestamp()}");
             ImageCodecInfo encoder = null;
             if (origFormat)
                 encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == image.RawFormat.Guid);
@@ -110,12 +113,12 @@ namespace KGySoft.Drawing.UnitTests
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-            string fileName = Path.Combine(dir, $"{testName}{(iconName == null ? null : $"_{iconName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.ico");
-            using (var fs = File.Create(fileName))
-                icon.SaveAsIcon(fs);
+            string fileName = Path.Combine(dir, $"{testName}{(iconName == null ? null : $"_{iconName}")}{GetTimestamp()}.ico");
+            using var fs = File.Create(fileName);
+            icon.SaveAsIcon(fs);
         }
 
-        protected static void SaveStream(string streamName, MemoryStream ms, string extension = "gif", [CallerMemberName]string testName = null)
+        protected static void SaveStream(string streamName, MemoryStream ms, string extension = "gif", [CallerMemberName] string testName = null)
         {
             if (!SaveToFile)
                 return;
@@ -123,9 +126,9 @@ namespace KGySoft.Drawing.UnitTests
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.{extension}");
-            using (var fs = File.Create(fileName))
-                ms.WriteTo(fs);
+            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}{GetTimestamp()}.{extension}");
+            using var fs = File.Create(fileName);
+            ms.WriteTo(fs);
         }
 
         protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)
@@ -274,6 +277,14 @@ namespace KGySoft.Drawing.UnitTests
                 }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private static string GetTimestamp() => AddTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+
+        #endregion
 
         #endregion
     }
