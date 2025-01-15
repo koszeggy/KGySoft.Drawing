@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if WINDOWS
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: MetafileExtensionsTest.cs
@@ -15,10 +16,10 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+
 using NUnit.Framework;
 
 #endregion
@@ -51,28 +52,27 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var metafile = GenerateMetafile();
 
-            AssertPlatformDependent(() =>
+            using (var ms = new MemoryStream())
             {
-                using (var ms = new MemoryStream())
-                {
-                    metafile.Save(ms, false);
-                    ms.Position = 0;
-                    var clone = new Metafile(ms);
-                    Assert.IsTrue(metafile.EqualsByContent(clone));
-                    SaveImage("EMF", clone);
-                }
+                metafile.Save(ms, false);
+                ms.Position = 0;
+                var clone = new Metafile(ms);
+                Assert.IsTrue(metafile.EqualsByContent(clone));
+                SaveImage("EMF", clone);
+            }
 
-                using (var ms = new MemoryStream())
-                {
-                    metafile.Save(ms, true);
-                    ms.Position = 0;
-                    var clone = Image.FromStream(ms);
-                    Assert.IsTrue(metafile.EqualsByContent(clone));
-                    SaveImage("WMF", clone);
-                }
-            }, PlatformID.Win32NT);
+            using (var ms = new MemoryStream())
+            {
+                metafile.Save(ms, true);
+                ms.Position = 0;
+                var clone = Image.FromStream(ms);
+                Assert.IsTrue(metafile.EqualsByContent(clone));
+                SaveImage("WMF", clone);
+            }
         }
 
         #endregion
     }
 }
+
+#endif
