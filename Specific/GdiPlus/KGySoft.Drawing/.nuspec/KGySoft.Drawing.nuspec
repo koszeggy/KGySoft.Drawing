@@ -12,7 +12,7 @@
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Advanced drawing features for System.Drawing types. Among others: fast bitmap manipulation, shape drawing, quantizing and dithering, saving bitmaps and metafiles in various formats, creating animated GIFs in high color, manipulating high resolution multi-image icons, etc.</summary>
-    <description xml:space="preserve">KGy SOFT Drawing Libraries offer advanced features built around System.Drawing types.
+    <description xml:space="preserve">The KGy SOFT Drawing Libraries package offers advanced features built around System.Drawing types.
 
 Among others:
 - Fast direct native Bitmap data access for every PixelFormat.

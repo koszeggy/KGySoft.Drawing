@@ -15,8 +15,10 @@
 ! Dropping support for .NET Core 2.0. Manual compilation for .NET Core 2.0 is still possible but the public NuGet
   packages are not going to support this platform anymore. If you target the .NET Core 2.0 platform in your project,
   the v9.0.0 version of the NuGet package will pick the .NET Standard 2.0 build instead.
-* Referencing KGySoft.Drawing.Core v9.0.0, which improves performance and adds direct shape drawing support.
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables high performance shape drawing. Combined with this package
+  it makes possible to draw shapes into SKBitmap instances of any pixel format, even with quantizing and dithering.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+  and also https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#shape-drawing
 
 + KGySoft.Drawing.SkiaSharp namespace
 =====================================

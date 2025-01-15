@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
-    <TargetFrameworks>net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;netcoreapp3.0;net5.0</TargetFrameworks>
+    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
     <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
