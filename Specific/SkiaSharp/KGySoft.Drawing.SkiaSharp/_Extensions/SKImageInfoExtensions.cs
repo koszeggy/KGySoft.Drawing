@@ -160,17 +160,17 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Argb4444, SKAlphaType.Premul, WorkingColorSpace.Linear)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Linear(c.ToPColorF()).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Opaque, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32(), backColor32),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32(), backColor32, alphaThreshold: alphaThreshold),
                 (SKColorType.Argb4444, SKAlphaType.Unpremul, _)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Premul, _)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Srgb(c.ToPremultiplied()).ToPColor32().ToStraight(), backColor32, alphaThreshold, false),
                 (SKColorType.Argb4444, SKAlphaType.Opaque, _)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32, alphaThreshold: alphaThreshold),
 
                 // Rgb565: only the linear one because the sRGB one is handled above as known format
                 (SKColorType.Rgb565, _, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorRgb565Linear(c).ToColor32(), backColor32),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorRgb565Linear(c).ToColor32(), backColor32, alphaThreshold: alphaThreshold),
 
                 // Bgra8888/Rgba8888 with linear color space as they get quantized during the sRGB -> linear conversion so ditherers can improve the result
                 (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Unpremul, WorkingColorSpace.Linear)
@@ -182,11 +182,11 @@ namespace KGySoft.Drawing.SkiaSharp
                 // NOTE: using the same quantizer for RG88/R8Unorm so no extra compensation will occur for the blue(/green) channel(s)
                 (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Opaque, WorkingColorSpace.Linear)
                     or (SKColorType.Rgb888x or SKColorType.Rg88 or SKColorType.R8Unorm, _, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32(), backColor32),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32(), backColor32, alphaThreshold: alphaThreshold),
 
                 // Gray8 with linear color space as it gets quantized during the sRGB -> linear conversion so ditherers can improve the result
                 (SKColorType.Gray8, _, WorkingColorSpace.Linear)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorGray8Linear(c.ToColorF()).ToColor32(), backColor32, KnownPixelFormat.Format16bppGrayScale),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorGray8Linear(c.ToColorF()).ToColor32(), backColor32, KnownPixelFormat.Format16bppGrayScale, alphaThreshold),
 
                 // Srgba8888 with sRGB color space as it gets quantized during the sRGB -> "double sRGB" conversion so ditherers can improve the result
                 (SKColorType.Srgba8888, SKAlphaType.Unpremul, WorkingColorSpace.Srgb)
@@ -194,7 +194,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 (SKColorType.Srgba8888, SKAlphaType.Premul, WorkingColorSpace.Srgb)
                     => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPsrgba8888Srgb(c.ToPremultiplied()).ToPColor32().ToStraight(), backColor32, alphaThreshold, false),
                 (SKColorType.Srgba8888, SKAlphaType.Opaque, WorkingColorSpace.Srgb)
-                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorSrgba8888Srgb(c).ToColor32(), backColor32),
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorSrgba8888Srgb(c).ToColor32(), backColor32, alphaThreshold: alphaThreshold),
 
                 // Fallback: some default quantizer from the closest known pixel format
                 _ => PredefinedColorsQuantizer.FromPixelFormat(imageInfo.GetInfo().ToKnownPixelFormat(), backColor32, alphaThreshold)

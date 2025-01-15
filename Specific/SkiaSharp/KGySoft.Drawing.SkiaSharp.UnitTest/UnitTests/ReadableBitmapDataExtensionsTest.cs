@@ -18,7 +18,6 @@
 using System.Drawing;
 using System.Threading.Tasks;
 
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -40,7 +39,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void ToSKBitmapDirectTest(SKColorType colorType, SKAlphaType alphaType)
         {
             Size size = new Size(512, 256);
-            var backColor = new Color32(ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte());
+            var backColor = Color.Black;
             using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(size, backColor: backColor);
             GenerateAlphaGradient(bitmapData);
             using SKBitmap result = bitmapData.ToSKBitmap(colorType, alphaType);
@@ -55,7 +54,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public async Task ToSKBitmapDirectTestAsync(SKColorType colorType, SKAlphaType alphaType)
         {
             Size size = new Size(512, 256);
-            var backColor = new Color32(ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte());
+            var backColor = Color.Black;
             using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(size, backColor: backColor);
             GenerateAlphaGradient(bitmapData);
             using SKBitmap result = (await bitmapData.ToSKBitmapAsync(colorType, alphaType))!;
@@ -70,7 +69,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void ToSKBitmapWithDithererTest(SKColorType colorType, SKAlphaType alphaType)
         {
             Size size = new Size(512, 256);
-            var backColor = new Color32(ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte(), ThreadSafeRandom.Instance.SampleByte());
+            var backColor = Color.Black;
             using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(size, backColor: backColor);
             GenerateAlphaGradient(bitmapData);
             using SKBitmap result = bitmapData.ToSKBitmap(colorType, alphaType, ditherer: OrderedDitherer.Bayer8x8);

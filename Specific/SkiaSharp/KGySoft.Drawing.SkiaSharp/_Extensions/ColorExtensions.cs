@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Security;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
@@ -43,6 +44,7 @@ namespace KGySoft.Drawing.SkiaSharp
     /// <summary>
     /// Provides extension methods for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skcolor">SKColor</a> type.
     /// </summary>
+    [SecuritySafeCritical]
     public static class ColorExtensions
     {
         #region Nested Classes

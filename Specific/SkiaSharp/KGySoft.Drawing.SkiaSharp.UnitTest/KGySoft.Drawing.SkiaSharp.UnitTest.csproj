@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp3.0;net5.0</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net462;netcoreapp3.0;net5.0</TargetFrameworks>-->
+    <TargetFrameworks>net9.0</TargetFrameworks>
 
     <!--For UnitTesting the .NET Standard 2.0 version-->
     <!--<TargetFrameworks>netcoreapp2.0</TargetFrameworks>-->
@@ -24,10 +24,9 @@
     <GenerateProgramFile>false</GenerateProgramFile>
 
     <!--Suppressions
-      - NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp3.0' is out of support - the unit test requires to target the supported versions
-      - NU1903: netcoreapp2.0 has known vulnerabilities - the unit test requires to target the supported versions
+      - NETSDK1138: The target framework 'tfm' is out of support - the unit test requires to target the versions the main library supports
       -->
-    <NoWarn>$(NoWarn);NETSDK1138;NU1903</NoWarn>
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IsWindows)'=='true'">

@@ -33,12 +33,15 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => false;
+        protected static bool SaveToFile => true;
+        private static bool AddTimestamp => false;
 
         #endregion
 
         #region Methods
 
+        #region Protected Methods
+        
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
         {
             var firstRow = new Color32[bitmapData.Width];
@@ -148,7 +151,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             sourceBitmapData.DrawInto(target, new Rectangle(Point.Empty, sourceBitmapData.Size), new Rectangle(Point.Empty, target.Size));
         }
 
-        protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName]string testName = null!)
+        protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName] string testName = null!)
         {
             if (!SaveToFile)
                 return;
@@ -157,7 +160,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.png");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{GetTimestamp()}.png");
             using var stream = File.Create(fileName);
 
             //using SKData data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
@@ -174,6 +177,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             using var pixels = surface.PeekPixels();
             pixels.Encode(stream, SKEncodedImageFormat.Png, 100);
         }
+
+        #endregion
+        #region Private Methods
+
+        private static string GetTimestamp() => AddTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+
+        #endregion
 
         #endregion
     }

@@ -189,7 +189,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 // Setting/getting all color types, comparing result to the actual Color result
                 expectedResult = actual.ToColor32();
 #if NETCOREAPP3_0_OR_GREATER // Keeping the original tolerance if a shade difference can occur due to non-accelerated truncating conversions (especially for premultiplied colors)
-                tolerance = linear && alphaType is SKAlphaType.Opaque
+                tolerance = alphaType is SKAlphaType.Opaque
                     || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102
                     || alphaType is SKAlphaType.Premul && colorType is SKColorType.Srgba8888
                         ? (byte)1
