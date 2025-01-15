@@ -128,7 +128,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 See the [Examples](Examples) folder for example applications for using KGy SOFT Drawing Libraries in various environments such as [MAUI](Examples/SkiaSharp.Maui), [UWP](Examples/Uwp), [WinForms](Examples/WinForms), [WinUI](Examples/WinUI), [WPF](Examples/Wpf) and [Xamarin](Examples/Xamarin).
 
 <p align="center">
-  <a href="Examples/Maui"><img alt="KGy SOFT Drawing MAUI Example App" src="https://github.com/user-attachments/assets/a21def91-e843-4a67-a168-88a72ec4b160"/></a>
+  <a href="Examples/Maui"><img alt="KGy SOFT Drawing MAUI Example App" src="https://github.com/user-attachments/assets/c989495f-55e2-41f2-b4b3-73a07ac55ff6"/></a>
   <br/><em>KGy SOFT Drawing MAUI Example App running on Android Phone.
   <br/>See the <a href="Examples">Examples</a> folder for all of the example applications.</em>
 </p>
