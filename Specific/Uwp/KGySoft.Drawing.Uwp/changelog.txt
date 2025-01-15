@@ -11,8 +11,10 @@
 
 * Assembly changes:
 ===================
-* Upgrading KGySoft.Drawing.Core dependency to 9.0.0.
-  See https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+* Referencing KGySoft.Drawing.Core v9.0.0, which enables high performance shape drawing. Combined with this package
+  it makes possible to draw shapes into WriteableBitmap instances, even with quantizing and dithering.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+  and also https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#shape-drawing
 
 
 ~~~~~~~~~

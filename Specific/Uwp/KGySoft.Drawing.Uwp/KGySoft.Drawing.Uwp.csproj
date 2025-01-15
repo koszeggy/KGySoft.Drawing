@@ -52,7 +52,7 @@
 
     <!--Primary Drawing.Core reference-->
     <PackageReference Include="KGySoft.Drawing.Core">
-      <Version>9.0.0-rc.1</Version>
+      <Version>9.0.0</Version>
     </PackageReference>
   </ItemGroup>
 
