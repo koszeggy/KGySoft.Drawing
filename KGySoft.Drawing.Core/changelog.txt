@@ -53,7 +53,7 @@
 
 + New KGySoft.Drawing.Shapes namespace
 ======================================
-+ New ReadWriteBitmapDataExtensions class
++ New BitmapDataExtensions class
   + New DrawLine/BeginDrawLine/EndDrawLine/DrawLineAsync methods
   + New DrawLines/BeginDrawLines/EndDrawLines/DrawLinesAsync methods
   + New DrawBeziers/BeginDrawBeziers/EndDrawBeziers/DrawBeziersAsync methods

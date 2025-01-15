@@ -2,7 +2,7 @@
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/drawing.svg)](https://kgysoft.net/drawing) [![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing) [![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing) [![Drawing Tools](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.Tools.svg?label=Drawing%20Tools)](https://github.com/koszeggy/KGySoft.Drawing.Tools)
 
-KGy SOFT Drawing Core Libraries offer advanced drawing features for completely managed bitmap data on multiple platforms.
+The KGy SOFT Drawing Core Libraries package offers advanced drawing features for completely managed bitmap data on multiple platforms.
 
 Among others:
 - Creating [managed bitmap data](http://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) of any pixel format on every platform.
@@ -10,8 +10,8 @@ Among others:
 - [Shape drawing](https://docs.kgysoft.net/drawing/html/N_KGySoft_Drawing_Shapes.htm) with feature-rich [brushes](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm), [pens](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) and other [drawing options](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm).
 - Supporting [color correct alpha blending](http://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm).
 - Quantizing using [predefined](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) or [optimized](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) colors
-- Dithering using [ordered](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [error diffusion](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [random noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) or [interleaved gradient noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) dithering techniques
-- Creating [GIF animations](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) even in high color
+- Dithering using [ordered](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [error diffusion](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [random noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) or [interleaved gradient noise](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) dithering techniques.
+- Creating [GIF animations](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) even in high color.
 
 See the [online help](https://docs.kgysoft.net/drawing) for the complete documentation or the [project site](https://kgysoft.net/drawing) for some highlighted code examples.
 
