@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>9.0.0-rc.1</version>
+    <version>9.0.0</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,11 +11,12 @@
     <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering for any pixel format.</summary>
-    <description xml:space="preserve">KGy SOFT Drawing Libraries for WPF offer KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap.
+    <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, shape drawing, quantizing and dithering for any pixel format.</summary>
+    <description xml:space="preserve">The KGy SOFT Drawing Libraries for WPF package offers KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap.
 
 Among others:
 - Fast direct native WriteableBitmap data access
+- High performance shape drawing into WriteableBitmap instances of any pixel format, even indexed ones.
 - Fast read-only access to any BitmapSource of any pixel format
 - Supporting every PixelFormat
 - Converting between various pixel formats preserving transparency if possible.
@@ -32,18 +33,18 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
-    <tags>KGySoft Drawing wpf extension writeable-bitmap writeablebitmap bitmapdata pixelformat</tags>
+    <tags>KGySoft Drawing wpf extension writeable-bitmap writeablebitmap bitmapdata pixelformat shape shapes</tags>
     <language>en-US</language>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
       </group>
     </dependencies>
   </metadata>

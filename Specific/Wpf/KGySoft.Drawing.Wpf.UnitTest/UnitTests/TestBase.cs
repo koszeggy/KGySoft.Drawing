@@ -35,12 +35,15 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         #region Properties
 
         protected static bool SaveToFile => false;
+        private static bool AddTimestamp => true;
 
         #endregion
 
         #region Methods
 
-        protected static void SaveBitmap(string? imageName, BitmapSource bitmap, [CallerMemberName]string testName = null!)
+        #region Protected Methods
+
+        protected static void SaveBitmap(string? imageName, BitmapSource bitmap, [CallerMemberName] string testName = null!)
         {
             if (!SaveToFile)
                 return;
@@ -55,7 +58,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             SaveStream(imageName, stream, "png", testName);
         }
 
-        protected static void SaveStream(string? streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null!)
+        protected static void SaveStream(string? streamName, MemoryStream ms, string extension, [CallerMemberName] string testName = null!)
         {
             if (!SaveToFile)
                 return;
@@ -63,7 +66,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.{extension}");
+            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}{GetTimestamp()}.{extension}");
             using (var fs = File.Create(fileName))
                 ms.WriteTo(fs);
         }
@@ -96,6 +99,14 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private static string GetTimestamp() => AddTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+
+        #endregion
 
         #endregion
     }
