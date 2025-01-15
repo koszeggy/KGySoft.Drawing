@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.WinUI</id>
-    <version>9.0.0-rc.1</version>
+    <version>9.0.0</version>
     <title>KGy SOFT Drawing Libraries for WinUI</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,7 +11,7 @@
     <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Provides KGySoft.Drawing.Core features for Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering, etc.</summary>
+    <summary>Provides KGySoft.Drawing.Core features for Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap such as fast and direct bitmap manipulation, shape drawing, quantizing and dithering, etc.</summary>
     <description xml:space="preserve">KGy SOFT Drawing Libraries for WinUI offer KGySoft.Drawing.Core features for Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap.
 
 This library requires targeting at least Windows 10.0.17763.0 (October 2018 release, version 1809).
@@ -33,7 +33,7 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net6.0-windows10.0.17763" >
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
       </group>
     </dependencies>
   </metadata>
