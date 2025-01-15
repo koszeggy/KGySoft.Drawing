@@ -52,6 +52,7 @@ namespace KGySoft.Drawing
 
 #if !WINDOWS && (NET5_0 || NET6_0)
             // To make sure that System.Drawing types can be used also on Unix systems
+            // NOTE: With the latest test runners under VS Code it doesn't work from here so execute the tests as an application instead.
             DrawingModule.Initialize();
 #endif
         }

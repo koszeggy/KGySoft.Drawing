@@ -114,6 +114,11 @@ namespace KGySoft.Drawing
 
         internal static void Main()
         {
+#if !WINDOWS && (NET5_0 || NET6_0)
+            // Initializing the context switch that is required for GDI+ to be used on non-Windows systems.
+            DrawingModule.Initialize();
+#endif
+
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
             // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
             // or just calling the method to debug directly
