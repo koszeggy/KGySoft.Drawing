@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
 
             Size size = bitmap.Size;
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
-            Action dispose = () =>
+            Action dispose = [method:SecuritySafeCritical] () =>
             {
                 try
                 {
