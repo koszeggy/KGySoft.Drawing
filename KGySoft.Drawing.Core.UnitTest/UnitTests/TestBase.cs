@@ -186,6 +186,8 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
+        protected static bool IsMono { get; } = Type.GetType("Mono.Runtime") != null;
+
         #endregion
 
         #region Methods

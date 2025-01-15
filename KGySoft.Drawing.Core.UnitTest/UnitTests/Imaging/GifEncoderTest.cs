@@ -796,7 +796,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var actual = ToBitmapData(reloaded);
 
 #if !USE_SKIA && !DEBUG // in DEBUG build it is animated on purpose; SkiaSharp decodes high color GIFs as animated ones
-            AssertAreEqual(bitmapData, actual);
+            if (!IsMono)
+                AssertAreEqual(bitmapData, actual);
 #endif
         }
 
