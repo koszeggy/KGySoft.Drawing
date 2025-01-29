@@ -63,7 +63,7 @@ namespace KGySoft.Drawing.Shapes
         #region Internal Fields
 
         // Supporting only translate/scale transformations for now, and converting to Bézier curves otherwise.
-        // Storing both angles and radians because angles are more accurate when detecting used sectors for drawing.
+        // Storing both degrees and radians because degrees are more accurate when detecting used sectors for drawing.
         internal PointF Center;
         internal float RadiusX;
         internal float RadiusY;
