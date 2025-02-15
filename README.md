@@ -197,8 +197,8 @@ using (Bitmap bmpDst = new Bitmap(256, 256, targetFormat))
     using (IReadableBitmapData dataSrc = bmpSrc.GetReadableBitmapData())
     using (IWritableBitmapData dataDst = bmpDst.GetWritableBitmapData())
     {
-        IReadableBitmapDataRow rowSrc = dataSrc.FirstRow;
-        IWritableBitmapDataRow rowDst = dataDst.FirstRow;
+        var rowSrc = dataSrc.FirstRow;
+        var rowDst = dataDst.FirstRow;
         do
         {
             for (int x = 0; x < dataSrc.Width; x++)
