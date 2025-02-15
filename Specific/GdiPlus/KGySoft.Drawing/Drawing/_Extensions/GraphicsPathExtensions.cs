@@ -37,7 +37,7 @@ namespace KGySoft.Drawing
 #if NET7_0_OR_GREATER
     [SupportedOSPlatform("windows")]
 #endif
-    internal static class GraphicsPathExtensions
+    public static class GraphicsPathExtensions
     {
         #region Nested Enumerations
 
