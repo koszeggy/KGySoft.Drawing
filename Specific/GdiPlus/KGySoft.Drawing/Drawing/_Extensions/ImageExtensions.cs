@@ -1589,7 +1589,7 @@ namespace KGySoft.Drawing
         #region GIF
 
         /// <summary>
-        /// Saves the specified <paramref name="image"/> using the built-in GIF encoder if available in the current operating system.
+        /// Saves the specified <paramref name="image"/> using the <see cref="GifEncoder"/> class.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
         /// </summary>
         /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
@@ -1597,7 +1597,7 @@ namespace KGySoft.Drawing
         /// <param name="quantizer">If <paramref name="image"/> is a non-indexed one, then specifies the quantizer to be used to determine the colors of the saved image. If <see langword="null"/>,
         /// then the target colors will be optimized for the actual colors in the <paramref name="image"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="ditherer">If a quantization has to be performed can specifies the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
+        /// <param name="ditherer">If a quantization has to be performed can specify the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
@@ -1650,7 +1650,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves the specified <paramref name="image"/> to the specified file using the built-in GIF encoder if available in the current operating system.
+        /// Saves the specified <paramref name="image"/> to the <see cref="GifEncoder"/> class.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsGif(Image,Stream,IQuantizer,IDitherer)"/> overload for details.
         /// </summary>
@@ -1659,7 +1659,7 @@ namespace KGySoft.Drawing
         /// <param name="quantizer">If <paramref name="image"/> is a non-indexed one, then specifies the quantizer to be used to determine the colors of the saved image. If <see langword="null"/>,
         /// then the target colors will be optimized for the actual colors in the <paramref name="image"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="ditherer">If a quantization has to be performed can specifies the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
+        /// <param name="ditherer">If a quantization has to be performed can specify the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         public static void SaveAsGif(this Image image, string fileName, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
