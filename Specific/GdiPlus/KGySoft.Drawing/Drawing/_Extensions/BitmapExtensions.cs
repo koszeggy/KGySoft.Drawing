@@ -1063,7 +1063,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
-        /// while negative values decrease the it.</param>
+        /// while negative values decrease it.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
         /// are not compatible with the <see cref="PixelFormat"/> of the specified <paramref name="bitmap"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>

@@ -921,6 +921,57 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData($"{pixelFormat}", clone);
         }
 
+        [Test]
+        public void AsyncTest()
+        {
+            var bmpData = GetInfoIcon256();
+
+            using (var bmpRef = bmpData.Clone())
+            {
+                bmpRef.AdjustBrightness(0.1f);
+
+                using var bmpAsyncApm = bmpData.Clone();
+                bmpAsyncApm.BeginAdjustBrightness(0.1f).EndAdjustBrightness();
+                AssertAreEqual(bmpRef, bmpAsyncApm);
+
+#if !NET35
+                using var bmpAsyncTap = bmpData.Clone();
+                bmpAsyncTap.AdjustBrightnessAsync(0.1f).Wait();
+                AssertAreEqual(bmpRef, bmpAsyncTap);
+#endif
+            }
+
+            using (var bmpRef = bmpData.Clone())
+            {
+                bmpRef.AdjustContrast(0.1f);
+
+                using var bmpAsyncApm = bmpData.Clone();
+                bmpAsyncApm.BeginAdjustContrast(0.1f).EndAdjustContrast();
+                AssertAreEqual(bmpRef, bmpAsyncApm);
+
+#if !NET35
+                using var bmpAsyncTap = bmpData.Clone();
+                bmpAsyncTap.AdjustContrastAsync(0.1f).Wait();
+                AssertAreEqual(bmpRef, bmpAsyncTap);
+#endif
+            }
+
+            using (var bmpRef = bmpData.Clone())
+            {
+                bmpRef.AdjustGamma(0.1f);
+
+                using var bmpAsyncApm = bmpData.Clone();
+                bmpAsyncApm.BeginAdjustGamma(0.1f).EndAdjustGamma();
+                AssertAreEqual(bmpRef, bmpAsyncApm);
+
+#if !NET35
+                using var bmpAsyncTap = bmpData.Clone();
+                bmpAsyncTap.AdjustGammaAsync(0.1f).Wait();
+                AssertAreEqual(bmpRef, bmpAsyncTap);
+#endif
+            }
+        }
+
         [Explicit]
         [TestCase(WorkingColorSpace.Srgb)]
         [TestCase(WorkingColorSpace.Linear)]

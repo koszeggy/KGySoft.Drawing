@@ -252,7 +252,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         public static void EndQuantize(this IAsyncResult asyncResult)
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginQuantize));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginQuantize));
 
 #if !NET35
         /// <summary>
@@ -446,7 +446,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         public static void EndDither(this IAsyncResult asyncResult)
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginDither));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDither));
 
 #if !NET35
         /// <summary>
@@ -641,7 +641,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndTransformColors(this IAsyncResult asyncResult)
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginTransformColors));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
         /// <summary>
@@ -742,7 +742,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginReplaceColor));
+        public static void EndReplaceColor(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
         /// <summary>
@@ -835,7 +837,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndInvert(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginInvert));
+        public static void EndInvert(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginInvert));
 
 #if !NET35
         /// <summary>
@@ -1000,7 +1004,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeTransparent));
+        public static void EndMakeTransparent(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeTransparent));
 
 #if !NET35
         /// <summary>
@@ -1128,7 +1134,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeOpaque));
+        public static void EndMakeOpaque(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeOpaque));
 
 #if !NET35
         /// <summary>
@@ -1224,7 +1232,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
+        public static void EndMakeGrayscale(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeGrayscale));
 
 #if !NET35
         /// <summary>
@@ -1358,7 +1368,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
+        public static void EndAdjustBrightness(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustBrightness));
 
 #if !NET35
         /// <summary>
@@ -1416,7 +1428,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
-        /// while negative values decrease the it.</param>
+        /// while negative values decrease it.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
         /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1462,7 +1474,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
-        /// while negative values decrease the it.</param>
+        /// while negative values decrease it.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
         /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1508,7 +1520,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustContrast));
+        public static void EndAdjustContrast(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustContrast));
 
 #if !NET35
         /// <summary>
@@ -1516,7 +1530,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
-        /// while negative values decrease the it.</param>
+        /// while negative values decrease it.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
         /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1652,7 +1666,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustGamma));
+        public static void EndAdjustGamma(this IAsyncResult asyncResult)
+            // NOTE: the return value could be bool, but it would be a breaking change
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustGamma));
 
 #if !NET35
         /// <summary>

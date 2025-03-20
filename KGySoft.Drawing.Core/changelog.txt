@@ -6,6 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v9.0.1:
+~~~~~~~~~
+
+- KGySoft.Drawing.Imaging namespace
+===================================
+- BitmapDataExtensions class:
+  - Some End* methods of the Async APM (old Begin/End pattern) methods that rely on the TransformColors
+    implementation could throw an InvalidOperationException in v9.0.0.
+
+
+~~~~~~~~~
 ! v9.0.0:
 ~~~~~~~~~
 

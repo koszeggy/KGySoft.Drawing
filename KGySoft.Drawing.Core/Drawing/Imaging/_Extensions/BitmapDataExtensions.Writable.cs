@@ -204,7 +204,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndClear(this IAsyncResult asyncResult)
             // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation(asyncResult, nameof(BeginClear));
+            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginClear));
 
 #if !NET35
         /// <summary>
