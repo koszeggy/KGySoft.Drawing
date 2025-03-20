@@ -6,6 +6,24 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v9.0.1:
+~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v9.0.1, which contains minor bug fixes.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing namespace
+===========================
++ New GraphicsPathExtensions class: (meant to be added to v9.0.0 but it was internal until now)
+  + New AddRoundRectangle methods - just exposing the old private implementation for GraphicsPath with the improved
+    corner radius handling introduced in v9.0.0.
+  + New ToPath method
+  + New ToGraphicsPath method
+
+
+~~~~~~~~~
 ! v9.0.0:
 ~~~~~~~~~
 
@@ -31,11 +49,6 @@
       adjusted to the maximum possible value. Though this is actually a fix, it's indicated as a breaking change
       because the result will be different for invalid corner radius values.
     + New overloads with floating-point parameters.
-+ New GraphicsPathExtensions class:
-  + New AddRoundRectangle methods - just exposing the old private implementation for GraphicsPath with the improved
-    corner radius handling mentioned above.
-  + New ToPath method
-  + New ToGraphicsPath method
 
 
 ~~~~~~~~~
