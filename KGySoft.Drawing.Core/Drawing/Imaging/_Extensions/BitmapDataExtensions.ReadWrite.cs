@@ -732,7 +732,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (oldColor == newColor)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
             return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
@@ -962,10 +962,10 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
@@ -995,7 +995,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (transparentColor.A == 0)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
@@ -1354,7 +1354,7 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
             if (brightness >= 0f)
                 return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
@@ -1507,7 +1507,7 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
             contrast += 1f;
             contrast *= contrast;
@@ -1656,7 +1656,7 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
             return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
         }
