@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v9.1.0:
+~~~~~~~~~
+
+* Assembly changes
+==================
+* Referencing KGySoft.Drawing.Core v9.1.0, which contains minor bug fixes.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+
+~~~~~~~~~
 ! v9.0.0:
 ~~~~~~~~~
 
