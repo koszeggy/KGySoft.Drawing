@@ -15,7 +15,9 @@
 
 #region Usings
 
+#if NET
 using System.Runtime.Versioning;
+#endif
 
 using NUnit.Framework;
 
@@ -78,7 +80,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             }
         }
 #endif
-
 
         #endregion
     }

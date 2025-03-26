@@ -480,6 +480,13 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 Assert.Inconclusive("This test is mainly for visual inspection");
         }
 
+        [Test]
+        public void EmptyBitmapTest()
+        {
+            using var bitmap = new SKBitmap();
+            Assert.Throws<ArgumentException>(() => bitmap.GetReadableBitmapData());
+        }
+
         #endregion
     }
 }

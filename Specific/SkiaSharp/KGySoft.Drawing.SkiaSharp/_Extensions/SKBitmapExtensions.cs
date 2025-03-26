@@ -439,6 +439,8 @@ namespace KGySoft.Drawing.SkiaSharp
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             SKImageInfo imageInfo = bitmap.Info;
+            if (imageInfo.IsEmpty)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(bitmap));
 
             return NativeBitmapDataFactory.TryCreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, workingColorSpace, disposeCallback, out IReadWriteBitmapData? result)
                 ? result
