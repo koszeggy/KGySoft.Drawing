@@ -1748,7 +1748,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
-            => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, default, 0);
+            => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, default, 0, false);
 
         /// <inheritdoc cref="FromCustomFunction(Func{Color32,Color32},Color32,byte,bool,KnownPixelFormat)"/>
         [EditorBrowsable(EditorBrowsableState.Never)]
