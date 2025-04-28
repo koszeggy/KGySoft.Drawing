@@ -70,7 +70,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16W11.png" alt="Information (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Information icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemInformation.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -80,9 +80,14 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16W11.png" alt="Information 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Information32W10.png" alt="Information 32x32 Windows 10"/>
         /// <img src="../Help/Images/Information16W10.png" alt="Information 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32W8.png" alt="Information 32x32 Windows 8"/>
+        /// <img src="../Help/Images/Information16W8.png" alt="Information 16x16 Windows 8"/>
         /// </para>
         /// <para>
         /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
@@ -107,7 +112,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16W11.png" alt="Warning (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Warning icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -117,12 +122,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16W11.png" alt="Warning 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning32W10.png" alt="Warning 32x32 Windows 10"/>
         /// <img src="../Help/Images/Warning16W10.png" alt="Warning 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16 Windows Vista"/>
         /// </para>
@@ -144,7 +149,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16W11.png" alt="Error (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Error icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemError.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -159,7 +164,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16W10.png" alt="Error 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Error32.png" alt="Error 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16 Windows Vista"/>
         /// </para>
@@ -180,7 +185,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16W11.png" alt="Question (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Question icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -190,9 +195,14 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16W11.png" alt="Question 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Question32W10.png" alt="Question 32x32 Windows 10"/>
         /// <img src="../Help/Images/Question16W10.png" alt="Question 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32W8.png" alt="Question 32x32 Windows 8"/>
+        /// <img src="../Help/Images/Question16W8.png" alt="Question 16x16 Windows 8"/>
         /// </para>
         /// <para>
         /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
@@ -217,7 +227,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16W11.png" alt="Application (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Application icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemApplication.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -227,12 +237,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16W11.png" alt="Application 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Application32W10.png" alt="Application 32x32 Windows 10"/>
         /// <img src="../Help/Images/Application16W10.png" alt="Application 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Application32.png" alt="Application 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16 Windows Vista"/>
         /// </para>
@@ -254,7 +264,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield16W11.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
+        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
         /// and in Linux (Mono) the icon contains a 29x32 and a 16x16 image.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemShield.htm">online help</a> for the icon images.</div>
         /// </summary>
@@ -265,12 +275,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield16W11.png" alt="Shield Windows 8/10 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// Windows 10 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32W10.png" alt="Shield Windows 8/10 32x32 Windows 10"/>
         /// <img src="../Help/Images/Shield16W10.png" alt="Shield Windows 8/10 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityShield32.png" alt="Shield Windows 7 32x32"/>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield Windows 7 16x16"/>
         /// </para>
