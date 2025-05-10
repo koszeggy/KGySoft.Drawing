@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 #if NET
 using System.Runtime.Versioning;
@@ -150,10 +151,14 @@ namespace KGySoft.Drawing.WinApi
             return tempFileInfo.hIcon;
         }
 
-        internal static unsafe IntPtr GetStockIconHandle(StockIcon id, SystemIconSize size)
+        internal static void GetStockIconPath(StockIcon id, out string path, out int index)
         {
-            var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)sizeof(SHSTOCKICONINFO) };
-            return NativeMethods.SHGetStockIconInfo(id, SHGSI.ICON | (SHGSI)size, ref iconInfo) == 0 ? iconInfo.hIcon : IntPtr.Zero;
+            var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO)) };
+            var hresult = NativeMethods.SHGetStockIconInfo(id, SHGSI.ICONLOCATION, ref iconInfo);
+            if (hresult != 0)
+                throw new Win32Exception(hresult);
+            path = iconInfo.szPath;
+            index = iconInfo.iIcon;
         }
 
         #endregion

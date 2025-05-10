@@ -19,6 +19,8 @@ namespace KGySoft.Drawing.WinApi
     {
         #region Constants
 
+        internal const int MAX_PATH = 260;
+
         internal const uint LOAD_LIBRARY_AS_DATAFILE = 0x00000002;
 
         internal const int ERROR_RESOURCE_ENUM_USER_STOP = 0x3B02;

@@ -153,10 +153,10 @@ namespace KGySoft.Drawing.WinApi
 
         #region Methods
 
-        internal static IntPtr LoadLibraryData(string fileName)
+        internal static IntPtr LoadLibraryData(string fileName, bool throwError = true)
         {
             IntPtr result = NativeMethods.LoadLibraryEx(fileName, IntPtr.Zero, Constants.LOAD_LIBRARY_AS_DATAFILE);
-            if (result == IntPtr.Zero)
+            if (result == IntPtr.Zero && throwError)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             return result;
         }

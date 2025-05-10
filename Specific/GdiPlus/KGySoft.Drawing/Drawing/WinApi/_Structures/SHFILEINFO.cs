@@ -30,13 +30,6 @@ namespace KGySoft.Drawing.WinApi
     /// </remarks>
     internal unsafe struct SHFILEINFO
     {
-        #region Constants
-
-        // ReSharper disable once InconsistentNaming
-        private const int MAX_PATH = 260;
-
-        #endregion
-
         #region Fields
 
         /// <summary>
@@ -49,7 +42,7 @@ namespace KGySoft.Drawing.WinApi
         /// Type: int
         /// The index of the icon image within the system image list.
         /// </summary>
-        internal IntPtr iIcon;
+        internal int iIcon;
 
         /// <summary>
         /// Type: DWORD
@@ -61,7 +54,7 @@ namespace KGySoft.Drawing.WinApi
         /// Type: TCHAR[MAX_PATH]
         /// A string that contains the name of the file as it appears in the Windows Shell, or the path and file name of the file that contains the icon representing the file.
         /// </summary>
-        internal fixed char szDisplayName[MAX_PATH];
+        internal fixed char szDisplayName[Constants.MAX_PATH];
 
         /// <summary>
         /// Type: TCHAR[80]

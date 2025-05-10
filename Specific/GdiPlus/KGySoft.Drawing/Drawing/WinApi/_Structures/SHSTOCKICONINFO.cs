@@ -29,13 +29,6 @@ namespace KGySoft.Drawing.WinApi
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct SHSTOCKICONINFO
     {
-        #region Constants
-
-        // ReSharper disable once InconsistentNaming
-        private const int MAX_PATH = 260;
-
-        #endregion
-
         #region Fields
 
         /// <summary>
@@ -62,7 +55,7 @@ namespace KGySoft.Drawing.WinApi
         /// Type: TCHAR[MAX_PATH]
         /// When SHGetStockIconInfo is called with the SHGSI_ICONLOCATION flag, this member receives the path of the resource that contains the icon. The index of the icon within the resource is received in iIcon.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.MAX_PATH)]
         internal string szPath;
 
         #endregion

@@ -6,6 +6,23 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v9.2.0:
+~~~~~~~~~
+
+! KGySoft.Drawing namespace
+===========================
+! Icons class:
+  ! FromFile(string) method:
+    ! From now on it throws an exception if the file does not exist.
+    + The returned icons contain not just up to two images but all images the icon resources actually have.
+  + New FromFile(string, int) overload to retrieve an icon of the specified index from a file.
+  + SystemInformation/SystemQuestion/SystemWarning/SystemError/SystemApplication properties: The returned icons
+    contain not just up to two images but all images the icons actually have.
+  + New SystemSecuritySuccess/SystemSecurityQuestion/SystemSecurityWarning/SystemSecurityError properties: As the
+    OS-dependent counterpart of the Security* properties, their images depend on the current Windows version.
+
+
+~~~~~~~~~
 * v9.1.0:
 ~~~~~~~~~
 

@@ -52,13 +52,33 @@ namespace KGySoft.Drawing
 #endif
     public static class Icons
     {
+        #region Constants
+
+        private const int stockIconIdMask = 0xFFFF;
+        private const int alternativeIconIdMask = 0x7FFF0000;
+        private const int isImageResIconFlag = unchecked((int)0x80000000); // set: imageres.dll; not set: user32.dll
+        private const int alternativeIdShift = 16;
+
+        private const int idInformation = (int)StockIcon.Application | 104 << alternativeIdShift;
+        private const int idWarning = (int)StockIcon.Warning | 101 << alternativeIdShift;
+        private const int idError = (int)StockIcon.Error | 103 << alternativeIdShift;
+        private const int idQuestion = (int)StockIcon.Help | 102 << alternativeIdShift;
+        private const int idApplication = (int)StockIcon.Application | 100 << alternativeIdShift;
+        private const int idShield = (int)StockIcon.Shield; // In User32 there is a shield with ID 106, but it does not exist in XP yet. But no problem, the fallback SystemIcons.Shield has more images anyway.
+        private const int idSecuritySuccess = isImageResIconFlag | (106 << alternativeIdShift);
+        private const int idSecurityWarning = isImageResIconFlag | (107 << alternativeIdShift);
+        private const int idSecurityQuestion = isImageResIconFlag | (104 << alternativeIdShift);
+        private const int idSecurityError = isImageResIconFlag | (105 << alternativeIdShift);
+
+        #endregion
+
         #region Fields
 
-        private static readonly Func<StockIcon, Func<Icon>?, RawIcon?> getSystemIconAddValueFactory = GetStockIconOrDefault;
+        private static readonly Func<int, Func<Icon>?, RawIcon?> getSystemIconAddValueFactory = GetStockIconOrDefault;
         private static readonly Func<string, RawIcon> getResourceIconAddValueFactory = DoGetResourceIcon;
 
         private static ResourceManager? resourceManager;
-        private static ThreadSafeDictionary<StockIcon, RawIcon?>? systemIconsCache;
+        private static ThreadSafeDictionary<int, RawIcon?>? systemIconsCache;
         private static ThreadSafeDictionary<string, RawIcon>? resourceIconsCache;
 
         #endregion
@@ -69,9 +89,9 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Information16W11.png" alt="Information (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Information icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// Gets an <see cref="Icon"/> instance that contains all images of the
+        /// Information icon as it is represented by the current operating system.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemInformation.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
@@ -107,7 +127,7 @@ namespace KGySoft.Drawing
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
-        public static Icon SystemInformation => GetSystemIcon(StockIcon.Information, () => SystemIcons.Information);
+        public static Icon SystemInformation => GetSystemIcon(idInformation, () => SystemIcons.Information);
 
         /// <summary>
         /// <img src="../Help/Images/Warning16W11.png" alt="Warning (small version for the summary)"/>
@@ -144,7 +164,7 @@ namespace KGySoft.Drawing
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
-        public static Icon SystemWarning => GetSystemIcon(StockIcon.Warning, () => SystemIcons.Warning);
+        public static Icon SystemWarning => GetSystemIcon(idWarning, () => SystemIcons.Warning);
 
         /// <summary>
         /// <img src="../Help/Images/Error16W11.png" alt="Error (small version for the summary)"/>
@@ -180,7 +200,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16Mono.png" alt="Error Linux/Mono 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemError => GetSystemIcon(StockIcon.Error, () => SystemIcons.Error);
+        public static Icon SystemError => GetSystemIcon(idError, () => SystemIcons.Error);
 
         /// <summary>
         /// <img src="../Help/Images/Question16W11.png" alt="Question (small version for the summary)"/>
@@ -222,7 +242,7 @@ namespace KGySoft.Drawing
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
-        public static Icon SystemQuestion => GetSystemIcon(StockIcon.Help, () => SystemIcons.Question);
+        public static Icon SystemQuestion => GetSystemIcon(idQuestion, () => SystemIcons.Question);
 
         /// <summary>
         /// <img src="../Help/Images/Application16W11.png" alt="Application (small version for the summary)"/>
@@ -259,7 +279,7 @@ namespace KGySoft.Drawing
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
-        public static Icon SystemApplication => GetSystemIcon(StockIcon.Application, () => SystemIcons.Application);
+        public static Icon SystemApplication => GetSystemIcon(idApplication, () => SystemIcons.Application);
 
         /// <summary>
         /// <img src="../Help/Images/Shield16W11.png" alt="Shield (small version for the summary)"/>
@@ -270,6 +290,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemShield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>For compatibility reasons this property returns the UAC shield as it appears in the current operating system.
+        /// To return the system-specific counterpart of the <see cref="Shield"/> property (the four-colored Windows shield)
+        /// you can use the <see cref="FromFile(string,int)"/> method on Windows Vista and above like this:
+        /// <br/><c>Icon systemWindowsShield = Icons.FromFile("imageres", 1028);</c></note>
         /// <para>
         /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32W11.png" alt="Shield Windows 8/10 32x32 Windows 11"/>
@@ -303,7 +327,12 @@ namespace KGySoft.Drawing
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
-        public static Icon SystemShield => GetSystemIcon(StockIcon.Shield, () => SystemIcons.Shield);
+        public static Icon SystemShield => GetSystemIcon(idShield, () => SystemIcons.Shield);
+
+        public static Icon SystemSecuritySuccess => GetSystemIcon(idSecuritySuccess, () => SecuritySuccess);
+        public static Icon SystemSecurityWarning => GetSystemIcon(idSecurityWarning, () => SecurityWarning);
+        public static Icon SystemSecurityQuestion => GetSystemIcon(idSecurityQuestion, () => SecurityQuestion);
+        public static Icon SystemSecurityError => GetSystemIcon(idSecurityError, () => SecurityError);
 
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
@@ -519,12 +548,12 @@ namespace KGySoft.Drawing
             }
         }
 
-        private static ThreadSafeDictionary<StockIcon, RawIcon?> SystemIconsCache
+        private static ThreadSafeDictionary<int, RawIcon?> SystemIconsCache
         {
             get
             {
                 if (systemIconsCache == null)
-                    Interlocked.CompareExchange(ref systemIconsCache, new ThreadSafeDictionary<StockIcon, RawIcon?>(EnumComparer<StockIcon>.Comparer), null);
+                    Interlocked.CompareExchange(ref systemIconsCache, new ThreadSafeDictionary<int, RawIcon?>(), null);
                 return systemIconsCache;
             }
         }
@@ -558,7 +587,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>On non-Windows platforms this method always returns <see langword="null"/>.</note>
         /// </remarks>
-        public static Icon? GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
+        public static Icon? GetStockIcon(StockIcon id) => GetSystemIcon((int)id & stockIconIdMask, null);
 
         /// <summary>
         /// Extracts icons of the specified <paramref name="size"/> from a file and returns them as separated <see cref="Icon"/> instances.
@@ -645,12 +674,13 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Extracts the icon with the specified integer identifier from a file.
         /// </summary>
-        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file. If the extension is omitted, .dll is applied.</param>
         /// <param name="id">The integer identifier of the icon resource withing the file.</param>
         /// <returns>The icon of the specified identifier.</returns>
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file it is recommended to use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// <para>If <paramref name="fileName"/> has no full path, then it refers to a system library. For example, <c>Icons.FromFile("shell32", 13)</c> loads a chip icon <c>shell32.dll</c>.</para>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         [SecuritySafeCritical]
@@ -661,16 +691,8 @@ namespace KGySoft.Drawing
             if (!OSUtils.IsWindows)
                 throw new PlatformNotSupportedException(Res.RequiresWindows);
 
-            IntPtr hModule = Kernel32.LoadLibraryData(fileName);
-            try
-            {
-                using RawIcon result = GetModuleIcon(hModule, Kernel32.MAKEINTRESOURCE(id));
-                return result.ToIcon(OSUtils.IsXpOrEarlier)!;
-            }
-            finally
-            {
-                Kernel32.FreeLibrary(hModule);
-            }
+            using RawIcon result = DoLoadIconFromFile(fileName, id, true)!;
+            return result.ToIcon(OSUtils.IsXpOrEarlier)!;
         }
 
         /// <summary>
@@ -688,6 +710,9 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
         public static Icon FromExtension(string fileOrExtension, SystemIconSize size)
         {
+            // NOTE: we could implement an overload without the size parameter, and add ExtraLarge/Jumbo icons to the result, but that requires
+            // determining whether Comctl32.dll version 6.0 is loaded, which typically happens in a Windows Forms application when visual styles are enabled.
+            // This is needed to use the IImageList COM interface to retrieve the larger icons by SHGetImageList.
             if (fileOrExtension == null)
                 throw new ArgumentNullException(nameof(fileOrExtension), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
@@ -697,7 +722,7 @@ namespace KGySoft.Drawing
 
             if (!Path.HasExtension(fileOrExtension))
                 fileOrExtension = Path.GetFileName(fileOrExtension) == fileOrExtension ? '.' + fileOrExtension : ".";
-
+            
             IntPtr handle = Shell32.GetFileIconHandle(fileOrExtension, size);
             if (handle == IntPtr.Zero)
                 throw new ArgumentException(PublicResources.ArgumentInvalidString, nameof(fileOrExtension));
@@ -967,11 +992,11 @@ namespace KGySoft.Drawing
             }
         }
 
-        [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(StockIcon id, Func<Icon>? getLegacyIcon)
+        [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(int id, Func<Icon>? getLegacyIcon)
             => SystemIconsCache.GetOrAdd(id, getSystemIconAddValueFactory, getLegacyIcon)?.ToIcon(false);
 
         [SecuritySafeCritical]
-        private static RawIcon? GetStockIconOrDefault(StockIcon id, Func<Icon>? getLegacyIcon)
+        private static RawIcon? GetStockIconOrDefault(int id, Func<Icon>? getLegacyIcon)
         {
             RawIcon? result = DoGetStockIcon(id);
             if (result == null && getLegacyIcon != null)
@@ -979,26 +1004,43 @@ namespace KGySoft.Drawing
             return result;
         }
 
+        /// <summary>
+        /// By stock icon we mean Vista+ stock icons, imageres.dll icons or user32.dll icons.
+        /// </summary>
         [SecurityCritical]
-        private static RawIcon? DoGetStockIcon(StockIcon id)
+        private static RawIcon? DoGetStockIcon(int id)
         {
-            if (id < 0 || !OSUtils.IsVistaOrLater)
+            if (!OSUtils.IsWindows)
                 return null;
 
-            IntPtr largeHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Large);
-            if (largeHandle == IntPtr.Zero)
+            // we have a stock icon id and running on Vista or later
+            bool isVistaOrLater = OSUtils.IsVistaOrLater;
+            if (isVistaOrLater && ((id & stockIconIdMask) != 0 || id == 0))
+            {
+                // Vista or later, we have a valid stock icon id
+                Shell32.GetStockIconPath((StockIcon)(id & stockIconIdMask), out string path, out int index);
+                if (!String.IsNullOrEmpty(path))
+                {
+                    RawIcon? result = DoLoadIconFromFile(path, Math.Abs(index), false);
+                    if (result != null)
+                        return result;
+                }
+
+            }
+
+            // no alternative id is specified: exiting
+            if ((id & alternativeIconIdMask) == 0)
                 return null;
 
-            var result = new RawIcon(Icon.FromHandle(largeHandle));
-            User32.DestroyIcon(largeHandle);
+            // the alternative id is from user32.dll
+            if ((id & isImageResIconFlag) == 0)
+                return DoLoadIconFromFile("user32", id >> alternativeIdShift, false);
 
-            IntPtr smallHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Small);
-            if (smallHandle == IntPtr.Zero)
-                return result;
+            // the alternative id is from imageres.dll
+            if (isVistaOrLater)
+                return DoLoadIconFromFile("imageres", (id & ~isImageResIconFlag) >> alternativeIdShift, false);
 
-            result.Add(Icon.FromHandle(smallHandle));
-            User32.DestroyIcon(smallHandle);
-            return result;
+            return null;
         }
 
         /// <summary>
@@ -1022,6 +1064,21 @@ namespace KGySoft.Drawing
 
         private static RawIcon DoGetResourceIcon(string resourceName)
             => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
+
+        private static RawIcon? DoLoadIconFromFile(string fileName, int id, bool throwError)
+        {
+            IntPtr hModule = Kernel32.LoadLibraryData(fileName, throwError);
+            if (hModule == IntPtr.Zero)
+                return null;
+            try
+            {
+                return GetModuleIcon(hModule, Kernel32.MAKEINTRESOURCE(id));
+            }
+            finally
+            {
+                Kernel32.FreeLibrary(hModule);
+            }
+        }
 
         private static unsafe RawIcon GetModuleIcon(IntPtr hModule, IntPtr name)
         {
