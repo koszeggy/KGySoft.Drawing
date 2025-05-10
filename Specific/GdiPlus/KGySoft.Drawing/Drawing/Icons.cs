@@ -33,6 +33,7 @@ using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
+using KGySoft.Serialization.Binary;
 
 #endregion
 
@@ -566,6 +567,8 @@ namespace KGySoft.Drawing
         /// <param name="size">The size of the icons to be extracted.</param>
         /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
         /// <remarks>
+        /// <para>The actual resolution represented by <paramref name="size"/> depends on the DPI of the main display. To retrieve all actual icon images use the <see cref="FromFile(string)"/>
+        /// overload instead, and then you can extract the exact resolution by the <see cref="IconExtensions.ExtractIcon(Icon,Size)">IconExtensions.ExtractIcon</see> extension method.</para>
         /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
         /// <note>On non-Windows platforms this method always returns an empty array.</note>
@@ -578,7 +581,7 @@ namespace KGySoft.Drawing
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
             if (!OSUtils.IsWindows)
-                Reflector.EmptyArray<Icon>();
+                return Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -590,34 +593,84 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Extracts dual-resolution icons from a file and returns them as separated <see cref="Icon"/> instances.
+        /// Extracts every icon from a file and returns them as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
-        /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
+        /// <returns>The icons of the specified file, or an empty array if the file does not contain any icons.</returns>
         /// <remarks>
-        /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
+        /// <para>If <paramref name="fileName"/> refers to an icon file it is recommended to use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
-        /// <note>On non-Windows platforms this method always returns an empty array.</note>
+        /// <note>On non-Windows platforms this method works for icon files (.ico) only.</note>
         /// </remarks>
         [SecuritySafeCritical]
         public static Icon[] FromFile(string fileName)
         {
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+
             if (!OSUtils.IsWindows)
-                Reflector.EmptyArray<Icon>();
-
-            IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
-            Icon[] result = new Icon[handles.Length];
-
-            for (int i = 0; i < handles.Length; i++)
             {
-                result[i] = Combine(handles[i].Select(Icon.FromHandle).ToArray());
-                foreach (IntPtr handle in handles[i])
-                    User32.DestroyIcon(handle);
+                using var stream = File.OpenRead(fileName);
+                return new RawIcon(stream).ExtractIcons(true).Where(i => i != null).ToArray()!;
             }
 
-            return result;
+            IntPtr hModule = Kernel32.LoadLibraryData(fileName);
+            try
+            {
+                var data = new List<RawIcon>();
+                EnumResNameProc enumFunc = (handle, _, resName, _) =>
+                {
+                    data.Add(GetModuleIcon(handle, resName));
+                    return true;
+                };
+
+                Kernel32.EnumResourceNames(hModule, Constants.RT_GROUP_ICON, enumFunc);
+                GC.KeepAlive(enumFunc);
+
+                var result = new Icon[data.Count];
+                for (int i = 0; i < data.Count; i++)
+                {
+                    using RawIcon rawIcon = data[i];
+                    result[i] = rawIcon.ToIcon(OSUtils.IsXpOrEarlier)!;
+                }
+
+                return result;
+            }
+            finally
+            {
+                Kernel32.FreeLibrary(hModule);
+            }
+        }
+
+        /// <summary>
+        /// Extracts the icon with the specified integer identifier from a file.
+        /// </summary>
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <param name="id">The integer identifier of the icon resource withing the file.</param>
+        /// <returns>The icon of the specified identifier.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="fileName"/> refers to an icon file it is recommended to use the <see cref="Icon(string)"/> constructor instead.</para>
+        /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
+        [SecuritySafeCritical]
+        public static Icon FromFile(string fileName, int id)
+        {
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
+
+            IntPtr hModule = Kernel32.LoadLibraryData(fileName);
+            try
+            {
+                using RawIcon result = GetModuleIcon(hModule, Kernel32.MAKEINTRESOURCE(id));
+                return result.ToIcon(OSUtils.IsXpOrEarlier)!;
+            }
+            finally
+            {
+                Kernel32.FreeLibrary(hModule);
+            }
         }
 
         /// <summary>
@@ -969,6 +1022,54 @@ namespace KGySoft.Drawing
 
         private static RawIcon DoGetResourceIcon(string resourceName)
             => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
+
+        private static unsafe RawIcon GetModuleIcon(IntPtr hModule, IntPtr name)
+        {
+            byte[] groupIconRawData = Kernel32.ExtractResourceData(hModule, name, Constants.RT_GROUP_ICON);
+
+            var iconDir = BinarySerializer.DeserializeValueType<GRPICONDIR>(groupIconRawData);
+            int iconImagesCount = iconDir.idCount;
+
+            // Calculating the raw .ico length. Note that we use ICONDIRENTRY here because we want to create an actual icon.
+            int length = sizeof(ICONDIR) + sizeof(ICONDIRENTRY) * iconImagesCount;
+            for (int i = 0; i < iconImagesCount; i++)
+            {
+                var entry = BinarySerializer.DeserializeValueType<GRPICONDIRENTRY>(groupIconRawData, sizeof(GRPICONDIR) + sizeof(GRPICONDIRENTRY) * i);
+                length += (int)entry.dwBytesInRes;
+            }
+
+            var result = new byte[length];
+
+            // As ICONDIR and GRPICONDIR are identical without the entries, we can copy the "header" directly.
+            Array.Copy(groupIconRawData, result, sizeof(ICONDIR));
+
+            int offset = sizeof(ICONDIR) + sizeof(ICONDIRENTRY) * iconImagesCount;
+            for (int i = 0; i < iconImagesCount; i++)
+            {
+                // extracting the image data
+                GRPICONDIRENTRY groupEntry = BinarySerializer.DeserializeValueType<GRPICONDIRENTRY>(groupIconRawData, sizeof(GRPICONDIR) + sizeof(GRPICONDIRENTRY) * i);
+                byte[] iconImageRawData = Kernel32.ExtractResourceData(hModule, Kernel32.MAKEINTRESOURCE(groupEntry.nID), Constants.RT_ICON);
+
+                // writing the new entry
+                var iconEntry = new ICONDIRENTRY
+                {
+                    bWidth = groupEntry.bWidth,
+                    bHeight = groupEntry.bHeight,
+                    bColorCount = groupEntry.bColorCount,
+                    bReserved = groupEntry.bReserved,
+                    wPlanes = groupEntry.wPlanes,
+                    wBitCount = groupEntry.wBitCount,
+                    dwBytesInRes = (uint)iconImageRawData.Length,
+                    dwImageOffset = (uint)offset
+                };
+
+                Array.Copy(BinarySerializer.SerializeValueType(iconEntry), 0, result, sizeof(ICONDIR) + sizeof(ICONDIRENTRY) * i, sizeof(ICONDIRENTRY));
+                Array.Copy(iconImageRawData, 0, result, offset, iconImageRawData.Length);
+                offset += iconImageRawData.Length;
+            }
+
+            return new RawIcon(new MemoryStream(result));
+        }
 
         #endregion
 

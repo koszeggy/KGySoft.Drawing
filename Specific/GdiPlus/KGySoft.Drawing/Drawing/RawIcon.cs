@@ -251,7 +251,7 @@ namespace KGySoft.Drawing
                     throw new ArgumentException(Res.RawIconBadIconFormat, nameof(rawData));
 
                 // header
-                bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeValueType(typeof(BITMAPINFOHEADER), rawData);
+                bmpHeader = BinarySerializer.DeserializeValueType<BITMAPINFOHEADER>(rawData);
                 size = new Size(bmpHeader.biWidth, bmpHeader.biHeight >> 1); // height is doubled because of mask
                 bpp = bmpHeader.biBitCount;
                 int offset = signature;
@@ -1152,7 +1152,7 @@ namespace KGySoft.Drawing
         private unsafe void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
             byte[] buf = br.ReadBytes(sizeof(ICONDIR));
-            var iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
+            ICONDIR iconDir = BinarySerializer.DeserializeValueType<ICONDIR>(buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
                 throw new ArgumentException(Res.RawIconBadIconFormat, nameof(br));
 
@@ -1171,7 +1171,7 @@ namespace KGySoft.Drawing
 
                 br.BaseStream.Position = entryOffset;
                 buf = br.ReadBytes(entrySize);
-                var entry = (ICONDIRENTRY)BinarySerializer.DeserializeValueType(typeof(ICONDIRENTRY), buf);
+                var entry = BinarySerializer.DeserializeValueType<ICONDIRENTRY>(buf);
                 if (entry.wBitCount > 32)
                     entry.wBitCount = 32;
 
