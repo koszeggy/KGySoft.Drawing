@@ -60,6 +60,7 @@
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>
           <targets>
+            <!--If there is an unexpected build error regarding KGySoft.CoreLibraries.shfbproj, then build that project first (the libraries, not the help) -->
             <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
           </targets>
         </configuration>
@@ -280,37 +281,29 @@
       <ImageId>Application48</ImageId>
       <AlternateText>Application 48</AlternateText>
     </Content>
-    <Content Include="Help\Images\ApplicationXP16.png">
-      <ImageId>ApplicationXP16</ImageId>
-      <AlternateText>ApplicationXP 16</AlternateText>
+    <Content Include="Help\Images\Application16XP.png">
+      <ImageId>Application16XP</ImageId>
     </Content>
-    <Content Include="Help\Images\ApplicationXP32.png">
-      <ImageId>ApplicationXP32</ImageId>
-      <AlternateText>ApplicationXP 32</AlternateText>
+    <Content Include="Help\Images\Application32XP.png">
+      <ImageId>Application32XP</ImageId>
     </Content>
-    <Content Include="Help\Images\ErrorXP16.png">
-      <ImageId>ErrorXP16</ImageId>
-      <AlternateText>ErrorXP 16</AlternateText>
+    <Content Include="Help\Images\Error16XP.png">
+      <ImageId>Error16XP</ImageId>
     </Content>
-    <Content Include="Help\Images\ErrorXP32.png">
-      <ImageId>ErrorXP32</ImageId>
-      <AlternateText>ErrorXP 32</AlternateText>
+    <Content Include="Help\Images\Error32XP.png">
+      <ImageId>Error32XP</ImageId>
     </Content>
-    <Content Include="Help\Images\InformationXP16.png">
-      <ImageId>InformationXP16</ImageId>
-      <AlternateText>InformationXP 16</AlternateText>
+    <Content Include="Help\Images\Information16XP.png">
+      <ImageId>Information16XP</ImageId>
     </Content>
-    <Content Include="Help\Images\InformationXP32.png">
-      <ImageId>InformationXP32</ImageId>
-      <AlternateText>InformationXP 32</AlternateText>
+    <Content Include="Help\Images\Information32XP.png">
+      <ImageId>Information32XP</ImageId>
     </Content>
-    <Content Include="Help\Images\QuestionXP16.png">
-      <ImageId>QuestionXP16</ImageId>
-      <AlternateText>QuestionXP 16</AlternateText>
+    <Content Include="Help\Images\Question16XP.png">
+      <ImageId>Question16XP</ImageId>
     </Content>
-    <Content Include="Help\Images\QuestionXP32.png">
-      <ImageId>QuestionXP32</ImageId>
-      <AlternateText>QuestionXP 32</AlternateText>
+    <Content Include="Help\Images\Question32XP.png">
+      <ImageId>Question32XP</ImageId>
     </Content>
     <Content Include="Help\Images\SecurityError16.png">
       <ImageId>SecurityError16</ImageId>
@@ -332,6 +325,18 @@
       <ImageId>SecurityError48</ImageId>
       <AlternateText>Security Error 48</AlternateText>
     </Content>
+    <Content Include="Help\Images\SecurityError32W11.png">
+      <ImageId>SecurityError32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityError16W11.png">
+      <ImageId>SecurityError16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityError32W10.png">
+      <ImageId>SecurityError32W10</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityError16W10.png">
+      <ImageId>SecurityError16W10</ImageId>
+    </Content>
     <Content Include="Help\Images\SecurityQuestion16.png">
       <ImageId>SecurityQuestion16</ImageId>
       <AlternateText>Security Question 16</AlternateText>
@@ -351,6 +356,18 @@
     <Content Include="Help\Images\SecurityQuestion48.png">
       <ImageId>SecurityQuestion48</ImageId>
       <AlternateText>Security Question 48</AlternateText>
+    </Content>
+    <Content Include="Help\Images\SecurityQuestion32W11.png">
+      <ImageId>SecurityQuestion32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityQuestion16W11.png">
+      <ImageId>SecurityQuestion16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityQuestion32W10.png">
+      <ImageId>SecurityQuestion32W10</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecurityQuestion16W10.png">
+      <ImageId>SecurityQuestion16W10</ImageId>
     </Content>
     <Content Include="Help\Images\SecuritySuccess16.png">
       <ImageId>SecuritySuccess16</ImageId>
@@ -372,6 +389,18 @@
       <ImageId>SecuritySuccess48</ImageId>
       <AlternateText>Security Success 48</AlternateText>
     </Content>
+    <Content Include="Help\Images\SecuritySuccess32W11.png">
+      <ImageId>SecuritySuccess32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecuritySuccess16W11.png">
+      <ImageId>SecuritySuccess16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecuritySuccess32W10.png">
+      <ImageId>SecuritySuccess32W10</ImageId>
+    </Content>
+    <Content Include="Help\Images\SecuritySuccess16W10.png">
+      <ImageId>SecuritySuccess16W10</ImageId>
+    </Content>
     <Content Include="Help\Images\SecurityWarning16.png">
       <ImageId>SecurityWarning16</ImageId>
       <AlternateText>Security Warning 16</AlternateText>
@@ -392,25 +421,29 @@
       <ImageId>SecurityWarning48</ImageId>
       <AlternateText>Security Warning 48</AlternateText>
     </Content>
-    <Content Include="Help\Images\ShieldXP16.png">
-      <ImageId>ShieldXP16</ImageId>
-      <AlternateText>ShieldXP 16</AlternateText>
+    <Content Include="Help\Images\SecurityWarning32W11.png">
+      <ImageId>SecurityWarning32W11</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldXP32.png">
-      <ImageId>ShieldXP32</ImageId>
-      <AlternateText>ShieldXP 32</AlternateText>
+    <Content Include="Help\Images\SecurityWarning16W11.png">
+      <ImageId>SecurityWarning16W11</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldXP48.png">
-      <ImageId>ShieldXP48</ImageId>
-      <AlternateText>ShieldXP 48</AlternateText>
+    <Content Include="Help\Images\SecurityWarning32W10.png">
+      <ImageId>SecurityWarning32W10</ImageId>
     </Content>
-    <Content Include="Help\Images\WarningXP16.png">
-      <ImageId>WarningXP16</ImageId>
-      <AlternateText>WarningXP 16</AlternateText>
+    <Content Include="Help\Images\SecurityWarning16W10.png">
+      <ImageId>SecurityWarning16W10</ImageId>
     </Content>
-    <Content Include="Help\Images\WarningXP32.png">
-      <ImageId>WarningXP32</ImageId>
-      <AlternateText>WarningXP 32</AlternateText>
+    <Content Include="Help\Images\Shield16XP.png">
+      <ImageId>Shield16XP</ImageId>
+    </Content>
+    <Content Include="Help\Images\Shield32XP.png">
+      <ImageId>Shield32XP</ImageId>
+    </Content>
+    <Content Include="Help\Images\Warning16XP.png">
+      <ImageId>Warning16XP</ImageId>
+    </Content>
+    <Content Include="Help\Images\Warning32XP.png">
+      <ImageId>Warning32XP</ImageId>
     </Content>
     <Content Include="Help\Images\Warning64.png">
       <ImageId>Warning64</ImageId>
@@ -432,11 +465,11 @@
       <ImageId>Warning16W10</ImageId>
       <AlternateText>Warning 16 W 10</AlternateText>
     </Content>
-    <Content Include="Help\Images\Warning16W11.png">
-      <ImageId>Warning16W11</ImageId>
-    </Content>
     <Content Include="Help\Images\Warning32W11.png">
       <ImageId>Warning32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Warning16W11.png">
+      <ImageId>Warning16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Shield32W10.png">
       <ImageId>Shield32W10</ImageId>
@@ -446,41 +479,39 @@
       <ImageId>Shield16W10</ImageId>
       <AlternateText>Shield 16 W 10</AlternateText>
     </Content>
-    <Content Include="Help\Images\Shield16W11.png">
-      <ImageId>Shield16W11</ImageId>
-    </Content>
     <Content Include="Help\Images\Shield32W11.png">
       <ImageId>Shield32W11</ImageId>
     </Content>
-    <Content Include="Help\Images\Question32W10.png">
-      <ImageId>Question32W10</ImageId>
-      <AlternateText>Question 32 W 10</AlternateText>
+    <Content Include="Help\Images\Shield16W11.png">
+      <ImageId>Shield16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Question24.png">
       <ImageId>Question24</ImageId>
-      <AlternateText>Question 24</AlternateText>
     </Content>
     <Content Include="Help\Images\Question20.png">
       <ImageId>Question20</ImageId>
-      <AlternateText>Question 20</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Question32W8.png">
+      <ImageId>Question32W8</ImageId>
+    </Content>
+    <Content Include="Help\Images\Question16W8.png">
+      <ImageId>Question16W8</ImageId>
+    </Content>
+    <Content Include="Help\Images\Question32W10.png">
+      <ImageId>Question32W10</ImageId>
     </Content>
     <Content Include="Help\Images\Question16W10.png">
       <ImageId>Question16W10</ImageId>
-      <AlternateText>Question 16 W 10</AlternateText>
-    </Content>
-    <Content Include="Help\Images\Question16W11.png">
-      <ImageId>Question16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Question32W11.png">
       <ImageId>Question32W11</ImageId>
     </Content>
+    <Content Include="Help\Images\Question16W11.png">
+      <ImageId>Question16W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Information64.png">
       <ImageId>Information64</ImageId>
       <AlternateText>Information 64</AlternateText>
-    </Content>
-    <Content Include="Help\Images\Information32W10.png">
-      <ImageId>Information32W10</ImageId>
-      <AlternateText>Information 32 W 10</AlternateText>
     </Content>
     <Content Include="Help\Images\Information24.png">
       <ImageId>Information24</ImageId>
@@ -490,15 +521,23 @@
       <ImageId>Information20</ImageId>
       <AlternateText>Information 20</AlternateText>
     </Content>
+    <Content Include="Help\Images\Information32W8.png">
+      <ImageId>Information32W8</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information16W8.png">
+      <ImageId>Information16W8</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information32W10.png">
+      <ImageId>Information32W10</ImageId>
+    </Content>
     <Content Include="Help\Images\Information16W10.png">
       <ImageId>Information16W10</ImageId>
-      <AlternateText>Information 16 W 10</AlternateText>
-    </Content>
-    <Content Include="Help\Images\Information16W11.png">
-      <ImageId>Information16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Information32W11.png">
       <ImageId>Information32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information16W11.png">
+      <ImageId>Information16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Error64.png">
       <ImageId>Error64</ImageId>
@@ -516,11 +555,15 @@
       <ImageId>Error16W10</ImageId>
       <AlternateText>Error 16 W 10</AlternateText>
     </Content>
-    <Content Include="Help\Images\Error16W11.png">
-      <ImageId>Error16W11</ImageId>
+    <Content Include="Help\Images\Application16W10.png">
+      <ImageId>Application16W10</ImageId>
+      <AlternateText>Application 16 W 10</AlternateText>
     </Content>
     <Content Include="Help\Images\Error32W11.png">
       <ImageId>Error32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Error16W11.png">
+      <ImageId>Error16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Application64.png">
       <ImageId>Application64</ImageId>

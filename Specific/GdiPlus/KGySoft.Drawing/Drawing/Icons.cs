@@ -59,7 +59,7 @@ namespace KGySoft.Drawing
         private const int isImageResIconFlag = unchecked((int)0x80000000); // set: imageres.dll; not set: user32.dll
         private const int alternativeIdShift = 16;
 
-        private const int idInformation = (int)StockIcon.Application | 104 << alternativeIdShift;
+        private const int idInformation = (int)StockIcon.Information | 104 << alternativeIdShift;
         private const int idWarning = (int)StockIcon.Warning | 101 << alternativeIdShift;
         private const int idError = (int)StockIcon.Error | 103 << alternativeIdShift;
         private const int idQuestion = (int)StockIcon.Help | 102 << alternativeIdShift;
@@ -89,188 +89,193 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Information16W11.png" alt="Information (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains all images of the
-        /// Information icon as it is represented by the current operating system.
+        /// Gets an <see cref="Icon"/> instance that contains the
+        /// Information icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemInformation.htm">online help</a> for the icon images.</div>
         /// </summary>
-        /// <remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Information32W11.png" alt="Information 32x32 Windows 11"/>
         /// <img src="../Help/Images/Information16W11.png" alt="Information 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 11 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Information32W10.png" alt="Information 32x32 Windows 10"/>
         /// <img src="../Help/Images/Information16W10.png" alt="Information 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 8 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Information32W8.png" alt="Information 32x32 Windows 8"/>
         /// <img src="../Help/Images/Information16W8.png" alt="Information 16x16 Windows 8"/>
         /// </para>
         /// <para>
-        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 the icon contains 4 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Information32.png" alt="Information 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16 Windows Vista"/>
+        /// <note>The <see cref="Information"/> property returns a similar icon, but with 3 additional resolutions.</note>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
-        /// <img src="../Help/Images/InformationXP32.png" alt="Information Windows XP 32x32"/>
-        /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Information32XP.png" alt="Information Windows XP 32x32"/>
+        /// <img src="../Help/Images/Information16XP.png" alt="Information Windows XP 16x16"/>
         /// </para>
         /// <para>
-        /// On Linux/Mono the icon contains the following images:<br/>
+        /// On Linux/Mono the icon contains the following 32x32 and 16x16 images:<br/>
         /// <img src="../Help/Images/Information32Mono.png" alt="Information Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Information16Mono.png" alt="Information Linux/Mono 16x16"/>
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemInformation => GetSystemIcon(idInformation, () => SystemIcons.Information);
 
         /// <summary>
         /// <img src="../Help/Images/Warning16W11.png" alt="Warning (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains a large and a small
+        /// Gets an <see cref="Icon"/> instance that contains the
         /// Warning icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
-        /// <remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Warning32W11.png" alt="Warning 32x32 Windows 11"/>
         /// <img src="../Help/Images/Warning16W11.png" alt="Warning 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 11 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Warning32W10.png" alt="Warning 32x32 Windows 10"/>
         /// <img src="../Help/Images/Warning16W10.png" alt="Warning 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 4 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16 Windows Vista"/>
+        /// <note>The <see cref="Warning"/> property returns a similar icon, but with 3 additional resolutions.</note>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
-        /// <img src="../Help/Images/WarningXP32.png" alt="Warning Windows XP 32x32"/>
-        /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Warning32XP.png" alt="Warning Windows XP 32x32"/>
+        /// <img src="../Help/Images/Warning16XP.png" alt="Warning Windows XP 16x16"/>
         /// </para>
         /// <para>
-        /// On Linux/Mono the icon contains the following images:<br/>
+        /// On Linux/Mono the icon contains the following 32x32 and 16x16 images:<br/>
         /// <img src="../Help/Images/Warning32Mono.png" alt="Warning Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Warning16Mono.png" alt="Warning Linux/Mono 16x16"/>
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemWarning => GetSystemIcon(idWarning, () => SystemIcons.Warning);
 
         /// <summary>
         /// <img src="../Help/Images/Error16W11.png" alt="Error (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains a large and a small
+        /// Gets an <see cref="Icon"/> instance that contains the
         /// Error icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemError.htm">online help</a> for the icon images.</div>
         /// </summary>
-        /// <remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Error32W11.png" alt="Error 32x32 Windows 11"/>
         /// <img src="../Help/Images/Error16W11.png" alt="Error 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 11 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Error32W10.png" alt="Error 32x32 Windows 10"/>
         /// <img src="../Help/Images/Error16W10.png" alt="Error 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Error32.png" alt="Error 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16 Windows Vista"/>
+        /// <note>The <see cref="Error"/> property returns a similar icon, but with 2 additional resolutions.</note>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
-        /// <img src="../Help/Images/ErrorXP32.png" alt="Error Windows XP 32x32"/>
-        /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Error32XP.png" alt="Error Windows XP 32x32"/>
+        /// <img src="../Help/Images/Error16XP.png" alt="Error Windows XP 16x16"/>
         /// </para>
         /// <para>
-        /// On Linux/Mono the icon contains the following images:<br/>
+        /// On Linux/Mono the icon contains the following 32x32 and 16x16 images:<br/>
         /// <img src="../Help/Images/Error32Mono.png" alt="Error Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Error16Mono.png" alt="Error Linux/Mono 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemError => GetSystemIcon(idError, () => SystemIcons.Error);
 
         /// <summary>
         /// <img src="../Help/Images/Question16W11.png" alt="Question (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains a large and a small
+        /// Gets an <see cref="Icon"/> instance that contains the
         /// Question icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
-        /// <remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Question32W11.png" alt="Question 32x32 Windows 11"/>
         /// <img src="../Help/Images/Question16W11.png" alt="Question 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Question32W10.png" alt="Question 32x32 Windows 10"/>
         /// <img src="../Help/Images/Question16W10.png" alt="Question 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 8 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Question32W8.png" alt="Question 32x32 Windows 8"/>
         /// <img src="../Help/Images/Question16W8.png" alt="Question 16x16 Windows 8"/>
         /// </para>
         /// <para>
-        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Question32.png" alt="Question 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16 Windows Vista"/>
+        /// <note>The <see cref="Question"/> property returns a similar icon, but with 2 additional resolutions.</note>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
-        /// <img src="../Help/Images/QuestionXP32.png" alt="Question Windows XP 32x32"/>
-        /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Question32XP.png" alt="Question Windows XP 32x32"/>
+        /// <img src="../Help/Images/Question16XP.png" alt="Question Windows XP 16x16"/>
         /// </para>
         /// <para>
-        /// On Linux/Mono the icon contains the following images:<br/>
+        /// On Linux/Mono the icon contains the following 32x32 and 16x16 images:<br/>
         /// <img src="../Help/Images/Question32Mono.png" alt="Question Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Question16Mono.png" alt="Question Linux/Mono 16x16"/>
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemQuestion => GetSystemIcon(idQuestion, () => SystemIcons.Question);
 
         /// <summary>
         /// <img src="../Help/Images/Application16W11.png" alt="Application (small version for the summary)"/>
-        /// Gets an <see cref="Icon"/> instance that contains a large and a small
+        /// Gets an <see cref="Icon"/> instance that contains the
         /// Application icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemApplication.htm">online help</a> for the icon images.</div>
         /// </summary>
-        /// <remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Application32W11.png" alt="Application 32x32 Windows 11"/>
         /// <img src="../Help/Images/Application16W11.png" alt="Application 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// On Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Application32W10.png" alt="Application 32x32 Windows 10"/>
         /// <img src="../Help/Images/Application16W10.png" alt="Application 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows Vista, Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Application32.png" alt="Application 32x32 Windows Vista"/>
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16 Windows Vista"/>
+        /// <note>The <see cref="Application"/> property returns a similar icon, but with one additional resolution.</note>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
-        /// <img src="../Help/Images/ApplicationXP32.png" alt="Application Windows XP 32x32"/>
-        /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Application32XP.png" alt="Application Windows XP 32x32"/>
+        /// <img src="../Help/Images/Application16XP.png" alt="Application Windows XP 16x16"/>
         /// </para>
         /// <para>
         /// On Linux/Mono the icon contains the following images:<br/>
@@ -278,60 +283,164 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16Mono.png" alt="Application Linux/Mono 16x16"/>
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemApplication => GetSystemIcon(idApplication, () => SystemIcons.Application);
 
         /// <summary>
         /// <img src="../Help/Images/Shield16W11.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
-        /// <br/>On Windows Vista and above sizes depend on current DPI settings, on Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
-        /// and in Linux (Mono) the icon contains a 29x32 and a 16x16 image.
+        /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemShield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
-        /// <note>For compatibility reasons this property returns the UAC shield as it appears in the current operating system.
+        /// <note>For compatibility reasons in Windows 7 and above this property returns the two-colored UAC shield as it appears in the current operating system.
         /// To return the system-specific counterpart of the <see cref="Shield"/> property (the four-colored Windows shield)
-        /// you can use the <see cref="FromFile(string,int)"/> method on Windows Vista and above like this:
+        /// you can use the <see cref="FromFile(string,int)"/> method (on Windows Vista and above) like this:
         /// <br/><c>Icon systemWindowsShield = Icons.FromFile("imageres", 1028);</c></note>
+        /// </remarks>
+        /// <example>
         /// <para>
-        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Shield32W11.png" alt="Shield Windows 8/10 32x32 Windows 11"/>
-        /// <img src="../Help/Images/Shield16W11.png" alt="Shield Windows 8/10 16x16 Windows 11"/>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Shield32W11.png" alt="Shield 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Shield16W11.png" alt="Shield 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Shield32W10.png" alt="Shield Windows 8/10 32x32 Windows 10"/>
         /// <img src="../Help/Images/Shield16W10.png" alt="Shield Windows 8/10 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// On Windows 7 and Windows 8 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 7 and Windows 8 the icon sizes vary from 8x8 to 256x256. Windows 7 has 7 images,
+        /// whereas Windows 8 has an additional 64x64 image, which is missing on Windows 7. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/SecurityShield32.png" alt="Shield Windows 7 32x32"/>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield Windows 7 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows Vista at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista the icon contains 7 images from 8x8 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
         /// <img src="../Help/Images/Shield32.png" alt="Shield Windows Vista 32x32"/>
         /// <img src="../Help/Images/Shield16.png" alt="Shield Windows Vista 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains three different color depth version of the following images:<br/>
-        /// <img src="../Help/Images/ShieldXP48.png" alt="Shield Windows XP 48x48"/>
-        /// <img src="../Help/Images/ShieldXP32.png" alt="Shield Windows XP 32x32"/>
-        /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
+        /// On Windows XP the icon contains 3 images from 16x16 to 48x48. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/Shield32XP.png" alt="Shield Windows XP 32x32"/>
+        /// <img src="../Help/Images/Shield16XP.png" alt="Shield Windows XP 16x16"/>
         /// </para>
         /// <para>
-        /// On Linux/Mono the icon contains the following images:<br/>
+        /// On Linux/Mono the icon contains the following 32x32 and 16x16 images:<br/>
         /// <img src="../Help/Images/Shield32Mono.png" alt="Shield Linux/Mono 29x32"/>
         /// <img src="../Help/Images/Shield16Mono.png" alt="Shield Linux/Mono 16x16"/>
         /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SystemShield => GetSystemIcon(idShield, () => SystemIcons.Shield);
 
+        /// <summary>
+        /// <img src="../Help/Images/SecuritySuccess16W11.png" alt="Security Success (small version for the summary)"/>
+        /// Gets an <see cref="Icon"/> instance that contains the
+        /// Security Success icon as it is displayed by the current operating system.
+        /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecuritySuccess"/> property.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecuritySuccess.htm">online help</a> for the icon images.</div>
+        /// </summary>
+        /// <example>
+        /// <para>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecuritySuccess32W11.png" alt="Security Success 32x32 Windows 11"/>
+        /// <img src="../Help/Images/SecuritySuccess16W11.png" alt="Security Success 16x16 Windows 11"/>
+        /// </para>
+        /// <para>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecuritySuccess32W10.png" alt="Security Success 32x32 Windows 10"/>
+        /// <img src="../Help/Images/SecuritySuccess16W10.png" alt="Security Success 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecuritySuccess32.png" alt="Security Success 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>On Windows XP and Linux/Mono this property returns the same value as the <see cref="SecuritySuccess"/> property.</para>
+        /// </example>
         public static Icon SystemSecuritySuccess => GetSystemIcon(idSecuritySuccess, () => SecuritySuccess);
+
+        /// <summary>
+        /// <img src="../Help/Images/SecurityWarning16W11.png" alt="Security Warning (small version for the summary)"/>
+        /// Gets an <see cref="Icon"/> instance that contains the
+        /// Security Warning icon as it is displayed by the current operating system.
+        /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityWarning"/> property.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityWarning.htm">online help</a> for the icon images.</div>
+        /// </summary>
+        /// <example>
+        /// <para>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityWarning32W11.png" alt="Security Warning 32x32 Windows 11"/>
+        /// <img src="../Help/Images/SecurityWarning16W11.png" alt="Security Warning 16x16 Windows 11"/>
+        /// </para>
+        /// <para>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityWarning32W10.png" alt="Security Warning 32x32 Windows 10"/>
+        /// <img src="../Help/Images/SecurityWarning16W10.png" alt="Security Warning 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityWarning32.png" alt="Security Warning 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>On Windows XP and Linux/Mono this property returns the same value as the <see cref="SecurityWarning"/> property.</para>
+        /// </example>
         public static Icon SystemSecurityWarning => GetSystemIcon(idSecurityWarning, () => SecurityWarning);
+
+        /// <summary>
+        /// <img src="../Help/Images/SecurityQuestion16W11.png" alt="Security Question (small version for the summary)"/>
+        /// Gets an <see cref="Icon"/> instance that contains the
+        /// Security Question icon as it is displayed by the current operating system.
+        /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityQuestion"/> property.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityQuestion.htm">online help</a> for the icon images.</div>
+        /// </summary>
+        /// <example>
+        /// <para>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityQuestion32W11.png" alt="Security Question 32x32 Windows 11"/>
+        /// <img src="../Help/Images/SecurityQuestion16W11.png" alt="Security Question 16x16 Windows 11"/>
+        /// </para>
+        /// <para>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityQuestion32W10.png" alt="Security Question 32x32 Windows 10"/>
+        /// <img src="../Help/Images/SecurityQuestion16W10.png" alt="Security Question 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityQuestion32.png" alt="Security Question 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>On Windows XP and Linux/Mono this property returns the same value as the <see cref="SecurityQuestion"/> property.</para>
+        /// </example>
         public static Icon SystemSecurityQuestion => GetSystemIcon(idSecurityQuestion, () => SecurityQuestion);
+
+        /// <summary>
+        /// <img src="../Help/Images/SecurityError16W11.png" alt="Security Error (small version for the summary)"/>
+        /// Gets an <see cref="Icon"/> instance that contains the
+        /// Security Error icon as it is displayed by the current operating system.
+        /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityError"/> property.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityError.htm">online help</a> for the icon images.</div>
+        /// </summary>
+        /// <example>
+        /// <para>
+        /// On Windows 11 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityError32W11.png" alt="Security Error 32x32 Windows 11"/>
+        /// <img src="../Help/Images/SecurityError16W11.png" alt="Security Error 16x16 Windows 11"/>
+        /// </para>
+        /// <para>
+        /// On Windows 10 the icon contains 8 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityError32W10.png" alt="Security Error 32x32 Windows 10"/>
+        /// <img src="../Help/Images/SecurityError16W10.png" alt="Security Error 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows Vista, Windows 7 and Windows 8 the icon contains 5 images from 16x16 to 256x256. The 32x32 and 16x16 ones look like this:<br/>
+        /// <img src="../Help/Images/SecurityError32.png" alt="Security Error 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/SecurityError16.png" alt="Security Error 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>On Windows XP and Linux/Mono this property returns the same value as the <see cref="SecurityError"/> property.</para>
+        /// </example>
         public static Icon SystemSecurityError => GetSystemIcon(idSecurityError, () => SecurityError);
 
         /// <summary>
@@ -340,6 +449,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Information.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemInformation"/>
+        /// property instead (though that one lacks the 20x20, 24x24 and 64x64 sizes on Windows Vista and Windows 7).</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Information256.png" alt="Information 256x256"/>
@@ -350,7 +463,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information20.png" alt="Information 20x20"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Information => GetResourceIcon(nameof(Information));
 
         /// <summary>
@@ -359,6 +472,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Warning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemWarning"/>
+        /// property instead (though that one lacks the 20x20, 24x24 and 64x64 sizes on Windows Vista and Windows 7/8).</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning256.png" alt="Warning 256x256"/>
@@ -369,7 +486,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning20.png" alt="Warning 20x20"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Warning => GetResourceIcon(nameof(Warning));
 
         /// <summary>
@@ -378,6 +495,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Question.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemQuestion"/>
+        /// property instead (though that one lacks the 20x20 and 24x24 sizes on Windows Vista and Windows 7).</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Question256.png" alt="Question 256x256"/>
@@ -388,7 +509,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question20.png" alt="Question 20x20"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Question => GetResourceIcon(nameof(Question));
 
         /// <summary>
@@ -397,6 +518,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Error.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemError"/>
+        /// property instead (though that one lacks the 20x20 and 64x64 sizes on Windows Vista and Windows 7/8).</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Error256.png" alt="Error 256x256"/>
@@ -407,7 +532,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error20.png" alt="Error 20x20"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Error => GetResourceIcon(nameof(Error));
 
         /// <summary>
@@ -416,6 +541,11 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Shield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemShield"/> property, which returns
+        /// the UAC shield on Windows 7 and above. To get the OS-specific four-colored Windows shield on Window 7 and above, use the <see cref="FromFile(string,int)"/> method
+        /// like this: <c>Icons.FromFile("imageres", 1028)</c></note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield256.png" alt="Windows Shield 256x256"/>
@@ -426,7 +556,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield16.png" alt="Windows Shield 16x16"/>
         /// <img src="../Help/Images/Shield8.png" alt="Windows Shield 8x8"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Shield => GetResourceIcon(nameof(Shield));
 
         /// <summary>
@@ -435,6 +565,9 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityShield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemShield"/> property instead.</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityShield256.png" alt="Security Shield 256x256"/>
@@ -445,7 +578,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityShield16.png" alt="Security Shield 16x16"/>
         /// <img src="../Help/Images/SecurityShield8.png" alt="Security Shield 8x8"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SecurityShield => GetResourceIcon(nameof(SecurityShield));
 
         /// <summary>
@@ -454,6 +587,9 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecuritySuccess.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecuritySuccess"/> property instead.</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/SecuritySuccess256.png" alt="Security Success 256x256"/>
@@ -462,7 +598,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecuritySuccess24.png" alt="Security Success 24x24"/>
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SecuritySuccess => GetResourceIcon(nameof(SecuritySuccess));
 
         /// <summary>
@@ -471,6 +607,9 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityWarning"/> property instead.</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityWarning256.png" alt="Security Warning 256x256"/>
@@ -479,7 +618,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityWarning24.png" alt="Security Warning 24x24"/>
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SecurityWarning => GetResourceIcon(nameof(SecurityWarning));
 
         /// <summary>
@@ -488,6 +627,9 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityQuestion"/> property instead.</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityQuestion256.png" alt="Security Question 256x256"/>
@@ -496,7 +638,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityQuestion24.png" alt="Security Question 24x24"/>
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SecurityQuestion => GetResourceIcon(nameof(SecurityQuestion));
 
         /// <summary>
@@ -505,6 +647,9 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityError.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityError"/> property instead.</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityError256.png" alt="Security Error 256x256"/>
@@ -513,7 +658,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityError24.png" alt="Security Error 24x24"/>
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon SecurityError => GetResourceIcon(nameof(SecurityError));
 
         /// <summary>
@@ -522,6 +667,10 @@ namespace KGySoft.Drawing
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Application.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
+        /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemApplication"/>
+        /// property instead (though that one lacks the 64x64 size image on Windows Vista and Windows 7/8).</note>
+        /// </remarks>
+        /// <example>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Application256.png" alt="Application 256x256"/>
@@ -531,7 +680,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application24.png" alt="Application 24x24"/>
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
         /// </para>
-        /// </remarks>
+        /// </example>
         public static Icon Application => GetResourceIcon(nameof(Application));
 
         #endregion
