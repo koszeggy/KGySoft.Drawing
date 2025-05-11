@@ -1124,12 +1124,8 @@ namespace KGySoft.Drawing
             }
         }
 
-        #endregion
-
-        #region Private Methods
-
         [SecurityCritical] // GetHicon
-        private static Icon FromBitmap(Bitmap bmp)
+        internal static Icon FromBitmap(Bitmap bmp)
         {
             if (OSUtils.IsWindows)
                 return Icon.FromHandle(bmp.GetHicon()).ToManagedIcon();
@@ -1137,9 +1133,13 @@ namespace KGySoft.Drawing
             using (var rawIcon = new RawIcon())
             {
                 rawIcon.Add(bmp);
-                return rawIcon.ToIcon(true)!;
+                return rawIcon.ToIcon(true)!; // forcing uncompressed on non-Windows platforms
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(int id, Func<Icon>? getLegacyIcon)
             => SystemIconsCache.GetOrAdd(id, getSystemIconAddValueFactory, getLegacyIcon)?.ToIcon(false);

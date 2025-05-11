@@ -119,6 +119,21 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(OSUtils.IsWindows ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
         }
 
+        [Test]
+        public void ResizeTest()
+        {
+            Icon origIcon = Icons.Information;
+
+            Icon existing = origIcon.Resize(new Size(16, 16));
+            Assert.AreEqual(16, existing.Width);
+
+            Icon resizedGdi = origIcon.Resize(new Size(128, 128));
+            Assert.AreEqual(128, resizedGdi.Width);
+
+            Icon resizedKGy = origIcon.Resize(new Size(128, 128), ScalingMode.Auto);
+            Assert.AreEqual(128, resizedKGy.Width);
+        }
+
         [TestCase(512)]
         [TestCase(128)]
         [TestCase(30)]

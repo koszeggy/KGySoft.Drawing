@@ -384,8 +384,6 @@ namespace KGySoft.Drawing
                             throw;
 
                         // On Linux 256x256 icons may not be supported even with BMP format.
-                        // Unlike in RawIcon.ToIcon we do not throw an exception here so the other extracted icons can be returned.
-                        // By this solution we try to be forward compatible if it will be fixed later...
                         if (throwError)
                             throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon);
                         return null;
@@ -470,7 +468,7 @@ namespace KGySoft.Drawing
             private unsafe void Save(Stream stream, bool forceBmpFormat)
             {
                 var bw = new BinaryWriter(stream);
-                
+
                 // header
                 var iconDir = new ICONDIR
                 {
@@ -856,7 +854,7 @@ namespace KGySoft.Drawing
         #region Instance Fields
 
         private readonly RawIconImageCollection iconImages = new RawIconImageCollection();
-        
+
         #endregion
 
         #endregion
@@ -889,13 +887,12 @@ namespace KGySoft.Drawing
             // there is no icon stream - adding by bitmap
             if (!icon.HasRawData())
             {
-                if (index.HasValue && index.Value != 0)
+                if (index.HasValue && index.Value != 0 || size.HasValue && size.Value != icon.Size)
                     return;
 
                 using (Bitmap bmp = icon.ToAlphaBitmap())
                 {
-                    if ((!size.HasValue || size.Value == bmp.Size)
-                        && (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel()))
+                    if (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel())
                     {
                         Add(bmp);
                     }
@@ -1000,7 +997,7 @@ namespace KGySoft.Drawing
                     ms.Position = 0L;
                     try
                     {
-                        return new Icon(ms);                        
+                        return new Icon(ms);
                     }
                     catch (Exception e)
                     {
@@ -1085,8 +1082,9 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Gets the nearest bitmap to the specified color depth and size. Bpp is matched first.
+        /// If preferLarger is true, the distance the larger images is halved. This is preferable when the extracted bitmap is about to be resized.
         /// </summary>
-        internal Bitmap? ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat)
+        internal Bitmap? ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat, bool preferLarger)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -1094,7 +1092,7 @@ namespace KGySoft.Drawing
             if (iconImages.Count == 1)
                 return iconImages[0].ToBitmap(keepOriginalFormat, false);
 
-            RawIconImage nearestImage = GetNearestImage(bpp, size);
+            RawIconImage nearestImage = GetNearestImage(bpp, size, preferLarger);
             Bitmap? result = nearestImage.ToBitmap(keepOriginalFormat, false);
             if (result != null)
                 return result;
@@ -1113,7 +1111,7 @@ namespace KGySoft.Drawing
             if (iconImages.Count == 1)
                 return iconImages[0].ToIcon(forceBmpFormat, false);
 
-            RawIconImage nearestImage = GetNearestImage(bpp, size);
+            RawIconImage nearestImage = GetNearestImage(bpp, size, false);
             Icon? result = nearestImage.ToIcon(forceBmpFormat, false);
             if (result != null)
                 return result;
@@ -1188,7 +1186,7 @@ namespace KGySoft.Drawing
                     br.BaseStream.Position = entry.dwImageOffset;
                     var image = new RawIconImage(br.ReadBytes((int)entry.dwBytesInRes));
 
-                    // bpp was explicit defined, though there is 0 in dir entry: post-check for BPP
+                    // bpp was explicitly defined, though there is 0 in dir entry: post-check for BPP
                     if (bpp != null && entry.wBitCount == 0 && image.Bpp != reqBpp
                         // similarly, post check for size
                         || size != null && image.Size != reqSize)
@@ -1203,7 +1201,7 @@ namespace KGySoft.Drawing
             }
         }
 
-        private RawIconImage GetNearestImage(int desiredBpp, Size desiredSize)
+        private RawIconImage GetNearestImage(int desiredBpp, Size desiredSize, bool preferLarger)
         {
             int desiredWidth = Math.Max(desiredSize.Width, 1);
             // Short solution: (but it does not stop on exact match and does not have preference on equal distances)
@@ -1211,7 +1209,9 @@ namespace KGySoft.Drawing
             //    || i.Size == acc.Size && Math.Abs(i.Bpp - desiredBpp) < Math.Abs(acc.Bpp - desiredBpp) ? i : acc);
 
             RawIconImage preferredImage = iconImages[0];
-            int preferredWidthDiff = Math.Abs(preferredImage.Size.Width - desiredWidth);
+            int preferredWidthDiff = preferLarger
+                ? preferredImage.Size.Width > desiredSize.Width ? (preferredImage.Size.Width - desiredWidth) / 2 : desiredWidth - preferredImage.Size.Width
+                : Math.Abs(preferredImage.Size.Width - desiredWidth);
             int preferredBppDiff = Math.Abs(preferredImage.Bpp - desiredBpp);
             for (var i = 1; i < iconImages.Count; i++)
             {
@@ -1221,7 +1221,9 @@ namespace KGySoft.Drawing
 
                 // Size first, then BPP. On equal distance the higher value is preferred.
                 RawIconImage currentImage = iconImages[i];
-                int currentWidthDiff = Math.Abs(currentImage.Size.Width - desiredWidth);
+                int currentWidthDiff = preferLarger
+                    ? currentImage.Size.Width > desiredSize.Width ? (currentImage.Size.Width - desiredWidth) / 2 : desiredWidth - currentImage.Size.Width
+                    : Math.Abs(currentImage.Size.Width - desiredWidth);
                 int currentBppDiff = Math.Abs(currentImage.Bpp - desiredBpp);
                 if (currentWidthDiff < preferredWidthDiff // closer size
                     || (currentWidthDiff == preferredWidthDiff && currentImage.Size.Width > preferredImage.Size.Width) // same size difference and current is larger
@@ -1261,7 +1263,7 @@ namespace KGySoft.Drawing
                     return null;
 
                 // trying the next size
-                nearestImage = GetNearestImage(bpp, new Size(nextSize, nextSize));
+                nearestImage = GetNearestImage(bpp, new Size(nextSize, nextSize), false);
                 TResult? result = getResult.Invoke(nearestImage);
                 if (result != null)
                     return result;

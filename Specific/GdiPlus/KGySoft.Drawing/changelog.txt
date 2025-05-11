@@ -12,14 +12,22 @@
 ! KGySoft.Drawing namespace
 ===========================
 ! Icons class:
+  ! SystemInformation/SystemQuestion/SystemWarning/SystemError/SystemApplication properties: Up to now the returned
+    icons contained exactly two images, whose sizes depended on the DPI of the primary display. From now on the
+    returned icons contain all images the icons actually have. To get an icon exactly with a specific size, you can
+    use the new Resize extension method.
+  The returned icons
+    contain not just up to two images but all images the icons actually have.
   ! FromFile(string) method:
     ! From now on it throws an exception if the file does not exist.
     + The returned icons contain not just up to two images but all images the icon resources actually have.
   + New FromFile(string, int) overload to retrieve an icon of the specified index from a file.
-  + SystemInformation/SystemQuestion/SystemWarning/SystemError/SystemApplication properties: The returned icons
-    contain not just up to two images but all images the icons actually have.
   + New SystemSecuritySuccess/SystemSecurityQuestion/SystemSecurityWarning/SystemSecurityError properties: As the
     OS-dependent counterpart of the Security* properties, their images depend on the current Windows version.
+
++ IconExtensions class:
+  + New Resize methods to extract exactly a specific icon size from an icon resource. If no such image is available,
+    the next larger or smaller image is scaled to the requested size.
 
 
 ~~~~~~~~~

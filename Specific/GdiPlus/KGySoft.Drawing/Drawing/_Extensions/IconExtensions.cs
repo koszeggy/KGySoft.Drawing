@@ -25,7 +25,10 @@ using System.Runtime.Versioning;
 #endif
 using System.Security;
 
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Threading;
 
 #endregion
 
@@ -338,7 +341,7 @@ namespace KGySoft.Drawing
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
-                return rawIcon.ExtractNearestBitmap(bpp, size, keepOriginalFormat)!;
+                return rawIcon.ExtractNearestBitmap(bpp, size, keepOriginalFormat, false)!;
         }
 
         /// <summary>
@@ -550,8 +553,10 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
         /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/> is returned.</para>
+        /// <para>To force a result exactly with the specified <paramref name="size"/>, use the <see cref="Resize(Icon,Size)">Resize</see> method instead.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
+        /// <seealso cref="Resize(Icon,Size)"/>
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, OSUtils.IsXpOrEarlier);
 
         /// <summary>
@@ -568,8 +573,10 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
         /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/> is returned.</para>
+        /// <para>To force a result exactly with the specified <paramref name="size"/>, use the <see cref="Resize(Icon,Size)">Resize</see> method instead.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
+        /// <seealso cref="Resize(Icon,Size)"/>
         [SecuritySafeCritical]
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat, bool forceUncompressedResult)
         {
@@ -579,6 +586,96 @@ namespace KGySoft.Drawing
 
             using (RawIcon rawIcon = new RawIcon(icon))
                 return rawIcon.ExtractNearestIcon(bpp, size, forceUncompressedResult)!;
+        }
+
+        /// <summary>
+        /// Resizes an <see cref="Icon"/> to the specified <paramref name="size"/>.
+        /// </summary>
+        /// <param name="icon">The icon to resize.</param>
+        /// <param name="size">The required size of the result.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains exactly one image with the specified <paramref name="size"/>.</returns>
+        /// <remarks>
+        /// <para>If the <paramref name="icon"/> contains images with the specified <paramref name="size"/>,
+        /// then this method just extracts the highest bit-per-pixel image of the requested size.</para>
+        /// <para>If the icon does not contain an image exactly with the specified <paramref name="size"/>, then this method takes a
+        /// close image in size and resizes that to the requested size. If resizing happens, the result will always contain a 32 bpp image.</para>
+        /// <para>If an actual resize is needed, this overload uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally,
+        /// which provides a good quality result but on Windows blocks every parallel <see cref="O:System.Drawing.Graphics.DrawImage">DrawImage</see> call within the same process.
+        /// If that might be an issue use the <see cref="Resize(Icon, Size, ScalingMode)"/> overload instead.</para>
+        /// </remarks>
+        public static Icon Resize(this Icon icon, Size size)
+        {
+            // If no resizing is needed, we just extract the result without loading the unnecessary sizes. It validates the icon.
+            Icon? result = TryExtractIcon(icon, size);
+            if (result != null)
+                return result;
+
+            // Validating size. Maximum value is just an arbitrary sanity limit.
+            if (size.Width <= 0 || size.Height <= 0 || size.Width > 32768 || size.Height > 32768)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+
+            // Now loading the whole icon and extracting the nearest image that can be resized.
+            Bitmap sourceBitmap;
+            Bitmap resultBitmap;
+            using (var rawIcon = new RawIcon(icon))
+                sourceBitmap = rawIcon.ExtractNearestBitmap(32, size, false, true)!;
+            using (sourceBitmap)
+                resultBitmap = sourceBitmap.Resize(size);
+            using (resultBitmap)
+                return Icons.FromBitmap(resultBitmap);
+        }
+
+        /// <summary>
+        /// Resizes the specified <see cref="Icon"/> instance to the specified <paramref name="size"/> using the specified <paramref name="scalingMode"/>.
+        /// </summary>
+        /// <param name="icon">The icon to resize.</param>
+        /// <param name="size">The required size of the result.</param>
+        /// <param name="scalingMode">A <see cref="ScalingMode"/> value, which determines the quality of the result as well as the processing time.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains exactly one image with the specified <paramref name="size"/>.</returns>
+        /// <remarks>
+        /// <para>If the <paramref name="icon"/> contains images with the specified <paramref name="size"/>,
+        /// then this method just extracts the highest bit-per-pixel image of the requested size.</para>
+        /// <para>If the icon does not contain an image exactly with the specified <paramref name="size"/>, then this method takes a
+        /// close image in size and resizes that to the requested size. If resizing happens, the result will always contain a 32 bpp image.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginResize(IReadableBitmapData, Size, ScalingMode, bool, AsyncConfig)">BitmapDataExtensions.BeginResize</see>
+        /// or <see cref="BitmapDataExtensions.ResizeAsync(IReadableBitmapData, Size, ScalingMode, bool, TaskConfig)">BitmapDataExtensions.ResizeAsync</see>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>This method always performs resizing in the linear color space. It helps preserve the original brightness, especially for low color depth icons.</para>
+        /// </remarks>
+        public static Icon Resize(this Icon icon, Size size, ScalingMode scalingMode)
+        {
+            // Unlike in the other overload, we validate everything here so we throw if the icon has the requested size but scalingMode is invalid.
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            if (size.Width <= 0 || size.Height <= 0 || size.Width > 32768 || size.Height > 32768)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            // If no resizing is needed, we just extract the result without loading the unnecessary sizes
+            Icon? result = TryExtractIcon(icon, size);
+            if (result != null)
+                return result;
+
+            // Now loading the whole icon and extracting the nearest image that can be resized.
+            Bitmap sourceBitmap;
+            Bitmap resultBitmap;
+            using (var rawIcon = new RawIcon(icon))
+                sourceBitmap = rawIcon.ExtractNearestBitmap(32, size, false, true)!;
+
+            // We could use sourceBitmap.Resize(size, scalingMode), but that uses the sRGB color space for the resizing.
+            using (sourceBitmap)
+            {
+                // Format32bppArgb is faster in the linear color space
+                resultBitmap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+                using IReadableBitmapData src = sourceBitmap.GetReadableBitmapData();
+                using IReadWriteBitmapData dst = resultBitmap.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+                src.DrawInto(dst, new Rectangle(Point.Empty, src.Size), new Rectangle(Point.Empty, dst.Size), null, null, scalingMode);
+            }
+
+            using (resultBitmap)
+                return Icons.FromBitmap(resultBitmap);
         }
 
         /// <summary>
@@ -841,7 +938,7 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            
+
             using (var rawIcon = new RawIcon(icon))
             {
                 var result = new IconInfo[rawIcon.ImageCount];
@@ -967,6 +1064,27 @@ namespace KGySoft.Drawing
 
             using (var rawIcon = new RawIcon(icon, size, bpp))
                 return rawIcon.ExtractIcon(0, forceUncompressedResult);
+        }
+
+        [SecuritySafeCritical]
+        private static Icon? TryExtractIcon(Icon icon, Size size)
+        {
+            // Trying to load the requested size only
+            using var rawIcon = new RawIcon(icon, size);
+
+            // Exactly one image of the requested size: just extracting it
+            if (rawIcon.ImageCount == 1)
+                return rawIcon.ExtractIcon(0, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows)!;
+
+            // More than one image of the requested size: returning the one with the highest bpp
+            if (rawIcon.ImageCount > 1)
+            {
+                // a null result from ExtractNearestIcon means that the requested size is not supported on this platform (Linux with 256x256 icons)
+                return rawIcon.ExtractNearestIcon(32, size, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows)
+                    ?? throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon);
+            }
+
+            return null;
         }
 
         #endregion
