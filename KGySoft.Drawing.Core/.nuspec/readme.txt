@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Core Libraries 9.1.0
+﻿Thank you for installing KGy SOFT Drawing Core Libraries 9.1.1
 The KGy SOFT Drawing Core Libraries package offers advanced drawing features for completely managed bitmap data
 on multiple platforms.
 
