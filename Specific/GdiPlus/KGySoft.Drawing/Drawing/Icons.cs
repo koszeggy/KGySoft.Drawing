@@ -296,7 +296,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>For compatibility reasons in Windows 7 and above this property returns the two-colored UAC shield as it appears in the current operating system.
         /// To return the system-specific counterpart of the <see cref="Shield"/> property (the four-colored Windows shield)
-        /// you can use the <see cref="FromFile(string,int)"/> method (on Windows Vista and above) like this:
+        /// you can use the <see cref="FromFile(string,int)"/> method on Windows 7 and above like this:
         /// <br/><c>Icon systemWindowsShield = Icons.FromFile("imageres", 1028);</c></note>
         /// </remarks>
         /// <example>
@@ -1154,7 +1154,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// By stock icon we mean Vista+ stock icons, imageres.dll icons or user32.dll icons.
+        /// By stock icon we mean Vista+ stock icons from imageres.dll, explicit imageres.dll icons with resource id, or user32.dll icons.
         /// </summary>
         [SecurityCritical]
         private static RawIcon? DoGetStockIcon(int id)
