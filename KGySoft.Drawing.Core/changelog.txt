@@ -6,6 +6,18 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v9.1.1:
+~~~~~~~~~
+
+- KGySoft.Drawing.Imaging namespace
+===================================
+- PredefinedColorsQuantizer class:
+  - FromCustomFuction(Func<Color32, Color32>, KnownPixelFormat) method: Contrary to the documentation, the
+    quantizing function was only called with non-alpha colors, after blending with black background. This bug
+    appeared in v9.0.0. The fix affects also some other methods, e.g. FromBitmapData or ToGrayscale.
+
+
+~~~~~~~~~
 - v9.1.0:
 ~~~~~~~~~
 
