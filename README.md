@@ -122,7 +122,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
 ### Application Examples
 
-<details>
+<details open>
 <summary><strong>KGy SOFT Drawing Example Applications</strong></summary><p/>
 
 See the [Examples](Examples) folder for example applications for using KGy SOFT Drawing Libraries in various environments such as [MAUI](Examples/SkiaSharp.Maui), [UWP](Examples/Uwp), [WinForms](Examples/WinForms), [WinUI](Examples/WinUI), [WPF](Examples/Wpf) and [Xamarin](Examples/Xamarin).
