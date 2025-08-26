@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Shapes
     /// <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> is <see langword="false"/>, so the transparent ellipses indicate the regions of the fill operations.</td>
     /// <td><img src="../Help/Images/BrushTextureCenter.png" alt="Texture brush with Center map mode. AntiAliasing = false, AlphaBlending = false."/></td></tr>
     /// <tr><td><see cref="CenterExtend"/>: Similar to <see cref="Extend"/>, but the texture is always centered in the currently filled shape.
-    /// In this example the left edge of the texture completely transparent, so we don't see pixels extended to the left.
+    /// In this example the left edge of the texture is completely transparent, so we don't see pixels extended to the left.
     /// <see cref="DrawingOptions.AlphaBlending">DrawingOptions.AlphaBlending</see> is <see langword="false"/>, so the transparent ellipses indicate the regions of the fill operations.</td>
     /// <td><img src="../Help/Images/BrushTextureCenterExtend.png" alt="Texture brush with CenterExtend map mode. AntiAliasing = false, AlphaBlending = false."/></td></tr>
     /// <tr><td><see cref="Stretch"/>: The texture is stretched to fill the entire shape. The texture's aspect ratio is not preserved.
