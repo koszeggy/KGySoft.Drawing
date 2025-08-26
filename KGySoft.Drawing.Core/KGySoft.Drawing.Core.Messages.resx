@@ -120,9 +120,6 @@
   <data name="General_OperationCanceled" xml:space="preserve">
     <value>The operation was canceled.</value>
   </data>
-  <data name="General_InvalidAsyncResultFormat" xml:space="preserve">
-    <value>Either the IAsyncResult object did not come from the corresponding '{0}' method, or the End method was called multiple times with the same IAsyncResult.</value>
-  </data>
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
   </data>

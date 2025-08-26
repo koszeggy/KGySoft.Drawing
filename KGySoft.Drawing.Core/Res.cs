@@ -163,9 +163,6 @@ namespace KGySoft
         /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
         internal static string PixelFormatInvalid(KnownPixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<KnownPixelFormat>.ToString(pixelFormat));
 
-        /// <summary>Either the IAsyncResult object did not come from the corresponding '{0}' method, or the End method was called multiple times with the same IAsyncResult.</summary>
-        internal static string InvalidAsyncResult(string beginMethodName) => Get("General_InvalidAsyncResultFormat", beginMethodName);
-
         #endregion
 
         #region Imaging
