@@ -628,7 +628,7 @@ namespace KGySoft.Drawing.Shapes
                 mainContext.SkipEdgesAbove(Top + pixelOffset, true);
 
                 int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
-                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
+                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || ParallelHelper.CoreCount == 1)
                     return;
 
                 threadContextCache = new StrongBox<(int ThreadId, SolidScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
@@ -1095,7 +1095,7 @@ namespace KGySoft.Drawing.Shapes
                 mainContext.SkipEdgesAbove(Top + subpixelOffset, true);
 
                 int parallelFactor = drawingOptions.Ditherer != null ? 2 : drawingOptions.Quantizer != null ? 1 : 0;
-                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1)
+                if (Width < (parallelThreshold >> parallelFactor) || context.MaxDegreeOfParallelism == 1 || ParallelHelper.CoreCount == 1)
                     return;
 
                 threadContextCache = new StrongBox<(int ThreadId, AntiAliasingScannerContext)>?[EnvironmentHelper.GetThreadBasedCacheSize(context.MaxDegreeOfParallelism)];
@@ -2384,7 +2384,7 @@ namespace KGySoft.Drawing.Shapes
                 get
                 {
                     int parallelFactor = session.DrawingOptions.Ditherer != null ? 2 : session.DrawingOptions.Quantizer != null ? 1 : 0;
-                    return visibleBounds.Width < (parallelThreshold >> parallelFactor) || session.Context.MaxDegreeOfParallelism == 1 || EnvironmentHelper.CoreCount == 1;
+                    return visibleBounds.Width < (parallelThreshold >> parallelFactor) || session.Context.MaxDegreeOfParallelism == 1 || ParallelHelper.CoreCount == 1;
                 }
             }
 

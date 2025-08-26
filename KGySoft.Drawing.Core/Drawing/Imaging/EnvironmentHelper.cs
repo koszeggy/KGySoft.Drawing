@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-
 #if !NET6_0_OR_GREATER
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -24,8 +23,9 @@ using System.Security;
 #endif
 #if NET35 || NET40
 using System.Threading;
-
 #endif
+
+using KGySoft.Threading;
 
 #endregion
 
@@ -41,8 +41,6 @@ namespace KGySoft.Drawing.Imaging
         internal static int CurrentThreadId => Environment.CurrentManagedThreadId;
 #endif
 
-        internal static int CoreCount { get; } = GetCoreCount();
-
 #if NET6_0_OR_GREATER
         internal static int MaxByteArrayLength => Array.MaxLength;
 #else
@@ -54,13 +52,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Internal Methods
-
-        internal static int GetThreadBasedCacheSize() => GetThreadBasedCacheSize(CoreCount);
+        internal static int GetThreadBasedCacheSize() => GetThreadBasedCacheSize(ParallelHelper.CoreCount);
 
         internal static int GetThreadBasedCacheSize(int maxThreads)
         {
-            int size = maxThreads <= 0 ? CoreCount : Math.Min(maxThreads, CoreCount);
+            int size = maxThreads <= 0 ? ParallelHelper.CoreCount : Math.Min(maxThreads, ParallelHelper.CoreCount);
 
             // Up to 32 threads: using at least twice as many entries, rounded up to a power ot two to reduce the chance of hash collisions.
             // > 32 threads: using next power of two entries of the provided size * 1.125.
@@ -68,46 +64,6 @@ namespace KGySoft.Drawing.Imaging
             size = size <= 32 ? size << 1 : (int)(size * 1.125f);
             return size <= 8 ? 8 : ((uint)size).RoundUpToPowerOf2();
         }
-
-        #endregion
-
-        #region Private Methods
-
-#if NET6_0_OR_GREATER
-        private static int GetCoreCount() => Environment.ProcessorCount;
-#else
-        [SecuritySafeCritical]
-        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
-            Justification = "The type initializer must not throw anything. Cannot really happen, maybe only partially trusted domains in .NET Framework.")]
-        private static int GetCoreCount()
-        {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT) // TODO: extract to IsWindows if needed somewhere else, too
-                return Environment.ProcessorCount;
-
-            // Here we are on Windows, targeting .NET 5 or earlier, where Environment.ProcessorCount doesn't respect affinity or CPU limit:
-            // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/environment-processorcount-on-windows
-
-            try
-            {
-                // We check if DOTNET_PROCESSOR_COUNT is set because it has a priority over any other settings
-                string? var = Environment.GetEnvironmentVariable("DOTNET_PROCESSOR_COUNT");
-                if (var is not null && Int32.TryParse(var, out int result))
-                    return result;
-
-                // Using CPU affinity
-                // NOTE: Unlike the latest Environment.ProcessorCount implementations, not checking if multiple CPU groups are available
-                // because it's supported on Windows 11+ only, which was released after .NET 5 anyway.
-                nint affinity = Process.GetCurrentProcess().ProcessorAffinity;
-                return affinity == 0 ? Environment.ProcessorCount : ((ulong)affinity).GetFlagsCount();
-            }
-            catch (Exception)
-            {
-                return Environment.ProcessorCount;
-            }
-        }
-#endif
-
-        #endregion
 
         #endregion
     }
