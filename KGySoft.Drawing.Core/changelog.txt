@@ -5,6 +5,16 @@
 + New feature
 ===============================================================================
 
+~~~~~~~~~~
++ v10.0.0:
+~~~~~~~~~~
+
++ KGySoft.Drawing.Imaging namespace
+===================================
++ BitmapDataExtensions class:
+  + New TransformColors/BeginTransformColors/TransformColorsAsync to support wide pixel formats.
+
+
 ~~~~~~~~~
 - v9.1.1:
 ~~~~~~~~~

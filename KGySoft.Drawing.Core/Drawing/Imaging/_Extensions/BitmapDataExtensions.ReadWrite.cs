@@ -485,6 +485,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region TransformColors
 
+        #region Color32
+
         /// <summary>
         /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate.
         /// </summary>
@@ -493,12 +495,13 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
-        /// Alternatively, use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// Alternatively, use the <see cref="BeginTransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, AsyncConfig)"/>
+        /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.</para>
-        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmapData"/>, or you want to transform the actual
         /// pixels of an indexed <paramref name="bitmapData"/> instead of modifying the palette, then use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32},IDitherer)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
@@ -519,7 +522,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
         /// the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
-        /// Alternatively, use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// Alternatively, use the <see cref="BeginTransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, AsyncConfig)"/>
+        /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -527,7 +531,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
@@ -552,8 +556,8 @@ namespace KGySoft.Drawing.Imaging
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
-        /// cancellation and progress reporting. Use the <see cref="BeginTransformColors">BeginTransformColors</see> or <see cref="TransformColorsAsync">TransformColorsAsync</see>
-        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// cancellation and progress reporting. Use the <see cref="BeginTransformColors(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, AsyncConfig)"/>
+        /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -561,7 +565,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
@@ -623,7 +627,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="TransformColorsAsync">TransformColorsAsync</see> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color32,Color32}, IDitherer, TaskConfig)"/> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndTransformColors">EndTransformColors</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
@@ -635,8 +639,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="BeginTransformColors">BeginTransformColors</see> method to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
+        /// Waits for the pending asynchronous operation started by the one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginTransformColors">BeginTransformColors</see> overloads to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColorsAsync">TransformColorsAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndTransformColors(this IAsyncResult asyncResult)
@@ -670,6 +674,228 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 #endif
+
+        #endregion
+
+        #region Color64
+
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginTransformColors(IReadWriteBitmapData, Func{Color64,Color64}, AsyncConfig)"/>
+        /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color64,Color64}, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.</para>
+        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoTransformColors(ctx, bitmapData, transformFunction), parallelConfig);
+        }
+
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color64, Color64> transformFunction)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            return DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction);
+        }
+
+        /// <summary>
+        /// Begins to transform the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color64,Color64}, TaskConfig)"/> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndTransformColors">EndTransformColors</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
+        }
+
+#if !NET35
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction, TaskConfig? asyncConfig = null)
+        {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region ColorF
+
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginTransformColors(IReadWriteBitmapData, Func{ColorF,ColorF}, AsyncConfig)"/>
+        /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{ColorF,ColorF}, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.</para>
+        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction, ParallelConfig? parallelConfig)
+        {
+            // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overloads but that would have been a breaking change.
+            // This overload has no default parameters to prevent auto switching the callers to this one instead of the original one.
+            // Even though it would be compile-compatible, it's still breaking. Also, this one has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoTransformColors(ctx, bitmapData, transformFunction), parallelConfig);
+        }
+
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<ColorF, ColorF> transformFunction)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            return DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction);
+        }
+
+        /// <summary>
+        /// Begins to transform the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{ColorF,ColorF}, TaskConfig)"/> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndTransformColors">EndTransformColors</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
+        }
+
+#if !NET35
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction, TaskConfig? asyncConfig = null)
+        {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
+            ValidateArguments(bitmapData, transformFunction);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
+        }
+#endif
+
+        #endregion
 
         #endregion
 
@@ -1721,7 +1947,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Validation
 
-        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Delegate transformFunction)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1857,6 +2083,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Color Transformations
 
+        #region Color32
+
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
@@ -1954,7 +2182,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
-                
+
                 context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
                 using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
                 if (context.IsCancellationRequested)
@@ -1964,7 +2192,7 @@ namespace KGySoft.Drawing.Imaging
                 using IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
                 if (context.IsCancellationRequested)
                     return false;
-                
+
                 if (ditheringSession == null)
                     throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
 
@@ -2048,6 +2276,306 @@ namespace KGySoft.Drawing.Imaging
 #endif
             return result;
         }
+
+        #endregion
+
+        #region Color64
+
+        [SecuritySafeCritical]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction)
+        {
+            // Indexed format: processing the palette entries when possible
+            if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, 1);
+                Palette palette = bitmapData.Palette!;
+                Color32[] oldEntries = palette.Entries;
+                Color32[] newEntries = new Color32[oldEntries.Length];
+                for (int i = 0; i < newEntries.Length; i++)
+                    newEntries[i] = transformFunction.Invoke(oldEntries[i].ToColor64()).ToColor32();
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, null)))
+                {
+                    context.Progress?.Complete();
+                    return !context.IsCancellationRequested;
+                }
+
+                Debug.Fail("Setting the palette of the same size should work if CanSetPalette is true");
+            }
+
+            if (bitmapData.Height < 1)
+                return !context.IsCancellationRequested;
+
+            // Non-indexed format or palette cannot be set: processing the pixels
+            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            try
+            {
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold)
+                {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
+                    do
+                    {
+                        if (context.IsCancellationRequested)
+                            return false;
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColor64(x, transformFunction.Invoke(row.DoGetColor64(x)));
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
+
+                    return true;
+                }
+
+                // Parallel processing
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
+                {
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row.DoSetColor64(x, transformFunction.Invoke(row.DoGetColor64(x)));
+                }
+
+                #endregion
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        // TODO
+        //private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
+
+        //private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+
+        //private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+
+        //private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
+
+        //private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+
+        //private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
+
+        //private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+
+        //private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
+        //private static byte[] GenerateGammaLookupTable(float gamma)
+        //{
+        //    byte[] result = new byte[256];
+        //    for (int i = 0; i < 256; i++)
+        //#if NETFRAMEWORK || NETSTANDARD2_0
+        //        result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
+        //#else
+        //        result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
+        //#endif
+        //    return result;
+        //}
+
+        #endregion
+
+        #region Color64
+
+        [SecuritySafeCritical]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction)
+        {
+            // Indexed format: processing the palette entries when possible
+            if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
+            {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, 1);
+                Palette palette = bitmapData.Palette!;
+                Color32[] oldEntries = palette.Entries;
+                Color32[] newEntries = new Color32[oldEntries.Length];
+                for (int i = 0; i < newEntries.Length; i++)
+                    newEntries[i] = transformFunction.Invoke(oldEntries[i].ToColorF()).ToColor32();
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, null)))
+                {
+                    context.Progress?.Complete();
+                    return !context.IsCancellationRequested;
+                }
+
+                Debug.Fail("Setting the palette of the same size should work if CanSetPalette is true");
+            }
+
+            if (bitmapData.Height < 1)
+                return !context.IsCancellationRequested;
+
+            // Non-indexed format or palette cannot be set: processing the pixels
+            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            try
+            {
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold)
+                {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
+                    do
+                    {
+                        if (context.IsCancellationRequested)
+                            return false;
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColorF(x, transformFunction.Invoke(row.DoGetColorF(x)));
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
+
+                    return true;
+                }
+
+                // Parallel processing
+                return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+                #region Local Methods
+
+                [SecuritySafeCritical]
+                void ProcessRow(int y)
+                {
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row.DoSetColorF(x, transformFunction.Invoke(row.DoGetColorF(x)));
+                }
+
+                #endregion
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        // TODO
+        //[SecuritySafeCritical]
+        //[SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        //private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
+        //{
+        //    if (ditherer == null || !bitmapData.PixelFormat.CanBeDithered)
+        //        return DoTransformColors(context, bitmapData, transformFunction);
+
+        //    // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
+        //    if (ditherer.InitializeReliesOnContent)
+        //    {
+        //        // not using premultiplied format because transformation is faster on simple ARGB32
+        //        using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
+        //            KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
+        //        if (context.IsCancellationRequested)
+        //            return false;
+
+        //        Debug.Assert(tempClone != null);
+        //        return DoTransformColors(context, tempClone!, transformFunction)
+        //            && DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
+        //    }
+
+        //    if (bitmapData.Height < 1)
+        //        return !context.IsCancellationRequested;
+
+        //    IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+        //    try
+        //    {
+        //        IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
+        //        Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
+
+        //        context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
+        //        using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
+        //        if (context.IsCancellationRequested)
+        //            return false;
+
+        //        context.Progress?.New(DrawingOperation.InitializingDitherer);
+        //        using IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
+        //        if (context.IsCancellationRequested)
+        //            return false;
+
+        //        if (ditheringSession == null)
+        //            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+        //        // sequential processing
+        //        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
+        //        {
+        //            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
+        //            IBitmapDataRowInternal row = accessor.GetRowCached(0);
+        //            int y = 0;
+        //            do
+        //            {
+        //                if (context.IsCancellationRequested)
+        //                    return false;
+        //                for (int x = 0; x < bitmapData.Width; x++)
+        //                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+        //                y += 1;
+        //                context.Progress?.Increment();
+        //            } while (row.MoveNextRow());
+
+        //            return true;
+        //        }
+
+        //        // parallel processing
+        //        return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+
+        //        #region Local Methods
+
+        //        [SecuritySafeCritical]
+        //        void ProcessRow(int y)
+        //        {
+        //            IBitmapDataRowInternal row = accessor.GetRowCached(y);
+        //            for (int x = 0; x < bitmapData.Width; x++)
+        //                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+        //        }
+
+        //        #endregion
+        //    }
+        //    finally
+        //    {
+        //        if (!ReferenceEquals(bitmapData, accessor))
+        //            accessor.Dispose();
+        //    }
+        //}
+
+        //private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
+
+        //private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+
+        //private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+
+        //private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
+
+        //private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+
+        //private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
+
+        //private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+
+        //private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+        //    (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+        //    (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+        //    (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
+        #endregion
 
         #endregion
 
