@@ -6,12 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~~
-+ v10.0.0:
+! v10.0.0:
 ~~~~~~~~~~
 
-+ KGySoft.Drawing.Imaging namespace
+! KGySoft.Drawing.Imaging namespace
 ===================================
-+ BitmapDataExtensions class:
+! BitmapDataExtensions class:
+  ! Invert/BeginInvert/InvertAsync methods:
+    ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
+      has linear gamma. Previously these methods always worked in sRGB color space.
+    + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
+      during the operation even without a specified quantizer.
   + New TransformColors/BeginTransformColors/TransformColorsAsync to support wide pixel formats.
 
 
