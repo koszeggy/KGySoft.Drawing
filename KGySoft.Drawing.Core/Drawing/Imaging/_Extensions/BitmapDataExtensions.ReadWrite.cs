@@ -1564,15 +1564,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see>
-        /// or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels,ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1591,14 +1591,102 @@ namespace KGySoft.Drawing.Imaging
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
                 return;
+            DoAdjustBrightness(AsyncHelper.DefaultContext, bitmapData, brightness, ditherer, channels);
+        }
 
-            if (brightness < 0f)
-            {
-                brightness += 1f;
-                DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer);
-            }
-            else
-                DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformLighten(c, brightness, channels), ditherer);
+        /// <summary>
+        /// Adjusts the brightness of the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
+        /// while negative values make it darker.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels,ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
+                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || brightness == 0f)
+                return AsyncHelper.FromResult(true, parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoAdjustBrightness(ctx, bitmapData, brightness, ditherer, channels), parallelConfig);
+        }
+
+        /// <summary>
+        /// Adjusts the brightness of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
+        /// while negative values make it darker.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustBrightness(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
+                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || brightness == 0f)
+                return true;
+            return DoAdjustBrightness(context ?? AsyncHelper.DefaultContext, bitmapData, brightness, ditherer, channels);
         }
 
         /// <summary>
@@ -1622,7 +1710,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustBrightness">EndAdjustBrightness</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustBrightness">AdjustBrightness</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1640,12 +1727,7 @@ namespace KGySoft.Drawing.Imaging
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
                 return AsyncHelper.FromResult(true, asyncConfig);
-
-            if (brightness >= 0f)
-                return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
-            
-            brightness += 1f;
-            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoAdjustBrightness(ctx, bitmapData, brightness, ditherer, channels), asyncConfig);
         }
 
         /// <summary>
@@ -1677,7 +1759,6 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustBrightness">AdjustBrightness</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1685,6 +1766,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
+            // NOTE: the return value could be Task<bool> but it would be a breaking change
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
@@ -1695,12 +1777,7 @@ namespace KGySoft.Drawing.Imaging
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
                 return AsyncHelper.FromCompleted(asyncConfig);
-
-            if (brightness >= 0f)
-                return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
-
-            brightness += 1f;
-            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoAdjustBrightness(ctx, bitmapData, brightness, ditherer, channels), asyncConfig);
         }
 #endif
 
@@ -2297,73 +2374,6 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static bool DoInvertColors(IAsyncContext context, IReadWriteBitmapData bitmapData, IDitherer? ditherer)
-        {
-            #region Local Methods
-
-            static Color32 TransformInvert32(Color32 c) => new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
-            static Color64 TransformInvert64(Color64 c) => new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
-
-            static ColorF TransformInvertF(ColorF c)
-            {
-                c = c.Clip();
-                return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
-            }
-
-            #endregion
-
-            if (ditherer == null)
-            {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
-                    return DoTransformColors(context, bitmapData, TransformInvertF);
-                if (pixelFormat.IsWide)
-                    return DoTransformColors(context, bitmapData, TransformInvert64);
-            }
-
-            return DoTransformColors(context, bitmapData, TransformInvert32, ditherer);
-        }
-
-        private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
-
-        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
-
-        private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
-
-        private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
-
-        private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
-
-        private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
-
-        private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
-
-        private static byte[] GenerateGammaLookupTable(float gamma)
-        {
-            byte[] result = new byte[256];
-            for (int i = 0; i < 256; i++)
-#if NETFRAMEWORK || NETSTANDARD2_0
-                result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
-#else
-                result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
-#endif
-            return result;
-        }
-
-        #region Color64
-
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction)
@@ -2431,51 +2441,6 @@ namespace KGySoft.Drawing.Imaging
                     accessor.Dispose();
             }
         }
-
-        // TODO
-        //private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
-
-        //private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
-
-        //private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
-
-        //private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
-
-        //private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
-
-        //private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
-
-        //private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
-
-        //private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
-
-        //private static byte[] GenerateGammaLookupTable(float gamma)
-        //{
-        //    byte[] result = new byte[256];
-        //    for (int i = 0; i < 256; i++)
-        //#if NETFRAMEWORK || NETSTANDARD2_0
-        //        result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
-        //#else
-        //        result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
-        //#endif
-        //    return result;
-        //}
-
-        #endregion
-
-        #region Color64
 
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
@@ -2545,120 +2510,135 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        // TODO
-        //[SecuritySafeCritical]
-        //[SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        //private static bool DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
-        //{
-        //    if (ditherer == null || !bitmapData.PixelFormat.CanBeDithered)
-        //        return DoTransformColors(context, bitmapData, transformFunction);
+        private static bool DoInvertColors(IAsyncContext context, IReadWriteBitmapData bitmapData, IDitherer? ditherer)
+        {
+            #region Local Methods
 
-        //    // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
-        //    if (ditherer.InitializeReliesOnContent)
-        //    {
-        //        // not using premultiplied format because transformation is faster on simple ARGB32
-        //        using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
-        //            KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
-        //        if (context.IsCancellationRequested)
-        //            return false;
+            static Color32 TransformInvert32(Color32 c) => new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+            static Color64 TransformInvert64(Color64 c) => new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
 
-        //        Debug.Assert(tempClone != null);
-        //        return DoTransformColors(context, tempClone!, transformFunction)
-        //            && DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
-        //    }
+            static ColorF TransformInvertF(ColorF c)
+            {
+                c = c.Clip();
+                return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
+            }
 
-        //    if (bitmapData.Height < 1)
-        //        return !context.IsCancellationRequested;
+            #endregion
 
-        //    IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-        //    try
-        //    {
-        //        IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-        //        Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
+            if (ditherer == null)
+            {
+                var pixelFormat = bitmapData.PixelFormat;
+                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                    return DoTransformColors(context, bitmapData, TransformInvertF);
+                if (pixelFormat.IsWide)
+                    return DoTransformColors(context, bitmapData, TransformInvert64);
+            }
 
-        //        context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
-        //        using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
-        //        if (context.IsCancellationRequested)
-        //            return false;
+            return DoTransformColors(context, bitmapData, TransformInvert32, ditherer);
+        }
 
-        //        context.Progress?.New(DrawingOperation.InitializingDitherer);
-        //        using IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context);
-        //        if (context.IsCancellationRequested)
-        //            return false;
+        private static bool DoAdjustBrightness(IAsyncContext context, IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer, ColorChannels channels)
+        {
+            #region Local Methods
 
-        //        if (ditheringSession == null)
-        //            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+            static Color32 TransformLighten32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? (byte)((Byte.MaxValue - c.R) * brightness + c.R) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (byte)((Byte.MaxValue - c.G) * brightness + c.G) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (byte)((Byte.MaxValue - c.B) * brightness + c.B) : c.B);
 
-        //        // sequential processing
-        //        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-        //        {
-        //            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-        //            IBitmapDataRowInternal row = accessor.GetRowCached(0);
-        //            int y = 0;
-        //            do
-        //            {
-        //                if (context.IsCancellationRequested)
-        //                    return false;
-        //                for (int x = 0; x < bitmapData.Width; x++)
-        //                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-        //                y += 1;
-        //                context.Progress?.Increment();
-        //            } while (row.MoveNextRow());
+            static Color32 TransformDarken32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
 
-        //            return true;
-        //        }
+            static Color64 TransformLighten64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? (ushort)((UInt16.MaxValue - c.R) * brightness + c.R) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (ushort)((UInt16.MaxValue - c.G) * brightness + c.G) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (ushort)((UInt16.MaxValue - c.B) * brightness + c.B) : c.B);
 
-        //        // parallel processing
-        //        return ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, ProcessRow);
+            static Color64 TransformDarken64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? (ushort)(c.R * brightness) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (ushort)(c.G * brightness) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (ushort)(c.B * brightness) : c.B);
 
-        //        #region Local Methods
+            static ColorF TransformLightenF(ColorF c, float brightness, ColorChannels channels)
+            {
+                c = c.Clip();
+                return new ColorF(c.A,
+                    (channels & ColorChannels.R) == ColorChannels.R ? (1f - c.R) * brightness + c.R : c.R,
+                    (channels & ColorChannels.G) == ColorChannels.G ? (1f - c.G) * brightness + c.G : c.G,
+                    (channels & ColorChannels.B) == ColorChannels.B ? (1f - c.B) * brightness + c.B : c.B);
+            }
 
-        //        [SecuritySafeCritical]
-        //        void ProcessRow(int y)
-        //        {
-        //            IBitmapDataRowInternal row = accessor.GetRowCached(y);
-        //            for (int x = 0; x < bitmapData.Width; x++)
-        //                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-        //        }
+            static ColorF TransformDarkenF(ColorF c, float brightness, ColorChannels channels)
+            {
+                c = c.Clip();
+                return new ColorF(c.A,
+                    (channels & ColorChannels.R) == ColorChannels.R ? c.R * brightness : c.R,
+                    (channels & ColorChannels.G) == ColorChannels.G ? c.G * brightness : c.G,
+                    (channels & ColorChannels.B) == ColorChannels.B ? c.B * brightness : c.B);
+            }
 
-        //        #endregion
-        //    }
-        //    finally
-        //    {
-        //        if (!ReferenceEquals(bitmapData, accessor))
-        //            accessor.Dispose();
-        //    }
-        //}
+            #endregion
 
-        //private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
+            Debug.Assert(channels != ColorChannels.None && brightness != 0f);
+            bool darken = false;
+            if (brightness < 0f)
+            {
+                brightness += 1f;
+                darken = true;
+            }
 
-        //private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+            if (ditherer == null)
+            {
+                var pixelFormat = bitmapData.PixelFormat;
+                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                {
+                    return darken
+                        ? DoTransformColors(context, bitmapData, c1 => TransformDarkenF(c1, brightness, channels))
+                        : DoTransformColors(context, bitmapData, c => TransformLightenF(c, brightness, channels));
+                }
 
-        //private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+                if (pixelFormat.IsWide)
+                {
+                    return darken
+                        ? DoTransformColors(context, bitmapData, c1 => TransformDarken64(c1, brightness, channels))
+                        : DoTransformColors(context, bitmapData, c => TransformLighten64(c, brightness, channels));
+                }
+            }
 
-        //private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
+            return darken
+                ? DoTransformColors(context, bitmapData, c1 => TransformDarken32(c1, brightness, channels))
+                : DoTransformColors(context, bitmapData, c => TransformLighten32(c, brightness, channels));
+        }
 
-        //private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+        private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
 
-        //private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
+        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
 
-        //private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+        private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
 
-        //private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
-        //    (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-        //    (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-        //    (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+        private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
 
-        #endregion
+        private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
+        private static byte[] GenerateGammaLookupTable(float gamma)
+        {
+            byte[] result = new byte[256];
+            for (int i = 0; i < 256; i++)
+#if NETFRAMEWORK || NETSTANDARD2_0
+                result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
+#else
+                result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
+#endif
+            return result;
+        }
 
         #endregion
 
