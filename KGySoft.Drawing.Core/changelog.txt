@@ -13,7 +13,7 @@
 ===================================
 ! BitmapDataExtensions class:
   ! Invert/BeginInvert/InvertAsync, AdjustBrightness/BeginAdjustBrightness/AdjustBrightnessAsync,
-    AdjustContrast/BeginAdjustContrast/AdjustContrastAsync methods
+    AdjustContrast/BeginAdjustContrast/AdjustContrastAsync, AdjustGamma/BeginAdjustGamma/AdjustGammaAsync methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
     + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit

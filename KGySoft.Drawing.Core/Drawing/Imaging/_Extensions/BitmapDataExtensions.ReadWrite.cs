@@ -40,23 +40,38 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        private static IThreadSafeCacheAccessor<float, byte[]>? gammaLookupTableCache;
+        private static IThreadSafeCacheAccessor<float, byte[]>? gammaLookupTableCache32;
+        private static IThreadSafeCacheAccessor<float, ushort[]>? gammaLookupTableCache64;
 
         #endregion
 
         #region Properties
 
-        private static IThreadSafeCacheAccessor<float, byte[]> GammaLookupTableCache
+        private static IThreadSafeCacheAccessor<float, byte[]> GammaLookupTableCache32
         {
             get
             {
-                if (gammaLookupTableCache == null)
+                if (gammaLookupTableCache32 == null)
                 {
-                    var options = new LockFreeCacheOptions { InitialCapacity = 4, ThresholdCapacity = 16, HashingStrategy = HashingStrategy.Modulo, MergeInterval = TimeSpan.FromSeconds(1) };
-                    Interlocked.CompareExchange(ref gammaLookupTableCache, ThreadSafeCacheFactory.Create<float, byte[]>(GenerateGammaLookupTable, options), null);
+                    var options = new LockFreeCacheOptions { InitialCapacity = 4, ThresholdCapacity = 16, HashingStrategy = HashingStrategy.Modulo, MergeInterval = TimeSpan.FromMilliseconds(100) };
+                    Interlocked.CompareExchange(ref gammaLookupTableCache32, ThreadSafeCacheFactory.Create<float, byte[]>(GenerateGammaLookupTable32, options), null);
                 }
 
-                return gammaLookupTableCache;
+                return gammaLookupTableCache32;
+            }
+        }
+
+        private static IThreadSafeCacheAccessor<float, ushort[]> GammaLookupTableCache64
+        {
+            get
+            {
+                if (gammaLookupTableCache64 == null)
+                {
+                    var options = new LockFreeCacheOptions { InitialCapacity = 2, ThresholdCapacity = 2, HashingStrategy = HashingStrategy.Modulo, MergeInterval = TimeSpan.FromMilliseconds(100) };
+                    Interlocked.CompareExchange(ref gammaLookupTableCache64, ThreadSafeCacheFactory.Create<float, ushort[]>(GenerateGammaLookupTable64, options), null);
+                }
+
+                return gammaLookupTableCache64;
             }
         }
 
@@ -2031,15 +2046,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustGamma">BeginAdjustGamma</see>
-        /// or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="AdjustGamma(IReadWriteBitmapData,float,IDitherer?,ColorChannels,ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginAdjustGamma">BeginAdjustGamma</see> or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -2059,8 +2074,101 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || gamma == 1f)
                 return;
 
-            byte[] table = GammaLookupTableCache[gamma];
-            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformGamma(c, channels, table), ditherer);
+            DoAdjustGamma(AsyncHelper.DefaultContext, bitmapData, gamma, ditherer, channels);
+        }
+
+        /// <summary>
+        /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
+        /// while values above 1 increase it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginAdjustGamma">BeginAdjustGamma</see> or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
+                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
+            if (channels == ColorChannels.None || gamma == 1f)
+                return AsyncHelper.FromResult(true, parallelConfig);
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoAdjustGamma(ctx, bitmapData, gamma, ditherer, channels), parallelConfig);
+        }
+
+        /// <summary>
+        /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
+        /// while values above 1 increase it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="AdjustGamma(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustGamma(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
+                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
+            if (channels == ColorChannels.None || gamma == 1f)
+                return true;
+
+            return DoAdjustGamma(context ?? AsyncHelper.DefaultContext, bitmapData, gamma, ditherer, channels);
         }
 
         /// <summary>
@@ -2084,7 +2192,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustGamma">EndAdjustGamma</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustGamma">AdjustGamma</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
@@ -2103,7 +2210,7 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || gamma == 1f)
                 return AsyncHelper.FromResult(true, asyncConfig);
 
-            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoAdjustGamma(ctx, bitmapData, gamma, ditherer, channels), asyncConfig);
         }
 
         /// <summary>
@@ -2111,8 +2218,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustGamma(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndAdjustGamma(this IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustGamma));
 
 #if !NET35
@@ -2135,13 +2243,12 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustGamma">AdjustGamma</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
+        public static Task<bool> AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -2152,9 +2259,9 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
-            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoAdjustGamma(ctx, bitmapData, gamma, ditherer, channels), asyncConfig);
         }
 #endif
 
@@ -2738,26 +2845,66 @@ namespace KGySoft.Drawing.Imaging
             return DoTransformColors(context, bitmapData, c => TransformContrast32(c, contrast, channels), ditherer);
         }
 
+        private static bool DoAdjustGamma(IAsyncContext context, IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer, ColorChannels channels)
+        {
+            #region Local Methods
+
+            static Color32 TransformGamma32(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
+            static Color64 TransformGamma64(Color64 c, ColorChannels channels, ushort[] table) => new Color64(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
+            static ColorF TransformGammaF(ColorF c, ColorChannels channels, float gamma)
+            {
+                c = c.Clip();
+                return new ColorF(c.A,
+                    (channels & ColorChannels.R) == ColorChannels.R ? MathF.Pow(c.R, 1f / gamma) : c.R,
+                    (channels & ColorChannels.G) == ColorChannels.G ? MathF.Pow(c.G, 1f / gamma) : c.G,
+                    (channels & ColorChannels.B) == ColorChannels.B ? MathF.Pow(c.B, 1f / gamma) : c.B);
+            }
+
+            #endregion
+
+            if (ditherer == null)
+            {
+                var pixelFormat = bitmapData.PixelFormat;
+                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                    return DoTransformColors(context, bitmapData, c => TransformGammaF(c, channels, gamma));
+                if (pixelFormat.IsWide)
+                {
+                    ushort[] table64 = GammaLookupTableCache64[gamma];
+                    return DoTransformColors(context, bitmapData, c => TransformGamma64(c, channels, table64));
+                }
+            }
+
+            byte[] table32 = GammaLookupTableCache32[gamma];
+            return DoTransformColors(context, bitmapData, c => TransformGamma32(c, channels, table32), ditherer);
+        }
+
         private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
 
         private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
 
         private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
 
-        private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
-
-        private static byte[] GenerateGammaLookupTable(float gamma)
+        private static byte[] GenerateGammaLookupTable32(float gamma)
         {
             byte[] result = new byte[256];
             for (int i = 0; i < 256; i++)
-#if NETFRAMEWORK || NETSTANDARD2_0
-                result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
-#else
                 result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
-#endif
+            return result;
+        }
+
+        private static ushort[] GenerateGammaLookupTable64(float gamma)
+        {
+            ushort[] result = new ushort[65536];
+            for (int i = 0; i < 65536; i++)
+                result[i] = ((int)(65535f * MathF.Pow(i / 65535f, 1f / gamma) + 0.5f)).ClipToUInt16();
             return result;
         }
 
