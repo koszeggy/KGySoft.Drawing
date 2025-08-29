@@ -643,9 +643,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColorsAsync">TransformColorsAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndTransformColors(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginTransformColors));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndTransformColors(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
         /// <summary>
@@ -667,9 +667,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
         /// </remarks>
-        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, transformFunction);
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
@@ -777,9 +776,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
-        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction, TaskConfig? asyncConfig = null)
+        public static Task<bool> TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color64, Color64> transformFunction, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, transformFunction);
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
         }
@@ -889,9 +887,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
-        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction, TaskConfig? asyncConfig = null)
+        public static Task<bool> TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<ColorF, ColorF> transformFunction, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, transformFunction);
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction), asyncConfig);
         }
@@ -1122,8 +1119,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndInvert(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndInvert(this IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginInvert));
 
 #if !NET35
@@ -1144,9 +1142,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert(IReadWriteBitmapData, IDitherer?)">Invert</see> method for more details.</note>
         /// </remarks>
-        public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData);
             return AsyncHelper.DoOperationAsync(ctx => DoInvertColors(ctx, bitmapData, ditherer), asyncConfig);
         }
@@ -1612,9 +1609,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
-        /// the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels,ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
-        /// Alternatively, use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
@@ -1735,8 +1731,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustBrightness(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndAdjustBrightness(this IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustBrightness));
 
 #if !NET35
@@ -1764,9 +1761,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
+        public static Task<bool> AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
@@ -1776,14 +1772,14 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.DoOperationAsync(ctx => DoAdjustBrightness(ctx, bitmapData, brightness, ditherer, channels), asyncConfig);
         }
 #endif
 
         #endregion
 
-        #region AdjustContras
+        #region AdjustContrast
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
@@ -1797,15 +1793,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustContrast">BeginAdjustContrast</see>
-        /// or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="AdjustContrast(IReadWriteBitmapData,float,IDitherer?,ColorChannels,ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginAdjustContrast">BeginAdjustContrast</see> or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1825,10 +1821,103 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || contrast == 0f)
                 return;
 
-            contrast += 1f;
-            contrast *= contrast;
+            DoAdjustContrast(AsyncHelper.DefaultContext, bitmapData, contrast, ditherer, channels);
+        }
 
-            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformContrast(c, contrast, channels), ditherer);
+        /// <summary>
+        /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
+        /// while negative values decrease it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginAdjustContrast">BeginAdjustContrast</see> or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for an example.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
+                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || contrast == 0f)
+                return AsyncHelper.FromResult(true, parallelConfig);
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoAdjustContrast(ctx, bitmapData, contrast, ditherer, channels), parallelConfig);
+        }
+
+        /// <summary>
+        /// Adjusts the contrast of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
+        /// while negative values decrease it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="AdjustContrast(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        public static bool AdjustContrast(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
+                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || contrast == 0f)
+                return true;
+
+            return DoAdjustContrast(context ?? AsyncHelper.DefaultContext, bitmapData, contrast, ditherer, channels);
         }
 
         /// <summary>
@@ -1852,7 +1941,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustContrast">EndAdjustContrast</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustContrast">AdjustContrast</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -1871,10 +1959,7 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || contrast == 0f)
                 return AsyncHelper.FromResult(true, asyncConfig);
 
-            contrast += 1f;
-            contrast *= contrast;
-
-            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoAdjustContrast(ctx, bitmapData, contrast, ditherer, channels), asyncConfig);
         }
 
         /// <summary>
@@ -1882,8 +1967,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustContrast(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndAdjustContrast(this IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginAdjustContrast));
 
 #if !NET35
@@ -1906,13 +1992,12 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustContrast">AdjustContrast</see> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
+        public static Task<bool> AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1923,13 +2008,11 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
-            contrast += 1f;
-            contrast *= contrast;
-
-            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoAdjustContrast(ctx, bitmapData, contrast, ditherer, channels), asyncConfig);
         }
+
 #endif
 
         #endregion
@@ -2297,6 +2380,9 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null || !bitmapData.PixelFormat.CanBeDithered)
                 return DoTransformColors(context, bitmapData, transformFunction);
 
+            if (context.IsCancellationRequested)
+                return false;
+
             // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
             if (ditherer.InitializeReliesOnContent)
             {
@@ -2595,21 +2681,61 @@ namespace KGySoft.Drawing.Imaging
                 if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                 {
                     return darken
-                        ? DoTransformColors(context, bitmapData, c1 => TransformDarkenF(c1, brightness, channels))
+                        ? DoTransformColors(context, bitmapData, c => TransformDarkenF(c, brightness, channels))
                         : DoTransformColors(context, bitmapData, c => TransformLightenF(c, brightness, channels));
                 }
 
                 if (pixelFormat.IsWide)
                 {
                     return darken
-                        ? DoTransformColors(context, bitmapData, c1 => TransformDarken64(c1, brightness, channels))
+                        ? DoTransformColors(context, bitmapData, c => TransformDarken64(c, brightness, channels))
                         : DoTransformColors(context, bitmapData, c => TransformLighten64(c, brightness, channels));
                 }
             }
 
             return darken
-                ? DoTransformColors(context, bitmapData, c1 => TransformDarken32(c1, brightness, channels))
-                : DoTransformColors(context, bitmapData, c => TransformLighten32(c, brightness, channels));
+                ? DoTransformColors(context, bitmapData, c => TransformDarken32(c, brightness, channels), ditherer)
+                : DoTransformColors(context, bitmapData, c => TransformLighten32(c, brightness, channels), ditherer);
+        }
+
+        private static bool DoAdjustContrast(IAsyncContext context, IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer, ColorChannels channels)
+        {
+            #region Local Methods
+
+            static Color32 TransformContrast32(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.B);
+
+            static Color64 TransformContrast64(Color64 c, float contrast, ColorChannels channels) => new Color64(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.B);
+
+            static ColorF TransformContrastF(ColorF c, float contrast, ColorChannels channels)
+            {
+                c = c.Clip();
+                return new ColorF(c.A,
+                    (channels & ColorChannels.R) == ColorChannels.R ? (c.R - 0.5f) * contrast + 0.5f : c.R,
+                    (channels & ColorChannels.G) == ColorChannels.G ? (c.G - 0.5f) * contrast + 0.5f : c.G,
+                    (channels & ColorChannels.B) == ColorChannels.B ? (c.B - 0.5f) * contrast + 0.5f : c.B);
+            }
+
+            #endregion
+
+            contrast += 1f;
+            contrast *= contrast;
+
+            if (ditherer == null)
+            {
+                var pixelFormat = bitmapData.PixelFormat;
+                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                    return DoTransformColors(context, bitmapData, c => TransformContrastF(c, contrast, channels));
+                if (pixelFormat.IsWide)
+                    return DoTransformColors(context, bitmapData, c => TransformContrast64(c, contrast, channels));
+            }
+
+            return DoTransformColors(context, bitmapData, c => TransformContrast32(c, contrast, channels), ditherer);
         }
 
         private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
@@ -2617,11 +2743,6 @@ namespace KGySoft.Drawing.Imaging
         private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
 
         private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
-
-        private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
-            (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-            (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-            (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
 
         private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
             (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,

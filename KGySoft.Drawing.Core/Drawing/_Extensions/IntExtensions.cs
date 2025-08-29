@@ -40,6 +40,12 @@ namespace KGySoft.Drawing
                 : (byte)value;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ushort ClipToUInt16(this int value)
+            => value < UInt16.MinValue ? UInt16.MinValue
+                : value > UInt16.MaxValue ? UInt16.MaxValue
+                : (ushort)value;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte ClipToByte(this uint value)
             => value > Byte.MaxValue ? Byte.MaxValue : (byte)value;
 
