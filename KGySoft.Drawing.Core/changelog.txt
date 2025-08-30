@@ -12,17 +12,20 @@
 ! KGySoft.Drawing.Imaging namespace
 ===================================
 ! BitmapDataExtensions class:
-  ! Invert/BeginInvert/InvertAsync, AdjustBrightness/BeginAdjustBrightness/AdjustBrightnessAsync,
-    AdjustContrast/BeginAdjustContrast/AdjustContrastAsync, AdjustGamma/BeginAdjustGamma/AdjustGammaAsync methods:
+  ! [Begin]Invert[Async]/[Begin]AdjustBrightness[Async]/[Begin]AdjustContrast[Async]/[Begin]AdjustGamma[Async]/
+    methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
     + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
       during the operation even without a specified quantizer.
-  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast methods: The return type has been changed to bool
-    from void.
-  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync methods: The return type has been changed to
-    Task<bool> from Task.
-  + New TransformColors/BeginTransformColors/TransformColorsAsync to support wide pixel formats.
+  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndReplaceColor/EndInvert methods:
+    The return type has been changed to bool from void.
+  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/ReplaceColorAsync/InvertAsync methods:
+    The return type has been changed to Task<bool> from Task.
+  + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
+    types to support wide pixel formats.
+  + New ReplaceColor/Invert/AdjustBrightness/AdjustContrast/AdjustGamma overloads with ParallelConfig and
+    IAsyncContext parameters.
 
 
 ~~~~~~~~~

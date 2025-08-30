@@ -925,8 +925,9 @@ namespace KGySoft.Drawing.Imaging
         /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginReplaceColor">BeginReplaceColor</see>
-        /// or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="ReplaceColor(IReadWriteBitmapData, Color32, Color32, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, the <see cref="BeginReplaceColor">BeginReplaceColor</see> or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmapData"/>, then it will be blended with <see cref="IBitmapData.BackColor"/>.</para>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
@@ -935,6 +936,9 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note>If <paramref name="bitmapData"/> has a wide pixel format (more than 8 bits per color channel), then this method may quantize the colors to the 32-bit color space,
+        /// even if no occurrence of <paramref name="oldColor"/> is found. To preserve the original color depth of such formats, use explicitly the <see cref="TransformColors(IReadWriteBitmapData, Func{Color64, Color64}, ParallelConfig)"/>
+        /// or <see cref="TransformColors(IReadWriteBitmapData, Func{ColorF, ColorF}, ParallelConfig)"/> methods instead.</note>
         /// </remarks>
         public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
@@ -944,6 +948,86 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
+        }
+
+        /// <summary>
+        /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="oldColor">The original color to be replaced.</param>
+        /// <param name="newColor">The new color to replace <paramref name="oldColor"/> with.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if <paramref name="newColor"/>
+        /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginReplaceColor">BeginReplaceColor</see> or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmapData"/>, then it will be blended with <see cref="IBitmapData.BackColor"/>.</para>
+        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
+        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note>If <paramref name="bitmapData"/> has a wide pixel format (more than 8 bits per color channel), then this method may quantize the colors to the 32-bit color space,
+        /// even if no occurrence of <paramref name="oldColor"/> is found. To preserve the original color depth of such formats, use explicitly the <see cref="TransformColors(IReadWriteBitmapData, Func{Color64, Color64}, ParallelConfig)"/>
+        /// or <see cref="TransformColors(IReadWriteBitmapData, Func{ColorF, ColorF}, ParallelConfig)"/> methods instead.</note>
+        /// </remarks>
+        public static bool ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (oldColor == newColor)
+                return AsyncHelper.FromResult(true, parallelConfig);
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="oldColor">The original color to be replaced.</param>
+        /// <param name="newColor">The new color to replace <paramref name="oldColor"/> with.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if <paramref name="newColor"/>
+        /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="ReplaceColor(IReadWriteBitmapData, Color32, Color32, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, the <see cref="BeginReplaceColor">BeginReplaceColor</see> or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmapData"/>, then it will be blended with <see cref="IBitmapData.BackColor"/>.</para>
+        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
+        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note>If <paramref name="bitmapData"/> has a wide pixel format (more than 8 bits per color channel), then this method may quantize the colors to the 32-bit color space,
+        /// even if no occurrence of <paramref name="oldColor"/> is found. To preserve the original color depth of such formats, use explicitly the <see cref="TransformColors(IReadWriteBitmapData, Func{Color64, Color64}, ParallelConfig)"/>
+        /// or <see cref="TransformColors(IReadWriteBitmapData, Func{ColorF, ColorF}, ParallelConfig)"/> methods instead.</note>
+        /// </remarks>
+        public static bool ReplaceColor(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (oldColor == newColor)
+                return true;
+
+            return DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
         }
 
         /// <summary>
@@ -965,7 +1049,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndReplaceColor">EndReplaceColor</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor(IReadWriteBitmapData,Color32,Color32,IDitherer?)">ReplaceColor</see> method for more details.</note>
         /// </remarks>
         public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
@@ -982,9 +1066,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndReplaceColor(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginReplaceColor));
+        public static bool EndReplaceColor(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
         /// <summary>
@@ -1004,14 +1086,14 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor(IReadWriteBitmapData,Color32,Color32,IDitherer?)">ReplaceColor</see> method for more details.</note>
         /// </remarks>
-        public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (oldColor == newColor)
-                return AsyncHelper.FromCompleted(asyncConfig);
+                return AsyncHelper.FromResult(true, asyncConfig);
 
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
