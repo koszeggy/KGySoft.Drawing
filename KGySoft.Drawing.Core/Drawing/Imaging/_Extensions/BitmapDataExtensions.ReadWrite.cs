@@ -1061,6 +1061,8 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         public static bool EndReplaceColor(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
@@ -1263,11 +1265,11 @@ namespace KGySoft.Drawing.Imaging
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData)">ToTransparent</see> method instead,
         /// which returns a new instance that has a <see cref="IBitmapData.PixelFormat"/> with alpha support.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For customizations use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads instead.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static void MakeTransparent(this IReadWriteBitmapData bitmapData)
         {
             if (bitmapData == null)
@@ -1301,11 +1303,11 @@ namespace KGySoft.Drawing.Imaging
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData)">ToTransparent</see> method instead,
         /// which returns a new instance that has a <see cref="IBitmapData.PixelFormat"/> with alpha support.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For customizations use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads instead.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, ParallelConfig? parallelConfig)
         {
             if (bitmapData == null)
@@ -1340,7 +1342,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>See the <see cref="MakeTransparent(IReadWriteBitmapData)"/> overload for more details.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, IAsyncContext? context)
         {
             if (bitmapData == null)
@@ -1371,11 +1373,11 @@ namespace KGySoft.Drawing.Imaging
         /// Please note though that this overload allows a non-completely opaque <paramref name="transparentColor"/>.</para>
         /// <para>If the <paramref name="transparentColor"/> cannot be represented by a <see cref="Color32"/> instance,
         /// then use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads that work with <see cref="Color64"/> or <see cref="ColorF"/> delegate parameters instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For customizations use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads instead.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData,Color32)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static void MakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor)
         {
             if (bitmapData == null)
@@ -1413,11 +1415,11 @@ namespace KGySoft.Drawing.Imaging
         /// Please note though that this overload allows a non-completely opaque <paramref name="transparentColor"/>.</para>
         /// <para>If the <paramref name="transparentColor"/> cannot be represented by a <see cref="Color32"/> instance,
         /// then use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads that work with <see cref="Color64"/> or <see cref="ColorF"/> delegate parameters instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For customizations use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.TransformColors">TransformColors</see> overloads instead.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData,Color32)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, ParallelConfig? parallelConfig)
         {
             if (bitmapData == null)
@@ -1453,7 +1455,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>See the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)"/> overload for more details.</note>
         /// </remarks>
         /// <seealso cref="ToTransparent(IReadableBitmapData,Color32)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 transparentColor)
         {
             if (bitmapData == null)
@@ -1527,9 +1529,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeTransparent(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeTransparent));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndMakeTransparent(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeTransparent));
 
 #if !NET35
         /// <summary>
@@ -1597,20 +1599,20 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
         /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
-        /// The <see cref="Color32.A">Color32.A</see> property of the specified color is ignored.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the specified color is ignored.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
         /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeOpaque">BeginMakeOpaque</see>
-        /// or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="MakeOpaque(IReadWriteBitmapData, Color32, IDitherer, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginMakeOpaque">BeginMakeOpaque</see> or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
         {
@@ -1618,7 +1620,77 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (!bitmapData.HasAlpha())
                 return;
-            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer);
+            DoMakeOpaque(AsyncHelper.DefaultContext, bitmapData, backColor, ditherer);
+        }
+
+        /// <summary>
+        /// Makes this <paramref name="bitmapData"/> opaque using the specified <paramref name="backColor"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
+        /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> field of the specified color is ignored.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginMakeOpaque">BeginMakeOpaque</see> or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
+        /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
+        /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
+        /// Transforming the palette is both faster and provides a better result.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// </remarks>
+        public static bool MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer, ParallelConfig? parallelConfig)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (!bitmapData.HasAlpha())
+                return AsyncHelper.FromResult(true, parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Makes this <paramref name="bitmapData"/> opaque using the specified <paramref name="backColor"/>,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> field of the specified color is ignored.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)"/> overload for more details.</note>
+        /// </remarks>
+        public static bool MakeOpaque(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 backColor, IDitherer? ditherer = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (!bitmapData.HasAlpha())
+                return true;
+            return DoMakeOpaque(context ?? AsyncHelper.DefaultContext, bitmapData, backColor, ditherer);
         }
 
         /// <summary>
@@ -1626,7 +1698,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
         /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
-        /// The <see cref="Color32.A">Color32.A</see> property of the specified color is ignored.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the specified color is ignored.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
         /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1639,14 +1711,16 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndMakeOpaque">EndMakeOpaque</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method for more details.</note>
         /// <remarks>
         /// </remarks>
         public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+            if (!bitmapData.HasAlpha())
+                return AsyncHelper.FromResult(true, asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -1654,9 +1728,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeOpaque(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeOpaque));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndMakeOpaque(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginMakeOpaque));
 
 #if !NET35
         /// <summary>
@@ -1664,7 +1738,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
         /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
-        /// The <see cref="Color32.A">Color32.A</see> property of the specified color is ignored.</param>
+        /// The <see cref="Color32.A">Color32.A</see> field of the specified color is ignored.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
         /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1675,14 +1749,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method for more details.</note>
         /// <remarks>
         /// </remarks>
-        public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+            if (!bitmapData.HasAlpha())
+                return AsyncHelper.FromResult(true, asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), asyncConfig);
         }
 #endif
 
@@ -3170,7 +3246,35 @@ namespace KGySoft.Drawing.Imaging
             return DoTransformColors(context, bitmapData, c => TransformGamma32(c, channels, table32), ditherer);
         }
 
-        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+        private static bool DoMakeOpaque(IAsyncContext context, IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer)
+        {
+            #region Local Methods
+            
+            static Color32 TransformMakeOpaque32(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+            static Color64 TransformMakeOpaque64(Color64 c, Color64 backColor) => c.A == UInt16.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
+            static ColorF TransformMakeOpaqueF(ColorF c, ColorF backColor) => c.A >= 1f ? c : c.BlendWithBackgroundLinear(backColor);
+
+            #endregion
+
+            backColor = backColor.ToOpaque();
+            if (ditherer == null)
+            {
+                var pixelFormat = bitmapData.PixelFormat;
+                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                {
+                    ColorF backColorF = backColor.ToColorF();
+                    return DoTransformColors(context, bitmapData, c => TransformMakeOpaqueF(c, backColorF));
+                }
+
+                if (pixelFormat.IsWide)
+                {
+                    Color64 backColor64 = backColor.ToColor64();
+                    return DoTransformColors(context, bitmapData, c => TransformMakeOpaque64(c, backColor64));
+                }
+            }
+
+            return DoTransformColors(context, bitmapData, c => TransformMakeOpaque32(c, backColor), ditherer);
+        }
 
         private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
 

@@ -13,18 +13,18 @@
 ===================================
 ! BitmapDataExtensions class:
   ! [Begin]AdjustBrightness[Async]/[Begin]AdjustContrast[Async]/[Begin]AdjustGamma[Async]/[Begin]Invert[Async]/
-    [Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async] methods:
+    [Begin]MakeOpaque[Async]/[Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async] methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
     + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
       during the operation even without a specified quantizer.
-  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndInvert/EndMakeTransparent/
-    EndReplaceColor methods: The return type has been changed to bool from void.
-  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/InvertAsync/MakeTransparentAsync/
+  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndInvert/EndMakeOpeaque/
+    EndMakeTransparent/EndReplaceColor methods: The return type has been changed to bool from void.
+  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/InvertAsync/MakeOpaqueAsync/MakeTransparentAsync/
     ReplaceColorAsync methods: The return type has been changed to Task<bool> from Task.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
-  + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeTransparent/ReplaceColor overloads with
+  + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeOpaque/MakeTransparent/ReplaceColor overloads with
     ParallelConfig and IAsyncContext parameters.
 
 

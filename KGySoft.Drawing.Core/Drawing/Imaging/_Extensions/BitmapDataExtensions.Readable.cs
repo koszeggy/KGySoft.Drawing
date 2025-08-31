@@ -3079,12 +3079,12 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
         /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData)
         {
             ValidateArguments(bitmapData, nameof(bitmapData));
@@ -3103,12 +3103,12 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="ToTransparent(IReadableBitmapData)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
         /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData,Color32)"/>
-        /// <seealso cref="MakeOpaque"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor)
         {
             ValidateArguments(bitmapData, nameof(bitmapData));
@@ -4245,7 +4245,7 @@ namespace KGySoft.Drawing.Imaging
             if (transparentColor.A < Byte.MaxValue)
                 return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+                PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
         }
 
         private static IReadWriteBitmapData? DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData, Color32 transparentColor)
@@ -4254,7 +4254,7 @@ namespace KGySoft.Drawing.Imaging
             if (transparentColor.A == 0)
                 return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+                PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
         }
 
         #endregion
