@@ -188,11 +188,7 @@ namespace KGySoft.Drawing.Imaging
         {
             // NOTE: The parallelConfig parameter could just be an additional optional parameter in the original overload but that would have been a breaking change.
             // Also, this overload has a bool return value, and there is a minimal overhead with the DoOperationSynchronously call.
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer);
             return AsyncHelper.DoOperationSynchronously(ctx => DoQuantize(ctx, bitmapData, quantizer), parallelConfig);
         }
 
@@ -223,11 +219,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         public static bool Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer);
             return DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
         }
 
@@ -251,11 +243,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer);
             return AsyncHelper.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
@@ -290,11 +278,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
         {
             // NOTE: the return value could be Task<bool> but it would be a breaking change
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer);
             return AsyncHelper.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 #endif
@@ -412,13 +396,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static bool Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-            if (ditherer == null)
-                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer, ditherer);
             return DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
         }
 
@@ -444,11 +422,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer, ditherer);
             return AsyncHelper.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 
@@ -487,11 +461,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
         {
             // NOTE: the return value could be Task<bool> but it would be a breaking change
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, quantizer, ditherer);
             return AsyncHelper.DoOperationAsync(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 #endif
@@ -941,8 +911,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (oldColor == newColor)
                 return;
 
@@ -981,8 +950,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static bool ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (oldColor == newColor)
                 return AsyncHelper.FromResult(true, parallelConfig);
 
@@ -1017,8 +985,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static bool ReplaceColor(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (oldColor == newColor)
                 return true;
 
@@ -1048,8 +1015,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (oldColor == newColor)
                 return AsyncHelper.FromResult(true, asyncConfig);
 
@@ -1087,8 +1053,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task<bool> ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (oldColor == newColor)
                 return AsyncHelper.FromResult(true, asyncConfig);
 
@@ -1272,8 +1237,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static void MakeTransparent(this IReadWriteBitmapData bitmapData)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
                 return;
             DoMakeTransparent(AsyncHelper.DefaultContext, bitmapData);
@@ -1310,8 +1274,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
                 return AsyncHelper.FromResult(true, parallelConfig);
             return AsyncHelper.DoOperationSynchronously(ctx => DoMakeTransparent(ctx, bitmapData), parallelConfig);
@@ -1345,8 +1308,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, IAsyncContext? context)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
                 return true;
             return DoMakeTransparent(context ?? AsyncHelper.DefaultContext, bitmapData);
@@ -1380,8 +1342,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
         public static void MakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transparentColor.A == 0)
                 return;
             DoMakeTransparent(AsyncHelper.DefaultContext, bitmapData, transparentColor);
@@ -1422,8 +1383,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transparentColor.A == 0)
                 return AsyncHelper.FromResult(true, parallelConfig);
             return AsyncHelper.DoOperationSynchronously(ctx => DoMakeTransparent(ctx, bitmapData, transparentColor), parallelConfig);
@@ -1458,8 +1418,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
         public static bool MakeTransparent(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 transparentColor)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transparentColor.A == 0)
                 return true;
             return DoMakeTransparent(context ?? AsyncHelper.DefaultContext, bitmapData, transparentColor);
@@ -1487,8 +1446,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.BeginOperation(ctx => DoMakeTransparent(ctx, bitmapData), asyncConfig);
@@ -1517,8 +1475,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transparentColor.A == 0)
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.BeginOperation(ctx => DoMakeTransparent(ctx, bitmapData, transparentColor), asyncConfig);
@@ -1554,8 +1511,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaqueAsync"/>
         public static Task<bool> MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.DoOperationAsync(ctx => DoMakeTransparent(ctx, bitmapData), asyncConfig);
@@ -1582,8 +1538,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaqueAsync"/>
         public static Task<bool> MakeTransparentAsync(this IReadWriteBitmapData bitmapData, Color32 transparentColor, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transparentColor.A == 0)
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.DoOperationAsync(ctx => DoMakeTransparent(ctx, bitmapData, transparentColor), asyncConfig);
@@ -1616,8 +1571,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (!bitmapData.HasAlpha())
                 return;
             DoMakeOpaque(AsyncHelper.DefaultContext, bitmapData, backColor, ditherer);
@@ -1651,8 +1605,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static bool MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (!bitmapData.HasAlpha())
                 return AsyncHelper.FromResult(true, parallelConfig);
             return AsyncHelper.DoOperationSynchronously(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), parallelConfig);
@@ -1686,8 +1639,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static bool MakeOpaque(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 backColor, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (!bitmapData.HasAlpha())
                 return true;
             return DoMakeOpaque(context ?? AsyncHelper.DefaultContext, bitmapData, backColor, ditherer);
@@ -1716,8 +1668,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (!bitmapData.HasAlpha())
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.BeginOperation(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), asyncConfig);
@@ -1754,8 +1705,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task<bool> MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (!bitmapData.HasAlpha())
                 return AsyncHelper.FromResult(true, asyncConfig);
             return AsyncHelper.DoOperationAsync(ctx => DoMakeOpaque(ctx, bitmapData, backColor, ditherer), asyncConfig);
@@ -1791,8 +1741,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="ToGrayscale"/>
         public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             DoTransformColors(AsyncHelper.DefaultContext, bitmapData, TransformMakeGrayscale, ditherer);
         }
 
@@ -1818,8 +1767,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginToGrayscale"/>
         public static IAsyncResult BeginMakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 
@@ -1853,8 +1801,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="ToGrayscaleAsync"/>
         public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 #endif
@@ -1892,12 +1839,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static void AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, brightness, nameof(brightness), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
@@ -1939,12 +1881,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, brightness, nameof(brightness), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
@@ -1986,12 +1923,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustBrightness(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, brightness, nameof(brightness), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
@@ -2027,12 +1959,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, brightness, nameof(brightness), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
@@ -2077,12 +2004,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task<bool> AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, brightness, nameof(brightness), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
@@ -2124,12 +2046,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static void AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, contrast, nameof(contrast), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
@@ -2172,12 +2089,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, contrast, nameof(contrast), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
@@ -2220,12 +2132,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustContrast(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, contrast, nameof(contrast), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
@@ -2262,12 +2169,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, contrast, nameof(contrast), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
@@ -2313,12 +2215,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task<bool> AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, contrast, nameof(contrast), channels);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
@@ -2362,12 +2259,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static void AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
-                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, gamma, nameof(gamma), channels, 0f, 10f);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
@@ -2410,12 +2302,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer, ColorChannels channels, ParallelConfig? parallelConfig)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
-                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, gamma, nameof(gamma), channels, 0f, 10f);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
@@ -2456,12 +2343,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static bool AdjustGamma(this IReadWriteBitmapData bitmapData, IAsyncContext? context, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
-                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, gamma, nameof(gamma), channels, 0f, 10f);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
@@ -2498,12 +2380,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
-                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+            ValidateArguments(bitmapData, gamma, nameof(gamma), channels, 0f, 10f);
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
@@ -2574,10 +2451,32 @@ namespace KGySoft.Drawing.Imaging
 
         private static void ValidateArguments(IReadWriteBitmapData bitmapData, Delegate transformFunction)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             if (transformFunction == null)
                 throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IQuantizer quantizer)
+        {
+            ValidateArguments(bitmapData);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
+        {
+            ValidateArguments(bitmapData, quantizer);
+            if (ditherer == null)
+                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, float value, string valueParamName, ColorChannels channels, float minValue = -1f, float maxValue = 1f)
+        {
+            ValidateArguments(bitmapData);
+            if (value < minValue || value > maxValue || Single.IsNaN(value))
+                throw new ArgumentOutOfRangeException(valueParamName, PublicResources.ArgumentMustBeBetween(minValue, maxValue));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
         }
 
         #endregion
