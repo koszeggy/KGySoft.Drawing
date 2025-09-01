@@ -27,7 +27,8 @@
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor
     overloads with ParallelConfig and IAsyncContext parameters.
-- ColorExtensions class:
+* ColorExtensions class:
+  + New ToGray overloads with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
 
 

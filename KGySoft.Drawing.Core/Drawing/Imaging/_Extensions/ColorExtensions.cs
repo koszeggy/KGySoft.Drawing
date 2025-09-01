@@ -603,6 +603,37 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region ToGray
+
+        /// <summary>
+        /// Converts the specified color to a grayscale color using the specified <paramref name="colorSpace"/>.
+        /// </summary>
+        /// <param name="c">The color to convert to grayscale.</param>
+        /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
+        public static Color32 ToGray(this Color32 c, WorkingColorSpace colorSpace) => Color32.FromGray(c.GetBrightness(colorSpace));
+
+        /// <summary>
+        /// Converts the specified color to a grayscale color using the specified <paramref name="colorSpace"/>.
+        /// </summary>
+        /// <param name="c">The color to convert to grayscale.</param>
+        /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
+        public static Color64 ToGray(this Color64 c, WorkingColorSpace colorSpace) => Color64.FromGray(c.GetBrightness(colorSpace));
+
+        /// <summary>
+        /// Converts the specified color to a grayscale color using the specified <paramref name="colorSpace"/>.
+        /// </summary>
+        /// <param name="c">The color to convert to grayscale.</param>
+        /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the linear color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the linear color space will be used as well.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
+        public static ColorF ToGray(this ColorF c, WorkingColorSpace colorSpace) => ColorF.FromGray(c.GetBrightness(colorSpace));
+
+        #endregion
+
         #endregion
 
         #region Brightness
