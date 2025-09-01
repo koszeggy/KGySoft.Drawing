@@ -677,7 +677,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.R;
 
 #if NET5_0_OR_GREATER
-            // Actually it would be supported even in .NET Core 3.0 but it's not performant enough below .NET 5.0
+            // Actually it would be supported even in .NET Core 3.0, but it's not performant enough below .NET 5.0
             if (Sse2.IsSupported)
             {
                 // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as ushorts if supported)
@@ -718,7 +718,7 @@ namespace KGySoft.Drawing.Imaging
         [CLSCompliant(false)]
         public static ushort GetBrightness(this Color64 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
             // Note: using gamma correction even for linear color space because the source is an sRGB color
-            ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
+            ? ColorSpaceHelper.LinearToSrgb16Bit(c.ToColorF().GetBrightness())
             : GetBrightness(c);
 
         /// <summary>
