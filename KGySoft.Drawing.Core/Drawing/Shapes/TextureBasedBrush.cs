@@ -1643,7 +1643,7 @@ namespace KGySoft.Drawing.Shapes
 
             // There is no quantizing: picking the most appropriate way for the best quality and performance.
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
-            bool linearBlending = bitmapData.LinearBlending();
+            bool linearBlending = bitmapData.IsLinearGamma();
             bool blend = drawingOptions.AlphaBlending && (HasAlpha || drawingOptions.AntiAliasing);
 
             // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.

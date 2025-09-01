@@ -1823,7 +1823,7 @@ namespace KGySoft.Drawing.Imaging
                 _ => bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData is ICustomBitmapData { BackBufferIndependentPixelAccess: true, CanReadWrite: true } customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
                     : bitmapData.IsGrayscale() ? (bitmapData.HasAlpha()
-                        ? (FromCustomFunction(bitmapData.LinearBlending() ? c => c.ToColorF().ToGray().ToColor32() : c => c.ToGray()))
+                        ? (FromCustomFunction(bitmapData.IsLinearGamma() ? c => c.ToColorF().ToGray().ToColor32() : c => c.ToGray()))
                         : Grayscale(bitmapData.BackColor, bitmapData.AlphaThreshold))
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor, bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor, bitmapData.AlphaThreshold)

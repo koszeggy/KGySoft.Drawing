@@ -300,9 +300,6 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        /// <summary>
-        /// Drawing without a quantizer in 32bpp color space.
-        /// </summary>
         [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "False alarm, the new analyzer includes the complexity of local methods")]
@@ -313,7 +310,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            bool linearBlending = target.LinearBlending();
+            bool linearBlending = target.IsLinearGamma();
 
             // Taking always the target pixel format for the best quality/performance.
             // For targets with linear gamma (when linear blending is used) assuming

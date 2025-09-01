@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Privte Fields
+        #region Private Fields
 
         private static readonly DrawingOptions defaultNonZero = new DrawingOptions { FillMode = ShapeFillMode.NonZero };
 

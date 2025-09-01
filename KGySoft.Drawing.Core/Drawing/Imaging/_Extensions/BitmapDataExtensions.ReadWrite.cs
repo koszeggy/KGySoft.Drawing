@@ -2983,7 +2983,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 var pixelFormat = bitmapData.PixelFormat;
                 if (pixelFormat.Prefers128BitColors && (newColor.A is Byte.MinValue or Byte.MaxValue)
-                    || (newColor.A is not (Byte.MinValue or Byte.MaxValue) && (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)))
+                    || (newColor.A is not (Byte.MinValue or Byte.MaxValue) && (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)))
                 {
                     ColorF oldColorF = oldColor.ToColorF();
                     ColorF newColorF = newColor.ToColorF();
@@ -3048,7 +3048,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                     return DoTransformColors(context, bitmapData, TransformInvertF);
                 if (pixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, TransformInvert64);
@@ -3112,7 +3112,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                 {
                     return darken
                         ? DoTransformColors(context, bitmapData, c => TransformDarkenF(c, brightness, channels))
@@ -3163,7 +3163,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                     return DoTransformColors(context, bitmapData, c => TransformContrastF(c, contrast, channels));
                 if (pixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, c => TransformContrast64(c, contrast, channels));
@@ -3200,7 +3200,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                     return DoTransformColors(context, bitmapData, c => TransformGammaF(c, channels, gamma));
                 if (pixelFormat.IsWide)
                 {
@@ -3227,7 +3227,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                 {
                     ColorF backColorF = backColor.ToColorF();
                     return DoTransformColors(context, bitmapData, c => TransformMakeOpaqueF(c, backColorF));
@@ -3256,7 +3256,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.LinearBlending() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                     return DoTransformColors(context, bitmapData, TransformMakeGrayscaleF);
                 if (pixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, TransformMakeGrayscale64);

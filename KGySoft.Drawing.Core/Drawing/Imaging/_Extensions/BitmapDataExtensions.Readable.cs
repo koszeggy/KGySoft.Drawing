@@ -4280,7 +4280,7 @@ namespace KGySoft.Drawing.Imaging
                 return null;
 
             bool canceled = false;
-            bool isLinear = bitmapData.LinearBlending();
+            bool isLinear = bitmapData.IsLinearGamma();
             PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
             var targetFormat = sourceFormat.Prefers128BitColors ? isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
                 : sourceFormat.Prefers64BitColors ? isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
