@@ -2992,15 +2992,15 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
         /// quantizer (e.g. <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
-        /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale">MakeGrayscale</see> method.</para>
+        /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)">MakeGrayscale</see> method.</para>
         /// </remarks>
-        /// <seealso cref="MakeGrayscale"/>
+        /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             return DoCloneWithQuantizer(AsyncHelper.DefaultContext, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale))!;
+                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()))!;
         }
 
         /// <summary>
@@ -3025,7 +3025,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             return AsyncHelper.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray())), asyncConfig);
         }
 
         /// <summary>
@@ -3059,7 +3059,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray())), asyncConfig);
         }
 #endif
 
@@ -4281,9 +4281,9 @@ namespace KGySoft.Drawing.Imaging
 
             bool canceled = false;
             bool isLinear = bitmapData.LinearBlending();
-            PixelFormatInfo sourceFromat = bitmapData.PixelFormat;
-            var targetFormat = sourceFromat.Prefers128BitColors ? isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
-                : sourceFromat.Prefers64BitColors ? isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
+            PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
+            var targetFormat = sourceFormat.Prefers128BitColors ? isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
+                : sourceFormat.Prefers64BitColors ? isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
                 : isLinear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
             IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, targetFormat, bitmapData.WorkingColorSpace);
             try

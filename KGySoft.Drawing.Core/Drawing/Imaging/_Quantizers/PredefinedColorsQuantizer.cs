@@ -922,7 +922,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned quantizer uses direct mapping to grayscale colors based on human perception, which makes quantizing very fast while it is very accurate at the same time.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 possible shades of gray.</para>
         /// <para>The palette of this quantizer does not contain the transparent color. To make a bitmap data grayscale with transparency you can use the
-        /// <see cref="BitmapDataExtensions.ToGrayscale">ToGrayscale</see> and <see cref="BitmapDataExtensions.MakeGrayscale">MakeGrayscale</see> extension methods.</para>
+        /// <see cref="BitmapDataExtensions.ToGrayscale">ToGrayscale</see> and <see cref="BitmapDataExtensions.MakeGrayscale(IReadWriteBitmapData,IDitherer?)">MakeGrayscale</see> extension methods.</para>
         /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format8bppIndexed"/> and <see cref="KnownPixelFormat.Format8bppGrayScale"/> pixel formats.</para>
         /// </remarks>
         /// <example>
@@ -949,7 +949,7 @@ namespace KGySoft.Drawing.Imaging
         /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray8bppBlack.gif" alt="Grayscale color hues with 8 BPP grayscale palette and black background"/>
         /// <br/>Default (black) background</para>
-        /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Graayscale color hues with 8 BPP grayscale palette and silver background"/>
+        /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Grayscale color hues with 8 BPP grayscale palette and silver background"/>
         /// <br/>Silver background</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
@@ -1678,7 +1678,7 @@ namespace KGySoft.Drawing.Imaging
         /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray8bppBlack.gif" alt="Grayscale color hues with black background"/>
         /// <br/>Default (black) background</para>
-        /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Graayscale color hues with silver background"/>
+        /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Grayscale color hues with silver background"/>
         /// <br/>Silver background</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
