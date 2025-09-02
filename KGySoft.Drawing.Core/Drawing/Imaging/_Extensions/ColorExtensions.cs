@@ -612,7 +612,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
         /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
         /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
-        public static Color32 ToGray(this Color32 c, WorkingColorSpace colorSpace) => Color32.FromGray(c.GetBrightness(colorSpace));
+        public static Color32 ToGray(this Color32 c, WorkingColorSpace colorSpace)
+        {
+            byte brightness = c.GetBrightness(colorSpace);
+            return new Color32(c.A, brightness, brightness, brightness);
+        }
 
         /// <summary>
         /// Converts the specified color to a grayscale color using the specified <paramref name="colorSpace"/>.
@@ -621,7 +625,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
         /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
         /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
-        public static Color64 ToGray(this Color64 c, WorkingColorSpace colorSpace) => Color64.FromGray(c.GetBrightness(colorSpace));
+        public static Color64 ToGray(this Color64 c, WorkingColorSpace colorSpace)
+        {
+            ushort brightness = c.GetBrightness(colorSpace);
+            return new Color64(c.A, brightness, brightness, brightness);
+        }
 
         /// <summary>
         /// Converts the specified color to a grayscale color using the specified <paramref name="colorSpace"/>.
@@ -630,7 +638,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="colorSpace">The working color space to be used to determine the shade of the result. If <see cref="WorkingColorSpace.Default"/>, then the linear color space will be used.
         /// For performance reasons this method does not validate this parameter. For undefined values the linear color space will be used as well.</param>
         /// <returns>A <see cref="Color32"/> instance representing the grayscale version of the input color.</returns>
-        public static ColorF ToGray(this ColorF c, WorkingColorSpace colorSpace) => ColorF.FromGray(c.GetBrightness(colorSpace));
+        public static ColorF ToGray(this ColorF c, WorkingColorSpace colorSpace)
+        {
+            float brightness = c.GetBrightness(colorSpace);
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            return new ColorF(new Vector4(new Vector3(brightness), c.A));
+#else
+            return new ColorF(c.A, brightness, brightness, brightness);
+#endif
+        }
 
         #endregion
 
