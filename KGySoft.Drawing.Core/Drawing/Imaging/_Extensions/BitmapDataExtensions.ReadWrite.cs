@@ -1729,7 +1729,7 @@ namespace KGySoft.Drawing.Imaging
         /// Alternatively, use the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see> or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which returns a new instance,
+        /// use the <see cref="ToGrayscale(IReadableBitmapData)">ToGrayscale</see> extension method, which returns a new instance,
         /// or the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
         /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -1739,7 +1739,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
-        /// <seealso cref="ToGrayscale"/>
+        /// <seealso cref="ToGrayscale(IReadableBitmapData)"/>
         public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
@@ -1765,7 +1765,7 @@ namespace KGySoft.Drawing.Imaging
         /// cancellation and progress reporting. Use the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see>
         /// or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which returns a new instance,
+        /// use the <see cref="ToGrayscale(IReadableBitmapData,ParallelConfig)">ToGrayscale</see> extension method, which returns a new instance,
         /// or the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
         /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -1775,7 +1775,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// </remarks>
-        /// <seealso cref="ToGrayscale"/>
+        /// <seealso cref="ToGrayscale(IReadableBitmapData,ParallelConfig)"/>
         public static bool MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer, ParallelConfig? parallelConfig)
         {
             ValidateArguments(bitmapData);
@@ -1806,7 +1806,7 @@ namespace KGySoft.Drawing.Imaging
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// <note>See the <see cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)"/> overload for more details.</note>
         /// </remarks>
-        /// <seealso cref="ToGrayscale"/>
+        /// <seealso cref="ToGrayscale(IReadableBitmapData,IAsyncContext)"/>
         public static bool MakeGrayscale(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
@@ -2759,7 +2759,7 @@ namespace KGySoft.Drawing.Imaging
             // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
             if (ditherer.InitializeReliesOnContent)
             {
-                // not using premultiplied format because transformation is faster on simple ARGB32
+                // Not using premultiplied format because transformation is faster on simple ARGB32. Also, default backColor/alpha/colorSpace is fine, because DoCopy uses them from the target.
                 using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
                     KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
@@ -3057,6 +3057,8 @@ namespace KGySoft.Drawing.Imaging
             return DoTransformColors(context, bitmapData, TransformInvert32, ditherer);
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+            Justification = "False alarm, the new analyzer includes the complexity of local methods. And moving them outside this method would be a bad idea.")]
         private static bool DoAdjustBrightness(IAsyncContext context, IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer, ColorChannels channels)
         {
             #region Local Methods

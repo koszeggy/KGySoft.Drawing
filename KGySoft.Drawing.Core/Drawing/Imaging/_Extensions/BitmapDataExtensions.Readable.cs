@@ -2987,20 +2987,72 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to grayscale.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToGrayscale">BeginToGrayscale</see>
-        /// or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
-        /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
-        /// quantizer (e.g. <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="ToGrayscale(IReadableBitmapData, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginToGrayscale">BeginToGrayscale</see> or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with a pixel format matching the original color depth.</para>
         /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)">MakeGrayscale</see> method.</para>
         /// </remarks>
         /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return DoCloneWithQuantizer(AsyncHelper.DefaultContext, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()))!;
+            ValidateArguments(bitmapData);
+            return DoToGrayscale(AsyncHelper.DefaultContext, bitmapData)!;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the grayscale version of the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to grayscale.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>, or <see langword="null"/>, if the operation
+        /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginToGrayscale">BeginToGrayscale</see>
+        /// or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with a pixel format matching the original color depth.</para>
+        /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)">MakeGrayscale</see> method.</para>
+        /// </remarks>
+        /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?,ParallelConfig)"/>
+        public static IReadWriteBitmapData? ToGrayscale(this IReadableBitmapData bitmapData, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoToGrayscale(ctx, bitmapData), parallelConfig);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the grayscale version of the specified <paramref name="bitmapData"/>,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to grayscale.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>, or <see langword="null"/>, if the operation was canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="ToGrayscale(IReadableBitmapData)"/> overload for more details.</note>
+        /// </remarks>
+        /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IAsyncContext?,IDitherer?)"/>
+        public static IReadWriteBitmapData? ToGrayscale(this IReadableBitmapData bitmapData, IAsyncContext? context)
+        {
+            ValidateArguments(bitmapData);
+            return DoToGrayscale(context ?? AsyncHelper.DefaultContext, bitmapData);
         }
 
         /// <summary>
@@ -3017,15 +3069,13 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndToGrayscale">EndToGrayscale</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale">ToGrayscale</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale(IReadableBitmapData)">ToGrayscale</see> method for more details.</note>
         /// </remarks>
         /// <seealso cref="BeginMakeGrayscale"/>
         public static IAsyncResult BeginToGrayscale(this IReadableBitmapData bitmapData, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncHelper.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray())), asyncConfig);
+            ValidateArguments(bitmapData);
+            return AsyncHelper.BeginOperation(ctx => DoToGrayscale(ctx, bitmapData), asyncConfig);
         }
 
         /// <summary>
@@ -3051,15 +3101,13 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale">ToGrayscale</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale(IReadableBitmapData)">ToGrayscale</see> method for more details.</note>
         /// </remarks>
         /// <seealso cref="MakeGrayscaleAsync"/>
         public static Task<IReadWriteBitmapData?> ToGrayscaleAsync(this IReadWriteBitmapData bitmapData, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray())), asyncConfig);
+            ValidateArguments(bitmapData);
+            return AsyncHelper.DoOperationAsync(ctx => DoToGrayscale(ctx, bitmapData), asyncConfig);
         }
 #endif
 
@@ -3654,7 +3702,7 @@ namespace KGySoft.Drawing.Imaging
                             return null;
                         if (ditheringSession == null)
                             throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(quantizingSession, ditheringSession);
+                        session.PerformCopyWithDithering(ditheringSession);
                     }
 
                     return (canceled = context.IsCancellationRequested) ? null : session.Target;
@@ -4353,6 +4401,74 @@ namespace KGySoft.Drawing.Imaging
             }
 
             return colors.Count;
+        }
+
+        #endregion
+
+        #region ToGrayscale
+
+        private static IReadWriteBitmapData? DoToGrayscale(IAsyncContext context, IReadableBitmapData bitmapData)
+        {
+            if (context.IsCancellationRequested)
+                return null;
+            bool hasAlpha = bitmapData.HasAlpha();
+            PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
+            var sourceRect = new Rectangle(Point.Empty, bitmapData.Size);
+            IReadWriteBitmapData? result;
+
+            // creating an indexed clone and converting the palette only
+            if (sourceFormat.Indexed && bitmapData.Palette?.Count <= 256)
+            {
+                result = DoCloneExact(context, bitmapData, bitmapData.WorkingColorSpace);
+                if (result == null)
+                    return null;
+
+                Debug.Assert(result.Palette != null && result.Palette.Count <= 256);
+                Color32[] colors = result.Palette!.Entries;
+                Func<Color32, Color32> convert = result.WorkingColorSpace == WorkingColorSpace.Linear
+                    ? (Func<Color32, Color32>)(c => c.ToGray(WorkingColorSpace.Linear))
+                    : c => c.ToGray();
+                var grayColors = new Color32[colors.Length];
+                for (int i = 0; i < colors.Length; i++)
+                    grayColors[i] = convert.Invoke(colors[i]);
+
+                // always succeeds for the result of DoCloneExact
+                result.TrySetPalette(new Palette(grayColors, result.BackColor, result.AlphaThreshold, result.WorkingColorSpace, null));
+                return result;
+            }
+
+            var targetFormat = sourceFormat.Prefers128BitColors ? !hasAlpha ? KnownPixelFormat.Format32bppGrayScale : KnownPixelFormat.Format128bppRgba
+                : sourceFormat.Prefers64BitColors ? !hasAlpha ? KnownPixelFormat.Format16bppGrayScale : KnownPixelFormat.Format64bppArgb
+                : !hasAlpha ? KnownPixelFormat.Format8bppGrayScale : KnownPixelFormat.Format32bppArgb;
+            var targetColorSpace = sourceFormat == targetFormat.ToInfoInternal() ? bitmapData.WorkingColorSpace : bitmapData.GetPreferredColorSpace();
+
+            // Grayscale target without alpha: simple cloning
+            if (targetFormat.IsGrayscale())
+                return DoCloneDirect(context, bitmapData, sourceRect, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+
+            // Here the target has alpha: we use combining transform function
+            result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+            bool isLinear = result.IsLinearGamma();
+            bool success = targetFormat.ToBitsPerPixel() switch
+            {
+                128 => isLinear
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((ColorF src, ColorF _) => src.ToGray()))
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((ColorF src, ColorF _) => src.ToGray(WorkingColorSpace.Srgb))),
+                64 => isLinear
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color64 src, Color64 _) => src.ToGray(WorkingColorSpace.Linear)))
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color64 src, Color64 _) => src.ToGray())),
+                _ => isLinear
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color32 src, Color32 _) => src.ToGray(WorkingColorSpace.Linear)), null)
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color32 src, Color32 _) => src.ToGray()), null),
+            };
+
+            if (!success)
+            {
+                result.Dispose();
+                return null;
+            }
+
+            return result;
         }
 
         #endregion

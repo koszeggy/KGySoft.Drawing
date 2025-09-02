@@ -796,6 +796,29 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData("32gray", bmp32bppGray);
         }
 
+        [TestCase(KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Default)]
+        [TestCase(KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Linear)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, WorkingColorSpace.Default)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, WorkingColorSpace.Linear)]
+        [TestCase(KnownPixelFormat.Format64bppArgb, WorkingColorSpace.Default)]
+        [TestCase(KnownPixelFormat.Format64bppArgb, WorkingColorSpace.Linear)]
+        [TestCase(KnownPixelFormat.Format128bppRgba, WorkingColorSpace.Default)]
+        [TestCase(KnownPixelFormat.Format128bppRgba, WorkingColorSpace.Srgb)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, WorkingColorSpace.Linear)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, WorkingColorSpace.Srgb)]
+        public void ToGrayscaleTest(KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace)
+        {
+            using var refBmpData = GetInfoIcon256()
+                .Clone(pixelFormat, colorSpace, new Color32(Color.Silver));
+
+            using var grayscale = refBmpData.ToGrayscale();
+
+            SaveBitmapData($"{pixelFormat}_{colorSpace}", grayscale);
+
+            refBmpData.MakeGrayscale();
+            AssertAreEqual(refBmpData, grayscale, true, tolerance: 1);
+        }
+
         [Test]
         public void ToTransparentTest()
         {

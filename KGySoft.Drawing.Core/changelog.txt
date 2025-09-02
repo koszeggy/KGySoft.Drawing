@@ -13,8 +13,8 @@
 ===================================
 ! BitmapDataExtensions class:
   ! [Begin]AdjustBrightness[Async]/[Begin]AdjustContrast[Async]/[Begin]AdjustGamma[Async]/[Begin]Invert[Async]/
-    [Begin]MakeGrayscale[Async]/[Begin]MakeOpaque[Async]/[Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async]
-    methods:
+    [Begin]MakeGrayscale[Async]/[Begin]MakeOpaque[Async]/[Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async]/
+    [Begin]ToGrayscale[Async] methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
     + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
@@ -25,8 +25,8 @@
     MakeTransparentAsync/ReplaceColorAsync methods: The return type has been changed to Task<bool> from Task.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
-  + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor
-    overloads with ParallelConfig and IAsyncContext parameters.
+  + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/
+    ToGrayscale overloads with ParallelConfig and IAsyncContext parameters.
 * ColorExtensions class:
   + New ToGray overloads with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
