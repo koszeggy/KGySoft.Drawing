@@ -4016,6 +4016,127 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Combine
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, Func<Color32, Color32, Color32> combineFunction, IDitherer? ditherer)
+        {
+            IQuantizer? quantizer = null;
+            AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
+
+            if (context.IsCancellationRequested)
+                return false;
+
+            // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
+            if (ditherer?.InitializeReliesOnContent == true)
+            {
+                // Not using premultiplied format because transformation is faster on simple ARGB32. Also, default backColor/alpha/colorSpace is fine, because DoCopy uses them from the target.
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, target, new Rectangle(Point.Empty, target.Size),
+                    KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
+                if (context.IsCancellationRequested)
+                    return false;
+
+                Debug.Assert(tempClone != null);
+                return DoCombine(context, source, tempClone!, sourceRectangle, targetLocation, combineFunction, null)
+                    && DoCopy(context, tempClone!, target, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
+            }
+
+            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
+                return !context.IsCancellationRequested;
+            try
+            {
+                session.PerformCombine(combineFunction, quantizer, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(session.Source, source))
+                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Target, target))
+                    session.Target.Dispose();
+            }
+
+            return !context.IsCancellationRequested;
+        }
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, Func<Color64, Color64, Color64> combineFunction)
+        {
+            if (context.IsCancellationRequested)
+                return false;
+
+            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
+                return !context.IsCancellationRequested;
+            try
+            {
+                session.PerformCombine(combineFunction);
+            }
+            finally
+            {
+                if (!ReferenceEquals(session.Source, source))
+                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Target, target))
+                    session.Target.Dispose();
+            }
+
+            return !context.IsCancellationRequested;
+        }
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, Func<ColorF, ColorF, ColorF> combineFunction)
+        {
+            if (context.IsCancellationRequested)
+                return false;
+
+            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
+                return !context.IsCancellationRequested;
+            try
+            {
+                session.PerformCombine(combineFunction);
+            }
+            finally
+            {
+                if (!ReferenceEquals(session.Source, source))
+                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Target, target))
+                    session.Target.Dispose();
+            }
+
+            return !context.IsCancellationRequested;
+        }
+
+        private static bool TryGetCombineSession(IAsyncContext context, ref IReadableBitmapData source, ref IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, out CopySession session)
+        {
+            session = new CopySession(context);
+            var sourceBounds = new Rectangle(default, source.Size);
+            var targetBounds = new Rectangle(default, target.Size);
+            Unwrap(ref source, ref sourceBounds);
+            Unwrap(ref target, ref targetBounds);
+
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
+            if (session.SourceRectangle.IsEmpty() || session.TargetRectangle.IsEmpty())
+                return false;
+
+            // special handling for same references if there is an overlap
+            if (ReferenceEquals(source, target) && session.SourceRectangle.IntersectsWith(session.TargetRectangle))
+            {
+                session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                    source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
+                if (context.IsCancellationRequested)
+                {
+                    session.Source?.Dispose();
+                    return false;
+                }
+
+                session.SourceRectangle.Location = Point.Empty;
+            }
+
+            session.Source ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+            return true;
+        }
+
+        #endregion
+
         #region Bounds
 
         private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
