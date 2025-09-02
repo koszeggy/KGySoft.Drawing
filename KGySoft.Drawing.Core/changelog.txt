@@ -21,6 +21,7 @@
       during the operation even without a specified quantizer.
   ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndInvert/EndMakeGrayscale/
     EndMakeOpaque/EndMakeTransparent/EndReplaceColor methods: The return type has been changed to bool from void.
+  + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps using a specified function.
   * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/
     MakeTransparentAsync/ReplaceColorAsync methods: The return type has been changed to Task<bool> from Task.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF

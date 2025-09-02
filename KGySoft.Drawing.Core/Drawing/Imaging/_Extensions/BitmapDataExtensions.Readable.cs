@@ -1614,7 +1614,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1655,7 +1656,8 @@ namespace KGySoft.Drawing.Imaging
         /// or the old-fashioned <see cref="BeginCopyTo">BeginCopyTo</see> method that works on every platform target.</item>
         /// </list>
         /// <note>Note that these methods preserve the original size of the source bitmap, and copy even the alpha pixels without alpha blending.
-        /// To draw a bitmap data into another one with blending and potential resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.</note>
+        /// To draw a bitmap data into another one with blending and potential resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// Also, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods, which allow to use a delegate to customize how the source and target pixels should be combined.</note>
         /// </overloads>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
@@ -1664,7 +1666,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1686,7 +1689,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1708,7 +1712,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1743,7 +1748,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1778,7 +1784,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
@@ -1849,7 +1856,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, target);
             return DoCopy(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-        } 
+        }
 
         #endregion
 
@@ -1860,13 +1867,14 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to copy the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> asynchronously,
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginDrawInto">BeginDrawInto</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginDrawInto">BeginDrawInto</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCombine">BeginCombine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
         /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be copied, or <see langword="null"/> to copy the entire <paramref name="source"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> top copy the <paramref name="source"/> to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to copy the <paramref name="source"/> to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used. If not specified, then the copying operation might automatically
         /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
@@ -1910,13 +1918,14 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> asynchronously,
         /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods instead.
+        /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CombineAsync">CombineAsync</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be copied into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be copied.</param>
         /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be copied, or <see langword="null"/> to copy the entire <paramref name="source"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> top copy the <paramref name="source"/> to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to copy the <paramref name="source"/> to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> instance to be used. If not specified, then the copying operation might automatically
         /// pick a quantizer based on <paramref name="target"/>&#160;<see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
@@ -1947,6 +1956,462 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Combine
+
+        #region Color32
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering a <paramref name="ditherer"/> must be explicitly specified. The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <para>If you would just take the pixels of <paramref name="source"/> and copy them to <paramref name="target"/>, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// Similarly, if you would like to draw the <paramref name="source"/> into <paramref name="target"/> with blending, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, IDitherer? ditherer = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), parallelConfig);
+        }
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer?,ParallelConfig?)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, IAsyncContext? context, Func<Color32, Color32, Color32> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, IDitherer? ditherer = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer);
+        }
+
+        /// <summary>
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCombine">BeginCombine</see> overloads to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CombineAsync">CombineAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndCombine(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginCombine));
+
+#if !NET35
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static Task<bool> CombineAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region Color64
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// <para>If you would just take the pixels of <paramref name="source"/> and copy them to <paramref name="target"/>, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// Similarly, if you would like to draw the <paramref name="source"/> into <paramref name="target"/> with blending, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
+        }
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?,ParallelConfig?)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, IAsyncContext? context, Func<Color64, Color64, Color64> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
+        }
+
+        /// <summary>
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+
+#if !NET35
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color64,Color64,Color64},Rectangle?,Point?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static Task<bool> CombineAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region ColorF
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{Color32,Color32,Color32},Rectangle?,Point?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// <para>If you would just take the pixels of <paramref name="source"/> and copy them to <paramref name="target"/>, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// Similarly, if you would like to draw the <paramref name="source"/> into <paramref name="target"/> with blending, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
+        }
+
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?,ParallelConfig?)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, IAsyncContext? context, Func<ColorF, ColorF, ColorF> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
+        }
+
+        /// <summary>
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+
+#if !NET35
+        /// <summary>
+        /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="target"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be combined, or <see langword="null"/> to take the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Combine(IReadableBitmapData,IReadWriteBitmapData,Func{ColorF,ColorF,ColorF},Rectangle?,Point?,ParallelConfig?)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        public static Task<bool> CombineAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Rectangle? sourceRectangle = null, Point? targetLocation = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, target, combineFunction);
+            sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #endregion
+
         #region DrawInto
 
         #region Without resize
@@ -1959,7 +2424,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2007,7 +2473,8 @@ namespace KGySoft.Drawing.Imaging
         /// or the old-fashioned <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginDrawInto">BeginDrawInto</see> methods that work on every platform target.</item>
         /// </list>
         /// <note>Note that these methods always perform an alpha blending (respecting the <see cref="IBitmapData.WorkingColorSpace"/> of the target bitmap) if the source contains alpha pixels.
-        /// To copy a bitmap data into another one without blending and resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.</note>
+        /// To copy a bitmap data into another one without blending and resizing, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// Also, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods, which allow to use a delegate to customize how the source and target pixels should be combined.</note>
         /// </overloads>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
@@ -2017,7 +2484,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2043,7 +2511,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2069,7 +2538,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2108,7 +2578,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2146,7 +2617,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2231,7 +2703,8 @@ namespace KGySoft.Drawing.Imaging
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/> overload.
-        /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCopyTo">BeginCopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCombine">BeginCombine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2282,7 +2755,8 @@ namespace KGySoft.Drawing.Imaging
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> overload.
-        /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyToAsync">CopyToAsync</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CombineAsync">CombineAsync</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2328,7 +2802,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2365,7 +2840,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2422,7 +2898,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2449,7 +2926,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2480,7 +2958,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2523,7 +3002,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2567,7 +3047,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2661,7 +3142,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCopyTo">BeginCopyTo</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCombine">BeginCombine</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -2703,7 +3185,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
-        /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
+        /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyToAsync">CopyToAsync</see> methods,
+        /// or to use custom a function to specify how the source and target pixels should be combined, use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CombineAsync">CombineAsync</see> methods instead.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
@@ -3553,6 +4036,13 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
         }
 
+        private static void ValidateArguments(IReadableBitmapData source, IReadWriteBitmapData target, Delegate combineFunction)
+        {
+            ValidateArguments(source, target);
+            if (combineFunction == null)
+                throw new ArgumentNullException(nameof(combineFunction), PublicResources.ArgumentNull);
+        }
+
         // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
         #endregion
 
@@ -4078,7 +4568,7 @@ namespace KGySoft.Drawing.Imaging
             // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
             if (ditherer?.InitializeReliesOnContent == true)
             {
-                // Not using premultiplied format because transformation is faster on simple ARGB32. Also, default backColor/alpha/colorSpace is fine, because DoCopy uses them from the target.
+                // Default backColor/alpha/colorSpace is fine, because DoCopy uses them from the target.
                 using IBitmapDataInternal? tempClone = DoCloneDirect(context, target, new Rectangle(Point.Empty, target.Size),
                     KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
