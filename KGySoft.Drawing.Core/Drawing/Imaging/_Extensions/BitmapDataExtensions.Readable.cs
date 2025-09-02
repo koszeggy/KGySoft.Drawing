@@ -3480,7 +3480,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
         {
-            ValidateArguments(bitmapData);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return DoToGrayscale(AsyncHelper.DefaultContext, bitmapData)!;
         }
 
@@ -3506,7 +3506,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?,ParallelConfig)"/>
         public static IReadWriteBitmapData? ToGrayscale(this IReadableBitmapData bitmapData, ParallelConfig? parallelConfig)
         {
-            ValidateArguments(bitmapData);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.DoOperationSynchronously(ctx => DoToGrayscale(ctx, bitmapData), parallelConfig);
         }
 
@@ -3534,7 +3534,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeGrayscale(IReadWriteBitmapData,IAsyncContext?,IDitherer?)"/>
         public static IReadWriteBitmapData? ToGrayscale(this IReadableBitmapData bitmapData, IAsyncContext? context)
         {
-            ValidateArguments(bitmapData);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return DoToGrayscale(context ?? AsyncHelper.DefaultContext, bitmapData);
         }
 
@@ -3557,7 +3557,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginMakeGrayscale"/>
         public static IAsyncResult BeginToGrayscale(this IReadableBitmapData bitmapData, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.BeginOperation(ctx => DoToGrayscale(ctx, bitmapData), asyncConfig);
         }
 
@@ -3587,9 +3587,9 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale(IReadableBitmapData)">ToGrayscale</see> method for more details.</note>
         /// </remarks>
         /// <seealso cref="MakeGrayscaleAsync"/>
-        public static Task<IReadWriteBitmapData?> ToGrayscaleAsync(this IReadWriteBitmapData bitmapData, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> ToGrayscaleAsync(this IReadableBitmapData bitmapData, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.DoOperationAsync(ctx => DoToGrayscale(ctx, bitmapData), asyncConfig);
         }
 #endif
@@ -3604,15 +3604,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
         /// <returns>A new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/>
-        /// or <see cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="ToTransparent(IReadableBitmapData, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/> or <see cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method uses the bottom-left pixel to determine the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> that has a pixel format with alpha support.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
-        /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
-        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData)"/>
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
@@ -3626,17 +3626,77 @@ namespace KGySoft.Drawing.Imaging
         /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background, or <see langword="null"/>, if the operation
+        /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/>
+        /// or <see cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method uses the bottom-left pixel to determine the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> that has a pixel format with alpha support.</para>
+        /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
+        /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData,ParallelConfig?)"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
+        public static IReadWriteBitmapData? ToTransparent(this IReadableBitmapData bitmapData, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, nameof(bitmapData));
+            return AsyncHelper.DoOperationSynchronously(ctx => DoToTransparent(ctx, bitmapData), parallelConfig);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/> with transparent background,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background,
+        /// or <see langword="null"/>, if the operation was canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="ToTransparent(IReadableBitmapData)"/> overload for more details.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData,IAsyncContext?)"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
+        public static IReadWriteBitmapData? ToTransparent(this IReadableBitmapData bitmapData, IAsyncContext? context)
+        {
+            ValidateArguments(bitmapData, nameof(bitmapData));
+            return DoToTransparent(context ?? AsyncHelper.DefaultContext, bitmapData);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
         /// <param name="transparentColor">Specifies the color to make transparent.</param>
         /// <returns>A new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToTransparent(IReadableBitmapData, Color32, AsyncConfig)"/>
-        /// or <see cref="ToTransparentAsync(IReadableBitmapData, Color32, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use
+        /// the <see cref="ToTransparent(IReadableBitmapData, Color32, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginToTransparent(IReadableBitmapData, Color32, AsyncConfig)"/> or <see cref="ToTransparentAsync(IReadableBitmapData, Color32, TaskConfig)"/>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> that has a pixel format with alpha support.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="ToTransparent(IReadableBitmapData)"/> overload instead.</para>
-        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
-        /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
-        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData,Color32)"/>
         /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)"/>
@@ -3644,6 +3704,67 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, nameof(bitmapData));
             return DoToTransparent(AsyncHelper.DefaultContext, bitmapData, transparentColor)!;
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background, or <see langword="null"/>, if the operation
+        /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginToTransparent(IReadableBitmapData,Color32,AsyncConfig)"/>
+        /// or <see cref="ToTransparentAsync(IReadableBitmapData,Color32,TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> that has a pixel format with alpha support.</para>
+        /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
+        /// <para>To auto-detect the background color to be made transparent use the <see cref="ToTransparent(IReadableBitmapData,ParallelConfig?)"/> overload instead.</para>
+        /// <note>Please note that unlike the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData,Color32,ParallelConfig?)"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?,ParallelConfig?)"/>
+        public static IReadWriteBitmapData? ToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, nameof(bitmapData));
+            return AsyncHelper.DoOperationSynchronously(ctx => DoToTransparent(ctx, bitmapData, transparentColor), parallelConfig);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="IReadWriteBitmapData"/> with transparent background,
+        /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background,
+        /// or <see langword="null"/>, if the operation was canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="ToTransparent(IReadableBitmapData,Color32)"/> overload for more details.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData,IAsyncContext?,Color32)"/>
+        /// <seealso cref="MakeOpaque(IReadWriteBitmapData,IAsyncContext?,Color32,IDitherer?)"/>
+        public static IReadWriteBitmapData? ToTransparent(this IReadableBitmapData bitmapData, IAsyncContext? context, Color32 transparentColor)
+        {
+            ValidateArguments(bitmapData, nameof(bitmapData));
+            return DoToTransparent(context ?? AsyncHelper.DefaultContext, bitmapData, transparentColor);
         }
 
         /// <summary>
@@ -4967,21 +5088,143 @@ namespace KGySoft.Drawing.Imaging
 
         private static IReadWriteBitmapData? DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData)
         {
+            if (context.IsCancellationRequested)
+                return null;
+
+            // NOTE: returning when the bottom-left pixel is not completely opaque is intended, this is how also Bitmap.MakeTransparent works
+            PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
             var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
-            Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
-            if (transparentColor.A < Byte.MaxValue)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
-            return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
+            var targetFormat = sourceFormat.Prefers128BitColors ? KnownPixelFormat.Format128bppRgba
+                : sourceFormat.Prefers64BitColors ? KnownPixelFormat.Format64bppArgb
+                : sourceFormat.AsKnownPixelFormatInternal is KnownPixelFormat.Format16bppRgb555 or KnownPixelFormat.Format16bppArgb1555 ? KnownPixelFormat.Format16bppArgb1555
+                : sourceFormat.Indexed ? sourceFormat.AsKnownPixelFormatInternal
+                : KnownPixelFormat.Format32bppArgb;
+            var targetColorSpace = sourceFormat == targetFormat.ToInfoInternal() ? bitmapData.WorkingColorSpace : bitmapData.GetPreferredColorSpace();
+            IReadWriteBitmapData? result = null;
+            bool success = false;
+
+            switch (targetFormat)
+            {
+                case KnownPixelFormat.Format128bppRgba:
+                    ColorF transparentColorF = bitmapData.GetColorF(0, bitmapData.Height - 1);
+                    if (transparentColorF.A < 1f)
+                        break;
+                    result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty,  (ColorF c, ColorF _) => c == transparentColorF ? default : c);
+                    break;
+
+                case KnownPixelFormat.Format64bppArgb:
+                    Color64 transparentColor64 = bitmapData.GetColor64(0, bitmapData.Height - 1);
+                    if (transparentColor64.A < UInt16.MaxValue)
+                        break;
+                    result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (Color64 c, Color64 _) => c == transparentColor64 ? default : c);
+                    break;
+
+                default:
+                    Color32 transparentColor = bitmapData.GetColor32(0, bitmapData.Height - 1);
+                    if (transparentColor.A < Byte.MaxValue)
+                        break;
+
+                    // ARGB32/ARGB1555: we can use a quantizer with a custom function that works with Color32
+                    if (!targetFormat.IsIndexed())
+                        return DoCloneWithQuantizer(context, bitmapData, srcRect, targetFormat, PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
+
+                    // Indexed: cloning and modifying the palette
+                    result = DoCloneExact(context, bitmapData, targetColorSpace);
+                    if (result == null)
+                        return null;
+
+                    Color32[] colors = (Color32[])result.Palette!.Entries.Clone();
+                    bool paletteChanged = false;
+                    for (int i = 0; i < colors.Length; i++)
+                    {
+                        if (colors[i] == transparentColor)
+                        {
+                            colors[i] = default;
+                            paletteChanged = true;
+                        }
+                    }
+
+                    if (paletteChanged)
+                        result.TrySetPalette(new Palette(colors, result.BackColor, result.AlphaThreshold, result.WorkingColorSpace, null));
+                    return result;
+            }
+
+            if (success)
+                return result;
+
+            // no success: either cancellation occurred, or the bottom-left pixel was not fully opaque, in which case we return a clone
+            result?.Dispose();
+            return context.IsCancellationRequested ? null : DoCloneExact(context, bitmapData, targetColorSpace);
         }
 
         private static IReadWriteBitmapData? DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData, Color32 transparentColor)
         {
-            var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
+            if (context.IsCancellationRequested)
+                return null;
+
             if (transparentColor.A == 0)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
-            return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
-                PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
+                return DoCloneExact(context, bitmapData, bitmapData.WorkingColorSpace);
+
+            // NOTE: returning when the bottom-left pixel is not completely opaque is intended, this is how also Bitmap.MakeTransparent works
+            PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
+            var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
+            var targetFormat = sourceFormat.Prefers128BitColors ? KnownPixelFormat.Format128bppRgba
+                : sourceFormat.Prefers64BitColors ? KnownPixelFormat.Format64bppArgb
+                : sourceFormat.AsKnownPixelFormatInternal is KnownPixelFormat.Format16bppRgb555 or KnownPixelFormat.Format16bppArgb1555 ? KnownPixelFormat.Format16bppArgb1555
+                : sourceFormat.Indexed ? sourceFormat.AsKnownPixelFormatInternal
+                : KnownPixelFormat.Format32bppArgb;
+            var targetColorSpace = sourceFormat == targetFormat.ToInfoInternal() ? bitmapData.WorkingColorSpace : bitmapData.GetPreferredColorSpace();
+            IReadWriteBitmapData? result = null;
+            bool success = false;
+
+            switch (targetFormat)
+            {
+                case KnownPixelFormat.Format128bppRgba:
+                    ColorF transparentColorF = transparentColor.ToColorF();
+                    result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (ColorF c, ColorF _) => c == transparentColorF ? default : c);
+                    break;
+
+                case KnownPixelFormat.Format64bppArgb:
+                    Color64 transparentColor64 = transparentColor.ToColor64();
+                    result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (Color64 c, Color64 _) => c == transparentColor64 ? default : c);
+                    break;
+
+                default:
+                    // ARGB32/ARGB1555: we can use a quantizer with a custom function that works with Color32
+                    if (!targetFormat.IsIndexed())
+                        return DoCloneWithQuantizer(context, bitmapData, srcRect, targetFormat, PredefinedColorsQuantizer.FromCustomFunction(c => c == transparentColor ? default : c));
+
+                    // Indexed: cloning and modifying the palette
+                    result = DoCloneExact(context, bitmapData, targetColorSpace);
+                    if (result == null)
+                        return null;
+
+                    Color32[] colors = (Color32[])result.Palette!.Entries.Clone();
+                    bool paletteChanged = false;
+                    for (int i = 0; i < colors.Length; i++)
+                    {
+                        if (colors[i] == transparentColor)
+                        {
+                            colors[i] = default;
+                            paletteChanged = true;
+                        }
+                    }
+
+                    if (paletteChanged)
+                        result.TrySetPalette(new Palette(colors, result.BackColor, result.AlphaThreshold, result.WorkingColorSpace, null));
+                    return result;
+            }
+
+            if (success)
+                return result;
+
+            // no success: either cancellation occurred, or the bottom-left pixel was not fully opaque, in which case we return a clone
+            result?.Dispose();
+            return context.IsCancellationRequested ? null : DoCloneExact(context, bitmapData, targetColorSpace);
         }
 
         #endregion

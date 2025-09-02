@@ -819,20 +819,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(refBmpData, grayscale, true, tolerance: 1);
         }
 
-        [Test]
-        public void ToTransparentTest()
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        public void ToTransparentTest(KnownPixelFormat pixelFormat)
         {
-            using var refBmpData = GetInfoIcon256()
-                .Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver));
-            SaveBitmapData("reference", refBmpData);
+            using var icon = GetInfoIcon256();
+            icon.MakeOpaque(Color.Silver);
+            using var refBmpData = icon.Clone(pixelFormat, Color.Silver);
 
             using var transparentAuto = refBmpData.ToTransparent();
             Assert.AreEqual(default(Color32), transparentAuto[0][0]);
+            SaveBitmapData($"{pixelFormat}", transparentAuto);
 
-            SaveBitmapData("transparent", transparentAuto);
-
-            using var transparentDirect = refBmpData.ToTransparent(new Color32(Color.Silver));
+            using var transparentDirect = refBmpData.ToTransparent(refBmpData.GetColor32(0, 0));
             AssertAreEqual(transparentAuto, transparentDirect);
+
+            refBmpData.MakeTransparent();
+            AssertAreEqual(refBmpData, transparentAuto);
         }
 
         [TestCase(WorkingColorSpace.Srgb)]

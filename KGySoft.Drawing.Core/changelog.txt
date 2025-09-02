@@ -13,12 +13,15 @@
 ===================================
 ! BitmapDataExtensions class:
   ! [Begin]AdjustBrightness[Async]/[Begin]AdjustContrast[Async]/[Begin]AdjustGamma[Async]/[Begin]Invert[Async]/
-    [Begin]MakeGrayscale[Async]/[Begin]MakeOpaque[Async]/[Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async]/
-    [Begin]ToGrayscale[Async] methods:
+    [Begin]MakeGrayscale[Async]/[Begin]MakeOpaque[Async]/[Begin]MakeTransparent[Async]/[Begin]ReplaceColor[Async]
+    methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
     + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
       during the operation even without a specified quantizer.
+  ! [Begin]ToGrayscale[Async]/[Begin]ToTransparent[Async] methods:
+    ! The pixel format of the result is no longer always Format32bppArgb. If the source bitmap has a wide format,
+      then the result preserves the original color depth. But the result may now preserve even indexed formats.
   ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndInvert/EndMakeGrayscale/
     EndMakeOpaque/EndMakeTransparent/EndReplaceColor methods: The return type has been changed to bool from void.
   + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps using a specified function.
@@ -27,7 +30,7 @@
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/
-    ToGrayscale overloads with ParallelConfig and IAsyncContext parameters.
+    ToGrayscale/ToTransparent overloads with ParallelConfig and IAsyncContext parameters.
 * ColorExtensions class:
   + New ToGray overloads with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
