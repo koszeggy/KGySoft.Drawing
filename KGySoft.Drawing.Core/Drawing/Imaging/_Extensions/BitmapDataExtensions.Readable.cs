@@ -3288,8 +3288,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginGetColors">BeginGetColors</see>
         /// or <see cref="GetColorsAsync">GetColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="KnownPixelFormat"/> is supported, though wide color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>,
-        /// <see cref="KnownPixelFormat.Format64bppArgb"/> and <see cref="KnownPixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
+        /// <para>Every <see cref="KnownPixelFormat"/> is supported, though wide color formats are quantized to 32 bit during the processing.
         /// To get the actual <em>number</em> of colors, which can be accurate even for wide color formats, use the <see cref="GetColorCount">GetColorCount</see> method.
         /// </para>
         /// </remarks>
@@ -3890,19 +3889,91 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A new <see cref="IReadWriteBitmapData"/>, which is the resized version of the specified <paramref name="source"/>.</returns>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
-        /// Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
+        /// You can use the <see cref="Resize(IReadableBitmapData, Size, ScalingMode, bool, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
+        /// Alternatively, use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
         /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
         /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
-        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that also allow quantizing and dithering.</para>
+        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that allow also quantizing and dithering.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newSize"/> is invalid
+        /// <br/>-or-
+        /// <br/><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static IReadWriteBitmapData Resize(this IReadableBitmapData source, Size newSize, ScalingMode scalingMode = ScalingMode.Auto, bool keepAspectRatio = false)
         {
             ValidateArguments(source, newSize, scalingMode);
             return DoResize(AsyncHelper.DefaultContext, source, newSize, scalingMode, keepAspectRatio)!;
+        }
+
+        /// <summary>
+        /// Resizes the specified <paramref name="source"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to resize.</param>
+        /// <param name="newSize">The requested new size.</param>
+        /// <param name="scalingMode">A <see cref="ScalingMode"/> value, which determines the quality of the result as well as the processing time.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the specified <paramref name="source"/>; otherwise, <see langword="false"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/>, which is the resized version of the specified <paramref name="source"/>, or <see langword="null"/>, if the operation
+        /// was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
+        /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
+        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that allow also quantizing and dithering.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newSize"/> is invalid
+        /// <br/>-or-
+        /// <br/><paramref name="scalingMode"/> has an unsupported value.</exception>
+        public static IReadWriteBitmapData? Resize(this IReadableBitmapData source, Size newSize, ScalingMode scalingMode, bool keepAspectRatio, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(source, newSize, scalingMode);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoResize(ctx, source, newSize, scalingMode, keepAspectRatio), parallelConfig);
+        }
+
+        /// <summary>
+        /// Resizes the specified <paramref name="source"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> to resize.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="newSize">The requested new size.</param>
+        /// <param name="scalingMode">A <see cref="ScalingMode"/> value, which determines the quality of the result as well as the processing time. This parameter is optional.
+        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the specified <paramref name="source"/>; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A new <see cref="IReadWriteBitmapData"/>, which is the resized version of the specified <paramref name="source"/>, or <see langword="null"/>, if the operation was canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Resize(IReadableBitmapData,Size,ScalingMode,bool)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newSize"/> is invalid
+        /// <br/>-or-
+        /// <br/><paramref name="scalingMode"/> has an unsupported value.</exception>
+        public static IReadWriteBitmapData? Resize(this IReadableBitmapData source, IAsyncContext? context, Size newSize, ScalingMode scalingMode = ScalingMode.Auto, bool keepAspectRatio = false)
+        {
+            ValidateArguments(source, newSize, scalingMode);
+            return DoResize(context ?? AsyncHelper.DefaultContext, source, newSize, scalingMode, keepAspectRatio);
         }
 
         /// <summary>
@@ -3924,7 +3995,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ResizeAsync">ResizeAsync</see> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndResize">EndResize</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Resize">Resize</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Resize(IReadableBitmapData,Size,ScalingMode,bool)"/> method for more details.</note>
         /// </remarks>
         public static IAsyncResult BeginResize(this IReadableBitmapData source, Size newSize, ScalingMode scalingMode = ScalingMode.Auto, bool keepAspectRatio = false, AsyncConfig? asyncConfig = null)
         {
@@ -3959,7 +4030,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Resize">Resize</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Resize(IReadableBitmapData,Size,ScalingMode,bool)"/> method for more details.</note>
         /// </remarks>
         public static Task<IReadWriteBitmapData?> ResizeAsync(this IReadableBitmapData source, Size newSize, ScalingMode scalingMode = ScalingMode.Auto, bool keepAspectRatio = false, TaskConfig? asyncConfig = null)
         {

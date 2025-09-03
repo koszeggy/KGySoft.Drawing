@@ -30,7 +30,7 @@
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/
-    ToGrayscale/ToTransparent overloads with ParallelConfig and IAsyncContext parameters.
+    Resize/ToGrayscale/ToTransparent overloads with ParallelConfig and IAsyncContext parameters.
 * ColorExtensions class:
   + New ToGray overloads with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
