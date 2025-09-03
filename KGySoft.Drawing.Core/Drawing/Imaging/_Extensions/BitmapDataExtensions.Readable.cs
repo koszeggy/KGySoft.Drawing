@@ -1906,9 +1906,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndCopyTo(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginCopyTo));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndCopyTo(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginCopyTo));
 
         #endregion
 
@@ -1938,15 +1938,15 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="CopyTo(IReadableBitmapData, IWritableBitmapData, Rectangle, Point, IQuantizer, IDitherer)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static Task CopyToAsync(this IReadableBitmapData source, IWritableBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> CopyToAsync(this IReadableBitmapData source, IWritableBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target);
             return AsyncHelper.DoOperationAsync(ctx => DoCopy(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
@@ -2742,9 +2742,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndDrawInto(this IAsyncResult asyncResult) 
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawInto));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndDrawInto(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawInto));
 
         #endregion
 
@@ -2775,15 +2775,15 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Point, IQuantizer, IDitherer)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target);
             return AsyncHelper.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
@@ -3205,16 +3205,16 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="DrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, TaskConfig? asyncConfig = null)
+        public static Task<bool> DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(source, target, scalingMode);
             return AsyncHelper.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
         }

@@ -22,11 +22,13 @@
   ! [Begin]ToGrayscale[Async]/[Begin]ToTransparent[Async] methods:
     ! The pixel format of the result is no longer always Format32bppArgb. If the source bitmap has a wide format,
       then the result preserves the original color depth. But the result may now preserve even indexed formats.
-  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndInvert/EndMakeGrayscale/
-    EndMakeOpaque/EndMakeTransparent/EndReplaceColor methods: The return type has been changed to bool from void.
+  ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndClear/EndCopyTo/EndDither
+    /EndDrawInto/EndInvert/EndMakeGrayscale/EndMakeOpaque/EndMakeTransparent/EndQuantize/EndReplaceColor methods:
+    The return type has been changed to bool from void.
+  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/ClearAsync/CopyToAsync/DitherAsync/DrawIntoAsync/
+    InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/MakeTransparentAsync/QuantizeAsync/ReplaceColorAsync methods:
+    The return type has been changed to Task<bool> from Task.
   + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps using a specified function.
-  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/
-    MakeTransparentAsync/ReplaceColorAsync methods: The return type has been changed to Task<bool> from Task.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/

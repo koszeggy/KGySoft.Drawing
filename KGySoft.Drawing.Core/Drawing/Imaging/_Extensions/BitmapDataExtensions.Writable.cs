@@ -202,9 +202,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ClearAsync">ClearAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndClear(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginClear));
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        public static bool EndClear(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginClear));
 
 #if !NET35
         /// <summary>
@@ -222,13 +222,13 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
-        public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<bool> ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData);
             return AsyncHelper.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }

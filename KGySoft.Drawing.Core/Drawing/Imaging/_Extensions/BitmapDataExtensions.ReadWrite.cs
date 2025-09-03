@@ -252,10 +252,10 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="QuantizeAsync">QuantizeAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndQuantize(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginQuantize));
+        public static bool EndQuantize(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginQuantize));
 
 #if !NET35
         /// <summary>
@@ -268,16 +268,16 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize(IReadWriteBitmapData, IQuantizer)">Quantize</see> method for more details.</note>
         /// </remarks>
-        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
+        public static Task<bool> QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, quantizer);
             return AsyncHelper.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
@@ -431,11 +431,11 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="DitherAsync">QuantizeAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndDither(this IAsyncResult asyncResult)
-            // NOTE: the return value could be bool, but it would be a breaking change
-            => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDither));
+        public static bool EndDither(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDither));
 
 #if !NET35
         /// <summary>
@@ -450,7 +450,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
@@ -458,9 +459,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)">Dither</see> method for more details.</note>
         /// </remarks>
-        public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
+        public static Task<bool> DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
         {
-            // NOTE: the return value could be Task<bool> but it would be a breaking change
             ValidateArguments(bitmapData, quantizer, ditherer);
             return AsyncHelper.DoOperationAsync(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
@@ -646,7 +646,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -756,7 +757,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -867,7 +869,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -1046,7 +1049,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor(IReadWriteBitmapData,Color32,Color32,IDitherer?)">ReplaceColor</see> method for more details.</note>
@@ -1196,7 +1200,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert(IReadWriteBitmapData, IDitherer?)">Invert</see> method for more details.</note>
@@ -1502,7 +1507,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData)"/> method for more details.</note>
@@ -1529,7 +1535,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> method for more details.</note>
@@ -1698,10 +1705,11 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque(IReadWriteBitmapData,Color32,IDitherer?)">MakeOpaque</see> method for more details.</note>
-        /// <remarks>
         /// </remarks>
         public static Task<bool> MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
@@ -1861,7 +1869,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeGrayscale(IReadWriteBitmapData,IDitherer?)">MakeGrayscale</see> method for more details.</note>
@@ -2062,7 +2071,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2273,7 +2283,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2484,7 +2495,8 @@ namespace KGySoft.Drawing.Imaging
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
