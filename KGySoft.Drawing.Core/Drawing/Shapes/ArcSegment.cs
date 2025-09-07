@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.Shapes
                 return;
             }
 
-            NormalizeAngles(ref startAngle, ref sweepAngle);
+            NormalizeAngle(ref startAngle);
             StartAngle = startAngle;
             SweepAngle = sweepAngle;
             StartRad = startAngle.ToRadian();
@@ -160,6 +160,11 @@ namespace KGySoft.Drawing.Shapes
                 sweepAngle = -sweepAngle;
             }
 
+            NormalizeAngle(ref startAngle);
+        }
+
+        internal static void NormalizeAngle(ref float startAngle)
+        {
             startAngle = startAngle is >= 0f and <= 360f ? startAngle : startAngle % 360f;
             if (startAngle < 0)
                 startAngle += 360f;
@@ -193,6 +198,8 @@ namespace KGySoft.Drawing.Shapes
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "That's one of the reasons why we use degrees instead of radians here.")]
         internal static BitVector32 GetSectors(float startAngle, float sweepAngle)
         {
+            NormalizeAngles(ref startAngle, ref sweepAngle);
+
             // For NaN an OverflowException is thrown at the checked block; otherwise, we expect normalized angles here.
             Debug.Assert(startAngle is Single.NaN or >= 0f and <= 360f && sweepAngle is Single.NaN or >= 0f and < 360f);
 
