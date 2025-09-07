@@ -540,7 +540,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
                 // to let the dispatcher shut down and the test end
                 finished.Set();
-#if NET40
+#if NETFRAMEWORK && !NET46_OR_GREATER
                 var completed = new TaskCompletionSource<bool>();
                 completed.SetResult(default);
                 return completed.Task;

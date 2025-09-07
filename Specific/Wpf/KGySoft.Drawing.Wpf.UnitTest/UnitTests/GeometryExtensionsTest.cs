@@ -45,8 +45,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
     {
         #region Nested classes
 
-        #region Builder class
-
         private sealed class Builder
         {
             #region Fields
@@ -130,29 +128,44 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #endregion
 
-        #endregion
-
         #region Properties
 
         private static object[][] GeometryToPathTestSource => new object[][]
         {
-            //["Empty", Geometry.Empty],
-            //["Single point", new Builder(new WpfPoint(0, 0)).Geometry],
-            //["Single line", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
-            //["Polyline", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
-            //["Lines", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new (10, 0)).Geometry],
-            //["Bezier", new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],
-            //["PolyBezier", new Builder(new(10, 100)).AddBeziers(new(0, 0), new(200, 0), new(300, 100), new(300, 0), new(400, 0), new(600, 100)).Geometry],
-            //["QuadraticBezier", new Builder(new(0, 100)).AddQuadraticBezier(new(0, 50), new(100, 100)).Geometry],
-            //["QuadraticPolyBezier", new Builder(new(10, 100)).AddQuadraticBeziers(new(200, 200), new(300, 100), new(0, 200), new(30, 400)).Geometry],
+            ////["Empty", Geometry.Empty],
+            ////["Single point", new Builder(new WpfPoint(0, 0)).Geometry],
+            ////["Single line", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
+            ////["Polyline", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
+            ////["Lines", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new (10, 0)).Geometry],
+            ////["Bezier", new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],
+            ////["PolyBezier", new Builder(new(10, 100)).AddBeziers(new(0, 0), new(200, 0), new(300, 100), new(300, 0), new(400, 0), new(600, 100)).Geometry],
+            ////["QuadraticBezier", new Builder(new(0, 100)).AddQuadraticBezier(new(0, 50), new(100, 100)).Geometry],
+            ////["QuadraticPolyBezier", new Builder(new(10, 100)).AddQuadraticBeziers(new(200, 200), new(300, 100), new(0, 200), new(30, 400)).Geometry],
             //["Large arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
             //["Small arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
-            ["Counterclockwise arc - error: closed", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
-            ["Non-horizontal arc - error: from zero", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
-            ["Non-horizontal small arc - error: to zero, small width", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
-            //["Rotated arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 45, true, SweepDirection.Clockwise).Geometry],
-            ["Closed figures - error: missing half circle", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            //["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle).Geometry],
+            //["Counterclockwise", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
+            ["Non-horizontal arc - error: wong placement", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
+            ["Non-horizontal small arc - error: small width", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
+            ["Rotated arc - error: too short", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 45, true, SweepDirection.Clockwise).Geometry],
+            //["Closed figures", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Counterclockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures half 1", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures half 2", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures half 3", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(0, 50)).AddArc(new(100,50), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures half 4", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(100, 50)).AddArc(new(0,50), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures half 1 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures half 2 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures half 3 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(0, 50)).AddArc(new(100,50), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures half 4 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(100, 50)).AddArc(new(0,50), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 1", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 2", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 3", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 4", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 1 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 2 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 3 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //["Closed figures quarter 4 ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
+            //////["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle).Geometry],
         };
 
         #endregion
@@ -161,12 +174,14 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Static Methods
 
-        private static BitmapSource ToBitmapSource(ImageSource image)
+        private static BitmapSource ToBitmapSource(ImageSource image, Size? customSize = null)
         {
+            var width = customSize?.Width ?? image.Width;
+            var height = customSize?.Height ?? image.Height;
             var visual = new DrawingVisual();
             using (DrawingContext context = visual.RenderOpen())
-                context.DrawImage(image, new Rect(0, 0, image.Width, image.Height));
-            var bitmap = new RenderTargetBitmap((int)image.Width, (int)image.Height, 96, 96, PixelFormats.Pbgra32);
+                context.DrawImage(image, new Rect(0, 0, width, height));
+            var bitmap = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Default);
             bitmap.Render(visual);
             return bitmap;
         }
@@ -187,18 +202,18 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 break;
             }
 
+            var bounds = geometry.Bounds;
+            if (bounds.IsEmpty)
+                bounds = new Rect(0, 0, 1, 1);
             var brush = new SolidColorBrush(Colors.Yellow);
             var pen = new WpfPen(Brushes.Blue, 1);
             var drawing = new GeometryDrawing();
             drawing.Geometry = geometry;
             drawing.Brush = brush;
             drawing.Pen = pen;
-            DrawingImage vectorImage = new DrawingImage(drawing); // just to be able to observe by KGy SOFT ImageSource Visualizer
-            //SaveBitmap($"{name}_vector", ToBitmapSource(vectorImage));
+            DrawingImage vectorImage = new DrawingImage(drawing); // to be able to be observed by KGy SOFT ImageSource Visualizer
+            //SaveBitmap($"{name}_vector", ToBitmapSource(vectorImage, new Size(bounds.Width * 10, bounds.Height * 10)));
 
-            var bounds = geometry.Bounds;
-            if (bounds.IsEmpty)
-                bounds = new Rect(0, 0, 1, 1);
             if (!geometry.IsFrozen)
             {
                 geometry.Transform = new TranslateTransform(-bounds.Left + 1, -bounds.Top + 1);

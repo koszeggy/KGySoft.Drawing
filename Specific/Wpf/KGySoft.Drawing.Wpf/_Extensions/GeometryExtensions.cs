@@ -70,27 +70,42 @@ namespace KGySoft.Drawing.Wpf
                 {
                     result.StartFigure();
                     PointF lastPoint = figure.StartPoint.ToPointF();
-                    result.AddPoint(lastPoint);
+                    bool lastPointAdded = false;
                     foreach (PathSegment segment in figure.Segments)
                     {
                         switch (segment)
                         {
                             case LineSegment line:
-                                result.AddPoint(lastPoint = line.Point.ToPointF());
+                                if (lastPointAdded)
+                                    result.AddPoint(lastPoint = line.Point.ToPointF());
+                                else
+                                {
+                                    result.AddLine(lastPoint, lastPoint = line.Point.ToPointF());
+                                    lastPointAdded = true;
+                                }
+
                                 break;
 
                             case PolyLineSegment polyLine:
                                 PointCollection points = polyLine.Points;
                                 if (points.Count > 0)
                                 {
+                                    if (lastPointAdded)
+                                        result.AddLines(polyLine.Points.Select(PointExtensions.ToPointF));
+                                    else
+                                    {
+                                        result.AddLines([lastPoint, ..polyLine.Points.Select(PointExtensions.ToPointF)]);
+                                        lastPointAdded = true;
+                                    }
+
                                     lastPoint = points[points.Count - 1].ToPointF();
-                                    result.AddLines(polyLine.Points.Select(PointExtensions.ToPointF));
                                 }
 
                                 break;
 
                             case BezierSegment bezierSegment:
                                 result.AddBezier(lastPoint, bezierSegment.Point1.ToPointF(), bezierSegment.Point2.ToPointF(), lastPoint = bezierSegment.Point3.ToPointF());
+                                lastPointAdded = true;
                                 break;
 
                             case PolyBezierSegment polyBezierSegment:
@@ -100,6 +115,7 @@ namespace KGySoft.Drawing.Wpf
                                     int validCount = points.Count / 3 * 3;
                                     result.AddBeziers([lastPoint, .. points.Take(validCount).Select(PointExtensions.ToPointF)]);
                                     lastPoint = points[validCount - 1].ToPointF();
+                                    lastPointAdded = true;
                                 }
 
                                 break;
@@ -108,6 +124,7 @@ namespace KGySoft.Drawing.Wpf
                                 var end = quadraticBezierSegment.Point2.ToPointF();
                                 (PointF cp1, PointF cp2) = GetCubicControlPointsByFromQuadraticBezier(lastPoint, quadraticBezierSegment.Point1.ToPointF(), end);
                                 result.AddBezier(lastPoint, cp1, cp2, lastPoint = end);
+                                lastPointAdded = true;
                                 break;
 
                             case PolyQuadraticBezierSegment polyQuadraticBezierSegment:
@@ -124,6 +141,7 @@ namespace KGySoft.Drawing.Wpf
                                     }
 
                                     result.AddBeziers(cubicPoints);
+                                    lastPointAdded = true;
                                 }
 
                                 break;
@@ -136,20 +154,31 @@ namespace KGySoft.Drawing.Wpf
                                 WpfPoint center = GetCenter(startPoint, endPoint, width, height, arcSegment.RotationAngle, arcSegment.IsLargeArc, arcSegment.SweepDirection == SweepDirection.Counterclockwise);
                                 double radStart = Math.Atan2(startPoint.Y - center.Y, startPoint.X - center.X);
                                 double radEnd = Math.Atan2(endPoint.Y - center.Y, endPoint.X - center.X);
-                                if (arcSegment.IsLargeArc == Math.Abs(radEnd - radStart) < Math.PI)
+
+                                float startAngle = (float)ToDegree(radStart);
+                                float endAngle = (float)ToDegree(radEnd);
+                                if (arcSegment.IsLargeArc == Math.Abs(endAngle - startAngle) < 180f)
                                 {
-                                    if (radStart < radEnd)
-                                        radStart += 2d * Math.PI;
+                                    if (startAngle < endAngle)
+                                        startAngle += 360f;
                                     else
-                                        radEnd += 2d * Math.PI;
+                                        endAngle += 360f;
                                 }
+
+                                float sweepAngle = endAngle - startAngle;
+
+                                // Fixing the possibly wrong direction of a 180 degree arc. It can occur if one of the arguments of Atan2 is 0.
+                                // ReSharper disable once CompareOfFloatsByEqualityOperator - the tolerance from the double -> float conversion is enough here, and we check a whole number, which can be represented precisely by float
+                                if (Math.Abs(sweepAngle) == 180f && arcSegment.SweepDirection == SweepDirection.Clockwise != sweepAngle > 0f)
+                                    sweepAngle = -sweepAngle;
 
                                 if (arcSegment.RotationAngle != 0f)
                                     result.SetTransformation(TransformationMatrix.CreateRotationDegrees((float)arcSegment.RotationAngle, center.ToPointF()));
 
-                                result.AddArc((float)(center.X - width), (float)(center.Y - height), (float)(2d * width), (float)(2d * height), (float)ToDegree(Math.Min(radStart, radEnd)), (float)ToDegree(Math.Abs(radStart - radEnd)));
+                                result.AddArc((float)(center.X - width), (float)(center.Y - height), (float)(2d * width), (float)(2d * height), startAngle, sweepAngle);
                                 result.ResetTransformation();
                                 lastPoint = arcSegment.Point.ToPointF();
+                                lastPointAdded = true;
                                 break;
 
                             default:
