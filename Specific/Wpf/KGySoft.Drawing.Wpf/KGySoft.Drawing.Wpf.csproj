@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0-windows</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>-->
+    <TargetFrameworks>net35;net45;net9.0-windows</TargetFrameworks>
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -16,6 +16,7 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>György Kőszeg</Authors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
     <UseWpf>true</UseWpf>
 
