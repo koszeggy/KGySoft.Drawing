@@ -45,21 +45,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
     [TestFixture]
     public class BitmapSourceExtensionsTest : TestBase
     {
-        #region AsyncTestState class
-
-        private sealed class AsyncTestState
-        {
-            #region Properties
-
-            internal Action<ManualResetEvent> Callback { get; set; } = default!;
-            internal ManualResetEvent WaitHandle { get; set; } = default!;
-            internal Exception? Error { get; set; }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private static readonly Color testColor = Color.FromRgb(0x80, 0xFF, 0x40);
@@ -235,63 +220,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 1 => row.ReadRaw<byte>(0) >> 7,
                 _ => throw new InvalidOperationException($"Unexpected pixel format: {pixelFormat}")
             };
-        }
-
-        /// <summary>
-        /// Executes <paramref name="test"/> on a dedicated thread that starts the dispatcher so
-        /// the thread will neither exit nor be blocked until the test completes.
-        /// Without this even a simple test containing await would be blocked if contains sync callbacks.
-        /// </summary>
-        private static void ExecuteAsyncTestWithDispatcher(Action<ManualResetEvent> test)
-        {
-            // This will be executed on a new thread
-            static void Execute(object? state)
-            {
-                var asyncState = (AsyncTestState)state!;
-                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
-
-                // Assuring that the dispatcher (and thus this thread) exits when the test finishes
-                ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
-                try
-                {
-                    // Invoking the callback that will set the wait handle when finishes
-                    asyncState.Callback.Invoke(asyncState.WaitHandle);
-                }
-                catch (Exception e)
-                {
-                    // In case of error we save the exception so it can be thrown by the test case
-                    // and manually set the wait handle (assuming the callback did not set it due to the error)
-                    asyncState.Error = e;
-                    asyncState.WaitHandle.Set();
-                    return;
-                }
-
-                // Starting the dispatcher that prevents the thread from exiting and processes callbacks
-                Dispatcher.Run();
-            }
-
-            var waitHandle = new ManualResetEvent(false);
-            var state = new AsyncTestState
-            {
-                Callback = test,
-                WaitHandle = waitHandle
-            };
-
-            var thread = new Thread(Execute);
-#if NETFRAMEWORK
-            thread.SetApartmentState(ApartmentState.STA);
-#endif
-
-            thread.Start(state);
-            waitHandle.WaitOne();
-            if (state.Error != null)
-            {
-#if NET35 || NET40
-                throw state.Error;
-#else
-                ExceptionDispatchInfo.Capture(state.Error).Throw();
-#endif
-            }
         }
 
         #endregion

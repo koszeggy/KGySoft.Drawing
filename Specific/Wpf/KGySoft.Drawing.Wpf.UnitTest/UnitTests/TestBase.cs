@@ -18,6 +18,8 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using System.Threading;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -32,6 +34,22 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 {
     public abstract class TestBase
     {
+        #region Nested Classes
+
+        private sealed class AsyncTestState
+        {
+            #region Properties
+
+            internal Action<ManualResetEvent> Callback { get; set; } = default!;
+            internal ManualResetEvent WaitHandle { get; set; } = default!;
+            internal Exception? Error { get; set; }
+            internal Dispatcher? Dispatcher { get; set; }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Properties
 
         protected static bool SaveToFile => false;
@@ -98,6 +116,72 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                     //Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
                 }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+        }
+
+        /// <summary>
+        /// Executes <paramref name="test"/> on a dedicated thread that starts the dispatcher so
+        /// the thread will neither exit nor be blocked until the test completes.
+        /// Without this even a simple test containing await would be blocked if contains sync callbacks.
+        /// It also provides a <see cref="SynchronizationContext"/> so async continuations can be posted back to the test thread,
+        /// helping to avoid <see cref="InvalidOperationException"/> due to accessing thread-affine WPF objects from a non-UI thread.
+        /// </summary>
+        protected static void ExecuteAsyncTestWithDispatcher(Action<ManualResetEvent> test)
+        {
+            #region Local Methods
+
+            // This will be executed on a new thread
+            static void Execute(object? state)
+            {
+                var asyncState = (AsyncTestState)state!;
+                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
+
+                // Does not always work when debugging, calling Dispatcher.InvokeShutdown() from the invoking thread is more reliable.
+                //// Assuring that the dispatcher (and thus this thread) exits when the test finishes
+                //ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
+                try
+                {
+                    // Invoking the callback that will set the wait handle when finishes
+                    asyncState.Callback.Invoke(asyncState.WaitHandle);
+                }
+                catch (Exception e)
+                {
+                    // In case of error we save the exception so it can be thrown by the test case
+                    // and manually set the wait handle (assuming the callback did not set it due to the error)
+                    asyncState.Error = e;
+                    asyncState.WaitHandle.Set();
+                    return;
+                }
+
+                // Starting the dispatcher that prevents the thread from exiting and processes callbacks
+                asyncState.Dispatcher = Dispatcher.CurrentDispatcher;
+                Dispatcher.Run();
+            }
+
+            #endregion
+
+            var waitHandle = new ManualResetEvent(false);
+            var state = new AsyncTestState
+            {
+                Callback = test,
+                WaitHandle = waitHandle
+            };
+
+            var thread = new Thread(Execute);
+#if NETFRAMEWORK
+            thread.SetApartmentState(ApartmentState.STA);
+#endif
+
+            thread.Start(state);
+            waitHandle.WaitOne();
+            state.Dispatcher?.InvokeShutdown();
+            if (state.Error != null)
+            {
+#if NET35 || NET40
+                throw state.Error;
+#else
+                ExceptionDispatchInfo.Capture(state.Error).Throw();
+#endif
+            }
         }
 
         #endregion

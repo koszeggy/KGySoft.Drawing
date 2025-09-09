@@ -17,6 +17,8 @@
 
 #region Used Namespaces
 
+using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -63,6 +65,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             #region Constructors
 
+            internal Builder() => StartFigure(default);
             internal Builder(WpfPoint startPoint) => StartFigure(startPoint);
 
             #endregion
@@ -123,6 +126,12 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 return this;
             }
 
+            public Geometry AddString(string s, FontFamily fontFamily, double fontSize, FontStyle fontStyle)
+            {
+                var text = new FormattedText(s, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(fontFamily, fontStyle, FontWeights.Normal, FontStretches.Normal), fontSize, Brushes.Black);
+                return text.BuildGeometry(default);
+            }
+
             #endregion
         }
 
@@ -142,31 +151,20 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             ["QuadraticBezier", new Builder(new(0, 100)).AddQuadraticBezier(new(0, 50), new(100, 100)).Geometry],
             ["QuadraticPolyBezier", new Builder(new(10, 100)).AddQuadraticBeziers(new(200, 200), new(300, 100), new(0, 200), new(30, 400)).Geometry],
             ["Large arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
+            ["Large arc ccw", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
             ["Small arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
-            ["Counterclockwise", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
             ["Non-horizontal arc", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
-            ["Non-horizontal small", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
+            ["Non-horizontal arc small", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
             ["Vertical arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(60, 100), 0, true, SweepDirection.Clockwise).Geometry],
             ["Rotated arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 45, true, SweepDirection.Clockwise).Geometry],
-            ["Closed figures", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed figures ccw", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Counterclockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
             ["Closed arc half 1", new Builder(new WpfPoint(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Closed arc half 2", new Builder(new WpfPoint(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc half 3", new Builder(new WpfPoint(0, 50)).AddArc(new(100,50), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc half 4", new Builder(new WpfPoint(100, 50)).AddArc(new(0,50), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc half 1 ccw", new Builder(new WpfPoint(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc half 2 ccw", new Builder(new WpfPoint(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc half 3 ccw", new Builder(new WpfPoint(0, 50)).AddArc(new(100,50), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc half 4 ccw", new Builder(new WpfPoint(100, 50)).AddArc(new(0,50), new(50,50), 0, true, SweepDirection.Counterclockwise).CloseFigure().Geometry],
             ["Closed arc quarter 1", new Builder(new WpfPoint(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Closed arc quarter 2", new Builder(new WpfPoint(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Closed arc quarter 3", new Builder(new WpfPoint(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Closed arc quarter 4", new Builder(new WpfPoint(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 1 ccw", new Builder(new WpfPoint(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 2 ccw", new Builder(new WpfPoint(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 3 ccw", new Builder(new WpfPoint(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 4 ccw", new Builder(new WpfPoint(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Counterclockwise).CloseFigure().Geometry],
-            //["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle).Geometry],
+            ["Closed figures", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle)],
         };
 
         #endregion
@@ -177,8 +175,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static BitmapSource ToBitmapSource(ImageSource image, Size? customSize = null)
         {
-            var width = customSize?.Width ?? image.Width;
-            var height = customSize?.Height ?? image.Height;
+            var width = Math.Max(1, customSize?.Width ?? image.Width);
+            var height = Math.Max(1, customSize?.Height ?? image.Height);
             var visual = new DrawingVisual();
             using (DrawingContext context = visual.RenderOpen())
                 context.DrawImage(image, new Rect(0, 0, width, height));
