@@ -2826,8 +2826,6 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure",
-            Justification = "False alarm, ParallelHelper.For does not use the delegate after returning.")]
         internal bool FillPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
             => FillRawPath(context, bitmapData, path.RawPath, drawingOptions, path.PreferCaching);
 

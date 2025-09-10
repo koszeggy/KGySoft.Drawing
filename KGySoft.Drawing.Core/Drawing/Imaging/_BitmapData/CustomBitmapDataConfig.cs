@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Properties
 
-        #region Public sProperties
+        #region Public Properties
 
         /// <summary>
         /// Gets or sets a <see cref="Color32"/> value for pixel formats without alpha gradient support that specifies the <see cref="IBitmapData.BackColor"/> value of the created bitmap data.

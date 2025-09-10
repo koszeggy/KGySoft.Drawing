@@ -1002,7 +1002,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>To leave the current instance intact and return a new one, use the static <see cref="Transform(Path,TransformationMatrix)">Transform</see> method instead.</para>
         /// <para>To set the transformation for the items added afterward only, use the <see cref="TransformTranslation">TransformTranslation</see>,
-        /// <see cref="TransformRotation">TransformRotation</see>, <see cref="TransformTranslation">TransformTranslation</see> or <see cref="TransformScale">TransformScale</see> methods.</para>
+        /// <see cref="TransformRotation">TransformRotation</see>, <see cref="TransformScale">TransformScale</see> or <see cref="SetTransformation">SetTransformation</see> methods.</para>
         /// </remarks>
         public Path TransformAdded(TransformationMatrix matrix)
         {

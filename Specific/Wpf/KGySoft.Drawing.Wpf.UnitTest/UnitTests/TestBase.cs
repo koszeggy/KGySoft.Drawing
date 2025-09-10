@@ -119,13 +119,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         /// <summary>
-        /// Executes <paramref name="test"/> on a dedicated thread that starts the dispatcher so
+        /// Executes <paramref name="test"/> on a dedicated STA thread that starts the dispatcher so
         /// the thread will neither exit nor be blocked until the test completes.
         /// Without this even a simple test containing await would be blocked if contains sync callbacks.
         /// It also provides a <see cref="SynchronizationContext"/> so async continuations can be posted back to the test thread,
         /// helping to avoid <see cref="InvalidOperationException"/> due to accessing thread-affine WPF objects from a non-UI thread.
         /// </summary>
-        protected static void ExecuteAsyncTestWithDispatcher(Action<ManualResetEvent> test)
+        protected static void ExecuteTestWithDispatcher(Action<ManualResetEvent> test)
         {
             #region Local Methods
 
@@ -136,8 +136,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
                 // Does not always work when debugging, calling Dispatcher.InvokeShutdown() from the invoking thread is more reliable.
-                //// Assuring that the dispatcher (and thus this thread) exits when the test finishes
-                //ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
+                // Assuring that the dispatcher (and thus this thread) exits when the test finishes
+                ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
                 try
                 {
                     // Invoking the callback that will set the wait handle when finishes

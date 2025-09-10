@@ -354,7 +354,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         [Test]
-        public void BeginEndConvertPixelFormatWithCallbackTest() => ExecuteAsyncTestWithDispatcher(finished =>
+        public void BeginEndConvertPixelFormatWithCallbackTest() => ExecuteTestWithDispatcher(finished =>
         {
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
@@ -442,7 +442,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         [Test]
-        public void ConvertPixelFormatAsyncWithContinuationTest() => ExecuteAsyncTestWithDispatcher(finished =>
+        public void ConvertPixelFormatAsyncWithContinuationTest() => ExecuteTestWithDispatcher(finished =>
         {
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
@@ -507,7 +507,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 #if !(NET35 || NET40)
         [Test]
         [SuppressMessage("ReSharper", "AsyncVoidLambda", Justification = "No problem, that's why there is the finished event")]
-        public void ConvertPixelFormatAsyncWithAwaitTest() => ExecuteAsyncTestWithDispatcher(async finished =>
+        public void ConvertPixelFormatAsyncWithAwaitTest() => ExecuteTestWithDispatcher(async finished =>
         {
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
