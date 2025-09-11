@@ -5,6 +5,26 @@
 + New feature
 ===============================================================================
 
+~~~~~~~~~~
+* v10.0.0:
+~~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v10.0.0, which enables high performance shape drawing.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing.Wpf namespace
+===============================
++ New GeometryExtensions class:
+  + New ToPath methods: To convert a WPF Geometry instance to a KGySoft.Drawing.Shapes.Path.
++ New ReadWriteBitmapDataExtensions class:
+  + New [Begin]DrawText[Async]/EndDrawText methods: To draw a text represented by a WPF FormattedText or GlyphRun
+    instance into an IReadWriteBitmapData.
+  + New [Begin]DrawTextOutline[Async]/EndDrawTextOutline methods: To draw the outline of a text represented by a WPF
+    FormattedText or GlyphRun instance into an IReadWriteBitmapData.
+
+
 ~~~~~~~~~
 ! v9.0.0:
 ~~~~~~~~~
