@@ -17,12 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 
 using KGySoft.Drawing.Imaging;
-using KGySoft.Reflection;
 
 #endregion
 
@@ -68,92 +68,6 @@ namespace KGySoft.Drawing.Shapes
     /// </example>
     public sealed class Path
     {
-        #region Nested Classes
-
-        private sealed class Figure
-        {
-            #region Properties
-
-            internal bool IsClosed { get; set; }
-            internal bool IsEmpty => Segments.Count == 0;
-            internal List<PathSegment> Segments { get; }
-
-            #endregion
-
-            #region Constructors
-
-            internal Figure() => Segments = new List<PathSegment>();
-
-            internal Figure(Figure other, bool close)
-            {
-                int count = other.Segments.Count;
-                Segments = new List<PathSegment>(count);
-                for (int i = 0; i < count; i++)
-                    Segments.Add(other.Segments[i].Clone());
-
-                IsClosed = close || other.IsClosed;
-            }
-
-            #endregion
-
-            #region Methods
-
-            internal void AddSegment(PathSegment segment) => Segments.Add(segment);
-
-            [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
-            internal bool TryAppendPoints(IEnumerable<PointF> points)
-            {
-                if (Segments.Count == 0 || Segments[Segments.Count - 1] is not LineSegment lastSegment)
-                    return false;
-
-                if (IsClosed)
-                {
-                    if (!IsEmpty)
-                        return false;
-                    IsClosed = false;
-                }
-
-                lastSegment.Append(points);
-                return true;
-            }
-
-            internal IList<PointF> GetPoints(bool ensureClosed)
-            {
-                switch (Segments.Count)
-                {
-                    case 0:
-                        return Reflector.EmptyArray<PointF>();
-                    case 1:
-                        var points = Segments[0].GetFlattenedPoints();
-                        if (ensureClosed && IsClosed && points.Count > 2 && points[0] != points[points.Count - 1])
-                            points = [..points, points[0]];
-                        return points;
-                    default:
-                        var result = new List<PointF>();
-                        foreach (PathSegment segment in Segments)
-                            result.AddRange(segment.GetFlattenedPoints());
-                        if (ensureClosed && IsClosed && result.Count > 2 && result[0] != result[result.Count - 1])
-                            result.Add(result[0]);
-                        return result;
-                }
-            }
-
-            internal void Transform(TransformationMatrix matrix)
-            {
-                for (int i = 0; i < Segments.Count; i++)
-                {
-                    PathSegment segment = Segments[i];
-                    PathSegment transformedSegment = segment.Transform(matrix);
-                    if (!ReferenceEquals(segment, transformedSegment))
-                        Segments[i] = transformedSegment;
-                }
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private List<Figure>? figures;
@@ -192,6 +106,17 @@ namespace KGySoft.Drawing.Shapes
         /// <value><see langword="true"/> to allow caching the region of this <see cref="Path"/>,
         /// so subsequent fill/draw operation with the same unchanged path will be faster; otherwise, <see langword="false"/>.</value>
         public bool PreferCaching { get; set; }
+
+        /// <summary>
+        /// Gets a read-only collection of the figures this <see cref="Path"/> consists of.
+        /// </summary>
+        /// <remarks>
+        /// <para>This property is meant to provide information about the figures of this <see cref="Path"/> instance for interoperability with other libraries, and it cannot be used to modify the figures.
+        /// To add new figures or path segments to this <see cref="Path"/>, use the <see cref="StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</para>
+        /// <note type="tip">To obtain the figures as series of flattened points, you can also use the <see cref="GetPoints">GetPoints</see> method.</note>
+        /// </remarks>
+        // NOTE: IReadOnlyList<T> would be a more elegant return type but that is not available in .NET 3.5/4.0
+        public ReadOnlyCollection<Figure> Figures => new ReadOnlyCollection<Figure>(figures ?? [currentFigure]);
 
         #endregion
 
@@ -892,7 +817,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (IsEmpty || isFirst && connect)
                 {
-                    foreach (PathSegment segment in figure.Segments)
+                    foreach (PathSegment segment in figure.SegmentsInternal)
                     {
                         PathSegment segmentToAdd = segment.Clone();
                         if (!transformation.IsIdentity)
@@ -924,6 +849,7 @@ namespace KGySoft.Drawing.Shapes
         /// Every figure is represented by an array of flattened points that can be interpreted as a series of connected lines.</para>
         /// <para>If a figure is closed and has at least 3 points, then it is ensured that the last point of the figure is the same as the first point.</para>
         /// <para>This method can be used to provide a bridge between the <see cref="Path"/> class and other graphics libraries or APIs.</para>
+        /// <note type="tip">To obtain figures as they were added to the <see cref="Path"/> without flattening, you can also use the <see cref="Figures"/> property.</note>
         /// </remarks>
         public IList<PointF[]> GetPoints()
         {
@@ -953,7 +879,7 @@ namespace KGySoft.Drawing.Shapes
                 return this;
 
             Invalidate();
-            currentFigure.IsClosed = true;
+            currentFigure.Close();
             return this;
         }
 
@@ -966,7 +892,7 @@ namespace KGySoft.Drawing.Shapes
         {
             if (currentFigure.IsEmpty)
             {
-                currentFigure.IsClosed = false;
+                currentFigure.Close();
                 return this;
             }
 
@@ -1127,7 +1053,7 @@ namespace KGySoft.Drawing.Shapes
                 if (figure.IsEmpty)
                     continue;
 
-                List<PathSegment> segments = figure.Segments;
+                List<PathSegment> segments = figure.SegmentsInternal;
 
                 int count = segments.Count;
                 for (int i = 0; i < count; i++)

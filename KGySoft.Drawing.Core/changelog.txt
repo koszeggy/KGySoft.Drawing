@@ -37,12 +37,15 @@
   + New ToGray overloads with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
 
-- KGySoft.Drawing.Shapes namespace
+* KGySoft.Drawing.Shapes namespace
 ==================================
 - BitmapDataExtensions class:
   - [Begin]DrawPath[Async] methods:
     - If a Path contained a complex figure with an arc connected to other path segments, then the possible
       connecting other segments might have swapped the arc's start and end points causing an incorrect drawing.
++ Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
++ Path class:
+  + New Figures property
 
 
 ~~~~~~~~~

@@ -17,26 +17,62 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 #endregion
 
 namespace KGySoft.Drawing.Shapes
 {
-    internal abstract class PathSegment
+    /// <summary>
+    /// Represents a path segment in a <see cref="Figure"/>. This is an abstract class that cannot be inherited outside the declaring assembly,
+    /// so its actual type is always one of the derived types: <see cref="LineSegment"/>, <see cref="BezierSegment"/> or <see cref="ArcSegment"/>.
+    /// </summary>
+    public abstract class PathSegment
     {
         #region Properties
 
-        internal abstract PointF StartPoint { get; }
-        internal abstract PointF EndPoint { get; }
+        /// <summary>
+        /// Gets the start point of this <see cref="PathSegment"/>.
+        /// </summary>
+        public abstract PointF StartPoint { get; }
+
+        /// <summary>
+        /// Gets the end point of this <see cref="PathSegment"/>.
+        /// </summary>
+        public abstract PointF EndPoint { get; }
+
+        #endregion
+
+        #region Constructors
+
+        internal PathSegment()
+        {
+        }
 
         #endregion
 
         #region Methods
 
-        internal abstract IList<PointF> GetFlattenedPoints();
+        #region Public Methods
+
+        /// <summary>
+        /// Gets the flattened points that define this <see cref="PathSegment"/> as a polyline.
+        /// </summary>
+        /// <returns>The list of <see cref="PointF"/> structures that define the flattened points of this segment.</returns>
+        public IList<PointF> GetFlattenedPoints() => this is LineSegment
+            ? GetFlattenedPointsInternal().ToArray()
+            : GetFlattenedPointsInternal();
+
+        #endregion
+
+        #region Internal Methods
+
+        internal abstract IList<PointF> GetFlattenedPointsInternal();
         internal abstract PathSegment Transform(TransformationMatrix matrix);
         internal abstract PathSegment Clone();
 
+        #endregion
+        
         #endregion
     }
 }

@@ -219,7 +219,7 @@ namespace KGySoft.Drawing.Shapes
             internal static void DrawBeziers(IBitmapDataInternal bitmapData, List<PointF> points, TColor c, float offset, TArg arg = default!)
             {
                 Debug.Assert((points.Count - 1) % 3 == 0);
-                DrawLines(bitmapData, new BezierSegment(points).GetFlattenedPoints(), c, offset, arg);
+                DrawLines(bitmapData, new BezierSegment(points).GetFlattenedPointsInternal(), c, offset, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -247,7 +247,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPoints(), c, offset);
+                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPointsInternal(), c, offset);
                     return;
                 }
 
@@ -260,7 +260,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPoints(), c, 0f);
+                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPointsInternal(), c, 0f);
                     return;
                 }
 
@@ -294,7 +294,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, offset);
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, offset);
                     return;
                 }
 
@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, 0f);
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f);
                     return;
                 }
 
@@ -597,7 +597,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPoints(), c, 0f);
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f);
                     return;
                 }
 

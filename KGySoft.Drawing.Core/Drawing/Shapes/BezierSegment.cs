@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
@@ -26,7 +27,14 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Shapes
 {
-    internal sealed class BezierSegment : PathSegment
+    /// <summary>
+    /// Represents a path segment in a <see cref="Figure"/>, consisting of zero, one, or more cubic Bézier curves.
+    /// </summary>
+    /// <remarks>
+    /// <note>This class is meant to provide information about a line segment in a <see cref="Figure"/> for interoperability with other libraries.
+    /// To add new figures or path segments to a <see cref="Path"/>, use its public <see cref="Path.StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</note>
+    /// </remarks>
+    public sealed class BezierSegment : PathSegment
     {
         #region Constants
 
@@ -44,8 +52,21 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        internal override PointF StartPoint => points[0];
-        internal override PointF EndPoint => points[points.Count - 1];
+        /// <summary>
+        /// Gets the start point of this <see cref="BezierSegment"/>.
+        /// </summary>
+        public override PointF StartPoint => points[0];
+
+        /// <summary>
+        /// Gets the end point of this <see cref="BezierSegment"/>.
+        /// </summary>
+        public override PointF EndPoint => points[points.Count - 1];
+
+        /// <summary>
+        /// Gets a read-only collection of the points that define this <see cref="BezierSegment"/>.
+        /// It always contains 1 + 3n points, where n is the number of cubic Bézier curves in this segment (n can be zero).
+        /// </summary>
+        public ReadOnlyCollection<PointF> Points => new ReadOnlyCollection<PointF>(points);
 
         #endregion
 
@@ -277,7 +298,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance Methods
 
-        internal override IList<PointF> GetFlattenedPoints()
+        internal override IList<PointF> GetFlattenedPointsInternal()
         {
             Debug.Assert((points.Count - 1) % 3 == 0);
             var result = new List<PointF>(points.Count) { points[0] };

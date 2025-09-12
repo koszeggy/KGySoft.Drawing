@@ -16,13 +16,21 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Shapes
 {
-    internal sealed class LineSegment : PathSegment
+    /// <summary>
+    /// Represents a path segment in a <see cref="Figure"/>, defined by a sequence of points connected by straight lines.
+    /// </summary>
+    /// <remarks>
+    /// <note>This class is meant to provide information about a line segment in a <see cref="Figure"/> for interoperability with other libraries.
+    /// To add new figures or path segments to a <see cref="Path"/>, use its public <see cref="Path.StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</note>
+    /// </remarks>
+    public sealed class LineSegment : PathSegment
     {
         #region Fields
 
@@ -32,8 +40,20 @@ namespace KGySoft.Drawing.Shapes
 
         #region Properties
 
-        internal override PointF StartPoint => points[0];
-        internal override PointF EndPoint => points[points.Count - 1];
+        /// <summary>
+        /// Gets the start point of this <see cref="LineSegment"/>.
+        /// </summary>
+        public override PointF StartPoint => points[0];
+
+        /// <summary>
+        /// Gets the end point of this <see cref="LineSegment"/>.
+        /// </summary>
+        public override PointF EndPoint => points[points.Count - 1];
+
+        /// <summary>
+        /// Gets a read-only collection of the points that define this <see cref="LineSegment"/>.
+        /// </summary>
+        public ReadOnlyCollection<PointF> Points => points.AsReadOnly();
 
         #endregion
 
@@ -58,7 +78,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal void Append(IEnumerable<PointF> newPoints) => points.AddRange(newPoints);
 
-        internal override IList<PointF> GetFlattenedPoints() => points;
+        internal override IList<PointF> GetFlattenedPointsInternal() => points;
 
         internal override PathSegment Transform(TransformationMatrix matrix)
         {
