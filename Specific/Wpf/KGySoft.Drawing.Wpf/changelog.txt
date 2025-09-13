@@ -17,7 +17,8 @@
 + KGySoft.Drawing.Wpf namespace
 ===============================
 + New GeometryExtensions class:
-  + New ToPath methods: To convert a WPF Geometry instance to a KGySoft.Drawing.Shapes.Path.
+  + New ToPath method: To convert a WPF Geometry instance to a KGySoft.Drawing.Shapes.Path.
+  + New ToGeometry method: To convert KGySoft.Drawing.Shapes.Path instance to a WPF Geometry.
 + New ReadWriteBitmapDataExtensions class:
   + New [Begin]DrawText[Async]/EndDrawText methods: To draw a text represented by a WPF FormattedText or GlyphRun
     instance into an IReadWriteBitmapData.

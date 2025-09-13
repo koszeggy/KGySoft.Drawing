@@ -15,10 +15,13 @@
 
 #region Usings
 
+using KGySoft.CoreLibraries;
+
 #region Used Namespaces
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
@@ -32,7 +35,16 @@ using KGySoft.Drawing.Wpf.WinApi;
 
 #region Used Aliases
 
+using ArcSegment = KGySoft.Drawing.Shapes.ArcSegment;
+using BezierSegment = KGySoft.Drawing.Shapes.BezierSegment;
+using LineSegment = KGySoft.Drawing.Shapes.LineSegment;
+using PathSegment = KGySoft.Drawing.Shapes.PathSegment;
+using WpfArcSegment = System.Windows.Media.ArcSegment;
+using WpfBezierSegment = System.Windows.Media.BezierSegment;
+using WpfLineSegment = System.Windows.Media.LineSegment;
+using WpfPathSegment = System.Windows.Media.PathSegment;
 using WpfPoint = System.Windows.Point;
+using WpfSize = System.Windows.Size;
 
 #endregion
 
@@ -105,11 +117,11 @@ namespace KGySoft.Drawing.Wpf
                     result.StartFigure();
                     PointF lastPoint = figure.StartPoint.ToPointF();
                     bool lastPointAdded = false;
-                    foreach (PathSegment segment in figure.Segments)
+                    foreach (WpfPathSegment segment in figure.Segments)
                     {
                         switch (segment)
                         {
-                            case LineSegment line:
+                            case WpfLineSegment line:
                                 if (lastPointAdded)
                                     result.AddPoint(lastPoint = line.Point.ToPointF());
                                 else
@@ -137,7 +149,7 @@ namespace KGySoft.Drawing.Wpf
 
                                 break;
 
-                            case BezierSegment bezierSegment:
+                            case WpfBezierSegment bezierSegment:
                                 result.AddBezier(lastPoint, bezierSegment.Point1.ToPointF(), bezierSegment.Point2.ToPointF(), lastPoint = bezierSegment.Point3.ToPointF());
                                 lastPointAdded = true;
                                 break;
@@ -180,7 +192,7 @@ namespace KGySoft.Drawing.Wpf
 
                                 break;
 
-                            case ArcSegment arcSegment:
+                            case WpfArcSegment arcSegment:
                                 var startPoint = lastPoint.ToWpfPoint();
                                 var endPoint = arcSegment.Point;
 
@@ -250,14 +262,112 @@ namespace KGySoft.Drawing.Wpf
             return result;
         }
 
-        //public static Geometry ToGeometry(this Path path)
-        //{
-        //    if (path == null)
-        //        throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
-        //    var result = new PathGeometry();
-        //    if (path.IsEmpty)
-        //        return result;
-        //}
+        /// <summary>
+        /// Converts a <see cref="Path"/> to a <see cref="Geometry"/>.
+        /// </summary>
+        /// <param name="path">The <see cref="Path"/> instance to convert to a <see cref="Geometry"/>.</param>
+        /// <returns>A <see cref="Geometry"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        public static Geometry ToGeometry(this Path path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+            if (path.IsEmpty)
+                return Geometry.Empty;
+            var result = new PathGeometry();
+            foreach (Figure figure in path.Figures)
+            {
+                if (figure.IsEmpty)
+                    continue;
+
+                ReadOnlyCollection<PathSegment> segments = figure.Segments;
+                PointF lastPoint = segments[0].StartPoint;
+                var wpfFigure = new PathFigure
+                {
+                    StartPoint = lastPoint.ToWpfPoint(),
+                    IsClosed = figure.IsClosed
+                };
+
+                foreach (PathSegment segment in segments)
+                {
+                    bool isFirstPointAdded = segment.StartPoint == lastPoint;
+                    lastPoint = segment.EndPoint;
+
+                    switch (segment)
+                    {
+                        case LineSegment lineSegment:
+                            ReadOnlyCollection<PointF> linePoints = lineSegment.Points;
+                            int count = isFirstPointAdded ? linePoints.Count - 1 : linePoints.Count;
+                            switch (count)
+                            {
+                                case 0:
+                                    continue;
+                                case 1:
+                                    wpfFigure.Segments.Add(new WpfLineSegment(lastPoint.ToWpfPoint(), true));
+                                    continue;
+                                default:
+                                    wpfFigure.Segments.Add(new PolyLineSegment((isFirstPointAdded ? linePoints.Skip(1) : linePoints).Select(p => p.ToWpfPoint()), true));
+                                    continue;
+                            }
+
+                        case BezierSegment bezierSegment:
+                            if (!isFirstPointAdded)
+                                wpfFigure.Segments.Add(new WpfLineSegment(segment.StartPoint.ToWpfPoint(), true));
+                            ReadOnlyCollection<PointF> bezierPoints = bezierSegment.Points;
+                            switch (bezierPoints.Count)
+                            {
+                                case 1:
+                                    continue;
+                                case 4:
+                                    wpfFigure.Segments.Add(new WpfBezierSegment(bezierPoints[1].ToWpfPoint(), bezierPoints[2].ToWpfPoint(), bezierPoints[3].ToWpfPoint(), true));
+                                    continue;
+                                default:
+                                    wpfFigure.Segments.Add(new PolyBezierSegment(bezierPoints.Skip(1).Select(p => p.ToWpfPoint()), true));
+                                    continue;
+                            }
+
+                        case ArcSegment arcSegment:
+                            float radiusX = arcSegment.RadiusX;
+                            float radiusY = arcSegment.RadiusY;
+
+                            // special case: horizontally or vertically flat arc - adding the flattened points instead
+                            // (WPF arc would just connect start/end points without considering the radius)
+                            if (radiusX.TolerantIsZero() || radiusY.TolerantIsZero())
+                            {
+                                wpfFigure.Segments.Add(new PolyLineSegment(arcSegment.GetFlattenedPoints().Select(p => p.ToWpfPoint()), true));
+                                continue;
+                            }
+
+                            if (!isFirstPointAdded)
+                                wpfFigure.Segments.Add(new WpfLineSegment(segment.StartPoint.ToWpfPoint(), true));
+
+                            // special case: full ellipse - breaking it into two half arcs because WPF ArcSegment supports only different start and end points
+                            if (arcSegment.SweepAngle.TolerantEquals(360f))
+                            {
+                                // exploiting that start angle is always 0 in this case
+                                float signedRadiusX = arcSegment.StartPoint.X - arcSegment.Center.X;
+                                var halfPoint = new WpfPoint(arcSegment.StartPoint.X - signedRadiusX * 2f, arcSegment.StartPoint.Y);
+                                WpfSize size = new(radiusX, radiusY);
+                                wpfFigure.Segments.Add(new WpfArcSegment(halfPoint, size, 0d, true, SweepDirection.Clockwise, true));
+                                wpfFigure.Segments.Add(new WpfArcSegment(lastPoint.ToWpfPoint(), size, 0d, true, SweepDirection.Clockwise, true));
+                                continue;
+                            }
+
+                            wpfFigure.Segments.Add(new WpfArcSegment(lastPoint.ToWpfPoint(),
+                                new WpfSize(arcSegment.RadiusX, arcSegment.RadiusY),
+                                0d,
+                                Math.Abs(arcSegment.SweepAngle) >= 180f,
+                                arcSegment.SweepAngle >= 0f ? SweepDirection.Clockwise : SweepDirection.Counterclockwise,
+                                true));
+                            continue;
+                    }
+                }
+
+                result.Figures.Add(wpfFigure);
+            }
+
+            return result;
+        }
 
         #endregion
 
