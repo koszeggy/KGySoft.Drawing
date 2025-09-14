@@ -527,8 +527,8 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>If the current figure is not empty or closed, the first point of the added arc will be connected to the last point of the figure.</para>
-        /// <para>When a complete ellipse is added to the path (that is, when the absolute value of <paramref name="sweepAngle"/> is greater than or equal to 360),
-        /// the <see cref="startAngle"/> is ignored as if it was 0. This matters when the ellipse is connected with other path segments.</para>
+        /// <para>When the absolute value of <paramref name="sweepAngle"/> is greater than or equal to 360, a complete ellipse is added to the path,
+        /// and the start/end points of the arc will be identical, as if <see cref="sweepAngle"/> was exactly 360. This matters when the ellipse is connected with other path segments.</para>
         /// <para>The coordinates of the specified bounding rectangle are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
@@ -545,8 +545,8 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>If the current figure is not empty or closed, the first point of the added arc will be connected to the last point of the figure.</para>
-        /// <para>When a complete ellipse is added to the path (that is, when the absolute value of <paramref name="sweepAngle"/> is greater than or equal to 360),
-        /// the <see cref="startAngle"/> is ignored as if it was 0. This matters when the ellipse is connected with other path segments.</para>
+        /// <para>When the absolute value of <paramref name="sweepAngle"/> is greater than or equal to 360, a complete ellipse is added to the path,
+        /// and the start/end points of the arc will be identical, as if <see cref="sweepAngle"/> was exactly 360. This matters when the ellipse is connected with other path segments.</para>
         /// <para>The coordinates of the specified bounding rectangle are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>

@@ -1078,7 +1078,6 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             AssertAreEqual(bmp.Clip(new Rectangle(0, 0, bmp.Width, 5)), new SolidBitmapData(new Size(bmp.Width, 5), bmp.GetColor32(0, 0)));
         }
 
-        [Explicit]
         [TestCase(false, true)]
         [TestCase(false, false)]
         [TestCase(true, false)]
@@ -1088,7 +1087,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             var options = new DrawingOptions
             {
                 AntiAliasing = antiAliasing,
-                DrawPathPixelOffset = antiAliasing ? PixelOffset.Half : PixelOffset.None,
+                DrawPathPixelOffset = fastThinLines ? PixelOffset.None : PixelOffset.Half,
                 FastThinLines = fastThinLines
             };
             using var bmp = BitmapDataFactory.CreateBitmapData(500, 500);
@@ -1097,9 +1096,12 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             {
                 //AnimationMode = AnimationMode.PingPong
             }, ms);
-            GC.KeepAlive(bmp);
+
+            // No assert, must be observed visually
             SaveStream($"{(antiAliasing ? "AA" : "NA")}{(fastThinLines ? "_Thin" : null)}", ms);
 
+            #region Local Methods
+            
             IReadableBitmapData? GetNextFrame()
             {
                 if (diameters.Count == 0)
@@ -1179,6 +1181,8 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 bmp.DrawPath(Color.Blue, path, options);
                 return bmp;
             }
+
+            #endregion
         }
 
         #endregion

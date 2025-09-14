@@ -87,7 +87,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
-            if (Math.Abs(sweepAngle) >= 360f)
+            if (Math.Abs(sweepAngle) >= 360f && startAngle is 0f)
                 return FromEllipse(bounds);
 
             float radiusX = bounds.Width / 2f;
@@ -97,7 +97,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
         {
-            Debug.Assert(sweepRad < MathF.PI * 2f, "The caller should have called FromEllipse. If the caller of this overload may create full ellipses, then add if (Math.Abs(sweepRad) >= MathF.PI * 2f) FromEllipse(...) here.");
+            Debug.Assert(sweepRad < MathF.PI * 2f || startRad is not 0f, "The caller should have called FromEllipse");
 
             // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
             var result = new List<PointF>(13);
@@ -134,7 +134,7 @@ namespace KGySoft.Drawing.Shapes
         {
             float radiusX = bounds.Width / 2f;
             float radiusY = bounds.Height / 2f;
-            return FromEllipse(new PointF(bounds.X + radiusX, bounds.Y + radiusY), radiusX, radiusY);
+            return FromEllipse(new PointF(bounds.X + radiusX, bounds.Y + radiusY), Math.Abs(radiusX), Math.Abs(radiusY));
         }
 
         internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
