@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Shapes
     // NOTE: It would not be necessary to have a separate ArcSegment class because it could be represented by a BezierSegment,
     // but for drawing thin paths, the flatten Bézier curve drawing is both slower and less symmetric.
     /// <summary>
-    /// Represents an elliptical arc segment in a <see cref="Figure"/>.
+    /// Represents a non-rotated elliptical arc segment in a <see cref="Figure"/> (or a complete ellipse, if <see cref="SweepAngle"/> is 360).
     /// </summary>
     public sealed class ArcSegment : PathSegment
     {
