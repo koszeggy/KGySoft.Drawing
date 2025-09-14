@@ -2933,10 +2933,11 @@ namespace KGySoft.Drawing.Shapes
                     // Special handling for arcs for nicer Bresenham-like results. Not needed for wide pens or anti-aliased paths.
                     if (segment is ArcSegment arc && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold)
                     {
-                        if (Math.Abs(arc.SweepAngle) >= 360f)
-                            session.DrawEllipse(arc.Bounds);
-                        else
+                        // the check is alright, a full ellipse always has +360 degrees sweep angle in ArcSegment
+                        if (arc.SweepAngle < 360f)
                             session.DrawArc(arc);
+                        else
+                            session.DrawEllipse(arc.Bounds);
                         continue;
                     }
 

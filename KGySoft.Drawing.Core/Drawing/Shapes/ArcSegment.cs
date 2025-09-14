@@ -21,6 +21,8 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Shapes
@@ -63,7 +65,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance fields
 
-        // Supporting only translate/scale transformations for now, and converting to Bézier curves otherwise.
+        // Supporting only translate/scale transformations, and converting to Bézier curves otherwise.
+        // Since ArcSegment is public now, we will not even add rotation support because it would be a breaking change.
         // Storing both degrees and radians because degrees are more accurate when detecting used sectors for drawing.
         private PointF center;
         private float radiusX;
@@ -92,12 +95,12 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets the horizontal radius of this <see cref="ArcSegment"/>.
         /// </summary>
-        public float RadiusX => Math.Abs(radiusX);
+        public float RadiusX => radiusX;
 
         /// <summary>
         /// Gets the vertical radius of this <see cref="ArcSegment"/>.
         /// </summary>
-        public float RadiusY => Math.Abs(radiusY);
+        public float RadiusY => radiusY;
 
         /// <summary>
         /// Gets the start angle of this <see cref="ArcSegment"/> in degrees. The angle is measured clockwise from the x-axis.
@@ -153,8 +156,8 @@ namespace KGySoft.Drawing.Shapes
         internal ArcSegment(PointF center, float radiusX, float radiusY)
         {
             this.center = center;
-            this.radiusX = radiusX;
-            this.radiusY = radiusY;
+            this.radiusX = Math.Abs(radiusX);
+            this.radiusY = Math.Abs(radiusY);
             sweepAngle = 360f;
         }
 
@@ -164,6 +167,8 @@ namespace KGySoft.Drawing.Shapes
             radiusX = bounds.Width / 2f;
             radiusY = bounds.Height / 2f;
             center = new PointF(bounds.X + radiusX, bounds.Y + radiusY);
+            radiusX = Math.Abs(radiusX);
+            radiusY = Math.Abs(radiusY);
             bool isFullEllipse = Math.Abs(sweepAngle) >= 360f;
 
             // For a full ellipse start/end points are always at 0 degrees.
@@ -213,12 +218,19 @@ namespace KGySoft.Drawing.Shapes
             if (radiusX == radiusY)
                 return;
 
+            bool isPositive = endRad >= startRad;
+
+            // Ensuring nonzero parameters for the Atan2 calculation
+            if (radiusX.TolerantIsZero(Constants.ZeroTolerance))
+                radiusX = radiusX >= 0f && !radiusX.IsNegativeZero() ? Constants.ZeroTolerance : -Constants.ZeroTolerance;
+            if (radiusY.TolerantIsZero(Constants.ZeroTolerance))
+                radiusY = radiusY >= 0f && !radiusY.IsNegativeZero() ? Constants.ZeroTolerance : -Constants.ZeroTolerance;
+
             startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
             endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
 
-            // The result of Atan2 is not in the correct quadrant when Atan2 is called with x == 0 and y != 0, so we may need to adjust it.
-            // Another way would be to use a special Atan2 function similarly to ReactOS: https://github.com/reactos/reactos/blob/3dfbe526992849cf53a83fae784be2126319150b/dll/win32/gdiplus/gdiplus.c#L304
-            if (Math.Abs(endRad - startRad) > MathF.PI)
+            // preventing swapping the direction
+            if (endRad >= startRad != isPositive)
             {
                 if (endRad > startRad)
                     endRad -= 2f * MathF.PI;
@@ -268,51 +280,15 @@ namespace KGySoft.Drawing.Shapes
 
         internal override IList<PointF> GetFlattenedPointsInternal()
         {
-            if (sweepAngle >= 360f)
-            {
-                return radiusY is 0f ? new[] { new PointF(center.X - radiusX, center.Y), new PointF(center.X + radiusX, center.Y) }
-                    : radiusX is 0f ? new[] { new PointF(center.X, center.Y - radiusY), new PointF(center.X, center.Y + radiusY) }
-                    : BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
-            }
+            // This check is alright, a full ellipse always has +360 degrees sweep angle
+            if (sweepAngle < 360f)
+                return sweepAngle.TolerantIsZero(Constants.ZeroTolerance)
+                    ? new[] { StartPoint }
+                    : BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).GetFlattenedPointsInternal();
 
-            // Vertically flat arc: special case, because the angle adjustment makes start/end angles equal, so returning just a single point
-            if (radiusX is 0f)
-                return new[] { StartPoint };
-
-            if (radiusY is not 0f)
-                return BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).GetFlattenedPointsInternal();
-
-            // Horizontally flat arc: special handling because BezierSegment.ArcToBezier would not work here correctly
-            float startRad = startAngleRadian;
-            float endRad = startRad + sweepAngleRadian;
-            AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
-
-            PointF start = StartPoint;
-            PointF end = EndPoint;
-
-            bool swapped = false;
-            if (start.X > end.X || start.Y > end.Y)
-            {
-                (start, end) = (end, start);
-                swapped = true;
-            }
-
-            if (startRad < 0f)
-                startRad = MathF.PI * 2f + startRad;
-            if (endRad < 0f)
-                endRad = MathF.PI * 2f + endRad;
-
-            // widening the start/end points to the horizontal bounds of the arc
-            for (float currentRad = MathF.PI / 2f; currentRad < endRad; currentRad += MathF.PI / 2f)
-            {
-                if (currentRad <= startRad)
-                    continue;
-                float current = center.X + radiusX * MathF.Cos(currentRad);
-                start.X = Math.Min(start.X, current);
-                end.X = Math.Max(end.X, current);
-            }
-
-            return swapped ? new[] { end, start } : new[] { start, end };
+            return radiusY is 0f ? new[] { new PointF(center.X - radiusX, center.Y), new PointF(center.X + radiusX, center.Y) }
+                : radiusX is 0f ? new[] { new PointF(center.X, center.Y - radiusY), new PointF(center.X, center.Y + radiusY) }
+                : BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
         }
 
         internal override PathSegment Transform(TransformationMatrix matrix)

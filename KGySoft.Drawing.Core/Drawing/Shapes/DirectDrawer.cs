@@ -270,7 +270,7 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
             {
-                Debug.Assert(Math.Abs(arc.SweepAngle) < 360f && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold);
+                Debug.Assert(arc.SweepAngle < 360f && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold);
                 RectangleF bounds = arc.Bounds;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
                 (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
@@ -285,8 +285,14 @@ namespace KGySoft.Drawing.Shapes
                 (float startRad, float endRad) = arc.GetStartEndRadians();
                 ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
-                DoDrawArc(bitmapData, left, top, right, bottom, c, arc.GetSectors(),
-                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
+                int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
+                int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
+
+                // if the curve is not wide enough, the top/bottom calculation can be very inaccurate, so switching to drawing as lines
+                if (startX == endX || arc.RadiusX < radiusX)
+                    DrawLines(bitmapData, arc.GetFlattenedPointsInternal(), c, offset, arg);
+                else
+                    DoDrawArc(bitmapData, left, top, right, bottom, c, arc.GetSectors(), startX, endX, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -597,7 +603,7 @@ namespace KGySoft.Drawing.Shapes
             {
                 if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f);
+                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f, arg);
                     return;
                 }
 
@@ -630,8 +636,14 @@ namespace KGySoft.Drawing.Shapes
                 ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
-                DoDrawArc(bitmapData, left, top, right, bottom, c, ArcSegment.GetSectors(startAngle, sweepAngle),
-                    (int)(centerX + radiusX * MathF.Cos(startRad)), (int)(centerX + radiusX * MathF.Cos(endRad)), arg);
+                int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
+                int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
+
+                // if the curve is not wide enough, the top/bottom calculation can be very inaccurate, so switching to drawing as lines
+                if (startX == endX || bounds.Width == 0)
+                    DrawLines(bitmapData, BezierSegment.FromArc(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f, arg);
+                else
+                    DoDrawArc(bitmapData, left, top, right, bottom, c, ArcSegment.GetSectors(startAngle, sweepAngle), startX, endX, arg);
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
@@ -640,6 +652,7 @@ namespace KGySoft.Drawing.Shapes
             private static void DoDrawArc(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
                 TColor c, BitVector32 sectors, int startX, int endX, TArg arg)
             {
+                Debug.Assert(startX != endX, "Vertically flat arcs should be drawn as flat lines instead due to inaccuracies");
                 int width = right - left; // Exclusive: the actual drawn width is width + 1.
                 int height = bottom - top; // Exclusive: the actual drawn height is height + 1
                 Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);

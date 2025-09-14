@@ -17,12 +17,12 @@
 
 #region Usings
 
-using System.Collections.Generic;
-
 #region Used Namespaces
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
@@ -35,6 +35,7 @@ using NUnit.Framework;
 #region Used Aliases
 
 using Brush = KGySoft.Drawing.Shapes.Brush;
+using Path = KGySoft.Drawing.Shapes.Path;
 using Pen = KGySoft.Drawing.Shapes.Pen;
 
 #endregion
@@ -1066,7 +1067,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             var options = new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half };
             bmp.DrawLine(Color.Blue, 0, 5, bmp.Width, 5, options);
-            var pen = new Pen(Color.Blue, 1/*.01f*/) { LineJoin = LineJoinStyle.Miter, MiterLimit = 10f };
+            var pen = new Pen(Color.Blue/*, 0.01f*/) { LineJoin = LineJoinStyle.Miter, MiterLimit = 10f };
 
             for (int x = 0, i = 1; i < 100; i++, x += i)
                 bmp.DrawLines(pen, new PointF[] {new(x, bmp.Height), new(x + i / 2f, 5), new(x + i, bmp.Height)}, options);
@@ -1075,6 +1076,109 @@ namespace KGySoft.Drawing.UnitTests.Shapes
 
             // No mitered edges exceed beyond the top line if the line width is 1, even with a high miter limit. This keeps consistency with the fast thin lines rendering.
             AssertAreEqual(bmp.Clip(new Rectangle(0, 0, bmp.Width, 5)), new SolidBitmapData(new Size(bmp.Width, 5), bmp.GetColor32(0, 0)));
+        }
+
+        [Explicit]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        public void FlatArcsTest(bool antiAliasing, bool fastThinLines)
+        {
+            Queue<float> diameters = new([100f, 50f, 20f, 10f, 5f, 2f, 1f, 0.5f, 0.1f, 1e-6f, 0f]);
+            var options = new DrawingOptions
+            {
+                AntiAliasing = antiAliasing,
+                DrawPathPixelOffset = antiAliasing ? PixelOffset.Half : PixelOffset.None,
+                FastThinLines = fastThinLines
+            };
+            using var bmp = BitmapDataFactory.CreateBitmapData(500, 500);
+            using var ms = new MemoryStream();
+            GifEncoder.EncodeAnimation(new AnimatedGifConfiguration(GetNextFrame, () => TimeSpan.FromMilliseconds(500))
+            {
+                //AnimationMode = AnimationMode.PingPong
+            }, ms);
+            GC.KeepAlive(bmp);
+            SaveStream($"{(antiAliasing ? "AA" : "NA")}{(fastThinLines ? "_Thin" : null)}", ms);
+
+            IReadableBitmapData? GetNextFrame()
+            {
+                if (diameters.Count == 0)
+                    return null;
+                float diameter = diameters.Dequeue();
+                float radius = diameter / 2f;
+                float sweepAngle = 300f;
+                var path = new Path()
+                    .TransformTranslation(13, 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), -45, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(125 + 13, 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), -45, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(13, 125 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 0, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(125 + 13, 125 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 0, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(13, 250 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 45, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(125 + 13, 250 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 45, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(13, 375 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 90, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(125 + 13, 375 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 90, sweepAngle)
+                    .AddPoint(100, 100)
+
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 13, 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), -45 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 125 + 13, 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), -45 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 13, 125 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 125 + 13, 125 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 13, 250 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 45 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 125 + 13, 250 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 45 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 13, 375 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(0, 50 - radius, 100, diameter), 90 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    .StartFigure().ResetTransformation().TransformTranslation(250 + 125 + 13, 375 + 13)
+                    .AddPoint(0, 0)
+                    .AddArc(new RectangleF(50 - radius, 0, diameter, 100), 90 + 180, sweepAngle)
+                    .AddPoint(100, 100)
+                    ;
+                bmp.Clear(Color.Cyan);
+                //bmp.FillPath(Color.Yellow, path, options);
+                bmp.DrawPath(Color.Blue, path, options);
+                return bmp;
+            }
         }
 
         #endregion

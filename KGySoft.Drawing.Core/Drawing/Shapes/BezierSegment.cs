@@ -40,7 +40,6 @@ namespace KGySoft.Drawing.Shapes
 
         private const float flatnessThreshold = 1f / 64f;
         private const int flattenRecursionLimit = 16;
-        private const float tolerance = 1e-4f;
 
         #endregion
 
@@ -88,18 +87,16 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
-            Debug.Assert(Math.Abs(bounds.Width) > 0f && Math.Abs(bounds.Height) > 0f);
             if (Math.Abs(sweepAngle) >= 360f)
                 return FromEllipse(bounds);
 
             float radiusX = bounds.Width / 2f;
             float radiusY = bounds.Height / 2f;
-            return FromArc(new PointF(bounds.X + radiusX, bounds.Y + radiusY), radiusX, radiusY, startAngle.ToRadian(), sweepAngle.ToRadian());
+            return FromArc(new PointF(bounds.X + radiusX, bounds.Y + radiusY), Math.Abs(radiusX), Math.Abs(radiusY), startAngle.ToRadian(), sweepAngle.ToRadian());
         }
 
         internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
         {
-            Debug.Assert(Math.Abs(radiusX) > 0f && Math.Abs(radiusY) > 0f, "Handle flat arcs in the caller");
             Debug.Assert(sweepRad < MathF.PI * 2f, "The caller should have called FromEllipse. If the caller of this overload may create full ellipses, then add if (Math.Abs(sweepRad) >= MathF.PI * 2f) FromEllipse(...) here.");
 
             // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
@@ -120,7 +117,7 @@ namespace KGySoft.Drawing.Shapes
                 else
                 {
                     // for very small remaining section breaking without actually adding it
-                    if (currentEnd.TolerantIsZero(tolerance) && result.Count > 0)
+                    if (currentEnd.TolerantIsZero(Constants.ZeroTolerance) && result.Count > 0)
                         break;
 
                     finished = true;

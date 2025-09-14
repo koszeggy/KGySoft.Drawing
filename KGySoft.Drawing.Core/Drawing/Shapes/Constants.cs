@@ -20,6 +20,7 @@ namespace KGySoft.Drawing.Shapes
         #region Constants
 
         internal const float EqualityTolerance = 1f / 64f;
+        internal const float ZeroTolerance = 1e-4f;
 
         #endregion
     }
