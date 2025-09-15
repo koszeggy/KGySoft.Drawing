@@ -46,6 +46,8 @@ namespace KGySoft.Drawing.Shapes
         #region Fields
 
         private readonly IList<PointF> points;
+        
+        private List<PointF>? flattenedPoints;
 
         #endregion
 
@@ -295,22 +297,26 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance Methods
 
-        internal override IList<PointF> GetFlattenedPointsInternal()
+        internal override List<PointF> GetFlattenedPointsInternal()
         {
+            if (flattenedPoints is List<PointF> result)
+                return result;
+
             Debug.Assert((points.Count - 1) % 3 == 0);
-            var result = new List<PointF>(points.Count) { points[0] };
+            result = new List<PointF>(points.Count) { points[0] };
 
             // Converting the Bézier segments one by one. The last point of a segment is the first point of the next segment.
             int len = points.Count;
             for (int i = 1; i < len; i += 3)
                 FlattenBezierCurve(points[i - 1], points[i], points[i + 1], points[i + 2], 0, result);
 
-            return result;
+            return flattenedPoints = result;
         }
 
         internal override PathSegment Transform(TransformationMatrix matrix)
         {
             Debug.Assert(!matrix.IsIdentity);
+            flattenedPoints = null;
             int len = points.Count;
             for (int i = 0; i < len; i++)
                 points[i] = points[i].Transform(matrix);

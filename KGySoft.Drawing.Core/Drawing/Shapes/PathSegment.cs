@@ -16,8 +16,8 @@
 #region Usings
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
 
 #endregion
 
@@ -59,15 +59,13 @@ namespace KGySoft.Drawing.Shapes
         /// Gets the flattened points that define this <see cref="PathSegment"/> as a polyline.
         /// </summary>
         /// <returns>The list of <see cref="PointF"/> structures that define the flattened points of this segment.</returns>
-        public IList<PointF> GetFlattenedPoints() => this is LineSegment
-            ? GetFlattenedPointsInternal().ToArray()
-            : GetFlattenedPointsInternal();
+        public ReadOnlyCollection<PointF> GetFlattenedPoints() => GetFlattenedPointsInternal().AsReadOnly();
 
         #endregion
 
         #region Internal Methods
 
-        internal abstract IList<PointF> GetFlattenedPointsInternal();
+        internal abstract List<PointF> GetFlattenedPointsInternal();
         internal abstract PathSegment Transform(TransformationMatrix matrix);
         internal abstract PathSegment Clone();
 

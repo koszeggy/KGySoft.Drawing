@@ -79,12 +79,14 @@ namespace KGySoft.Drawing.Shapes
         private PointF? startPoint;
         private PointF? endPoint;
 
+        private List<PointF>? flattenedPoints;
+
         #endregion
 
         #endregion
 
         #region Properties
-        
+
         #region Public Properties
 
         /// <summary>
@@ -142,8 +144,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Properties
 
-        internal float Width => Math.Abs(radiusX) * 2f;
-        internal float Height => Math.Abs(radiusY) * 2f;
+        internal float Width => radiusX * 2f;
+        internal float Height => radiusY * 2f;
         internal RectangleF Bounds => new RectangleF(center.X - radiusX, center.Y - radiusY, radiusX * 2f, radiusY * 2f);
         
         #endregion
@@ -288,29 +290,33 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal override IList<PointF> GetFlattenedPointsInternal()
+        internal override List<PointF> GetFlattenedPointsInternal()
         {
+            if (flattenedPoints is List<PointF> result)
+                return result;
+
             // Arc, or a full ellipse with nonzero start angle
             if (sweepAngle < 360f || startAngleRadian is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
-                return sweepAngleRadian is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
-                    ? new[] { StartPoint }
+                return flattenedPoints = sweepAngleRadian is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
+                    ? [StartPoint]
                     : BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).GetFlattenedPointsInternal();
 
             // Full ellipse with zero start angle: simple conversion to Bézier curves
-            return BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
+            return flattenedPoints = BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
         }
 
         internal override PathSegment Transform(TransformationMatrix matrix)
         {
             Debug.Assert(!matrix.IsIdentity);
 
-            startPoint = null;
-            endPoint = null;
-
             // If the transformation is translation or scale (including reflections) only, we can transform the arc directly.
             // See https://en.wikipedia.org/wiki/Transformation_matrix#/media/File:2D_affine_transformation_matrix.svg
             if (matrix is { M12: 0f, M21: 0f })
             {
+                startPoint = null;
+                endPoint = null;
+                flattenedPoints = null;
+
                 center = center.Transform(matrix);
                 radiusX *= matrix.M11;
                 radiusY *= matrix.M22;

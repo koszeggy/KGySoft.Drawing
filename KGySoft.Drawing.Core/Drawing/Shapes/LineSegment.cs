@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal void Append(IEnumerable<PointF> newPoints) => points.AddRange(newPoints);
 
-        internal override IList<PointF> GetFlattenedPointsInternal() => points;
+        internal override List<PointF> GetFlattenedPointsInternal() => points;
 
         internal override PathSegment Transform(TransformationMatrix matrix)
         {

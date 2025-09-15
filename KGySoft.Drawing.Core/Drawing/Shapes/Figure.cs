@@ -106,8 +106,16 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="IsClosed"/> property is true, and this figure contains at least 3 points,
         /// then the returned list contains the closing point as well, if it is not the same as the first point.</para>
         /// </remarks>
-        /// <returns>A list of <see cref="PointF"/> structures that define the flattened points of this figure.</returns>
-        public IList<PointF> GetFlattenedPoints() => GetPoints(true);
+        /// <returns>A list of <see cref="PointF"/> structures that define the flattened points of this figure. The result may be a read-only list.</returns>
+        // NOTE: IReadOnlyList<PointF> would be more appropriate, but it's not available in .NET Framework 3.5/4.0
+        // Not returning ReadOnlyCollection<PointF> directly to avoid unnecessary wrapping if the result is already a copy of the original points.
+        public IList<PointF> GetFlattenedPoints()
+        {
+            IList<PointF> result = GetPoints(true);
+            return SegmentsInternal.Count == 1 && !ReferenceEquals(result, SegmentsInternal[0].GetFlattenedPointsInternal())
+                ? new ReadOnlyCollection<PointF>(result)
+                : result;
+        }
 
         #endregion
 
@@ -141,9 +149,9 @@ namespace KGySoft.Drawing.Shapes
                 case 0:
                     return Reflector.EmptyArray<PointF>();
                 case 1:
-                    var points = SegmentsInternal[0].GetFlattenedPointsInternal();
+                    List<PointF> points = SegmentsInternal[0].GetFlattenedPointsInternal();
                     if (ensureClosed && IsClosed && points.Count > 2 && points[0] != points[points.Count - 1])
-                        points = [.. points, points[0]];
+                        points = [..points, points[0]];
                     return points;
                 default:
                     var result = new List<PointF>();

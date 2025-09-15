@@ -48,8 +48,9 @@
     - AddArc methods: the startAngle parameter is respected even when a full ellipse is drawn. Matters if the arc is
       connected with other path segments.
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
-+ Path class:
+* Path class:
   + New Figures property
+  * Improving performance when the flattened points are requested repeatedly without modifying the path.
 
 
 ~~~~~~~~~
