@@ -139,6 +139,10 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+        /// <summary>
+        /// Gets the bounding rectangle of this <see cref="ArcSegment"/>.
+        /// </summary>
+        public RectangleF Bounds => new RectangleF(center.X - radiusX, center.Y - radiusY, radiusX * 2f, radiusY * 2f);
 
         #endregion
 
@@ -146,7 +150,6 @@ namespace KGySoft.Drawing.Shapes
 
         internal float Width => radiusX * 2f;
         internal float Height => radiusY * 2f;
-        internal RectangleF Bounds => new RectangleF(center.X - radiusX, center.Y - radiusY, radiusX * 2f, radiusY * 2f);
         
         #endregion
 
