@@ -42,6 +42,8 @@
 - BitmapDataExtensions class:
   - [Begin]DrawArc[Async] methods:
     - Fixing rendering when the arc's width or height is near to zero.
+    - Fixing the precision of start/end points when DrawingOptions.FastThinLines is enabled, and the arc's vertical
+      radius is greater than the horizontal radius.
   - [Begin]DrawPath[Async] methods:
     - If a Path contained a complex figure with an arc connected to other path segments, then the possible
       connecting other segments might have swapped the arc's start and end points causing an incorrect drawing.

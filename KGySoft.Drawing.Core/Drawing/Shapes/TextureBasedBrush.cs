@@ -1480,6 +1480,7 @@ namespace KGySoft.Drawing.Shapes
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal override void DrawArc(ArcSegment arc)
             {
+                Debug.Assert(arc.SweepAngle < 360f, "Don't draw a full ellipse as an arc.");
                 RectangleF bounds = arc.Bounds;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
                 Size size = BitmapData.Size;
@@ -1492,6 +1493,61 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
+
+                if (width < 2 || height < 2)
+                {
+                    DrawLines(arc.GetFlattenedPointsInternal());
+                    return;
+                }
+
+                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
+                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
+                float radiusX = (width + 1) / 2f;
+                float radiusY = (height + 1) / 2f;
+
+                (float startRad, float endRad) = arc.GetStartEndRadians();
+                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+
+                // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
+                if (bounds.Width >= bounds.Height)
+                {
+                    float centerX = (left + right + 1) / 2f;
+                    int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
+                    int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
+                    DoDrawArcHorizontal(left, top, right, bottom, arc.GetSectors(), startX, endX);
+                    return;
+                }
+
+                float centerY = (top + bottom + 1) / 2f;
+                int startY = (int)(centerY + radiusY * MathF.Sin(startRad));
+                int endY = (int)(centerY + radiusY * MathF.Sin(endRad));
+                DoDrawArcVertical(left, top, right, bottom, arc.GetSectors(), startY, endY);
+            }
+
+            #endregion
+
+            #region Protected Methods
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing && disposeTexture)
+                    texture.Dispose();
+                disposeCallback?.Invoke();
+                base.Dispose(disposing);
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            private void DoDrawArcHorizontal(int left, int top, int right, int bottom, BitVector32 sectors, int startX, int endX)
+            {
+                int width = right - left; // Exclusive: the actual drawn width is width + 1.
+                int height = bottom - top; // Exclusive: the actual drawn height is height + 1
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold && width >= height);
+                Debug.Assert(width >= 2 && height >= 2, "Flat arcs should be drawn as flattened lines instead");
+                Size size = BitmapData.Size;
 
                 int oddHeightCorrection = height & 1;
                 long widthSquared = (long)width * width;
@@ -1507,19 +1563,6 @@ namespace KGySoft.Drawing.Shapes
                 top = bottom - oddHeightCorrection;
                 long scaledWidth = widthSquared << 3;
                 long scaledHeight = heightSquared << 3;
-
-                // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
-                // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
-                float centerX = (left + right + 1) / 2f;
-                float radiusX = (width + 1) / 2f;
-                float radiusY = (height + 1) / 2f;
-                (float startRad, float endRad) = arc.GetStartEndRadians();
-                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
-
-                // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
-                BitVector32 sectors = arc.GetSectors();
-                int startX = (int)(centerX + radiusX * MathF.Cos(startRad));
-                int endX = (int)(centerX + radiusX * MathF.Cos(endRad));
 
                 TMapper map = mapper;
                 TAccessor accSrc = accessorSrc;
@@ -1565,7 +1608,6 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Local Methods
 
-                [SecuritySafeCritical]
                 void SetPixel(int x, int y, int sector)
                 {
                     if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
@@ -1576,11 +1618,11 @@ namespace KGySoft.Drawing.Shapes
                         return;
 
                     if (sectorType == ArcSegment.SectorFullyDrawn
-                        || sector > 1 // positive sector point
+                        || sector > 1 // upper half
                         && (sectorType == ArcSegment.SectorStart && x >= startX
                             || sectorType == ArcSegment.SectorEnd && x <= endX
                             || sectorType == ArcSegment.SectorStartEnd && x >= startX && x <= endX)
-                        || sector <= 1 // negative sector point
+                        || sector <= 1 // bottom half
                         && (sectorType == ArcSegment.SectorStart && x <= startX
                             || sectorType == ArcSegment.SectorEnd && x >= endX
                             || sectorType == ArcSegment.SectorStartEnd && x <= startX && x >= endX))
@@ -1594,16 +1636,99 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
             }
 
-            #endregion
-
-            #region Protected Methods
-
-            protected override void Dispose(bool disposing)
+            private void DoDrawArcVertical(int left, int top, int right, int bottom, BitVector32 sectors, int startY, int endY)
             {
-                if (disposing && disposeTexture)
-                    texture.Dispose();
-                disposeCallback?.Invoke();
-                base.Dispose(disposing);
+                int width = right - left; // Exclusive: the actual drawn width is width + 1.
+                int height = bottom - top; // Exclusive: the actual drawn height is height + 1
+                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold && height >= width);
+                Debug.Assert(width >= 2 && height >= 2, "Flat arcs should be drawn as flattened lines instead");
+                Size size = BitmapData.Size;
+
+                int oddWidthCorrection = width & 1;
+                long widthSquared = (long)width * width;
+                long heightSquared = (long)height * height;
+                long stepY = 1L - height;
+                stepY = (stepY * widthSquared) << 2; // should be checked(stepY * widthSquared * 4) if width could be larger than 916396
+                long stepX = (oddWidthCorrection + 1L) * heightSquared;
+                stepX <<= 2; // should be checked(stepX * 4) if height could be larger than 916395
+                long err = oddWidthCorrection * heightSquared;
+                err += stepX + stepY; //  should be checked(stepX + stepY + err) if size could be larger than 916396 x 916395
+
+                right = left + ((width + 1) >> 1);
+                left = right - oddWidthCorrection;
+                long scaledWidth = widthSquared << 3;
+                long scaledHeight = heightSquared << 3;
+
+                TMapper map = mapper;
+                TAccessor accSrc = accessorSrc;
+                TAccessor accDst = accessorDst;
+
+                do
+                {
+                    SetPixel(right, bottom, 0);
+                    SetPixel(left, bottom, 1);
+                    SetPixel(left, top, 2);
+                    SetPixel(right, top, 3);
+
+                    long err2 = err << 1; //should be checked(err * 2) if size could be larger than 916396 x 916395
+                    if (err2 <= stepX)
+                    {
+                        left -= 1;
+                        right += 1;
+                        stepX += scaledHeight; //should be checked(stepX + scaledHeight) if height could be larger than 916395
+                        err += stepX;
+                    }
+
+                    if (err2 >= stepY || err2 > stepX)
+                    {
+                        top += 1;
+                        bottom -= 1;
+                        stepY += scaledWidth; //should be checked(stepY + scaledWidth) if width could be larger than 916396
+                        err += stepY;
+                    }
+                } while (top <= bottom);
+
+                if (top > size.Height || bottom < -1 || left < 0 && right >= size.Width)
+                    return;
+
+                while (right - left <= width)
+                {
+                    SetPixel(right, bottom + 1, 0);
+                    SetPixel(right, top - 1, 3);
+                    right += 1;
+                    SetPixel(left, bottom + 1, 1);
+                    SetPixel(left, top - 1, 2);
+                    left -= 1;
+                }
+
+                #region Local Methods
+
+                void SetPixel(int x, int y, int sector)
+                {
+                    if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
+                        return;
+
+                    int sectorType = sectors[ArcSegment.Sectors[sector]];
+                    if (sectorType == ArcSegment.SectorNotDrawn)
+                        return;
+
+                    if (sectorType == ArcSegment.SectorFullyDrawn
+                        || sector is 0 or 3 // right half
+                        && (sectorType == ArcSegment.SectorStart && y >= startY
+                            || sectorType == ArcSegment.SectorEnd && y <= endY
+                            || sectorType == ArcSegment.SectorStartEnd && y >= startY && y <= endY)
+                        || sector is 1 or 2 // left half
+                        && (sectorType == ArcSegment.SectorStart && y <= startY
+                            || sectorType == ArcSegment.SectorEnd && y >= endY
+                            || sectorType == ArcSegment.SectorStartEnd && y <= startY && y >= endY))
+                    {
+                        int srcX = map.MapX(x);
+                        int srcY = map.MapY(y);
+                        accDst.SetColor(x, y, srcX < 0 || srcY < 0 ? default : accSrc.GetColor(srcX, srcY));
+                    }
+                }
+
+                #endregion
             }
 
             #endregion

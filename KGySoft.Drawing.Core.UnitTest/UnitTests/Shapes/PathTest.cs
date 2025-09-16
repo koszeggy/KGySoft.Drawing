@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 
@@ -969,7 +970,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             Assert.DoesNotThrow(() => bmp.DrawArc(color, 0, 0, 916_396, 916_395, 0, 270)); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344]
             Assert.DoesNotThrow(() => bmp.DrawArc(color, 0, 0, Int32.MaxValue - 127, Int32.MaxValue - 127, 0, 270)); // shortcut, not visible
             Assert.DoesNotThrow(() => bmp.DrawArc(color, 0, 5, Int32.MaxValue - 127, 0, 0, 270)); // shortcut, visible part is drawn
-            Assert.DoesNotThrow(() => bmp.DrawArc(color, 5, 0, 1, Int32.MaxValue - 127, 0, 270)); // shortcut, vertically flat arc is not visible due to the way angles are transformed
+            Assert.DoesNotThrow(() => bmp.DrawArc(color, 5, 0, 1, Int32.MaxValue - 127, 0, 270)); // shortcut, vertical flat arc is not visible due to the way angles are transformed
             bmp.Clear(backColor);
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddArc(0, 0, 916_396, 916_395, 0, 270))); // shortcut, not visible - the largest possible ellipse. Between Int32.MaxValue / [2343..2344]
             Assert.DoesNotThrow(() => bmp.DrawPath(color, new Path().AddArc(0, 5, Int32.MaxValue >> 1, 0, 0, 270))); // shortcut, visible part is drawn - it would throw if it called DrawArc with the rounded float bounds
@@ -1088,20 +1089,24 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             {
                 AntiAliasing = antiAliasing,
                 DrawPathPixelOffset = fastThinLines ? PixelOffset.None : PixelOffset.Half,
-                FastThinLines = fastThinLines
+                FastThinLines = fastThinLines,
+                //Quantizer = OptimizedPaletteQuantizer.Wu() // to test drawing thin path into region
             };
             using var bmp = BitmapDataFactory.CreateBitmapData(500, 500);
             using var ms = new MemoryStream();
-            GifEncoder.EncodeAnimation(new AnimatedGifConfiguration(GetNextFrame, () => TimeSpan.FromMilliseconds(500))
-            {
-                //AnimationMode = AnimationMode.PingPong
-            }, ms);
+            using var texture = BitmapDataFactory.CreateBitmapData(2, 2, KnownPixelFormat.Format8bppGrayScale);
+            texture.SetPixel(0, 0, Color.Blue);
+            texture.SetPixel(1, 0, Color.DarkCyan);
+            texture.SetPixel(0, 1, Color.Teal);
+            texture.SetPixel(1, 1, Color.DarkBlue);
+            GifEncoder.EncodeAnimation(new AnimatedGifConfiguration(GetNextFrame, () => TimeSpan.FromMilliseconds(500)), ms);
 
             // No assert, must be observed visually
             SaveStream($"{(antiAliasing ? "AA" : "NA")}{(fastThinLines ? "_Thin" : null)}", ms);
 
             #region Local Methods
             
+            [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "False alarm, not used after disposed")]
             IReadableBitmapData? GetNextFrame()
             {
                 if (diameters.Count == 0)
@@ -1179,6 +1184,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 bmp.Clear(Color.Cyan);
                 //bmp.FillPath(Color.Yellow, path, options);
                 bmp.DrawPath(Color.Blue, path, options);
+                //bmp.DrawPath(new Pen(Brush.CreateTexture(texture)), path, options); // to test TextureBrush.DrawArc
                 return bmp;
             }
 
