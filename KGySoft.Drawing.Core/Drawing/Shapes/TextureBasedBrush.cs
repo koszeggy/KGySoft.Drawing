@@ -1390,6 +1390,8 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void DrawEllipse(RectangleF bounds)
             {
+                Debug.Assert(bounds.Width >= 0 && bounds.Height >= 0, "Normalized bounds are expected here");
+                Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
                 Size size = BitmapData.Size;
 
@@ -1397,8 +1399,6 @@ namespace KGySoft.Drawing.Shapes
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-
-                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
 
@@ -1480,8 +1480,9 @@ namespace KGySoft.Drawing.Shapes
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
             internal override void DrawArc(ArcSegment arc)
             {
-                Debug.Assert(arc.SweepAngle < 360f, "Don't draw a full ellipse as an arc.");
                 RectangleF bounds = arc.Bounds;
+                Debug.Assert(arc.SweepAngle < 360f, "Don't draw a full ellipse as an arc.");
+                Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
                 Size size = BitmapData.Size;
 
@@ -1489,16 +1490,8 @@ namespace KGySoft.Drawing.Shapes
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-
-                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
-
-                if (width < 2 || height < 2)
-                {
-                    DrawLines(arc.GetFlattenedPointsInternal());
-                    return;
-                }
 
                 // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
                 // because ArcSegment has no concept of line width, and here we draw a 1px wide path.

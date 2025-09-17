@@ -1148,6 +1148,7 @@ namespace KGySoft.Drawing.Shapes
             internal override void DrawLine(PointF start, PointF end)
                 => DirectDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawLine(BitmapData, start, end, color, PixelOffset, arg);
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal override void DrawEllipse(RectangleF bounds)
                 => DirectDrawer.GenericDrawer<TAccessor, TColor, TArg>.DrawEllipse(BitmapData, bounds, color, PixelOffset, arg);
 

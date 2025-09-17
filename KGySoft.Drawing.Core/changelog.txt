@@ -48,7 +48,7 @@
     - If a Path contained a complex figure with an arc connected to other path segments, then the possible
       connecting other segments might have swapped the arc's start and end points causing an incorrect drawing.
     - AddArc methods: the startAngle parameter is respected even when a full ellipse is drawn. Matters if the arc is
-      connected with other path segments.
+      connected to other path segments.
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
   + New Figures property

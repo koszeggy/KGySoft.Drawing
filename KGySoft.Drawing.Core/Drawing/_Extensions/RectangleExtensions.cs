@@ -61,16 +61,19 @@ namespace KGySoft.Drawing
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static void Normalize(this ref Rectangle rect)
         {
-            if (rect.Width < 0)
+            checked
             {
-                rect.X += rect.Width;
-                rect.Width = -rect.Width;
-            }
+                if (rect.Width < 0)
+                {
+                    rect.X += rect.Width;
+                    rect.Width = -rect.Width;
+                }
 
-            if (rect.Height < 0)
-            {
-                rect.Y += rect.Height;
-                rect.Height = -rect.Height;
+                if (rect.Height < 0)
+                {
+                    rect.Y += rect.Height;
+                    rect.Height = -rect.Height;
+                }
             }
         }
 

@@ -1094,15 +1094,19 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             };
             using var bmp = BitmapDataFactory.CreateBitmapData(500, 500);
             using var ms = new MemoryStream();
-            using var texture = BitmapDataFactory.CreateBitmapData(2, 2, KnownPixelFormat.Format8bppGrayScale);
+            
+            using var texture = BitmapDataFactory.CreateBitmapData(2, 2, KnownPixelFormat.Format8bppIndexed);
             texture.SetPixel(0, 0, Color.Blue);
             texture.SetPixel(1, 0, Color.DarkCyan);
             texture.SetPixel(0, 1, Color.Teal);
             texture.SetPixel(1, 1, Color.DarkBlue);
+
             GifEncoder.EncodeAnimation(new AnimatedGifConfiguration(GetNextFrame, () => TimeSpan.FromMilliseconds(500)), ms);
 
             // No assert, must be observed visually
             SaveStream($"{(antiAliasing ? "AA" : "NA")}{(fastThinLines ? "_Thin" : null)}", ms);
+            if (!SaveToFile)
+                Assert.Inconclusive($"{nameof(SaveToFile)} should be enabled to check the result visually");
 
             #region Local Methods
             

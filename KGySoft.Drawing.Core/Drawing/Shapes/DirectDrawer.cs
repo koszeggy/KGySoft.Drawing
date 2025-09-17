@@ -245,22 +245,25 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, RectangleF bounds, TColor c, float offset, TArg arg = default!)
             {
-                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                bounds.Normalize();
+                (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
+                var rect = new Rectangle(p1.X, p1.Y, p2.X, p2.Y);
+                if (rect.Width > ArcSegment.DrawAsLinesThreshold || rect.Height > ArcSegment.DrawAsLinesThreshold || rect.Width < 2f || rect.Height < 2f)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPointsInternal(), c, offset);
+                    DrawLines(bitmapData, BezierSegment.FromEllipse(bounds).GetFlattenedPointsInternal(), c, offset);
                     return;
                 }
 
-                (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
-                DoDrawEllipse(bitmapData, new Rectangle(p1.X, p1.Y, p2.X, p2.Y), c, arg);
+                DoDrawEllipse(bitmapData, rect, c, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
             {
-                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                bounds.Normalize();
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold || bounds.Width < 2 || bounds.Height < 2)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds).GetFlattenedPointsInternal(), c, 0f);
+                    DrawLines(bitmapData, BezierSegment.FromEllipse(bounds).GetFlattenedPointsInternal(), c, 0f);
                     return;
                 }
 
@@ -270,24 +273,20 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawArc(IBitmapDataInternal bitmapData, ArcSegment arc, TColor c, float offset, TArg arg = default!)
             {
-                Debug.Assert(arc.SweepAngle < 360f && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold);
                 RectangleF bounds = arc.Bounds;
+                Debug.Assert(arc.SweepAngle < 360f);
+                Debug.Assert(bounds.Width >= 0 && bounds.Height >= 0, "Normalized bounds are expected here");
+                Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size, offset);
                 Size size = bitmapData.Size;
 
-                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
-                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+                (int left, int right) = (p1.X, p2.X);
+                (int top, int bottom) = (p1.Y, p2.Y);
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
 
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
-
-                if (width < 2 || height < 2)
-                {
-                    DrawLines(bitmapData, arc.GetFlattenedPointsInternal(), c, offset, arg);
-                    return;
-                }
 
                 // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
                 // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
@@ -316,11 +315,12 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawArc(IBitmapDataInternal bitmapData, RectangleF bounds, float startAngle, float sweepAngle, TColor c, float offset, TArg arg = default!)
             {
+                bounds.Normalize();
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Size.ToPointF(), offset);
                 var rect = new Rectangle(p1.X, p1.Y, p2.X, p2.Y);
-                if (rect.Width > ArcSegment.DrawAsLinesThreshold || rect.Height > ArcSegment.DrawAsLinesThreshold)
+                if (rect.Width > ArcSegment.DrawAsLinesThreshold || rect.Height > ArcSegment.DrawAsLinesThreshold || rect.Width < 2 || rect.Height < 2)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f, arg);
+                    DrawLines(bitmapData, BezierSegment.FromArc(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, offset, arg);
                     return;
                 }
 
@@ -337,9 +337,10 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal static void DrawArc(IBitmapDataInternal bitmapData, Rectangle bounds, float startAngle, float sweepAngle, TColor c, TArg arg = default!)
             {
-                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold)
+                bounds.Normalize();
+                if (bounds.Width > ArcSegment.DrawAsLinesThreshold || bounds.Height > ArcSegment.DrawAsLinesThreshold || bounds.Width < 2 || bounds.Height < 2)
                 {
-                    DrawLines(bitmapData, new ArcSegment(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f);
+                    DrawLines(bitmapData, BezierSegment.FromArc(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f);
                     return;
                 }
 
@@ -545,20 +546,18 @@ namespace KGySoft.Drawing.Shapes
                 return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
             }
 
+            // Based on http://members.chello.at/~easyfilter/bresenham.c
+            // Main changes: converting to C#, correcting types, more descriptive variable names
             private static void DoDrawEllipse(IBitmapDataInternal bitmapData, Rectangle bounds, TColor c, TArg arg = default!)
             {
+                int width = bounds.Width; // exclusive: the actual drawn width is width + 1
+                int height = bounds.Height; // exclusive: the actual drawn height is height + 1
+                Debug.Assert(width >= 0 && height >= 0, "Normalized bounds are expected here");
                 int top = bounds.Top;
                 int left = bounds.Left;
                 int right = bounds.RightChecked();
                 int bottom = bounds.BottomChecked();
                 Size size = bitmapData.Size;
-
-                if (left > right)
-                    (left, right) = (right, left);
-                if (top > bottom)
-                    (top, bottom) = (bottom, top);
-                int width = right - left; // Not bounds.Width, because that can be negative. Exclusive: the actual drawn width is width + 1.
-                int height = bottom - top; // Not bounds.Height, because that can be negative. Exclusive: the actual drawn height is height + 1
 
                 Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
@@ -634,27 +633,18 @@ namespace KGySoft.Drawing.Shapes
 
             private static void DoDrawArc(IBitmapDataInternal bitmapData, Rectangle bounds, float startAngle, float sweepAngle, TColor c, TArg arg = default!)
             {
+                int width = bounds.Width; // exclusive: the actual drawn width is width + 1
+                int height = bounds.Height; // exclusive: the actual drawn height is height + 1
+                Debug.Assert(width >= 0 && height >= 0, "Normalized bounds are expected here");
+
                 int top = bounds.Top;
                 int left = bounds.Left;
                 int right = bounds.RightChecked();
                 int bottom = bounds.BottomChecked();
                 Size size = bitmapData.Size;
 
-                if (left > right)
-                    (left, right) = (right, left);
-                if (top > bottom)
-                    (top, bottom) = (bottom, top);
-
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
-
-                int width = right - left; // exclusive: the actual drawn width is width + 1
-                int height = bottom - top; // exclusive: the actual drawn height is height + 1
-                if (width < 2 || height < 2)
-                {
-                    DrawLines(bitmapData, BezierSegment.FromArc(bounds, startAngle, sweepAngle).GetFlattenedPointsInternal(), c, 0f, arg);
-                    return;
-                }
 
                 float radiusX = (width + 1) / 2f;
                 float radiusY = (height + 1) / 2f;

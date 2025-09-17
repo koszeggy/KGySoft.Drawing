@@ -1663,24 +1663,6 @@ namespace KGySoft.Drawing.Shapes
                     new Point((int)MathF.Floor(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)MathF.Floor(p2.Y.RoundTo(roundingUnit) + PixelOffset)));
             }
 
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            protected void DrawLines(List<PointF> pointList)
-            {
-                int count = pointList.Count;
-                switch (count)
-                {
-                    case 0:
-                        return;
-                    case 1:
-                        DrawLine(pointList[0], pointList[0]);
-                        return;
-                    default:
-                        for (int i = 1; i < count; i++)
-                            DrawLine(pointList[i - 1], pointList[i]);
-                        return;
-                }
-            }
-
             #endregion
 
             #endregion
@@ -1831,6 +1813,8 @@ namespace KGySoft.Drawing.Shapes
             internal override void DrawEllipse(RectangleF bounds)
             {
                 Debug.Assert(!Region!.IsAntiAliased);
+                Debug.Assert(bounds.Width >= 0 && bounds.Height >= 0, "Normalized bounds are expected here");
+                Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
@@ -1843,8 +1827,6 @@ namespace KGySoft.Drawing.Shapes
                 (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-
-                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
 
@@ -1917,9 +1899,11 @@ namespace KGySoft.Drawing.Shapes
 
             internal override void DrawArc(ArcSegment arc)
             {
+                RectangleF bounds = arc.Bounds;
                 Debug.Assert(!Region!.IsAntiAliased);
                 Debug.Assert(arc.SweepAngle < 360f, "Don't draw a full ellipse as an arc.");
-                RectangleF bounds = arc.Bounds;
+                Debug.Assert(bounds.Width >= 0 && bounds.Height >= 0, "Normalized bounds are expected here");
+                Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
                 Size offset = Region.Bounds.Location.AsSize();
@@ -1927,20 +1911,12 @@ namespace KGySoft.Drawing.Shapes
                 p2 -= offset;
                 Size size = Region.Bounds.Size;
 
-                (int left, int right) = p2.X >= p1.X ? (p1.X, p2.X) : (p2.X, p1.X);
-                (int top, int bottom) = p2.Y >= p1.Y ? (p1.Y, p2.Y) : (p2.Y, p1.Y);
+                (int left, int right) = (p1.X, p2.X);
+                (int top, int bottom) = (p1.Y, p2.Y);
                 int width = right - left; // exclusive: the actual drawn width is width + 1
                 int height = bottom - top; // exclusive: the actual drawn height is height + 1
-
-                Debug.Assert(width <= ArcSegment.DrawAsLinesThreshold && height <= ArcSegment.DrawAsLinesThreshold);
                 if (left >= size.Width || top >= size.Height || right < 0 || bottom < 0)
                     return;
-
-                if (width < 2 || height < 2)
-                {
-                    DrawLines(arc.GetFlattenedPointsInternal());
-                    return;
-                }
 
                 // Not using arc.RadiusX/Y here because that is shorter by a half pixel (even if there is no rounding error)
                 // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
@@ -3071,7 +3047,7 @@ namespace KGySoft.Drawing.Shapes
                         return false;
 
                     // Special handling for arcs for nicer Bresenham-like results. Not needed for wide pens or anti-aliased paths.
-                    if (segment is ArcSegment arc && arc.Width <= ArcSegment.DrawAsLinesThreshold && arc.Height <= ArcSegment.DrawAsLinesThreshold)
+                    if (segment is ArcSegment { Width: <= ArcSegment.DrawAsLinesThreshold and >= 2, Height: <= ArcSegment.DrawAsLinesThreshold and >= 2 } arc)
                     {
                         // the check is alright, a full ellipse always has +360 degrees sweep angle in ArcSegment
                         if (arc.SweepAngle < 360f)
