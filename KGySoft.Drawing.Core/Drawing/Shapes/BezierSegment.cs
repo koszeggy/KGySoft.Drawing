@@ -52,6 +52,8 @@ namespace KGySoft.Drawing.Shapes
         #endregion
 
         #region Properties
+        
+        #region Public Properties
 
         /// <summary>
         /// Gets the start point of this <see cref="BezierSegment"/>.
@@ -68,6 +70,14 @@ namespace KGySoft.Drawing.Shapes
         /// It always contains 1 + 3n points, where n is the number of cubic Bézier curves in this segment (n can be zero).
         /// </summary>
         public ReadOnlyCollection<PointF> Points => new ReadOnlyCollection<PointF>(points);
+
+        #endregion
+
+        #region Internal Properties
+
+        internal IList<PointF> PointsInternal => points;
+
+        #endregion
 
         #endregion
 

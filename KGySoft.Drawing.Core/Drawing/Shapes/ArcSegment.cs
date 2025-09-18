@@ -291,6 +291,32 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Gets the points of this <see cref="ArcSegment"/> as a collection of Bézier points.
+        /// </summary>
+        /// <returns>The points of this <see cref="ArcSegment"/> as a collection of Bézier points.</returns>
+        /// <remarks>
+        /// <para>The result has 1 + 3n points, where n is the number of cubic Bézier curves in this segment.
+        /// As an <see cref="ArcSegment"/> with nonzero <see cref="SweepAngle"/> can be approximated by 1 to 4 Bézier curves, the result normally contains 4, 7, 10 or 13 points.</para>
+        /// <para>If <see cref="SweepAngle"/> is zero, the result contains a single point, which is equal to <see cref="StartPoint"/>.</para>
+        /// <para>The result of this method can be used as a valid parameter for the <see cref="Path.AddBeziers(IEnumerable{PointF})">Path.AddBeziers</see> method.</para>
+        /// </remarks>
+        public IList<PointF> ToBezierPoints()
+        {
+            // Arc, or a full ellipse with nonzero start angle
+            if (sweepAngle < 360f || startAngleRadian is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
+                return sweepAngleRadian is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
+                    ? new[] { StartPoint }
+                    : BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).PointsInternal;
+
+            // Full ellipse with zero start angle: simple conversion to Bézier curves
+            return BezierSegment.FromEllipse(center, radiusX, radiusY).PointsInternal;
+        }
+
+        #endregion
+
         #region Internal Methods
 
         internal override List<PointF> GetFlattenedPointsInternal()
