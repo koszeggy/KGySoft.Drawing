@@ -313,7 +313,7 @@ namespace KGySoft.Drawing.Wpf
                         case BezierSegment bezierSegment:
                             if (!isFirstPointAdded)
                                 wpfFigure.Segments.Add(new WpfLineSegment(segment.StartPoint.ToWpfPoint(), true));
-                            ReadOnlyCollection<PointF> bezierPoints = bezierSegment.Points;
+                            IList<PointF> bezierPoints = bezierSegment.Points;
                             switch (bezierPoints.Count)
                             {
                                 case 1:
@@ -330,31 +330,40 @@ namespace KGySoft.Drawing.Wpf
                             float radiusX = arcSegment.RadiusX;
                             float radiusY = arcSegment.RadiusY;
 
-                            // special case: horizontally or vertically flat arc - adding the flattened points instead
+                            // Special case 1: horizontally or vertically flat arc - adding the flattened points instead
                             // (WPF arc would just connect start/end points without considering the radius)
-                            if (radiusX.TolerantIsZero() || radiusY.TolerantIsZero())
+                            if (radiusX.TolerantIsZero(1e-4f) || radiusY.TolerantIsZero(1e-4f))
                             {
                                 wpfFigure.Segments.Add(new PolyLineSegment(arcSegment.GetFlattenedPoints().Select(p => p.ToWpfPoint()), true));
                                 continue;
                             }
 
+                            WpfSize size = new(radiusX, radiusY);
                             if (!isFirstPointAdded)
                                 wpfFigure.Segments.Add(new WpfLineSegment(segment.StartPoint.ToWpfPoint(), true));
 
-                            // special case: full ellipse - breaking it into two half arcs because WPF ArcSegment supports only different start and end points
-                            if (arcSegment.SweepAngle.TolerantEquals(360f))
+                            // Special case 2: [almost] full ellipse: cannot simply use a WPF ArcSegment, because it supports different start and end points only
+                            if (Math.Abs(arcSegment.SweepAngle) >= 359f)
                             {
-                                // exploiting that start angle is always 0 in this case
-                                float signedRadiusX = arcSegment.StartPoint.X - arcSegment.Center.X;
-                                var halfPoint = new WpfPoint(arcSegment.StartPoint.X - signedRadiusX * 2f, arcSegment.StartPoint.Y);
-                                WpfSize size = new(radiusX, radiusY);
-                                wpfFigure.Segments.Add(new WpfArcSegment(halfPoint, size, 0d, true, SweepDirection.Clockwise, true));
-                                wpfFigure.Segments.Add(new WpfArcSegment(lastPoint.ToWpfPoint(), size, 0d, true, SweepDirection.Clockwise, true));
+                                // full ellipse with zero start angle: breaking it into two half arcs
+                                if (arcSegment.SweepAngle.TolerantEquals(360f) && arcSegment.StartAngle is 0f)
+                                {
+                                    var halfPoint = new WpfPoint(arcSegment.StartPoint.X - radiusX * 2f, arcSegment.StartPoint.Y);
+                                    wpfFigure.Segments.Add(new WpfArcSegment(halfPoint, size, 0d, true, SweepDirection.Clockwise, true));
+                                    wpfFigure.Segments.Add(new WpfArcSegment(lastPoint.ToWpfPoint(), size, 0d, true, SweepDirection.Clockwise, true));
+                                    continue;
+                                }
+
+                                // Nonzero start angle (or not a quite complete ellipse): converting to Bézier segments. It preserves the original start/end points.
+                                bezierPoints = arcSegment.ToBezierPoints();
+                                if (bezierPoints.Count > 0)
+                                    wpfFigure.Segments.Add(new PolyBezierSegment(bezierPoints.Skip(1).Select(p => p.ToWpfPoint()), true));
                                 continue;
                             }
 
+                            // General case: we can convert to WPF ArcSegment
                             wpfFigure.Segments.Add(new WpfArcSegment(lastPoint.ToWpfPoint(),
-                                new WpfSize(arcSegment.RadiusX, arcSegment.RadiusY),
+                                size,
                                 0d,
                                 Math.Abs(arcSegment.SweepAngle) >= 180f,
                                 arcSegment.SweepAngle >= 0f ? SweepDirection.Clockwise : SweepDirection.Counterclockwise,

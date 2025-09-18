@@ -33,6 +33,9 @@ using NUnit.Framework;
 #region Used Aliases
 
 using Color = System.Drawing.Color;
+using WpfArcSegment = System.Windows.Media.ArcSegment;
+using WpfBezierSegment = System.Windows.Media.BezierSegment;
+using WpfLineSegment = System.Windows.Media.LineSegment;
 using WpfPen = System.Windows.Media.Pen;
 using WpfPoint = System.Windows.Point;
 
@@ -86,7 +89,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             internal Builder AddLine(WpfPoint point)
             {
-                currentFigure.Segments.Add(new LineSegment(point, true));
+                currentFigure.Segments.Add(new WpfLineSegment(point, true));
                 return this;
             }
 
@@ -98,7 +101,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             internal Builder AddBezier(WpfPoint cp1, WpfPoint cp2, WpfPoint end)
             {
-                currentFigure.Segments.Add(new BezierSegment(cp1, cp2, end, true));
+                currentFigure.Segments.Add(new WpfBezierSegment(cp1, cp2, end, true));
                 return this;
             }
 
@@ -122,7 +125,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             internal Builder AddArc(WpfPoint point, Size size, double angle, bool isLarge, SweepDirection direction)
             {
-                currentFigure.Segments.Add(new ArcSegment(point, size, angle, isLarge, direction, true));
+                currentFigure.Segments.Add(new WpfArcSegment(point, size, angle, isLarge, direction, true));
                 return this;
             }
 
@@ -165,6 +168,45 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             ["Closed arc quarter 4", new Builder(new WpfPoint(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Closed figures", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
             ["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle)],
+        };
+
+        private static object[][] PathToGeometryTestSource => new object[][]
+        {
+            ["Empty", new Path()],
+            ["Single point", new Path().AddPoint(new(0, 0))],
+            ["Single line", new Path().AddLine(new(0, 0), new(10, 10))],
+            ["Polyline", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))],
+            ["Polygon", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()],
+            ["Single bezier arc", new Path().AddArc(0, 0, 100, 100, 90, 90)],
+            ["Multi bezier arc", new Path().AddArc(0, 0, 100, 100, 90, 300)],
+            ["Point-bezier", new Path().AddPoint(50, 0).AddArc(0, 0, 100, 100, 90, 90)],
+            ["Bezier-point", new Path().AddArc(0, 0, 100, 100, 90, 90).AddPoint(50, 0)],
+            ["Point-horizontal small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 90).AddPoint(new (50, 100))],
+            ["Point-horizontal almost flat small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 90).AddPoint(new (50, 100))],
+            ["Point-horizontal flat small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 90).AddPoint(new (50, 100))],
+            ["Point-vertical small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 90).AddPoint(new (100, 50))],
+            ["Point-vertical almost flat small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 90).AddPoint(new (100, 50))],
+            ["Point-vertical flat small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 90).AddPoint(new (100, 50))],
+            ["Point-horizontal large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 300).AddPoint(new (50, 100))],
+            ["Point-horizontal almost flat large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 300).AddPoint(new (50, 100))],
+            ["Point-horizontal flat large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 300).AddPoint(new (50, 100))],
+            ["Point-vertical large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 300).AddPoint(new (100, 50))],
+            ["Point-vertical almost flat large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 300).AddPoint(new (100, 50))],
+            ["Point-vertical flat large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 300).AddPoint(new (100, 50))],
+            ["Point-horizontal small negative arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, -90).AddPoint(new (50, 100))],
+            ["Point-vertical small negative arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, -90).AddPoint(new (100, 50))],
+            ["Point-horizontal large negative arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, -300).AddPoint(new (50, 100))],
+            ["Point-vertical large negative arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, -300).AddPoint(new (100, 50))],
+            ["Ellipse", new Path().AddEllipse(0, 0, 100, 50)],
+            ["Rotated ellipse", new Path().TransformRotation(45f).AddEllipse(0, 0, 100, 50)],
+            ["Point-horizontal ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 360).AddPoint(new (50, 100))],
+            ["Point-horizontal almost flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 360).AddPoint(new (50, 100))],
+            ["Point-horizontal flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 360).AddPoint(new (50, 100))],
+            ["Point-vertical ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 360).AddPoint(new (100, 50))],
+            ["Point-vertical almost flat ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 360).AddPoint(new (100, 50))],
+            ["Point-vertical flat ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 360).AddPoint(new (100, 50))],
+            ["Open-close", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(0, 0, 100, 100)],
+            ["Closed figures", new Path().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(0, 0, 100, 100).AddRoundedRectangle(0, 0, 100, 100, 10)],
         };
 
         #endregion
@@ -257,6 +299,50 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             //AssertAreEqual(bmpRef, bmp);
 
             SaveBitmap($"{name}_converted", bmp);
+        }
+
+        [TestCaseSource(nameof(PathToGeometryTestSource))]
+        public void PathToGeometryTest(string name, Path path)
+        {
+            var bounds = path.Bounds;
+            int width = Math.Max(1, bounds.Width);
+            int height = Math.Max(1, bounds.Height);
+            var bmpRef = new WriteableBitmap(width + 2, height + 2, 96, 96, PixelFormats.Rgb24, null);
+            using (var bitmapData = bmpRef.GetReadWriteBitmapData())
+            {
+                bitmapData.Clear(Color.Cyan);
+                var options = new DrawingOptions
+                {
+                    AntiAliasing = true,
+                    DrawPathPixelOffset = PixelOffset.Half,
+                    Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1)
+                };
+
+                bitmapData.FillPath(Color.Yellow, path, options);
+                bitmapData.DrawPath(Color.Blue, path, options);
+            }
+
+            SaveBitmap($"{name}_orig", bmpRef);
+
+            Geometry geometry = path.ToGeometry();
+            var visual = new DrawingVisual();
+            using (DrawingContext context = visual.RenderOpen())
+            {
+                context.DrawRectangle(Brushes.Cyan, null, new Rect(0, 0, width, height));
+                context.DrawGeometry(Brushes.Yellow, new WpfPen(Brushes.Blue, 1), geometry);
+            }
+            var bmp = new RenderTargetBitmap(width + 2, height + 2, 96, 96, PixelFormats.Default);
+            var matrix = geometry.Transform.Value;
+            matrix.Append(new TranslateTransform(-bounds.Left + 1, -bounds.Top + 1).Value);
+            matrix.Append(new ScaleTransform((width - 2f) / bounds.Width, (height - 2f) / bounds.Height, width / 2f, height / 2f).Value);
+            if (!geometry.IsFrozen)
+                geometry.Transform = new MatrixTransform(matrix);
+            //var bmp = new RenderTargetBitmap((int)visual.Drawing.Bounds.Right, (int)visual.Drawing.Bounds.Height, 96, 96, PixelFormats.Default);
+            bmp.Render(visual);
+            SaveBitmap($"{name}_converted", bmp);
+
+            // The equality is not pixel perfect so it should be compared visually
+            //AssertAreEqual(bmpRef.ToWriteableBitmap(), bmp);
         }
 
         #endregion
