@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Shapes;
@@ -50,6 +51,12 @@ namespace KGySoft.Drawing
             TypeMask = 7,
             Close = 1 << 7,
         }
+
+        #endregion
+
+        #region Constants
+
+        private const float tolerance = 1e-4f;
 
         #endregion
 
@@ -267,8 +274,11 @@ namespace KGySoft.Drawing
                 if (segmentEnd + 1 == count)
                     break;
 
+                // Start: if next type is also a start here, then the current point has undefined type, so skipping it
+                // Line [after a Bézier segment]: the line is a continuation, so no need to repeat the last point the Bézier segment, it will be connected automatically
+                // Bezier [after a Line segment]: though the new Bézier segment is a continuation here, we must repeat the last point of the previous line segment as the start point of the Bézier segment
                 currentType = nextType;
-                segmentStart = currentType == PathType.Start ? segmentEnd + 1 : segmentEnd;
+                segmentStart = currentType is PathType.Start or PathType.Line ? segmentEnd + 1 : segmentEnd;
             }
 
             return result;
@@ -282,6 +292,47 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         public static GraphicsPath ToGraphicsPath(this Path path)
         {
+            #region Local Methods
+
+            static void AddLines(GraphicsPath graphicsPath, IList<PointF> points)
+            {
+                switch (points.Count)
+                {
+                    case 0:
+                        Debug.Fail("A KGy SOFT LineSegment should contain at least one point");
+                        return;
+                    case 2:
+                        graphicsPath.AddLine(points[0], points[1]);
+                        break;
+                    default:
+                        graphicsPath.AddLines(points as PointF[] ?? points.ToArray());
+                        break;
+                }
+            }
+
+            static void AddBeziers(GraphicsPath graphicsPath, IList<PointF> points)
+            {
+                switch (points.Count)
+                {
+                    case 1:
+                        // Matters only if the segment is connected to other segments; otherwise, GDI+ ignores it.
+                        graphicsPath.AddLines([points[0]]);
+                        break;
+                    case 4:
+                        // just to avoid array allocation
+                        graphicsPath.AddBezier(points[0], points[1], points[2], points[3]);
+                        break;
+                    default:
+                        graphicsPath.AddBeziers(points as PointF[] ?? points.ToArray());
+                        break;
+                }
+            }
+
+            static void AddMockedPoint(GraphicsPath graphicsPath, PointF point)
+                => graphicsPath.AddLine(new PointF(point.X - 0.25f, point.Y), new PointF(point.X + 0.25f, point.Y));
+
+            #endregion
+
             if (path == null)
                 throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
 
@@ -289,19 +340,72 @@ namespace KGySoft.Drawing
             if (path.IsEmpty)
                 return result;
 
-            IList<PointF[]> figures = path.GetPoints();
-            foreach (PointF[] points in figures)
+            foreach (var figure in path.Figures)
             {
-                // Skipping single points as GDI+ does not support them. A single point is not drawn even if adding it as a line with two endpoints.
-                if (points.Length < 2)
-                    continue;
+                result.StartFigure();
+                foreach (PathSegment segment in figure.Segments)
+                {
+                    switch (segment)
+                    {
+                        case LineSegment lineSegment:
+                            // A single-point LineSegment is supported by KGySoft Path but ignored by GDI+,
+                            // so adding a single-point line segment only if this segment is connected to other segments.
+                            // Otherwise, adding a mocked point to make it visible in a GDI+ path.
+                            IList<PointF> points = lineSegment.Points;
+                            Debug.Assert(points.Count > 0);
+                            if (points.Count > 1 || figure.Segments.Count > 1)
+                                AddLines(result, points);
+                            else
+                                AddMockedPoint(result, points[0]);
+                            break;
 
-                result.AddLines(points);
+                        case BezierSegment bezierSegment:
+                            points = bezierSegment.Points;
+                            Debug.Assert(points.Count > 0);
+                            if (points.Count > 1 || figure.Segments.Count > 1)
+                                AddBeziers(result, points);
+                            else
+                                AddMockedPoint(result, points[0]);
+                            break;
 
-                if (points.Length > 3 && points[0] == points[points.Length - 1])
+                        case ArcSegment arcSegment:
+                            // GraphicsPath does not support very flat arcs, so adding them as lines.
+                            // In fact, 1e-6 is still accepted, but the result is getting inaccurate below 1e-4
+                            if (arcSegment.RadiusX.TolerantIsZero(tolerance) || arcSegment.RadiusY.TolerantIsZero(tolerance) || arcSegment.SweepAngle.TolerantIsZero(tolerance))
+                            {
+                                points = arcSegment.GetFlattenedPoints();
+                                if (points.Count > 1 || figure.Segments.Count > 1)
+                                    AddLines(result, points);
+                                else
+                                    AddMockedPoint(result, points[0]);
+                                break;
+                            }
+
+                            // A full ellipse is the only segment in the figure: just adding an ellipse.
+                            if (arcSegment.SweepAngle is 360f && figure.Segments.Count == 1)
+                            {
+                                result.AddEllipse(arcSegment.Bounds);
+                                break;
+                            }
+
+                            // GraphicsPath.AddArc implicitly closes the figure when a full ellipse is added by AddArc, so falling back to Bézier curves in such case.
+                            if (Math.Abs(arcSegment.SweepAngle).TolerantEquals(360f, tolerance))
+                            {
+                                points = arcSegment.ToBezierPoints();
+                                if (points.Count > 1 || figure.Segments.Count > 1)
+                                    AddBeziers(result, points);
+                                else
+                                    AddMockedPoint(result, points[0]);
+                                break;
+                            }
+
+                            result.AddArc(arcSegment.Bounds, arcSegment.StartAngle, arcSegment.SweepAngle);
+                            break;
+                    }
+                }
+
+                if (figure.IsClosed)
                     result.CloseFigure();
-                else
-                    result.StartFigure();
             }
 
             return result;
