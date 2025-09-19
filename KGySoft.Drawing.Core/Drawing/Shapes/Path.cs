@@ -895,10 +895,7 @@ namespace KGySoft.Drawing.Shapes
         public Path StartFigure()
         {
             if (currentFigure.IsEmpty)
-            {
-                currentFigure.Close();
                 return this;
-            }
 
             figures ??= new List<Figure>(2) { currentFigure };
             figures.Add(currentFigure = new Figure());

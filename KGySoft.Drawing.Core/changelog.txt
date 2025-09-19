@@ -53,6 +53,7 @@
 * Path class:
   + New Figures property
   * Improving performance when the flattened points are requested repeatedly without modifying the path.
+  - StartFigure: not marking the figure closed when called on an empty path.
 
 
 ~~~~~~~~~
