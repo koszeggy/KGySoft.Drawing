@@ -174,6 +174,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         {
             ["Empty", new Path()],
             ["Single point", new Path().AddPoint(new(0, 0))],
+            ["Single point bezier", new Path().AddBeziers([new (0, 0)])],
+            ["Single point arc", new Path().AddArc(new (0, 0, 100, 100), 0, 0)],
             ["Single line", new Path().AddLine(new(0, 0), new(10, 10))],
             ["Polyline", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))],
             ["Polygon", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()],
@@ -264,7 +266,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var visual = new DrawingVisual();
             using (DrawingContext context = visual.RenderOpen())
             {
-                context.DrawRectangle(Brushes.Cyan, null, bounds);
+                context.DrawRectangle(Brushes.Cyan, null, Rect.Inflate(bounds, 4, 4));
                 context.DrawGeometry(brush, pen, geometry);
             }
 
@@ -274,7 +276,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             int height = (int)bounds.Height;
             var bmpRef = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
             var matrix = geometry.Transform.Value;
-            matrix.Append(new ScaleTransform((bounds.Width - 4) / bounds.Width, (bounds.Height - 4) / bounds.Height, bounds.Width / 2, bounds.Height / 2).Value);
+            matrix.Append(new TranslateTransform(-bounds.Left + 1, -bounds.Top + 1).Value);
             if (!geometry.IsFrozen)
                 geometry.Transform = new MatrixTransform(matrix);
             bmpRef.Render(visual);
@@ -326,17 +328,19 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             Geometry geometry = path.ToGeometry();
             var visual = new DrawingVisual();
+            //RenderOptions.SetEdgeMode(visual, EdgeMode.Aliased); // does not work, despite the example at https://learn.microsoft.com/en-us/dotnet/api/system.windows.media.renderoptions.setedgemode
             using (DrawingContext context = visual.RenderOpen())
             {
-                context.DrawRectangle(Brushes.Cyan, null, new Rect(0, 0, width, height));
+                context.DrawRectangle(Brushes.Cyan, null, Rect.Inflate(new Rect(0, 0, width, height), 2, 2));
                 context.DrawGeometry(Brushes.Yellow, new WpfPen(Brushes.Blue, 1), geometry);
             }
+
             var bmp = new RenderTargetBitmap(width + 2, height + 2, 96, 96, PixelFormats.Default);
             var matrix = geometry.Transform.Value;
             matrix.Append(new TranslateTransform(-bounds.Left + 1, -bounds.Top + 1).Value);
-            matrix.Append(new ScaleTransform((width - 2f) / bounds.Width, (height - 2f) / bounds.Height, width / 2f, height / 2f).Value);
             if (!geometry.IsFrozen)
                 geometry.Transform = new MatrixTransform(matrix);
+
             //var bmp = new RenderTargetBitmap((int)visual.Drawing.Bounds.Right, (int)visual.Drawing.Bounds.Height, 96, 96, PixelFormats.Default);
             bmp.Render(visual);
             SaveBitmap($"{name}_converted", bmp);

@@ -11,7 +11,7 @@
 
 * Common changes
 ================
-* Referencing KGySoft.Drawing.Core v10.0.0, which enables high performance shape drawing.
+* Referencing KGySoft.Drawing.Core v10.0.0.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
 + KGySoft.Drawing.Wpf namespace

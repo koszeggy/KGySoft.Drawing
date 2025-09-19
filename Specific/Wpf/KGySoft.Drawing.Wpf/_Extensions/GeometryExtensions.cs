@@ -57,6 +57,12 @@ namespace KGySoft.Drawing.Wpf
     /// </summary>
     public static class GeometryExtensions
     {
+        #region Constants
+
+        private const float tolerance = 1e-4f;
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -296,33 +302,39 @@ namespace KGySoft.Drawing.Wpf
                     switch (segment)
                     {
                         case LineSegment lineSegment:
-                            ReadOnlyCollection<PointF> linePoints = lineSegment.Points;
-                            int count = isFirstPointAdded ? linePoints.Count - 1 : linePoints.Count;
+                            IList<PointF> points = lineSegment.Points;
+                            int count = isFirstPointAdded ? points.Count - 1 : points.Count;
                             switch (count)
                             {
                                 case 0:
+                                    // WPF ignores single-point figures, so we add a one-pixel long line in this case
+                                    if (segments.Count == 1)
+                                        wpfFigure.Segments.Add(new WpfLineSegment(new WpfPoint(wpfFigure.StartPoint.X + 0.5d, wpfFigure.StartPoint.Y + 0.5d), true));
                                     continue;
                                 case 1:
                                     wpfFigure.Segments.Add(new WpfLineSegment(lastPoint.ToWpfPoint(), true));
                                     continue;
                                 default:
-                                    wpfFigure.Segments.Add(new PolyLineSegment((isFirstPointAdded ? linePoints.Skip(1) : linePoints).Select(p => p.ToWpfPoint()), true));
+                                    wpfFigure.Segments.Add(new PolyLineSegment((isFirstPointAdded ? points.Skip(1) : points).Select(p => p.ToWpfPoint()), true));
                                     continue;
                             }
 
                         case BezierSegment bezierSegment:
                             if (!isFirstPointAdded)
                                 wpfFigure.Segments.Add(new WpfLineSegment(segment.StartPoint.ToWpfPoint(), true));
-                            IList<PointF> bezierPoints = bezierSegment.Points;
-                            switch (bezierPoints.Count)
+                            points = bezierSegment.Points;
+                            switch (points.Count)
                             {
                                 case 1:
+                                    // WPF ignores single-point figures, so we add a one-pixel long line in this case
+                                    if (segments.Count == 1)
+                                        wpfFigure.Segments.Add(new WpfLineSegment(new WpfPoint(wpfFigure.StartPoint.X + 0.5d, wpfFigure.StartPoint.Y + 0.5d), true));
                                     continue;
                                 case 4:
-                                    wpfFigure.Segments.Add(new WpfBezierSegment(bezierPoints[1].ToWpfPoint(), bezierPoints[2].ToWpfPoint(), bezierPoints[3].ToWpfPoint(), true));
+                                    wpfFigure.Segments.Add(new WpfBezierSegment(points[1].ToWpfPoint(), points[2].ToWpfPoint(), points[3].ToWpfPoint(), true));
                                     continue;
                                 default:
-                                    wpfFigure.Segments.Add(new PolyBezierSegment(bezierPoints.Skip(1).Select(p => p.ToWpfPoint()), true));
+                                    wpfFigure.Segments.Add(new PolyBezierSegment(points.Skip(1).Select(p => p.ToWpfPoint()), true));
                                     continue;
                             }
 
@@ -330,11 +342,15 @@ namespace KGySoft.Drawing.Wpf
                             float radiusX = arcSegment.RadiusX;
                             float radiusY = arcSegment.RadiusY;
 
-                            // Special case 1: horizontally or vertically flat arc - adding the flattened points instead
+                            // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
                             // (WPF arc would just connect start/end points without considering the radius)
-                            if (radiusX.TolerantIsZero(1e-4f) || radiusY.TolerantIsZero(1e-4f))
+                            if (arcSegment.RadiusX.TolerantIsZero(tolerance) || arcSegment.RadiusY.TolerantIsZero(tolerance) || arcSegment.SweepAngle.TolerantIsZero(tolerance))
                             {
-                                wpfFigure.Segments.Add(new PolyLineSegment(arcSegment.GetFlattenedPoints().Select(p => p.ToWpfPoint()), true));
+                                points = arcSegment.GetFlattenedPoints();
+                                if (points.Count == 1 && segments.Count == 1)
+                                    wpfFigure.Segments.Add(new WpfLineSegment(new WpfPoint(wpfFigure.StartPoint.X + 0.5d, wpfFigure.StartPoint.Y + 0.5d), true));
+                                else
+                                    wpfFigure.Segments.Add(new PolyLineSegment(points.Select(p => p.ToWpfPoint()), true));
                                 continue;
                             }
 
@@ -355,9 +371,9 @@ namespace KGySoft.Drawing.Wpf
                                 }
 
                                 // Nonzero start angle (or not a quite complete ellipse): converting to Bézier segments. It preserves the original start/end points.
-                                bezierPoints = arcSegment.ToBezierPoints();
-                                if (bezierPoints.Count > 0)
-                                    wpfFigure.Segments.Add(new PolyBezierSegment(bezierPoints.Skip(1).Select(p => p.ToWpfPoint()), true));
+                                points = arcSegment.ToBezierPoints();
+                                if (points.Count > 0)
+                                    wpfFigure.Segments.Add(new PolyBezierSegment(points.Skip(1).Select(p => p.ToWpfPoint()), true));
                                 continue;
                             }
 
