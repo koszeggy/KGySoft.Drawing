@@ -669,6 +669,8 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods.")]
             private static void DoDrawArcHorizontal(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
                 TColor c, BitVector32 sectors, int startX, int endX, TArg arg)
             {
@@ -762,6 +764,8 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods.")]
             private static void DoDrawArcVertical(IBitmapDataInternal bitmapData, int left, int top, int right, int bottom,
                 TColor c, BitVector32 sectors, int startY, int endY, TArg arg)
             {

@@ -43,6 +43,12 @@ using WpfPoint = System.Windows.Point;
 
 #endregion
 
+#region Suppressions
+
+#pragma warning disable CS0618 // Type or member is obsolete - the recommended FormattedText constructor is not available in all target frameworks
+
+#endregion
+
 namespace KGySoft.Drawing.Wpf.UnitTests
 {
     [TestFixture]

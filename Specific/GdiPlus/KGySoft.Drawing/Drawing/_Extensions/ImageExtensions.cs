@@ -145,8 +145,8 @@ namespace KGySoft.Drawing
         /// quantizer (e.g. <see cref="PredefinedColorsQuantizer.Grayscale(Color32,byte)">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make a <see cref="Bitmap"/> grayscale without creating a new instance use the <see cref="BitmapExtensions.MakeGrayscale">BitmapExtensions.MakeGrayscale</see> method.</para>
         /// </remarks>
-        /// <seealso cref="BitmapDataExtensions.ToGrayscale"/>
-        /// <seealso cref="BitmapDataExtensions.MakeGrayscale"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">BitmapDataExtensions.ToGrayscale</seealso>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeGrayscale">BitmapDataExtensions.MakeGrayscale</seealso>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         public static Image ToGrayscale(this Image image)
             => image.ConvertPixelFormat(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));

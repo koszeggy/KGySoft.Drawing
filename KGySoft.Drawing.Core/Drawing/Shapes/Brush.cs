@@ -1949,6 +1949,8 @@ namespace KGySoft.Drawing.Shapes
             #region Private Methods
 
             // Based on the combination of http://members.chello.at/~easyfilter/bresenham.c and https://www.scattergood.io/arc-drawing-algorithm/
+            [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods.")]
             private void DoDrawArcHorizontal(int left, int top, int right, int bottom, BitVector32 sectors, int startX, int endX)
             {
                 int width = right - left; // Exclusive: the actual drawn width is width + 1.
@@ -2042,6 +2044,8 @@ namespace KGySoft.Drawing.Shapes
                 #endregion
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods.")]
             private void DoDrawArcVertical(int left, int top, int right, int bottom, BitVector32 sectors, int startY, int endY)
             {
                 int width = right - left; // Exclusive: the actual drawn width is width + 1.
