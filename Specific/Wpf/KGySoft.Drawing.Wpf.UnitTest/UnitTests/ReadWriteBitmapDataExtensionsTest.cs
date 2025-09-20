@@ -60,9 +60,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var text = new FormattedText("Hello FormattedText", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface("Arial"), 20, Brushes.Black);
             WriteableBitmap bitmap = new WriteableBitmap(200, 50, 96, 96, PixelFormats.Bgr101010, null);
 
-            using var bitmapData = bitmap.GetReadWriteBitmapData();
-            bitmapData.Clear(Colors.Cyan.ToColor32());
-            bitmapData.DrawText(Colors.Blue.ToColor32(), text, PointF.Empty, new DrawingOptions { AntiAliasing = true });
+            using (var bitmapData = bitmap.GetReadWriteBitmapData())
+            {
+                bitmapData.Clear(Colors.Cyan.ToColor32());
+                bitmapData.DrawText(Colors.Blue.ToColor32(), text, PointF.Empty, new DrawingOptions { AntiAliasing = true });
+            }
+
+            SaveBitmap(null, bitmap);
         }
 
         [Test]
@@ -77,9 +81,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             }.ToGlyphRun();
             WriteableBitmap bitmap = new WriteableBitmap(200, 50, 96, 96, PixelFormats.Rgb24, null);
 
-            using var bitmapData = bitmap.GetReadWriteBitmapData();
-            bitmapData.Clear(Colors.Cyan.ToColor32());
-            bitmapData.DrawText(Colors.Blue.ToColor32(), text, PointF.Empty, new DrawingOptions { AntiAliasing = true });
+            using (var bitmapData = bitmap.GetReadWriteBitmapData())
+            {
+                bitmapData.Clear(Colors.Cyan.ToColor32());
+                bitmapData.DrawText(Colors.Blue.ToColor32(), text, PointF.Empty, new DrawingOptions { AntiAliasing = true });
+            }
+
+            SaveBitmap(null, bitmap);
             finished.Set();
         });
 

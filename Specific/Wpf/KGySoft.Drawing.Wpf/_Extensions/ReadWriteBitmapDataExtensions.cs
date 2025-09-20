@@ -183,12 +183,14 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
         /// <param name="location">The location of the upper-left corner of the text, not counting the width of the outline.</param>
-        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
-        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
@@ -212,7 +214,7 @@ namespace KGySoft.Drawing.Wpf
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        public static bool DrawTextOutline(this IReadWriteBitmapData bitmapData, Pen pen, FormattedText text, PointF location, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        public static bool DrawTextOutline(this IReadWriteBitmapData bitmapData, Pen pen, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
             ValidateArguments(bitmapData, text, pen);
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawTextOutline(ctx, bitmapData, pen, text, location, drawingOptions), parallelConfig);
@@ -630,12 +632,14 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
         /// <param name="offset">The offset to be applied to the <see cref="GlyphRun.BaselineOrigin"/> of <paramref name="text"/>.</param>
-        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
-        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
@@ -657,7 +661,7 @@ namespace KGySoft.Drawing.Wpf
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        public static bool DrawTextOutline(this IReadWriteBitmapData bitmapData, Pen pen, GlyphRun text, PointF offset, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        public static bool DrawTextOutline(this IReadWriteBitmapData bitmapData, Pen pen, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
             ValidateArguments(bitmapData, text, pen);
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawTextOutline(ctx, bitmapData, pen, text, offset, drawingOptions), parallelConfig);
@@ -1062,12 +1066,14 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
-        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
-        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
@@ -1091,7 +1097,7 @@ namespace KGySoft.Drawing.Wpf
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        public static bool DrawText(this IReadWriteBitmapData bitmapData, Brush brush, FormattedText text, PointF location, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        public static bool DrawText(this IReadWriteBitmapData bitmapData, Brush brush, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
             ValidateArguments(bitmapData, text, brush);
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawText(ctx, bitmapData, brush, text, location, drawingOptions), parallelConfig);
@@ -1509,12 +1515,14 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
         /// <param name="offset">The offset to be applied to the <see cref="GlyphRun.BaselineOrigin"/> of <paramref name="text"/>.</param>
-        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
-        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
@@ -1536,7 +1544,7 @@ namespace KGySoft.Drawing.Wpf
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        public static bool DrawText(this IReadWriteBitmapData bitmapData, Brush brush, GlyphRun text, PointF offset, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        public static bool DrawText(this IReadWriteBitmapData bitmapData, Brush brush, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
             ValidateArguments(bitmapData, text, brush);
             return AsyncHelper.DoOperationSynchronously(ctx => DoDrawText(ctx, bitmapData, brush, text, offset, drawingOptions), parallelConfig);
@@ -1851,6 +1859,7 @@ namespace KGySoft.Drawing.Wpf
             if (geometry.IsEmpty())
                 return !context.IsCancellationRequested;
             var path = geometry.ToPath();
+            path.PreferCaching = false;
             if (context.IsCancellationRequested)
                 return false;
             return bitmapData.DrawPath(context, pen, path, drawingOptions);
@@ -1862,6 +1871,7 @@ namespace KGySoft.Drawing.Wpf
             if (geometry.IsEmpty())
                 return true;
             var path = geometry.ToPath();
+            path.PreferCaching = false;
             if (context.IsCancellationRequested)
                 return false;
             if (!offset.IsEmpty)
@@ -1875,6 +1885,7 @@ namespace KGySoft.Drawing.Wpf
             if (geometry.IsEmpty())
                 return !context.IsCancellationRequested;
             var path = geometry.ToPath();
+            path.PreferCaching = false;
             if (context.IsCancellationRequested)
                 return false;
             return bitmapData.FillPath(context, brush, path, drawingOptions);
@@ -1886,6 +1897,7 @@ namespace KGySoft.Drawing.Wpf
             if (geometry.IsEmpty())
                 return true;
             var path = geometry.ToPath();
+            path.PreferCaching = false;
             if (context.IsCancellationRequested)
                 return false;
             if (!offset.IsEmpty)
