@@ -21,6 +21,14 @@
     ! Instead of returning a path with flattened points, now it preserves the original curves as much as possible.
     - Single-point segments are now preserved even if they are the only segment in a figure.
 
++ KGySoft.Drawing.Imaging namespace
+===================================
++ New ReadWriteBitmapDataExtensions class:
+  + New [Begin]DrawText[Async]/EndDrawText methods: To draw a text using a GDI+ Font and StringFormat into an
+    IReadWriteBitmapData instance.
+  + New [Begin]DrawTextOutline[Async]/EndDrawTextOutline methods: To draw the outline of a text using a GDI+ Font
+    and StringFormat into an IReadWriteBitmapData instance.
+
 
 ~~~~~~~~~
 ! v9.2.0:
