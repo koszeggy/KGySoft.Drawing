@@ -5,6 +5,22 @@
 + New feature
 ===============================================================================
 
+~~~~~~~~~~
+! v10.0.0:
+~~~~~~~~~~
+
+! Assembly changes
+==================
+! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, though none of them affects SkiaSharp
+  features directly.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing.SkiaSharp namespace
+=====================================
++ New SKPathExtensions class:
+  + New ToPath method: to convert an SKPath to a KGySoft.Drawing.Shapes.Path.
+
+
 ~~~~~~~~~
 * v9.1.0:
 ~~~~~~~~~
