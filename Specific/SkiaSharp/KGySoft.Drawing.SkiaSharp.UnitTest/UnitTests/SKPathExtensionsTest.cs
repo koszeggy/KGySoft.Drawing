@@ -164,6 +164,30 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             ["Text", new Builder().AddString("Hello World", new SKFont(SKTypeface.Default)).Path],
         };
 
+        private static object[][] PathToSKPathTestSource => new object[][]
+        {
+            ["Empty", new Path()],
+            ["Single point", new Path().AddPoint(new(0, 0))],
+            ["Single point bezier", new Path().AddBeziers([new(0, 0)])],
+            ["Single point arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 0, 0)],
+            ["Single line", new Path().AddLines(new(0, 0), new(10, 10))],
+            ["Single bezier arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 90)],
+            ["Multi bezier arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 300)],
+            ["Point-bezier", new Path().AddLines(new Point(50, 50)).AddArc(new Rectangle(0, 0, 100, 100), 90, 90)],
+            ["Bezier-point", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 90).AddLines(new Point(50, 50))],
+            ["Point-arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 90).AddPoint(new(50, 100))],
+            ["Point-almost flat arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 90).AddPoint(new(50, 100))],
+            ["Point-flat arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 90).AddPoint(new(50, 100))],
+            ["Ellipse", new Path().AddEllipse(0, 0, 100, 50)],
+            ["Rotated ellipse", new Path().TransformRotation(45f).AddEllipse(0, 0, 100, 50)],
+            ["Point-ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 360).AddPoint(new(50, 100))],
+            ["Point-circle-point", new Path().AddPoint(50, 0).AddArc(0, 0, 100, 100, 45, 360f).AddPoint(new(50, 100))],
+            ["Point-almost flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 360).AddPoint(new(50, 100))],
+            ["Point-flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 360).AddPoint(new(50, 100))],
+            ["Open-close", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100))],
+            ["Closed figures", new Path().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(new Rectangle(0, 0, 100, 100)).AddRoundedRectangle(new Rectangle(0, 0, 100, 100), 10)],
+        };
+
         #endregion
 
         #region Methods
@@ -213,6 +237,51 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 // The equality is not pixel perfect so it should be compared visually
                 SaveBitmap($"{name}_converted", bmp);
             }
+        }
+
+        [TestCaseSource(nameof(PathToSKPathTestSource))]
+        public void PathToSKPathTest(string name, Path path)
+        {
+            var bounds = path.Bounds;
+            using var bmpRef = new SKBitmap(bounds.Width + 3, bounds.Height + 3);
+            using (var bmpRefData = bmpRef.GetReadWriteBitmapData())
+            {
+                var options = new DrawingOptions
+                {
+                    AntiAliasing = true,
+                    DrawPathPixelOffset = PixelOffset.Half,
+                    Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1)
+                };
+                bmpRefData.Clear(Color.Cyan);
+                bmpRefData.FillPath(Color.Yellow, path, options);
+                bmpRefData.DrawPath(Color.Blue, path, options);
+            }
+
+            SaveBitmap($"{name}_orig", bmpRef);
+
+            using var bmp = new SKBitmap(bmpRef.Width, bmpRef.Height);
+            using (var skiaPath = path.ToSKPath())
+            using (var canvas = new SKCanvas(bmp))
+            {
+                canvas.Clear(SKColors.Cyan);
+                canvas.Translate(-bounds.Left + 1, -bounds.Top + 1);
+                using var paint = new SKPaint
+                {
+                    Color = SKColors.Yellow,
+                    IsAntialias = true,
+                };
+                skiaPath.FillType = SKPathFillType.EvenOdd;
+                canvas.DrawPath(skiaPath, paint);
+                paint.IsStroke = true;
+                paint.Color = SKColors.Blue;
+                canvas.DrawPath(skiaPath, paint);
+            }
+
+            SaveBitmap($"{name}_converted", bmp);
+
+            // The equality may not be pixel perfect so it should be compared visually
+            //using var bmpData = bmp.GetReadableBitmapData();
+            //AssertAreEqual(bmpRefData, bmpData);
         }
 
         #endregion

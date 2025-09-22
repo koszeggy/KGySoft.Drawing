@@ -16,8 +16,11 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Shapes;
 
 using SkiaSharp;
@@ -125,6 +128,135 @@ namespace KGySoft.Drawing.SkiaSharp
                     default:
                         throw new InvalidOperationException(Res.InternalError($"Unexpected verb: {verb}"));
                 }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts the specified <see cref="Path"/> instance to an <see cref="SKPath"/> object.
+        /// </summary>
+        /// <param name="path">The <see cref="Path"/> instance to convert to an <see cref="SKPath"/>.</param>
+        /// <returns>An <see cref="SKPath"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        public static SKPath ToSKPath(this Path path)
+        {
+            #region Local Methods
+
+            static void AddLines(SKPath skiaPath, IList<PointF> points, int startIndex)
+            {
+                int count = points.Count;
+                for (int i = startIndex; i < count; i++)
+                    skiaPath.LineTo(points[i].X, points[i].Y);
+            }
+
+            static void AddBeziers(SKPath skiaPath, IList<PointF> points)
+            {
+                Debug.Assert(points.Count >= 4);
+                for (int i = 1; i < points.Count; i += 3)
+                    skiaPath.CubicTo(points[i].X, points[i].Y, points[i + 1].X, points[i + 1].Y, points[i + 2].X, points[i + 2].Y);
+            }
+
+            static void AddMockedPoint(SKPath skiaPath)
+            {
+                var lastPoint = skiaPath.LastPoint;
+                skiaPath.LineTo(lastPoint.X + 0.5f, lastPoint.Y + 0.5f);
+            }
+
+            #endregion
+
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+
+            var result = new SKPath();
+            if (path.IsEmpty)
+                return result;
+
+            foreach (Figure figure in path.Figures)
+            {
+                if (figure.IsEmpty)
+                    continue;
+
+                ReadOnlyCollection<PathSegment> segments = figure.Segments;
+                PointF lastPoint = segments[0].StartPoint;
+                result.MoveTo(lastPoint.X, lastPoint.Y);
+
+                foreach (PathSegment segment in segments)
+                {
+                    PointF startPoint = segment.StartPoint;
+                    bool isStartPointAdded = startPoint == lastPoint;
+                    lastPoint = segment.EndPoint;
+
+                    switch (segment)
+                    {
+                        case LineSegment lineSegment:
+                            // cannot use AddPoly because it always starts a new figure
+                            IList<PointF> points = lineSegment.Points;
+                            int toAddCount = isStartPointAdded ? points.Count - 1 : points.Count;
+
+                            // SkiaSharp ignores single-point figures, so we add a one-pixel long line in this case
+                            if (toAddCount > 0)
+                                AddLines(result, points, isStartPointAdded ? 1 : 0);
+                            else if (segments.Count == 1)
+                                AddMockedPoint(result);
+                            continue;
+
+                        case BezierSegment bezierSegment:
+                            if (!isStartPointAdded)
+                                result.LineTo(startPoint.X, startPoint.Y);
+                            points = bezierSegment.Points;
+                            Debug.Assert(points.Count > 0);
+                            if (points.Count > 1)
+                                AddBeziers(result, points);
+                            else if (figure.Segments.Count == 1)
+                                AddMockedPoint(result);
+                            continue;
+
+                        case ArcSegment arcSegment:
+                            RectangleF bounds = arcSegment.Bounds;
+                            float radiusX = arcSegment.RadiusX;
+                            float radiusY = arcSegment.RadiusY;
+
+                            // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
+                            // (SkiaSharp actually handles flat ellipses, but if it consists of a single point, that is not rendered)
+                            if (radiusX <= 0.5f || radiusY <= 0.5f || arcSegment.SweepAngle.TolerantIsZero(1e-4f))
+                            {
+                                points = arcSegment.GetFlattenedPoints();
+                                if (points.Count == 1 && segments.Count == 1)
+                                    AddMockedPoint(result);
+                                else
+                                    AddLines(result, points, isStartPointAdded ? 1 : 0);
+                                continue;
+                            }
+
+                            // Special case 2: full ellipse - only if standalone figure, or start point is at zero angle. We could use MoveTo to move to the actual end point,
+                            // but it works only for drawing, whereas filling with EvenOdd rule would not differently than without jumping by MoveTo.
+                            if (arcSegment.SweepAngle is 360f && (segments.Count == 1 || arcSegment.StartAngle is 0f))
+                            {
+                                //if (!isStartPointAdded)
+                                //    result.LineTo(startPoint.X, startPoint.Y);
+                                result.AddOval(new SKRect(bounds.X, bounds.Y, bounds.Right, bounds.Bottom));
+                                continue;
+                            }
+
+                            // Special case 3: circular, non-complete arc
+                            if (radiusX.Equals(radiusY) && !arcSegment.SweepAngle.TolerantEquals(360f))
+                            {
+                                result.ArcTo(new SKRect(bounds.X, bounds.Y, bounds.Right, bounds.Bottom), arcSegment.StartAngle, arcSegment.SweepAngle, false);
+                                continue;
+                            }
+
+                            // General case: elliptical arc or complete ellipse with nonzero start angle - converting to Bézier curves.
+                            // Cannot use ArcTo here, because it SkiaSharp interprets the angles differently, and it simply does not draw complete ellipses.
+                            if (!isStartPointAdded)
+                                result.LineTo(startPoint.X, startPoint.Y);
+                            AddBeziers(result, arcSegment.ToBezierPoints());
+                            continue;
+                    }
+                }
+
+                if (figure.IsClosed)
+                    result.Close();
             }
 
             return result;

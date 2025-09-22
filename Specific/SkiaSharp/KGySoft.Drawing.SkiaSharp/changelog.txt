@@ -19,6 +19,7 @@
 =====================================
 + New SKPathExtensions class:
   + New ToPath method: to convert an SKPath to a KGySoft.Drawing.Shapes.Path.
+  + New ToSKPath method: to convert a KGySoft.Drawing.Shapes.Path to an SKPath.
 
 
 ~~~~~~~~~
