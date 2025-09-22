@@ -17,6 +17,10 @@
 
 + KGySoft.Drawing.SkiaSharp namespace
 =====================================
++ New ReadWriteBitmapDataExtensions class:
+  + New DrawText[Async] methods: To draw a text using an SKFont into an IReadWriteBitmapData instance.
+  + New DrawTextOutline[Async] methods: To draw the outline of a text using an SKFont into an IReadWriteBitmapData
+    instance.
 + New SKPathExtensions class:
   + New ToPath method: to convert an SKPath to a KGySoft.Drawing.Shapes.Path.
   + New ToSKPath method: to convert a KGySoft.Drawing.Shapes.Path to an SKPath.
