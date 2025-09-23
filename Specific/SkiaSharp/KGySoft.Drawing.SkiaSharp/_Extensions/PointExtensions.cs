@@ -38,9 +38,6 @@ namespace KGySoft.Drawing.SkiaSharp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static PointF AsPointF(this Vector2 vector) => Unsafe.As<Vector2, PointF>(ref vector);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static SKPoint ToSKPoint(this PointF point) => new SKPoint(point.X, point.Y);
-
         #endregion
     }
 }

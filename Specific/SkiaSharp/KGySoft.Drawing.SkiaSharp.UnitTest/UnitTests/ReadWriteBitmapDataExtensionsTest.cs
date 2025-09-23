@@ -57,14 +57,14 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void DrawTextOutlineTest()
         {
-            using var bitmap = new SKBitmap(320, 100);
+            using var bitmap = new SKBitmap(320, 120);
             using (var bitmapData = bitmap.GetReadWriteBitmapData())
             {
                 using var font = new SKFont(SKTypeface.Default, 45);
                 bitmapData.Clear(Color.Cyan);
-                bitmapData.DrawTextOutline(Color.Blue, "Non-AA outline", font, 5f, 40f);
+                bitmapData.DrawTextOutline(Color.Blue, "Non-AA outline", font, 5f, 5f);
 
-                bitmapData.DrawTextOutline(Color.Blue, "AA outline", font, 5f, bitmapData.Height / 2f + 45f, antiAliasingOptions);
+                bitmapData.DrawTextOutline(Color.Blue, "AA outline", font, 5f, bitmapData.Height / 2f + 5f, antiAliasingOptions);
             }
 
             SaveBitmap(null, bitmap);
@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             {
                 using var typeface = SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold);
                 using var font = new SKFont(typeface, 80);
-                var offset = new PointF(10, font.Size + 10);
+                var offset = new PointF(10, 10);
                 bitmapData.DrawText(Brush.CreateLinearGradient(new(0, 5), new(5, 0), Color.Cyan, Color.Blue, GradientWrapMode.Mirror), "KGy", font, offset, antiAliasingOptions);
                 bitmapData.DrawTextOutline(new Pen(Color.Black, 2f), "KGy", font, offset, antiAliasingOptions);
             }

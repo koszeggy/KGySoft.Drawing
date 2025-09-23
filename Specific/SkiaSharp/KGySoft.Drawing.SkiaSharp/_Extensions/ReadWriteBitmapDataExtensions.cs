@@ -748,8 +748,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         private static bool DoDrawTextOutline(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, string text, SKFont font, PointF location, DrawingOptions? drawingOptions)
         {
+            // NOTE: GetTextPath interprets the y coordinate as the baseline, so we need to offset it by font.Size, which is in pixels.
             Path path;
-            using (var skiaPath = font.GetTextPath(text, location.ToSKPoint()))
+            using (SKPath skiaPath = font.GetTextPath(text, new SKPoint(location.X, location.Y + font.Size)))
             {
                 path = skiaPath.ToPath();
                 path.PreferCaching = false;
@@ -760,8 +761,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         private static bool DoDrawText(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, string text, SKFont font, PointF location, DrawingOptions? drawingOptions)
         {
+            // NOTE: GetTextPath interprets the y coordinate as the baseline, so we need to offset it by font.Size, which is in pixels.
             Path path;
-            using (var skiaPath = font.GetTextPath(text, location.ToSKPoint()))
+            using (SKPath skiaPath = font.GetTextPath(text, new SKPoint(location.X, location.Y + font.Size)))
             {
                 path = skiaPath.ToPath();
                 path.PreferCaching = false;
