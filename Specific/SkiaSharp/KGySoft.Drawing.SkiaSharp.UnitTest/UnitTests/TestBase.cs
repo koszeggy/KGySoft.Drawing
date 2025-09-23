@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             sourceBitmapData.DrawInto(target, new Rectangle(Point.Empty, sourceBitmapData.Size), new Rectangle(Point.Empty, target.Size));
         }
 
-        protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName] string testName = null!)
+        protected static void SaveBitmap(string? imageName, SKBitmap bitmap, [CallerMemberName] string testName = null!)
         {
             if (!SaveToFile)
                 return;
