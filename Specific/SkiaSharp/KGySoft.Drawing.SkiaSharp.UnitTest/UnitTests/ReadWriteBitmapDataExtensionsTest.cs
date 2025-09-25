@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Threading.Tasks;
 
@@ -63,11 +64,57 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 using var font = new SKFont(SKTypeface.Default, 45);
                 bitmapData.Clear(Color.Cyan);
                 bitmapData.DrawTextOutline(Color.Blue, "Non-AA outline", font, 5f, 5f);
-
                 bitmapData.DrawTextOutline(Color.Blue, "AA outline", font, 5f, bitmapData.Height / 2f + 5f, antiAliasingOptions);
             }
 
             SaveBitmap(null, bitmap);
+        }
+
+        [Test, Explicit]
+        public void TestThinPathWithOffScreenOffsets()
+        {
+            using var bitmap = new SKBitmap(320, 50);
+            using var font = new SKFont(SKTypeface.Default, 45);
+            using var bitmapData = bitmap.GetReadWriteBitmapData();
+            var pen = new Pen(Color.Blue); // to test DirectDrawer.GenericDrawer<,,>.DrawLine
+            //var pen = new Pen(Color32.FromArgb(128, Color.Blue)); // to test DrawIntoRegionSession.DrawLine
+            //var pen = new Pen(Brush.CreateTexture(BitmapDataFactory.CreateBitmapData(1, 1, KnownPixelFormat.Format1bppIndexed))); // to test TextureBasedBrush.DrawLine
+
+            // to the top
+            for (int y = 0; y < 50; y++)
+            {
+                bitmapData.Clear(Color.Cyan);
+                int offset = y;
+                bitmapData.DrawTextOutline(pen, "Non-AA outline", font, new (5f, -offset));
+                SaveBitmap($"t{offset}", bitmap);
+            }
+
+            // to the left
+            for (int x = 0; x < 300; x++)
+            {
+                bitmapData.Clear(Color.Cyan);
+                int offset = x;
+                bitmapData.DrawTextOutline(pen, "Non-AA outline", font, new (-offset, 5f));
+                SaveBitmap($"l{offset}", bitmap);
+            }
+
+            // to the bottom
+            for (int y = 0; y < 50; y++)
+            {
+                bitmapData.Clear(Color.Cyan);
+                int offset = y;
+                bitmapData.DrawTextOutline(pen, "Non-AA outline", font, new (5f, offset));
+                SaveBitmap($"b{offset}", bitmap);
+            }
+
+            // to the right
+            for (int x = 0; x < 300; x++)
+            {
+                bitmapData.Clear(Color.Cyan);
+                int offset = x;
+                bitmapData.DrawTextOutline(pen, "Non-AA outline", font, new(offset, 5f));
+                SaveBitmap($"r{offset}", bitmap);
+            }
         }
 
         [Test]
