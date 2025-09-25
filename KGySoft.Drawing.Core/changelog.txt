@@ -39,16 +39,23 @@
 
 * KGySoft.Drawing.Shapes namespace
 ==================================
-- BitmapDataExtensions class:
+* BitmapDataExtensions class:
   - [Begin]DrawArc[Async] methods:
     - Fixing rendering when the arc's width or height is near to zero.
+  * [Begin]DrawLine[Async]/[Begin]DrawBezier[Async]/[Begin]DrawBeziers[Async]/[Begin]DrawPolygon[Async] methods:
+    - Fixing possible imprecision of start/end points when DrawingOptions.FastThinLines is enabled, and a line
+      segment is partially out of the bitmap bounds.
     - Fixing the precision of start/end points when DrawingOptions.FastThinLines is enabled, and the arc's vertical
       radius is greater than the horizontal radius.
-  - [Begin]DrawPath[Async] methods:
+    * Improved thin-line drawing performance
+  * [Begin]DrawPath[Async] methods:
     - If a Path contained a complex figure with an arc connected to other path segments, then the possible
       connecting other segments might have swapped the arc's start and end points causing an incorrect drawing.
     - AddArc methods: the startAngle parameter is respected even when a full ellipse is drawn. Matters if the arc is
       connected to other path segments.
+    - If a Path is drawn with DrawingOptions.FastThinLines and contains line segments or Bézier segments that are
+      partially out of the bitmap bounds, then now the visible area of these segments are drawn more precisely.
+    * Improved thin-line drawing performance of line segments and flattened segments
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
   + New Figures property

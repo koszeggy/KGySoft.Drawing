@@ -1699,6 +1699,7 @@ namespace KGySoft.Drawing.Shapes
                 p1 -= offset;
                 p2 -= offset;
                 Size size = Region.Bounds.Size;
+                int step, x, y, endX, endY;
 
                 // horizontal line (or a single point)
                 if (p1.Y == p2.Y)
@@ -1711,7 +1712,7 @@ namespace KGySoft.Drawing.Shapes
                         (p1.X, p2.X) = (p2.X, p1.X);
 
                     int max = Math.Min(p2.X, size.Width - 1);
-                    for (int x = Math.Max(p1.X, 0); x <= max; x++)
+                    for (x = Math.Max(p1.X, 0); x <= max; x++)
                         // TODO: optimize if possible
                         ColorExtensions.Set1bppColorIndex(ref row.GetElementReferenceUnchecked(x >> 3), x, 1);
 
@@ -1729,7 +1730,7 @@ namespace KGySoft.Drawing.Shapes
                         (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
                     int max = Math.Min(p2.Y, size.Height - 1);
-                    for (int y = Math.Max(p1.Y, 0); y <= max; y++)
+                    for (y = Math.Max(p1.Y, 0); y <= max; y++)
                         ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), p1.X, 1);
                     return;
                 }
@@ -1737,74 +1738,175 @@ namespace KGySoft.Drawing.Shapes
                 // general line
                 long width = (p2.X - p1.X).Abs();
                 long height = (p2.Y - p1.Y).Abs();
+                long numerator;
 
+                // shallow slope
                 if (width >= height)
                 {
-                    long numerator = width >> 1;
+                    numerator = width >> 1;
                     if (p1.X > p2.X)
                         (p1, p2) = (p2, p1);
-                    int step = p2.Y > p1.Y ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
+                    if (p2.X < 0)
+                        return;
+                    if (p2.Y > p1.Y)
+                    {
+                        if (p1.Y >= size.Height)
+                            return;
+                        step = 1;
+                    }
+                    else
+                    {
+                        if (p1.Y < 0)
+                            return;
+                        step = -1;
+                    }
 
-                    // skipping invisible X coordinates
+                    x = p1.X;
+                    y = p1.Y;
+
+                    // skipping invisible X coordinates to the left
                     if (x < 0)
                     {
-                        numerator = (numerator - height * x) % width;
-                        y -= x * step;
+                        long sum = numerator + height * -(long)x;
+                        numerator = sum % width;
+                        y = (int)(y + sum / width * step);
                         x = 0;
                     }
 
-                    int endX = Math.Min(p2.X, size.Width - 1);
-                    int offY = step > 0 ? Math.Min(p2.Y, size.Height - 1) + 1 : Math.Max(p2.Y, 0) - 1;
+                    endX = Math.Min(p2.X, size.Width - 1);
+                    if (step > 0)
+                    {
+                        endY = Math.Min(p2.Y, size.Height - 1) + 1;
+                        if (endY <= y)
+                            return;
+
+                        // skipping invisible Y coordinates above
+                        if (y < 0)
+                        {
+                            long dx = (-(long)y * width - numerator + height - 1L) / height;
+                            if (x + dx > endX)
+                                return;
+                            numerator = (numerator + height * dx) % width;
+                            x += (int)dx;
+                            y = 0;
+                        }
+                    }
+                    else
+                    {
+                        endY = Math.Max(p2.Y, 0) - 1;
+                        if (endY >= y)
+                            return;
+
+                        // skipping invisible Y coordinates below
+                        if (y >= size.Height)
+                        {
+                            long dx = ((y - (size.Height - 1L)) * width - numerator + height - 1L) / height;
+                            if (x + dx > endX)
+                                return;
+                            numerator = (numerator + height * dx) % width;
+                            x += (int)dx;
+                            y = size.Height - 1;
+                        }
+                    }
+
+                    // drawing the visible part
                     for (; x <= endX; x++)
                     {
-                        // Drawing only if Y is visible
-                        if ((uint)y < (uint)size.Height)
-                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        Debug.Assert((uint)y < (uint)size.Height && (uint)x < (uint)size.Width, $"Attempting to draw invisible pixel ({x}; {y}) for line {p1} -> {p2}");
+                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
                         numerator += height;
                         if (numerator < width)
                             continue;
 
                         y += step;
-                        if (y == offY)
+                        if (y == endY)
                             return;
                         numerator -= width;
+                    }
+
+                    return;
+                }
+
+                // steep slope: top to bottom
+                numerator = height >> 1;
+                if (p1.Y > p2.Y)
+                    (p1, p2) = (p2, p1);
+                if (p2.Y < 0)
+                    return;
+                if (p2.X > p1.X)
+                {
+                    if (p1.X >= size.Width)
+                        return;
+                    step = 1;
+                }
+                else
+                {
+                    if (p1.X < 0)
+                        return;
+                    step = -1;
+                }
+
+                x = p1.X;
+                y = p1.Y;
+
+                // skipping invisible Y coordinates above
+                if (y < 0)
+                {
+                    long sum = numerator + width * -(long)y;
+                    numerator = sum % height;
+                    x = (int)(x + sum / height * step);
+                    y = 0;
+                }
+
+                endY = Math.Min(p2.Y, size.Height - 1);
+                if (step > 0)
+                {
+                    endX = Math.Min(p2.X, size.Width - 1) + 1;
+                    if (endX <= x)
+                        return;
+
+                    // skipping invisible X coordinates to the left
+                    if (x < 0)
+                    {
+                        long dy = (-(long)x * height - numerator + width - 1L) / width;
+                        if (y + dy > endY)
+                            return;
+                        numerator = (numerator + width * dy) % height;
+                        y += (int)dy;
+                        x = 0;
                     }
                 }
                 else
                 {
-                    long numerator = height >> 1;
-                    if (p1.Y > p2.Y)
-                        (p1, p2) = (p2, p1);
-                    int step = p2.X > p1.X ? 1 : -1;
-                    int x = p1.X;
-                    int y = p1.Y;
+                    endX = Math.Max(p2.X, 0) - 1;
+                    if (endX >= x)
+                        return;
 
-                    // skipping invisible Y coordinates
-                    if (y < 0)
+                    // skipping invisible X coordinates to the right
+                    if (x >= size.Width)
                     {
-                        numerator = (numerator - width * y) % height;
-                        x -= y * step;
-                        y = 0;
-                    }
-
-                    int endY = Math.Min(p2.Y, size.Height - 1);
-                    int offX = step > 0 ? Math.Min(p2.X, size.Width - 1) + 1 : Math.Max(p2.X, 0) - 1;
-                    for (; y <= endY; y++)
-                    {
-                        // Drawing only if X is visible
-                        if ((uint)x < (uint)size.Width)
-                            ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
-                        numerator += width;
-                        if (numerator < height)
-                            continue;
-
-                        x += step;
-                        if (x == offX)
+                        long dy = ((x - (size.Width - 1L)) * height - numerator + width - 1L) / width;
+                        if (y + dy > endY)
                             return;
-                        numerator -= height;
+                        numerator = (numerator + width * dy) % height;
+                        y += (int)dy;
+                        x = size.Width - 1;
                     }
+                }
+
+                // drawing the visible part
+                for (; y <= endY; y++)
+                {
+                    Debug.Assert((uint)y < (uint)size.Height && (uint)x < (uint)size.Width, $"Attempting to draw invisible pixel ({x}; {y}) for line {p1} -> {p2}");
+                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                    numerator += width;
+                    if (numerator < height)
+                        continue;
+
+                    x += step;
+                    if (x == endX)
+                        return;
+                    numerator -= height;
                 }
             }
 
