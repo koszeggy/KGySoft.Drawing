@@ -521,7 +521,7 @@ namespace KGySoft.Drawing.Shapes
                         int posX = startX - left;
                         if ((uint)posX < (uint)scanlinePixelWidth && startX + 1 - scanStart >= 0.5f)
                         {
-                            ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
+                            ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3).SetBit(posX);
                             isScanlineDirty = true;
                         }
 
@@ -530,7 +530,7 @@ namespace KGySoft.Drawing.Shapes
                         posX = endX - left;
                         if ((uint)posX < (uint)scanlinePixelWidth && scanEnd - endX >= 0.5f)
                         {
-                            ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3), posX, 1);
+                            ScanlineBuffer.GetElementReferenceUnchecked(posX >> 3).SetBit(posX);
                             isScanlineDirty = true;
                         }
 
@@ -539,10 +539,8 @@ namespace KGySoft.Drawing.Shapes
                         int fullEndX = Math.Min(endX - 1, right - 1) - left;
                         if (fullEndX >= fullStartX)
                         {
-                            // TODO: vectorization if possible - or at least combine byte changes
                             Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
-                            for (int i = fullStartX; i <= fullEndX; i++)
-                                ColorExtensions.Set1bppColorIndex(ref ScanlineBuffer.GetElementReferenceUnchecked(i >> 3), i, 1);
+                            ScanlineBuffer.SetBitRange(fullStartX, fullEndX);
                             isScanlineDirty = true;
                         }
 
@@ -1711,11 +1709,12 @@ namespace KGySoft.Drawing.Shapes
                     if (p1.X > p2.X)
                         (p1.X, p2.X) = (p2.X, p1.X);
 
-                    int max = Math.Min(p2.X, size.Width - 1);
-                    for (x = Math.Max(p1.X, 0); x <= max; x++)
-                        // TODO: optimize if possible
-                        ColorExtensions.Set1bppColorIndex(ref row.GetElementReferenceUnchecked(x >> 3), x, 1);
+                    x = Math.Max(p1.X, 0);
+                    endX = Math.Min(p2.X, size.Width - 1);
+                    if (x > endX)
+                        return;
 
+                    row.SetBitRange(x, endX);
                     return;
                 }
 
@@ -1729,9 +1728,9 @@ namespace KGySoft.Drawing.Shapes
                     if (p1.Y > p2.Y)
                         (p1.Y, p2.Y) = (p2.Y, p1.Y);
 
-                    int max = Math.Min(p2.Y, size.Height - 1);
-                    for (y = Math.Max(p1.Y, 0); y <= max; y++)
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, maskPos), p1.X, 1);
+                    endY = Math.Min(p2.Y, size.Height - 1);
+                    for (y = Math.Max(p1.Y, 0); y <= endY; y++)
+                        mask.GetElementReferenceUnchecked(y, maskPos).SetBit(p1.X);
                     return;
                 }
 
@@ -1813,7 +1812,7 @@ namespace KGySoft.Drawing.Shapes
                     for (; x <= endX; x++)
                     {
                         Debug.Assert((uint)y < (uint)size.Height && (uint)x < (uint)size.Width, $"Attempting to draw invisible pixel ({x}; {y}) for line {p1} -> {p2}");
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        mask.GetElementReferenceUnchecked(y, x >> 3).SetBit(x);
                         numerator += height;
                         if (numerator < width)
                             continue;
@@ -1898,7 +1897,7 @@ namespace KGySoft.Drawing.Shapes
                 for (; y <= endY; y++)
                 {
                     Debug.Assert((uint)y < (uint)size.Height && (uint)x < (uint)size.Width, $"Attempting to draw invisible pixel ({x}; {y}) for line {p1} -> {p2}");
-                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                    mask.GetElementReferenceUnchecked(y, x >> 3).SetBit(x);
                     numerator += width;
                     if (numerator < height)
                         continue;
@@ -1911,7 +1910,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Based on http://members.chello.at/~easyfilter/bresenham.c
-            // Main changes: converting to C#, correcting types, more descriptive variable names, and using the ColorExtensions.Set1bppColorIndex method.
+            // Main changes: converting to C#, correcting types, more descriptive variable names, and using the ByteExtensions.SetBit method.
             internal override void DrawEllipse(RectangleF bounds)
             {
                 Debug.Assert(!Region!.IsAntiAliased);
@@ -1993,7 +1992,7 @@ namespace KGySoft.Drawing.Shapes
                     if ((uint)x >= (uint)size.Width || (uint)y >= (uint)size.Height)
                         return;
                     Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                    ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                    mask.GetElementReferenceUnchecked(y, x >> 3).SetBit(x);
                 }
 
                 #endregion
@@ -2139,7 +2138,7 @@ namespace KGySoft.Drawing.Shapes
                             || sectorType == ArcSegment.SectorStartEnd && x <= startX && x >= endX))
                     {
                         Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        mask.GetElementReferenceUnchecked(y, x >> 3).SetBit(x);
                     }
                 }
 
@@ -2234,7 +2233,7 @@ namespace KGySoft.Drawing.Shapes
                             || sectorType == ArcSegment.SectorStartEnd && y <= startY && y >= endY))
                     {
                         Debug.Assert((uint)(x >> 3) < (uint)mask.Width && (uint)y < (uint)mask.Height);
-                        ColorExtensions.Set1bppColorIndex(ref mask.GetElementReferenceUnchecked(y, x >> 3), x, 1);
+                        mask.GetElementReferenceUnchecked(y, x >> 3).SetBit(x);
                     }
                 }
 

@@ -112,6 +112,16 @@ namespace KGySoft.Drawing
 #endif
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static void SetBit(this ref byte bits, int x) => bits |= (byte)(128 >> (x & 7));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static void SetBitRange(this ref byte bits, int startIndex, int endIndex)
+        {
+            Debug.Assert(endIndex >= startIndex && startIndex >> 3 == endIndex >> 3);
+            bits |= (byte)((Byte.MaxValue << (8 - (endIndex - startIndex + 1)) & Byte.MaxValue) >> (startIndex & 7));
+        }
+
         #endregion
     }
 }

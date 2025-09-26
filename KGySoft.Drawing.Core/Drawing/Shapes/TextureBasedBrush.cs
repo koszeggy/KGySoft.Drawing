@@ -1079,7 +1079,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
 
                         int pos = x + offset;
-                        ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, 1);
+                        rowMask.GetElementReferenceUnchecked(pos >> 3).SetBit(pos);
 
                         Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                         if (value != Byte.MaxValue)
@@ -1120,7 +1120,7 @@ namespace KGySoft.Drawing.Shapes
                             continue;
 
                         int pos = x + offset;
-                        ColorExtensions.Set1bppColorIndex(ref rowMask.GetElementReferenceUnchecked(pos >> 3), pos, 1);
+                        rowMask.GetElementReferenceUnchecked(pos >> 3).SetBit(pos);
 
                         Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                         if (colorSrc.A == Byte.MinValue)

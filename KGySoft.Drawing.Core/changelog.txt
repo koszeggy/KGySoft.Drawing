@@ -55,7 +55,8 @@
       connected to other path segments.
     - If a Path is drawn with DrawingOptions.FastThinLines and contains line segments or Bézier segments that are
       partially out of the bitmap bounds, then now the visible area of these segments are drawn more precisely.
-    * Improved thin-line drawing performance of line segments and flattened segments
+    * Improved thin-line drawing performance of line segments and flattened segments.
+  * Improving performance of various operations.
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
   + New Figures property
