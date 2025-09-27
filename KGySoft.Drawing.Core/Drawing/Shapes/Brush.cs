@@ -987,14 +987,8 @@ namespace KGySoft.Drawing.Shapes
                         int fullEndX = Math.Min(endX - 1, right - 1) - left;
                         if (fullEndX >= fullStartX)
                         {
-                            // TODO: vectorization if possible
                             Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
-                            for (int i = fullStartX; i <= fullEndX; i++)
-                            {
-                                ref byte scanlinePixel = ref ScanlineBuffer.GetElementReferenceUnchecked(i);
-                                scanlinePixel = (scanlinePixel + subpixelSize).ClipToByte();
-                            }
-
+                            ScanlineBuffer.AddByteSat(fullStartX, fullEndX, subpixelSize);
                             isScanlineDirty = true;
                         }
 

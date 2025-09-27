@@ -9,6 +9,14 @@
 ! v10.0.0:
 ~~~~~~~~~~
 
+* Assembly changes:
+===================
+* Targeting also .NET 10.
+
+* General changes:
+==================
+* Improving performance of various operations when targeting .NET Core 3.0 or above.
+
 ! KGySoft.Drawing.Imaging namespace
 ===================================
 ! BitmapDataExtensions class:
@@ -56,7 +64,6 @@
     - If a Path is drawn with DrawingOptions.FastThinLines and contains line segments or Bézier segments that are
       partially out of the bitmap bounds, then now the visible area of these segments are drawn more precisely.
     * Improved thin-line drawing performance of line segments and flattened segments.
-  * Improving performance of various operations.
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
   + New Figures property
