@@ -21,6 +21,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 
 using KGySoft.Drawing.Imaging;
 
@@ -928,8 +931,8 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>The current <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>To leave the current instance intact and return a new one, use the static <see cref="Transform(Path,TransformationMatrix)">Transform</see> method instead.</para>
-        /// <para>To set the transformation for the items added afterward only, use the <see cref="TransformTranslation">TransformTranslation</see>,
-        /// <see cref="TransformRotation">TransformRotation</see>, <see cref="TransformScale">TransformScale</see> or <see cref="SetTransformation">SetTransformation</see> methods.</para>
+        /// <para>To set the transformation for the items added afterward only, use the <see cref="TransformTranslation(float,float)">TransformTranslation</see>,
+        /// <see cref="TransformRotation">TransformRotation</see>, <see cref="TransformScale(float,float)">TransformScale</see> or <see cref="SetTransformation">SetTransformation</see> methods.</para>
         /// </remarks>
         public Path TransformAdded(TransformationMatrix matrix)
         {
@@ -995,10 +998,22 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        // TODO
-        //public Path TransformTranslation(Vector2 offset)
-        //{
-        //}
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Applies a translation (offset) to the origin of the current <see cref="Transformation"/>.
+        /// </summary>
+        /// <param name="offset">The offset of the translation.</param>
+        /// <returns>This <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>This method affects the items that are added after calling this method only. To transform the already added items use
+        /// the <see cref="TransformAdded">TransformAdded</see> method instead.</para>
+        /// </remarks>
+        public Path TransformTranslation(Vector2 offset)
+        {
+            transformation = TransformationMatrix.CreateTranslation(offset) * transformation;
+            return this;
+        }
+#endif
 
         // NOTE: As opposed to TransformationMatrix.CreateRotation, this method uses degrees to conform with the other methods and also with other popular APIs.
         /// <summary>
@@ -1031,6 +1046,23 @@ namespace KGySoft.Drawing.Shapes
             transformation = TransformationMatrix.CreateScale(scaleX, scaleY) * transformation;
             return this;
         }
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Applies a scaling (zoom) to the current <see cref="Transformation"/>.
+        /// </summary>
+        /// <param name="scale">The scaling factor.</param>
+        /// <returns>This <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>This method affects the items that are added after calling this method only. To transform the already added items use
+        /// the <see cref="TransformAdded">TransformAdded</see> method instead.</para>
+        /// </remarks>
+        public Path TransformScale(Vector2 scale)
+        {
+            transformation = TransformationMatrix.CreateScale(scale) * transformation;
+            return this;
+        }
+#endif
 
         #endregion
 

@@ -303,6 +303,15 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Creates a translation matrix from the specified offset.
+        /// </summary>
+        /// <param name="offset">The distance to translate.</param>
+        /// <returns>The translation matrix.</returns>
+        public static TransformationMatrix CreateTranslation(Vector2 offset) => new(Matrix3x2.CreateTranslation(offset));
+#endif
+
         /// <summary>
         /// Creates a rotation matrix using the specified angle in radians.
         /// </summary>
@@ -517,6 +526,15 @@ namespace KGySoft.Drawing.Shapes
             return new TransformationMatrix(x, 0f, 0f, y, 0f, 0f);
 #endif
         }
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Creates a scale matrix from the specified <paramref name="scale"/>.
+        /// </summary>
+        /// <param name="scale">The scale to use.</param>
+        /// <returns>The scaling matrix.</returns>
+        public static TransformationMatrix CreateScale(Vector2 scale) => new(Matrix3x2.CreateScale(scale));
+#endif
 
         #endregion
 

@@ -67,8 +67,11 @@
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
   + New Figures property
+  + New TransformTranslation and TransformScale overloads with Vector2 parameter
   * Improving performance when the flattened points are requested repeatedly without modifying the path.
   - StartFigure: not marking the figure closed when called on an empty path.
++ TransformationMatrix struct:
+  + New CreateTranslation and CreateScale overloads with Vector2 parameter
 
 
 ~~~~~~~~~
