@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
@@ -33,7 +34,7 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Nested Classes
 
-        private sealed class OpenVerticesCollection : VirtualCollection<PointF>
+        private sealed class VerticesCollection : VirtualCollection<PointF>
         {
             #region Properties
 
@@ -43,10 +44,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Constructors
 
-            internal OpenVerticesCollection(List<PointF> closedVertices)
-                : base(closedVertices)
+            internal VerticesCollection(PointF[] points, int count)
+                : base(points)
             {
-                Count = closedVertices.Count - 1;
+                Count = count;
             }
 
             #endregion
@@ -62,6 +63,11 @@ namespace KGySoft.Drawing.Shapes
 
         #region Fields
 
+        // an actual List would be more convenient, but array is better for vector operations
+        private readonly PointF[] closedVerticesBuffer;
+        private readonly int closedVerticesCount;
+
+        private IList<PointF>? closedVertices;
         private IList<PointF>? openVertices;
 
         #endregion
@@ -69,8 +75,15 @@ namespace KGySoft.Drawing.Shapes
         #region Properties
 
         internal bool IsClosed { get; }
-        internal List<PointF> ClosedVertices { get; }
-        internal IList<PointF> OpenVertices => openVertices ??= new OpenVerticesCollection(ClosedVertices); 
+
+        internal IList<PointF> ClosedVertices => closedVertices ??= closedVerticesBuffer.Length == closedVerticesCount
+            ? closedVerticesBuffer
+            : new VerticesCollection(closedVerticesBuffer, closedVerticesCount);
+
+        internal IList<PointF> OpenVertices => openVertices ??= closedVerticesCount < 3
+            ? ClosedVertices
+            : new VerticesCollection(closedVerticesBuffer, closedVerticesCount - 1);
+
         internal Rectangle Bounds { get; }
 
         /// <summary>
@@ -86,14 +99,34 @@ namespace KGySoft.Drawing.Shapes
 
         internal RawFigure(IList<PointF> points, bool isClosed, bool offset)
         {
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void AddPoint(PointF[] buffer, PointF value, ref int count)
+            {
+                Debug.Assert(count < buffer.Length);
+                buffer[count] = value;
+                count += 1;
+            }
+
+            #endregion
+
             Debug.Assert(points.Count > 0);
+            Debug.Assert(!offset || isClosed, "Ofsetting is expected for closed figures only");
 
             // removing points too close to each other and the ones lying on the same line
-            var result = new List<PointF>();
+            int maxPoints = points.Count + (points.Count > 2 && !points[0].TolerantEquals(points[points.Count - 1], Constants.EqualityTolerance) ? 1 : 0);
+            var result = closedVerticesBuffer = new PointF[maxPoints];
+            int resultCount = 0;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            var min = new Vector2(Single.MaxValue);
+            var max = new Vector2(Single.MinValue);
+#else
             float minX = Single.MaxValue;
             float minY = Single.MaxValue;
             float maxX = Single.MinValue;
             float maxY = Single.MinValue;
+#endif
 
             // the try-finally block is just because of the return
             try
@@ -108,19 +141,23 @@ namespace KGySoft.Drawing.Shapes
                     if (prev == 0)
                     {
                         // All points are practically the same.
-                        result.Add(points[0]);
-                        openVertices = ClosedVertices = result;
+                        AddPoint(result, points[0], ref resultCount);
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                        PointF p = points[0];
+                        min = max = p.AsVector2();
+#else
                         minX = maxX = points[0].X;
                         minY = maxY = points[0].Y;
+#endif
                         isClosed = false;
-                        VertexCount = 1;
+                        VertexCount = closedVerticesCount = 1;
                         return;
                     }
                 } while (points[0].TolerantEquals(points[prev], Constants.EqualityTolerance));
 
                 count = prev + 1;
                 PointF lastPoint = points[0];
-                result.Add(lastPoint);
+                AddPoint(result, lastPoint, ref resultCount);
 
                 for (int i = 1; i < count; i++)
                 {
@@ -144,13 +181,19 @@ namespace KGySoft.Drawing.Shapes
                         continue;
                     }
 
-                    result.Add(points[i]);
-                    lastPoint = points[i];
+                    AddPoint(result, lastPoint = points[i], ref resultCount);
                 }
 
-                VertexCount = result.Count;
+                VertexCount = resultCount;
                 foreach (PointF vertex in result)
                 {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    // Unlike in ColorF, we don't mind possibly inconsistent NaN handling here
+                    PointF p = vertex;
+                    Vector2 vec = p.AsVector2();
+                    min = Vector2.Min(min, vec);
+                    max = Vector2.Max(max, vec);
+#else
                     if (vertex.X < minX)
                         minX = vertex.X;
                     if (vertex.X > maxX)
@@ -159,50 +202,60 @@ namespace KGySoft.Drawing.Shapes
                         minY = vertex.Y;
                     if (vertex.Y > maxY)
                         maxY = vertex.Y;
+#endif
                 }
 
                 // Forcing open shape below 3 points
-                if (result.Count < 3)
-                {
+                if (resultCount < 3)
                     isClosed = false;
-                    openVertices = ClosedVertices = result;
-                }
                 else
                 {
                     // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
-                    if (!result[0].TolerantEquals(result[result.Count - 1], Constants.EqualityTolerance))
-                        result.Add(result[0]);
+                    if (!result[0].TolerantEquals(result[resultCount - 1], Constants.EqualityTolerance))
+                        AddPoint(result, result[0], ref resultCount);
                     else
-                        openVertices = result;
+                        openVertices = CreateVerticesCollection(result, resultCount);
 
                     // If original points are practically closed but the figure is officially open, then
                     // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
                     if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], Constants.EqualityTolerance))
-                        openVertices ??= result;
-
-                    ClosedVertices = result;
+                        openVertices ??= CreateVerticesCollection(result, resultCount);
                 }
+
+                closedVerticesCount = resultCount;
             }
             finally
             {
                 // Offsetting the input points could be simpler, but it may not be a copy in every case and may contain ignored points.
                 if (offset)
                 {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    min += new Vector2(0.5f);
+                    max += new Vector2(0.5f);
+#else
                     minX += 0.5f;
                     minY += 0.5f;
                     maxX += 0.5f;
                     maxY += 0.5f;
-                    DoOffset(result);
+#endif
+                    result.AsSection(0, resultCount).AddOffset(0.5f);
                 }
 
                 // For performance reasons there are no checks in the public Path.AddXXX methods (which actually allows
                 // transformations into the valid range before drawing), but here we throw an OverflowException for extreme cases.
                 checked
                 {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    int left = (int)min.X.TolerantFloor(Constants.EqualityTolerance);
+                    int top = (int)min.Y.TolerantFloor(Constants.EqualityTolerance);
+                    int right = (int)max.X.TolerantCeiling(Constants.EqualityTolerance);
+                    int bottom = (int)max.Y.TolerantCeiling(Constants.EqualityTolerance);
+#else
                     int left = (int)minX.TolerantFloor(Constants.EqualityTolerance);
                     int top = (int)minY.TolerantFloor(Constants.EqualityTolerance);
                     int right = (int)maxX.TolerantCeiling(Constants.EqualityTolerance);
                     int bottom = (int)maxY.TolerantCeiling(Constants.EqualityTolerance);
+#endif
 
                     // Not using Rectangle.FromLTRB because it allows overflow.
                     Bounds = new Rectangle(left, top, right - left, bottom - top);
@@ -226,8 +279,11 @@ namespace KGySoft.Drawing.Shapes
             PointF slope1 = p2 - new SizeF(p1);
             PointF slope2 = p3 - new SizeF(p2);
 #endif
-            float result = (slope1.Y * slope2.X) - (slope1.X * slope2.Y);
-            return result switch
+#if NET10_0_OR_GREATER
+            return Vector2.Cross(slope2, slope1) switch
+#else
+            return ((slope1.Y * slope2.X) - (slope1.X * slope2.Y)) switch
+#endif
             {
                 > 0f => 1,
                 < 0f => -1,
@@ -235,17 +291,9 @@ namespace KGySoft.Drawing.Shapes
             };
         }
 
-        private static void DoOffset(IList<PointF> points)
-        {
-            // TODO: vectorization (test cast to Vector4/Vector<float>/explicit SIMD Vector128/256) options.
-            // .NET5+: CollectionsMarshal.AsSpan(ClosedVertices); otherwise, Accessor.GetArraySection(ClosedVertices).Cast<Vector4>, and Vector2 to the possible last element.
-
-            // TODO: is it faster to get the internal array first, and then set element's X/Y in place?
-            int len = points.Count;
-            SizeF offset = new SizeF(0.5f, 0.5f);
-            for (int i = 0; i < len; i++)
-                points[i] += offset;
-        }
+        private static IList<PointF> CreateVerticesCollection(PointF[] points, int count) => points.Length == count
+            ? points
+            : new VerticesCollection(points, count);
 
         #endregion
     }

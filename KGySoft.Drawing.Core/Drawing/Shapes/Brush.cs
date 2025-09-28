@@ -2264,7 +2264,7 @@ namespace KGySoft.Drawing.Shapes
                 var enumerator = new EdgeEnumerator(edgesBuffer);
                 foreach (RawFigure figure in path.Figures)
                 {
-                    List<PointF> vertices = figure.ClosedVertices;
+                    IList<PointF> vertices = figure.ClosedVertices;
                     if (vertices.Count <= 3)
                         continue;
 
@@ -2316,7 +2316,7 @@ namespace KGySoft.Drawing.Shapes
 
             [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator",
                 Justification = "False alarm, these coordinates are already snapped (rounded) to a fraction of 2.")]
-            internal EdgeInfo(List<PointF> vertices, CastArray<byte, float> snappedYCoords, int index)
+            internal EdgeInfo(IList<PointF> vertices, CastArray<byte, float> snappedYCoords, int index)
             {
                 Debug.Assert(index < vertices.Count - 1 && index < snappedYCoords.Length - 1);
                 Start = new PointF(vertices[index].X, snappedYCoords.GetElementUnsafe(index));

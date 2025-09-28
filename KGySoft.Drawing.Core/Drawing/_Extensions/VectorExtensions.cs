@@ -104,19 +104,6 @@ namespace KGySoft.Drawing
         }
 #endif
 
-        // TODO: remove
-//#if NETCOREAPP3_0_OR_GREATER
-//        [MethodImpl(MethodImpl.AggressiveInlining)]
-//        internal static ref Vector2 AsVector2(this ref SizeF size) => ref Unsafe.As<SizeF, Vector2>(ref size);
-//#else
-//        [MethodImpl(MethodImpl.AggressiveInlining)]
-//        internal static unsafe ref Vector2 AsVector2(this ref SizeF size)
-//        {
-//            fixed (SizeF* p = &size)
-//                return ref *(Vector2*)p;
-//        }
-//#endif
-
         #endregion
     }
 }

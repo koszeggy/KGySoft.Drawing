@@ -17,6 +17,10 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
@@ -87,7 +91,6 @@ namespace KGySoft.Drawing
         [SuppressMessage("ReSharper", "TooWideLocalVariableScope", Justification = "Not on all platform targets")]
         internal static void AddByteSat(this ArraySection<byte> buffer, uint value)
         {
-            Debug.Assert(endIndex >= startIndex && startIndex >= 0 && endIndex < buffer.Length && value <= Byte.MaxValue);
             Debug.Assert(value < Byte.MaxValue, "If value is 255, add a branch using buffer.Fill");
             int pos = 0;
             int count = buffer.Length;
@@ -237,8 +240,10 @@ namespace KGySoft.Drawing
             }
 #endif
 
-        // fallback, or remaining bytes
+            // fallback, or remaining bytes
+#if NETCOREAPP3_0_OR_GREATER
         nonAccelerated:
+#endif
             byte[] array = buffer.UnderlyingArray!;
             pos += buffer.Offset;
             int end = pos + count;
@@ -247,6 +252,113 @@ namespace KGySoft.Drawing
                 ref byte itemRef = ref array[i];
                 itemRef = (itemRef + value).ClipToByte();
             }
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "TooWideLocalVariableScope", Justification = "Not on all platform targets")]
+        internal static void AddOffset(this ArraySection<PointF> buffer, float offset)
+        {
+            int pos = 0;
+            int count = buffer.Length;
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            int vectorCount;
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+            {
+#if NET8_0_OR_GREATER
+                if (Avx512F.IsSupported)
+                {
+                    vectorCount = count >> 3; // count / Vector512<"PointF">.Count; (8)
+                    if (vectorCount > 0)
+                    {
+                        Vector512<float> vOffset = Vector512.Create(offset);
+                        for (int i = 0; i < vectorCount; i++)
+                        {
+                            ref float itemRef = ref Unsafe.As<PointF, float>(ref buffer.GetElementReferenceUnchecked(pos));
+                            Avx512F.Add(Vector512.LoadUnsafe(ref itemRef), vOffset).StoreUnsafe(ref itemRef);
+                        }
+
+                        pos += vectorCount << 3;
+                        count -= vectorCount << 3;
+                    }
+                }
+#endif
+#if NETCOREAPP3_0_OR_GREATER
+                if (Avx.IsSupported)
+                {
+                    vectorCount = count >> 2; // count / Vector256<"PointF">.Count; (4)
+                    if (vectorCount > 0)
+                    {
+                        Vector256<float> vOffset = Vector256.Create(offset);
+                        for (int i = 0; i < vectorCount; i++)
+                        {
+                            // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
+                            ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
+                            Unsafe.WriteUnaligned(ref itemRef, Avx.Add(Unsafe.ReadUnaligned<Vector256<float>>(ref itemRef), vOffset));
+                        }
+
+                        pos += vectorCount << 2;
+                        count -= vectorCount << 2;
+                    }
+                }
+
+                vectorCount = count >> 1; // count / Vector128<"PointF">.Count; (2)
+                if (vectorCount > 0)
+                {
+                    Vector128<float> vOffset = Vector128.Create(offset);
+                    for (int i = 0; i < vectorCount; i++)
+                    {
+                        // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
+                        ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
+                        Unsafe.WriteUnaligned(ref itemRef, Sse.Add(Unsafe.ReadUnaligned<Vector128<float>>(ref itemRef), vOffset));
+                    }
+
+                    pos += vectorCount << 1;
+                    count -= vectorCount << 1;
+                }
+#endif
+            }
+            else
+#endif
+            {
+                // Here we are in .NET Framework/Standard or with no SSE support: using Vector4 without checking if it is available
+                vectorCount = count >> 1; // 2 PointF instances can fit in a Vector4
+                if (vectorCount > 0)
+                {
+                    Vector4 vOffset = new Vector4(offset);
+                    CastArray<PointF, Vector4> bufV4 = buffer.Slice(pos).Cast<PointF, Vector4>();
+                    for (int i = 0; i < vectorCount; i++)
+                    {
+                        ref Vector4 itemRef = ref bufV4.GetElementReferenceUnsafe(i);
+                        itemRef = Vector4.Add(itemRef, vOffset);
+                    }
+
+                    pos += vectorCount << 1;
+#if DEBUG
+                    count -= vectorCount << 1;
+#endif
+                }
+            }
+
+            // last point: as Vector2
+            Debug.Assert(count == 1);
+            {
+                ref Vector2 itemRef = ref buffer.GetElementReferenceUnchecked(pos).AsVector2();
+                itemRef = Vector2.Add(itemRef, new Vector2(offset));
+            }
+#else
+            PointF[] array = buffer.UnderlyingArray!;
+            pos += buffer.Offset;
+            int end = pos + count;
+            for (int i = pos; i < end; i++)
+            {
+                ref PointF itemRef = ref array[i];
+                itemRef.X += offset;
+                itemRef.Y += offset;
+            }
+#endif
         }
 
         #endregion
