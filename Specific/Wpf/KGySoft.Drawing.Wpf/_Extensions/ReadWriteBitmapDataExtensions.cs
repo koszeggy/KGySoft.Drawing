@@ -43,7 +43,7 @@ using WpfPoint = System.Windows.Point;
 namespace KGySoft.Drawing.Wpf
 {
     /// <summary>
-    /// Provides extension methods for the <see cref="ReadWriteBitmapDataExtensions"/> type.
+    /// Provides extension methods for the <see cref="IReadWriteBitmapData"/> type.
     /// </summary>
     public static class ReadWriteBitmapDataExtensions
     {

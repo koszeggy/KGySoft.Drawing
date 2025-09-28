@@ -197,6 +197,76 @@ namespace KGySoft.Drawing.Shapes
             return result;
         }
 
+        /// <summary>
+        /// Calculates the control points of the cubic Bézier curve that represents the same shape as a given quadratic Bézier curve.
+        /// </summary>
+        /// <param name="start">The starting point of the quadratic Bézier curve.</param>
+        /// <param name="quadControlPoint">The control point of the quadratic Bézier curve.</param>
+        /// <param name="end">The ending point of the quadratic Bézier curve.</param>
+        /// <param name="cubicControlPoint1">When this method returns, contains the first control point of the equivalent cubic Bézier curve.</param>
+        /// <param name="cubicControlPoint2">When this method returns, contains the second control point of the equivalent cubic Bézier curve.</param>
+        /// <remarks>
+        /// <para>The original <paramref name="start"/>/<paramref name="end"/> points with the resulting cubic control points can be used to
+        /// add a cubic Bézier curve by the <see cref="O:KGySoft.Drawing.Shapes.Path.AddBezier">AddBezier</see>/<see cref="O:KGySoft.Drawing.Shapes.Path.AddBeziers">AddBezier</see> methods
+        /// to a <see cref="Path"/> instance.</para>
+        /// </remarks>
+        public static void GetCubicBezierControlPointsFromQuadraticBezier(PointF start, PointF quadControlPoint, PointF end, out PointF cubicControlPoint1, out PointF cubicControlPoint2)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 startVec = ref start.AsVector2();
+            ref Vector2 cpVec = ref quadControlPoint.AsVector2();
+            ref Vector2 endVec = ref end.AsVector2();
+            Vector2 cp1Vec = startVec + 2f / 3f * (cpVec - startVec);
+            cubicControlPoint1 = cp1Vec.AsPointF();
+            Vector2 cp2Vec = endVec + 2f / 3f * (cpVec - endVec);
+            cubicControlPoint2 = cp2Vec.AsPointF();
+#else
+            cubicControlPoint1 = new PointF(start.X + 2f / 3f * (quadControlPoint.X - start.X),
+                start.Y + 2f / 3f * (quadControlPoint.Y - start.Y));
+            cubicControlPoint2 = new PointF(end.X + 2f / 3f * (quadControlPoint.X - end.X),
+                end.Y + 2f / 3f * (quadControlPoint.Y - end.Y));
+#endif
+        }
+
+        /// <summary>
+        /// Calculates the control points of the cubic Bézier curve that approximates the given conic curve.
+        /// </summary>
+        /// <param name="start">The starting point of the conic curve.</param>
+        /// <param name="conicControlPoint">The control point of the conic curve.</param>
+        /// <param name="end">The ending point of the conic curve.</param>
+        /// <param name="weight">The weight of the conic curve, which determines the shape of the curve. Must be a positive value.</param>
+        /// <param name="cubicControlPoint1">When this method returns, contains the first control point of the equivalent cubic Bézier curve.</param>
+        /// <param name="cubicControlPoint2">When this method returns, contains the second control point of the equivalent cubic Bézier curve.</param>
+        /// <remarks>
+        /// <para>The original <paramref name="start"/>/<paramref name="end"/> points with the resulting cubic control points can be used to
+        /// add a conic curve by the <see cref="O:KGySoft.Drawing.Shapes.Path.AddBezier">AddBezier</see>/<see cref="O:KGySoft.Drawing.Shapes.Path.AddBeziers">AddBezier</see> methods
+        /// to a <see cref="Path"/> instance.</para>
+        /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
+        /// If the <paramref name="weight"/> is less than 1, the curve is an elliptic arc, and if it's greater than 1, the curve is a hyperbolic arc.</para>
+        /// </remarks>
+        public static void GetCubicBezierControlPointsFromConicCurve(PointF start, PointF conicControlPoint, PointF end, float weight, out PointF cubicControlPoint1, out PointF cubicControlPoint2)
+        {
+            // Credit to this paper where I managed to find the solution: https://www.mn.uio.no/math/english/people/aca/michaelf/papers/g4.pdf
+            float lambda = 4f / 3f * weight / (1f + weight);
+            if (Single.IsInfinity(lambda) || Single.IsNaN(lambda) || lambda < 0f)
+                throw new ArgumentOutOfRangeException(nameof(weight), PublicResources.ArgumentOutOfRange);
+
+            float inverseLambda = 1 - lambda;
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 cpVec = ref conicControlPoint.AsVector2();
+            Vector2 cp1Vec = inverseLambda * start.AsVector2() + lambda * cpVec;
+            cubicControlPoint1 = cp1Vec.AsPointF();
+            Vector2 cp2Vec = inverseLambda * end.AsVector2() + lambda * cpVec;
+            cubicControlPoint2 = cp2Vec.AsPointF();
+#else
+            cubicControlPoint1 = new PointF(inverseLambda * start.X + lambda * conicControlPoint.X,
+                inverseLambda * start.Y + lambda * conicControlPoint.Y);
+            cubicControlPoint2 = new PointF(inverseLambda * end.X + lambda * conicControlPoint.X,
+                inverseLambda * end.Y + lambda * conicControlPoint.Y);
+#endif
+        }
+
         #endregion
 
         #region Instance Methods
@@ -424,7 +494,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Adds a Bézier curve to this <see cref="Path"/>.
+        /// Adds a cubic Bézier curve to this <see cref="Path"/>.
         /// </summary>
         /// <param name="x1">The x-coordinate of the starting point of the Bézier curve.</param>
         /// <param name="y1">The y-coordinate of the starting point of the Bézier curve.</param>
@@ -437,6 +507,11 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
+        /// <para>This method adds a cubic Bézier curve defined by four points: the starting point, two control points, and the end point.
+        /// To add a quadratic Bézier curve, you can use the <see cref="GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of the quadratic curve.
+        /// Similarly, to add a conic curve, you can use the <see cref="GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of the conic curve.</para>
         /// <para>The parameters are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
@@ -444,7 +519,7 @@ namespace KGySoft.Drawing.Shapes
             => AddBezier(new PointF(x1, y1), new PointF(x2, y2), new PointF(x3, y3), new PointF(x4, y4));
 
         /// <summary>
-        /// Adds a Bézier curve to this <see cref="Path"/>.
+        /// Adds a cubic Bézier curve to this <see cref="Path"/>.
         /// </summary>
         /// <param name="p1">The starting point of the Bézier curve.</param>
         /// <param name="p2">The first control point of the Bézier curve.</param>
@@ -453,6 +528,11 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <remarks>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
+        /// <para>This method adds a cubic Bézier curve defined by four points: the starting point, two control points, and the end point.
+        /// To add a quadratic Bézier curve, you can use the <see cref="GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of the quadratic curve.
+        /// Similarly, to add a conic curve, you can use the <see cref="GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of the conic curve.</para>
         /// <para>The parameters are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
@@ -463,17 +543,22 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Adds a series of Bézier curves to this <see cref="Path"/>.
+        /// Adds a series of cubic Bézier curves to this <see cref="Path"/>.
         /// </summary>
         /// <param name="points">The points that define the Bézier curves to add to this <see cref="Path"/>.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
+        /// <para>This method adds cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To add quadratic Bézier curves, you can use the <see cref="GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to add conic curves, you can use
+        /// the <see cref="GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>The coordinates of the specified <paramref name="points"/> are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
@@ -490,17 +575,22 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Adds a series of Bézier curves to this <see cref="Path"/>.
+        /// Adds a series of cubic Bézier curves to this <see cref="Path"/>.
         /// </summary>
         /// <param name="points">The points that define the Bézier curves to add to this <see cref="Path"/>.</param>
         /// <returns>This <see cref="Path"/> instance.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
+        /// <para>This method adds cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To add quadratic Bézier curves, you can use the <see cref="GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to add conic curves, you can use
+        /// the <see cref="GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>The coordinates of the specified <paramref name="points"/> are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>

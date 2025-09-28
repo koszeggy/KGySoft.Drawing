@@ -340,7 +340,7 @@ namespace KGySoft.Drawing
             if (path.IsEmpty)
                 return result;
 
-            foreach (var figure in path.Figures)
+            foreach (Figure figure in path.Figures)
             {
                 result.StartFigure();
                 foreach (PathSegment segment in figure.Segments)

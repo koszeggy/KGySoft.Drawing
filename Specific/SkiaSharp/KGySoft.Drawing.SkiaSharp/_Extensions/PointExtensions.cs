@@ -16,7 +16,6 @@
 #region Usings
 
 using System.Drawing;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using SkiaSharp;
@@ -30,13 +29,7 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static PointF AsPointF(this SKPoint point) => Unsafe.As<SKPoint, PointF>(ref point);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Vector2 AsVector2(this PointF point) => Unsafe.As<PointF, Vector2>(ref point);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static PointF AsPointF(this Vector2 vector) => Unsafe.As<Vector2, PointF>(ref vector);
+        internal static ref PointF AsPointF(this ref SKPoint point) => ref Unsafe.As<SKPoint, PointF>(ref point);
 
         #endregion
     }

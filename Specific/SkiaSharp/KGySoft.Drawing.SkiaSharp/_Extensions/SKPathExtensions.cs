@@ -44,25 +44,6 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="path"/> is <see langword="null"/>.</exception>
         public static Path ToPath(this SKPath path)
         {
-            #region Local Methods
-
-            static (PointF ControlPoint1, PointF ControlPoint2) GetCubicControlPointsFromQuadraticBezier(PointF start, PointF controlPoint, PointF end)
-                => ((start.AsVector2() + 2f / 3f * (controlPoint.AsVector2() - start.AsVector2())).AsPointF(),
-                    (end.AsVector2() + 2f / 3f * (controlPoint.AsVector2() - end.AsVector2())).AsPointF());
-
-            static (PointF ControlPoint1, PointF ControlPoint2) GetCubicControlPointsFromConicCurve(PointF start, PointF controlPoint, PointF end, float weight)
-            {
-                // Though SKPath has a ConvertConicToQuads, there is no need to approximate the curve by quadratic Béziers, because a single cubic Bézier curve always can represent a conic curve.
-                // The problem is that SkiaSharp has no API to convert a conic curve to a cubic Bézier.
-                // Credit to this paper where I finally managed to find the solution: https://www.mn.uio.no/math/english/people/aca/michaelf/papers/g4.pdf
-                float lambda = weight * 4f / 3f / (1 + weight);
-                float inverseLambda = 1 - lambda;
-                return ((inverseLambda * start.AsVector2() + lambda * controlPoint.AsVector2()).AsPointF(),
-                        (inverseLambda * end.AsVector2() + lambda * controlPoint.AsVector2()).AsPointF());
-            }
-
-            #endregion
-
             if (path == null)
                 throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
 
@@ -107,15 +88,17 @@ namespace KGySoft.Drawing.SkiaSharp
                     case SKPathVerb.Quad:
                         PointF startPoint = buf[0].AsPointF();
                         PointF endPoint = buf[2].AsPointF();
-                        (PointF cp1, PointF cp2) = GetCubicControlPointsFromQuadraticBezier(startPoint, buf[1].AsPointF(), endPoint);
+                        Path.GetCubicBezierControlPointsFromQuadraticBezier(startPoint, buf[1].AsPointF(), endPoint, out PointF cp1, out PointF cp2);
                         result.AddBezier(startPoint, cp1, cp2, endPoint);
                         lastPointAdded = true;
                         break;
 
                     case SKPathVerb.Conic:
+                        // Though SKPath has a ConvertConicToQuads, there is no need to approximate the curve by quadratic Béziers, because a single cubic Bézier curve always can represent a conic curve.
+                        // The problem is that SkiaSharp has no API to convert a conic curve to a cubic Bézier. In the end I added a helper method to Path.
                         startPoint = buf[0].AsPointF();
                         endPoint = buf[2].AsPointF();
-                        (cp1, cp2) = GetCubicControlPointsFromConicCurve(startPoint, buf[1].AsPointF(), endPoint, iterator.ConicWeight());
+                        Path.GetCubicBezierControlPointsFromConicCurve(startPoint, buf[1].AsPointF(), endPoint, iterator.ConicWeight(), out cp1, out cp2);
                         result.AddBezier(startPoint, cp1, cp2, endPoint);
                         lastPointAdded = true;
                         break;

@@ -18,12 +18,9 @@
 #region Used Namespaces
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Threading.Tasks;
 
 using KGySoft.Drawing.Shapes;
@@ -43,7 +40,7 @@ using Pen = KGySoft.Drawing.Shapes.Pen;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides extension methods for the <see cref="ReadWriteBitmapDataExtensions"/> type.
+    /// Provides extension methods for the <see cref="IReadWriteBitmapData"/> type.
     /// </summary>
 #if NET7_0_OR_GREATER
     [SupportedOSPlatform("windows")]
@@ -80,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -114,7 +111,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -154,7 +151,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -188,7 +185,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -235,7 +232,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -276,7 +273,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -317,7 +314,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -358,7 +355,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -403,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -448,7 +445,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -496,7 +493,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -541,7 +538,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -596,7 +593,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -635,7 +632,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -677,7 +674,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -716,7 +713,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -775,7 +772,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -815,7 +812,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -858,7 +855,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -898,7 +895,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -947,7 +944,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -981,7 +978,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1021,7 +1018,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1055,7 +1052,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1102,7 +1099,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1143,7 +1140,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1184,7 +1181,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1225,7 +1222,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1270,7 +1267,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1315,7 +1312,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1363,7 +1360,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1408,7 +1405,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawText">DrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPath">FillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPath">DrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1463,7 +1460,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1502,7 +1499,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1544,7 +1541,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1583,7 +1580,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginFillPath">BeginFillPath</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1642,7 +1639,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1682,7 +1679,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1725,7 +1722,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
@@ -1765,7 +1762,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// and <see cref="O:KGySoft.Drawing.Imaging.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> consecutively, you can achieve a better performance by creating a <see cref="Path"/> once, and then calling
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.FillPathAsync">FillPathAsync</see> and <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.
-        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="GraphicsPathExtensions.ToPath">ToPath</see> extension method.
+        /// You can convert the specified <paramref name="text"/> to a <see cref="Path"/> by using the <see cref="O:System.Drawing.Drawing2D.GraphicsPath.AddString">GraphicsPath.AddString</see> and <see cref="GraphicsPathExtensions.ToPath">GraphicsPathExtensions.ToPath</see> methods.
         /// If you draw the text without antialiasing, it is recommended to set the <see cref="DrawingOptions.FastThinLines"/> to <see langword="false"/> in <paramref name="drawingOptions"/>
         /// so the outline correctly aligns to the filled area.</note>
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>

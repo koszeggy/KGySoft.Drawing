@@ -1850,14 +1850,14 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Beziers
+        #region Béziers
 
         #region Sync
 
         #region Default Context
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -1866,9 +1866,14 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -1898,7 +1903,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -1907,9 +1912,14 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -1944,7 +1954,7 @@ namespace KGySoft.Drawing.Shapes
         // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -1959,9 +1969,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -1992,7 +2007,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -2007,9 +2022,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2040,7 +2060,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/>.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2058,9 +2078,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2092,7 +2117,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/>.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2110,9 +2135,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2148,7 +2178,7 @@ namespace KGySoft.Drawing.Shapes
         #region IAsyncContext
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2161,9 +2191,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2199,7 +2234,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2212,9 +2247,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2250,7 +2290,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2263,9 +2303,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2302,7 +2347,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2315,9 +2360,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the operation completed successfully.
         /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2360,7 +2410,7 @@ namespace KGySoft.Drawing.Shapes
         #region Async APM
 
         /// <summary>
-        /// Begins to draw a series of one-pixel wide Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// Begins to draw a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -2375,9 +2425,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2406,7 +2461,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Begins to draw a series of one-pixel wide Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// Begins to draw a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -2421,9 +2476,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2452,7 +2512,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Begins to draw a series of Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// Begins to draw a series of cubic Bézier curves with the specified <see cref="Pen"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2467,9 +2527,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2499,7 +2564,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Begins to draw a series of Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// Begins to draw a series of cubic Bézier curves with the specified <see cref="Pen"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2514,9 +2579,14 @@ namespace KGySoft.Drawing.Shapes
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2562,7 +2632,7 @@ namespace KGySoft.Drawing.Shapes
 #if !NET35
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -2578,9 +2648,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2609,7 +2684,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of one-pixel wide Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the curves to draw.</param>
@@ -2625,9 +2700,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2656,7 +2736,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2672,9 +2752,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2704,7 +2789,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Draws a series of Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/> asynchronously.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
@@ -2720,9 +2805,14 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>The allowed number of points in <paramref name="points"/> is 0, 1, or a multiple of 3 plus 1.</para>
+        /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
+        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
+        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
+        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
+        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>

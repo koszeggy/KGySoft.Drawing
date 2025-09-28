@@ -74,17 +74,12 @@ namespace KGySoft.Drawing.Wpf
         /// <returns>A <see cref="Path"/> instance that represents the same geometry as the specified <see cref="Geometry"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="geometry"/> is <see langword="null"/>.</exception>
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended")]
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "The cases are better to be not extracted from the method")]
         public static Path ToPath(this Geometry geometry)
         {
             #region Local Methods
 
             static double ToDegree(double radians) => radians / Math.PI * 180d;
-
-            static (PointF ControlPoint1, PointF ControlPoint2) GetCubicControlPointsFromQuadraticBezier(PointF start, PointF controlPoint, PointF end)
-                => (new PointF(start.X + 2f / 3f * (controlPoint.X - start.X),
-                        start.Y + 2f / 3f * (controlPoint.Y - start.Y)),
-                    new PointF(end.X + 2f / 3f * (controlPoint.X - end.X),
-                        end.Y + 2f / 3f * (controlPoint.Y - end.Y)));
 
             static WpfPoint GetCenter(WpfPoint startPoint, WpfPoint endPoint, double radiusX, double radiusY, double rotationAngle, bool isLargeArc, bool counterclockwise)
             {
@@ -174,7 +169,7 @@ namespace KGySoft.Drawing.Wpf
 
                             case QuadraticBezierSegment quadraticBezierSegment:
                                 var end = quadraticBezierSegment.Point2.ToPointF();
-                                (PointF cp1, PointF cp2) = GetCubicControlPointsFromQuadraticBezier(lastPoint, quadraticBezierSegment.Point1.ToPointF(), end);
+                                Path.GetCubicBezierControlPointsFromQuadraticBezier(lastPoint, quadraticBezierSegment.Point1.ToPointF(), end, out PointF cp1, out PointF cp2);
                                 result.AddBezier(lastPoint, cp1, cp2, lastPoint = end);
                                 lastPointAdded = true;
                                 break;
@@ -188,7 +183,7 @@ namespace KGySoft.Drawing.Wpf
                                     for (int i = 0; i < validCount; i += 2)
                                     {
                                         end = points[i + 1].ToPointF();
-                                        (cp1, cp2) = GetCubicControlPointsFromQuadraticBezier(lastPoint, points[i].ToPointF(), end);
+                                        Path.GetCubicBezierControlPointsFromQuadraticBezier(lastPoint, points[i].ToPointF(), end, out cp1, out cp2);
                                         cubicPoints.AddRange([cp1, cp2, lastPoint = end]);
                                     }
 
@@ -274,6 +269,7 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="path">The <see cref="Path"/> instance to convert to a <see cref="Geometry"/>.</param>
         /// <returns>A <see cref="Geometry"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "The cases are better to be not extracted from the method")]
         public static Geometry ToGeometry(this Path path)
         {
             if (path == null)
@@ -344,7 +340,7 @@ namespace KGySoft.Drawing.Wpf
 
                             // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
                             // (WPF arc would just connect start/end points without considering the radius)
-                            if (arcSegment.RadiusX.TolerantIsZero(tolerance) || arcSegment.RadiusY.TolerantIsZero(tolerance) || arcSegment.SweepAngle.TolerantIsZero(tolerance))
+                            if (radiusX.TolerantIsZero(tolerance) || radiusY.TolerantIsZero(tolerance) || arcSegment.SweepAngle.TolerantIsZero(tolerance))
                             {
                                 points = arcSegment.GetFlattenedPoints();
                                 if (points.Count == 1 && segments.Count == 1)
