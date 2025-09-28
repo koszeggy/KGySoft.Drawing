@@ -988,7 +988,7 @@ namespace KGySoft.Drawing.Shapes
                         if (fullEndX >= fullStartX)
                         {
                             Debug.Assert(fullStartX >= 0 && fullEndX < scanlinePixelWidth);
-                            ScanlineBuffer.AddByteSat(fullStartX, fullEndX, subpixelSize);
+                            ScanlineBuffer.Slice(fullStartX, fullEndX - fullStartX + 1).AddByteSat(subpixelSize);
                             isScanlineDirty = true;
                         }
 

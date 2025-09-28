@@ -48,18 +48,11 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
-#if NETCOREAPP3_0_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector2 AsVector2(this PointF point) => Unsafe.As<PointF, Vector2>(ref point);
-#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static unsafe Vector2 AsVector2(this PointF point) => *(Vector2*)&point;
-#endif
-
         internal static PointF Transform(this PointF point, TransformationMatrix matrix)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return Vector2.Transform(point.AsVector2(), matrix.Matrix).AsPointF();
+            Vector2 result = Vector2.Transform(point.AsVector2(), matrix.Matrix);
+            return result.AsPointF();
 #else
             return new PointF(
                 matrix.M11 * point.X + matrix.M21 * point.Y + matrix.M31,

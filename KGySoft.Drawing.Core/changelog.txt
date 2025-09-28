@@ -15,7 +15,7 @@
 
 * General changes:
 ==================
-* Improving performance of various operations when targeting .NET Core 3.0 or above.
+* Improving performance of various operations when SIMD operations are available.
 
 ! KGySoft.Drawing.Imaging namespace
 ===================================

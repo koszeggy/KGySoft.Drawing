@@ -33,6 +33,8 @@ namespace KGySoft.Drawing
         #region Methods
 
 #if NETCOREAPP3_0
+        // NOTE: Actually these would perform better in .NET Core 3.x if they were this ref + ref return like AsPointF/AsVector2.
+        // The .NET 5+ counterparts are intrinsics, so they are faster even in .NET 5 where value-in + value-return was still slower (see VectorCastTests in PerformanceTests).
         internal static Vector128<float> AsVector128(this Vector3 v) => new Vector4(v, default).AsVector128();
         internal static Vector128<float> AsVector128(this Vector4 v) => Unsafe.As<Vector4, Vector128<float>>(ref v);
         internal static Vector3 AsVector3(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector3>(ref v);
@@ -80,11 +82,40 @@ namespace KGySoft.Drawing
 
 #if NETCOREAPP3_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static PointF AsPointF(this Vector2 vector) => Unsafe.As<Vector2, PointF>(ref vector);
+        internal static ref PointF AsPointF(this ref Vector2 vector) => ref Unsafe.As<Vector2, PointF>(ref vector);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static unsafe PointF AsPointF(this Vector2 vector) => *(PointF*)&vector;
+        internal static unsafe ref PointF AsPointF(this ref Vector2 vector)
+        {
+            fixed (Vector2* p = &vector)
+                return ref *(PointF*)p;
+        }
 #endif
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ref Vector2 AsVector2(this ref PointF point) => ref Unsafe.As<PointF, Vector2>(ref point);
+#else
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static unsafe ref Vector2 AsVector2(this ref PointF point)
+        {
+            fixed (PointF* p = &point)
+                return ref *(Vector2*)p;
+        }
+#endif
+
+        // TODO: remove
+//#if NETCOREAPP3_0_OR_GREATER
+//        [MethodImpl(MethodImpl.AggressiveInlining)]
+//        internal static ref Vector2 AsVector2(this ref SizeF size) => ref Unsafe.As<SizeF, Vector2>(ref size);
+//#else
+//        [MethodImpl(MethodImpl.AggressiveInlining)]
+//        internal static unsafe ref Vector2 AsVector2(this ref SizeF size)
+//        {
+//            fixed (SizeF* p = &size)
+//                return ref *(Vector2*)p;
+//        }
+//#endif
 
         #endregion
     }

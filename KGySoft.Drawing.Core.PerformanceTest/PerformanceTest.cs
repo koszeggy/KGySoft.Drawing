@@ -15,15 +15,16 @@
 
 #region Usings
 
-#if NETFRAMEWORK
 using System; 
-#endif
 #if NETCOREAPP
 using System.IO; 
 #endif
 #if !(NETFRAMEWORK || NETCOREAPP)
 using System.Runtime.InteropServices; 
 #endif
+
+using KGySoft.Diagnostics;
+
 using NUnit.Framework;
 
 #endregion
@@ -114,6 +115,36 @@ namespace KGySoft.Drawing
             base.OnInitialize();
             PerformanceTest.CheckTestingFramework();
         }
+
+        #endregion
+    }
+
+    internal class PerformanceTest<TArg, TResult> : PerformanceTestBase<Func<TArg, TResult>, TResult>
+    {
+        #region Properties
+
+        public TArg Arg { get; set; }
+
+        public new string TestName
+        {
+            get => base.TestName;
+            set => base.TestName = $"{value} ({PerformanceTest.FrameworkVersion})";
+        }
+
+        #endregion
+
+        #region Methods
+
+        protected override void OnInitialize()
+        {
+#if DEBUG
+            Assert.Inconclusive("Run the performance test in Release Build");
+#endif
+            base.OnInitialize();
+            PerformanceTest.CheckTestingFramework();
+        }
+
+        protected override TResult Invoke(Func<TArg, TResult> del) => del.Invoke(Arg);
 
         #endregion
     }

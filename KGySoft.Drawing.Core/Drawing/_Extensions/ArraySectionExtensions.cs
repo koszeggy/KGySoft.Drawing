@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
@@ -83,11 +84,13 @@ namespace KGySoft.Drawing
 
         // NOTE: the uint type for value is important, because byte + byte would use signed int, ending up in a less performant ClipToByte overload
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static void AddByteSat(this ref ArraySection<byte> buffer, int startIndex, int endIndex, uint value)
+        [SuppressMessage("ReSharper", "TooWideLocalVariableScope", Justification = "Not on all platform targets")]
+        internal static void AddByteSat(this ArraySection<byte> buffer, uint value)
         {
             Debug.Assert(endIndex >= startIndex && startIndex >= 0 && endIndex < buffer.Length && value <= Byte.MaxValue);
             Debug.Assert(value < Byte.MaxValue, "If value is 255, add a branch using buffer.Fill");
-            int count = endIndex - startIndex + 1;
+            int pos = 0;
+            int count = buffer.Length;
 
 #if NETCOREAPP3_0_OR_GREATER
 #if NET10_0_OR_GREATER
@@ -113,11 +116,11 @@ namespace KGySoft.Drawing
                         Vector512<byte> vValue = Vector512.Create((byte)value);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Avx512BW.AddSaturate(Vector512.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
                         }
 
-                        startIndex += vectorCount << 6;
+                        pos += vectorCount << 6;
                         count -= vectorCount << 6;
                     }
                 }
@@ -132,11 +135,11 @@ namespace KGySoft.Drawing
                         for (int i = 0; i < vectorCount; i++)
                         {
                             // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
-                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Unsafe.WriteUnaligned(ref itemRef, Avx2.AddSaturate(Unsafe.ReadUnaligned<Vector256<byte>>(ref itemRef), vValue));
                         }
 
-                        startIndex += vectorCount << 5;
+                        pos += vectorCount << 5;
                         count -= vectorCount << 5;
                     }
                 }
@@ -148,11 +151,11 @@ namespace KGySoft.Drawing
                     for (int i = 0; i < vectorCount; i++)
                     {
                         // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
-                        ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                        ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                         Unsafe.WriteUnaligned(ref itemRef, Sse2.AddSaturate(Unsafe.ReadUnaligned<Vector128<byte>>(ref itemRef), vValue));
                     }
 
-                    startIndex += vectorCount << 4;
+                    pos += vectorCount << 4;
 #if NET10_0_OR_GREATER
                     count -= vectorCount << 4;
 #endif
@@ -172,11 +175,11 @@ namespace KGySoft.Drawing
                         Vector512<byte> vValue = Vector512.Create((byte)value);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector512.AddSaturate(Vector512.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
                         }
 
-                        startIndex += vectorCount << 6;
+                        pos += vectorCount << 6;
                         count -= vectorCount << 6;
                     }
                 }
@@ -189,11 +192,11 @@ namespace KGySoft.Drawing
                         Vector256<byte> vValue = Vector256.Create((byte)value);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector256.AddSaturate(Vector256.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
                         }
 
-                        startIndex += vectorCount << 5;
+                        pos += vectorCount << 5;
                         count -= vectorCount << 5;
                     }
                 }
@@ -206,11 +209,11 @@ namespace KGySoft.Drawing
                         Vector128<byte> vValue = Vector128.Create((byte)value);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector128.AddSaturate(Vector128.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
                         }
 
-                        startIndex += vectorCount << 4;
+                        pos += vectorCount << 4;
                         count -= vectorCount << 4;
                     }
                 }
@@ -225,11 +228,11 @@ namespace KGySoft.Drawing
                     Vector64<byte> vValue = Vector64.Create((byte)value);
                     for (int i = 0; i < vectorCount; i++)
                     {
-                        ref byte itemRef = ref buffer.GetElementReferenceUnchecked(startIndex);
+                        ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                         Vector64.AddSaturate(Vector64.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
                     }
 
-                    startIndex += vectorCount << 3;
+                    pos += vectorCount << 3;
                 }
             }
 #endif
@@ -237,9 +240,9 @@ namespace KGySoft.Drawing
         // fallback, or remaining bytes
         nonAccelerated:
             byte[] array = buffer.UnderlyingArray!;
-            startIndex += buffer.Offset;
-            endIndex += buffer.Offset;
-            for (int i = startIndex; i <= endIndex; i++)
+            pos += buffer.Offset;
+            int end = pos + count;
+            for (int i = pos; i < end; i++)
             {
                 ref byte itemRef = ref array[i];
                 itemRef = (itemRef + value).ClipToByte();
