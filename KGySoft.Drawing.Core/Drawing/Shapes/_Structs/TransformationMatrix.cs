@@ -419,6 +419,17 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle and center point.
+        /// </summary>
+        /// <param name="radians">The angle, in radians, by which to rotate the matrix.</param>
+        /// <param name="centerPoint">The center point of the rotation.</param>
+        /// <returns>The rotation matrix.</returns>
+        public static TransformationMatrix CreateRotation(float radians, Vector2 centerPoint)
+            => new(Matrix3x2.CreateRotation(radians, centerPoint));
+#endif
+
         /// <summary>
         /// Creates a rotation matrix using the specified angle in degrees.
         /// </summary>
@@ -511,6 +522,16 @@ namespace KGySoft.Drawing.Shapes
                 centerPoint.X * (1 - cos) + centerPoint.Y * sin,
                 centerPoint.Y * (1 - cos) - centerPoint.X * sin);
         }
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Creates a rotation matrix using the specified angle and center point.
+        /// </summary>
+        /// <param name="angle">The angle, in degrees, by which to rotate the matrix.</param>
+        /// <param name="centerPoint">The center point of the rotation.</param>
+        /// <returns>The rotation matrix.</returns>
+        public static TransformationMatrix CreateRotationDegrees(float angle, Vector2 centerPoint) => CreateRotationDegrees(angle, centerPoint.AsPointF());
+#endif
 
         /// <summary>
         /// Creates a scale matrix from the specified <paramref name="x"/> and <paramref name="y"/> components.
