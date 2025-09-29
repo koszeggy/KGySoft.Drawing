@@ -329,7 +329,7 @@ namespace KGySoft.Drawing.Shapes
             flattenedPoints = null;
             int len = points.Count;
             for (int i = 0; i < len; i++)
-                points[i] = points[i].Transform(matrix);
+                points[i] = matrix.Transform(points[i]);
 
             return this;
         }

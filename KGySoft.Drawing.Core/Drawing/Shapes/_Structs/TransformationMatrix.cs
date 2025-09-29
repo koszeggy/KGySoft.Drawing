@@ -541,6 +541,32 @@ namespace KGySoft.Drawing.Shapes
         #region Instance Methods
 
         /// <summary>
+        /// Transforms the specified point using the current transformation matrix.
+        /// </summary>
+        /// <param name="point">The point to transform.</param>
+        /// <returns>The transformed point.</returns>
+        public PointF Transform(PointF point)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            Vector2 result = Vector2.Transform(point.AsVector2(), Matrix);
+            return result.AsPointF();
+#else
+            return new PointF(
+                M11 * point.X + M21 * point.Y + M31,
+                M12 * point.X + M22 * point.Y + M32);
+#endif
+        }
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        /// <summary>
+        /// Transforms the specified point using the current transformation matrix.
+        /// </summary>
+        /// <param name="point">The point to transform, represented as a <see cref="Vector2"/> instance.</param>
+        /// <returns>A <see cref="Vector2"/> instance representing the transformed point.</returns>
+        public Vector2 Transform(Vector2 point) => Vector2.Transform(point, Matrix);
+#endif
+
+        /// <summary>
         /// Returns a boolean indicating whether the matrix is equal to the other given matrix.
         /// </summary>
         /// <param name="other">The other matrix to test equality against.</param>
@@ -584,8 +610,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <returns>The string representation of this matrix.</returns>
         /// <remarks>The numeric values in the returned string are formatted by using the conventions of the current culture.</remarks>
-        public override readonly string ToString()
-            => $"{{ {{M11:{M11} M12:{M12}}} {{M21:{M21} M22:{M22}}} {{M31:{M31} M32:{M32}}} }}";
+        public override readonly string ToString() => IsIdentity
+            ? "Identity"
+            : $"{{ {{M11:{M11} M12:{M12}}} {{M21:{M21} M22:{M22}}} {{M31:{M31} M32:{M32}}} }}";
 
         #endregion
 

@@ -346,7 +346,7 @@ namespace KGySoft.Drawing.Shapes
                 endPoint = null;
                 flattenedPoints = null;
 
-                center = center.Transform(matrix);
+                center = matrix.Transform(center);
                 radiusX *= matrix.M11;
                 radiusY *= matrix.M22;
                 return this;

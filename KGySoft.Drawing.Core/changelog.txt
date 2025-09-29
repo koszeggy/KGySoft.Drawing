@@ -74,6 +74,7 @@
   - StartFigure: not marking the figure closed when called on an empty path.
 + TransformationMatrix struct:
   + New CreateTranslation and CreateScale overloads with Vector2 parameter
+  + New Transform methods to transform a point
 
 
 ~~~~~~~~~
