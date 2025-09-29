@@ -75,6 +75,7 @@
 + TransformationMatrix struct:
   + New CreateTranslation, CreateScale, CreateRotation and CreateRotationDegrees overloads with Vector2 parameter.
   + New Transform methods to transform a point
+  + New TryInvert method
 
 
 ~~~~~~~~~

@@ -557,6 +557,39 @@ namespace KGySoft.Drawing.Shapes
         public static TransformationMatrix CreateScale(Vector2 scale) => new(Matrix3x2.CreateScale(scale));
 #endif
 
+        /// <summary>
+        /// Tries to invert the specified matrix.
+        /// </summary>
+        /// <param name="matrix">The matrix to invert.</param>
+        /// <param name="result">When this method returns, contains the inverted matrix if the operation succeeded, or <see cref="Single.NaN"/> values if it failed. This parameter is passed uninitialized.</param>
+        /// <returns><see langword="true"/> if the matrix was successfully inverted; otherwise, <see langword="false"/>.</returns>
+        public static bool TryInvert(TransformationMatrix matrix, out TransformationMatrix result)
+        {
+#if false//NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out result);
+#else
+            result = default;
+#endif
+            return Matrix3x2.Invert(matrix.Matrix, out result.Matrix);
+#else
+            float det = (matrix.M11 * matrix.M22) - (matrix.M32 * matrix.M12);
+            if (Math.Abs(det) < Single.Epsilon)
+            {
+                result = new TransformationMatrix(Single.NaN, Single.NaN, Single.NaN, Single.NaN, Single.NaN, Single.NaN);
+                return false;
+            }
+
+            float invDet = 1.0f / det;
+            result = new TransformationMatrix(+matrix.M22 * invDet, -matrix.M12 * invDet,
+                -matrix.M21 * invDet, +matrix.M11 * invDet,
+                (matrix.M21 * matrix.M32 - matrix.M31 * matrix.M22) * invDet,
+                (matrix.M31 * matrix.M12 - matrix.M11 * matrix.M32) * invDet);
+
+            return true;
+#endif
+        }
+
         #endregion
 
         #region Instance Methods
