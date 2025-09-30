@@ -150,30 +150,30 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static object[][] GeometryToPathTestSource => new object[][]
         {
-            ["Empty", Geometry.Empty],
-            ["Single point", new Builder(new WpfPoint(0, 0)).Geometry],
-            ["Single line", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
-            ["Polyline", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
-            ["Lines", new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new (10, 0)).Geometry],
-            ["Bezier", new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],
-            ["PolyBezier", new Builder(new(10, 100)).AddBeziers(new(0, 0), new(200, 0), new(300, 100), new(300, 0), new(400, 0), new(600, 100)).Geometry],
-            ["QuadraticBezier", new Builder(new(0, 100)).AddQuadraticBezier(new(0, 50), new(100, 100)).Geometry],
-            ["QuadraticPolyBezier", new Builder(new(10, 100)).AddQuadraticBeziers(new(200, 200), new(300, 100), new(0, 200), new(30, 400)).Geometry],
-            ["Large arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
-            ["Large arc ccw", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
-            ["Small arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
-            ["Non-horizontal arc", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
-            ["Non-horizontal arc small", new Builder(new(50, 100)).AddArc(new (100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
-            ["Vertical arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(60, 100), 0, true, SweepDirection.Clockwise).Geometry],
-            ["Rotated arc", new Builder(new(50, 100)).AddArc(new (100, 100), new(50, 25), 45, true, SweepDirection.Clockwise).Geometry],
-            ["Closed arc half 1", new Builder(new WpfPoint(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc half 2", new Builder(new WpfPoint(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 1", new Builder(new WpfPoint(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 2", new Builder(new WpfPoint(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 3", new Builder(new WpfPoint(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed arc quarter 4", new Builder(new WpfPoint(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Closed figures", new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
-            ["Text", new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle)],
+            ["Empty", () => Geometry.Empty],
+            ["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
+            ["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
+            ["Polyline", () => new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
+            ["Lines", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new(10, 0)).Geometry],
+            ["Bezier", () => new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],
+            ["PolyBezier", () => new Builder(new(10, 100)).AddBeziers(new(0, 0), new(200, 0), new(300, 100), new(300, 0), new(400, 0), new(600, 100)).Geometry],
+            ["QuadraticBezier", () => new Builder(new(0, 100)).AddQuadraticBezier(new(0, 50), new(100, 100)).Geometry],
+            ["QuadraticPolyBezier", () => new Builder(new(10, 100)).AddQuadraticBeziers(new(200, 200), new(300, 100), new(0, 200), new(30, 400)).Geometry],
+            ["Large arc", () => new Builder(new(50, 100)).AddArc(new(100, 100), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
+            ["Large arc ccw", () => new Builder(new(50, 100)).AddArc(new(100, 100), new(50, 25), 0, true, SweepDirection.Counterclockwise).Geometry],
+            ["Small arc", () => new Builder(new(50, 100)).AddArc(new(100, 100), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
+            ["Non-horizontal arc", () => new Builder(new(50, 100)).AddArc(new(100, 150), new(50, 25), 0, true, SweepDirection.Clockwise).Geometry],
+            ["Non-horizontal arc small", () => new Builder(new(50, 100)).AddArc(new(100, 150), new(50, 25), 0, false, SweepDirection.Clockwise).Geometry],
+            ["Vertical arc", () => new Builder(new(50, 100)).AddArc(new(100, 100), new(60, 100), 0, true, SweepDirection.Clockwise).Geometry],
+            ["Rotated arc", () => new Builder(new(50, 100)).AddArc(new(100, 100), new(50, 25), 45, true, SweepDirection.Clockwise).Geometry],
+            ["Closed arc half 1", () => new Builder(new WpfPoint(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed arc half 2", () => new Builder(new WpfPoint(50, 100)).AddArc(new(50,0), new(50,50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed arc quarter 1", () => new Builder(new WpfPoint(50, 0)).AddArc(new(100,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed arc quarter 2", () => new Builder(new WpfPoint(100, 50)).AddArc(new(50,100), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed arc quarter 3", () => new Builder(new WpfPoint(50, 100)).AddArc(new(0,50), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed arc quarter 4", () => new Builder(new WpfPoint(0, 50)).AddArc(new(50,0), new(50,50), 0, false, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Closed figures", () => new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
+            ["Text", () => new Builder().AddString("Hello World", SystemFonts.MessageFontFamily, SystemFonts.MessageFontSize, SystemFonts.MessageFontStyle)],
         };
 
         private static object[][] PathToGeometryTestSource => new object[][]
@@ -240,16 +240,10 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         #region Instance Methods
 
         [TestCaseSource(nameof(GeometryToPathTestSource))]
-        public void GeometryToPathTest(string name, Geometry geometry)
+        public void GeometryToPathTest(string name, Func<Geometry> geometryFactory)
         {
-            // WORKAROUND: The test execution engine runs the method on a different thread than the one that initialized the test source
-            foreach (object[] args in GeometryToPathTestSource)
-            {
-                if ((string)args[0] != name)
-                    continue;
-                geometry = (Geometry)args[1];
-                break;
-            }
+            // Using a delegate to obtain the geometry in the correct thread
+            Geometry geometry = geometryFactory.Invoke();
 
             var bounds = geometry.Bounds;
             if (bounds.IsEmpty)
