@@ -159,9 +159,7 @@ namespace KGySoft.Drawing
                     }
 
                     pos += vectorCount << 4;
-#if NET10_0_OR_GREATER
                     count -= vectorCount << 4;
-#endif
                 }
 #endif
             }
@@ -242,6 +240,8 @@ namespace KGySoft.Drawing
 
             // fallback, or remaining bytes
 #if NETCOREAPP3_0_OR_GREATER
+            if (count == 0)
+                return;
         nonAccelerated:
 #endif
             byte[] array = buffer.UnderlyingArray!;
@@ -343,7 +343,8 @@ namespace KGySoft.Drawing
             }
 
             // last point: as Vector2
-            Debug.Assert(count == 1);
+            Debug.Assert(count <= 1);
+            if (count == 1)
             {
                 ref Vector2 itemRef = ref buffer.GetElementReferenceUnchecked(pos).AsVector2();
                 itemRef = Vector2.Add(itemRef, new Vector2(offset));
