@@ -50,10 +50,16 @@ namespace KGySoft.Drawing.Shapes
 
 #if NETCOREAPP3_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Size AsSize(this Point point) => Unsafe.As<Point, Size>(ref point);
+        internal static ref Size AsSize(this ref Point point) => ref Unsafe.As<Point, Size>(ref point);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static unsafe Size AsSize(this Point point) => *(Size*)&point;
+        internal static unsafe ref Size AsSize(this ref Point point)
+        {
+            {
+                fixed (Point* p = &point)
+                    return ref *(Size*)p;
+            }
+        }
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

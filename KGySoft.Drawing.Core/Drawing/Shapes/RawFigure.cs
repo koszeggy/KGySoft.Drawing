@@ -185,15 +185,15 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 VertexCount = resultCount;
-                foreach (PointF vertex in result)
+                for (int i = 0; i < resultCount; i++)
                 {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                     // Unlike in ColorF, we don't mind possibly inconsistent NaN handling here
-                    PointF p = vertex;
-                    Vector2 vec = p.AsVector2();
-                    min = Vector2.Min(min, vec);
-                    max = Vector2.Max(max, vec);
+                    Vector2 vertex = result[i].AsVector2();
+                    min = Vector2.Min(min, vertex);
+                    max = Vector2.Max(max, vertex);
 #else
+                    PointF vertex = result[i];
                     if (vertex.X < minX)
                         minX = vertex.X;
                     if (vertex.X > maxX)

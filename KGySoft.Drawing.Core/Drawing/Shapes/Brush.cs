@@ -1687,7 +1687,8 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(!Region!.IsAntiAliased);
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(start, end);
-                var offset = Region.Bounds.Location.AsSize();
+                Point location = Region.Bounds.Location;
+                ref Size offset = ref location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
                 Size size = Region.Bounds.Size;
@@ -1913,7 +1914,8 @@ namespace KGySoft.Drawing.Shapes
                 Array2D<byte> mask = Region!.Mask;
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
-                Size offset = Region.Bounds.Location.AsSize();
+                Point location = Region.Bounds.Location;
+                ref Size offset = ref location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
                 Size size = Region.Bounds.Size;
@@ -2001,7 +2003,8 @@ namespace KGySoft.Drawing.Shapes
                 Debug.Assert(bounds.Width is <= ArcSegment.DrawAsLinesThreshold and >= 2f && bounds.Height is <= ArcSegment.DrawAsLinesThreshold and >= 2f);
                 (Point p1, Point p2) = Round(bounds.Location, bounds.Location + bounds.Size);
 
-                Size offset = Region.Bounds.Location.AsSize();
+                Point location = Region.Bounds.Location;
+                ref Size offset = ref location.AsSize();
                 p1 -= offset;
                 p2 -= offset;
                 Size size = Region.Bounds.Size;

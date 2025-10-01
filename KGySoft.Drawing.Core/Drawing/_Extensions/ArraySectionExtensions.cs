@@ -121,9 +121,9 @@ namespace KGySoft.Drawing
                         {
                             ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Avx512BW.AddSaturate(Vector512.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
+                            pos += 64;
                         }
 
-                        pos += vectorCount << 6;
                         count -= vectorCount << 6;
                     }
                 }
@@ -140,9 +140,9 @@ namespace KGySoft.Drawing
                             // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
                             ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Unsafe.WriteUnaligned(ref itemRef, Avx2.AddSaturate(Unsafe.ReadUnaligned<Vector256<byte>>(ref itemRef), vValue));
+                            pos += 32;
                         }
 
-                        pos += vectorCount << 5;
                         count -= vectorCount << 5;
                     }
                 }
@@ -156,9 +156,9 @@ namespace KGySoft.Drawing
                         // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
                         ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                         Unsafe.WriteUnaligned(ref itemRef, Sse2.AddSaturate(Unsafe.ReadUnaligned<Vector128<byte>>(ref itemRef), vValue));
+                        pos += 16;
                     }
 
-                    pos += vectorCount << 4;
                     count -= vectorCount << 4;
                 }
 #endif
@@ -178,9 +178,9 @@ namespace KGySoft.Drawing
                         {
                             ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector512.AddSaturate(Vector512.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
+                            pos += 64;
                         }
 
-                        pos += vectorCount << 6;
                         count -= vectorCount << 6;
                     }
                 }
@@ -195,9 +195,9 @@ namespace KGySoft.Drawing
                         {
                             ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector256.AddSaturate(Vector256.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
+                            pos += 32;
                         }
 
-                        pos += vectorCount << 5;
                         count -= vectorCount << 5;
                     }
                 }
@@ -212,9 +212,9 @@ namespace KGySoft.Drawing
                         {
                             ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                             Vector128.AddSaturate(Vector128.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
+                            pos += 16;
                         }
 
-                        pos += vectorCount << 4;
                         count -= vectorCount << 4;
                     }
                 }
@@ -231,9 +231,10 @@ namespace KGySoft.Drawing
                     {
                         ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos);
                         Vector64.AddSaturate(Vector64.LoadUnsafe(ref itemRef), vValue).StoreUnsafe(ref itemRef);
+                        pos += 8;
                     }
-
-                    pos += vectorCount << 3;
+                    
+                    count -= vectorCount << 3;
                 }
             }
 #endif
@@ -278,9 +279,9 @@ namespace KGySoft.Drawing
                         {
                             ref float itemRef = ref Unsafe.As<PointF, float>(ref buffer.GetElementReferenceUnchecked(pos));
                             Avx512F.Add(Vector512.LoadUnsafe(ref itemRef), vOffset).StoreUnsafe(ref itemRef);
+                            pos += 8;
                         }
 
-                        pos += vectorCount << 3;
                         count -= vectorCount << 3;
                     }
                 }
@@ -297,9 +298,9 @@ namespace KGySoft.Drawing
                             // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
                             ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
                             Unsafe.WriteUnaligned(ref itemRef, Avx.Add(Unsafe.ReadUnaligned<Vector256<float>>(ref itemRef), vOffset));
+                            pos += 4;
                         }
 
-                        pos += vectorCount << 2;
                         count -= vectorCount << 2;
                     }
                 }
@@ -313,9 +314,9 @@ namespace KGySoft.Drawing
                         // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
                         ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
                         Unsafe.WriteUnaligned(ref itemRef, Sse.Add(Unsafe.ReadUnaligned<Vector128<float>>(ref itemRef), vOffset));
+                        pos += 2;
                     }
 
-                    pos += vectorCount << 1;
                     count -= vectorCount << 1;
                 }
 #endif
