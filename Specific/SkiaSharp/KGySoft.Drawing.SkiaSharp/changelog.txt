@@ -17,6 +17,7 @@
 
 + KGySoft.Drawing.SkiaSharp namespace
 =====================================
++ New SkiaSharpModule class: To be able to trigger module initialization without calling any specific feature.
 + New ReadWriteBitmapDataExtensions class:
   + New DrawText[Async] methods: To draw a text using an SKFont into an IReadWriteBitmapData instance.
   + New DrawTextOutline[Async] methods: To draw the outline of a text using an SKFont into an IReadWriteBitmapData

@@ -63,6 +63,13 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
+        /// <summary>
+        /// Just an empty method to be able to trigger the static constructor without running any code other than field initializations.
+        /// </summary>
+        internal static void EnsureInitialized()
+        {
+        }
+
         /// <summary>The color type '{0}' and alpha type '{1}' do not represent a valid image info.</summary>
         internal static string ImageInfoInvalid(SKColorType colorType, SKAlphaType alphaType) => Get("General_ImageInfoInvalidFormat", Enum<SKColorType>.ToString(colorType), Enum<SKAlphaType>.ToString(alphaType));
 
