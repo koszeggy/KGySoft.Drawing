@@ -24,6 +24,7 @@
     instance into an IReadWriteBitmapData.
   + New [Begin]DrawTextOutline[Async]/EndDrawTextOutline methods: To draw the outline of a text represented by a WPF
     FormattedText or GlyphRun instance into an IReadWriteBitmapData.
++ New WpfModule class: To be able to trigger module initialization without calling any specific feature.
 
 
 ~~~~~~~~~

@@ -69,6 +69,13 @@ namespace KGySoft.Drawing.Wpf
 
         #region Internal Methods
 
+        /// <summary>
+        /// Just an empty method to be able to trigger the static constructor without running any code other than field initializations.
+        /// </summary>
+        internal static void EnsureInitialized()
+        {
+        }
+
         /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
         internal static string PaletteTooLarge(int max, int bpp) => Get("PaletteTooLargeFormat", max, bpp);
 
