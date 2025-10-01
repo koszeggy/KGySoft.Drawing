@@ -226,7 +226,7 @@ namespace KGySoft.Drawing.WinApi
         internal static unsafe int GetBitmapColorDepth(IntPtr handle)
         {
             if (NativeMethods.GetObject(handle, sizeof(BITMAP), out BITMAP bitmapInfo) == 0)
-                throw new ArgumentException(Res.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
 
             return bitmapInfo.bmBitsPixel;
         }
@@ -234,7 +234,7 @@ namespace KGySoft.Drawing.WinApi
         internal static void DeleteObject(IntPtr handle)
         {
             if (!NativeMethods.DeleteObject(handle))
-                throw new ArgumentException(Res.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
         }
 
         internal static IntPtr CreateDibSectionRgb(IntPtr hdc, ref BITMAPINFO bitmapInfo, out IntPtr bits)
@@ -261,7 +261,7 @@ namespace KGySoft.Drawing.WinApi
             uint bufSize = NativeMethods.GetEnhMetaFileBits(handle, 0, null);
             var result = new byte[bufSize];
             if (NativeMethods.GetEnhMetaFileBits(handle, bufSize, result) == 0)
-                throw new ArgumentException(Res.Gdi32GetEmfContentFailed, nameof(handle));
+                throw new ArgumentException(DrawingRes.Gdi32GetEmfContentFailed, nameof(handle));
             return result;
         }
 
@@ -275,7 +275,7 @@ namespace KGySoft.Drawing.WinApi
                     uint bufSize = NativeMethods.GetWinMetaFileBits(handle, 0, null, MappingModes.MM_ANISOTROPIC, hdc);
                     var result = new byte[bufSize];
                     if (NativeMethods.GetWinMetaFileBits(handle, bufSize, result, MappingModes.MM_ANISOTROPIC, hdc) == 0)
-                        throw new ArgumentException(Res.Gdi32GetWmfContentFailed, nameof(handle));
+                        throw new ArgumentException(DrawingRes.Gdi32GetWmfContentFailed, nameof(handle));
                     return result;
                 }
                 finally
@@ -290,20 +290,20 @@ namespace KGySoft.Drawing.WinApi
             uint bufSize = NativeMethods.GetMetaFileBitsEx(handle, 0, null);
             var result = new byte[bufSize];
             if (NativeMethods.GetMetaFileBitsEx(handle, bufSize, result) == 0)
-                throw new ArgumentException(Res.Gdi32GetWmfContentFailed, nameof(handle));
+                throw new ArgumentException(DrawingRes.Gdi32GetWmfContentFailed, nameof(handle));
             return result;
         }
 
         internal static void DeleteEnhMetaFile(IntPtr handle)
         {
             if (!NativeMethods.DeleteEnhMetaFile(handle))
-                throw new ArgumentException(Res.Gdi32InvalidEmfHandle, nameof(handle));
+                throw new ArgumentException(DrawingRes.Gdi32InvalidEmfHandle, nameof(handle));
         }
 
         internal static void DeleteMetaFile(IntPtr handle)
         {
             if (!NativeMethods.DeleteMetaFile(handle))
-                throw new ArgumentException(Res.Gdi32InvalidWmfHandle, nameof(handle));
+                throw new ArgumentException(DrawingRes.Gdi32InvalidWmfHandle, nameof(handle));
         }
 
         internal static IntPtr CreateCompatibleBitmap(IntPtr hdc, int width, int height) => NativeMethods.CreateCompatibleBitmap(hdc, width, height);

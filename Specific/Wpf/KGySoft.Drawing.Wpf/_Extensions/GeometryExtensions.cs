@@ -127,7 +127,9 @@ namespace KGySoft.Drawing.Wpf
                                     result.AddPoint(lastPoint = line.Point.ToPointF());
                                 else
                                 {
-                                    result.AddLine(lastPoint, lastPoint = line.Point.ToPointF());
+                                    var linePoint = line.Point.ToPointF();
+                                    if (!lastPoint.TolerantEquals(linePoint, Constants.EqualityTolerance))
+                                        result.AddLine(lastPoint, lastPoint = linePoint);
                                     lastPointAdded = true;
                                 }
 
@@ -160,7 +162,7 @@ namespace KGySoft.Drawing.Wpf
                                 if (points.Count >= 3)
                                 {
                                     int validCount = points.Count / 3 * 3;
-                                    result.AddBeziers([lastPoint, .. points.Take(validCount).Select(PointExtensions.ToPointF)]);
+                                    result.AddBeziers((IEnumerable<PointF>)[lastPoint, ..points.Take(validCount).Select(PointExtensions.ToPointF)]);
                                     lastPoint = points[validCount - 1].ToPointF();
                                     lastPointAdded = true;
                                 }

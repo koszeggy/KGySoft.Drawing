@@ -218,7 +218,7 @@ namespace KGySoft.Drawing.Wpf
                 return;
 
             if (operation.Wait(callbackTimeout) != DispatcherOperationStatus.Completed)
-                throw new InvalidOperationException(Res.DispatcherDeadlock);
+                throw new InvalidOperationException(WpfRes.DispatcherDeadlock);
         }
 
         internal BitmapPalette? GetTargetPalette(Palette? palette)
@@ -238,7 +238,7 @@ namespace KGySoft.Drawing.Wpf
 
             // there is a desired palette to apply
             if (palette.Count > maxColors)
-                throw new ArgumentException(Res.PaletteTooLarge(maxColors, bpp), nameof(palette));
+                throw new ArgumentException(WpfRes.PaletteTooLarge(maxColors, bpp), nameof(palette));
 
             return palette.ToBitmapPalette();
         }
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Wpf
             // there is a desired palette to apply
             int maxColors = 1 << bpp;
             if (palette.Count > maxColors)
-                throw new ArgumentException(Res.PaletteTooLarge(maxColors, bpp), nameof(palette));
+                throw new ArgumentException(WpfRes.PaletteTooLarge(maxColors, bpp), nameof(palette));
 
             return new BitmapPalette(palette);
         }

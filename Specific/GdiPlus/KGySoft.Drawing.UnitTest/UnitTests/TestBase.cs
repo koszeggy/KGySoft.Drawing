@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
-        protected static void SaveImage(string imageName, Image image, bool origFormat = false, [CallerMemberName] string testName = null)
+        protected static void SaveImage(string imageName, Image image, bool origFormat = false, [CallerMemberName]string testName = null)
         {
             if (!SaveToFile)
                 return;

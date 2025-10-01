@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Res.cs
+//  File: SkiaSharpRes.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2025 - All Rights Reserved
 //
@@ -18,16 +18,19 @@
 using System;
 using System.Globalization;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Resources;
+
+using SkiaSharp;
 
 #endregion
 
-namespace KGySoft.Drawing.Wpf
+namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
     /// Contains the string resources of the project.
     /// </summary>
-    internal static class Res
+    internal static class SkiaSharpRes
     {
         #region Constants
 
@@ -38,7 +41,7 @@ namespace KGySoft.Drawing.Wpf
 
         #region Fields
 
-        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.Wpf.Messages", typeof(Res).Assembly)
+        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.SkiaSharp.Messages", typeof(SkiaSharpRes).Assembly)
         {
             SafeMode = true,
             UseLanguageSettings = true,
@@ -48,20 +51,11 @@ namespace KGySoft.Drawing.Wpf
 
         #region Properties
 
-        /// <summary>The bitmap must not be frozen.</summary>
-        internal static string BitmapFrozen => Get("BitmapFrozen");
+        /// <summary>The bitmap data has an invalid size.</summary>
+        internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
 
         /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
-        internal static string QuantizerInitializeNull => Get("QuantizerInitializeNull");
-
-        /// <summary>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
-        internal static string DispatcherDeadlock => Get("DispatcherDeadlock");
-
-        /// <summary>The bitmap data has an invalid size.</summary>
-        internal static string InvalidBitmapDataSize => Get("InvalidBitmapDataSize");
-
-        /// <summary>The size of the BitmapSource is too large.</summary>
-        internal static string BitmapSourceDataTooLarge => Get("BitmapSourceDataTooLarge");
+        internal static string ImageExtensionsQuantizerInitializeNull => Get("ImageExtensions_QuantizerInitializeNull");
 
         #endregion
 
@@ -69,12 +63,8 @@ namespace KGySoft.Drawing.Wpf
 
         #region Internal Methods
 
-        /// <summary>Internal Error: {0}</summary>
-        /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
-        internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
-
-        /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
-        internal static string PaletteTooLarge(int max, int bpp) => Get("PaletteTooLargeFormat", max, bpp);
+        /// <summary>The color type '{0}' and alpha type '{1}' do not represent a valid image info.</summary>
+        internal static string ImageInfoInvalid(SKColorType colorType, SKAlphaType alphaType) => Get("General_ImageInfoInvalidFormat", Enum<SKColorType>.ToString(colorType), Enum<SKAlphaType>.ToString(alphaType));
 
         #endregion
 

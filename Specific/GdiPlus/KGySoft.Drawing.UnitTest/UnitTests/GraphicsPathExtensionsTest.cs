@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.UnitTests
         [
             ["Empty", new Path()],
             ["Single point", new Path().AddPoint(new(0, 0))],
-            ["Single point bezier", new Path().AddBeziers([new (0, 0)])],
+            ["Single point bezier", new Path().AddBeziers(new PointF(0, 0))],
             ["Single point arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 0, 0)],
             ["Single line", new Path().AddLines(new(0, 0), new(10, 10))],
             ["Single bezier arc", new Path().AddArc(new Rectangle(0, 0, 100, 100), 90, 90)],

@@ -20,8 +20,12 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+#if NET7_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
+#if !NET35
 using System.Threading.Tasks;
+#endif
 
 using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;

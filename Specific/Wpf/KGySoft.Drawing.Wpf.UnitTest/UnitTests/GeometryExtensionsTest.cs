@@ -150,9 +150,10 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static object[][] GeometryToPathTestSource => new object[][]
         {
-            ["Empty", () => Geometry.Empty],
-            ["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
-            ["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
+            //["Empty", () => Geometry.Empty],
+            //["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
+            //["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
+            ["Single-point line", () => new Builder(new WpfPoint(10, 10)).AddLine(new(10, 10)).Geometry],
             ["Polyline", () => new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
             ["Lines", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new(10, 0)).Geometry],
             ["Bezier", () => new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],

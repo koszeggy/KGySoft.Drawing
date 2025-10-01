@@ -1624,7 +1624,7 @@ namespace KGySoft.Drawing
             {
                 ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
                 if (encoder == null)
-                    throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Gif));
+                    throw new InvalidOperationException(DrawingRes.ImageExtensionsNoEncoder(ImageFormat.Gif));
                 try
                 {
                     bmp.Save(stream, encoder, null);
@@ -2051,7 +2051,7 @@ namespace KGySoft.Drawing
 
             ImageCodecInfo? tiffEncoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
-                throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
+                throw new InvalidOperationException(DrawingRes.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
             Image? tiff = null;
             var pagesToDispose = new List<Image>();
@@ -2103,7 +2103,7 @@ namespace KGySoft.Drawing
             catch (NotImplementedException)
             {
                 // On Linux a NotImplementedException can be thrown when trying to save a multipage TIFF
-                throw new PlatformNotSupportedException(Res.ImageExtensionsMultipageTiffSaveNotSupported);
+                throw new PlatformNotSupportedException(DrawingRes.ImageExtensionsMultipageTiffSaveNotSupported);
             }
             finally
             {
@@ -2264,9 +2264,9 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), DrawingRes.PixelFormatInvalid(newPixelFormat));
             if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.PixelFormatNotSupported(newPixelFormat));
+                throw new PlatformNotSupportedException(DrawingRes.PixelFormatNotSupported(newPixelFormat));
         }
 
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
@@ -2411,7 +2411,7 @@ namespace KGySoft.Drawing
 
             ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
             if (encoder == null)
-                throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(imageFormat));
+                throw new InvalidOperationException(DrawingRes.ImageExtensionsNoEncoder(imageFormat));
 
             // To avoid various issues with some encoders and pixel formats we may convert pixel format before saving
             var transformations = saveConversions[imageFormat.Guid];
@@ -2451,7 +2451,7 @@ namespace KGySoft.Drawing
                 }
 
                 // Otherwise, we give up
-                throw new InvalidOperationException(Res.ImageExtensionsEncoderSaveFail(imageFormat), e);
+                throw new InvalidOperationException(DrawingRes.ImageExtensionsEncoderSaveFail(imageFormat), e);
             }
             finally
             {

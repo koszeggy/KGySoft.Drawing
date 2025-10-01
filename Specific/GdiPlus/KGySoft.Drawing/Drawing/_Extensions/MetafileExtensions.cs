@@ -236,7 +236,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
             if (isWmf || forceWmfFormat)
@@ -280,7 +280,7 @@ namespace KGySoft.Drawing
             if (metafile == null)
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (metafile.RawFormat.Guid != ImageFormat.Emf.Guid)
-                throw new ArgumentException(Res.MetafileExtensionsCannotBeSavedAsEmf, nameof(metafile));
+                throw new ArgumentException(DrawingRes.MetafileExtensionsCannotBeSavedAsEmf, nameof(metafile));
             Save(metafile, stream, false);
         }
 

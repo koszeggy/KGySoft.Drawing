@@ -96,7 +96,7 @@ namespace KGySoft.Drawing.Wpf
             if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             if (bitmap.IsFrozen)
-                throw new ArgumentException(Res.BitmapFrozen, nameof(bitmap));
+                throw new ArgumentException(WpfRes.BitmapFrozen, nameof(bitmap));
 
             return GetBitmapDataInternal(bitmap, false, workingColorSpace, backColor, alphaThreshold);
         }

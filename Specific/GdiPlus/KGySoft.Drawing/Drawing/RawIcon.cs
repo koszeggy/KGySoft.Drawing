@@ -83,7 +83,7 @@ namespace KGySoft.Drawing
             protected override void InsertItem(int index, RawIconImage item)
             {
                 if (Count == UInt16.MaxValue)
-                    throw new NotSupportedException(Res.RawIconTooManyImages);
+                    throw new NotSupportedException(DrawingRes.RawIconTooManyImages);
                 base.InsertItem(index, item);
             }
 
@@ -248,7 +248,7 @@ namespace KGySoft.Drawing
 
                 // BMP header: size of the BITMAPINFOHEADER structure
                 if (signature != sizeof(BITMAPINFOHEADER))
-                    throw new ArgumentException(Res.RawIconBadIconFormat, nameof(rawData));
+                    throw new ArgumentException(DrawingRes.RawIconBadIconFormat, nameof(rawData));
 
                 // header
                 bmpHeader = BinarySerializer.DeserializeValueType<BITMAPINFOHEADER>(rawData);
@@ -385,7 +385,7 @@ namespace KGySoft.Drawing
 
                         // On Linux 256x256 icons may not be supported even with BMP format.
                         if (throwError)
-                            throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon);
+                            throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
                         return null;
                     }
                 }
@@ -404,7 +404,7 @@ namespace KGySoft.Drawing
                         return bmpColor.CloneBitmap();
                     if (!throwError)
                         return null;
-                    throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap);
+                    throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsBitmap);
                 }
 
                 // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
@@ -1003,7 +1003,7 @@ namespace KGySoft.Drawing
                     {
                         if (OSUtils.IsWindows)
                             throw;
-                        throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon, e);
+                        throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
                     }
                 }
             }
@@ -1029,7 +1029,7 @@ namespace KGySoft.Drawing
             }
             catch (Exception e)
             {
-                throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap, e);
+                throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsBitmap, e);
             }
         }
 
@@ -1152,7 +1152,7 @@ namespace KGySoft.Drawing
             byte[] buf = br.ReadBytes(sizeof(ICONDIR));
             ICONDIR iconDir = BinarySerializer.DeserializeValueType<ICONDIR>(buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
-                throw new ArgumentException(Res.RawIconBadIconFormat, nameof(br));
+                throw new ArgumentException(DrawingRes.RawIconBadIconFormat, nameof(br));
 
             if (index.HasValue && (index.Value < 0 || index.Value >= iconDir.idCount))
                 return;

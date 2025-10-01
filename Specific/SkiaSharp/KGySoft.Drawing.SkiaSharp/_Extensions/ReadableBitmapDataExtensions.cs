@@ -275,7 +275,7 @@ namespace KGySoft.Drawing.SkiaSharp
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
-                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
+                throw new ArgumentException(SkiaSharpRes.ImagingInvalidBitmapDataSize, nameof(source));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType, WorkingColorSpace targetColorSpace)
@@ -376,7 +376,7 @@ namespace KGySoft.Drawing.SkiaSharp
                             if (canceled = context.IsCancellationRequested)
                                 return null;
                             if (quantizingSession == null)
-                                throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
+                                throw new InvalidOperationException(SkiaSharpRes.ImageExtensionsQuantizerInitializeNull);
 
                             Palette? paletteByQuantizer = quantizingSession.Palette;
                             backColor = quantizingSession.BackColor;

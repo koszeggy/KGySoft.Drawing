@@ -57,10 +57,10 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         public void Initialize() => LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledOnly;
 
         [Test]
-        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "unknown")!.ToString()!.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
+        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(WpfRes), "Get", "unknown")!.ToString()!.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
 
         [Test]
-        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "General_InternalErrorFormat", Reflector.EmptyArray<object>())!.ToString()!.StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
+        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(WpfRes), "Get", "General_InternalErrorFormat", Reflector.EmptyArray<object>())!.ToString()!.StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
 
         [Test]
         public void TestResources()
@@ -79,19 +79,19 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private void CheckProperties(HashSet<string> obtainedMembers)
         {
-            PropertyInfo[] properties = typeof(Res).GetProperties(BindingFlags.Static | BindingFlags.NonPublic);
+            PropertyInfo[] properties = typeof(WpfRes).GetProperties(BindingFlags.Static | BindingFlags.NonPublic);
             foreach (PropertyInfo property in properties)
             {
                 string value = property.GetValue(null, null)!.ToString()!;
-                Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{property.Name} refers to an undefined resource.");
-                Assert.IsTrue(!value.ContainsAny("{", "}"), $"{nameof(Res)}.{property.Name} refers to a parameterized resource.");
+                Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(WpfRes)}.{property.Name} refers to an undefined resource.");
+                Assert.IsTrue(!value.ContainsAny("{", "}"), $"{nameof(WpfRes)}.{property.Name} refers to a parameterized resource.");
                 obtainedMembers.Add(property.Name);
             }
         }
 
         private void CheckMethods(HashSet<string> obtainedMembers)
         {
-            IEnumerable<MethodInfo> methods = typeof(Res).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).Where(m => m.IsAssembly);
+            IEnumerable<MethodInfo> methods = typeof(WpfRes).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).Where(m => m.IsAssembly);
             var generateSettings = new GenerateObjectSettings { AllowCreateObjectWithoutConstructor = true }; // for PropertyDescriptors
             foreach (MethodInfo method in methods)
             {
@@ -100,13 +100,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
                 object[] parameters = method.GetParameters().Select(p => random.NextObject(p.ParameterType, generateSettings)).ToArray()!;
                 string value = method.Invoke(null, parameters)!.ToString()!;
-                Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{method.Name} refers to an undefined resource.");
-                Assert.IsTrue(!value.StartsWith(invalidResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{method.Name} uses too few parameters.");
+                Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(WpfRes)}.{method.Name} refers to an undefined resource.");
+                Assert.IsTrue(!value.StartsWith(invalidResourcePrefix, StringComparison.Ordinal), $"{nameof(WpfRes)}.{method.Name} uses too few parameters.");
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     var parameter = parameters[i];
                     Assert.IsTrue(value.Contains(parameter.ToString()!, StringComparison.Ordinal)
-                        , $"{nameof(Res)}.{method.Name} does not use parameter #{i}.");
+                        , $"{nameof(WpfRes)}.{method.Name} does not use parameter #{i}.");
                 }
 
                 obtainedMembers.Add(method.Name);
@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private void CheckCoverage(HashSet<string> obtainedMembers)
         {
-            var rm = (ResourceManager)Reflector.GetField(typeof(Res), "resourceManager")!;
+            var rm = (ResourceManager)Reflector.GetField(typeof(WpfRes), "resourceManager")!;
             ResourceSet rs = rm.GetResourceSet(CultureInfo.InvariantCulture, true, false)!;
             IDictionaryEnumerator enumerator = rs.GetEnumerator();
             var uncovered = new List<string>();

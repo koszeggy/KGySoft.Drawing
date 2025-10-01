@@ -348,7 +348,7 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             Bitmap source = bitmap;
             if (!bitmap.PixelFormat.CanBeDrawn())

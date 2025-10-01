@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.Wpf
                 if (byteSize / 8 <= EnvironmentHelper.MaxArrayLength && (stride & 7) == 0)
                     return new double[byteSize / 8];
 
-                throw new ArgumentException(nameof(bitmap), Res.BitmapSourceDataTooLarge);
+                throw new ArgumentException(nameof(bitmap), WpfRes.BitmapSourceDataTooLarge);
             }
 
             static IReadableBitmapData CreateKnownIndexed(Array array, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette, Func<Palette, bool> trySetPalette) => array switch
@@ -938,7 +938,7 @@ namespace KGySoft.Drawing.Wpf
                         if (asyncContext.IsCancellationRequested)
                             return null;
                         if (quantizingSession == null)
-                            throw new InvalidOperationException(Res.QuantizerInitializeNull);
+                            throw new InvalidOperationException(WpfRes.QuantizerInitializeNull);
 
                         palette = quantizingSession.Palette;
                         backColor = quantizingSession.BackColor;

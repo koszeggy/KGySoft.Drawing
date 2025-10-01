@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Res.cs
+//  File: DrawingRes.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2025 - All Rights Reserved
 //
@@ -35,7 +35,7 @@ namespace KGySoft
 #if NET7_0_OR_GREATER
     [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "PixelFormat is an enum so it is supported on every platform.")]
 #endif
-    internal static class Res
+    internal static class DrawingRes
     {
         #region Constants
 
@@ -46,7 +46,7 @@ namespace KGySoft
 
         #region Fields
 
-        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.Messages", typeof(Res).Assembly)
+        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.Messages", typeof(DrawingRes).Assembly)
         {
             SafeMode = true,
             UseLanguageSettings = true,
@@ -163,10 +163,6 @@ namespace KGySoft
         internal static void EnsureInitialized()
         {
         }
-
-        /// <summary>Internal Error: {0}</summary>
-        /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
-        internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
 
         /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
         internal static string PixelFormatInvalid(PixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));

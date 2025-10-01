@@ -18,7 +18,9 @@
 #region Used Namespaces
 
 using System.Drawing;
+#if NETFRAMEWORK && NET45_OR_GREATER || NETCOREAPP
 using System.Threading.Tasks;
+#endif
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;

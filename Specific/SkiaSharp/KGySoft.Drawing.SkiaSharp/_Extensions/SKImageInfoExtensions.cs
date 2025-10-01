@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.SkiaSharp
             if (imageInfo.ColorType == SKColorType.Unknown || imageInfo.AlphaType == SKAlphaType.Unknown
                 || !imageInfo.ColorType.IsDefined() || !imageInfo.AlphaType.IsDefined())
             {
-                throw new ArgumentException(Res.ImageInfoInvalid(imageInfo.ColorType, imageInfo.AlphaType), nameof(imageInfo));
+                throw new ArgumentException(SkiaSharpRes.ImageInfoInvalid(imageInfo.ColorType, imageInfo.AlphaType), nameof(imageInfo));
             }
 
             var info = new PixelFormatInfo((byte)imageInfo.BitsPerPixel);

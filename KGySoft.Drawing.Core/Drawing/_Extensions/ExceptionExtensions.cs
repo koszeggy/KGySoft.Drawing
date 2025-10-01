@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: FloatExtensions.cs
+//  File: ExceptionExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2025 - All Rights Reserved
 //
@@ -16,21 +16,16 @@
 #region Usings
 
 using System;
-using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing
 {
-    internal static class FloatExtensions
+    internal static class ExceptionExtensions
     {
         #region Methods
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static byte ClipToByte(this float value)
-            => value < Byte.MinValue ? Byte.MinValue
-                : value > Byte.MaxValue ? Byte.MaxValue
-                : (byte)value;
+        internal static bool IsCritical(this Exception e) => e is OutOfMemoryException || e is StackOverflowException;
 
         #endregion
     }

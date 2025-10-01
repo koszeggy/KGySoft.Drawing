@@ -242,16 +242,16 @@ namespace KGySoft.Drawing.Imaging
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
-                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
+                throw new ArgumentException(DrawingRes.ImagingInvalidBitmapDataSize, nameof(source));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
         {
             ValidateArguments(source);
             if (!pixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), DrawingRes.PixelFormatInvalid(pixelFormat));
             if (!pixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.PixelFormatNotSupported(pixelFormat));
+                throw new PlatformNotSupportedException(DrawingRes.PixelFormatNotSupported(pixelFormat));
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
@@ -346,7 +346,7 @@ namespace KGySoft.Drawing.Imaging
                             if (canceled = context.IsCancellationRequested)
                                 return null;
                             if (quantizingSession == null)
-                                throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
+                                throw new InvalidOperationException(DrawingRes.ImageExtensionsQuantizerInitializeNull);
 
                             Debug.Assert(sourcePaletteToApply == null);
                             paletteByQuantizer = quantizingSession.Palette;
@@ -427,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
 
             // there is a desired palette to apply
             if (palette.Count > maxColors)
-                throw new ArgumentException(Res.PaletteTooLarge(maxColors, bpp), nameof(palette));
+                throw new ArgumentException(DrawingRes.PaletteTooLarge(maxColors, bpp), nameof(palette));
 
             return palette;
         }

@@ -89,9 +89,9 @@ namespace KGySoft.Drawing
         {
             DrawingCoreModule.Initialize();
 
-            // Just referencing Res in order to trigger its static constructor and initialize the project resources.
-            // Thus configuring LanguageSettings in a consumer project will work for resources of KGySoft.Drawing even if Res was not accessed yet.
-            Res.EnsureInitialized();
+            // Just referencing DrawingRes in order to trigger its static constructor and initialize the project resources.
+            // Thus configuring LanguageSettings in a consumer project will work for resources of KGySoft.Drawing even if DrawingRes was not accessed yet.
+            DrawingRes.EnsureInitialized();
 
 #if NET5_0 || NET6_0
             // Making sure that the static constructor of the NativeMethods.Gdip class does not throw an exception

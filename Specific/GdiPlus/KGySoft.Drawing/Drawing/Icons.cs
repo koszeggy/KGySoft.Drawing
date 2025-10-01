@@ -838,7 +838,7 @@ namespace KGySoft.Drawing
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             using RawIcon result = DoLoadIconFromFile(fileName, id, true)!;
             return result.ToIcon(OSUtils.IsXpOrEarlier)!;
@@ -1061,7 +1061,7 @@ namespace KGySoft.Drawing
             int imageCount = images?.Length ?? 0;
             int colorCount = transparentColors?.Length ?? 0;
             if (imageCount != colorCount)
-                throw new ArgumentException(Res.IconExtensionsImagesColorsDifferentLength);
+                throw new ArgumentException(DrawingRes.IconExtensionsImagesColorsDifferentLength);
 
             if (images == null || transparentColors == null || imageCount == 0)
                 return null;

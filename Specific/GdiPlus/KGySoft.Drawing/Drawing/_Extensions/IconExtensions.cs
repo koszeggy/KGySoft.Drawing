@@ -1005,7 +1005,7 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             return Icons.ToCursorHandle(icon.Handle, cursorHotspot);
         }
@@ -1089,7 +1089,7 @@ namespace KGySoft.Drawing
             {
                 // a null result from ExtractNearestIcon means that the requested size is not supported on this platform (Linux with 256x256 icons)
                 return rawIcon.ExtractNearestIcon(32, size, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows)
-                    ?? throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon);
+                    ?? throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
             }
 
             return null;

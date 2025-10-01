@@ -150,27 +150,27 @@ namespace KGySoft.Drawing.WinApi
         internal static void DestroyIcon(IntPtr handle)
         {
             if (!NativeMethods.DestroyIcon(handle))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
         }
 
         internal static IntPtr GetDC(IntPtr handle)
         {
             IntPtr dc = NativeMethods.GetDC(handle);
             if (dc == IntPtr.Zero)
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle));
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle));
             return dc;
         }
 
         internal static void ReleaseDC(IntPtr handle, IntPtr dc)
         {
             if (!NativeMethods.ReleaseDC(handle, dc))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle));
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle));
         }
 
         internal static void GetIconInfo(IntPtr handle, out ICONINFO iconInfo)
         {
             if (!NativeMethods.GetIconInfo(handle, out iconInfo))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
         }
 
         internal static IntPtr WindowFromDC(IntPtr dc) => NativeMethods.WindowFromDC(dc);
@@ -178,14 +178,14 @@ namespace KGySoft.Drawing.WinApi
         internal static Rectangle GetWindowRect(IntPtr handle)
         {
             if (!NativeMethods.GetWindowRect(handle, out RECT rect))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
             return rect.ToRectangle();
         }
 
         internal static Rectangle GetClientRect(IntPtr handle)
         {
             if (!NativeMethods.GetClientRect(handle, out RECT rect))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
             return rect.ToRectangle();
         }
 
@@ -193,14 +193,14 @@ namespace KGySoft.Drawing.WinApi
         {
             IntPtr result = NativeMethods.CreateIconIndirect(ref iconinfo);
             if (result == IntPtr.Zero)
-                throw new ArgumentException(Res.User32CreateIconIndirectFailed, nameof(iconinfo), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32CreateIconIndirectFailed, nameof(iconinfo), new Win32Exception());
             return result;
         }
 
         internal static void DestroyCursor(IntPtr handle)
         {
             if (!NativeMethods.DestroyCursor(handle))
-                throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
+                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
         }
 
         #endregion

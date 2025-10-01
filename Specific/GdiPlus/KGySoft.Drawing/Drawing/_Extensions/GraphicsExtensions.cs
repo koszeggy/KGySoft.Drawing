@@ -264,7 +264,7 @@ namespace KGySoft.Drawing
         public static Bitmap? ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             if (graphics == null)
                 throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
@@ -294,7 +294,7 @@ namespace KGySoft.Drawing
                 if (imgSource != null)
                 {
                     if (imgSource is Metafile)
-                        throw new NotSupportedException(Res.GraphicsExtensionsToBitmapMetafileNotSupported);
+                        throw new NotSupportedException(DrawingRes.GraphicsExtensionsToBitmapMetafileNotSupported);
                     if (!visibleClipOnly)
                         return (Bitmap)imgSource.Clone();
 

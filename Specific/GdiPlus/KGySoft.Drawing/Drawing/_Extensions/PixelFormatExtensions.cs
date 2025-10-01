@@ -185,7 +185,7 @@ namespace KGySoft.Drawing
                 ? new PixelFormatInfo(64) { HasPremultipliedAlpha = true, LinearGamma = true, Prefers128BitColors = true }
                 : new PixelFormatInfo(KnownPixelFormat.Format64bppPArgb),
             Format32bppCmyk => new PixelFormatInfo(32),
-            _ => pixelFormat.IsValidFormat() ? pixelFormat.ToKnownPixelFormatInternal().GetInfo() : throw new ArgumentOutOfRangeException(Res.PixelFormatInvalid(pixelFormat))
+            _ => pixelFormat.IsValidFormat() ? pixelFormat.ToKnownPixelFormatInternal().GetInfo() : throw new ArgumentOutOfRangeException(DrawingRes.PixelFormatInvalid(pixelFormat))
         };
 
         /// <summary>

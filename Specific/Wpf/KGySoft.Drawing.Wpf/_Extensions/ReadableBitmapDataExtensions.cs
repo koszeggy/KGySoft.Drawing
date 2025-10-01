@@ -287,7 +287,7 @@ namespace KGySoft.Drawing.Wpf
                         if (asyncContext.IsCancellationRequested)
                             return null;
                         if (quantizingSession == null)
-                            throw new InvalidOperationException(Res.QuantizerInitializeNull);
+                            throw new InvalidOperationException(WpfRes.QuantizerInitializeNull);
 
                         palette = quantizingSession.Palette;
                         backColor = quantizingSession.BackColor;
@@ -321,7 +321,7 @@ namespace KGySoft.Drawing.Wpf
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
-                throw new ArgumentException(Res.InvalidBitmapDataSize, nameof(source));
+                throw new ArgumentException(WpfRes.InvalidBitmapDataSize, nameof(source));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)

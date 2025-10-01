@@ -15,7 +15,8 @@
 
 #region Usings
 
-using System;
+#region Used Namespaces
+
 using System.Drawing;
 using System.Threading.Tasks;
 
@@ -25,6 +26,15 @@ using KGySoft.Drawing.Shapes;
 using NUnit.Framework;
 
 using SkiaSharp;
+
+#endregion
+
+#region Used Aliases
+
+using Pen = KGySoft.Drawing.Shapes.Pen;
+using Brush = KGySoft.Drawing.Shapes.Brush;
+
+#endregion
 
 #endregion
 
