@@ -24,10 +24,6 @@ using KGySoft.CoreLibraries;
 using NUnit.Framework.Api;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
-#if NETCOREAPP
-#elif !NETFRAMEWORK
-using System.Runtime.InteropServices;
-#endif
 
 #endregion
 
@@ -124,11 +120,12 @@ namespace KGySoft.Drawing.Wpf
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
 
+            TestFilter filter = TestFilter.Empty; // (TestFilter)Reflector.CreateInstance(Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter"), "GeometryToPathTest");
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
             ConsoleWriter = Console.Out;
-            ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
+            ITestResult result = runner.Run(new ConsoleTestReporter(), filter);
             Console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                 : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                 : ConsoleColor.Green;

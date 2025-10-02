@@ -183,6 +183,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Returns a new <see cref="Path"/> instance, whose figures are transformed by the specified <paramref name="matrix"/>.
         /// This method does not change the original <paramref name="path"/> instance. To transform the original instance, use the <see cref="TransformAdded">TransformAdded</see> method instead.
@@ -266,6 +268,84 @@ namespace KGySoft.Drawing.Shapes
                 inverseLambda * end.Y + lambda * conicControlPoint.Y);
 #endif
         }
+
+        #endregion
+
+        #region Internal Methods
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        // Used from WPF/UWP/WinUI. Unlike GetCubicBezierControlPointsFrom* methods, this one is not public because we don't have a general Bézier conversion
+        // from WPF-like ArcSegments either (the specific libraries use WinAPI to get the Bézier segments from these parameters).
+        internal static Vector2 GetArcCenter(Vector2 startPoint, Vector2 endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool counterclockwise)
+        {
+            var matrix = TransformationMatrix.CreateRotationDegrees(-rotationAngle);
+            matrix *= TransformationMatrix.CreateScale(radiusY / radiusX, 1f);
+            startPoint = matrix.Transform(startPoint);
+            endPoint = matrix.Transform(endPoint);
+            Vector2 midPoint = (startPoint + endPoint) / 2f;
+            Vector2 startEndDistance = endPoint - startPoint;
+            float halfDistance = startEndDistance.Length() / 2f;
+            Vector2 startEndNormal = isLargeArc != counterclockwise ? new Vector2(startEndDistance.Y, -startEndDistance.X) : new Vector2(-startEndDistance.Y, startEndDistance.X);
+            if (halfDistance > 0d)
+                startEndNormal = Vector2.Normalize(startEndNormal);
+            Vector2 centerOffset = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance)) * startEndNormal;
+            Vector2 center = midPoint + centerOffset;
+
+            return TransformationMatrix.TryInvert(matrix, out matrix)
+                ? matrix.Transform(center)
+                : center;
+        }
+#endif
+
+        internal static PointF GetArcCenter(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool counterclockwise)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            Vector2 result = GetArcCenter(startPoint.AsVector2(), endPoint.AsVector2(), radiusX, radiusY, rotationAngle, isLargeArc, counterclockwise);
+            return result.AsPointF();
+#else
+            var matrix = TransformationMatrix.CreateRotationDegrees(-rotationAngle);
+            matrix *= TransformationMatrix.CreateScale(radiusY / radiusX, 1f);
+            startPoint = matrix.Transform(startPoint);
+            endPoint = matrix.Transform(endPoint);
+            var midPoint = new PointF((startPoint.X + endPoint.X) / 2f, (startPoint.Y + endPoint.Y) / 2f);
+            float startEndDistanceX = endPoint.X - startPoint.X;
+            float startEndDistanceY = endPoint.Y - startPoint.Y;
+            float halfDistance = (MathF.Sqrt(startEndDistanceX * startEndDistanceX + startEndDistanceY * startEndDistanceY)) / 2f;
+            float startEndNormalX, startEndNormalY;
+            if (isLargeArc != counterclockwise)
+            {
+                startEndNormalX = startEndDistanceY;
+                startEndNormalY = -startEndDistanceX;
+            }
+            else
+            {
+                startEndNormalX = -startEndDistanceY;
+                startEndNormalY = startEndDistanceX;
+            }
+
+            if (halfDistance > 0d)
+            {
+                // startEndNormal = Vector2.Normalize(startEndNormal);
+                float max = Math.Max(Math.Abs(startEndNormalX), Math.Abs(startEndNormalY));
+                startEndNormalX /= max;
+                startEndNormalY /= max;
+                float length = MathF.Sqrt(startEndNormalX * startEndNormalX + startEndNormalY * startEndNormalY);
+                startEndNormalX /= length;
+                startEndNormalY /= length;
+            }
+
+            // centerOffset = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance)) * startEndNormal;
+            float len = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance));
+            var centerOffset = new SizeF(len * startEndNormalX, len * startEndNormalY);
+            PointF center = midPoint + centerOffset;
+
+            return TransformationMatrix.TryInvert(matrix, out matrix)
+                ? matrix.Transform(center)
+                : center;
+#endif
+        }
+
+        #endregion
 
         #endregion
 

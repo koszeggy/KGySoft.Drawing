@@ -25,6 +25,7 @@ using System.Windows.Media.Imaging;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
+using KGySoft.Threading;
 
 using NUnit.Framework;
 
@@ -150,9 +151,9 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static object[][] GeometryToPathTestSource => new object[][]
         {
-            //["Empty", () => Geometry.Empty],
-            //["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
-            //["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
+            ["Empty", () => Geometry.Empty],
+            ["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
+            ["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
             ["Single-point line", () => new Builder(new WpfPoint(10, 10)).AddLine(new(10, 10)).Geometry],
             ["Polyline", () => new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
             ["Lines", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new(10, 0)).Geometry],
@@ -293,7 +294,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             {
                 bmpData.Clear(Color.Cyan);
                 var transform = TransformationMatrix.CreateTranslation(-(int)bounds.Left + 1, -(int)bounds.Top + 1);
-                var options = new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half, Transformation = transform };
+                var options = new DrawingOptions { AntiAliasing = true, Transformation = transform };
                 bmpData.FillPath(Color.Yellow, path, options);
                 bmpData.DrawPath(Color.Blue, path, options);
             }

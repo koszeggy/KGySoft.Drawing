@@ -25,7 +25,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
 
 using KGySoft.Drawing.Shapes;
@@ -80,25 +79,6 @@ namespace KGySoft.Drawing.Wpf
             #region Local Methods
 
             static double ToDegree(double radians) => radians / Math.PI * 180d;
-
-            static WpfPoint GetCenter(WpfPoint startPoint, WpfPoint endPoint, double radiusX, double radiusY, double rotationAngle, bool isLargeArc, bool counterclockwise)
-            {
-                var matrix = new Matrix();
-                matrix.Rotate(-rotationAngle);
-                matrix.Scale(radiusY / radiusX, 1d);
-                startPoint = matrix.Transform(startPoint);
-                endPoint = matrix.Transform(endPoint);
-                WpfPoint midPoint = new((startPoint.X + endPoint.X) / 2d, (startPoint.Y + endPoint.Y) / 2d);
-                Vector startEndDistance = endPoint - startPoint;
-                double halfDistance = startEndDistance.Length / 2d;
-                Vector startEndNormal = isLargeArc != counterclockwise ? new Vector(startEndDistance.Y, -startEndDistance.X) : new Vector(-startEndDistance.Y, startEndDistance.X);
-                if (halfDistance > 0d)
-                    startEndNormal.Normalize();
-                Vector centerOffset = Math.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance)) * startEndNormal;
-                WpfPoint center = midPoint + centerOffset;
-                matrix.Invert();
-                return matrix.Transform(center);
-            }
 
             #endregion
 
@@ -221,11 +201,11 @@ namespace KGySoft.Drawing.Wpf
                                     }
                                 }
 
-                                // This works correctly only for circles (rotation is irrelevant) and for ellipses without rotation and start/end points on the axes.
+                                // This works correctly only for circles (rotation is irrelevant) ,and for ellipses without rotation and start/end points on the axes.
                                 // But even if WpfGfx is available, we prefer this for circles and non-rotated ellipses, because for thin paths it produces better results.
                                 double radiusX = arcSegment.Size.Width;
                                 double radiusY = arcSegment.Size.Height;
-                                WpfPoint center = GetCenter(startPoint, endPoint, radiusX, radiusY, arcSegment.RotationAngle, arcSegment.IsLargeArc, arcSegment.SweepDirection == SweepDirection.Counterclockwise);
+                                PointF center = Path.GetArcCenter(startPoint.ToPointF(), endPoint.ToPointF(), (float)radiusX, (float)radiusY, (float)arcSegment.RotationAngle, arcSegment.IsLargeArc, arcSegment.SweepDirection == SweepDirection.Counterclockwise);
                                 float startAngle = (float)ToDegree(Math.Atan2(startPoint.Y - center.Y, startPoint.X - center.X));
                                 float endAngle = (float)ToDegree(Math.Atan2(endPoint.Y - center.Y, endPoint.X - center.X));
                                 if (arcSegment.IsLargeArc == Math.Abs(endAngle - startAngle) < 180f)
@@ -243,7 +223,7 @@ namespace KGySoft.Drawing.Wpf
                                     sweepAngle = -sweepAngle;
 
                                 if (arcSegment.RotationAngle != 0f)
-                                    result.SetTransformation(TransformationMatrix.CreateRotationDegrees((float)arcSegment.RotationAngle, center.ToPointF()));
+                                    result.SetTransformation(TransformationMatrix.CreateRotationDegrees((float)arcSegment.RotationAngle, center));
 
                                 result.AddArc((float)(center.X - radiusX), (float)(center.Y - radiusY), (float)(2d * radiusX), (float)(2d * radiusY), startAngle, sweepAngle);
                                 result.ResetTransformation();
