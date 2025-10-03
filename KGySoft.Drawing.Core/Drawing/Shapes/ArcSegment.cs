@@ -67,14 +67,15 @@ namespace KGySoft.Drawing.Shapes
 
         // Supporting only translate/scale transformations, and converting to Bézier curves otherwise.
         // Since ArcSegment is public now, we will not even add rotation support because it would be a breaking change.
-        // Storing both degrees and radians because degrees are more accurate when detecting used sectors for drawing.
+        // Storing start/sweep angles in degrees and start/end angles radians because degrees are more accurate when detecting used sectors for drawing.
+        // The degrees in radians are transformed to ellipse coordinates when the radii are different.
         private PointF center;
         private float radiusX;
         private float radiusY;
         private readonly float startAngle;
         private readonly float sweepAngle;
-        private readonly float startAngleRadian;
-        private readonly float sweepAngleRadian;
+        private readonly float startRadian;
+        private readonly float endRadian;
         private BitVector32? sectors;
         private PointF? startPoint;
         private PointF? endPoint;
@@ -150,13 +151,13 @@ namespace KGySoft.Drawing.Shapes
 
         internal float Width => radiusX * 2f;
         internal float Height => radiusY * 2f;
-        
+
         #endregion
 
         #endregion
 
         #region Constructors
-        
+
         #region Internal Constructors
 
         internal ArcSegment(RectangleF bounds, float startAngle = 0f, float sweepAngle = 360f)
@@ -172,8 +173,13 @@ namespace KGySoft.Drawing.Shapes
             if (Math.Abs(sweepAngle) >= 360f)
                 sweepAngle = 360f;
             this.sweepAngle = sweepAngle;
-            startAngleRadian = startAngle.ToRadian();
-            sweepAngleRadian = sweepAngle.ToRadian();
+            (startRadian, endRadian) = sweepAngle is 360f
+                ? (startAngle, startAngle)
+                : (startAngle, startAngle + sweepAngle);
+
+            startRadian = startRadian.ToRadian();
+            endRadian = endRadian.ToRadian();
+            AdjustAngles(ref startRadian, ref endRadian, radiusX, radiusY);
         }
 
         #endregion
@@ -187,8 +193,8 @@ namespace KGySoft.Drawing.Shapes
             radiusY = other.radiusY;
             startAngle = other.startAngle;
             sweepAngle = other.sweepAngle;
-            startAngleRadian = other.startAngleRadian;
-            sweepAngleRadian = other.sweepAngleRadian;
+            startRadian = other.startRadian;
+            endRadian = other.endRadian;
         }
 
         #endregion
@@ -198,8 +204,15 @@ namespace KGySoft.Drawing.Shapes
         #region Methods
 
         #region Static Methods
-        
+
         #region Internal Methods
+
+        internal static void NormalizeAngle(ref float startAngle)
+        {
+            startAngle = startAngle is >= 0f and <= 360f ? startAngle : startAngle % 360f;
+            if (startAngle < 0)
+                startAngle += 360f;
+        }
 
         internal static void NormalizeAngles(ref float startAngle, ref float sweepAngle)
         {
@@ -276,17 +289,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Private Methods
-
-        private static void NormalizeAngle(ref float startAngle)
-        {
-            startAngle = startAngle is >= 0f and <= 360f ? startAngle : startAngle % 360f;
-            if (startAngle < 0)
-                startAngle += 360f;
-        }
-
-        #endregion
-
         #endregion
 
         #region Instance Methods
@@ -306,10 +308,10 @@ namespace KGySoft.Drawing.Shapes
         public IList<PointF> ToBezierPoints()
         {
             // Arc, or a full ellipse with nonzero start angle
-            if (sweepAngle < 360f || startAngleRadian is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
-                return sweepAngleRadian is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
+            if (sweepAngle < 360f || startAngle is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
+                return sweepAngle is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
                     ? new[] { StartPoint }
-                    : BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).PointsInternal;
+                    : BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f).PointsInternal;
 
             // Full ellipse with zero start angle: simple conversion to Bézier curves
             return BezierSegment.FromEllipse(center, radiusX, radiusY).PointsInternal;
@@ -325,10 +327,10 @@ namespace KGySoft.Drawing.Shapes
                 return result;
 
             // Arc, or a full ellipse with nonzero start angle
-            if (sweepAngle < 360f || startAngleRadian is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
-                return flattenedPoints = sweepAngleRadian is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
+            if (sweepAngle < 360f || startAngle is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
+                return flattenedPoints = sweepAngle is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
                     ? [StartPoint]
-                    : BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian).GetFlattenedPointsInternal();
+                    : BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f).GetFlattenedPointsInternal();
 
             // Full ellipse with zero start angle: simple conversion to Bézier curves
             return flattenedPoints = BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
@@ -354,7 +356,7 @@ namespace KGySoft.Drawing.Shapes
 
             // Otherwise, converting the arc to a Bézier curve (or to a line if it's flat) and transforming that
             return (radiusX is 0f || radiusY is 0f ? new LineSegment(GetFlattenedPointsInternal())
-                    : sweepAngle < 360f || startAngleRadian is not 0f ? BezierSegment.FromArc(center, radiusX, radiusY, startAngleRadian, sweepAngleRadian)
+                    : sweepAngle < 360f || startAngle is not 0f ? BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f)
                     : BezierSegment.FromEllipse(center, radiusX, radiusY)
                 .Transform(matrix));
         }
@@ -368,9 +370,9 @@ namespace KGySoft.Drawing.Shapes
             return sectors.Value;
         }
 
-        internal (float StartRad, float EndRad) GetStartEndRadians() => sweepAngleRadian > 0f
-            ? (startAngleRadian, startAngleRadian + sweepAngleRadian)
-            : (startAngleRadian + sweepAngleRadian, startAngleRadian);
+        internal (float StartRad, float EndRad) GetStartEndRadiansNormalized() => endRadian >= startRadian
+            ? (startRadian, endRadian)
+            : (endRadian, startRadian); 
 
         #endregion
 
@@ -381,14 +383,10 @@ namespace KGySoft.Drawing.Shapes
             if (startPoint.HasValue)
                 return;
 
-            float startRad = startAngleRadian;
-            float endRad = startRad + sweepAngleRadian;
-            AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
-
-            float sinStart = MathF.Sin(startRad);
-            float sinEnd = MathF.Sin(endRad);
-            float cosStart = MathF.Cos(startRad);
-            float cosEnd = MathF.Cos(endRad);
+            float sinStart = MathF.Sin(startRadian);
+            float sinEnd = MathF.Sin(endRadian);
+            float cosStart = MathF.Cos(startRadian);
+            float cosEnd = MathF.Cos(endRadian);
 
             startPoint = new PointF(center.X + radiusX * cosStart, center.Y + radiusY * sinStart);
             endPoint = new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd);

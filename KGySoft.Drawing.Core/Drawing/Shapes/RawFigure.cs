@@ -194,14 +194,10 @@ namespace KGySoft.Drawing.Shapes
                     max = Vector2.Max(max, vertex);
 #else
                     PointF vertex = result[i];
-                    if (vertex.X < minX)
-                        minX = vertex.X;
-                    if (vertex.X > maxX)
-                        maxX = vertex.X;
-                    if (vertex.Y < minY)
-                        minY = vertex.Y;
-                    if (vertex.Y > maxY)
-                        maxY = vertex.Y;
+                    minX = Math.Min(minX, vertex.X);
+                    maxX = Math.Max(maxX, vertex.X);
+                    minY = Math.Min(minY, vertex.Y);
+                    maxY = Math.Max(maxY, vertex.Y);
 #endif
                 }
 

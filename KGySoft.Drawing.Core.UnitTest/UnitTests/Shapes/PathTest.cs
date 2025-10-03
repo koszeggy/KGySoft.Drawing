@@ -825,6 +825,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         }
 
         [TestCase(0f, 45f)]
+        [TestCase(0f, -45f)]
         [TestCase(45f, 90f)]
         [TestCase(-45f, 90f)]
         [TestCase(15f, 400f)]
@@ -832,18 +833,20 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         {
             var path = new Path()
                 //.AddPie(new RectangleF(0, 0, 100, 50), start, sweep)
-                .AddPoint(new PointF(50, 0))
+                .AddPoint(new PointF(0, 0))
                 .AddArc(new RectangleF(0, 0, 100, 50), start, sweep)
-                .AddPoint(new PointF(50, 0));
+                .AddPoint(new PointF(100, 100));
 
             var bounds = path.RawPath.DrawOutlineBounds;
             Size size = bounds.Size + new Size(bounds.Location) + new Size(Math.Abs(bounds.X), Math.Abs(bounds.Y));
 
             using var bmp1 = BitmapDataFactory.CreateBitmapData(size);
+            bmp1.Clear(Color.Cyan);
             bmp1.DrawPath(new Pen(Color.Blue), path);
             SaveBitmapData($"{start}_{sweep}_F", bmp1);
 
             using var bmp2 = BitmapDataFactory.CreateBitmapData(size);
+            bmp2.Clear(Color.Cyan);
             bmp2.DrawPath(new Pen(Color.Blue), path, new DrawingOptions { FastThinLines = false });
             SaveBitmapData($"{start}_{sweep}_NF", bmp2);
         }

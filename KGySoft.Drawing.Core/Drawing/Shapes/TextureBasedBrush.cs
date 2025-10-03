@@ -1597,9 +1597,7 @@ namespace KGySoft.Drawing.Shapes
                 // because ArcSegment has no concept of line width, and here we draw a 1px wide path.
                 float radiusX = (width + 1) / 2f;
                 float radiusY = (height + 1) / 2f;
-
-                (float startRad, float endRad) = arc.GetStartEndRadians();
-                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+                (float startRad, float endRad) = arc.GetStartEndRadiansNormalized();
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
                 if (bounds.Width >= bounds.Height)

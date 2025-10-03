@@ -174,7 +174,8 @@ namespace KGySoft.Drawing.Shapes
                     points.Add(new PointF(point.X, point.Y - distance));
                     break;
                 case LineCapStyle.Round:
-                    points.AddRange(BezierSegment.FromArc(point, distance, distance, MathF.PI / 2f, MathF.PI).GetFlattenedPointsInternal());
+                    points.AddRange(BezierSegment.FromArc(point, distance, distance, 
+                        MathF.PI / 2f, MathF.PI / 2f + MathF.PI, true).GetFlattenedPointsInternal());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.StartCap}"));
@@ -196,7 +197,8 @@ namespace KGySoft.Drawing.Shapes
                     points.Add(new PointF(point.X, point.Y + distance));
                     break;
                 case LineCapStyle.Round:
-                    points.AddRange(BezierSegment.FromArc(point, distance, distance, -MathF.PI / 2f, MathF.PI).GetFlattenedPointsInternal());
+                    points.AddRange(BezierSegment.FromArc(point, distance, distance,
+                        -MathF.PI / 2f, -MathF.PI / 2f + MathF.PI, true).GetFlattenedPointsInternal());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.EndCap}"));
@@ -307,14 +309,13 @@ namespace KGySoft.Drawing.Shapes
 
                             float distX = endPoint.X - startPoint.X;
                             float distY = endPoint.Y - startPoint.Y;
-                            float startAngle = MathF.Atan2(distY, distX);
                             float length = MathF.Sqrt(distX * distX + distY * distY);
                             if (penOptions.Width >= length && !length.TolerantIsZero(Constants.EqualityTolerance))
                             {
-                                // Unlike in WidenPath, adding the Bézier points from arc because it's simpler with the dynamic start/end angle
-                                float halfSweepAngle = MathF.Asin(length / penOptions.Width);
+                                float halfSweepRad = MathF.Asin(length / penOptions.Width);
+                                float startRad = MathF.Atan2(distY, distX) - halfSweepRad - MathF.PI / 2f;
                                 result.AddRange(BezierSegment.FromArc(currentPoint, radius, radius,
-                                    (startAngle - halfSweepAngle) - MathF.PI / 2f, (2f * halfSweepAngle)).GetFlattenedPointsInternal());
+                                    startRad, startRad + 2f * halfSweepRad, true).GetFlattenedPointsInternal());
                             }
                             else
                             {

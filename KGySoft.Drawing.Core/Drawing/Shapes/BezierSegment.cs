@@ -104,12 +104,31 @@ namespace KGySoft.Drawing.Shapes
 
             float radiusX = bounds.Width / 2f;
             float radiusY = bounds.Height / 2f;
-            return FromArc(new PointF(bounds.X + radiusX, bounds.Y + radiusY), Math.Abs(radiusX), Math.Abs(radiusY), startAngle.ToRadian(), sweepAngle.ToRadian());
+            var center = new PointF(bounds.X + radiusX, bounds.Y + radiusY);
+            radiusX = Math.Abs(radiusX);
+            radiusY = Math.Abs(radiusY);
+            ArcSegment.NormalizeAngle(ref startAngle);
+            if (Math.Abs(sweepAngle) >= 360f)
+                sweepAngle = 360f;
+            (float startRadian, float endRadian) = sweepAngle is 360f
+                ? (startAngle, startAngle)
+                : (startAngle, startAngle + sweepAngle);
+
+            startRadian = startRadian.ToRadian();
+            endRadian = endRadian.ToRadian();
+            ArcSegment.AdjustAngles(ref startRadian, ref endRadian, radiusX, radiusY);
+            bool? clockwise = sweepAngle switch
+            {
+                > 0f => true,
+                < 0f => false,
+                _ => null
+            };
+            return FromArc(center, radiusX, radiusY, startRadian, endRadian, clockwise);
         }
 
-        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
+        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, bool? clockwise)
         {
-            Debug.Assert(sweepRad < MathF.PI * 2f || startRad is not 0f, "The caller should have called FromEllipse");
+            Debug.Assert(!startRad.Equals(endRad) || startRad is not 0f, "The caller should have called FromEllipse");
 
             // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
             var result = new List<PointF>(13);
@@ -117,26 +136,27 @@ namespace KGySoft.Drawing.Shapes
             float completed = 0f;
             bool finished = false;
 
-            float end = startRad + sweepRad;
-            float increment = (end < startRad) ? -(MathF.PI / 2f) : (MathF.PI / 2f);
+            if (clockwise != null && startRad.Equals(endRad))
+                endRad += clockwise == true ? MathF.PI * 2f : -MathF.PI * 2f;
+            float increment = clockwise == true ? MathF.PI / 2f : -(MathF.PI / 2f);
 
             while (!finished)
             {
                 float currentStart = startRad + completed;
-                float currentEnd = end - currentStart;
-                if (Math.Abs(currentEnd) > MathF.PI / 2f)
-                    currentEnd = increment;
+                float currentSweep = endRad - currentStart;
+                if (Math.Abs(currentSweep) > MathF.PI / 2f)
+                    currentSweep = increment;
                 else
                 {
                     // for very small remaining section breaking without actually adding it
-                    if (currentEnd.TolerantIsZero(Constants.ZeroTolerance) && result.Count > 0)
+                    if (currentSweep.TolerantIsZero(Constants.ZeroTolerance) && result.Count > 0)
                         break;
 
                     finished = true;
                 }
 
-                ArcToBezier(centerPoint, radiusX, radiusY, currentStart, currentStart + currentEnd, result);
-                completed += currentEnd;
+                ArcToBezier(centerPoint, radiusX, radiusY, currentStart, currentStart + currentSweep, result);
+                completed += currentSweep;
             }
 
             return new BezierSegment(result);
@@ -191,8 +211,6 @@ namespace KGySoft.Drawing.Shapes
         // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians, using vectors if possible (TODO).
         private static void ArcToBezier(PointF center, float radiusX, float radiusY, float startRad, float endRad, List<PointF> result)
         {
-            ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
-
             float mid = (endRad - startRad) / 2f;
             float controlPoint = 4f / 3f * (1f - MathF.Cos(mid)) / MathF.Sin(mid);
 
