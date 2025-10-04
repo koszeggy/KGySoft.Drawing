@@ -408,7 +408,7 @@ namespace KGySoft.Drawing.Shapes
                         new PointF(endPoint.X + extendY, endPoint.Y - extendX)
                     };
 
-                    result.AddRange(new BezierSegment(bezierPoints).GetFlattenedPointsInternal());
+                    result.AddRange(new BezierSegment(bezierPoints, false).GetFlattenedPointsInternal());
                     break;
 
                 default:

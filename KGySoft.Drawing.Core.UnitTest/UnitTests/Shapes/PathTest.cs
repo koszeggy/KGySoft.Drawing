@@ -1202,6 +1202,62 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             #endregion
         }
 
+        [Test]
+        public void BeziersAppendingTest()
+        {
+            // 4 + 4 connected
+            var path = new Path()
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0))
+                .AddBezier(new PointF(100, 0), new PointF(100, 50), new PointF(50, 50), new PointF(0, 100));
+            Assert.AreEqual(1, path.Figures[0].Segments.Count);
+            Assert.AreEqual(7, (path.Figures[0].Segments[0] as BezierSegment)?.Points.Count);
+
+            // 4 + 4 separated
+            path = new Path()
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0))
+                .AddBezier(new PointF(100, 50), new PointF(100, 100), new PointF(50, 50), new PointF(0, 100));
+            Assert.AreEqual(2, path.Figures[0].Segments.Count);
+
+            // 1 + 4 connected
+            path = new Path()
+                .AddBeziers(new PointF(0, 100))
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0));
+            Assert.AreEqual(1, path.Figures[0].Segments.Count);
+            Assert.AreEqual(4, (path.Figures[0].Segments[0] as BezierSegment)?.Points.Count);
+
+            // 1 + 4 separated
+            path = new Path()
+                .AddBeziers(new PointF(50, 50))
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0));
+            Assert.AreEqual(2, path.Figures[0].Segments.Count);
+
+            // 4 + 1 connected
+            path = new Path()
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0))
+                .AddBeziers(new PointF(100, 0));
+            Assert.AreEqual(1, path.Figures[0].Segments.Count);
+            Assert.AreEqual(4, (path.Figures[0].Segments[0] as BezierSegment)?.Points.Count);
+
+            // 4 + 1 separated
+            path = new Path()
+                .AddBezier(new PointF(0, 100), new PointF(0, 50), new PointF(50, 0), new PointF(100, 0))
+                .AddBeziers(new PointF(50, 50));
+            Assert.AreEqual(2, path.Figures[0].Segments.Count);
+
+            // 1 + 1 connected
+            path = new Path()
+                .AddBeziers(new PointF(0, 100))
+                .AddBeziers(new PointF(0, 100));
+            Assert.AreEqual(1, path.Figures[0].Segments.Count);
+            Assert.AreEqual(1, (path.Figures[0].Segments[0] as BezierSegment)?.Points.Count);
+
+            // 1 + 1 separated
+            path = new Path()
+                .AddBeziers(new PointF(0, 100))
+                .AddBeziers(new PointF(50, 50));
+            Assert.AreEqual(2, path.Figures[0].Segments.Count);
+        }
+
         #endregion
     }
 }

@@ -1519,7 +1519,7 @@ namespace KGySoft.Drawing.Shapes
             DirectDrawer.GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, Color32, offset);
         }
 
-        internal void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, float offset)
+        internal void DrawBeziers(IReadWriteBitmapData bitmapData, IList<PointF> points, float offset)
         {
             if (points.Count == 0)
                 return;

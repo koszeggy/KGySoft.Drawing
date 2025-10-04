@@ -35,6 +35,7 @@ namespace KGySoft.Drawing.Shapes
     /// <para>To get the path segments in this figure, use the <see cref="Segments"/> property.</para>
     /// <para>To get the flattened points that define this figure, you can also use the <see cref="GetFlattenedPoints">GetFlattenedPoints</see> method.</para>
     /// </remarks>
+    [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
     public sealed class Figure
     {
         #region Fields
@@ -125,10 +126,9 @@ namespace KGySoft.Drawing.Shapes
 
         internal void AddSegment(PathSegment segment) => SegmentsInternal.Add(segment);
 
-        [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
         internal bool TryAppendPoints(IEnumerable<PointF> points)
         {
-            if (SegmentsInternal.Count == 0 || SegmentsInternal[SegmentsInternal.Count - 1] is not LineSegment lastSegment)
+            if (SegmentsInternal.Count == 0 || SegmentsInternal[SegmentsInternal.Count - 1] is not LineSegment lineSegment)
                 return false;
 
             if (IsClosed)
@@ -138,8 +138,23 @@ namespace KGySoft.Drawing.Shapes
                 isClosed = false;
             }
 
-            lastSegment.Append(points);
+            lineSegment.Append(points);
             return true;
+        }
+
+        internal bool TryAppendBeziers(IList<PointF> points)
+        {
+            if (SegmentsInternal.Count == 0 || SegmentsInternal[SegmentsInternal.Count - 1] is not BezierSegment bezierSegment)
+                return false;
+
+            if (IsClosed)
+            {
+                if (!IsEmpty)
+                    return false;
+                isClosed = false;
+            }
+
+            return bezierSegment.TryAppend(points);
         }
 
         internal IList<PointF> GetPoints(bool ensureClosed)
@@ -149,7 +164,7 @@ namespace KGySoft.Drawing.Shapes
                 case 0:
                     return Reflector.EmptyArray<PointF>();
                 case 1:
-                    List<PointF> points = SegmentsInternal[0].GetFlattenedPointsInternal();
+                    IList<PointF> points = SegmentsInternal[0].GetFlattenedPointsInternal();
                     if (ensureClosed && IsClosed && points.Count > 2 && points[0] != points[points.Count - 1])
                         points = [..points, points[0]];
                     return points;

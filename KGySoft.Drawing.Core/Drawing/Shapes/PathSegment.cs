@@ -59,13 +59,13 @@ namespace KGySoft.Drawing.Shapes
         /// Gets the flattened points that define this <see cref="PathSegment"/> as a polyline.
         /// </summary>
         /// <returns>The list of <see cref="PointF"/> structures that define the flattened points of this segment.</returns>
-        public ReadOnlyCollection<PointF> GetFlattenedPoints() => GetFlattenedPointsInternal().AsReadOnly();
+        public ReadOnlyCollection<PointF> GetFlattenedPoints() => new(GetFlattenedPointsInternal());
 
         #endregion
 
         #region Internal Methods
 
-        internal abstract List<PointF> GetFlattenedPointsInternal();
+        internal abstract IList<PointF> GetFlattenedPointsInternal();
         internal abstract PathSegment Transform(TransformationMatrix matrix);
         internal abstract PathSegment Clone();
 

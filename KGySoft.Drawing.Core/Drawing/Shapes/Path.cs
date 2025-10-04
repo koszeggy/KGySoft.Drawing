@@ -386,7 +386,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         public Path AddPoint(PointF point)
         {
-            AppendPoints([point]);
+            AppendPoints(new List<PointF> { point }, false);
             return this;
         }
 
@@ -422,7 +422,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         public Path AddLine(PointF p1, PointF p2)
         {
-            AppendPoints([p1, p2]);
+            AppendPoints(new List<PointF> { p1, p2 }, false);
             return this;
         }
 
@@ -446,7 +446,7 @@ namespace KGySoft.Drawing.Shapes
 
             if (points.Length == 0)
                 return this;
-            AppendPoints(points);
+            AppendPoints(points, true);
             return this;
         }
 
@@ -468,11 +468,7 @@ namespace KGySoft.Drawing.Shapes
             if (points == null)
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
 
-            var pointsList = new List<PointF>(points);
-            if (pointsList.Count == 0)
-                return this;
-
-            AppendPoints(pointsList);
+            AppendPoints(points, true);
             return this;
         }
 
@@ -496,7 +492,7 @@ namespace KGySoft.Drawing.Shapes
             if (points.Length == 0)
                 return this;
             StartFigure();
-            AddSegment(new LineSegment(points));
+            AddSegment(new LineSegment(points, true));
             CloseFigure();
             return this;
         }
@@ -523,7 +519,7 @@ namespace KGySoft.Drawing.Shapes
                 return this;
 
             StartFigure();
-            AddSegment(new LineSegment(pointsList));
+            AddSegment(new LineSegment(pointsList, false));
             CloseFigure();
             return this;
         }
@@ -563,12 +559,13 @@ namespace KGySoft.Drawing.Shapes
         public Path AddRectangle(RectangleF rectangle)
         {
             StartFigure();
-            AddSegment(new LineSegment([
+            AddSegment(new LineSegment(new List<PointF>
+            {
                 rectangle.Location,
                 new PointF(rectangle.Right, rectangle.Top),
                 new PointF(rectangle.Right, rectangle.Bottom),
                 new PointF(rectangle.Left, rectangle.Bottom)
-            ]));
+            }, false));
             CloseFigure();
             return this;
         }
@@ -618,7 +615,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         public Path AddBezier(PointF p1, PointF p2, PointF p3, PointF p4)
         {
-            AddSegment(new BezierSegment(new[] { p1, p2, p3, p4 }));
+            AppendBeziers(new List<PointF> { p1, p2, p3, p4 }, false);
             return this;
         }
 
@@ -650,7 +647,7 @@ namespace KGySoft.Drawing.Shapes
                 return this;
             if ((points.Length - 1) % 3 != 0)
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
-            AddSegment(new BezierSegment((PointF[])points.Clone()));
+            AppendBeziers(points, true);
             return this;
         }
 
@@ -678,12 +675,18 @@ namespace KGySoft.Drawing.Shapes
         {
             if (points == null)
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
-            var pointsList = new List<PointF>(points);
+            bool copy = true;
+            if (points is not IList<PointF> pointsList)
+            {
+                pointsList = new List<PointF>(points);
+                copy = false;
+            }
+
             if (pointsList.Count == 0)
                 return this;
             if ((pointsList.Count - 1) % 3 != 0)
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
-            AddSegment(new BezierSegment(pointsList));
+            AppendBeziers(pointsList, copy);
             return this;
         }
 
@@ -1238,12 +1241,25 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal Path AddBeziers(List<PointF> points)
+        internal Path AddLinesInternal(IEnumerable<PointF> points, bool asClosed)
         {
+            Debug.Assert(IsEmpty && !PreferCaching, "Short living path is expected when calling this method");
+            var pointsList = points as List<PointF> ?? points.ToList();
+            if (pointsList.Count == 0)
+                return this;
+            AddSegment(new LineSegment(pointsList, false));
+            if (asClosed)
+                currentFigure.Close();
+            return this;
+        }
+
+        internal Path AddBeziersInternal(IList<PointF> points)
+        {
+            Debug.Assert(IsEmpty && !PreferCaching, "Short living path is expected when calling this method");
             Debug.Assert(points.Count == 0 || (points.Count - 1) % 3 == 0);
             if (points.Count == 0)
                 return this;
-            AddSegment(new BezierSegment(points));
+            AddSegment(new BezierSegment(points, false));
             return this;
         }
 
@@ -1269,15 +1285,15 @@ namespace KGySoft.Drawing.Shapes
                     // returning an implicit connecting segment if needed
                     if (i < count - 1)
                     {
-                        // connecting the points of two segments if needed
+                        // connecting the points of two segments if needed (this is an implicit segment in Path, so non-copied array is alright)
                         if (segment.EndPoint != segments[i + 1].StartPoint)
-                            result.Add(new LineSegment([segment.EndPoint, segments[i + 1].StartPoint]));
+                            result.Add(new LineSegment(new[] { segment.EndPoint, segments[i + 1].StartPoint }, false));
                     }
                     else if (figure.IsClosed)
                     {
-                        // connecting the last and the first point of the figure if it is closed
+                        // connecting the last and the first point of the figure if it is closed (this is an implicit segment in Path, so non-copied array is alright)
                         if (segment.EndPoint != segments[0].StartPoint)
-                            result.Add(new LineSegment([segment.EndPoint, segments[0].StartPoint]));
+                            result.Add(new LineSegment(new[] { segment.EndPoint, segments[0].StartPoint }, false));
                     }
                 }
             }
@@ -1289,24 +1305,8 @@ namespace KGySoft.Drawing.Shapes
 
         #region Private Methods
 
-        /// <summary>
-        /// This overload does not copy the points in LineSegment.ctor.
-        /// Call from non-collection methods only.
-        /// </summary>
-        private void AppendPoints(List<PointF> points)
-        {
-            Debug.Assert(points != null! && points.Count > 0);
-            if (transformation.IsIdentity && currentFigure.TryAppendPoints(points!))
-            {
-                Invalidate();
-                return;
-            }
-
-            AddSegment(new LineSegment(points!));
-        }
-
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration", Justification = "TryAppendPoints does not enumerate if it returns false")]
-        private void AppendPoints(IEnumerable<PointF> points)
+        private void AppendPoints(IEnumerable<PointF> points, bool copy)
         {
             if (transformation.IsIdentity && currentFigure.TryAppendPoints(points))
             {
@@ -1314,7 +1314,27 @@ namespace KGySoft.Drawing.Shapes
                 return;
             }
 
-            AddSegment(new LineSegment(points));
+            if (points is not IList<PointF> list)
+            {
+                list = new List<PointF>(points);
+                if (list.Count == 0)
+                    return;
+                copy = false;
+            }
+
+            AddSegment(new LineSegment(list, copy));
+        }
+
+        private void AppendBeziers(IList<PointF> points, bool copy)
+        {
+            Debug.Assert((points.Count - 1) % 3 == 0);
+            if (transformation.IsIdentity && (currentFigure.TryAppendBeziers(points) || points.Count == 1 && currentFigure.TryAppendPoints(points)))
+            {
+                Invalidate();
+                return;
+            }
+
+            AddSegment(new BezierSegment(points, copy));
         }
 
         private void AddSegment(PathSegment segment)

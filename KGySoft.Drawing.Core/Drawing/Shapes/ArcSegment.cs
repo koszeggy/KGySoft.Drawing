@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Shapes
         private PointF? startPoint;
         private PointF? endPoint;
 
-        private List<PointF>? flattenedPoints;
+        private IList<PointF>? flattenedPoints;
 
         #endregion
 
@@ -321,9 +321,9 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-        internal override List<PointF> GetFlattenedPointsInternal()
+        internal override IList<PointF> GetFlattenedPointsInternal()
         {
-            if (flattenedPoints is List<PointF> result)
+            if (flattenedPoints is IList<PointF> result)
                 return result;
 
             // Arc, or a full ellipse with nonzero start angle
@@ -355,7 +355,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Otherwise, converting the arc to a Bézier curve (or to a line if it's flat) and transforming that
-            return (radiusX is 0f || radiusY is 0f ? new LineSegment(GetFlattenedPointsInternal())
+            return (radiusX is 0f || radiusY is 0f ? new LineSegment(GetFlattenedPointsInternal(), true)
                     : sweepAngle < 360f || startAngle is not 0f ? BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f)
                     : BezierSegment.FromEllipse(center, radiusX, radiusY)
                 .Transform(matrix));

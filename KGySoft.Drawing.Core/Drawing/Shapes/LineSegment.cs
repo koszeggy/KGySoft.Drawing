@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Fields
 
-        private readonly List<PointF> points;
+        private readonly IList<PointF> points;
 
         #endregion
 
@@ -53,32 +53,29 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets a read-only collection of the points that define this <see cref="LineSegment"/>.
         /// </summary>
-        public ReadOnlyCollection<PointF> Points => points.AsReadOnly();
+        public ReadOnlyCollection<PointF> Points => new(points);
 
         #endregion
 
         #region Constructors
 
-        internal LineSegment(List<PointF> points)
+        internal LineSegment(IList<PointF> points, bool copy)
         {
-            // This overload does not copy the elements. Make sure it's called internally only.
-            Debug.Assert(points != null! && points.Count > 0, "At least 1 point is expected");
-            this.points = points!;
-        }
-
-        internal LineSegment(IEnumerable<PointF> points)
-            : this(new List<PointF>(points))
-        {
-            // This overload exists for copying the elements.
+            Debug.Assert(points.Count > 0, "At least 1 point is expected");
+            this.points = copy ? new List<PointF>(points) : points;
         }
 
         #endregion
 
         #region Methods
 
-        internal void Append(IEnumerable<PointF> newPoints) => points.AddRange(newPoints);
+        internal void Append(IEnumerable<PointF> newPoints)
+        {
+            Debug.Assert(points is List<PointF>, "Append is expected to be called only when the segment was created with a list or copy = true");
+            ((List<PointF>)points).AddRange(newPoints);
+        }
 
-        internal override List<PointF> GetFlattenedPointsInternal() => points;
+        internal override IList<PointF> GetFlattenedPointsInternal() => points;
 
         internal override PathSegment Transform(TransformationMatrix matrix)
         {
@@ -90,7 +87,7 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        internal override PathSegment Clone() => new LineSegment(new List<PointF>(points));
+        internal override PathSegment Clone() => new LineSegment(points, true);
 
         #endregion
     }

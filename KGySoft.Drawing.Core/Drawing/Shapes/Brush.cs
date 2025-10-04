@@ -3157,7 +3157,7 @@ namespace KGySoft.Drawing.Shapes
                         continue;
                     }
 
-                    List<PointF> points = segment.GetFlattenedPointsInternal();
+                    IList<PointF> points = segment.GetFlattenedPointsInternal();
                     int len = points.Count;
 
                     if (len == 1)

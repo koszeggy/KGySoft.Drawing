@@ -1889,7 +1889,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -1935,7 +1935,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static void DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -1993,7 +1993,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2046,7 +2046,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2102,7 +2102,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2159,7 +2159,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2220,7 +2220,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2276,7 +2276,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2332,7 +2332,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2389,7 +2389,7 @@ namespace KGySoft.Drawing.Shapes
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2447,7 +2447,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         public static IAsyncResult BeginDrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2498,7 +2498,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2549,7 +2549,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         public static IAsyncResult BeginDrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2601,7 +2601,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         public static IAsyncResult BeginDrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2670,7 +2670,7 @@ namespace KGySoft.Drawing.Shapes
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2722,7 +2722,7 @@ namespace KGySoft.Drawing.Shapes
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA lines
             if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
@@ -2774,7 +2774,7 @@ namespace KGySoft.Drawing.Shapes
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -2827,7 +2827,7 @@ namespace KGySoft.Drawing.Shapes
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(bitmapData, pen, points, out List<PointF> pointsList);
+            ValidateArguments(bitmapData, pen, points, out IList<PointF> pointsList);
 
             // Shortcut for non-blended, non-AA thin lines
             if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
@@ -9706,18 +9706,19 @@ namespace KGySoft.Drawing.Shapes
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Validation")]
-        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IEnumerable points, out List<PointF> pointsList)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, IEnumerable points, out IList<PointF> pointsList)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (points == null)
                 throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
-            pointsList = new List<PointF>(points switch
+            pointsList = points switch
             {
-                IEnumerable<Point> pointsI32 => pointsI32.Select(p => (PointF)p),
-                IEnumerable<PointF> pointsF => pointsF,
+                IList<PointF> pointFList => pointFList,
+                IEnumerable<Point> pointsI32 => pointsI32.Select(p => (PointF)p).ToList(),
+                IEnumerable<PointF> pointsF => pointsF.ToList(),
                 _ => throw new InvalidOperationException(Res.InternalError("Unexpected points type"))
-            });
+            };
 
             if (pointsList.Count != 0 && (pointsList.Count - 1) % 3 != 0)
                 throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
@@ -9734,23 +9735,11 @@ namespace KGySoft.Drawing.Shapes
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Validation")]
-        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, IEnumerable points, out List<PointF> pointsList)
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, IEnumerable points, out IList<PointF> pointsList)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (pen == null)
                 throw new ArgumentNullException(nameof(pen), PublicResources.ArgumentNull);
-            if (points == null)
-                throw new ArgumentNullException(nameof(points), PublicResources.ArgumentNull);
-            pointsList = new List<PointF>(points switch
-            {
-                IEnumerable<Point> pointsI32 => pointsI32.Select(p => (PointF)p),
-                IEnumerable<PointF> pointsF => pointsF,
-                _ => throw new InvalidOperationException(Res.InternalError("Unexpected points type"))
-            });
-
-            if (pointsList.Count != 0 && (pointsList.Count - 1) % 3 != 0)
-                throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
+            ValidateArguments(bitmapData, points, out pointsList);
         }
 
         private static void ValidateArguments(IReadWriteBitmapData bitmapData, Path path)
@@ -9785,19 +9774,19 @@ namespace KGySoft.Drawing.Shapes
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawLines(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions drawingOptions)
-            => DoDrawPath(context, bitmapData, new Path(false).AddLines(points), pen, drawingOptions);
+            => DoDrawPath(context, bitmapData, new Path(false).AddLinesInternal(points, false), pen, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static bool DoDrawBeziers(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, List<PointF> points, DrawingOptions drawingOptions)
-            => DoDrawPath(context, bitmapData, new Path(false).AddBeziers(points), pen, drawingOptions);
+        private static bool DoDrawBeziers(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, IList<PointF> points, DrawingOptions drawingOptions)
+            => DoDrawPath(context, bitmapData, new Path(false).AddBeziersInternal(points), pen, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions drawingOptions)
-            => DoDrawPath(context, bitmapData, new Path(false).AddPolygon(points.Select(p => (PointF)p)), pen, drawingOptions);
+            => DoDrawPolygon(context, bitmapData, pen, points.Select(p => (PointF)p), drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions drawingOptions)
-            => DoDrawPath(context, bitmapData, new Path(false).AddPolygon(points), pen, drawingOptions);
+            => DoDrawPath(context, bitmapData, new Path(false).AddLinesInternal(points, true), pen, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoDrawRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions drawingOptions)

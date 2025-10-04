@@ -4790,11 +4790,11 @@ namespace KGySoft.Drawing.Shapes
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<Point> points, DrawingOptions drawingOptions)
-            => DoFillPath(context, bitmapData, new Path(false).AddPolygon(points.Select(p => (PointF)p)), brush, drawingOptions);
+            => DoFillPolygon(context, bitmapData, brush, points.Select(p => (PointF)p), drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillPolygon(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, IEnumerable<PointF> points, DrawingOptions drawingOptions)
-            => DoFillPath(context, bitmapData, new Path(false).AddPolygon(points), brush, drawingOptions);
+            => DoFillPath(context, bitmapData, new Path(false).AddLinesInternal(points, true), brush, drawingOptions);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         private static bool DoFillRectangle(IAsyncContext context, IReadWriteBitmapData bitmapData, Brush brush, RectangleF rectangle, DrawingOptions drawingOptions)

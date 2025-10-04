@@ -318,10 +318,10 @@ namespace KGySoft.Drawing.Shapes
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal static void DrawBeziers(IBitmapDataInternal bitmapData, List<PointF> points, TColor c, float offset, TArg arg = default!)
+            internal static void DrawBeziers(IBitmapDataInternal bitmapData, IList<PointF> points, TColor c, float offset, TArg arg = default!)
             {
                 Debug.Assert((points.Count - 1) % 3 == 0);
-                DrawLines(bitmapData, new BezierSegment(points).GetFlattenedPointsInternal(), c, offset, arg);
+                DrawLines(bitmapData, new BezierSegment(points, false).GetFlattenedPointsInternal(), c, offset, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1280,7 +1280,7 @@ namespace KGySoft.Drawing.Shapes
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawLines(bitmap, points, color, offset);
         }
 
-        internal static void DrawBeziers(IReadWriteBitmapData bitmapData, List<PointF> points, Color32 color, float offset)
+        internal static void DrawBeziers(IReadWriteBitmapData bitmapData, IList<PointF> points, Color32 color, float offset)
         {
             Debug.Assert(points.Count == 0 || (points.Count - 1) % 3 == 0);
             if (points.Count == 0)

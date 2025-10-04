@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Linq;
 
 using KGySoft.CoreLibraries;
 
@@ -34,6 +35,7 @@ namespace KGySoft.Drawing.Shapes
     /// <note>This class is meant to provide information about a line segment in a <see cref="Figure"/> for interoperability with other libraries.
     /// To add new figures or path segments to a <see cref="Path"/>, use its public <see cref="Path.StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</note>
     /// </remarks>
+    [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]
     public sealed class BezierSegment : PathSegment
     {
         #region Constants
@@ -69,7 +71,7 @@ namespace KGySoft.Drawing.Shapes
         /// Gets a read-only collection of the points that define this <see cref="BezierSegment"/>.
         /// It always contains 1 + 3n points, where n is the number of cubic Bézier curves in this segment (n can be zero).
         /// </summary>
-        public ReadOnlyCollection<PointF> Points => new ReadOnlyCollection<PointF>(points);
+        public ReadOnlyCollection<PointF> Points => new(points);
 
         #endregion
 
@@ -83,10 +85,10 @@ namespace KGySoft.Drawing.Shapes
 
         #region Constructors
 
-        internal BezierSegment(IList<PointF> points)
+        internal BezierSegment(IList<PointF> points, bool copy)
         {
-            Debug.Assert(points != null! && (points.Count - 1) % 3 == 0);
-            this.points = points!;
+            Debug.Assert((points.Count - 1) % 3 == 0);
+            this.points = copy ? new List<PointF>(points) : points;
         }
 
         #endregion
@@ -159,7 +161,7 @@ namespace KGySoft.Drawing.Shapes
                 completed += currentSweep;
             }
 
-            return new BezierSegment(result);
+            return new BezierSegment(result, false);
         }
 
         internal static BezierSegment FromEllipse(RectangleF bounds)
@@ -178,7 +180,7 @@ namespace KGySoft.Drawing.Shapes
             float ctrlPointY = c1 * radiusY;
 
             // 4 Bézier curves (1 + 3 * 4 points)
-            return new BezierSegment(new[]
+            return new BezierSegment(new List<PointF>
             {
                 // 1st quadrant
                 new PointF(centerX + radiusX, centerY),
@@ -200,7 +202,7 @@ namespace KGySoft.Drawing.Shapes
                 new PointF(centerX + ctrlPointX, centerY + radiusY),
                 new PointF(centerX + radiusX, centerY + ctrlPointY),
                 new PointF(centerX + radiusX, centerY)
-            });
+            }, false);
         }
 
         #endregion
@@ -325,7 +327,25 @@ namespace KGySoft.Drawing.Shapes
 
         #region Instance Methods
 
-        internal override List<PointF> GetFlattenedPointsInternal()
+        internal bool TryAppend(IList<PointF> newPoints)
+        {
+            Debug.Assert(points is List<PointF>, "TryAppend is expected to be called only when the segment was created with a list or copy = true");
+            Debug.Assert(newPoints.Count > 0 && (points.Count - 1) % 3 == 0);
+
+             // can only be appended if the first new point is the same as the last point of the existing segment
+            if (points[points.Count - 1] != newPoints[0])
+                return false;
+
+            if (newPoints.Count > 1)
+            {
+                ((List<PointF>)points).AddRange(newPoints.Skip(1));
+                flattenedPoints = null;
+            }
+
+            return true;
+        }
+
+        internal override IList<PointF> GetFlattenedPointsInternal()
         {
             if (flattenedPoints is List<PointF> result)
                 return result;
@@ -352,7 +372,7 @@ namespace KGySoft.Drawing.Shapes
             return this;
         }
 
-        internal override PathSegment Clone() => new BezierSegment(((IList<PointF>?)(points as PointF[])?.Clone()) ?? new List<PointF>(points));
+        internal override PathSegment Clone() => new BezierSegment(points, true);
 
         #endregion
 
