@@ -827,6 +827,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
         [TestCase(0f, 45f)]
         [TestCase(0f, -45f)]
         [TestCase(45f, 90f)]
+        [TestCase(45f, 0f)]
         [TestCase(-45f, 90f)]
         [TestCase(15f, 400f)]
         public void ConnectedArcTest(float start, float sweep)

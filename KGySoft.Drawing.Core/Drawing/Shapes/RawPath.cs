@@ -175,7 +175,7 @@ namespace KGySoft.Drawing.Shapes
                     break;
                 case LineCapStyle.Round:
                     points.AddRange(BezierSegment.FromArc(point, distance, distance, 
-                        MathF.PI / 2f, MathF.PI / 2f + MathF.PI, 1).GetFlattenedPointsInternal());
+                        MathF.PI / 2f, MathF.PI).GetFlattenedPointsInternal());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.StartCap}"));
@@ -198,7 +198,7 @@ namespace KGySoft.Drawing.Shapes
                     break;
                 case LineCapStyle.Round:
                     points.AddRange(BezierSegment.FromArc(point, distance, distance,
-                        -MathF.PI / 2f, -MathF.PI / 2f + MathF.PI, 1).GetFlattenedPointsInternal());
+                        -MathF.PI / 2f, MathF.PI).GetFlattenedPointsInternal());
                     break;
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unhandled cap style: {penOptions.EndCap}"));
@@ -315,7 +315,7 @@ namespace KGySoft.Drawing.Shapes
                                 float halfSweepRad = MathF.Asin(length / penOptions.Width);
                                 float startRad = MathF.Atan2(distY, distX) - halfSweepRad - MathF.PI / 2f;
                                 result.AddRange(BezierSegment.FromArc(currentPoint, radius, radius,
-                                    startRad, startRad + 2f * halfSweepRad, 1).GetFlattenedPointsInternal());
+                                    startRad, 2f * halfSweepRad).GetFlattenedPointsInternal());
                             }
                             else
                             {

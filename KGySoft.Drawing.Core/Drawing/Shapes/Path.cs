@@ -25,6 +25,7 @@ using System.Linq;
 using System.Numerics;
 #endif
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -273,76 +274,84 @@ namespace KGySoft.Drawing.Shapes
 
         #region Internal Methods
 
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-        // Used from WPF/UWP/WinUI. Unlike GetCubicBezierControlPointsFrom* methods, this one is not public because we don't have a general Bézier conversion
-        // from WPF-like ArcSegments either (the specific libraries use WinAPI to get the Bézier segments from these parameters).
-        internal static Vector2 GetArcCenter(Vector2 startPoint, Vector2 endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool counterclockwise)
+        internal Path AddArc(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise)
         {
-            var matrix = TransformationMatrix.CreateRotationDegrees(-rotationAngle);
-            matrix *= TransformationMatrix.CreateScale(radiusY / radiusX, 1f);
-            startPoint = matrix.Transform(startPoint);
-            endPoint = matrix.Transform(endPoint);
-            Vector2 midPoint = (startPoint + endPoint) / 2f;
-            Vector2 startEndDistance = endPoint - startPoint;
-            float halfDistance = startEndDistance.Length() / 2f;
-            Vector2 startEndNormal = isLargeArc != counterclockwise ? new Vector2(startEndDistance.Y, -startEndDistance.X) : new Vector2(-startEndDistance.Y, startEndDistance.X);
-            if (halfDistance > 0d)
-                startEndNormal = Vector2.Normalize(startEndNormal);
-            Vector2 centerOffset = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance)) * startEndNormal;
-            Vector2 center = midPoint + centerOffset;
+            // SVG behavior: If the endpoints are identical, returning a single point only
+            if (startPoint.TolerantEquals(endPoint, Constants.ZeroTolerance)) // yes, not using the default equality tolerance for points of 1/64
+                return AddPoint(startPoint);
 
-            return TransformationMatrix.TryInvert(matrix, out matrix)
-                ? matrix.Transform(center)
-                : center;
-        }
-#endif
+            // SVG behavior: If either radius is zero, returning a line segment
+            if (radiusX.TolerantIsZero(Constants.ZeroTolerance) || radiusY.TolerantIsZero(Constants.ZeroTolerance))
+                return AddLine(startPoint, endPoint);
 
-        internal static PointF GetArcCenter(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool counterclockwise)
-        {
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector2 result = GetArcCenter(startPoint.AsVector2(), endPoint.AsVector2(), radiusX, radiusY, rotationAngle, isLargeArc, counterclockwise);
-            return result.AsPointF();
-#else
-            var matrix = TransformationMatrix.CreateRotationDegrees(-rotationAngle);
-            matrix *= TransformationMatrix.CreateScale(radiusY / radiusX, 1f);
-            startPoint = matrix.Transform(startPoint);
-            endPoint = matrix.Transform(endPoint);
-            var midPoint = new PointF((startPoint.X + endPoint.X) / 2f, (startPoint.Y + endPoint.Y) / 2f);
-            float startEndDistanceX = endPoint.X - startPoint.X;
-            float startEndDistanceY = endPoint.Y - startPoint.Y;
-            float halfDistance = (MathF.Sqrt(startEndDistanceX * startEndDistanceX + startEndDistanceY * startEndDistanceY)) / 2f;
-            float startEndNormalX, startEndNormalY;
-            if (isLargeArc != counterclockwise)
+            float rotationRad = rotationAngle.ToRadian();
+            float cosPhi = MathF.Cos(rotationRad);
+            float sinPhi = MathF.Sin(rotationRad);
+
+            // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
+            float offsetX = (startPoint.X - endPoint.X) / 2f;
+            float offsetY = (startPoint.Y - endPoint.Y) / 2f;
+            float rotatedX = cosPhi * offsetX + sinPhi * offsetY;
+            float rotatedY = -sinPhi * offsetX + cosPhi * offsetY;
+
+            // Adjusting radii if necessary
+            float rotatedXSquared = rotatedX * rotatedX;
+            float rotatedYSquared = rotatedY * rotatedY;
+            float lambda = rotatedXSquared / (radiusX * radiusX) + rotatedYSquared / (radiusY * radiusY);
+            if (lambda > 1f)
             {
-                startEndNormalX = startEndDistanceY;
-                startEndNormalY = -startEndDistanceX;
-            }
-            else
-            {
-                startEndNormalX = -startEndDistanceY;
-                startEndNormalY = startEndDistanceX;
+                float scale = MathF.Sqrt(lambda);
+                radiusX *= scale;
+                radiusY *= scale;
             }
 
-            if (halfDistance > 0d)
+            float radiusXSquared = radiusX * radiusX; // with the possibly adjusted radii
+            float radiusYSquared = radiusY * radiusY;
+
+            // Calculating center
+            float sign = isLargeArc != isClockwise ? 1 : -1;
+            float numerator = Math.Max(0f, radiusXSquared * radiusYSquared - radiusXSquared * rotatedYSquared - radiusYSquared * rotatedXSquared);
+            float denominator = radiusXSquared * rotatedYSquared + radiusYSquared * rotatedXSquared;
+            float coefficient = sign * MathF.Sqrt(numerator / denominator);
+            float centerRotatedX = coefficient * radiusX * rotatedY / radiusY;
+            float centerRotatedY = coefficient * -radiusY * rotatedX / radiusX;
+            float midX = (startPoint.X + endPoint.X) / 2f;
+            float midY = (startPoint.Y + endPoint.Y) / 2f;
+            float centerX = cosPhi * centerRotatedX - sinPhi * centerRotatedY + midX;
+            float centerY = sinPhi * centerRotatedX + cosPhi * centerRotatedY + midY;
+
+            // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
+            float startVectorX = (rotatedX - centerRotatedX) / radiusX;
+            float startVectorY = (rotatedY - centerRotatedY) / radiusY;
+            float endVectorX = (-rotatedX - centerRotatedX) / radiusX;
+            float endVectorY = (-rotatedY - centerRotatedY) / radiusY;
+
+            float startRad = MathF.Atan2(startVectorY, startVectorX);
+            float sweepRad = MathF.Atan2(endVectorY, endVectorX) - startRad;
+
+            // Ensuring that we get the correct arc (large vs small). Can be imprecise if the arc is very close to 180 degrees, which is adjusted below.
+            if (isLargeArc != Math.Abs(sweepRad) >= MathF.PI)
             {
-                // startEndNormal = Vector2.Normalize(startEndNormal);
-                float max = Math.Max(Math.Abs(startEndNormalX), Math.Abs(startEndNormalY));
-                startEndNormalX /= max;
-                startEndNormalY /= max;
-                float length = MathF.Sqrt(startEndNormalX * startEndNormalX + startEndNormalY * startEndNormalY);
-                startEndNormalX /= length;
-                startEndNormalY /= length;
+                if (sweepRad > 0)
+                    sweepRad -= 2f * MathF.PI;
+                else
+                    sweepRad += 2f * MathF.PI;
             }
 
-            // centerOffset = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance)) * startEndNormal;
-            float len = MathF.Sqrt(Math.Abs(radiusY * radiusY - halfDistance * halfDistance));
-            var centerOffset = new SizeF(len * startEndNormalX, len * startEndNormalY);
-            PointF center = midPoint + centerOffset;
+            // Fixing the possibly wrong direction of an exactly 180 degrees arc.
+            if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI))
+                sweepRad = -sweepRad;
 
-            return TransformationMatrix.TryInvert(matrix, out matrix)
-                ? matrix.Transform(center)
-                : center;
-#endif
+            // If there is no rotation we prefer using ArcSegment, because it can be used to produce a more symmetric result when using thin lines with Bresenham-based algorithms.
+            if (rotationAngle == 0f)
+            {
+                AddSegment(new ArcSegment(new PointF(centerX, centerY), radiusX, radiusY, startRad, startRad + sweepRad));
+                return this;
+            }
+
+            // Otherwise, we convert the arc to cubic Bézier segments.
+            AppendBeziers(BezierSegment.GetBezierPointsFromArc(new PointF(centerX, centerY), radiusX, radiusY, startRad, sweepRad, rotationRad), false);
+            return this;
         }
 
         #endregion

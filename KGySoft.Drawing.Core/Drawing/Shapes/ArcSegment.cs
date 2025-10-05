@@ -173,13 +173,30 @@ namespace KGySoft.Drawing.Shapes
             if (Math.Abs(sweepAngle) >= 360f)
                 sweepAngle = 360f;
             this.sweepAngle = sweepAngle;
-            (startRadian, endRadian) = sweepAngle is 360f
-                ? (startAngle, startAngle)
-                : (startAngle, startAngle + sweepAngle);
+            (startRadian, endRadian) = (startAngle, startAngle + sweepAngle);
 
             startRadian = startRadian.ToRadian();
             endRadian = endRadian.ToRadian();
             ToEllipseCoordinates(ref startRadian, ref endRadian, radiusX, radiusY);
+        }
+
+        // This constructor is used when an arc is created from SVG-like parameters.
+        // The caller is responsible for handling edge cases, and to ensure the correct direction by the sign of the end - start difference.
+        internal ArcSegment(PointF center, float radiusX, float radiusY, float startRad, float endRad)
+        {
+            Debug.Assert(radiusX > 0f && radiusY > 0f && !startRad.Equals(endRad));
+            this.center = center;
+            this.radiusX = radiusX;
+            this.radiusY = radiusY;
+            startRadian = startRad;
+            endRadian = endRad;
+            
+            FromEllipseCoordinates(ref startRad, ref endRad, radiusX, radiusY);
+            startAngle = startRad.ToDegree().RoundTo(Constants.ZeroTolerance);
+            sweepAngle = (endRad - startRad).ToDegree().RoundTo(Constants.ZeroTolerance);
+            if (Math.Abs(sweepAngle) >= 360f)
+                sweepAngle = 360f;
+            NormalizeAngle(ref startAngle);
         }
 
         #endregion
@@ -233,7 +250,7 @@ namespace KGySoft.Drawing.Shapes
             if (radiusX == radiusY)
                 return;
 
-            bool isPositive = endRad >= startRad;
+            float sweepRad = endRad - startRad;
 
             // Ensuring nonzero parameters for the Atan2 calculation
             if (radiusX.TolerantIsZero(Constants.ZeroTolerance))
@@ -244,8 +261,10 @@ namespace KGySoft.Drawing.Shapes
             startRad = MathF.Atan2(radiusX * MathF.Sin(startRad), radiusY * MathF.Cos(startRad));
             endRad = MathF.Atan2(radiusX * MathF.Sin(endRad), radiusY * MathF.Cos(endRad));
 
-            // preventing swapping the direction
-            if (endRad >= startRad != isPositive)
+            // preventing zeroing a full sweep or swapping the direction
+            if (startRad.TolerantEquals(endRad) && Math.Abs(sweepRad).TolerantEquals(MathF.PI * 2f))
+                endRad += sweepRad; // it is +-2PI here
+            else if (endRad >= startRad != sweepRad > 0f)
             {
                 if (endRad > startRad)
                     endRad -= 2f * MathF.PI;
@@ -289,6 +308,35 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
+        #region Private Methods
+
+        // The inverse operation of ToEllipseCoordinates
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended")]
+        private static void FromEllipseCoordinates(ref float startRad, ref float endRad, float radiusX, float radiusY)
+        {
+            if (radiusX == radiusY)
+                return;
+
+            Debug.Assert(radiusX > 0f && radiusY > 0f, "If radii can be zero, adjust them like in ToEllipseCoordinates");
+
+            bool isPositive = endRad >= startRad;
+            startRad = MathF.Atan2((radiusY / radiusX) * MathF.Sin(startRad), MathF.Cos(startRad));
+            endRad = MathF.Atan2((radiusY / radiusX) * MathF.Sin(endRad), MathF.Cos(endRad));
+
+            Debug.Assert(startRad != endRad, "Not expecting single points or full ellipses here. Otherwise, adjust like in ToEllipseCoordinates");
+
+            // preventing swapping the direction
+            if (endRad >= startRad != isPositive)
+            {
+                if (endRad > startRad)
+                    endRad -= 2f * MathF.PI;
+                else
+                    startRad -= 2f * MathF.PI;
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Instance Methods
@@ -311,10 +359,10 @@ namespace KGySoft.Drawing.Shapes
             if (sweepAngle < 360f || startAngle is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
                 return sweepAngle is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
                     ? new[] { StartPoint }
-                    : BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f).PointsInternal;
+                    : BezierSegment.GetBezierPointsFromArc(center, radiusX, radiusY, startRadian, endRadian - startRadian);
 
             // Full ellipse with zero start angle: simple conversion to Bézier curves
-            return BezierSegment.FromEllipse(center, radiusX, radiusY).PointsInternal;
+            return BezierSegment.GetBezierPointsFromEllipse(center, radiusX, radiusY);
         }
 
         #endregion
@@ -330,7 +378,7 @@ namespace KGySoft.Drawing.Shapes
             if (sweepAngle < 360f || startAngle is not 0f) // This check is alright, a full ellipse always has +360 degrees sweep angle
                 return flattenedPoints = sweepAngle is 0f // not using TolerantZero because for very large radii the result can be more than just a single point
                     ? [StartPoint]
-                    : BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f).GetFlattenedPointsInternal();
+                    : BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian - startRadian).GetFlattenedPointsInternal();
 
             // Full ellipse with zero start angle: simple conversion to Bézier curves
             return flattenedPoints = BezierSegment.FromEllipse(center, radiusX, radiusY).GetFlattenedPointsInternal();
@@ -356,7 +404,7 @@ namespace KGySoft.Drawing.Shapes
 
             // Otherwise, converting the arc to a Bézier curve (or to a line if it's flat) and transforming that
             return (radiusX is 0f || radiusY is 0f ? new LineSegment(GetFlattenedPointsInternal(), true)
-                    : sweepAngle < 360f || startAngle is not 0f ? BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle > 0f)
+                    : sweepAngle < 360f || startAngle is not 0f ? BezierSegment.FromArc(center, radiusX, radiusY, startRadian, endRadian - startRadian)
                     : BezierSegment.FromEllipse(center, radiusX, radiusY)
                 .Transform(matrix));
         }

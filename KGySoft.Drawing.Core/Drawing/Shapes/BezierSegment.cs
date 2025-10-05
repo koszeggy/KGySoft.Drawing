@@ -21,8 +21,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
-
-using KGySoft.CoreLibraries;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -119,47 +118,23 @@ namespace KGySoft.Drawing.Shapes
             startRadian = startRadian.ToRadian();
             endRadian = endRadian.ToRadian();
             ArcSegment.ToEllipseCoordinates(ref startRadian, ref endRadian, radiusX, radiusY);
-            return FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle.Sign());
+            return FromArc(center, radiusX, radiusY, startRadian, endRadian - startRadian);
         }
 
-        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, int sign)
-            => new(GetPointsFromArc(centerPoint, radiusX, radiusY, startRad, endRad, sign), false);
+        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad)
+            => new(GetBezierPointsFromArc(centerPoint, radiusX, radiusY, startRad, sweepRad), false);
 
-        /// <summary>
-        /// NOTE: sign is needed only because allow zero and full ellipse arcs, in which cases start and end angles are the same.
-        /// Otherwise, it would be enough to ensure that endRad is always greater than startRad for a clockwise arc and vice versa.
-        /// </summary>
-        internal static List<PointF> GetPointsFromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, int sign)
+        internal static List<PointF> GetBezierPointsFromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad, float rotationRad = 0f)
         {
-            Debug.Assert(!startRad.Equals(endRad) || startRad is not 0f, "The caller should have called FromEllipse");
+            int segments = (int)Math.Ceiling(Math.Abs(sweepRad) / (Math.PI / 2));
+            float segmentAngle = sweepRad / segments;
 
-            // up to 4 arcs, meaning 4, 7, 10 or 13 Bézier points
-            var result = new List<PointF>(13);
-
-            float completed = 0f;
-            bool finished = false;
-
-            if (sign != 0 && startRad.Equals(endRad))
-                endRad += sign * MathF.PI * 2f;
-            float increment = sign * MathF.PI / 2f;
-
-            while (!finished)
+            var result = new List<PointF>(segments * 3 + 1);
+            for (int i = 0; i < segments; i++)
             {
-                float currentStart = startRad + completed;
-                float currentSweep = endRad - currentStart;
-                if (Math.Abs(currentSweep) > MathF.PI / 2f)
-                    currentSweep = increment;
-                else
-                {
-                    // for very small remaining section breaking without actually adding it
-                    if (currentSweep.TolerantIsZero(Constants.ZeroTolerance) && result.Count > 0)
-                        break;
-
-                    finished = true;
-                }
-
-                ArcToBezier(centerPoint, radiusX, radiusY, currentStart, currentStart + currentSweep, result);
-                completed += currentSweep;
+                float theta1 = startRad + i * segmentAngle;
+                float theta2 = theta1 + segmentAngle;
+                AppendArcSegment(centerPoint, radiusX, radiusY, theta1, theta2, rotationRad, result);
             }
 
             return result;
@@ -172,7 +147,7 @@ namespace KGySoft.Drawing.Shapes
             return FromEllipse(new PointF(bounds.X + radiusX, bounds.Y + radiusY), Math.Abs(radiusX), Math.Abs(radiusY));
         }
 
-        internal static List<PointF> GetPointsFromEllipse(PointF centerPoint, float radiusX, float radiusY)
+        internal static List<PointF> GetBezierPointsFromEllipse(PointF centerPoint, float radiusX, float radiusY)
         {
             const float c1 = 0.5522848f; // 4/3 * (sqrt(2) - 1)
             float centerX = centerPoint.X;
@@ -207,45 +182,60 @@ namespace KGySoft.Drawing.Shapes
         }
 
         internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
-            => new(GetPointsFromEllipse(centerPoint, radiusX, radiusY), false);
+            => new(GetBezierPointsFromEllipse(centerPoint, radiusX, radiusY), false);
 
         #endregion
 
         #region Private Methods
 
         // This method originates from mono/libgdiplus (MIT license): https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L736
-        // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians, using vectors if possible (TODO).
-        private static void ArcToBezier(PointF center, float radiusX, float radiusY, float startRad, float endRad, List<PointF> result)
+        // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians adjusted to ellipse coordinates, adding rotation support
+        private static void AppendArcSegment(PointF center, float radiusX, float radiusY, float startRad, float endRad, float rotationRad, List<PointF> result)
         {
-            float mid = (endRad - startRad) / 2f;
-            float controlPoint = 4f / 3f * (1f - MathF.Cos(mid)) / MathF.Sin(mid);
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static PointF MapFromEllipseSpace(float ux, float uy, float radiusX, float radiusY, float cosPhi, float sinPhi, PointF center)
+            {
+                float x = radiusX * ux;
+                float y = radiusY * uy;
+                return new PointF(cosPhi * x - sinPhi * y + center.X, sinPhi * x + cosPhi * y + center.Y);
+            }
+
+            #endregion
+
+            float sweepRad = endRad - startRad;
+
+            // The original formula returns the same, though it was more complex, and did not tolerate small sweeps well
+            // 4f / 3f * (1f - MathF.Cos(sweepRad / 2f)) / MathF.Sin(sweepRad / 2f);
+            float controlLengthFactor = (4f / 3f) * MathF.Tan(sweepRad / 4f);
 
             float sinStart = MathF.Sin(startRad);
             float sinEnd = MathF.Sin(endRad);
             float cosStart = MathF.Cos(startRad);
             float cosEnd = MathF.Cos(endRad);
 
+            // splitting just for performance reasons: if rotation is 0, we can skip some calculations
+            if (rotationRad is 0f)
+            {
+                // adding starting point only if we don't have a previous end point
+                if (result.Count == 0)
+                    result.Add(new PointF(center.X + radiusX * cosStart, center.Y + radiusY * sinStart));
+                result.Add(new PointF(center.X + radiusX * (cosStart - controlLengthFactor * sinStart), center.Y + radiusY * (sinStart + controlLengthFactor * cosStart)));
+                result.Add(new PointF(center.X + radiusX * (cosEnd + controlLengthFactor * sinEnd), center.Y + radiusY * (sinEnd - controlLengthFactor * cosEnd)));
+                result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
+                return;
+            }
+
+            float cosPhi = MathF.Cos(rotationRad);
+            float sinPhi = MathF.Sin(rotationRad);
+
             // adding starting point only if we don't have a previous end point
             if (result.Count == 0)
-            {
-                float startX = center.X + radiusX * cosStart;
-                float startY = center.Y + radiusY * sinStart;
-                result.Add(new PointF(startX, startY));
-            }
-
-            // mid was zero or near to it: repeating the start point twice
-            if (Single.IsNaN(controlPoint) || Single.IsInfinity(controlPoint))
-            {
-                result.Add(result[result.Count - 1]);
-                result.Add(result[result.Count - 1]);
-            }
-            else
-            {
-                result.Add(new PointF(center.X + radiusX * (cosStart - controlPoint * sinStart), center.Y + radiusY * (sinStart + controlPoint * cosStart)));
-                result.Add(new PointF(center.X + radiusX * (cosEnd + controlPoint * sinEnd), center.Y + radiusY * (sinEnd - controlPoint * cosEnd)));
-            }
-
-            result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
+                result.Add(MapFromEllipseSpace(cosStart, sinStart, radiusX, radiusY, cosPhi, sinPhi, center));
+            result.Add(MapFromEllipseSpace(cosStart - controlLengthFactor * sinStart, sinStart + controlLengthFactor * cosStart, radiusX, radiusY, cosPhi, sinPhi, center));
+            result.Add(MapFromEllipseSpace(cosEnd + controlLengthFactor * sinEnd, sinEnd - controlLengthFactor * cosEnd, radiusX, radiusY, cosPhi, sinPhi, center));
+            result.Add(MapFromEllipseSpace(cosEnd, sinEnd, radiusX, radiusY, cosPhi, sinPhi, center));
         }
 
         // This algorithm was inspired by the nr_curve_flatten method from the mono/libgdiplus project: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L1612

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--<TargetFrameworks>net35;net40;net45;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net6.0;net8.0;net10.0</TargetFrameworks>-->
-    <TargetFrameworks>net40;net45;netcoreapp3.0;net5.0;net6.0;net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net40;net8.0</TargetFrameworks>
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
@@ -24,6 +24,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>György Kőszeg</Authors>
     <Nullable>enable</Nullable>
+    <DefineConstants>$(DefineConstants);NOVEC</DefineConstants>
 
     <!--Suppressions
       - NETSDK1138: The target framework 'tfm' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
