@@ -85,6 +85,14 @@ namespace KGySoft.Drawing
             => MathF.Floor(value / smallestUnit + 0.5f) * smallestUnit;
 
         internal static float ToRadian(this float degree) => degree * oneDegreeInRadian;
+        // Similar to Math.Sign, but returns 0 for NaN instead of throwing
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static int Sign(this float value) => value switch
+        {
+            > 0f => 1,
+            < 0f => -1,
+            _ => 0
+        };
 
         #endregion
     }

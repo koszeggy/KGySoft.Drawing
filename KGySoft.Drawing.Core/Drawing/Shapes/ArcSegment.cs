@@ -179,7 +179,7 @@ namespace KGySoft.Drawing.Shapes
 
             startRadian = startRadian.ToRadian();
             endRadian = endRadian.ToRadian();
-            AdjustAngles(ref startRadian, ref endRadian, radiusX, radiusY);
+            ToEllipseCoordinates(ref startRadian, ref endRadian, radiusX, radiusY);
         }
 
         #endregion
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Shapes
         // Adjusts the start/end angles for the radii of an ellipse. This is how also GDI+ calculates the start/end points of arcs.
         // The formula is taken from libgdiplus: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L752
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended")]
-        internal static void AdjustAngles(ref float startRad, ref float endRad, float radiusX, float radiusY)
+        internal static void ToEllipseCoordinates(ref float startRad, ref float endRad, float radiusX, float radiusY)
         {
             if (radiusX == radiusY)
                 return;

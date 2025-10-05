@@ -750,7 +750,7 @@ namespace KGySoft.Drawing.Shapes
                 float radiusY = (height + 1) / 2f;
                 float startRad = startAngle.ToRadian();
                 float endRad = (startAngle + sweepAngle).ToRadian();
-                ArcSegment.AdjustAngles(ref startRad, ref endRad, radiusX, radiusY);
+                ArcSegment.ToEllipseCoordinates(ref startRad, ref endRad, radiusX, radiusY);
 
                 // To prevent calculating Atan2 for each pixel, we just calculate a valid start/end range once, and apply it based on the current sector attributes.
                 if (width >= height)

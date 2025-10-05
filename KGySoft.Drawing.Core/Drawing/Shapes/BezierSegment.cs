@@ -118,17 +118,18 @@ namespace KGySoft.Drawing.Shapes
 
             startRadian = startRadian.ToRadian();
             endRadian = endRadian.ToRadian();
-            ArcSegment.AdjustAngles(ref startRadian, ref endRadian, radiusX, radiusY);
-            bool? clockwise = sweepAngle switch
-            {
-                > 0f => true,
-                < 0f => false,
-                _ => null
-            };
-            return FromArc(center, radiusX, radiusY, startRadian, endRadian, clockwise);
+            ArcSegment.ToEllipseCoordinates(ref startRadian, ref endRadian, radiusX, radiusY);
+            return FromArc(center, radiusX, radiusY, startRadian, endRadian, sweepAngle.Sign());
         }
 
-        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, bool? clockwise)
+        internal static BezierSegment FromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, int sign)
+            => new(GetPointsFromArc(centerPoint, radiusX, radiusY, startRad, endRad, sign), false);
+
+        /// <summary>
+        /// NOTE: sign is needed only because allow zero and full ellipse arcs, in which cases start and end angles are the same.
+        /// Otherwise, it would be enough to ensure that endRad is always greater than startRad for a clockwise arc and vice versa.
+        /// </summary>
+        internal static List<PointF> GetPointsFromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float endRad, int sign)
         {
             Debug.Assert(!startRad.Equals(endRad) || startRad is not 0f, "The caller should have called FromEllipse");
 
@@ -138,9 +139,9 @@ namespace KGySoft.Drawing.Shapes
             float completed = 0f;
             bool finished = false;
 
-            if (clockwise != null && startRad.Equals(endRad))
-                endRad += clockwise == true ? MathF.PI * 2f : -MathF.PI * 2f;
-            float increment = clockwise == true ? MathF.PI / 2f : -(MathF.PI / 2f);
+            if (sign != 0 && startRad.Equals(endRad))
+                endRad += sign * MathF.PI * 2f;
+            float increment = sign * MathF.PI / 2f;
 
             while (!finished)
             {
@@ -161,7 +162,7 @@ namespace KGySoft.Drawing.Shapes
                 completed += currentSweep;
             }
 
-            return new BezierSegment(result, false);
+            return result;
         }
 
         internal static BezierSegment FromEllipse(RectangleF bounds)
@@ -171,7 +172,7 @@ namespace KGySoft.Drawing.Shapes
             return FromEllipse(new PointF(bounds.X + radiusX, bounds.Y + radiusY), Math.Abs(radiusX), Math.Abs(radiusY));
         }
 
-        internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
+        internal static List<PointF> GetPointsFromEllipse(PointF centerPoint, float radiusX, float radiusY)
         {
             const float c1 = 0.5522848f; // 4/3 * (sqrt(2) - 1)
             float centerX = centerPoint.X;
@@ -180,8 +181,8 @@ namespace KGySoft.Drawing.Shapes
             float ctrlPointY = c1 * radiusY;
 
             // 4 Bézier curves (1 + 3 * 4 points)
-            return new BezierSegment(new List<PointF>
-            {
+            return
+            [
                 // 1st quadrant
                 new PointF(centerX + radiusX, centerY),
                 new PointF(centerX + radiusX, centerY - ctrlPointY),
@@ -202,8 +203,11 @@ namespace KGySoft.Drawing.Shapes
                 new PointF(centerX + ctrlPointX, centerY + radiusY),
                 new PointF(centerX + radiusX, centerY + ctrlPointY),
                 new PointF(centerX + radiusX, centerY)
-            }, false);
+            ];
         }
+
+        internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
+            => new(GetPointsFromEllipse(centerPoint, radiusX, radiusY), false);
 
         #endregion
 
