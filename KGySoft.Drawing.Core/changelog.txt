@@ -66,6 +66,7 @@
     * Improved thin-line drawing performance of line segments and flattened segments.
 + Making Figure, PathSegment, LineSegment, BezierSegment and ArcSegment classes public.
 * Path class:
+  + New AddArc overload, using SVG-like (and also WPF/UWP/WinUI-like) parameters.
   + New Figures property
   + New GetCubicBezierControlPointsFromQuadraticBezier static method
   + New GetCubicBezierControlPointsFromConicCurve static method

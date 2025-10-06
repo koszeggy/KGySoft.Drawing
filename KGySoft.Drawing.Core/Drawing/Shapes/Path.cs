@@ -184,8 +184,6 @@ namespace KGySoft.Drawing.Shapes
 
         #region Static Methods
 
-        #region Public Methods
-
         /// <summary>
         /// Returns a new <see cref="Path"/> instance, whose figures are transformed by the specified <paramref name="matrix"/>.
         /// This method does not change the original <paramref name="path"/> instance. To transform the original instance, use the <see cref="TransformAdded">TransformAdded</see> method instead.
@@ -269,107 +267,6 @@ namespace KGySoft.Drawing.Shapes
                 inverseLambda * end.Y + lambda * conicControlPoint.Y);
 #endif
         }
-
-        #endregion
-
-        #region Internal Methods
-
-        internal Path AddArc(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise)
-        {
-            const float radiusToleranceBase = 5e-7f;
-
-            // SCG behavior: If the endpoints are identical, returning a single point only. In SVG applications the tolerance is actually location-dependent,
-            // is around 1e-14 near the origin, and increases with the distance. The SVG specification only says that it uses single precision
-            // floating point (https://www.w3.org/TR/SVG/implnote.html#NumericPrecisionImplementationNotes),
-            // though in practice float has higher precision than what is typically used in SVG to compare the start/end points (at least in Mozilla Firefox).
-            // Another issue is that WPF uses a lower precision (around 1e-6 near the origin), even though it uses doubles for everything.
-            // Here we use a similar tolerance as WPF, but it's not perfectly identical with WPF's behavior, and is not location-dependent (within the precision of float).
-            // The problem with it is that when the threshold is crossed, a practically complete ellipse can be drawn instead of a single point.
-           if (startPoint.TolerantEquals(endPoint, Constants.HighPrecisionTolerance))
-                return AddPoint(startPoint);
-
-            // SVG behavior: If either radius is zero, then returning a straight line segment between the endpoints.
-            // In practice, SVG uses the actual float precision with no tolerance at all (1e-45 precision), but the rendering may get corrupted even with minimal rotation.
-            // Again, WPF uses a dynamic tolerance, depending on the distance of the start/end points. Like above, we use a similar tolerance as WPF, within a range though.
-            // With no tolerance the coefficient calculation below may be too off or even NaN. But even with this tolerance the path bounds can radically explode with the rotation.
-            // For example, when the start/end points distance is 50 pixels, the tolerance is 0.000025, allowing a 50M x 50M pixel bounds with 90 degrees rotation.
-            if (radiusX.TolerantIsZero((Math.Abs(endPoint.Y - startPoint.Y) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance))
-                || radiusY.TolerantIsZero((Math.Abs(endPoint.X - startPoint.X) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance)))
-            {
-                return AddLine(startPoint, endPoint);
-            }
-
-            float rotationRad = rotationAngle.ToRadian();
-            float cosPhi = MathF.Cos(rotationRad);
-            float sinPhi = MathF.Sin(rotationRad);
-
-            // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
-            float offsetX = (startPoint.X - endPoint.X) / 2f;
-            float offsetY = (startPoint.Y - endPoint.Y) / 2f;
-            float rotatedX = cosPhi * offsetX + sinPhi * offsetY;
-            float rotatedY = -sinPhi * offsetX + cosPhi * offsetY;
-
-            // Adjusting radii if necessary
-            float rotatedXSquared = rotatedX * rotatedX;
-            float rotatedYSquared = rotatedY * rotatedY;
-            float lambda = rotatedXSquared / (radiusX * radiusX) + rotatedYSquared / (radiusY * radiusY);
-            if (lambda > 1f)
-            {
-                float scale = MathF.Sqrt(lambda);
-                radiusX *= scale;
-                radiusY *= scale;
-            }
-
-            float radiusXSquared = radiusX * radiusX; // with the possibly adjusted radii
-            float radiusYSquared = radiusY * radiusY;
-
-            // Calculating center
-            float sign = isLargeArc != isClockwise ? 1 : -1;
-            float numerator = Math.Max(0f, radiusXSquared * radiusYSquared - radiusXSquared * rotatedYSquared - radiusYSquared * rotatedXSquared);
-            float denominator = radiusXSquared * rotatedYSquared + radiusYSquared * rotatedXSquared;
-            float coefficient = sign * MathF.Sqrt(numerator / denominator);
-            float centerRotatedX = coefficient * radiusX * rotatedY / radiusY;
-            float centerRotatedY = coefficient * -radiusY * rotatedX / radiusX;
-            float midX = (startPoint.X + endPoint.X) / 2f;
-            float midY = (startPoint.Y + endPoint.Y) / 2f;
-            float centerX = cosPhi * centerRotatedX - sinPhi * centerRotatedY + midX;
-            float centerY = sinPhi * centerRotatedX + cosPhi * centerRotatedY + midY;
-
-            // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
-            float startVectorX = (rotatedX - centerRotatedX) / radiusX;
-            float startVectorY = (rotatedY - centerRotatedY) / radiusY;
-            float endVectorX = (-rotatedX - centerRotatedX) / radiusX;
-            float endVectorY = (-rotatedY - centerRotatedY) / radiusY;
-
-            float startRad = MathF.Atan2(startVectorY, startVectorX);
-            float sweepRad = MathF.Atan2(endVectorY, endVectorX) - startRad;
-
-            // Ensuring that we get the correct arc (large vs small). Can be imprecise if the arc is very close to 180 degrees, which is adjusted below.
-            if (isLargeArc != Math.Abs(sweepRad) >= MathF.PI)
-            {
-                if (sweepRad > 0)
-                    sweepRad -= 2f * MathF.PI;
-                else
-                    sweepRad += 2f * MathF.PI;
-            }
-
-            // Fixing the possibly wrong direction of an exactly 180 degrees arc.
-            if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI, Constants.HighPrecisionTolerance))
-                sweepRad = -sweepRad;
-
-            // If there is no rotation we prefer using ArcSegment, because it can be used to produce a more symmetric result when using thin lines with Bresenham-based algorithms.
-            if (rotationAngle == 0f)
-            {
-                AddSegment(new ArcSegment(new PointF(centerX, centerY), radiusX, radiusY, startRad, startRad + sweepRad));
-                return this;
-            }
-
-            // Otherwise, we convert the arc to cubic Bézier segments.
-            AppendBeziers(BezierSegment.GetBezierPointsFromArc(new PointF(centerX, centerY), radiusX, radiusY, startRad, sweepRad, rotationRad), false);
-            return this;
-        }
-
-        #endregion
 
         #endregion
 
@@ -715,7 +612,7 @@ namespace KGySoft.Drawing.Shapes
         }
 
         /// <summary>
-        /// Adds an elliptical arc to this <see cref="Path"/>.
+        /// Adds an elliptical arc within a bounding rectangle to this <see cref="Path"/>.
         /// </summary>
         /// <param name="x">The x-coordinate of the upper-left corner of the bounding rectangle that defines the ellipse from which the arc is drawn.</param>
         /// <param name="y">The y-coordinate of the upper-left corner of the bounding rectangle that defines the ellipse from which the arc is drawn.</param>
@@ -736,7 +633,7 @@ namespace KGySoft.Drawing.Shapes
             => AddArc(new RectangleF(x, y, width, height), startAngle, sweepAngle);
 
         /// <summary>
-        /// Adds an elliptical arc to this <see cref="Path"/>.
+        /// Adds an elliptical arc within a bounding rectangle to this <see cref="Path"/>.
         /// </summary>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the arc is drawn.</param>
         /// <param name="startAngle">The starting angle of the arc, measured in degrees clockwise from the x-axis.</param>
@@ -753,6 +650,150 @@ namespace KGySoft.Drawing.Shapes
         public Path AddArc(RectangleF bounds, float startAngle, float sweepAngle)
         {
             AddSegment(new ArcSegment(bounds, startAngle, sweepAngle));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds and elliptical arc between two points to this <see cref="Path"/>.
+        /// </summary>
+        /// <param name="startX">The x-coordinate of the starting point of the arc to add.</param>
+        /// <param name="startY">The y-coordinate of the starting point of the arc to add.</param>
+        /// <param name="endX">The x-coordinate of the end point of the arc to add.</param>
+        /// <param name="endY">The y-coordinate of the end point of the arc to add.</param>
+        /// <param name="radiusX">The radius along the x-axis of the ellipse from which the arc is drawn.</param>
+        /// <param name="radiusY">The radius along the y-axis of the ellipse from which the arc is drawn.</param>
+        /// <param name="rotationAngle">The angle, in degrees, by which the ellipse is rotated relative to the x-axis.</param>
+        /// <param name="isLargeArc"><see langword="true"/> if the arc span is 180 degrees or greater; otherwise, <see langword="false"/>.</param>
+        /// <param name="isClockwise"><see langword="true"/> if the arc is drawn in a clockwise direction; otherwise, <see langword="false"/>.</param>
+        /// <returns>This <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>If the current figure is not empty or closed, the first point of the added arc will be connected to the last point of the figure.</para>
+        /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
+        /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
+        /// <para>Though some edge cases are handled, the parameters are not completely validated here, but in the moment of drawing
+        /// the coordinates of the possibly transformed path points must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
+        /// <note>According to the SVG specification, if the start and end points are identical, a single point is added to the path.
+        /// Similarly, if either radius is zero, a straight line segment is added between the start and end points. Please note though,
+        /// that the tolerances may vary between different SVG applications, such as browsers, and also between WPF and other XAML-based frameworks.</note>
+        /// </remarks>
+        public Path AddArc(float startX, float startY, float endX, float endY, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise)
+            => AddArc(new PointF(startX, startY), new PointF(endX, endY), radiusX, radiusY, rotationAngle, isLargeArc, isClockwise);
+
+        /// <summary>
+        /// Adds and elliptical arc between two points to this <see cref="Path"/>.
+        /// </summary>
+        /// <param name="startPoint">The starting point of the arc to add.</param>
+        /// <param name="endPoint">The end point of the arc to add.</param>
+        /// <param name="radiusX">The radius along the x-axis of the ellipse from which the arc is drawn.</param>
+        /// <param name="radiusY">The radius along the y-axis of the ellipse from which the arc is drawn.</param>
+        /// <param name="rotationAngle">The angle, in degrees, by which the ellipse is rotated relative to the x-axis.</param>
+        /// <param name="isLargeArc"><see langword="true"/> if the arc span is 180 degrees or greater; otherwise, <see langword="false"/>.</param>
+        /// <param name="isClockwise"><see langword="true"/> if the arc is drawn in a clockwise direction; otherwise, <see langword="false"/>.</param>
+        /// <returns>This <see cref="Path"/> instance.</returns>
+        /// <remarks>
+        /// <para>If the current figure is not empty or closed, the first point of the added arc will be connected to the last point of the figure.</para>
+        /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
+        /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
+        /// <para>Though some edge cases are handled, the parameters are not completely validated here, but in the moment of drawing
+        /// the coordinates of the possibly transformed path points must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
+        /// <note>According to the SVG specification, if the start and end points are identical, a single point is added to the path.
+        /// Similarly, if either radius is zero, a straight line segment is added between the start and end points. Please note though,
+        /// that the tolerances may vary between different SVG applications, such as browsers, and also between WPF and other XAML-based frameworks.</note>
+        /// </remarks>
+        public Path AddArc(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise)
+        {
+            const float radiusToleranceBase = 5e-7f;
+
+            // SVG behavior: If the endpoints are identical, returning a single point only. In SVG applications the tolerance is actually location-dependent,
+            // is around 1e-14 near the origin, and increases with the distance. The SVG specification only says that it uses single precision
+            // floating point (https://www.w3.org/TR/SVG/implnote.html#NumericPrecisionImplementationNotes),
+            // though in practice float has higher precision than what is typically used in SVG to compare the start/end points (at least in Mozilla Firefox).
+            // Another issue is that WPF uses a lower precision (around 1e-6 near the origin), even though it uses doubles for everything.
+            // Here we use a similar tolerance as WPF, but it's not perfectly identical with WPF's behavior, and is not location-dependent (within the precision of float).
+            // The problem with it is that when the threshold is crossed, a practically complete ellipse can be drawn instead of a single point.
+            if (startPoint.TolerantEquals(endPoint, Constants.HighPrecisionTolerance))
+                return AddPoint(startPoint);
+
+            // SVG behavior: If either radius is zero, then returning a straight line segment between the endpoints.
+            // In practice, SVG uses the actual float precision with no tolerance at all (1e-45 precision), but the rendering may get corrupted even with minimal rotation.
+            // Again, WPF uses a dynamic tolerance, depending on the distance of the start/end points. Like above, we use a similar tolerance as WPF, within a range though.
+            // With no tolerance the coefficient calculation below may be too off or even NaN. But even with this tolerance the path bounds can radically explode with the rotation.
+            // For example, when the start/end points distance is 50 pixels, the tolerance is 0.000025, allowing a 50M x 50M pixel bounds with 90 degrees rotation.
+            if (radiusX.TolerantIsZero((Math.Abs(endPoint.Y - startPoint.Y) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance))
+                || radiusY.TolerantIsZero((Math.Abs(endPoint.X - startPoint.X) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance)))
+            {
+                return AddLine(startPoint, endPoint);
+            }
+
+            radiusX = Math.Abs(radiusX);
+            radiusY = Math.Abs(radiusY);
+            float rotationRad = rotationAngle.ToRadian();
+            float cosPhi = MathF.Cos(rotationRad);
+            float sinPhi = MathF.Sin(rotationRad);
+
+            // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
+            float offsetX = (startPoint.X - endPoint.X) / 2f;
+            float offsetY = (startPoint.Y - endPoint.Y) / 2f;
+            float rotatedX = cosPhi * offsetX + sinPhi * offsetY;
+            float rotatedY = -sinPhi * offsetX + cosPhi * offsetY;
+
+            // Adjusting radii if necessary
+            float rotatedXSquared = rotatedX * rotatedX;
+            float rotatedYSquared = rotatedY * rotatedY;
+            float lambda = rotatedXSquared / (radiusX * radiusX) + rotatedYSquared / (radiusY * radiusY);
+            if (lambda > 1f)
+            {
+                float scale = MathF.Sqrt(lambda);
+                radiusX *= scale;
+                radiusY *= scale;
+            }
+
+            float radiusXSquared = radiusX * radiusX; // with the possibly adjusted radii
+            float radiusYSquared = radiusY * radiusY;
+
+            // Calculating center
+            float sign = isLargeArc != isClockwise ? 1 : -1;
+            float numerator = Math.Max(0f, radiusXSquared * radiusYSquared - radiusXSquared * rotatedYSquared - radiusYSquared * rotatedXSquared);
+            float denominator = radiusXSquared * rotatedYSquared + radiusYSquared * rotatedXSquared;
+            float coefficient = sign * MathF.Sqrt(numerator / denominator);
+            float centerRotatedX = coefficient * radiusX * rotatedY / radiusY;
+            float centerRotatedY = coefficient * -radiusY * rotatedX / radiusX;
+            float midX = (startPoint.X + endPoint.X) / 2f;
+            float midY = (startPoint.Y + endPoint.Y) / 2f;
+            float centerX = cosPhi * centerRotatedX - sinPhi * centerRotatedY + midX;
+            float centerY = sinPhi * centerRotatedX + cosPhi * centerRotatedY + midY;
+
+            // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
+            float startVectorX = (rotatedX - centerRotatedX) / radiusX;
+            float startVectorY = (rotatedY - centerRotatedY) / radiusY;
+            float endVectorX = (-rotatedX - centerRotatedX) / radiusX;
+            float endVectorY = (-rotatedY - centerRotatedY) / radiusY;
+
+            float startRad = MathF.Atan2(startVectorY, startVectorX);
+            float sweepRad = MathF.Atan2(endVectorY, endVectorX) - startRad;
+
+            // Ensuring that we get the correct arc (large vs small). Can be imprecise if the arc is very close to 180 degrees, which is adjusted below.
+            if (isLargeArc != Math.Abs(sweepRad) >= MathF.PI)
+            {
+                if (sweepRad > 0)
+                    sweepRad -= 2f * MathF.PI;
+                else
+                    sweepRad += 2f * MathF.PI;
+            }
+
+            // Fixing the possibly wrong direction of an exactly 180 degrees arc.
+            if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI, Constants.HighPrecisionTolerance))
+                sweepRad = -sweepRad;
+
+            // If there is no rotation we prefer using ArcSegment, because it can be used to produce a more symmetric result when using thin lines with Bresenham-based algorithms.
+            if (rotationAngle == 0f)
+            {
+                AddSegment(new ArcSegment(new PointF(centerX, centerY), radiusX, radiusY, startRad, startRad + sweepRad));
+                return this;
+            }
+
+            // Otherwise, we convert the arc to cubic Bézier segments.
+            AppendBeziers(BezierSegment.GetBezierPointsFromArc(new PointF(centerX, centerY), radiusX, radiusY, startRad, sweepRad, rotationRad), false);
             return this;
         }
 
