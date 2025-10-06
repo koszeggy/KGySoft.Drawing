@@ -60,13 +60,13 @@ namespace KGySoft.Drawing.Imaging
             if (BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased)
             {
                 // Using the self-allocating constructor that allows array pooling.
-                underlyingBuffer = new ArraySection<T>(cfg.Size.Height * byteWidth);
+                underlyingBuffer = new ArraySection<T>(checked(cfg.Size.Height * byteWidth));
                 ownsBuffer = true;
             }
             else
             {
                 // Passing an array to the underlying buffer to avoid array pooling. Based on the Assert above, this should not occur.
-                underlyingBuffer = new T[cfg.Size.Height * byteWidth];
+                underlyingBuffer = new T[checked(cfg.Size.Height * byteWidth)];
             }
 
             Buffer = new CastArray2D<T, TPixel>(underlyingBuffer, cfg.Size.Height, cfg.Size.Width);

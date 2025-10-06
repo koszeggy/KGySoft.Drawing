@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
             else
             {
                 // Passing an array to the buffer to avoid array pooling.
-                Buffer = new Array2D<T>(new T[cfg.Size.Height * bufferWidth], cfg.Size.Height, bufferWidth);
+                Buffer = new Array2D<T>(new T[checked(cfg.Size.Height * bufferWidth)], cfg.Size.Height, bufferWidth);
             }
 
             RowSize = Buffer.Width * sizeof(T);
