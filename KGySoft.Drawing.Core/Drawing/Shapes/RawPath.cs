@@ -310,7 +310,7 @@ namespace KGySoft.Drawing.Shapes
                             float distX = endPoint.X - startPoint.X;
                             float distY = endPoint.Y - startPoint.Y;
                             float length = MathF.Sqrt(distX * distX + distY * distY);
-                            if (penOptions.Width >= length && !length.TolerantIsZero(Constants.EqualityTolerance))
+                            if (penOptions.Width >= length && !length.TolerantIsZero(Constants.PointEqualityTolerance))
                             {
                                 float halfSweepRad = MathF.Asin(length / penOptions.Width);
                                 float startRad = MathF.Atan2(distY, distX) - halfSweepRad - MathF.PI / 2f;

@@ -111,9 +111,7 @@ namespace KGySoft.Drawing.Shapes
             ArcSegment.NormalizeAngle(ref startAngle);
             if (Math.Abs(sweepAngle) >= 360f)
                 sweepAngle = 360f;
-            (float startRadian, float endRadian) = sweepAngle is 360f
-                ? (startAngle, startAngle)
-                : (startAngle, startAngle + sweepAngle);
+            (float startRadian, float endRadian) = (startAngle, startAngle + sweepAngle);
 
             startRadian = startRadian.ToRadian();
             endRadian = endRadian.ToRadian();
@@ -126,17 +124,19 @@ namespace KGySoft.Drawing.Shapes
 
         internal static List<PointF> GetBezierPointsFromArc(PointF centerPoint, float radiusX, float radiusY, float startRad, float sweepRad, float rotationRad = 0f)
         {
-            int segments = (int)Math.Ceiling(Math.Abs(sweepRad) / (Math.PI / 2));
+            int segments = ((int)MathF.Ceiling(Math.Abs(sweepRad) / (MathF.PI / 2f))).Clip(1, 4);
             float segmentAngle = sweepRad / segments;
 
             var result = new List<PointF>(segments * 3 + 1);
+            segments = Math.Max(1, segments); // just in case of very small sweeps
             for (int i = 0; i < segments; i++)
             {
-                float theta1 = startRad + i * segmentAngle;
-                float theta2 = theta1 + segmentAngle;
-                AppendArcSegment(centerPoint, radiusX, radiusY, theta1, theta2, rotationRad, result);
+                float segmentStart = startRad + i * segmentAngle;
+                float segmentEnd = segmentStart + segmentAngle;
+                AppendArcSegment(centerPoint, radiusX, radiusY, segmentStart, segmentEnd, rotationRad, result);
             }
 
+            Debug.Assert((result.Count - 1) % 3 == 0);
             return result;
         }
 
@@ -220,7 +220,12 @@ namespace KGySoft.Drawing.Shapes
             {
                 // adding starting point only if we don't have a previous end point
                 if (result.Count == 0)
+                {
                     result.Add(new PointF(center.X + radiusX * cosStart, center.Y + radiusY * sinStart));
+                    if (startRad.Equals(endRad))
+                        return;
+                }
+
                 result.Add(new PointF(center.X + radiusX * (cosStart - controlLengthFactor * sinStart), center.Y + radiusY * (sinStart + controlLengthFactor * cosStart)));
                 result.Add(new PointF(center.X + radiusX * (cosEnd + controlLengthFactor * sinEnd), center.Y + radiusY * (sinEnd - controlLengthFactor * cosEnd)));
                 result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
@@ -232,7 +237,12 @@ namespace KGySoft.Drawing.Shapes
 
             // adding starting point only if we don't have a previous end point
             if (result.Count == 0)
+            {
                 result.Add(MapFromEllipseSpace(cosStart, sinStart, radiusX, radiusY, cosPhi, sinPhi, center));
+                if (startRad.Equals(endRad))
+                    return;
+            }
+
             result.Add(MapFromEllipseSpace(cosStart - controlLengthFactor * sinStart, sinStart + controlLengthFactor * cosStart, radiusX, radiusY, cosPhi, sinPhi, center));
             result.Add(MapFromEllipseSpace(cosEnd + controlLengthFactor * sinEnd, sinEnd - controlLengthFactor * cosEnd, radiusX, radiusY, cosPhi, sinPhi, center));
             result.Add(MapFromEllipseSpace(cosEnd, sinEnd, radiusX, radiusY, cosPhi, sinPhi, center));

@@ -276,13 +276,28 @@ namespace KGySoft.Drawing.Shapes
 
         internal Path AddArc(PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise)
         {
-            // SVG behavior: If the endpoints are identical, returning a single point only
-            if (startPoint.TolerantEquals(endPoint, Constants.ZeroTolerance)) // yes, not using the default equality tolerance for points of 1/64
+            const float radiusToleranceBase = 5e-7f;
+
+            // SCG behavior: If the endpoints are identical, returning a single point only. In SVG applications the tolerance is actually location-dependent,
+            // is around 1e-14 near the origin, and increases with the distance. The SVG specification only says that it uses single precision
+            // floating point (https://www.w3.org/TR/SVG/implnote.html#NumericPrecisionImplementationNotes),
+            // though in practice float has higher precision than what is typically used in SVG to compare the start/end points (at least in Mozilla Firefox).
+            // Another issue is that WPF uses a lower precision (around 1e-6 near the origin), even though it uses doubles for everything.
+            // Here we use a similar tolerance as WPF, but it's not perfectly identical with WPF's behavior, and is not location-dependent (within the precision of float).
+            // The problem with it is that when the threshold is crossed, a practically complete ellipse can be drawn instead of a single point.
+           if (startPoint.TolerantEquals(endPoint, Constants.HighPrecisionTolerance))
                 return AddPoint(startPoint);
 
-            // SVG behavior: If either radius is zero, returning a line segment
-            if (radiusX.TolerantIsZero(Constants.ZeroTolerance) || radiusY.TolerantIsZero(Constants.ZeroTolerance))
+            // SVG behavior: If either radius is zero, then returning a straight line segment between the endpoints.
+            // In practice, SVG uses the actual float precision with no tolerance at all (1e-45 precision), but the rendering may get corrupted even with minimal rotation.
+            // Again, WPF uses a dynamic tolerance, depending on the distance of the start/end points. Like above, we use a similar tolerance as WPF, within a range though.
+            // With no tolerance the coefficient calculation below may be too off or even NaN. But even with this tolerance the path bounds can radically explode with the rotation.
+            // For example, when the start/end points distance is 50 pixels, the tolerance is 0.000025, allowing a 50M x 50M pixel bounds with 90 degrees rotation.
+            if (radiusX.TolerantIsZero((Math.Abs(endPoint.Y - startPoint.Y) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance))
+                || radiusY.TolerantIsZero((Math.Abs(endPoint.X - startPoint.X) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance)))
+            {
                 return AddLine(startPoint, endPoint);
+            }
 
             float rotationRad = rotationAngle.ToRadian();
             float cosPhi = MathF.Cos(rotationRad);
@@ -339,7 +354,7 @@ namespace KGySoft.Drawing.Shapes
             }
 
             // Fixing the possibly wrong direction of an exactly 180 degrees arc.
-            if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI))
+            if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI, Constants.HighPrecisionTolerance))
                 sweepRad = -sweepRad;
 
             // If there is no rotation we prefer using ArcSegment, because it can be used to produce a more symmetric result when using thin lines with Bresenham-based algorithms.

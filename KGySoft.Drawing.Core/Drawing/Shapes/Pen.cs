@@ -229,7 +229,7 @@ namespace KGySoft.Drawing.Shapes
 
         internal bool DrawPath(IAsyncContext context, IReadWriteBitmapData bitmapData, Path path, DrawingOptions drawingOptions)
         {
-            if (Width <= Constants.EqualityTolerance)
+            if (Width <= Constants.PointEqualityTolerance)
                 return !context.IsCancellationRequested;
 
             // special handling for thin paths: not generating a new path but drawing the raw lines of rawPath

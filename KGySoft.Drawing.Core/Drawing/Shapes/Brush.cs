@@ -2856,7 +2856,7 @@ namespace KGySoft.Drawing.Shapes
                 throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
             if (endPoint.HasNaNOrInfinity())
                 throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
-            if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
+            if (startPoint.TolerantEquals(endPoint, Constants.PointEqualityTolerance))
                 throw new ArgumentException(Res.ShapesStartEndTooClose);
             if (!workingColorSpace.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
@@ -2896,7 +2896,7 @@ namespace KGySoft.Drawing.Shapes
                 throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
             if (endPoint.HasNaNOrInfinity())
                 throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
-            if (startPoint.TolerantEquals(endPoint, Constants.EqualityTolerance))
+            if (startPoint.TolerantEquals(endPoint, Constants.PointEqualityTolerance))
                 throw new ArgumentException(Res.ShapesStartEndTooClose);
             if (!workingColorSpace.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));

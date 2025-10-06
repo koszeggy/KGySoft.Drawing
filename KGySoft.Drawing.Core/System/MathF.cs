@@ -27,6 +27,7 @@ namespace System
         internal static float Asin(float x) => (float)Math.Asin(x);
         internal static float IEEERemainder(float x, float y) => (float)Math.IEEERemainder(x, y);
         internal static float Tan(float a) => (float)Math.Tan(a);
+        internal static float Ceiling(float a) => (float)Math.Ceiling(a);
 
         #endregion
 

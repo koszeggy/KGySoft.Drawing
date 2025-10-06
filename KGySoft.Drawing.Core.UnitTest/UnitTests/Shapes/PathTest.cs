@@ -209,6 +209,23 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             ["Arc270_180Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 270, 180), 1f],
             ["Arc0_45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, 45), 1f],
             ["Arc0-45Deg01", new Path().AddArc(new RectangleF(1, 1, 98, 48), 0, -45), 1f],
+            ["SVG Arc same start-end points", new Path().AddArc(new(50, 50), new(50, 50), 50f, 25f, 0f, true, true), 1f],
+            ["SVG Arc almost same start-end points", new Path().AddArc(new(50, 50), new(50.00001f, 50), 50f, 25f, 0f, true, true), 1f],
+            ["SVG Arc almost same start-end points rotated", new Path().AddArc(new(50, 50), new(50.00001f, 50), 50f, 25f, 45f, true, true), 1f],
+            ["SVG Arc zero Y", new Path().AddArc(new(50, 50), new(100, 50), 50f, 0f, 0f, true, true), 1f],
+            ["SVG Arc zero Y rotated", new Path().AddArc(new(50, 50), new(100, 50), 50f, 0f, 45f, true, true), 1f],
+            ["SVG Arc almost zero Y", new Path().AddArc(new(50, 50), new(100, 50), 50f, 1e-6f, 0f, true, true), 1f],
+            ["SVG Arc almost zero Y rotated", new Path().AddArc(new(50, 50), new(100, 50), 50f, 1e-6f, 45f, true, true), 1f],
+            ["SVG Arc small Y", new Path().AddArc(new(50, 50), new(100, 50), 50f, 2.5000001e-5f, 0f, true, true), 1f],
+            ["SVG Arc small Y rotated", new Path().AddArc(new(50, 100), new(100, 100), 50f, 2.5000001e-5f, 45f, true, true), 1f],
+            ["SVG Arc zero X", new Path().AddArc(new(50, 50), new(50, 60), 0f, 25f, 0f, true, true), 1f],
+            ["SVG Arc zero X rotated", new Path().AddArc(new(50, 50), new(50, 60), 0f, 25f, 45f, true, true), 1f],
+            ["SVG Arc almost zero X", new Path().AddArc(new(50, 50), new(50, 60), 1e-6f, 25f, 0f, true, true), 1f],
+            ["SVG Arc almost zero X rotated", new Path().AddArc(new(50, 50), new(50, 60), 1e-6f, 25f, 45f, true, true), 1f],
+            ["SVG Arc small X", new Path().AddArc(new(50, 50), new(50, 60), 5.000001e-6f, 25f, 0f, true, true), 1f],
+            ["SVG Arc small X rotated", new Path().AddArc(new(50, 50), new(50, 60), 5.000001e-6f, 25f, 45f, true, true), 1f],
+            ["SVG Arc normal", new Path().AddArc(new(50, 100), new(100, 100), 50, 25, 0, true, true), 1f],
+            ["SVG Arc Rotated normal", new Path().AddArc(new(50, 100), new(100, 100), 50, 25, 45, true, true), 1f],
         ];
 
         private static object?[][] DrawClosedPathTestSource =>
@@ -462,6 +479,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                 + new Size(path.Bounds.Location)
                 + new Size(Math.Abs(path.Bounds.X), Math.Abs(path.Bounds.Y))
                 + Size.Ceiling(new SizeF(width, width));
+            size = new Size(Math.Min(size.Width, 1000), Math.Min(size.Height, 1000));
 
             if (width > 1f)
                 path = Path.Transform(path, TransformationMatrix.CreateTranslation((float)Math.Floor(width / 2f), (float)Math.Floor(width / 2f)));
@@ -479,8 +497,15 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                         continue;
                     bitmapData.Clear(Color.Cyan);
 
-                    var drawingOptions = new DrawingOptions { AntiAliasing = antiAliasing, FastThinLines = fastThinLines, DrawPathPixelOffset = ((int)Math.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None };
+                    var drawingOptions = new DrawingOptions
+                    {
+                        AntiAliasing = antiAliasing,
+                        FastThinLines = fastThinLines,
+                        DrawPathPixelOffset = ((int)Math.Ceiling(width) & 1) == 1 ? PixelOffset.Half : PixelOffset.None,
+                        //Transformation = TransformationMatrix.CreateTranslation(-path.Bounds.Left + 1, -path.Bounds.Top + 1)
+                    };
                     var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
+                    //bitmapData.FillPath(Color.Yellow, path, drawingOptions);
                     bitmapData.DrawPath(context, pen, path, drawingOptions);
                     SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width:F2}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
                 }

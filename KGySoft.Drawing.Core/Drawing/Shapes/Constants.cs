@@ -19,8 +19,9 @@ namespace KGySoft.Drawing.Shapes
     {
         #region Constants
 
-        internal const float EqualityTolerance = 1f / 64f;
-        internal const float ZeroTolerance = 1e-4f;
+        internal const float PointEqualityTolerance = 1f / 64f;
+        internal const float NormalEqualityTolerance = 1e-4f;
+        internal const float HighPrecisionTolerance = 1e-6f;
 
         #endregion
     }

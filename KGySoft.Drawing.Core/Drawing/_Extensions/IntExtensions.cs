@@ -34,6 +34,12 @@ namespace KGySoft.Drawing
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static int Clip(this int value, int min, int max)
+            => value < min ? min
+                : value > max ? max
+                : value;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte ClipToByte(this int value)
             => value < Byte.MinValue ? Byte.MinValue
                 : value > Byte.MaxValue ? Byte.MaxValue

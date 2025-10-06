@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Shapes
             Debug.Assert(!offset || isClosed, "Ofsetting is expected for closed figures only");
 
             // removing points too close to each other and the ones lying on the same line
-            int maxPoints = points.Count + (points.Count > 2 && !points[0].TolerantEquals(points[points.Count - 1], Constants.EqualityTolerance) ? 1 : 0);
+            int maxPoints = points.Count + (points.Count > 2 && !points[0].TolerantEquals(points[points.Count - 1], Constants.PointEqualityTolerance) ? 1 : 0);
             var result = closedVerticesBuffer = new PointF[maxPoints];
             int resultCount = 0;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
@@ -153,7 +153,7 @@ namespace KGySoft.Drawing.Shapes
                         VertexCount = closedVerticesCount = 1;
                         return;
                     }
-                } while (points[0].TolerantEquals(points[prev], Constants.EqualityTolerance));
+                } while (points[0].TolerantEquals(points[prev], Constants.PointEqualityTolerance));
 
                 count = prev + 1;
                 PointF lastPoint = points[0];
@@ -162,7 +162,7 @@ namespace KGySoft.Drawing.Shapes
                 for (int i = 1; i < count; i++)
                 {
                     // Skipping points that are too close to the previous one
-                    if (points[i].TolerantEquals(lastPoint, Constants.EqualityTolerance))
+                    if (points[i].TolerantEquals(lastPoint, Constants.PointEqualityTolerance))
                         continue;
 
                     int next = i + 1;
@@ -207,14 +207,14 @@ namespace KGySoft.Drawing.Shapes
                 else
                 {
                     // Auto closing (points only, not the IsClosed flag) if not already closed and has at least 3 points.
-                    if (!result[0].TolerantEquals(result[resultCount - 1], Constants.EqualityTolerance))
+                    if (!result[0].TolerantEquals(result[resultCount - 1], Constants.PointEqualityTolerance))
                         AddPoint(result, result[0], ref resultCount);
                     else
                         openVertices = CreateVerticesCollection(result, resultCount);
 
                     // If original points are practically closed but the figure is officially open, then
                     // treating the closing point as the part of the open figure. It makes a difference when drawing thick lines.
-                    if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], Constants.EqualityTolerance))
+                    if (!isClosed && points[0].TolerantEquals(points[points.Count - 1], Constants.PointEqualityTolerance))
                         openVertices ??= CreateVerticesCollection(result, resultCount);
                 }
 
@@ -242,15 +242,15 @@ namespace KGySoft.Drawing.Shapes
                 checked
                 {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                    int left = (int)min.X.TolerantFloor(Constants.EqualityTolerance);
-                    int top = (int)min.Y.TolerantFloor(Constants.EqualityTolerance);
-                    int right = (int)max.X.TolerantCeiling(Constants.EqualityTolerance);
-                    int bottom = (int)max.Y.TolerantCeiling(Constants.EqualityTolerance);
+                    int left = (int)min.X.TolerantFloor(Constants.PointEqualityTolerance);
+                    int top = (int)min.Y.TolerantFloor(Constants.PointEqualityTolerance);
+                    int right = (int)max.X.TolerantCeiling(Constants.PointEqualityTolerance);
+                    int bottom = (int)max.Y.TolerantCeiling(Constants.PointEqualityTolerance);
 #else
-                    int left = (int)minX.TolerantFloor(Constants.EqualityTolerance);
-                    int top = (int)minY.TolerantFloor(Constants.EqualityTolerance);
-                    int right = (int)maxX.TolerantCeiling(Constants.EqualityTolerance);
-                    int bottom = (int)maxY.TolerantCeiling(Constants.EqualityTolerance);
+                    int left = (int)minX.TolerantFloor(Constants.PointEqualityTolerance);
+                    int top = (int)minY.TolerantFloor(Constants.PointEqualityTolerance);
+                    int right = (int)maxX.TolerantCeiling(Constants.PointEqualityTolerance);
+                    int bottom = (int)maxY.TolerantCeiling(Constants.PointEqualityTolerance);
 #endif
 
                     // Not using Rectangle.FromLTRB because it allows overflow.
