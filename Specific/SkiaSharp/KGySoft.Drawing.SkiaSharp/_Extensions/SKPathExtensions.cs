@@ -86,20 +86,14 @@ namespace KGySoft.Drawing.SkiaSharp
                         break;
 
                     case SKPathVerb.Quad:
-                        PointF startPoint = buf[0].AsPointF();
-                        PointF endPoint = buf[2].AsPointF();
-                        Path.GetCubicBezierControlPointsFromQuadraticBezier(startPoint, buf[1].AsPointF(), endPoint, out PointF cp1, out PointF cp2);
-                        result.AddBezier(startPoint, cp1, cp2, endPoint);
+                        result.AddQuadraticCurve(buf[0].AsPointF(), buf[1].AsPointF(), buf[2].AsPointF());
                         lastPointAdded = true;
                         break;
 
                     case SKPathVerb.Conic:
                         // Though SKPath has a ConvertConicToQuads, there is no need to approximate the curve by quadratic Béziers, because a single cubic Bézier curve always can represent a conic curve.
-                        // The problem is that SkiaSharp has no API to convert a conic curve to a cubic Bézier. In the end I added a helper method to Path.
-                        startPoint = buf[0].AsPointF();
-                        endPoint = buf[2].AsPointF();
-                        Path.GetCubicBezierControlPointsFromConicCurve(startPoint, buf[1].AsPointF(), endPoint, iterator.ConicWeight(), out cp1, out cp2);
-                        result.AddBezier(startPoint, cp1, cp2, endPoint);
+                        // The problem is that SkiaSharp has no API to convert a conic curve to a cubic Bézier. In the end I added conic curve support to Path.
+                        result.AddConicCurve(buf[0].AsPointF(), buf[1].AsPointF(), buf[2].AsPointF(), iterator.ConicWeight());
                         lastPointAdded = true;
                         break;
 
@@ -201,8 +195,8 @@ namespace KGySoft.Drawing.SkiaSharp
                             float radiusY = arcSegment.RadiusY;
 
                             // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
-                            // (SkiaSharp actually handles flat ellipses, but if it consists of a single point, that is not rendered)
-                            if (radiusX <= 0.5f || radiusY <= 0.5f || arcSegment.SweepAngle.TolerantIsZero(1e-4f))
+                            // (SkiaSharp actually handles flat ellipses, but if it consists of a single point, then it is not rendered)
+                            if (radiusX <= 0.5f || radiusY <= 0.5f || arcSegment.SweepAngle.TolerantIsZero(Constants.NormalEqualityTolerance))
                             {
                                 points = arcSegment.GetFlattenedPoints();
                                 if (points.Count == 1 && segments.Count == 1)
@@ -213,24 +207,22 @@ namespace KGySoft.Drawing.SkiaSharp
                             }
 
                             // Special case 2: full ellipse - only if standalone figure, or start point is at zero angle. We could use MoveTo to move to the actual end point,
-                            // but it works only for drawing, whereas filling with EvenOdd rule would not differently than without jumping by MoveTo.
+                            // but it works only for drawing, whereas filling with EvenOdd rule would be rendered differently than without jumping by MoveTo.
                             if (arcSegment.SweepAngle is 360f && (segments.Count == 1 || arcSegment.StartAngle is 0f))
                             {
-                                //if (!isStartPointAdded)
-                                //    result.LineTo(startPoint.X, startPoint.Y);
                                 result.AddOval(new SKRect(bounds.X, bounds.Y, bounds.Right, bounds.Bottom));
                                 continue;
                             }
 
                             // Special case 3: circular, non-complete arc
-                            if (radiusX.Equals(radiusY) && !arcSegment.SweepAngle.TolerantEquals(360f))
+                            if (radiusX.Equals(radiusY) && !arcSegment.SweepAngle.TolerantEquals(360f, Constants.HighPrecisionTolerance))
                             {
                                 result.ArcTo(new SKRect(bounds.X, bounds.Y, bounds.Right, bounds.Bottom), arcSegment.StartAngle, arcSegment.SweepAngle, false);
                                 continue;
                             }
 
                             // General case: elliptical arc or complete ellipse with nonzero start angle - converting to Bézier curves.
-                            // Cannot use ArcTo here, because it SkiaSharp interprets the angles differently, and it simply does not draw complete ellipses.
+                            // Cannot use ArcTo here, because SkiaSharp interprets the angles differently, and it simply does not draw complete ellipses.
                             if (!isStartPointAdded)
                                 result.LineTo(startPoint.X, startPoint.Y);
                             AddBeziers(result, arcSegment.ToBezierPoints());
