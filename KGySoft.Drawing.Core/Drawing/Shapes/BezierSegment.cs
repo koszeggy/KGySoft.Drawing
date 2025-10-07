@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Shapes
     /// Represents a path segment in a <see cref="Figure"/>, consisting of zero, one, or more cubic Bézier curves.
     /// </summary>
     /// <remarks>
-    /// <note>This class is meant to provide information about a line segment in a <see cref="Figure"/> for interoperability with other libraries.
+    /// <note>This class is meant to provide information about a series of cubic Bézier segments in a <see cref="Figure"/> for interoperability with other libraries.
     /// To add new figures or path segments to a <see cref="Path"/>, use its public <see cref="Path.StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</note>
     /// </remarks>
     [SuppressMessage("ReSharper", "UseIndexFromEndExpression", Justification = "Targeting older frameworks that don't support indexing from end.")]

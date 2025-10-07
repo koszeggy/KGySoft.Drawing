@@ -32,6 +32,8 @@ namespace KGySoft.Drawing.Shapes
     /// <summary>
     /// Represents a non-rotated elliptical arc segment in a <see cref="Figure"/> (or a complete ellipse, if <see cref="SweepAngle"/> is 360).
     /// </summary>
+    /// <note>This class is meant to provide information about an arc segment in a <see cref="Figure"/> for interoperability with other libraries.
+    /// To add new figures or path segments to a <see cref="Path"/>, use its public <see cref="Path.StartFigure">StartFigure</see> and <c>Add...</c> methods instead.</note>
     public sealed class ArcSegment : PathSegment
     {
         #region Constants

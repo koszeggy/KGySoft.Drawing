@@ -257,7 +257,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.
         /// <br/>-or-
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
-        /// <exception cref="OverflowException">The dimensions of <paramref name="size"/> are too large to allocate a buffer for it.</exception>
+        /// <exception cref="OverflowException">The specified <paramref name="width"/> and <paramref name="height"/> are too large to allocate a buffer for it.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
         public static IReadWriteBitmapData CreateBitmapData(int width, int height, KnownPixelFormat pixelFormat,
             WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
