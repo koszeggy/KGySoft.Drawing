@@ -155,6 +155,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             ["Single point", () => new Builder(new WpfPoint(0, 0)).Geometry],
             ["Single line", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).Geometry],
             ["Single-point line", () => new Builder(new WpfPoint(10, 10)).AddLine(new(10, 10)).Geometry],
+            ["Single-point arc", () => new Builder(new WpfPoint(10, 10)).AddArc(new(10, 10), new(0, 0), 0d, true, SweepDirection.Clockwise).Geometry],
             ["Polyline", () => new Builder(new WpfPoint(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).Geometry],
             ["Lines", () => new Builder(new WpfPoint(0, 0)).AddLine(new(10, 10)).AddLines(new(0, 10), new(10, 0)).Geometry],
             ["Bezier", () => new Builder(new(0, 100)).AddBezier(new(50, 100), new(50, 0), new(100, 0)).Geometry],
@@ -251,7 +252,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             if (bounds.IsEmpty)
                 bounds = new Rect(0, 0, 1, 1);
             var brush = new SolidColorBrush(Colors.Yellow);
-            var pen = new WpfPen(Brushes.Blue, 1);
+            var pen = new WpfPen(Brushes.Blue, 1) { StartLineCap = PenLineCap.Square, EndLineCap = PenLineCap.Square }; // cap: to render single-point figures as well
             var drawing = new GeometryDrawing();
             drawing.Geometry = geometry;
             drawing.Brush = brush;
@@ -290,6 +291,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             Path path = geometry.ToPath();
             var bmp = new WriteableBitmap(bmpRef.PixelWidth, bmpRef.PixelHeight, bmpRef.DpiX, bmpRef.DpiY, bmpRef.Format, null);
+            //var bmp = new WriteableBitmap(path.Bounds.Right, path.Bounds.Bottom, bmpRef.DpiX, bmpRef.DpiY, bmpRef.Format, null);
             using (var bmpData = bmp.GetReadWriteBitmapData())
             {
                 bmpData.Clear(Color.Cyan);

@@ -28,7 +28,6 @@ using System.Linq;
 using System.Windows.Media;
 
 using KGySoft.Drawing.Shapes;
-using KGySoft.Drawing.Wpf.WinApi;
 
 #endregion
 
@@ -56,12 +55,6 @@ namespace KGySoft.Drawing.Wpf
     /// </summary>
     public static class GeometryExtensions
     {
-        #region Constants
-
-        private const float tolerance = 1e-4f;
-
-        #endregion
-
         #region Methods
 
         #region Public Methods
@@ -76,12 +69,6 @@ namespace KGySoft.Drawing.Wpf
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "The cases are better to be not extracted from the method")]
         public static Path ToPath(this Geometry geometry)
         {
-            #region Local Methods
-
-            static double ToDegree(double radians) => radians / Math.PI * 180d;
-
-            #endregion
-
             if (geometry == null)
                 throw new ArgumentNullException(nameof(geometry), PublicResources.ArgumentNull);
 
@@ -107,9 +94,7 @@ namespace KGySoft.Drawing.Wpf
                                     result.AddPoint(lastPoint = line.Point.ToPointF());
                                 else
                                 {
-                                    var linePoint = line.Point.ToPointF();
-                                    if (!lastPoint.TolerantEquals(linePoint, Constants.EqualityTolerance))
-                                        result.AddLine(lastPoint, lastPoint = linePoint);
+                                    result.AddLine(lastPoint, lastPoint = line.Point.ToPointF());
                                     lastPointAdded = true;
                                 }
 
@@ -150,9 +135,7 @@ namespace KGySoft.Drawing.Wpf
                                 break;
 
                             case QuadraticBezierSegment quadraticBezierSegment:
-                                var end = quadraticBezierSegment.Point2.ToPointF();
-                                Path.GetCubicBezierControlPointsFromQuadraticBezier(lastPoint, quadraticBezierSegment.Point1.ToPointF(), end, out PointF cp1, out PointF cp2);
-                                result.AddBezier(lastPoint, cp1, cp2, lastPoint = end);
+                                result.AddQuadraticCurve(lastPoint, quadraticBezierSegment.Point1.ToPointF(), lastPoint = quadraticBezierSegment.Point2.ToPointF());
                                 lastPointAdded = true;
                                 break;
 
@@ -161,76 +144,17 @@ namespace KGySoft.Drawing.Wpf
                                 if (points.Count >= 2)
                                 {
                                     int validCount = points.Count / 2 * 2;
-                                    var cubicPoints = new List<PointF>(validCount / 2 * 3 + 1) { lastPoint };
-                                    for (int i = 0; i < validCount; i += 2)
-                                    {
-                                        end = points[i + 1].ToPointF();
-                                        Path.GetCubicBezierControlPointsFromQuadraticBezier(lastPoint, points[i].ToPointF(), end, out cp1, out cp2);
-                                        cubicPoints.AddRange([cp1, cp2, lastPoint = end]);
-                                    }
-
-                                    result.AddBeziers(cubicPoints);
+                                    result.AddQuadraticCurves((IEnumerable<PointF>)[lastPoint, .. points.Take(validCount).Select(PointExtensions.ToPointF)]);
+                                    lastPoint = points[validCount - 1].ToPointF();
                                     lastPointAdded = true;
                                 }
 
                                 break;
 
                             case WpfArcSegment arcSegment:
-                                var startPoint = lastPoint.ToWpfPoint();
-                                var endPoint = arcSegment.Point;
-
-                                // Elliptical arc with rotation or with non-horizontal/vertical start/end points: attempting to use internal WPF WinAPI in the first place to convert to Bézier segments
-                                if (arcSegment.Size.Width != arcSegment.Size.Height && (arcSegment.RotationAngle != 0d || startPoint.X != endPoint.X && startPoint.Y != endPoint.Y))
-                                {
-                                    IList<PointF>? bezierPoints = arcSegment.ToBezierPoints(startPoint);
-                                    if (bezierPoints != null)
-                                    {
-                                        if (bezierPoints.Count >= 0)
-                                            result.AddBeziers(bezierPoints);
-                                        else
-                                        {
-                                            if (lastPointAdded)
-                                                result.AddPoint(endPoint.ToPointF());
-                                            else
-                                                result.AddLine(lastPoint, endPoint.ToPointF());
-                                        }
-
-                                        lastPoint = arcSegment.Point.ToPointF();
-                                        lastPointAdded = true;
-                                        break;
-                                    }
-                                }
-
-                                // This works correctly only for circles (rotation is irrelevant) ,and for ellipses without rotation and start/end points on the axes.
-                                // But even if WpfGfx is available, we prefer this for circles and non-rotated ellipses, because for thin paths it produces better results.
-                                double radiusX = arcSegment.Size.Width;
-                                double radiusY = arcSegment.Size.Height;
-                                PointF center = Path.GetArcCenter(startPoint.ToPointF(), endPoint.ToPointF(), (float)radiusX, (float)radiusY, (float)arcSegment.RotationAngle, arcSegment.IsLargeArc, arcSegment.SweepDirection == SweepDirection.Counterclockwise);
-                                float startAngle = (float)ToDegree(Math.Atan2(startPoint.Y - center.Y, startPoint.X - center.X));
-                                float endAngle = (float)ToDegree(Math.Atan2(endPoint.Y - center.Y, endPoint.X - center.X));
-                                if (arcSegment.IsLargeArc == Math.Abs(endAngle - startAngle) < 180f)
-                                {
-                                    if (startAngle < endAngle)
-                                        startAngle += 360f;
-                                    else
-                                        endAngle += 360f;
-                                }
-
-                                float sweepAngle = endAngle - startAngle;
-
-                                // Fixing the possibly wrong direction of a 180 degree arc. It can occur if one of the arguments of Atan2 is 0.
-                                if (Math.Abs(sweepAngle) == 180f && arcSegment.SweepDirection == SweepDirection.Clockwise != sweepAngle > 0f)
-                                    sweepAngle = -sweepAngle;
-
-                                if (arcSegment.RotationAngle != 0f)
-                                    result.SetTransformation(TransformationMatrix.CreateRotationDegrees((float)arcSegment.RotationAngle, center));
-
-                                result.AddArc((float)(center.X - radiusX), (float)(center.Y - radiusY), (float)(2d * radiusX), (float)(2d * radiusY), startAngle, sweepAngle);
-                                result.ResetTransformation();
-
-                                lastPoint = arcSegment.Point.ToPointF();
-                                lastPointAdded = true;
-                                break;
+                                    result.AddArc(lastPoint, lastPoint = arcSegment.Point.ToPointF(), (float)arcSegment.Size.Width, (float)arcSegment.Size.Height, (float)arcSegment.RotationAngle, arcSegment.IsLargeArc, arcSegment.SweepDirection == SweepDirection.Clockwise);
+                                    lastPointAdded = true;
+                                    break;
 
                             default:
                                 throw new InvalidOperationException(Res.InternalError($"Unexpected segment type: {segment.GetType()}"));
@@ -322,7 +246,8 @@ namespace KGySoft.Drawing.Wpf
 
                             // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
                             // (WPF arc would just connect start/end points without considering the radius)
-                            if (radiusX.TolerantIsZero(tolerance) || radiusY.TolerantIsZero(tolerance) || arcSegment.SweepAngle.TolerantIsZero(tolerance))
+                            if (radiusX.TolerantIsZero(Constants.NormalEqualityTolerance) || radiusY.TolerantIsZero(Constants.NormalEqualityTolerance)
+                                || arcSegment.SweepAngle.TolerantIsZero(Constants.NormalEqualityTolerance))
                             {
                                 points = arcSegment.GetFlattenedPoints();
                                 if (points.Count == 1 && segments.Count == 1)
@@ -340,7 +265,7 @@ namespace KGySoft.Drawing.Wpf
                             if (Math.Abs(arcSegment.SweepAngle) >= 359f)
                             {
                                 // full ellipse with zero start angle: breaking it into two half arcs
-                                if (arcSegment.SweepAngle.TolerantEquals(360f) && arcSegment.StartAngle is 0f)
+                                if (arcSegment.SweepAngle.TolerantEquals(360f, Constants.HighPrecisionTolerance) && arcSegment.StartAngle is 0f)
                                 {
                                     var halfPoint = new WpfPoint(arcSegment.StartPoint.X - radiusX * 2f, arcSegment.StartPoint.Y);
                                     wpfFigure.Segments.Add(new WpfArcSegment(halfPoint, size, 0d, true, SweepDirection.Clockwise, true));

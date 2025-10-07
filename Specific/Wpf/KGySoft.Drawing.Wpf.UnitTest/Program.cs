@@ -115,12 +115,12 @@ namespace KGySoft.Drawing.Wpf
         internal static void Main()
         {
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
-            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
+            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter/ClassNameFilter,
             // or just calling the method to debug directly
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
 
-            TestFilter filter = TestFilter.Empty; // (TestFilter)Reflector.CreateInstance(Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter"), "GeometryToPathTest");
+            TestFilter filter = TestFilter.Empty; // (TestFilter)Reflection.Reflector.CreateInstance(Reflection.Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter")!, "GeometryToPathTest");
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
