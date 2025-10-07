@@ -21,6 +21,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -183,6 +186,49 @@ namespace KGySoft.Drawing.Shapes
 
         internal static BezierSegment FromEllipse(PointF centerPoint, float radiusX, float radiusY)
             => new(GetBezierPointsFromEllipse(centerPoint, radiusX, radiusY), false);
+
+        internal static void ControlPointsFromQuadratic(PointF start, PointF quadControlPoint, PointF end, out PointF cubicControlPoint1, out PointF cubicControlPoint2)
+        {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 startVec = ref start.AsVector2();
+            ref Vector2 cpVec = ref quadControlPoint.AsVector2();
+            ref Vector2 endVec = ref end.AsVector2();
+            Vector2 cp1Vec = startVec + 2f / 3f * (cpVec - startVec);
+            cubicControlPoint1 = cp1Vec.AsPointF();
+            Vector2 cp2Vec = endVec + 2f / 3f * (cpVec - endVec);
+            cubicControlPoint2 = cp2Vec.AsPointF();
+#else
+            cubicControlPoint1 = new PointF(start.X + 2f / 3f * (quadControlPoint.X - start.X),
+                start.Y + 2f / 3f * (quadControlPoint.Y - start.Y));
+            cubicControlPoint2 = new PointF(end.X + 2f / 3f * (quadControlPoint.X - end.X),
+                end.Y + 2f / 3f * (quadControlPoint.Y - end.Y));
+#endif
+        }
+
+        internal static void ControlPointsFromConic(PointF start, PointF conicControlPoint, PointF end, float weight, out PointF cubicControlPoint1, out PointF cubicControlPoint2)
+        {
+            // Credit to this paper where I managed to find the solution: https://www.mn.uio.no/math/english/people/aca/michaelf/papers/g4.pdf
+            float lambda = 4f / 3f * weight / (1f + weight);
+
+            // Instead of checking weight, we check the resulting lambda, because lambda can be infinite for very large weights as well
+            if (Single.IsInfinity(lambda) || Single.IsNaN(lambda) || lambda < 0f)
+                throw new ArgumentOutOfRangeException(nameof(weight), PublicResources.ArgumentOutOfRange);
+
+            float inverseLambda = 1 - lambda;
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 cpVec = ref conicControlPoint.AsVector2();
+            Vector2 cp1Vec = inverseLambda * start.AsVector2() + lambda * cpVec;
+            cubicControlPoint1 = cp1Vec.AsPointF();
+            Vector2 cp2Vec = inverseLambda * end.AsVector2() + lambda * cpVec;
+            cubicControlPoint2 = cp2Vec.AsPointF();
+#else
+            cubicControlPoint1 = new PointF(inverseLambda * start.X + lambda * conicControlPoint.X,
+                inverseLambda * start.Y + lambda * conicControlPoint.Y);
+            cubicControlPoint2 = new PointF(inverseLambda * end.X + lambda * conicControlPoint.X,
+                inverseLambda * end.Y + lambda * conicControlPoint.Y);
+#endif
+        }
 
         #endregion
 

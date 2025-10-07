@@ -216,6 +216,9 @@
   <data name="Shapes_BezierPointsInvalid" xml:space="preserve">
     <value>If not zero or one points are specified, then the number of points minus one should be divisible by 3.</value>
   </data>
+  <data name="Shapes_QuadraticPointsInvalid" xml:space="preserve">
+    <value>If the points collection has elements, odd number of points are expected.</value>
+  </data>
   <data name="Shapes_StartEndTooClose" xml:space="preserve">
     <value>Start and end points are too close to each other.</value>
   </data>
