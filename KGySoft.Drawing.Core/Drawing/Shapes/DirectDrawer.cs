@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
@@ -452,6 +453,90 @@ namespace KGySoft.Drawing.Shapes
                 }
 
                 DoDrawArc(bitmapData, bounds, startAngle, sweepAngle, c, arg);
+            }
+
+            internal static void DrawArc(IBitmapDataInternal bitmapData, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, TColor c, float offset, TArg arg = default!)
+            {
+                const float radiusToleranceBase = 5e-7f;
+
+                // See the comments in the SVG-like Path.AddArc overload
+                if (startPoint.TolerantEquals(endPoint, Constants.HighPrecisionTolerance)
+                    || radiusX.TolerantIsZero((Math.Abs(endPoint.Y - startPoint.Y) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance))
+                    || radiusY.TolerantIsZero((Math.Abs(endPoint.X - startPoint.X) * radiusToleranceBase).Clip(Constants.HighPrecisionTolerance, Constants.PointEqualityTolerance)))
+                {
+                    DrawLine(bitmapData, startPoint, endPoint, c, offset, arg);
+                    return;
+                }
+
+                radiusX = Math.Abs(radiusX);
+                radiusY = Math.Abs(radiusY);
+                float rotationRad = rotationAngle.ToRadian();
+                float cosPhi = MathF.Cos(rotationRad);
+                float sinPhi = MathF.Sin(rotationRad);
+
+                // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
+                float offsetX = (startPoint.X - endPoint.X) / 2f;
+                float offsetY = (startPoint.Y - endPoint.Y) / 2f;
+                float rotatedX = cosPhi * offsetX + sinPhi * offsetY;
+                float rotatedY = -sinPhi * offsetX + cosPhi * offsetY;
+
+                // Adjusting radii if necessary
+                float rotatedXSquared = rotatedX * rotatedX;
+                float rotatedYSquared = rotatedY * rotatedY;
+                float lambda = rotatedXSquared / (radiusX * radiusX) + rotatedYSquared / (radiusY * radiusY);
+                if (lambda > 1f)
+                {
+                    float scale = MathF.Sqrt(lambda);
+                    radiusX *= scale;
+                    radiusY *= scale;
+                }
+
+                float radiusXSquared = radiusX * radiusX; // with the possibly adjusted radii
+                float radiusYSquared = radiusY * radiusY;
+
+                // Calculating center
+                float sign = isLargeArc != isClockwise ? 1 : -1;
+                float numerator = Math.Max(0f, radiusXSquared * radiusYSquared - radiusXSquared * rotatedYSquared - radiusYSquared * rotatedXSquared);
+                float denominator = radiusXSquared * rotatedYSquared + radiusYSquared * rotatedXSquared;
+                float coefficient = sign * MathF.Sqrt(numerator / denominator);
+                float centerRotatedX = coefficient * radiusX * rotatedY / radiusY;
+                float centerRotatedY = coefficient * -radiusY * rotatedX / radiusX;
+                float midX = (startPoint.X + endPoint.X) / 2f;
+                float midY = (startPoint.Y + endPoint.Y) / 2f;
+                float centerX = cosPhi * centerRotatedX - sinPhi * centerRotatedY + midX;
+                float centerY = sinPhi * centerRotatedX + cosPhi * centerRotatedY + midY;
+
+                // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
+                float startVectorX = (rotatedX - centerRotatedX) / radiusX;
+                float startVectorY = (rotatedY - centerRotatedY) / radiusY;
+                float endVectorX = (-rotatedX - centerRotatedX) / radiusX;
+                float endVectorY = (-rotatedY - centerRotatedY) / radiusY;
+
+                float startRad = MathF.Atan2(startVectorY, startVectorX);
+                float sweepRad = MathF.Atan2(endVectorY, endVectorX) - startRad;
+
+                // Ensuring that we get the correct arc (large vs small). Can be imprecise if the arc is very close to 180 degrees, which is adjusted below.
+                if (isLargeArc != Math.Abs(sweepRad) >= MathF.PI)
+                {
+                    if (sweepRad > 0)
+                        sweepRad -= 2f * MathF.PI;
+                    else
+                        sweepRad += 2f * MathF.PI;
+                }
+
+                // Fixing the possibly wrong direction of an exactly 180 degrees arc.
+                if (isClockwise != sweepRad > 0f && Math.Abs(sweepRad).TolerantEquals(MathF.PI, Constants.HighPrecisionTolerance))
+                    sweepRad = -sweepRad;
+
+                // If there is no rotation we can use the Bresenham-based arc drawer which is more symmetric than the Bézier approximation.
+                if (rotationAngle == 0f)
+                {
+                    DrawArc(bitmapData, new ArcSegment(new PointF(centerX, centerY), radiusX, radiusY, startRad, startRad + sweepRad), c, offset, arg);
+                    return;
+                }
+
+                // Otherwise, drawing as cubic Bézier segments.
+                DrawBeziers(bitmapData, BezierSegment.GetBezierPointsFromArc(new PointF(centerX, centerY), radiusX, radiusY, startRad, sweepRad, rotationRad), c, offset, arg);
             }
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1848,6 +1933,82 @@ namespace KGySoft.Drawing.Shapes
             }
 
             GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, bounds, startAngle, sweepAngle, color, offset);
+        }
+
+        internal static void DrawArc(IReadWriteBitmapData bitmapData, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, Color32 color, float offset)
+        {
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal bitmap = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+
+            if (bitmapData is ICustomBitmapData)
+            {
+                // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+                if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                        GenericDrawer<CustomBitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColorF(), offset);
+                    else
+                        GenericDrawer<CustomBitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToColorF(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Prefers64BitColors)
+                {
+                    if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                        GenericDrawer<CustomBitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColor64(), offset);
+                    else
+                        GenericDrawer<CustomBitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToColor64(), offset);
+                    return;
+                }
+
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                {
+                    GenericDrawer<CustomBitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColor32(), offset);
+                    return;
+                }
+
+                if (pixelFormat.Indexed)
+                {
+                    GenericDrawer<CustomBitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                    return;
+                }
+
+                GenericDrawer<CustomBitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color, offset);
+                return;
+            }
+
+            // For linear gamma assuming the best performance with [P]ColorF even if the preferred color type is smaller.
+            if (pixelFormat.Prefers128BitColors || pixelFormat.LinearGamma)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: true })
+                    GenericDrawer<BitmapDataAccessorPColorF, PColorF, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColorF(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColorF, ColorF, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToColorF(), offset);
+                return;
+            }
+
+            if (pixelFormat.Prefers64BitColors)
+            {
+                if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+                    GenericDrawer<BitmapDataAccessorPColor64, PColor64, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColor64(), offset);
+                else
+                    GenericDrawer<BitmapDataAccessorColor64, Color64, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToColor64(), offset);
+                return;
+            }
+
+            if (pixelFormat is { HasPremultipliedAlpha: true, LinearGamma: false })
+            {
+                GenericDrawer<BitmapDataAccessorPColor32, PColor32, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color.ToPColor32(), offset);
+                return;
+            }
+
+            if (pixelFormat.Indexed)
+            {
+                GenericDrawer<BitmapDataAccessorIndexed, int, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, bitmapData.Palette!.GetNearestColorIndex(color), offset);
+                return;
+            }
+
+            GenericDrawer<BitmapDataAccessorColor32, Color32, _>.DrawArc(bitmap, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, color, offset);
         }
 
         internal static void DrawPie(IReadWriteBitmapData bitmapData, RectangleF bounds, float startAngle, float sweepAngle, Color32 color, float offset)

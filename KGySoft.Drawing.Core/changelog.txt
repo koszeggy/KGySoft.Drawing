@@ -48,6 +48,7 @@
 * KGySoft.Drawing.Shapes namespace
 ==================================
 * BitmapDataExtensions class:
+  + New [Begin]DrawArc[Async] overloads, using SVG-like (and also WPF/UWP/WinUI-like) parameters.
   - [Begin]DrawArc[Async] methods:
     - Fixing rendering when the arc's width or height is near to zero.
   * [Begin]DrawLine[Async]/[Begin]DrawBezier[Async]/[Begin]DrawBeziers[Async]/[Begin]DrawPolygon[Async] methods:
