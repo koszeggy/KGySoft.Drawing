@@ -589,7 +589,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
-        /// <para>This method adds quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control points, and the end point.
+        /// <para>This method adds quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
         /// To add cubic Bézier curves, you can use the <see cref="AddBeziers(PointF[])">AddBeziers</see> method.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>The coordinates of the specified <paramref name="points"/> are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
@@ -635,7 +635,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>If the current figure is not empty or closed, the first point of the added curve will be connected to the last point of the figure.</para>
-        /// <para>This method adds quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control points, and the end point.
+        /// <para>This method adds quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
         /// To add cubic Bézier curves, you can use the <see cref="AddBeziers(IEnumerable{PointF})">AddBeziers</see> method.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>The coordinates of the specified <paramref name="points"/> are not validated here but in the moment of drawing the coordinates of the possibly transformed path points

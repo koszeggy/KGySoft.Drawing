@@ -274,7 +274,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -310,7 +310,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -346,7 +346,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -382,7 +382,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method does not use optimized shortcuts. If the same polygon is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the polygon to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1025,7 +1025,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1071,7 +1071,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the location and size are integer values,
         /// and <paramref name="drawingOptions"/> is <see langword="null"/> and the specified <paramref name="color"/> is opaque, or when <paramref name="drawingOptions"/> specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1119,7 +1119,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="brush"/>
         /// is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1166,7 +1166,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method tries to use a shortcut to fill the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the location and size are integer values,
         /// the specified <paramref name="brush"/> is a solid brush with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1831,7 +1831,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1867,7 +1867,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1903,7 +1903,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1939,7 +1939,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>When filling an ellipse, the right/bottom values of the bounding rectangle are exclusive, so if the width or height is zero, then nothing is drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same ellipse is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the ellipse to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2518,7 +2518,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2556,7 +2556,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2594,7 +2594,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2632,7 +2632,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>The pie shape is defined by an arc of an ellipse and the two radial lines that intersect with the endpoints of the arc.</para>
         /// <para>This method does not use optimized shortcuts. If the same pie shape is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the pie to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3530,7 +3530,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3573,7 +3573,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3614,7 +3614,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3657,7 +3657,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3698,7 +3698,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3741,7 +3741,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3782,7 +3782,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple filled rectangle will be drawn.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3825,7 +3825,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
         /// <para>This method does not use optimized shortcuts. If the same rounded rectangle is filled repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled and adding the rounded rectangle to it can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4552,7 +4552,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4588,7 +4588,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of filling transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
