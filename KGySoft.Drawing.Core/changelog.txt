@@ -48,9 +48,10 @@
 * KGySoft.Drawing.Shapes namespace
 ==================================
 * BitmapDataExtensions class:
-  + New [Begin]DrawArc[Async] overloads, using SVG-like (and also WPF/UWP/WinUI-like) parameters.
+  + New DrawArc/BeginDrawArc/DrawArcAsync overloads, using SVG-like (and also WPF/UWP/WinUI-like) parameters.
   + New DrawQuadraticCurves/BeginDrawQuadraticCurves/EndDrawQuadraticCurves/DrawQuadraticCurvesAsync methods.
-  - [Begin]DrawArc[Async] methods:
+  + New DrawConicCurve/BeginDrawConicCurve/EndDrawConicCurve/DrawConicCurveAsync methods.
+  - DrawArc/BeginDrawArc/DrawArcAsync methods:
     - Fixing rendering when the arc's width or height is near to zero.
   * [Begin]DrawLine[Async]/[Begin]DrawBezier[Async]/[Begin]DrawBeziers[Async]/[Begin]DrawPolygon[Async] methods:
     - Fixing possible imprecision of start/end points when DrawingOptions.FastThinLines is enabled, and a line
@@ -58,11 +59,9 @@
     - Fixing the precision of start/end points when DrawingOptions.FastThinLines is enabled, and the arc's vertical
       radius is greater than the horizontal radius.
     * Improved thin-line drawing performance
-  * [Begin]DrawPath[Async] methods:
+  * DrawPath/BeginDrawPath/DrawPathAsync methods:
     - If a Path contained a complex figure with an arc connected to other path segments, then the possible
       connecting other segments might have swapped the arc's start and end points causing an incorrect drawing.
-    - AddArc methods: the startAngle parameter is respected even when a full ellipse is drawn. Matters if the arc is
-      connected to other path segments.
     - If a Path is drawn with DrawingOptions.FastThinLines and contains line segments or Bézier segments that are
       partially out of the bitmap bounds, then now the visible area of these segments are drawn more precisely.
     * Improved thin-line drawing performance of line segments and flattened segments.
@@ -74,6 +73,8 @@
   + New Figures property
   + New TransformTranslation and TransformScale overloads with Vector2 parameter
   * Improving performance when the flattened points are requested repeatedly without modifying the path.
+  - AddArc methods: the startAngle parameter is respected even when a full ellipse is added. Matters if the arc is
+    connected to other path segments.
   - StartFigure: not marking the figure closed when called on an empty path.
 + TransformationMatrix struct:
   + New CreateTranslation, CreateScale, CreateRotation and CreateRotationDegrees overloads with Vector2 parameter.
