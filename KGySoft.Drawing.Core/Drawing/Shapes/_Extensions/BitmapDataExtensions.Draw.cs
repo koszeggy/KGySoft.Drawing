@@ -424,7 +424,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -472,7 +472,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -520,7 +520,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -569,7 +569,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1285,7 +1285,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1334,7 +1334,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1383,7 +1383,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1433,7 +1433,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -1850,7 +1850,7 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #region Béziers
+        #region Cubic Bézier curves
 
         #region Sync
 
@@ -1870,10 +1870,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -1916,10 +1914,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -1973,10 +1969,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2026,10 +2020,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2082,10 +2074,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2139,10 +2129,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2195,15 +2183,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2251,15 +2237,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2307,15 +2291,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2364,15 +2346,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurves">DrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -2429,10 +2409,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2480,10 +2458,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2531,10 +2507,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2583,10 +2557,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2652,10 +2624,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2704,10 +2674,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2756,10 +2724,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2767,7 +2733,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
@@ -2809,10 +2775,8 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws cubic Bézier curves. A cubic Bézier curve is defined by four points: the starting point, two control points, and the end point.
-        /// To draw quadratic Bézier curves, you can use the <see cref="Path.GetCubicBezierControlPointsFromQuadraticBezier">GetCubicBezierControlPointsFromQuadraticBezier</see>
-        /// method to calculate the two control points from the single control point of each quadratic curve. Similarly, to draw conic curves, you can use
-        /// the <see cref="Path.GetCubicBezierControlPointsFromConicCurve">GetCubicBezierControlPointsFromConicCurve</see>
-        /// method to calculate the two control points from the single control point and weight of each conic curve.</para>
+        /// To draw quadratic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.
+        /// In fact, those will transform the quadratic curves into cubic Bézier curve internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
@@ -2820,7 +2784,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
         /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
@@ -2839,6 +2803,966 @@ namespace KGySoft.Drawing.Shapes
             }
 
             return AsyncHelper.DoOperationAsync(ctx => DoDrawBeziers(ctx, bitmapData, pen, pointsList, drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
+        #region Quadratic Bézier curves
+
+        #region Sync
+
+        #region Default Context
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return;
+            }
+
+            DoDrawBeziers(AsyncHelper.DefaultContext, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
+        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static void DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return;
+            }
+
+            DoDrawBeziers(AsyncHelper.DefaultContext, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #region ParallelConfig
+        // NOTE: These overloads could be combined with the default context ones, but we keep them separated for performance reasons (see DrawLineShortcutTest in performance tests).
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism, cancellation and progress reporting. Use
+        /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
+        /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>If the curves are drawn by using a shortcut, then the operation cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="parallelConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, parallelConfig);
+            }
+
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), parallelConfig);
+        }
+
+        #endregion
+
+        #region IAsyncContext
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawBeziers(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawBeziers(context ?? AsyncHelper.DefaultContext, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawBeziers(context ?? AsyncHelper.DefaultContext, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziers">DrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return context?.IsCancellationRequested != true;
+            }
+
+            return DoDrawBeziers(context ?? AsyncHelper.DefaultContext, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Async APM
+
+        /// <summary>
+        /// Begins to draw a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        public static IAsyncResult BeginDrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to draw a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        public static IAsyncResult BeginDrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to draw a series of quadratic Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        public static IAsyncResult BeginDrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to draw a series of quadratic Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        public static IAsyncResult BeginDrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.BeginOperation(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        public static bool EndDrawQuadraticCurves(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawQuadraticCurves));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="color">The color of the curves to draw.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
+        /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
+        /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (color.A == Byte.MaxValue && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                || color.A != Byte.MaxValue && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null })
+            {
+                DirectDrawer.DrawBeziers(bitmapData, ToCubicBezierPoints(points), color, drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawBeziers(ctx, bitmapData, new Pen(color), ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
+        }
+
+        /// <summary>
+        /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/> asynchronously.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
+        /// <param name="points">The points of the curves to draw.</param>
+        /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
+        /// If <see langword="null"/>, then the default options are used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
+        /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
+        /// where the last point of the previous curve is the starting point of the next curve.</para>
+        /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
+        /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
+        /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
+        /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
+        /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+        /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(bitmapData, pen, points); // number of points are validated in ToCubicBezierPoints
+
+            // Shortcut for non-blended, non-AA lines
+            if (pen is { Brush: SolidBrush solidBrush, Width: <= 1f and >= 0.25f }
+                && (!solidBrush.HasAlpha && drawingOptions is null or { AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }
+                    || solidBrush.HasAlpha && drawingOptions is { AlphaBlending: false, AntiAliasing: false, IsIdentityTransform: true, FastThinLines: true, Quantizer: null, Ditherer: null }))
+            {
+                solidBrush.DrawBeziers(bitmapData, ToCubicBezierPoints(points), drawingOptions.PixelOffset());
+                return AsyncHelper.FromResult(true, asyncConfig);
+            }
+
+            return AsyncHelper.DoOperationAsync(ctx => DoDrawBeziers(ctx, bitmapData, pen, ToCubicBezierPoints(points), drawingOptions ?? DrawingOptions.Default), asyncConfig);
         }
 
 #endif
@@ -3144,7 +4068,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3192,7 +4116,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3240,7 +4164,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -3289,7 +4213,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4053,7 +4977,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4101,7 +5025,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4148,7 +5072,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4196,7 +5120,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -4956,7 +5880,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -5004,7 +5928,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -5051,7 +5975,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -5099,7 +6023,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6263,7 +7187,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6313,7 +7237,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6363,7 +7287,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6414,7 +7338,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6471,7 +7395,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6527,7 +7451,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6583,7 +7507,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -6640,7 +7564,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -7864,7 +8788,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -7914,7 +8838,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -7964,7 +8888,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -8015,7 +8939,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9198,7 +10122,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9253,7 +10177,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9306,7 +10230,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9361,7 +10285,7 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9413,7 +10337,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9468,7 +10392,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9521,7 +10445,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9576,7 +10500,7 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -9693,7 +10617,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        public static IAsyncResult BeginDrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, 
+        public static IAsyncResult BeginDrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData);
@@ -10520,7 +11444,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -10555,7 +11479,7 @@ namespace KGySoft.Drawing.Shapes
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
         /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
@@ -10792,6 +11716,35 @@ namespace KGySoft.Drawing.Shapes
                 throw new ArgumentNullException(nameof(pen), PublicResources.ArgumentNull);
             if (path == null)
                 throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+        }
+
+        // this also validates the number of points
+        private static List<PointF> ToCubicBezierPoints(IEnumerable points)
+        {
+            IList<PointF> quadraticPoints = points switch
+            {
+                IList<PointF> pointFList => pointFList,
+                IEnumerable<Point> pointsI32 => pointsI32.Select(p => (PointF)p).ToList(),
+                IEnumerable<PointF> pointsF => pointsF.ToList(),
+                _ => throw new InvalidOperationException(Res.InternalError("Unexpected points type"))
+            };
+
+            if (quadraticPoints.Count == 0)
+                return new List<PointF>(0);
+
+            if (quadraticPoints.Count != 0 && (quadraticPoints.Count & 1) != 0)
+                throw new ArgumentException(nameof(points), Res.ShapesQuadraticPointsInvalid);
+
+            var cubicPoints = new List<PointF>(quadraticPoints.Count / 2 * 3 + 1) { quadraticPoints[0] };
+            for (int i = 1; i < quadraticPoints.Count; i += 2)
+            {
+                BezierSegment.ControlPointsFromQuadratic(quadraticPoints[i - 1], quadraticPoints[i], quadraticPoints[i + 1], out PointF cp1, out PointF cp2);
+                cubicPoints.Add(cp1);
+                cubicPoints.Add(cp2);
+                cubicPoints.Add(quadraticPoints[i + 1]);
+            }
+
+            return cubicPoints;
         }
 
         #endregion
