@@ -5,6 +5,21 @@
 + New feature
 ===============================================================================
 
+~~~~~~~~~~
+* v10.0.0:
+~~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v10.0.0.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing.Uwp namespace
+===============================
++ New GeometryExtensions class:
+  + New ToPath method: To convert an UWP Geometry instance to a KGySoft.Drawing.Shapes.Path.
+
+
 ~~~~~~~~~
 * v9.0.0:
 ~~~~~~~~~
