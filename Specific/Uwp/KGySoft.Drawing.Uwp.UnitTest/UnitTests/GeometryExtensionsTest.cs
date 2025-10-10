@@ -15,8 +15,16 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Threading.Tasks;
+
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
+
+using NUnit.Framework;
 
 using Windows.Foundation;
 #if DEBUG
@@ -28,11 +36,9 @@ using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
-using KGySoft.CoreLibraries;
-using KGySoft.Drawing.Imaging;
-using KGySoft.Drawing.Shapes;
+#endregion
 
-using NUnit.Framework;
+#region Used Aliases
 
 using Color = System.Drawing.Color;
 using Path = KGySoft.Drawing.Shapes.Path;
@@ -40,7 +46,8 @@ using UwpArcSegment = Windows.UI.Xaml.Media.ArcSegment;
 using UwpBezierSegment = Windows.UI.Xaml.Media.BezierSegment;
 using UwpLineSegment = Windows.UI.Xaml.Media.LineSegment;
 #if DEBUG
-using UwpPath = Windows.UI.Xaml.Shapes.Path;
+using UwpPath = Windows.UI.Xaml.Shapes.Path; 
+#endregion
 #endif
 
 #endregion
@@ -184,6 +191,47 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             ["Closed figures", () => new Builder(new Point(50, 0)).AddLines(new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure().StartFigure(new(50, 0)).AddArc(new(50,100), new(50,50), 0, true, SweepDirection.Clockwise).AddArc(new(50, 0), new(50, 50), 0, true, SweepDirection.Clockwise).CloseFigure().Geometry],
         };
 
+        private static object[][] PathToGeometryTestSource => new object[][]
+        {
+            //["Empty", new Path()], // COMException: 'Error HRESULT E_FAIL has been returned from a call to a COM component.'
+            ["Single point", new Path().AddPoint(new(0, 0))],
+            ["Single point bezier", new Path().AddBeziers([new(0, 0)])],
+            ["Single point arc", new Path().AddArc(new(0, 0, 100, 100), 0, 0)],
+            ["Single line", new Path().AddLine(new(0, 0), new(10, 10))],
+            ["Polyline", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90))],
+            ["Polygon", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).CloseFigure()],
+            ["Single bezier arc", new Path().AddArc(0, 0, 100, 100, 90, 90)],
+            ["Multi bezier arc", new Path().AddArc(0, 0, 100, 100, 90, 300)],
+            ["Point-bezier", new Path().AddPoint(50, 0).AddArc(0, 0, 100, 100, 90, 90)],
+            ["Bezier-point", new Path().AddArc(0, 0, 100, 100, 90, 90).AddPoint(50, 0)],
+            ["Point-horizontal small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 90).AddPoint(new(50, 100))],
+            ["Point-horizontal almost flat small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 90).AddPoint(new(50, 100))],
+            ["Point-horizontal flat small arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 90).AddPoint(new(50, 100))],
+            ["Point-vertical small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 90).AddPoint(new(100, 50))],
+            ["Point-vertical almost flat small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 90).AddPoint(new(100, 50))],
+            ["Point-vertical flat small arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 90).AddPoint(new(100, 50))],
+            ["Point-horizontal large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 300).AddPoint(new(50, 100))],
+            ["Point-horizontal almost flat large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 300).AddPoint(new(50, 100))],
+            ["Point-horizontal flat large arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 300).AddPoint(new(50, 100))],
+            ["Point-vertical large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 300).AddPoint(new(100, 50))],
+            ["Point-vertical almost flat large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 300).AddPoint(new(100, 50))],
+            ["Point-vertical flat large arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 300).AddPoint(new(100, 50))],
+            ["Point-horizontal small negative arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, -90).AddPoint(new(50, 100))],
+            ["Point-vertical small negative arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, -90).AddPoint(new(100, 50))],
+            ["Point-horizontal large negative arc-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, -300).AddPoint(new(50, 100))],
+            ["Point-vertical large negative arc-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, -300).AddPoint(new(100, 50))],
+            ["Ellipse", new Path().AddEllipse(0, 0, 100, 50)],
+            ["Rotated ellipse", new Path().TransformRotation(45f).AddEllipse(0, 0, 100, 50)],
+            ["Point-horizontal ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 20, 45, 360).AddPoint(new(50, 100))],
+            ["Point-horizontal almost flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 1e-6f, 45, 360).AddPoint(new(50, 100))],
+            ["Point-horizontal flat ellipse-point", new Path().AddPoint(50, 0).AddArc(0, 50, 100, 0, 45, 360).AddPoint(new(50, 100))],
+            ["Point-vertical ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 20, 100, 45, 360).AddPoint(new(100, 50))],
+            ["Point-vertical almost flat ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 1e-6f, 100, 45, 360).AddPoint(new(100, 50))],
+            ["Point-vertical flat ellipse-point", new Path().AddPoint(0, 50).AddArc(50, 0, 0, 100, 45, 360).AddPoint(new(100, 50))],
+            ["Open-close", new Path().AddLines(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(0, 0, 100, 100)],
+            ["Closed figures", new Path().AddPolygon(new(50, 0), new(79, 90), new(2, 35), new(97, 35), new(21, 90)).AddEllipse(0, 0, 100, 100).AddRoundedRectangle(0, 0, 100, 100, 10)],
+        };
+
         #endregion
 
         #region Methods
@@ -217,7 +265,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             //bmpRef.RenderAsync(uwpPath);
             //SaveBitmap($"{name}_orig", bmpRef); // now for WriteableBitmap only, but RenderTargetBitmap has a GetPixelsAsync method instead of a PixelBuffer property
 
-            //// This is how we could reinterpret the pixels as an IReadableBitmapData if the RenderTargetBitmap would not be empty, and debugger visualizers worked for IReadableBitmapData in UWP.
+            //// This is how we could reinterpret the pixels as an IReadableBitmapData if the RenderTargetBitmap was not empty, and debugger visualizers worked for IReadableBitmapData in UWP.
             //var pixels = await bmpRef.GetPixelsAsync();
             //var pixelsBuffer = new byte[pixels.Length];
             //pixels.CopyTo(pixelsBuffer);
@@ -251,6 +299,68 @@ namespace KGySoft.Drawing.Uwp.UnitTest
 
             // The equality is not pixel perfect so it should be compared visually
             //AssertAreEqual(bmpDataRef, bmpData);
+        });
+
+        [TestCaseSource(nameof(PathToGeometryTestSource))]
+        public Task PathToGeometryTest(string name, Path path) => ExecuteTestAsync(async () =>
+        {
+            var bounds = path.Bounds;
+            int width = Math.Max(1, bounds.Width);
+            int height = Math.Max(1, bounds.Height);
+            var bmpRef = new WriteableBitmap(width + 2, height + 2);
+            using (var bitmapData = bmpRef.GetReadWriteBitmapData())
+            {
+                bitmapData.Clear(Color.Cyan);
+                var options = new DrawingOptions
+                {
+                    AntiAliasing = true,
+                    DrawPathPixelOffset = PixelOffset.Half,
+                    Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1)
+                };
+
+                bitmapData.FillPath(Color.Yellow, path, options);
+                bitmapData.DrawPath(Color.Blue, path, options);
+            }
+
+            await SaveBitmap($"{name}_orig", bmpRef);
+
+            Geometry geometry = path.ToGeometry();
+#if DEBUG
+            // this is how we can display the UWP geometry
+            var uwpPath = new UwpPath
+            {
+                Data = geometry,
+                Fill = new SolidColorBrush(Colors.Yellow),
+                Stroke = new SolidColorBrush(Colors.Blue)
+            };
+            AppWindow appWindow = await AppWindow.TryCreateAsync();
+            var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
+            ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
+            await appWindow.TryShowAsync();
+
+            //// This is how we could render the UWP geometry to a RenderTargetBitmap. The issue is that the RenderTargetBitmap will always be empty,
+            ////  even if we make sure the path is visible in a window, so the proper testing now is comparing the displayed path and the saved images visually.
+            //var bmp = new RenderTargetBitmap();
+            //bmp.RenderAsync(uwpPath);
+            ////await SaveBitmap($"{name}_converted", bmp); // now for WriteableBitmap only, but RenderTargetBitmap has a GetPixelsAsync method instead of a PixelBuffer property
+
+            //// This is how we could reinterpret the pixels as an IReadableBitmapData if the RenderTargetBitmap was not empty, and debugger visualizers worked for IReadableBitmapData in UWP.
+            //var pixels = await bmp.GetPixelsAsync();
+            //var pixelsBuffer = new byte[pixels.Length];
+            //pixels.CopyTo(pixelsBuffer);
+            //using var bmpDataRef = BitmapDataFactory.CreateBitmapData(pixelsBuffer, new(bmpRef.PixelWidth, bmpRef.PixelHeight), bmpRef.PixelWidth * 4, KnownPixelFormat.Format32bppPArgb);
+#endif
+
+            // The equality is not pixel perfect so it should be compared visually
+            //AssertAreEqual(bmpRef.ToWriteableBitmap(), bmp);
+#if DEBUG
+            // For proper visual testing, place a breakpoint here and compare the Path in the window with the saved bitmap, whose name is printed in the console.
+            await appWindow.CloseAsync();
+#else
+            if (!SaveToFile)
+                Assert.Inconclusive("Set SaveToFile to true to save the bitmaps for visual comparison.");
+#endif
+
         });
 
         #endregion

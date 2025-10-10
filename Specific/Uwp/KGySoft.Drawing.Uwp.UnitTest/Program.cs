@@ -159,7 +159,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         {
             // This executes all tests in a real UWP application using a mocked UWP console.
             // It is needed for test cases that require a regular dispatcher thread
-            // (eg. even creating a WriteableBitmap would throw an Exception with RPC_E_WRONG_THREAD otherwise).
+            // (e.g. even creating a WriteableBitmap would throw an Exception with RPC_E_WRONG_THREAD otherwise).
             base.OnLaunched(args);
             Dispatcher = Window.Current.Dispatcher;
 
@@ -175,11 +175,12 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(FrameworkVersion);
 
+                TestFilter filter = TestFilter.Empty; // (TestFilter)Reflection.Reflector.CreateInstance(Reflection.Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter")!, "PathToGeometryTest");
                 var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
                 runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
                 Console.WriteLine("Executing tests...");
                 ConsoleWriter = Console.Out;
-                ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
+                ITestResult result = runner.Run(new ConsoleTestReporter(), filter);
                 console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                     : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                     : ConsoleColor.Green;

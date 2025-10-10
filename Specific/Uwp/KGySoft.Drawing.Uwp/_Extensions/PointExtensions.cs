@@ -36,6 +36,7 @@ namespace KGySoft.Drawing.Uwp
         #region Methods
 
         internal static PointF ToPointF(this UwpPoint point) => new PointF((float)point.X, (float)point.Y);
+        internal static UwpPoint ToUwpPoint(this PointF point) => new UwpPoint(point.X, point.Y);
 
         #endregion
     }

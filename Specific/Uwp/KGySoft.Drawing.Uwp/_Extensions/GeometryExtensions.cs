@@ -19,10 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Shapes;
 
 using Windows.Foundation;
@@ -32,10 +34,16 @@ using Windows.UI.Xaml.Media;
 
 #region Used Aliases
 
+using ArcSegment = KGySoft.Drawing.Shapes.ArcSegment;
+using BezierSegment = KGySoft.Drawing.Shapes.BezierSegment;
+using LineSegment = KGySoft.Drawing.Shapes.LineSegment;
+using PathSegment = KGySoft.Drawing.Shapes.PathSegment;
 using UwpArcSegment = Windows.UI.Xaml.Media.ArcSegment;
 using UwpBezierSegment = Windows.UI.Xaml.Media.BezierSegment;
 using UwpLineSegment = Windows.UI.Xaml.Media.LineSegment;
 using UwpPathSegment = Windows.UI.Xaml.Media.PathSegment;
+using UwpPoint = Windows.Foundation.Point;
+using UwpSize = Windows.Foundation.Size;
 
 #endregion
 
@@ -121,7 +129,7 @@ namespace KGySoft.Drawing.Uwp
                                                 result.AddLines(polyLine.Points.Select(PointExtensions.ToPointF));
                                             else
                                             {
-                                                result.AddLines([lastPoint, .. polyLine.Points.Select(PointExtensions.ToPointF)]);
+                                                result.AddLines([lastPoint, ..polyLine.Points.Select(PointExtensions.ToPointF)]);
                                                 lastPointAdded = true;
                                             }
 
@@ -140,7 +148,7 @@ namespace KGySoft.Drawing.Uwp
                                         if (points.Count >= 3)
                                         {
                                             int validCount = points.Count / 3 * 3;
-                                            result.AddBeziers((IEnumerable<PointF>)[lastPoint, .. points.Take(validCount).Select(PointExtensions.ToPointF)]);
+                                            result.AddBeziers((IEnumerable<PointF>)[lastPoint, ..points.Take(validCount).Select(PointExtensions.ToPointF)]);
                                             lastPoint = points[validCount - 1].ToPointF();
                                             lastPointAdded = true;
                                         }
@@ -157,7 +165,7 @@ namespace KGySoft.Drawing.Uwp
                                         if (points.Count >= 2)
                                         {
                                             int validCount = points.Count / 2 * 2;
-                                            result.AddQuadraticCurves((IEnumerable<PointF>)[lastPoint, .. points.Take(validCount).Select(PointExtensions.ToPointF)]);
+                                            result.AddQuadraticCurves((IEnumerable<PointF>)[lastPoint, ..points.Take(validCount).Select(PointExtensions.ToPointF)]);
                                             lastPoint = points[validCount - 1].ToPointF();
                                             lastPointAdded = true;
                                         }
@@ -180,6 +188,155 @@ namespace KGySoft.Drawing.Uwp
 
                         break;
                 }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts a <see cref="Path"/> to a <see cref="Geometry"/>.
+        /// </summary>
+        /// <param name="path">The <see cref="Path"/> instance to convert to a <see cref="Geometry"/>.</param>
+        /// <returns>A <see cref="Geometry"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "The cases are better to be not extracted from the method")]
+        public static Geometry ToGeometry(this Path path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path), PublicResources.ArgumentNull);
+            if (path.IsEmpty)
+                return Geometry.Empty;
+            var result = new PathGeometry();
+            foreach (Figure figure in path.Figures)
+            {
+                if (figure.IsEmpty)
+                    continue;
+
+                ReadOnlyCollection<PathSegment> segments = figure.Segments;
+                PointF lastPoint = segments[0].StartPoint;
+                var uwpFigure = new PathFigure
+                {
+                    StartPoint = lastPoint.ToUwpPoint(),
+                    IsClosed = figure.IsClosed
+                };
+
+                foreach (PathSegment segment in segments)
+                {
+                    bool isFirstPointAdded = segment.StartPoint == lastPoint;
+                    lastPoint = segment.EndPoint;
+
+                    switch (segment)
+                    {
+                        case LineSegment lineSegment:
+                            IList<PointF> points = lineSegment.Points;
+                            int count = isFirstPointAdded ? points.Count - 1 : points.Count;
+                            switch (count)
+                            {
+                                case 0:
+                                    // UWP ignores single-point figures, so we add a one-pixel long line in this case
+                                    if (segments.Count == 1)
+                                        uwpFigure.Segments.Add(new UwpLineSegment { Point = new UwpPoint(uwpFigure.StartPoint.X + 0.5d, uwpFigure.StartPoint.Y + 0.5d) });
+                                    continue;
+                                case 1:
+                                    uwpFigure.Segments.Add(new UwpLineSegment { Point = lastPoint.ToUwpPoint() });
+                                    continue;
+                                default:
+                                    uwpFigure.Segments.Add(new PolyLineSegment { Points = [..(isFirstPointAdded ? points.Skip(1) : points).Select(p => p.ToUwpPoint())] });
+                                    continue;
+                            }
+
+                        case BezierSegment bezierSegment:
+                            if (!isFirstPointAdded)
+                                uwpFigure.Segments.Add(new UwpLineSegment { Point = segment.StartPoint.ToUwpPoint() });
+                            points = bezierSegment.Points;
+                            switch (points.Count)
+                            {
+                                case 1:
+                                    // UWP ignores single-point figures, so we add a one-pixel long line in this case
+                                    if (segments.Count == 1)
+                                        uwpFigure.Segments.Add(new UwpLineSegment { Point = new UwpPoint(uwpFigure.StartPoint.X + 0.5d, uwpFigure.StartPoint.Y + 0.5d) });
+                                    continue;
+                                case 4:
+                                    uwpFigure.Segments.Add(new UwpBezierSegment
+                                    {
+                                        Point1 = points[1].ToUwpPoint(),
+                                        Point2 = points[2].ToUwpPoint(),
+                                        Point3 = points[3].ToUwpPoint()
+                                    });
+                                    continue;
+                                default:
+                                    uwpFigure.Segments.Add(new PolyBezierSegment { Points = [..points.Skip(1).Select(p => p.ToUwpPoint())] });
+                                    continue;
+                            }
+
+                        case ArcSegment arcSegment:
+                            float radiusX = arcSegment.RadiusX;
+                            float radiusY = arcSegment.RadiusY;
+
+                            // Special case 1: horizontally or vertically flat arc or zero sweep angle - adding the flattened points instead
+                            // (UWP arc would just connect start/end points without considering the radius)
+                            if (radiusX.TolerantIsZero(Constants.NormalEqualityTolerance) || radiusY.TolerantIsZero(Constants.NormalEqualityTolerance)
+                                || arcSegment.SweepAngle.TolerantIsZero(Constants.NormalEqualityTolerance))
+                            {
+                                points = arcSegment.GetFlattenedPoints();
+                                if (points.Count == 1 && segments.Count == 1)
+                                    uwpFigure.Segments.Add(new UwpLineSegment { Point = new UwpPoint(uwpFigure.StartPoint.X + 0.5d, uwpFigure.StartPoint.Y + 0.5d) });
+                                else
+                                    uwpFigure.Segments.Add(new PolyLineSegment { Points = [..points.Select(p => p.ToUwpPoint())] });
+                                continue;
+                            }
+
+                            UwpSize size = new(radiusX, radiusY);
+                            if (!isFirstPointAdded)
+                                uwpFigure.Segments.Add(new UwpLineSegment { Point = segment.StartPoint.ToUwpPoint() });
+
+                            // Special case 2: [almost] full ellipse: cannot simply use a UWP ArcSegment, because it supports different start and end points only
+                            if (Math.Abs(arcSegment.SweepAngle) >= 359f)
+                            {
+                                // full ellipse with zero start angle: breaking it into two half arcs
+                                if (arcSegment.SweepAngle.TolerantEquals(360f, Constants.HighPrecisionTolerance) && arcSegment.StartAngle is 0f)
+                                {
+                                    var halfPoint = new UwpPoint(arcSegment.StartPoint.X - radiusX * 2f, arcSegment.StartPoint.Y);
+                                    uwpFigure.Segments.Add(new UwpArcSegment
+                                    {
+                                        Point = halfPoint,
+                                        Size = size,
+                                        RotationAngle = 0d,
+                                        IsLargeArc = false,
+                                        SweepDirection = SweepDirection.Clockwise
+                                    });
+                                    uwpFigure.Segments.Add(new UwpArcSegment
+                                    {
+                                        Point = lastPoint.ToUwpPoint(),
+                                        Size = size,
+                                        RotationAngle = 0d,
+                                        IsLargeArc = false,
+                                        SweepDirection = SweepDirection.Clockwise
+                                    });
+                                    continue;
+                                }
+
+                                // Nonzero start angle (or not a quite complete ellipse): converting to Bézier segments. It preserves the original start/end points.
+                                points = arcSegment.ToBezierPoints();
+                                if (points.Count > 0)
+                                    uwpFigure.Segments.Add(new PolyBezierSegment { Points = [..points.Skip(1).Select(p => p.ToUwpPoint())] });
+                                continue;
+                            }
+
+                            // General case: we can convert to UWP ArcSegment
+                            uwpFigure.Segments.Add(new UwpArcSegment
+                            {
+                                Point = lastPoint.ToUwpPoint(),
+                                Size = size,
+                                RotationAngle = 0d,
+                                IsLargeArc = Math.Abs(arcSegment.SweepAngle) >= 180f,
+                                SweepDirection = arcSegment.SweepAngle >= 0f ? SweepDirection.Clockwise : SweepDirection.Counterclockwise
+                            });
+                            continue;
+                    }
+                }
+
+                result.Figures.Add(uwpFigure);
             }
 
             return result;
