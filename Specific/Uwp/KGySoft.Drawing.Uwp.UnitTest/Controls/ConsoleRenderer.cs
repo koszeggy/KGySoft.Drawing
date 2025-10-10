@@ -170,7 +170,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest.Controls
         public ConsoleRenderer()
         {
             var textBlock = new RichTextBlock { FontFamily = new FontFamily("Consolas") };
-            Content = new ScrollViewer { Content = textBlock };
+            Content = new ScrollViewer { Content = textBlock, Background = new SolidColorBrush(Colors.Black) };
             writer = new ConsoleWriter(textBlock);
             Console.SetOut(writer);
         }

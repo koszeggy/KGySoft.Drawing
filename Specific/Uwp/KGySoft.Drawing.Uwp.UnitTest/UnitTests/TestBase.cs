@@ -17,11 +17,17 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
+using Windows.Graphics.Imaging;
+using Windows.Storage;
 using Windows.UI.Core;
+using Windows.UI.Xaml.Media.Imaging;
 
 using KGySoft.Drawing.Imaging;
+
 using NUnit.Framework;
 
 #endregion
@@ -30,6 +36,13 @@ namespace KGySoft.Drawing.Uwp.UnitTest
 {
     public abstract class TestBase
     {
+        #region Properties
+
+        protected static bool SaveToFile => true;
+        private static bool AddTimestamp => true;
+
+        #endregion
+
         #region Constructors
 
         protected TestBase() => Console.SetOut(Program.ConsoleWriter);
@@ -37,6 +50,14 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         #endregion
 
         #region Methods
+
+        #region Static Methods
+
+        private static string GetTimestamp() => AddTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+
+        #endregion
+
+        #region Instance Methods
 
         protected async Task ExecuteTest(DispatchedHandler callback) => await Program.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, callback);
         
@@ -162,6 +183,26 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
+
+        protected async Task SaveBitmap(string name, WriteableBitmap bmp, [CallerMemberName]string testName = null)
+        {
+            if (!SaveToFile)
+                return;
+
+            StorageFolder storageFolder = ApplicationData.Current.LocalCacheFolder;
+            //StorageFile file = StorageFile.GetFileFromPathAsync // to access a file from anywhere - requires extra manifest entry and user permission
+            StorageFile file = await storageFolder.CreateFileAsync($"{testName}{(name == null ? null : $"_{name}")}{GetTimestamp()}.png", CreationCollisionOption.ReplaceExisting);
+            using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            //var decoder = await BitmapDecoder.CreateAsync(bmp.PixelBuffer.AsStream().AsRandomAccessStream()); // throws 'The component cannot be found. (Exception from HRESULT: 0x88982F50)'
+            //encoder.SetSoftwareBitmap(await decoder.GetSoftwareBitmapAsync());
+            byte[] pixels = bmp.PixelBuffer.ToArray();
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)bmp.PixelWidth, (uint)bmp.PixelHeight, 96, 96, pixels);
+            await encoder.FlushAsync();
+            Console.WriteLine(@$"Bitmap saved: {file.Path}");
+        }
+
+        #endregion
 
         #endregion
     }
