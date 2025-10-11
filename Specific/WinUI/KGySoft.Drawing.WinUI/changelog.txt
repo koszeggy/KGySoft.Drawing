@@ -5,6 +5,22 @@
 + New feature
 ===============================================================================
 
+~~~~~~~~~~
+* v10.0.0:
+~~~~~~~~~~
+
+* Common changes
+================
+* Referencing KGySoft.Drawing.Core v10.0.0.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing.WinUI namespace
+=================================
++ New GeometryExtensions class:
+  + New ToPath method: To convert a WinUI Geometry instance to a KGySoft.Drawing.Shapes.Path.
+  + New ToGeometry method: To convert KGySoft.Drawing.Shapes.Path instance to a WinUI Geometry.
+
+
 ~~~~~~~~~
 ! v9.0.0:
 ~~~~~~~~~
