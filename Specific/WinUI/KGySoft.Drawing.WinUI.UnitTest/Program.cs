@@ -36,6 +36,12 @@ using WinRT;
 
 #endregion
 
+#region Suppressions
+
+// ReSharper disable LocalizableElement - Unit test strings are not localized
+
+#endregion
+
 namespace KGySoft.Drawing.WinUI
 {
     public class Program : Application
@@ -66,7 +72,7 @@ namespace KGySoft.Drawing.WinUI
                 if (status == TestStatus.Skipped && state.Site == FailureSite.Parent)
                     return;
 
-                string message = result.Message;
+                string? message = result.Message;
                 ConsoleColor origColor = console.ForegroundColor;
                 console.ForegroundColor = status switch
                 {
@@ -98,7 +104,7 @@ namespace KGySoft.Drawing.WinUI
 
         #region Fields
 
-        private static ConsoleRenderer console;
+        private static ConsoleRenderer console = null!; // Initialized in OnLaunched
 
         #endregion
 
@@ -106,8 +112,9 @@ namespace KGySoft.Drawing.WinUI
 
         #region Internal Properties
 
-        internal static DispatcherQueue Dispatcher { get; private set; }
-        internal static TextWriter ConsoleWriter { get; private set; }
+        internal static DispatcherQueue Dispatcher { get; private set; } = null!; // Initialized in OnLaunched
+        internal static TextWriter ConsoleWriter { get; private set; } = null!; // Initialized in OnLaunched
+        internal static XamlRoot XamlRoot => console.XamlRoot;
 
         #endregion
 
@@ -170,7 +177,7 @@ namespace KGySoft.Drawing.WinUI
         {
             // This executes all tests in a real WinUI application using a mocked WinUI console.
             // It is needed for test cases that require a regular dispatcher thread
-            // (eg. even creating a WriteableBitmap would throw a COMException with RPC_E_WRONG_THREAD otherwise).
+            // (e.g. even creating a WriteableBitmap would throw a COMException with RPC_E_WRONG_THREAD otherwise).
             base.OnLaunched(args);
 
             console = new ConsoleRenderer();
@@ -185,11 +192,12 @@ namespace KGySoft.Drawing.WinUI
                 console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine(FrameworkVersion);
 
+                TestFilter filter = TestFilter.Empty; // (TestFilter)Reflection.Reflector.CreateInstance(Reflection.Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter")!, "PathToGeometryTest");
                 var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
                 runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
                 Console.WriteLine("Executing tests...");
                 ConsoleWriter = Console.Out;
-                ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
+                ITestResult result = runner.Run(new ConsoleTestReporter(), filter);
                 console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                     : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                     : ConsoleColor.Green;

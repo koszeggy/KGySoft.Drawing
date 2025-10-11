@@ -17,6 +17,8 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
 
     <!--Suppressions:
       - NETSDK1138: The target framework 'tfm' is out of support - the unit test requires to target the versions supported by the library
