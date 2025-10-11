@@ -153,8 +153,6 @@ namespace KGySoft.Drawing.Shapes
         internal static List<PointF> GetBezierPointsFromEllipse(PointF centerPoint, float radiusX, float radiusY)
         {
             const float c1 = 0.5522848f; // 4/3 * (sqrt(2) - 1)
-            float centerX = centerPoint.X;
-            float centerY = centerPoint.Y;
             float ctrlPointX = c1 * radiusX;
             float ctrlPointY = c1 * radiusY;
 
@@ -162,25 +160,25 @@ namespace KGySoft.Drawing.Shapes
             return
             [
                 // 1st quadrant
-                new PointF(centerX + radiusX, centerY),
-                new PointF(centerX + radiusX, centerY - ctrlPointY),
-                new PointF(centerX + ctrlPointX, centerY - radiusY),
-                new PointF(centerX, centerY - radiusY),
+                new PointF(centerPoint.X + radiusX, centerPoint.Y),
+                new PointF(centerPoint.X + radiusX, centerPoint.Y - ctrlPointY),
+                new PointF(centerPoint.X + ctrlPointX, centerPoint.Y - radiusY),
+                new PointF(centerPoint.X, centerPoint.Y - radiusY),
 
                 // 2nd quadrant
-                new PointF(centerX - ctrlPointX, centerY - radiusY),
-                new PointF(centerX - radiusX, centerY - ctrlPointY),
-                new PointF(centerX - radiusX, centerY),
+                new PointF(centerPoint.X - ctrlPointX, centerPoint.Y - radiusY),
+                new PointF(centerPoint.X - radiusX, centerPoint.Y - ctrlPointY),
+                new PointF(centerPoint.X - radiusX, centerPoint.Y),
 
                 // 3rd quadrant
-                new PointF(centerX - radiusX, centerY + ctrlPointY),
-                new PointF(centerX - ctrlPointX, centerY + radiusY),
-                new PointF(centerX, centerY + radiusY),
+                new PointF(centerPoint.X - radiusX, centerPoint.Y + ctrlPointY),
+                new PointF(centerPoint.X - ctrlPointX, centerPoint.Y + radiusY),
+                new PointF(centerPoint.X, centerPoint.Y + radiusY),
 
                 // 4th quadrant
-                new PointF(centerX + ctrlPointX, centerY + radiusY),
-                new PointF(centerX + radiusX, centerY + ctrlPointY),
-                new PointF(centerX + radiusX, centerY)
+                new PointF(centerPoint.X + ctrlPointX, centerPoint.Y + radiusY),
+                new PointF(centerPoint.X + radiusX, centerPoint.Y + ctrlPointY),
+                new PointF(centerPoint.X + radiusX, centerPoint.Y)
             ];
         }
 
@@ -235,18 +233,28 @@ namespace KGySoft.Drawing.Shapes
         #region Private Methods
 
         // This method originates from mono/libgdiplus (MIT license): https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L736
-        // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians adjusted to ellipse coordinates, adding rotation support
+        // Main changes: converting to C#, originating from center+radius instead of bounds, angles are already in radians adjusted to ellipse coordinates, adding rotation support, using vectors when possible.
         private static void AppendArcSegment(PointF center, float radiusX, float radiusY, float startRad, float endRad, float rotationRad, List<PointF> result)
         {
             #region Local Methods
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            static PointF MapFromEllipseSpace(float ux, float uy, float radiusX, float radiusY, float cosPhi, float sinPhi, PointF center)
+            static PointF MapFromEllipseSpace(Vector2 scale, Vector2 radius, float cosPhi, float sinPhi, Vector2 center)
             {
-                float x = radiusX * ux;
-                float y = radiusY * uy;
+                Vector2 result = radius * scale;
+                result = new Vector2(cosPhi * result.X - sinPhi * result.Y, sinPhi * result.X + cosPhi * result.Y) + center;
+                return result.AsPointF();
+            }
+#else
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static PointF MapFromEllipseSpace(float scaleX, float scaleY, float radiusX, float radiusY, float cosPhi, float sinPhi, PointF center)
+            {
+                float x = radiusX * scaleX;
+                float y = radiusY * scaleY;
                 return new PointF(cosPhi * x - sinPhi * y + center.X, sinPhi * x + cosPhi * y + center.Y);
             }
+#endif
 
             #endregion
 
@@ -256,6 +264,10 @@ namespace KGySoft.Drawing.Shapes
             // 4f / 3f * (1f - MathF.Cos(sweepRad / 2f)) / MathF.Sin(sweepRad / 2f);
             float controlLengthFactor = (4f / 3f) * MathF.Tan(sweepRad / 4f);
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 centerVec = ref center.AsVector2();
+            Vector2 radius = new(radiusX, radiusY);
+#endif
             float sinStart = MathF.Sin(startRad);
             float sinEnd = MathF.Sin(endRad);
             float cosStart = MathF.Cos(startRad);
@@ -267,14 +279,28 @@ namespace KGySoft.Drawing.Shapes
                 // adding starting point only if we don't have a previous end point
                 if (result.Count == 0)
                 {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    Vector2 start = radius * new Vector2(cosStart, sinStart) + centerVec;
+                    result.Add(start.AsPointF());
+#else
                     result.Add(new PointF(center.X + radiusX * cosStart, center.Y + radiusY * sinStart));
+#endif
                     if (startRad.Equals(endRad))
                         return;
                 }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                Vector2 cp1 = centerVec + radius * new Vector2(cosStart - controlLengthFactor * sinStart, sinStart + controlLengthFactor * cosStart);
+                Vector2 cp2 = centerVec + radius * new Vector2(cosEnd + controlLengthFactor * sinEnd, sinEnd - controlLengthFactor * cosEnd);
+                Vector2 end = centerVec + radius * new Vector2(cosEnd, sinEnd);
+                result.Add(cp1.AsPointF());
+                result.Add(cp2.AsPointF());
+                result.Add(end.AsPointF());
+#else
                 result.Add(new PointF(center.X + radiusX * (cosStart - controlLengthFactor * sinStart), center.Y + radiusY * (sinStart + controlLengthFactor * cosStart)));
                 result.Add(new PointF(center.X + radiusX * (cosEnd + controlLengthFactor * sinEnd), center.Y + radiusY * (sinEnd - controlLengthFactor * cosEnd)));
                 result.Add(new PointF(center.X + radiusX * cosEnd, center.Y + radiusY * sinEnd));
+#endif
                 return;
             }
 
@@ -284,20 +310,30 @@ namespace KGySoft.Drawing.Shapes
             // adding starting point only if we don't have a previous end point
             if (result.Count == 0)
             {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                result.Add(MapFromEllipseSpace(new Vector2(cosStart, sinStart), radius, cosPhi, sinPhi, centerVec));
+#else
                 result.Add(MapFromEllipseSpace(cosStart, sinStart, radiusX, radiusY, cosPhi, sinPhi, center));
+#endif
                 if (startRad.Equals(endRad))
                     return;
             }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            result.Add(MapFromEllipseSpace(new Vector2(cosStart - controlLengthFactor * sinStart, sinStart + controlLengthFactor * cosStart), radius, cosPhi, sinPhi, centerVec));
+            result.Add(MapFromEllipseSpace(new Vector2(cosEnd + controlLengthFactor * sinEnd, sinEnd - controlLengthFactor * cosEnd), radius, cosPhi, sinPhi, centerVec));
+            result.Add(MapFromEllipseSpace(new Vector2(cosEnd, sinEnd), radius, cosPhi, sinPhi, centerVec));
+#else
             result.Add(MapFromEllipseSpace(cosStart - controlLengthFactor * sinStart, sinStart + controlLengthFactor * cosStart, radiusX, radiusY, cosPhi, sinPhi, center));
             result.Add(MapFromEllipseSpace(cosEnd + controlLengthFactor * sinEnd, sinEnd - controlLengthFactor * cosEnd, radiusX, radiusY, cosPhi, sinPhi, center));
             result.Add(MapFromEllipseSpace(cosEnd, sinEnd, radiusX, radiusY, cosPhi, sinPhi, center));
+#endif
         }
 
         // This algorithm was inspired by the nr_curve_flatten method from the mono/libgdiplus project: https://github.com/mono/libgdiplus/blob/94a49875487e296376f209fe64b921c6020f74c0/src/graphics-path.c#L1612
         // which they took from Sodipodi's libnr project (nr-svp.c/nr_svl_build_curveto method): https://web.archive.org/web/20070305000912/http://www.sodipodi.com/files/sodipodi-0.33-beta.tar.gz
         // Former is under the MIT License, the latter is simply noted as being in the "public domain" and was written by Lauris Kaplinski.
-        // Main changes: refactored control flow, more descriptive variable names, simply just omitting subdivision when reaching the recursion limit, using vectors when possible (TODO).
+        // Main changes: refactored control flow, more descriptive variable names, simply just omitting subdivision when reaching the recursion limit, using vectors when possible.
         [SuppressMessage("ReSharper", "TailRecursiveCall", Justification = "Could remove only one of the two recursions and would make the code messier.")]
         private static void FlattenBezierCurve(PointF start, PointF controlPoint1, PointF controlPoint2, PointF end, int level, List<PointF> result)
         {
@@ -305,10 +341,22 @@ namespace KGySoft.Drawing.Shapes
             // causing a revert in the caller, whereas the Sodipodi code had no built-in limit. We just go on without subdivision in such case.
             if (level == flattenRecursionLimit)
             {
-                result.Add(new PointF(end.X, end.Y));
+                result.Add(end);
                 return;
             }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 startVec = ref start.AsVector2();
+            ref Vector2 cp1Vec = ref controlPoint1.AsVector2();
+            ref Vector2 cp2Vec = ref controlPoint2.AsVector2();
+            ref Vector2 endVec = ref end.AsVector2();
+
+            Vector2 diffCtrl1Start = cp1Vec - startVec;
+            Vector2 diffCtrl2Start = cp2Vec - startVec;
+            Vector2 diffEndStart = endVec - startVec;
+            Vector2 diffEndCtrl2 = endVec - cp2Vec;
+            float sqrDistStartEnd = diffEndStart.LengthSquared();
+#else
             float diffCtrl1StartX = controlPoint1.X - start.X;
             float diffCtrl1StartY = controlPoint1.Y - start.Y;
             float diffCtrl2StartX = controlPoint2.X - start.X;
@@ -318,16 +366,22 @@ namespace KGySoft.Drawing.Shapes
             float diffEndCtrl2X = end.X - controlPoint2.X;
             float diffEndCtrl2Y = end.Y - controlPoint2.Y;
             float sqrDistStartEnd = diffEndStartX * diffEndStartX + diffEndStartY * diffEndStartY;
+#endif
 
             if (sqrDistStartEnd <= flatnessThreshold)
             {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                float sqrDistStartCtrl1 = diffCtrl1Start.LengthSquared();
+                float sqrDistStartCtrl2 = diffCtrl2Start.LengthSquared();
+#else
                 float sqrDistStartCtrl1 = diffCtrl1StartX * diffCtrl1StartX + diffCtrl1StartY * diffCtrl1StartY;
                 float sqrDistStartCtrl2 = diffCtrl2StartX * diffCtrl2StartX + diffCtrl2StartY * diffCtrl2StartY;
+#endif
 
                 // No need to subdivide if the control points are close enough
                 if ((sqrDistStartCtrl1 < flatnessThreshold) && (sqrDistStartCtrl2 < flatnessThreshold))
                 {
-                    result.Add(new PointF(end.X, end.Y));
+                    result.Add(end);
                     return;
                 }
             }
@@ -336,11 +390,19 @@ namespace KGySoft.Drawing.Shapes
                 float subdivideThreshold = flatnessThreshold * sqrDistStartEnd;
 
                 // Calculating dot and cross products for the control points and the start/end points
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                float dotStartCtrl1StartEnd = Vector2.Dot(diffCtrl1Start, diffEndStart);
+                float crossStartCtrl1StartEnd = diffCtrl1Start.X * diffEndStart.Y - diffCtrl1Start.Y * diffEndStart.X;
+                float dotStartCtrl2StartEnd = Vector2.Dot(diffCtrl2Start, diffEndStart);
+                float crossStartCtrl2StartEnd = diffCtrl2Start.X * diffEndStart.Y - diffCtrl2Start.Y * diffEndStart.X;
+                float dotCtrl2EndStartEnd = Vector2.Dot(diffEndCtrl2, diffEndStart);
+#else
                 float dotStartCtrl1StartEnd = diffCtrl1StartX * diffEndStartX + diffCtrl1StartY * diffEndStartY;
                 float crossStartCtrl1StartEnd = diffCtrl1StartY * diffEndStartX - diffCtrl1StartX * diffEndStartY;
                 float dotStartCtrl2StartEnd = diffCtrl2StartX * diffEndStartX + diffCtrl2StartY * diffEndStartY;
                 float crossStartCtrl2StartEnd = diffCtrl2StartY * diffEndStartX - diffCtrl2StartX * diffEndStartY;
                 float dotCtrl2EndStartEnd = diffEndCtrl2X * diffEndStartX + diffEndCtrl2Y * diffEndStartY;
+#endif
 
                 // If no need to subdivide, simply just adding the end point
                 if ((crossStartCtrl1StartEnd * crossStartCtrl1StartEnd) <= subdivideThreshold
@@ -349,11 +411,23 @@ namespace KGySoft.Drawing.Shapes
                     && (dotCtrl2EndStartEnd >= 0f || dotCtrl2EndStartEnd * dotCtrl2EndStartEnd >= subdivideThreshold)
                     && dotStartCtrl1StartEnd < dotStartCtrl2StartEnd)
                 {
-                    result.Add(new PointF(end.X, end.Y));
+                    result.Add(end);
                     return;
                 }
             }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            // Calculating the midpoints for subdivision
+            Vector2 midStartCtrl1 = (startVec + cp1Vec) * 0.5f;
+            Vector2 midStartCtrl1Ctrl2 = (startVec + cp1Vec * 2f + cp2Vec) * 0.25f;
+            Vector2 midCtrl1Ctrl2End = (cp1Vec + cp2Vec * 2f + endVec) * 0.25f;
+            Vector2 midCtrl2End = (cp2Vec + endVec) * 0.5f;
+            Vector2 midAll = (midStartCtrl1Ctrl2 + midCtrl1Ctrl2End) * 0.5f;
+
+            // Going on with recursive subdivision
+            FlattenBezierCurve(start, midStartCtrl1.AsPointF(), midStartCtrl1Ctrl2.AsPointF(), midAll.AsPointF(), level + 1, result);
+            FlattenBezierCurve(midAll.AsPointF(), midCtrl1Ctrl2End.AsPointF(), midCtrl2End.AsPointF(), end, level + 1, result);
+#else
             // Calculating the midpoints for subdivision
             float midStartCtrl1X = (start.X + controlPoint1.X) * 0.5f;
             float midStartCtrl1Y = (start.Y + controlPoint1.Y) * 0.5f;
@@ -367,8 +441,9 @@ namespace KGySoft.Drawing.Shapes
             float midAllY = (midStartCtrl1Ctrl2Y + midCtrl1Ctrl2EndY) * 0.5f;
 
             // Going on with recursive subdivision
-            FlattenBezierCurve(new PointF(start.X, start.Y), new PointF(midStartCtrl1X, midStartCtrl1Y), new PointF(midStartCtrl1Ctrl2X, midStartCtrl1Ctrl2Y), new PointF(midAllX, midAllY), level + 1, result);
-            FlattenBezierCurve(new PointF(midAllX, midAllY), new PointF(midCtrl1Ctrl2EndX, midCtrl1Ctrl2EndY), new PointF(midCtrl2EndX, midCtrl2EndY), new PointF(end.X, end.Y), level + 1, result);
+            FlattenBezierCurve(start, new PointF(midStartCtrl1X, midStartCtrl1Y), new PointF(midStartCtrl1Ctrl2X, midStartCtrl1Ctrl2Y), new PointF(midAllX, midAllY), level + 1, result);
+            FlattenBezierCurve(new PointF(midAllX, midAllY), new PointF(midCtrl1Ctrl2EndX, midCtrl1Ctrl2EndY), new PointF(midCtrl2EndX, midCtrl2EndY), end, level + 1, result);
+#endif
         }
 
         #endregion
