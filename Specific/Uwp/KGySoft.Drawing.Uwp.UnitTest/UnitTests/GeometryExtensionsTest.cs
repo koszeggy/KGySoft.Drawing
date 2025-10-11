@@ -47,14 +47,9 @@ using UwpBezierSegment = Windows.UI.Xaml.Media.BezierSegment;
 using UwpLineSegment = Windows.UI.Xaml.Media.LineSegment;
 #if DEBUG
 using UwpPath = Windows.UI.Xaml.Shapes.Path; 
-#endregion
 #endif
 
 #endregion
-
-#region Suppressions
-
-#pragma warning disable CS0618 // Type or member is obsolete - the recommended FormattedText constructor is not available in all target frameworks
 
 #endregion
 
@@ -254,6 +249,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 Fill = new SolidColorBrush(Colors.Yellow),
                 Stroke = new SolidColorBrush(Colors.Blue)
             };
+
             AppWindow appWindow = await AppWindow.TryCreateAsync();
             var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
             ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
@@ -360,7 +356,6 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             if (!SaveToFile)
                 Assert.Inconclusive("Set SaveToFile to true to save the bitmaps for visual comparison.");
 #endif
-
         });
 
         #endregion
