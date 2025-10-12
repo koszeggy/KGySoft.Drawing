@@ -48,10 +48,21 @@ namespace KGySoft.Drawing
             // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
+            {
+#if NET8_0_OR_GREATER
+                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector4();
+#else
                 return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f)).AsVector4();
 #endif
+            }
+#endif
+#if NET9_0_OR_GREATER
+            // there is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector4.MinNumber(Vector4.MaxNumber(v, Vector4.Zero), Vector4.One);
+#else
             // The non-accelerated fallback version that returns 0f for NaN
             return new Vector4(v.X.ClipF(), v.Y.ClipF(), v.Z.ClipF(), v.W.ClipF());
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -61,10 +72,21 @@ namespace KGySoft.Drawing
             // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
+            {
+#if NET8_0_OR_GREATER
+                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector3();
+#else
                 return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f)).AsVector3();
 #endif
+            }
+#endif
+#if NET9_0_OR_GREATER
+            // there is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector3.MinNumber(Vector3.MaxNumber(v, Vector3.Zero), Vector3.One);
+#else
             // The non-accelerated fallback version that returns 0f for NaN
             return new Vector3(v.X.ClipF(), v.Y.ClipF(), v.Z.ClipF());
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -76,8 +98,13 @@ namespace KGySoft.Drawing
             if (Sse.IsSupported)
                 return Sse.Min(Sse.Max(v.AsVector128(), min.AsVector128()), max.AsVector128()).AsVector4();
 #endif
+#if NET9_0_OR_GREATER
+            // there is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector4.MinNumber(Vector4.MaxNumber(v, min), max);
+#else
             // The non-accelerated fallback version that returns 0f for NaN
             return new Vector4(v.X.Clip(min.X, max.X), v.Y.Clip(min.Y, max.Y), v.Z.Clip(min.Z, max.Z), v.W.Clip(min.W, max.W));
+#endif
         }
 
 #if NETCOREAPP3_0_OR_GREATER
@@ -104,7 +131,7 @@ namespace KGySoft.Drawing
         }
 #endif
 
-        #endregion
+#endregion
     }
 }
 #endif
