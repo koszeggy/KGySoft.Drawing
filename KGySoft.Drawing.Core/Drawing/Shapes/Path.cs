@@ -839,11 +839,50 @@ namespace KGySoft.Drawing.Shapes
                 return AddLine(startPoint, endPoint);
             }
 
-            radiusX = Math.Abs(radiusX);
-            radiusY = Math.Abs(radiusY);
             float rotationRad = rotationAngle.ToRadian();
             float cosPhi = MathF.Cos(rotationRad);
             float sinPhi = MathF.Sin(rotationRad);
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            Vector2 startVec = startPoint.AsVector2();
+            Vector2 endVec = endPoint.AsVector2();
+            Vector2 radius = new Vector2(radiusX, radiusY);
+            radius = Vector2.Abs(radius);
+
+            // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
+            Vector2 offset = (startVec - endVec) / 2f;
+            Vector2 rotated = new Vector2(cosPhi * offset.X + sinPhi * offset.Y, -sinPhi * offset.X + cosPhi * offset.Y);
+
+            // Adjusting radii if necessary
+            Vector2 rotatedSquared = rotated * rotated;
+            Vector2 lambdaVec = rotatedSquared / (radius * radius);
+            float lambda = lambdaVec.X + lambdaVec.Y;
+            if (lambda > 1f)
+            {
+                float scale = MathF.Sqrt(lambda);
+                radius *= scale;
+            }
+
+            Vector2 radiusSquared = radius * radius; // with the possibly adjusted radii
+
+            // Calculating center
+            float sign = isLargeArc != isClockwise ? 1 : -1;
+            float numerator = Math.Max(0f, radiusSquared.X * radiusSquared.Y - radiusSquared.X * rotatedSquared.Y - radiusSquared.Y * rotatedSquared.X);
+            float denominator = radiusSquared.X * rotatedSquared.Y + radiusSquared.Y * rotatedSquared.X;
+            float coefficient = sign * MathF.Sqrt(numerator / denominator);
+            Vector2 centerRotated = coefficient * new Vector2(radius.X * rotated.Y / radius.Y, -radius.Y * rotated.X / radius.X);
+            Vector2 mid = (startVec + endVec) / 2f;
+            Vector2 center = new Vector2(cosPhi * centerRotated.X - sinPhi * centerRotated.Y, sinPhi * centerRotated.X + cosPhi * centerRotated.Y) + mid;
+
+            // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
+            Vector2 startVector = (rotated - centerRotated) / radius;
+            Vector2 endVector = (-rotated - centerRotated) / radius;
+
+            float startRad = MathF.Atan2(startVector.Y, startVector.X);
+            float sweepRad = MathF.Atan2(endVector.Y, endVector.X) - startRad;
+#else
+            radiusX = Math.Abs(radiusX);
+            radiusY = Math.Abs(radiusY);
 
             // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
             float offsetX = (startPoint.X - endPoint.X) / 2f;
@@ -885,6 +924,7 @@ namespace KGySoft.Drawing.Shapes
 
             float startRad = MathF.Atan2(startVectorY, startVectorX);
             float sweepRad = MathF.Atan2(endVectorY, endVectorX) - startRad;
+#endif
 
             // Ensuring that we get the correct arc (large vs small). Can be imprecise if the arc is very close to 180 degrees, which is adjusted below.
             if (isLargeArc != Math.Abs(sweepRad) >= MathF.PI)
@@ -902,12 +942,20 @@ namespace KGySoft.Drawing.Shapes
             // If there is no rotation we prefer using ArcSegment, because it can be used to produce a more symmetric result when using thin lines with Bresenham-based algorithms.
             if (rotationAngle == 0f)
             {
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                AddSegment(new ArcSegment(center.AsPointF(), radius.X, radius.Y, startRad, startRad + sweepRad));
+#else
                 AddSegment(new ArcSegment(new PointF(centerX, centerY), radiusX, radiusY, startRad, startRad + sweepRad));
+#endif
                 return this;
             }
 
             // Otherwise, we convert the arc to cubic Bézier segments.
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            AppendBeziers(BezierSegment.GetBezierPointsFromArc(center.AsPointF(), radius.X, radius.Y, startRad, sweepRad, rotationRad), false);
+#else
             AppendBeziers(BezierSegment.GetBezierPointsFromArc(new PointF(centerX, centerY), radiusX, radiusY, startRad, sweepRad, rotationRad), false);
+#endif
             return this;
         }
 
