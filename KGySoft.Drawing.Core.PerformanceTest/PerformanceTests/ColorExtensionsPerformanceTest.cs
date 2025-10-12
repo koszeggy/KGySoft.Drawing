@@ -169,6 +169,7 @@ namespace KGySoft.Drawing.PerformanceTests
             Color32 expected = testColor32.BlendWithBackgroundSrgb(Color32.Black);
 
             Console.WriteLine($"{"Expected color:",-50} {expected}");
+
             void DoAssert(Expression<Func<Color32>> e)
             {
                 var m = (MethodCallExpression)e.Body;
@@ -183,50 +184,117 @@ namespace KGySoft.Drawing.PerformanceTests
             DoAssert(() => testColor32.BlendWithBackgroundSrgb_3_IntrinsicsDivSse41(Color32.Black));
             DoAssert(() => testColor32.BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3(Color32.Black));
             DoAssert(() => testColor32.BlendWithBackgroundSrgb_5_IntrinsicsDivSse2(Color32.Black));
+            DoAssert(() => testColor32.BlendWithBackgroundSrgb_6_Vector128Div(Color32.Black));
+            DoAssert(() => testColor32.BlendWithBackgroundSrgb_7_Vector128Shift(Color32.Black));
 
-            new PerformanceTest<Color32> { TestName = "BlendWithBackgroundSrgb(Color32,Color32)", TestTime = 5000, Iterations = 10_000_000, Repeat = 3 }
+            // TODO: if the results are good enough, check
+            // - creating from int rather than byte + shuffle/unpack
+            // - use ShuffleNative
+            new PerformanceTest<Color32>
+                {
+                    TestName = "BlendWithBackgroundSrgb(Color32,Color32)",
+                    TestTime = 5000,
+                    Iterations = 10_000_000,
+                    Repeat = 3
+                }
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_0_VanillaShift(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_0_VanillaShift))
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_1_VanillaDiv(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_1_VanillaDiv))
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_2_IntrinsicsShift(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_2_IntrinsicsShift))
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_3_IntrinsicsDivSse41(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_3_IntrinsicsDivSse41))
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3))
                 .AddCase(() => testColor32.BlendWithBackgroundSrgb_5_IntrinsicsDivSse2(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_5_IntrinsicsDivSse2))
+                .AddCase(() => testColor32.BlendWithBackgroundSrgb_6_Vector128Div(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_6_Vector128Div))
+                .AddCase(() => testColor32.BlendWithBackgroundSrgb_7_Vector128Shift(Color32.Black), nameof(ColorExtensions.BlendWithBackgroundSrgb_7_Vector128Shift))
                 .DoTest()
                 .DumpResults(Console.Out);
 
             // Verdict: Using shifting, which is the fastest one both with vanilla and intrinsic operations, and have the same results.
             //          The only drawback: if the CPU supports SSSE3 only, then division would be faster.
+            // NOTE: Non-specific Vector128 performance is terrible in .NET 8, but it isn't worth using it even in .NET 10, because there vanilla shift is still faster.
 
-            // 1. BlendWithBackgroundSrgb_2_IntrinsicsShift: average time: 40,82 ms
-            //   #1          40,14 ms	 <---- Best
-            //   #2          40,86 ms
-            //   #3          41,48 ms	 <---- Worst
-            //   Worst-Best difference: 1,34 ms (3,35%)
-            // 2. BlendWithBackgroundSrgb_3_IntrinsicsDivSse41: average time: 44,22 ms (+3,39 ms / 108,31%)
-            //   #1          43,86 ms
-            //   #2          43,34 ms	 <---- Best
-            //   #3          45,44 ms	 <---- Worst
-            //   Worst-Best difference: 2,10 ms (4,85%)
-            // 3. BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3: average time: 61,42 ms (+20,60 ms / 150,46%)
-            //   #1          61,54 ms	 <---- Worst
-            //   #2          61,48 ms
-            //   #3          61,25 ms	 <---- Best
-            //   Worst-Best difference: 0,29 ms (0,48%)
-            // 4. BlendWithBackgroundSrgb_0_VanillaShift: average time: 80,55 ms (+39,72 ms / 197,30%)
-            //   #1          80,70 ms
-            //   #2          81,28 ms	 <---- Worst
-            //   #3          79,66 ms	 <---- Best
-            //   Worst-Best difference: 1,62 ms (2,04%)
-            // 5. BlendWithBackgroundSrgb_5_IntrinsicsDivSse2: average time: 93,96 ms (+53,13 ms / 230,14%)
-            //   #1          95,15 ms	 <---- Worst
-            //   #2          92,71 ms	 <---- Best
-            //   #3          94,01 ms
-            //   Worst-Best difference: 2,44 ms (2,63%)
-            // 6. BlendWithBackgroundSrgb_1_VanillaDiv: average time: 98,42 ms (+57,59 ms / 241,07%)
-            //   #1          98,79 ms
-            //   #2          99,60 ms	 <---- Worst
-            //   #3          96,86 ms	 <---- Best
-            //   Worst-Best difference: 2,73 ms (2,82%)
+            // .NET 8:
+            // 1. BlendWithBackgroundSrgb_2_IntrinsicsShift: average time: 19,24 ms
+            //   #1          18,84 ms	 <---- Best
+            //   #2          19,37 ms
+            //   #3          19,50 ms	 <---- Worst
+            //   Worst-Best difference: 0,66 ms (3,51%)
+            // 2. BlendWithBackgroundSrgb_3_IntrinsicsDivSse41: average time: 20,05 ms (+0,81 ms / 104,21%)
+            //   #1          20,16 ms	 <---- Worst
+            //   #2          19,94 ms	 <---- Best
+            //   #3          20,06 ms
+            //   Worst-Best difference: 0,22 ms (1,10%)
+            // 3. BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3: average time: 24,95 ms (+5,71 ms / 129,68%)
+            //   #1          24,34 ms	 <---- Best
+            //   #2          25,50 ms	 <---- Worst
+            //   #3          25,01 ms
+            //   Worst-Best difference: 1,16 ms (4,76%)
+            // 4. BlendWithBackgroundSrgb_0_VanillaShift: average time: 49,73 ms (+30,49 ms / 258,50%)
+            //   #1          50,02 ms
+            //   #2          51,39 ms	 <---- Worst
+            //   #3          47,80 ms	 <---- Best
+            //   Worst-Best difference: 3,59 ms (7,51%)
+            // 5. BlendWithBackgroundSrgb_5_IntrinsicsDivSse2: average time: 55,10 ms (+35,86 ms / 286,38%)
+            //   #1          55,94 ms	 <---- Worst
+            //   #2          55,08 ms
+            //   #3          54,28 ms	 <---- Best
+            //   Worst-Best difference: 1,66 ms (3,06%)
+            // 6. BlendWithBackgroundSrgb_1_VanillaDiv: average time: 69,17 ms (+49,93 ms / 359,50%)
+            //   #1          58,73 ms	 <---- Best
+            //   #2          68,41 ms
+            //   #3          80,36 ms	 <---- Worst
+            //   Worst-Best difference: 21,64 ms (36,84%)
+            // 7. BlendWithBackgroundSrgb_6_Vector128Div: average time: 363,59 ms (+344,35 ms / 1 889,78%)
+            //   #1         366,22 ms	 <---- Worst
+            //   #2         360,07 ms	 <---- Best
+            //   #3         364,49 ms
+            //   Worst-Best difference: 6,15 ms (1,71%)
+            // 8. BlendWithBackgroundSrgb_7_Vector128Shift: average time: 436,68 ms (+417,44 ms / 2 269,64%)
+            //   #1         445,19 ms	 <---- Worst
+            //   #2         429,02 ms	 <---- Best
+            //   #3         435,82 ms
+            //   Worst-Best difference: 16,17 ms (3,77%)
+
+            // .NET 10:
+            // 1. BlendWithBackgroundSrgb_0_VanillaShift: average time: 16,42 ms
+            //   #1          17,29 ms	 <---- Worst
+            //   #2          16,11 ms
+            //   #3          15,85 ms	 <---- Best
+            //   Worst-Best difference: 1,44 ms (9,09%)
+            // 2. BlendWithBackgroundSrgb_2_IntrinsicsShift: average time: 17,70 ms (+1,29 ms / 107,84%)
+            //   #1          17,73 ms
+            //   #2          17,79 ms	 <---- Worst
+            //   #3          17,59 ms	 <---- Best
+            //   Worst-Best difference: 0,20 ms (1,16%)
+            // 3. BlendWithBackgroundSrgb_7_Vector128Shift: average time: 18,92 ms (+2,50 ms / 115,25%)
+            //   #1          18,65 ms	 <---- Best
+            //   #2          19,21 ms	 <---- Worst
+            //   #3          18,90 ms
+            //   Worst-Best difference: 0,56 ms (3,03%)
+            // 4. BlendWithBackgroundSrgb_3_IntrinsicsDivSse41: average time: 20,48 ms (+4,06 ms / 124,74%)
+            //   #1          20,30 ms	 <---- Best
+            //   #2          20,41 ms
+            //   #3          20,72 ms	 <---- Worst
+            //   Worst-Best difference: 0,42 ms (2,08%)
+            // 5. BlendWithBackgroundSrgb_4_IntrinsicsDivSsse3: average time: 24,59 ms (+8,18 ms / 149,81%)
+            //   #1          24,57 ms
+            //   #2          24,56 ms	 <---- Best
+            //   #3          24,65 ms	 <---- Worst
+            //   Worst-Best difference: 0,10 ms (0,40%)
+            // 6. BlendWithBackgroundSrgb_6_Vector128Div: average time: 28,16 ms (+11,74 ms / 171,54%)
+            //   #1          28,33 ms
+            //   #2          28,45 ms	 <---- Worst
+            //   #3          27,70 ms	 <---- Best
+            //   Worst-Best difference: 0,75 ms (2,72%)
+            // 7. BlendWithBackgroundSrgb_5_IntrinsicsDivSse2: average time: 30,79 ms (+14,37 ms / 187,54%)
+            //   #1          30,89 ms
+            //   #2          30,57 ms	 <---- Best
+            //   #3          30,90 ms	 <---- Worst
+            //   Worst-Best difference: 0,33 ms (1,09%)
+            // 8. BlendWithBackgroundSrgb_1_VanillaDiv: average time: 31,04 ms (+14,62 ms / 189,08%)
+            //   #1          25,50 ms	 <---- Best
+            //   #2          35,32 ms	 <---- Worst
+            //   #3          32,31 ms
+            //   Worst-Best difference: 9,82 ms (38,52%)
         }
 
         [Test]
@@ -676,9 +744,11 @@ namespace KGySoft.Drawing.PerformanceTests
         #region Properties
 
 #if NET5_0_OR_GREATER
-        private static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        private static Vector128<byte> PackLowBytesMask => Vector128.Create((byte)0, 4, 8, 12, default, default, default, default, default, default, default, default, default, default, default, default);
+        private static Vector128<byte> UnpackLowBytesMask => Vector128.Create((byte)0, 4, 4, 4, 1, 4, 4, 4, 2, 4, 4, 4, default, default, default, default);
 #elif NETCOREAPP3_0_OR_GREATER
-        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create((byte)0, 4, 8, 12, default, default, default, default, default, default, default, default, default, default, default, default);
+        private static Vector128<byte> UnpackLowBytesMask { get; } = Vector128.Create((byte)0, 4, 4, 4, 1, 4, 4, 4, 2, 4, 4, 4, default, default, default, default);
 #endif
 
         #endregion
@@ -1065,6 +1135,84 @@ namespace KGySoft.Drawing.PerformanceTests
                 (byte)((c.R * c.A + backColor.R * inverseAlpha) / 255),
                 (byte)((c.G * c.A + backColor.G * inverseAlpha) / 255),
                 (byte)((c.B * c.A + backColor.B * inverseAlpha) / 255));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 BlendWithBackgroundSrgb_6_Vector128Div(this Color32 c, Color32 backColor)
+        {
+            Debug.Assert(c.A != Byte.MaxValue, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == Byte.MaxValue, "Totally opaque back color is expected.");
+
+            // The blending is applied only to the color and not the resulting alpha, which will always be opaque
+            if (c.A == 0)
+                return backColor;
+            int inverseAlpha = Byte.MaxValue - c.A;
+
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                Vector128<float> bgrF = Vector128.ConvertToSingle(Vector128.Shuffle(Vector128.CreateScalar(c.Value).AsByte(), UnpackLowBytesMask).AsInt32());
+
+                // bgrF *= c.A
+                int a = c.A;
+                bgrF *= Vector128.ConvertToSingle(Vector128.Create(a));
+
+                // result = backColor
+                Vector128<float> resultF = Vector128.ConvertToSingle(Vector128.Shuffle(Vector128.CreateScalar(backColor.Value).AsByte(), UnpackLowBytesMask).AsInt32());
+
+                // resultF *= inverseAlpha
+                resultF *= Vector128.ConvertToSingle(Vector128.Create(inverseAlpha));
+
+                // resultF = (bgrF + resultF) / 255f
+                resultF = (bgrF + resultF) / 255f;
+
+                Vector128<int> bgraI32 = Vector128.ConvertToInt32(resultF);
+
+                return new Color32(Vector128.Shuffle(bgraI32.WithElement(3, Byte.MaxValue).AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+            }
+#endif
+
+            return new Color32(Byte.MaxValue,
+                (byte)((c.R * c.A + backColor.R * inverseAlpha) / 255),
+                (byte)((c.G * c.A + backColor.G * inverseAlpha) / 255),
+                (byte)((c.B * c.A + backColor.B * inverseAlpha) / 255));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 BlendWithBackgroundSrgb_7_Vector128Shift(this Color32 c, Color32 backColor)
+        {
+            Debug.Assert(c.A != Byte.MaxValue, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == Byte.MaxValue, "Totally opaque back color is expected.");
+
+            // The blending is applied only to the color and not the resulting alpha, which will always be opaque
+            if (c.A == 0)
+                return backColor;
+            int inverseAlpha = Byte.MaxValue - c.A;
+
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                // c.RGB * c.A
+                Vector128<int> bgraI32 = Vector128.Shuffle(Vector128.CreateScalar(c.Value).AsByte(), UnpackLowBytesMask).AsInt32()
+                    * Vector128.Shuffle(Vector128.Create(c.A).WithElement<byte>(4, 0), UnpackLowBytesMask).AsInt32();
+
+                // backColor.RGB * inverseAlpha
+                Vector128<int> result = Vector128.Shuffle(Vector128.CreateScalar(backColor.Value).AsByte(), UnpackLowBytesMask).AsInt32()
+                    * Vector128.Create(inverseAlpha);
+
+                // result = (bgraI32 + result) >> 8 | a:0xFF;
+                //result = Sse2.ShiftRightLogical(Sse2.Add(bgraI32, result), 8).WithElement(3, Byte.MaxValue);
+                result = ((bgraI32 + result) >>> 8).WithElement(3, Byte.MaxValue);
+
+                return new Color32(Vector128.Shuffle(result.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+
+            }
+#endif
+
+            return new Color32(Byte.MaxValue,
+                (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
+                (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
+                (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
