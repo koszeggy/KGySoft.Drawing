@@ -16,6 +16,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -131,7 +132,25 @@ namespace KGySoft.Drawing
         }
 #endif
 
-#endregion
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector4 RoundTo(this Vector4 vector, float smallestUnit)
+            => (vector / smallestUnit + new Vector4(0.5f)).Floor() * smallestUnit;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector4 Floor(this Vector4 vector)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse41.IsSupported)
+                return Sse41.Floor(vector.AsVector128()).AsVector4();
+#endif
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+                return Vector128.Floor(vector.AsVector128()).AsVector4();
+#endif
+            return new Vector4(MathF.Floor(vector.X), MathF.Floor(vector.Y), MathF.Floor(vector.Z), MathF.Floor(vector.W));
+        }
+
+        #endregion
     }
 }
 #endif

@@ -24,6 +24,10 @@ using System.Drawing;
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 using System.Security;
 
 using KGySoft.Collections;
@@ -1651,8 +1655,30 @@ namespace KGySoft.Drawing.Shapes
             protected (Point P1, Point P2) Round(PointF p1, PointF p2)
             {
                 // NOTE: Unlike in DirectDrawer, rounding is not in a checked context here, because RawPath is already validated.
+                // Meaning, we can use vectorization also for the int cast when possible.
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                Vector4 result = (new Vector4(p1.X, p1.Y, p2.X, p2.Y).RoundTo(roundingUnit) + new Vector4(PixelOffset)).Floor();
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse2.IsSupported)
+                {
+                    Vector128<int> asI32 = Sse2.ConvertToVector128Int32(result.AsVector128());
+                    return (new Point(asI32.GetElement(0), asI32.GetElement(1)), new Point(asI32.GetElement(2), asI32.GetElement(3)));
+                }
+
+#if NET9_0_OR_GREATER
+                if (Vector128.IsHardwareAccelerated)
+                {
+                    // native is ok, no overflow can happen here
+                    Vector128<int> asI32 = Vector128.ConvertToInt32Native(result.AsVector128());
+                    return (new Point(asI32[0], asI32[1]), new Point(asI32[2], asI32[3]));
+                }
+#endif
+#endif
+                return (new Point((int)result.X, (int)result.Y), new Point((int)result.Z, (int)result.W));
+#else
                 return (new Point((int)MathF.Floor(p1.X.RoundTo(roundingUnit) + PixelOffset), (int)MathF.Floor(p1.Y.RoundTo(roundingUnit) + PixelOffset)),
                     new Point((int)MathF.Floor(p2.X.RoundTo(roundingUnit) + PixelOffset), (int)MathF.Floor(p2.Y.RoundTo(roundingUnit) + PixelOffset)));
+#endif
             }
 
             #endregion

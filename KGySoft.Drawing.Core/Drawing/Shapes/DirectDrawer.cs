@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -722,13 +723,18 @@ namespace KGySoft.Drawing.Shapes
             [MethodImpl(MethodImpl.AggressiveInlining)]
             private static (Point P1, Point P2) Round(PointF p1, PointF p2, float offset)
             {
+                // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                Vector4 result = (new Vector4(p1.X, p1.Y, p2.X, p2.Y).RoundTo(roundingUnit) + new Vector4(offset)).Floor();
+                return checked((new Point((int)result.X, (int)result.Y), new Point((int)result.Z, (int)result.W)));
+#else
                 p1.X = MathF.Floor(p1.X.RoundTo(roundingUnit) + offset);
                 p1.Y = MathF.Floor(p1.Y.RoundTo(roundingUnit) + offset);
                 p2.X = MathF.Floor(p2.X.RoundTo(roundingUnit) + offset);
                 p2.Y = MathF.Floor(p2.Y.RoundTo(roundingUnit) + offset);
 
-                // For performance reasons there are no checks in the public BitmapDataExtensions.DrawXXX methods, but here we throw an OverflowException for extreme cases.
                 return checked((new Point((int)p1.X, (int)p1.Y), new Point((int)p2.X, (int)p2.Y)));
+#endif
             }
 
             // Based on http://members.chello.at/~easyfilter/bresenham.c
