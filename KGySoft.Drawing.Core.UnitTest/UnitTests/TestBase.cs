@@ -93,8 +93,6 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Fields
 
-        private static readonly bool addTimestamp = true;
-
         private static Color32[] paletteRgb565;
         private static Color32[] paletteArgb4444;
         private static Color32[] paletteArgb2222;
@@ -105,6 +103,7 @@ namespace KGySoft.Drawing.UnitTests
         #region Properties
 
         protected static bool SaveToFile => false;
+        protected static bool AddTimestamp => true;
 
         protected static Color32[] PaletteArgb4444
         {
@@ -564,7 +563,7 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Private Methods
 
-        private static string GetTimestamp() => addTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
+        private static string GetTimestamp() => AddTimestamp ? $".{DateTime.Now:yyyyMMddHHmmssffff}" : String.Empty;
         private static void CheckFileName(string fileName) => Assert.IsFalse(File.Exists(fileName), $"File already exists: {fileName}");
 
 #if USE_SKIA

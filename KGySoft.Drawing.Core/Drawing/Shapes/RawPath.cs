@@ -18,6 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -259,14 +262,78 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1837
-        // Main changes: converting to C#, more descriptive variable names, adding Round style, using vectors when possible (TODO)
+        // Main changes: converting to C#, more descriptive variable names, adding Round style, using vectors on platforms where available
         private static void WidenJoint(PointF previousPoint, PointF currentPoint, PointF nextPoint, in PenOptions penOptions, List<PointF> result)
         {
             float radius = penOptions.Width / 2f;
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 previousVec = ref previousPoint.AsVector2();
+            ref Vector2 currentVec = ref currentPoint.AsVector2();
+            ref Vector2 nextVec = ref nextPoint.AsVector2();
+#endif
+
             switch (penOptions.LineJoin)
             {
                 case LineJoinStyle.Miter:
                 case LineJoinStyle.Round:
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    Vector2 diffCurrentPrev = currentVec - previousVec;
+
+                    // Checking if the current point is on the left side of the line segment
+                    if (diffCurrentPrev.X * (nextPoint.Y - previousPoint.Y) > diffCurrentPrev.Y * (nextPoint.X - previousPoint.X))
+                    {
+                        if (penOptions.LineJoin == LineJoinStyle.Miter)
+                        {
+                            Vector2 diffNextCurrent = nextVec - currentVec;
+                            float lenPrevCurrent = diffCurrentPrev.Length();
+                            float lenCurrentNext = diffNextCurrent.Length();
+
+                            // The direction vectors for the previous-to-current and current-to-next segments
+                            Vector2 dirPrevCurrent = radius * diffCurrentPrev / lenPrevCurrent;
+                            Vector2 dirCurrentNext = radius * diffNextCurrent / lenCurrentNext;
+
+                            // The determinant for miter calculation and the actual miter offset.
+                            float determinant = (dirPrevCurrent.Y * dirCurrentNext.X - dirPrevCurrent.X * dirCurrentNext.Y);
+                            Vector2 miterOffset = dirPrevCurrent * dirCurrentNext * (dirPrevCurrent - dirCurrentNext);
+                            miterOffset += new Vector2(dirPrevCurrent.Y * dirPrevCurrent.Y * dirCurrentNext.X
+                                - dirCurrentNext.Y * dirCurrentNext.Y * dirPrevCurrent.X,
+                                dirPrevCurrent.X * dirPrevCurrent.X * dirCurrentNext.Y
+                                - dirCurrentNext.X * dirCurrentNext.X * dirPrevCurrent.Y);
+                            miterOffset /= determinant;
+
+                            // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
+                            if (miterOffset.LengthSquared() < penOptions.MiterLimit * penOptions.MiterLimit * radius * radius)
+                            {
+                                Vector2 vec = currentVec + miterOffset;
+                                result.Add(vec.AsPointF());
+                                return;
+                            }
+                        }
+                        else // Round
+                        {
+                            PointF startPoint = GetBevelPoint(currentVec, previousVec, radius, true);
+                            PointF endPoint = GetBevelPoint(currentVec, nextVec, radius, false);
+
+                            Vector2 dist = endPoint.AsVector2() - startPoint.AsVector2();
+                            float length = dist.Length();
+                            if (penOptions.Width >= length && !length.TolerantIsZero(Constants.PointEqualityTolerance))
+                            {
+                                float halfSweepRad = MathF.Asin(length / penOptions.Width);
+                                float startRad = MathF.Atan2(dist.Y, dist.X) - halfSweepRad - MathF.PI / 2f;
+                                result.AddRange(BezierSegment.FromArc(currentPoint, radius, radius,
+                                    startRad, 2f * halfSweepRad).GetFlattenedPointsInternal());
+                            }
+                            else
+                            {
+                                result.Add(startPoint);
+                                result.Add(endPoint);
+                            }
+
+                            break;
+                        }
+                    }
+#else
                     float diffCurrentPrevX = currentPoint.X - previousPoint.X;
                     float diffCurrentPrevY = currentPoint.Y - previousPoint.Y;
 
@@ -326,13 +393,19 @@ namespace KGySoft.Drawing.Shapes
                             break;
                         }
                     }
+#endif
 
                     // fallback to Bevel style
                     goto case LineJoinStyle.Bevel;
 
                 case LineJoinStyle.Bevel:
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    result.Add(GetBevelPoint(currentVec, previousVec, radius, true));
+                    result.Add(GetBevelPoint(currentVec, nextVec, radius, false));
+#else
                     result.Add(GetBevelPoint(currentPoint, previousPoint, radius, true));
                     result.Add(GetBevelPoint(currentPoint, nextPoint, radius, false));
+#endif
                     break;
 
                 default:
@@ -341,9 +414,8 @@ namespace KGySoft.Drawing.Shapes
         }
 
         // The original method was taken from ReactOS (MIT license): https://github.com/reactos/reactos/blob/764881a94b4129538d62fda2c99cfcd1ad518ce5/dll/win32/gdiplus/graphicspath.c#L1879
-        // Main changes: converting to C#, more descriptive variable names, Flat style extends the bevel points by a fix 0.5 px cap, converting round cap to line segments, using vectors when possible (TODO)
-        private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap,
-            bool addRightSide, bool addLeftSide, List<PointF> result)
+        // Main changes: converting to C#, more descriptive variable names, Flat style extends the bevel points by a fix 0.5 px cap, converting round cap to line segments, using vectors on platforms where available
+        private static void WidenCap(PointF endPoint, PointF nextPoint, in PenOptions penOptions, LineCapStyle cap, bool addRightSide, bool addLeftSide, List<PointF> result)
         {
             if (!addRightSide && cap == LineCapStyle.Round)
                 return;
@@ -353,29 +425,68 @@ namespace KGySoft.Drawing.Shapes
             // This is also in sync with the DrawThinRawPath behavior.
             float distance = penOptions.Width / 2f;
             float extensionLength = cap == LineCapStyle.Flat ? 0.5f : distance;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            ref Vector2 endVec = ref endPoint.AsVector2();
+            ref Vector2 nextVec = ref nextPoint.AsVector2();
+            Vector2 diffSegment = nextVec - endVec;
+            float segmentLength = diffSegment.Length();
+            Vector2 extend = extensionLength * diffSegment / segmentLength;
+#else
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
             float extendX = extensionLength * diffSegmentX / segmentLength;
             float extendY = extensionLength * diffSegmentY / segmentLength;
+#endif
 
             switch (cap)
             {
                 case LineCapStyle.Flat:
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    if (addRightSide)
+                        result.Add(GetBevelPoint(endVec - extend, nextVec, distance, true));
+                    if (addLeftSide)
+                        result.Add(GetBevelPoint(endVec - extend, nextVec, distance, false));
+#else
                     if (addRightSide)
                         result.Add(GetBevelPoint(new PointF(endPoint.X - extendX, endPoint.Y - extendY), nextPoint, distance, true));
                     if (addLeftSide)
                         result.Add(GetBevelPoint(new PointF(endPoint.X - extendX, endPoint.Y - extendY), nextPoint, distance, false));
+#endif
                     break;
 
                 case LineCapStyle.Square:
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    if (addRightSide)
+                    {
+                        Vector2 vec = endVec - extend + new Vector2(-extend.Y, extend.X);
+                        result.Add(vec.AsPointF());
+                    }
+
+                    if (addLeftSide)
+                    {
+                        Vector2 vec = endVec - extend + new Vector2(extend.Y, -extend.X);
+                        result.Add(vec.AsPointF());
+                    }
+#else
                     if (addRightSide)
                         result.Add(new PointF(endPoint.X - extendX - extendY, endPoint.Y - extendY + extendX));
                     if (addLeftSide)
                         result.Add(new PointF(endPoint.X - extendX + extendY, endPoint.Y - extendY - extendX));
+#endif
                     break;
 
                 case LineCapStyle.Triangle:
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    if (addRightSide)
+                    {
+                        result.Add(GetBevelPoint(endVec, nextVec, distance, true));
+                        Vector2 vec = endVec - extend;
+                        result.Add(vec.AsPointF());
+                    }
+                    if (addLeftSide)
+                        result.Add(GetBevelPoint(endVec, nextVec, distance, false));
+#else
                     if (addRightSide)
                     {
                         result.Add(GetBevelPoint(endPoint, nextPoint, distance, true));
@@ -384,14 +495,32 @@ namespace KGySoft.Drawing.Shapes
 
                     if (addLeftSide)
                         result.Add(GetBevelPoint(endPoint, nextPoint, distance, false));
+#endif
                     break;
 
                 case LineCapStyle.Round:
                     Debug.Assert(addRightSide);
                     const float distControlPoint = 0.5522848f; // 4/3 * (sqrt(2) - 1)
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    Vector2 ctrlPoint = extend * distControlPoint;
+                    var bezierPoints = new[]
+                    {
+                        // first 90-degree arc
+                        new PointF(endPoint.X - extend.Y, endPoint.Y + extend.X),
+                        new PointF(endPoint.X - extend.Y - ctrlPoint.X, endPoint.Y + extend.X - ctrlPoint.Y),
+                        new PointF(endPoint.X - extend.X - ctrlPoint.Y, endPoint.Y - extend.Y + ctrlPoint.X),
+
+                        // midpoint
+                        new PointF(endPoint.X - extend.X, endPoint.Y - extend.Y),
+                        
+                        // second 90-degree arc
+                        new PointF(endPoint.X - extend.X + ctrlPoint.Y, endPoint.Y - extend.Y - ctrlPoint.X),
+                        new PointF(endPoint.X + extend.Y - ctrlPoint.X, endPoint.Y - extend.X - ctrlPoint.Y),
+                        new PointF(endPoint.X + extend.Y, endPoint.Y - extend.X)
+                    };
+#else
                     float ctrlPointX = extendX * distControlPoint;
                     float ctrlPointY = extendY * distControlPoint;
-
                     var bezierPoints = new[]
                     {
                         // first 90-degree arc
@@ -407,6 +536,7 @@ namespace KGySoft.Drawing.Shapes
                         new PointF(endPoint.X + extendY - ctrlPointX, endPoint.Y - extendX - ctrlPointY),
                         new PointF(endPoint.X + extendY, endPoint.Y - extendX)
                     };
+#endif
 
                     result.AddRange(new BezierSegment(bezierPoints, false).GetFlattenedPointsInternal());
                     break;
@@ -416,6 +546,22 @@ namespace KGySoft.Drawing.Shapes
             }
         }
 
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        private static PointF GetBevelPoint(Vector2 endPoint, Vector2 nextPoint, float distance, bool isRightSide)
+        {
+            Vector2 diffSegment = nextPoint - endPoint;
+            float segmentLength = diffSegment.Length();
+
+            if (segmentLength == 0f)
+                return endPoint.AsPointF();
+
+            Vector2 distBevel = isRightSide
+                ? distance * new Vector2(-diffSegment.Y, diffSegment.X) / segmentLength
+                : distance * new Vector2(diffSegment.Y, -diffSegment.X) / segmentLength;
+            Vector2 result = endPoint + distBevel;
+            return result.AsPointF();
+        }
+#else
         private static PointF GetBevelPoint(PointF endPoint, PointF nextPoint, float distance, bool isRightSide)
         {
             float diffSegmentX = nextPoint.X - endPoint.X;
@@ -423,7 +569,7 @@ namespace KGySoft.Drawing.Shapes
             float segmentLength = MathF.Sqrt(diffSegmentY * diffSegmentY + diffSegmentX * diffSegmentX);
 
             if (segmentLength == 0f)
-                return new PointF(endPoint.X, endPoint.Y);
+                return endPoint;
 
             float distBevelX, distBevelY;
             if (isRightSide)
@@ -439,8 +585,9 @@ namespace KGySoft.Drawing.Shapes
 
             return new PointF(endPoint.X + distBevelX, endPoint.Y + distBevelY);
         }
+#endif
 
-        #endregion
+#endregion
 
         #region Instance Methods
 
@@ -544,6 +691,6 @@ namespace KGySoft.Drawing.Shapes
 
         #endregion
 
-        #endregion
+#endregion
     }
 }
