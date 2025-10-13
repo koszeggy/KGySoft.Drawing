@@ -17,6 +17,9 @@
 
 using System;
 using System.Drawing;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
@@ -160,20 +163,17 @@ namespace KGySoft.Drawing.Shapes
 
         private protected override IBitmapDataInternal GetTexture(IAsyncContext context, RawPath rawPath, DrawingOptions drawingOptions, out bool disposeTexture, out Point offset)
         {
-            #region Local Methods
-
-            static float ProjectPointOntoLine(PointF point, PointF direction) => point.X * direction.X + point.Y * direction.Y;
-
-            #endregion
-
             offset = default;
 
-            // If the texture is already created, we can return it directly
+            // If the texture was created by the corresponding constructor, we can return it directly
             if (texture != null)
             {
                 disposeTexture = false;
                 return texture;
             }
+
+            // though it will not contain anything to dispose...
+            disposeTexture = true;
 
             // Here we generate a gradient specifically for the path so it perfectly completely covers it, without exceeding its bounds.
             Rectangle bounds = rawPath.Bounds;
@@ -181,9 +181,14 @@ namespace KGySoft.Drawing.Shapes
                 bounds.Width--;
             if (bounds.Height > 1)
                 bounds.Height--;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            PointF startPoint, endPoint;
+            Vector2 center = new Vector2(bounds.Width, bounds.Height) / 2f + new Vector2(bounds.Left, bounds.Top);
+#else
             PointF startPoint = default;
             PointF endPoint = default;
             PointF center = new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f);
+#endif
 
             float degree = angle is >= 0f and <= 360f ? angle : angle % 360f;
             if (degree < 0f)
@@ -212,23 +217,54 @@ namespace KGySoft.Drawing.Shapes
                 
                 default:
                     float radian = degree.ToRadian();
-                    float directionX = (float)Math.Cos(radian);
-                    float directionY = (float)Math.Sin(radian);
-
-                    // Projecting all corners onto the gradient direction and finding min/max projections
-                    PointF[] corners = new[]
-                    {
-                        new PointF(bounds.Left, bounds.Top),
-                        new PointF(bounds.Right, bounds.Top),
-                        new PointF(bounds.Right, bounds.Bottom),
-                        new PointF(bounds.Left, bounds.Bottom)
-                    };
-
                     float minProjection = Single.MaxValue;
                     float maxProjection = Single.MinValue;
-                    foreach (var corner in corners)
+
+                    // Projecting all corners onto the gradient direction and finding min/max projections
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    Vector2 direction = new Vector2(MathF.Cos(radian), MathF.Sin(radian));
+                    Vector2[] corners =
+                    [
+                        new(bounds.Left, bounds.Top),
+                        new(bounds.Right, bounds.Top),
+                        new(bounds.Right, bounds.Bottom),
+                        new(bounds.Left, bounds.Bottom)
+                    ];
+
+                    Vector2 start = Vector2.Zero;
+                    Vector2 end = Vector2.Zero;
+                    foreach (Vector2 corner in corners)
                     {
-                        float projection = ProjectPointOntoLine(new PointF(corner.X - center.X, corner.Y - center.Y), new PointF(directionX, directionY));
+                        float projection = Vector2.Dot(corner - center, direction);
+                        if (projection < minProjection)
+                        {
+                            minProjection = projection;
+                            start = center + projection * direction;
+                        }
+
+                        if (projection > maxProjection)
+                        {
+                            maxProjection = projection;
+                            end = center + projection * direction;
+                        }
+                    }
+
+                    startPoint = start.AsPointF();
+                    endPoint = end.AsPointF();
+#else
+                    float directionX = MathF.Cos(radian);
+                    float directionY = MathF.Sin(radian);
+                    PointF[] corners =
+                    [
+                        new(bounds.Left, bounds.Top),
+                        new(bounds.Right, bounds.Top),
+                        new(bounds.Right, bounds.Bottom),
+                        new(bounds.Left, bounds.Bottom)
+                    ];
+
+                    foreach (PointF corner in corners)
+                    {
+                        float projection = (corner.X - center.X) * directionX + (corner.Y - center.Y) * directionY;
                         if (projection < minProjection)
                         {
                             minProjection = projection;
@@ -241,12 +277,9 @@ namespace KGySoft.Drawing.Shapes
                             endPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
                         }
                     }
-
+#endif
                     break;
             }
-
-            // though it doesn't contain anything to dispose...
-            disposeTexture = true;
 
             // actually any size would do it, because as an IBitmapDataInternal any pixel coordinate can be read without range check
             return new GradientBitmapData<ClippingInterpolation>(bounds.Size, startPoint, endPoint, startColor, endColor, isLinearColorSpace);
