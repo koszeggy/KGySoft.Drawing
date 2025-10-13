@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Shapes
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Vector2 distance = Vector2.Abs(p1.AsVector2() - p2.AsVector2());
-            return distance.X < tolerance && distance.Y < tolerance;
+            return distance.X <= tolerance && distance.Y <= tolerance;
 #else
             return p1.X.TolerantEquals(p2.X, tolerance) && p1.Y.TolerantEquals(p2.Y, tolerance);
 #endif

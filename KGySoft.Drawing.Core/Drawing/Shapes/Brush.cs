@@ -2303,7 +2303,8 @@ namespace KGySoft.Drawing.Shapes
 
                     enumerator.MoveNextEdge(false, new EdgeInfo(vertices, snappedYCoords, 1));
 
-                    for (int i = 1; i < vertices.Count - 2; i++)
+                    int maxIndex = vertices.Count - 2;
+                    for (int i = 1; i < maxIndex; i++)
                         enumerator.MoveNextEdge(true, new EdgeInfo(vertices, snappedYCoords, i + 1));
 
                     // 1st edge

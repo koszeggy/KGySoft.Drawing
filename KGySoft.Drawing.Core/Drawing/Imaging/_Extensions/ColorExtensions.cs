@@ -1674,14 +1674,9 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             // The possibly still accelerated auto vectorization.
-            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
-#elif NETCOREAPP || NET46_OR_GREATER
-            // The possibly still accelerated auto vectorization.
-            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
-            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite values.
-            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / new Vector3(alphaOut), alphaOut));
+            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)).Div(alphaOut), alphaOut));
 #else
             // The non-accelerated version
             float alphaDst = dst.A * inverseAlphaSrc;

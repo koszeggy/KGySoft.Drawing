@@ -189,12 +189,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColorF operator /(PColorF left, float right)
         {
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new PColorF(left.Rgba / right);
-#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD2_0
-            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
-            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite results
-            return new PColorF(left.Rgba / new Vector4(right));
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD2_0
+            return new PColorF(left.Rgba.Div(right));
 #else
             return new PColorF(left.A / right, left.R / right, left.G / right, left.B / right);
 #endif
@@ -589,13 +585,7 @@ namespace KGySoft.Drawing.Imaging
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             >= 1f => new ColorF(Rgba),
             <= 0f => default,
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            _ => new ColorF(new Vector4(Rgb / A, A))
-#else
-            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
-            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite results
-            _ => new ColorF(new Vector4(Rgb / new Vector3(A), A))
-#endif
+            _ => new ColorF(new Vector4(Rgb.Div(A), A))
 #else
             >= 1f => new ColorF(A, R, G, B),
             <= 0f => default,

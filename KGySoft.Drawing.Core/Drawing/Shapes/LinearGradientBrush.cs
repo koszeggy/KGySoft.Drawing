@@ -183,7 +183,7 @@ namespace KGySoft.Drawing.Shapes
                 bounds.Height--;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             PointF startPoint, endPoint;
-            Vector2 center = new Vector2(bounds.Width, bounds.Height) / 2f + new Vector2(bounds.Left, bounds.Top);
+            Vector2 center = new Vector2(bounds.Width, bounds.Height).Div(2f) + new Vector2(bounds.Left, bounds.Top);
 #else
             PointF startPoint = default;
             PointF endPoint = default;

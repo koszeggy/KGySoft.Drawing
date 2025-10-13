@@ -290,8 +290,8 @@ namespace KGySoft.Drawing.Shapes
                             float lenCurrentNext = diffNextCurrent.Length();
 
                             // The direction vectors for the previous-to-current and current-to-next segments
-                            Vector2 dirPrevCurrent = radius * diffCurrentPrev / lenPrevCurrent;
-                            Vector2 dirCurrentNext = radius * diffNextCurrent / lenCurrentNext;
+                            Vector2 dirPrevCurrent = (radius * diffCurrentPrev).Div(lenPrevCurrent);
+                            Vector2 dirCurrentNext = (radius * diffNextCurrent).Div(lenCurrentNext);
 
                             // The determinant for miter calculation and the actual miter offset.
                             float determinant = (dirPrevCurrent.Y * dirCurrentNext.X - dirPrevCurrent.X * dirCurrentNext.Y);
@@ -300,7 +300,7 @@ namespace KGySoft.Drawing.Shapes
                                 - dirCurrentNext.Y * dirCurrentNext.Y * dirPrevCurrent.X,
                                 dirPrevCurrent.X * dirPrevCurrent.X * dirCurrentNext.Y
                                 - dirCurrentNext.X * dirCurrentNext.X * dirPrevCurrent.Y);
-                            miterOffset /= determinant;
+                            miterOffset = miterOffset.Div(determinant);
 
                             // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
                             if (miterOffset.LengthSquared() < penOptions.MiterLimit * penOptions.MiterLimit * radius * radius)
@@ -356,11 +356,11 @@ namespace KGySoft.Drawing.Shapes
                             // The determinant for miter calculation and the actual miter offset.
                             float determinant = (dirPrevCurrentY * dirCurrentNextX - dirPrevCurrentX * dirCurrentNextY);
                             float miterOffsetX = (dirPrevCurrentX * dirCurrentNextX * (dirPrevCurrentX - dirCurrentNextX)
-                                + dirPrevCurrentY * dirPrevCurrentY * dirCurrentNextX
-                                - dirCurrentNextY * dirCurrentNextY * dirPrevCurrentX) / determinant;
+                                + (dirPrevCurrentY * dirPrevCurrentY * dirCurrentNextX
+                                - dirCurrentNextY * dirCurrentNextY * dirPrevCurrentX)) / determinant;
                             float miterOffsetY = (dirPrevCurrentY * dirCurrentNextY * (dirPrevCurrentY - dirCurrentNextY)
-                                + dirPrevCurrentX * dirPrevCurrentX * dirCurrentNextY
-                                - dirCurrentNextX * dirCurrentNextX * dirPrevCurrentY) / determinant;
+                                + (dirPrevCurrentX * dirPrevCurrentX * dirCurrentNextY
+                                - dirCurrentNextX * dirCurrentNextX * dirPrevCurrentY)) / determinant;
 
                             // Applying only if the miter offset is within the miter limit; otherwise, adding a Bevel join instead
                             if (miterOffsetX * miterOffsetX + miterOffsetY * miterOffsetY < penOptions.MiterLimit * penOptions.MiterLimit * radius * radius)
@@ -430,7 +430,7 @@ namespace KGySoft.Drawing.Shapes
             ref Vector2 nextVec = ref nextPoint.AsVector2();
             Vector2 diffSegment = nextVec - endVec;
             float segmentLength = diffSegment.Length();
-            Vector2 extend = extensionLength * diffSegment / segmentLength;
+            Vector2 extend = (extensionLength * diffSegment).Div(segmentLength);
 #else
             float diffSegmentX = nextPoint.X - endPoint.X;
             float diffSegmentY = nextPoint.Y - endPoint.Y;
@@ -556,8 +556,8 @@ namespace KGySoft.Drawing.Shapes
                 return endPoint.AsPointF();
 
             Vector2 distBevel = isRightSide
-                ? distance * new Vector2(-diffSegment.Y, diffSegment.X) / segmentLength
-                : distance * new Vector2(diffSegment.Y, -diffSegment.X) / segmentLength;
+                ? (distance * new Vector2(-diffSegment.Y, diffSegment.X)).Div(segmentLength)
+                : (distance * new Vector2(diffSegment.Y, -diffSegment.X)).Div(segmentLength);
             Vector2 result = endPoint + distBevel;
             return result.AsPointF();
         }

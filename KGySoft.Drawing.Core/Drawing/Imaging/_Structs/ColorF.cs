@@ -199,12 +199,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator /(ColorF left, float right)
         {
-#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new ColorF(left.Rgba / right);
-#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD2_0
-            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
-            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite results
-            return new ColorF(left.Rgba / new Vector4(right));
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD2_0
+            return new ColorF(left.Rgba.Div(right));
 #else
             return new ColorF(left.A / right, left.R / right, left.G / right, left.B / right);
 #endif

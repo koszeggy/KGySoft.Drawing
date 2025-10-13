@@ -150,6 +150,42 @@ namespace KGySoft.Drawing
             return new Vector4(MathF.Floor(vector.X), MathF.Floor(vector.Y), MathF.Floor(vector.Z), MathF.Floor(vector.W));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector2 Div(this Vector2 vector, float value)
+        {
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return vector / value;
+#else
+            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
+            // they use one division and 2 multiplications with reciprocal, which may produce NaN and infinite results
+            return vector / new Vector2(value);
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector3 Div(this Vector3 vector, float value)
+        {
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return vector / value;
+#else
+            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
+            // they use one division and 3 multiplications with reciprocal, which may produce NaN and infinite results
+            return vector / new Vector3(value);
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector4 Div(this Vector4 vector, float value)
+        {
+#if NETCOREAPP3_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return vector / value;
+#else
+            // Vector division with scalar is broken near epsilon in .NET Core 2.x and in .NET Framework because
+            // they use one division and 4 multiplications with reciprocal, which may produce NaN and infinite results
+            return vector / new Vector4(value);
+#endif
+        }
+
         #endregion
     }
 }

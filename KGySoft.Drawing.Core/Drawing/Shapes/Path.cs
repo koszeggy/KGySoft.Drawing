@@ -850,7 +850,7 @@ namespace KGySoft.Drawing.Shapes
             radius = Vector2.Abs(radius);
 
             // Moving ellipse to origin and rotating to align with coordinate axes in the ellipse coordinate system
-            Vector2 offset = (startVec - endVec) / 2f;
+            Vector2 offset = (startVec - endVec).Div(2f);
             Vector2 rotated = new Vector2(cosPhi * offset.X + sinPhi * offset.Y, -sinPhi * offset.X + cosPhi * offset.Y);
 
             // Adjusting radii if necessary
@@ -871,7 +871,7 @@ namespace KGySoft.Drawing.Shapes
             float denominator = radiusSquared.X * rotatedSquared.Y + radiusSquared.Y * rotatedSquared.X;
             float coefficient = sign * MathF.Sqrt(numerator / denominator);
             Vector2 centerRotated = coefficient * new Vector2(radius.X * rotated.Y / radius.Y, -radius.Y * rotated.X / radius.X);
-            Vector2 mid = (startVec + endVec) / 2f;
+            Vector2 mid = (startVec + endVec).Div(2f);
             Vector2 center = new Vector2(cosPhi * centerRotated.X - sinPhi * centerRotated.Y, sinPhi * centerRotated.X + cosPhi * centerRotated.Y) + mid;
 
             // Calculating start and end angles in the ellipse coordinate system (as if ArcSegment.ToEllipseCoordinates was called)
