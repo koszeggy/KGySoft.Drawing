@@ -20,7 +20,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 using System.Security;
 
