@@ -18,6 +18,8 @@
 using System;
 using System.Runtime.CompilerServices;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing
@@ -87,6 +89,17 @@ namespace KGySoft.Drawing
 
         internal static float ToRadian(this float degree) => degree * oneDegreeInRadian;
         internal static float ToDegree(this float radians) => radians * oneRadianInDegree;
+
+        /// <summary>
+        /// Gets the sine cardinal of <paramref name="x"/>, which is Sin(PI * x) / (PI * x)
+        /// </summary>
+        internal static float SinC(this float x)
+        {
+            if (x.TolerantIsZero(1e-4f))
+                return 1f;
+            x *= MathF.PI;
+            return MathF.Sin(x) / x;
+        }
 
         #endregion
     }

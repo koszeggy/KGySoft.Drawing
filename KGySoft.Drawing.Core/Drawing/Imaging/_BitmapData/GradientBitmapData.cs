@@ -77,7 +77,12 @@ namespace KGySoft.Drawing.Imaging
                 // The same logic as in GradientBitmapData.DoGetColor, see the comments there.
                 var bitmap = BitmapData;
                 float current = (float)((double)x * bitmap.RotationX + CurrentY);
-                float pos = default(TInterpolation).GetValue((bitmap.Start - current) / (bitmap.Start - bitmap.End));
+#if NET5_0_OR_GREATER
+                Unsafe.SkipInit(out TInterpolation interpolation);
+#else
+                TInterpolation interpolation = default;
+#endif
+                float pos = interpolation.GetValue((bitmap.Start - current) / (bitmap.Start - bitmap.End));
                 return bitmap.StartColor.Interpolate(bitmap.EndColor, pos);
             }
 
@@ -156,7 +161,12 @@ namespace KGySoft.Drawing.Imaging
             // Calculating the current position on the gradient. Using double for the intermediate steps to avoid precision issues (observable with
             // clipping interpolation). Would not be necessary if the range was normalized between (-1, 1) but the extra calculation would be slower.
             float current = (float)((double)x * RotationX + (double)y * RotationY);
-            float pos = default(TInterpolation).GetValue((Start - current) / (Start - End));
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out TInterpolation interpolation);
+#else
+            TInterpolation interpolation = default;
+#endif
+            float pos = interpolation.GetValue((Start - current) / (Start - End));
             return StartColor.Interpolate(EndColor, pos);
         }
 

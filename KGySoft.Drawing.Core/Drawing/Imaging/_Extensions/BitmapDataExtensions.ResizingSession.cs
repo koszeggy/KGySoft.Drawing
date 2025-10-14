@@ -18,6 +18,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+#if NET5_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 using System.Security;
 
 using KGySoft.Collections;
@@ -1241,7 +1244,7 @@ namespace KGySoft.Drawing.Imaging
                 private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
                 {
                     CastArray<T, PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, [method:SecuritySafeCritical](int y) =>
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, [method:SecuritySafeCritical](y) =>
                     {
                         ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                         while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -1413,9 +1416,51 @@ namespace KGySoft.Drawing.Imaging
                 if (scalingMode == ScalingMode.Auto)
                     scalingMode = GetAutoScalingMode(sourceRectangle.Size, targetRectangle.Size);
 
-                (float radius, Func<float, float> interpolation) = scalingMode.GetInterpolation();
-                horizontalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Width, targetRectangle.Width);
-                verticalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Height, targetRectangle.Height);
+                switch (scalingMode)
+                {
+                    case ScalingMode.NearestNeighbor:
+                        horizontalKernelMap = KernelMap.Create<NearestNeighborInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<NearestNeighborInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Box:
+                        horizontalKernelMap = KernelMap.Create<BoxInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<BoxInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Bilinear:
+                        horizontalKernelMap = KernelMap.Create<BilinearInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<BilinearInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Bicubic:
+                        horizontalKernelMap = KernelMap.Create<BicubicInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<BicubicInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Lanczos2:
+                        horizontalKernelMap = KernelMap.Create<Lanczos2Interpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<Lanczos2Interpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Lanczos3:
+                        horizontalKernelMap = KernelMap.Create<Lanczos3Interpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<Lanczos3Interpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Spline:
+                        horizontalKernelMap = KernelMap.Create<SplineInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<SplineInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.CatmullRom:
+                        horizontalKernelMap = KernelMap.Create<CatmullRomInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<CatmullRomInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.MitchellNetravali:
+                        horizontalKernelMap = KernelMap.Create<MitchellNetravaliInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<MitchellNetravaliInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    case ScalingMode.Robidoux:
+                        horizontalKernelMap = KernelMap.Create<RobidouxInterpolation>(sourceRectangle.Width, targetRectangle.Width);
+                        verticalKernelMap = KernelMap.Create<RobidouxInterpolation>(sourceRectangle.Height, targetRectangle.Height);
+                        break;
+                    default:
+                        throw new InvalidOperationException(Res.InternalError($"Unexpected scaling mode: {scalingMode}"));
+                }
             }
 
             #endregion
@@ -1501,8 +1546,6 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Nested classes
 
-            #region PeriodicKernelMap class
-
             private sealed class PeriodicKernelMap : KernelMap
             {
                 #region Fields
@@ -1525,12 +1568,12 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Methods
 
-                protected override void Initialize(Func<float, float> interpolation)
+                protected override void Initialize<TInterpolation>()
                 {
                     // Building top corner data + one period of the mosaic data:
                     int startOfFirstRepeatedMosaic = cornerInterval + period;
                     for (int i = 0; i < startOfFirstRepeatedMosaic; i++)
-                        kernels[i] = BuildKernel(interpolation, i, i);
+                        kernels[i] = BuildKernel<TInterpolation>(i, i);
 
                     // Copying mosaics:
                     int bottomStartDest = targetLength - cornerInterval;
@@ -1550,13 +1593,11 @@ namespace KGySoft.Drawing.Imaging
                     // Building bottom corner data:
                     int bottomStartData = cornerInterval + period;
                     for (int i = 0; i < cornerInterval; i++)
-                        kernels[bottomStartDest + i] = BuildKernel(interpolation, bottomStartDest + i, bottomStartData + i);
+                        kernels[bottomStartDest + i] = BuildKernel<TInterpolation>(bottomStartDest + i, bottomStartData + i);
                 }
 
                 #endregion
             }
-
-            #endregion
 
             #endregion
 
@@ -1607,7 +1648,8 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
-            internal static KernelMap Create(float radius, Func<float, float> interpolation, int sourceSize, int targetSize)
+            internal static KernelMap Create<TInterpolation>(int sourceSize, int targetSize)
+                where TInterpolation : struct, IFixedSizeInterpolation
             {
                 #region Local Methods
 
@@ -1629,7 +1671,7 @@ namespace KGySoft.Drawing.Imaging
 
                 float ratio = (float)sourceSize / targetSize;
                 float scale = Math.Max(1f, ratio);
-                int scaledRadius = (int)(scale * radius).TolerantCeiling(tolerance);
+                int scaledRadius = (int)(scale * default(TInterpolation).Radius).TolerantCeiling(tolerance);
 
                 // the length of the period in a repeating kernel map
                 int period = LeastCommonMultiple(sourceSize, targetSize) / sourceSize;
@@ -1656,7 +1698,7 @@ namespace KGySoft.Drawing.Imaging
                         ? new PeriodicKernelMap(sourceSize, targetSize, ratio, scale, scaledRadius, period, cornerInterval)
                         : new KernelMap(sourceSize, targetSize, targetSize, ratio, scale, scaledRadius);
 
-                result.Initialize(interpolation);
+                result.Initialize<TInterpolation>();
                 return result;
             }
 
@@ -1681,10 +1723,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Protected Methods
 
-            protected virtual void Initialize(Func<float, float> interpolation)
+            protected virtual void Initialize<TInterpolation>()
+                where TInterpolation : struct, IInterpolation
             {
                 for (int i = 0; i < targetLength; i++)
-                    kernels[i] = BuildKernel(interpolation, i, i);
+                    kernels[i] = BuildKernel<TInterpolation>(i, i);
             }
 
             #endregion
@@ -1696,7 +1739,8 @@ namespace KGySoft.Drawing.Imaging
             /// referencing the data at row <paramref name="dataRowIndex"/> within <see cref="data"/>, so the data reusable by other data rows.
             /// </summary>
             [SecuritySafeCritical]
-            private unsafe ResizeKernel BuildKernel(Func<float, float> interpolation, int destRowIndex, int dataRowIndex)
+            private unsafe ResizeKernel BuildKernel<TInterpolation>(int destRowIndex, int dataRowIndex)
+                where TInterpolation : struct, IInterpolation
             {
                 float center = (destRowIndex + 0.5f) * ratio - 0.5f;
 
@@ -1715,9 +1759,14 @@ namespace KGySoft.Drawing.Imaging
                 float* weights = stackalloc float[MaxDiameter];
                 float sum = 0;
 
+#if NET5_0_OR_GREATER
+                Unsafe.SkipInit(out TInterpolation interpolation);
+#else
+                TInterpolation interpolation = default;
+#endif
                 for (int j = left; j <= right; j++)
                 {
-                    float value = interpolation.Invoke((j - center) / scale);
+                    float value = interpolation.GetValue((j - center) / scale);
                     sum += value;
 
                     weights[j - left] = value;

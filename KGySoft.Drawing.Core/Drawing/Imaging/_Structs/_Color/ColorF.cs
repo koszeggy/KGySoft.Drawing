@@ -71,6 +71,10 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Internal Fields
+        [FieldOffset(0)]
+        [NonSerialized]
+        internal readonly RgbF RgbF;
+
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 
         [FieldOffset(0)]
@@ -131,16 +135,6 @@ namespace KGySoft.Drawing.Imaging
         public bool IsValid => Clip().Rgba == Rgba;
 #else
         public bool IsValid => Clip() == this;
-#endif
-
-        #endregion
-
-        #region Internal Properties
-
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-        internal RgbF RgbF => new RgbF(Rgb);
-#else
-        internal RgbF RgbF => new RgbF(R, G, B);
 #endif
 
         #endregion
