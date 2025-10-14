@@ -2044,7 +2044,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Local Methods
 
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD2_0
             static bool IsForcedByteArrayBuffer(Size size, KnownPixelFormat format) => false;
 #else
             static bool IsForcedByteArrayBuffer(Size size, KnownPixelFormat format) =>

@@ -641,9 +641,8 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(default(T) is byte or PColorF);
 
-                    // Using target width and source height is intended.
-                    // Using the self-allocating constructor for byte element type only to avoid array pooling for non-byte element types.
-                    var buf = typeof(T) == typeof(byte)
+                    // Using target width and source height is intended. Using the self-allocating constructor when pooling is enabled.
+                    var buf = BitmapDataFactory.PoolingStrategy == ArrayPoolingStrategy.AnyElementType || typeof(T) == typeof(byte) && BitmapDataFactory.PoolingStrategy != ArrayPoolingStrategy.Never
                         ? new ArraySection<T>(targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF), false)
                         : new ArraySection<T>(new T[targetRectangle.Width * sourceRectangle.Height]);
 
@@ -1431,11 +1430,14 @@ namespace KGySoft.Drawing.Imaging
             internal unsafe static ResizingSessionInterpolated Create(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
                 Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
             {
-                // Using the target width and source height is intended, see the derived constructor
-                long len = (long)targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF);
-                return len > EnvironmentHelper.MaxByteArrayLength
-                    ? new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
-                    : new ResizingSessionInterpolatedGeneric<byte>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+#if NETFRAMEWORK || NETSTANDARD2_0
+                return new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+#else
+                // Checking length with the target width and source height is intended, see the derived constructor
+                return BitmapDataFactory.PoolingStrategy == ArrayPoolingStrategy.IfCanUseByteArray && (long)targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF) <= EnvironmentHelper.MaxByteArrayLength
+                    ? new ResizingSessionInterpolatedGeneric<byte>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
+                    : new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+#endif
             }
 
             #endregion
