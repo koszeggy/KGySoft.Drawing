@@ -229,3 +229,8 @@ dotnet_style_qualification_for_field = false:warning
 dotnet_style_qualification_for_property = false:warning
 dotnet_style_qualification_for_method = false:warning
 dotnet_style_qualification_for_event = false:warning
+[*]
+vsspell_section_id = dd753223c3e34a30b85bd9bbffb9f174
+vsspell_additional_dictionary_folders_dd753223c3e34a30b85bd9bbffb9f174 = .\
+vsspell_dictionary_languages_dd753223c3e34a30b85bd9bbffb9f174 = en-US
+vsspell_ignored_words_dd753223c3e34a30b85bd9bbffb9f174 = File:IgnoredWords.dic
