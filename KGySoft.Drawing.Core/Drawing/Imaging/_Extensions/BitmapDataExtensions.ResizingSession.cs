@@ -18,8 +18,16 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-#if NET5_0_OR_GREATER
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Runtime.InteropServices;
 #endif
 using System.Security;
 
@@ -1590,6 +1598,7 @@ namespace KGySoft.Drawing.Imaging
                             Debug.Fail("Is tolerance too small?");
                             left -= 1;
                         }
+
                         kernels[i] = kernel.Slide(left);
                     }
 
@@ -1810,17 +1819,15 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
-            [SuppressMessage("Style", "IDE0044:Add readonly modifier",
-                Justification = "False alarm, dispose mutates instance, and if it was read-only, a defensive copy would be created")]
-            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
+            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local", Justification = "Rectangles: Preventing creating defensive copies on older platforms.")]
             private CastArray<byte, float> kernelBuffer;
 
             #endregion
 
             #region Properties
 
-            internal int StartIndex { get; }
-            internal int Length { get; }
+            internal int Length { get; } // of the elements to process
+            internal int StartIndex { get; } // of the source row
 
             #endregion
 
@@ -1844,26 +1851,77 @@ namespace KGySoft.Drawing.Imaging
             internal PColorF ConvolveWith<T>(ref CastArray<T, PColorF> colors, int startIndex)
                 where T : unmanaged
             {
-                PColorF result = default;
+                Debug.Assert(kernelBuffer.Length >= Length && colors.Length >= startIndex + Length);
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                Vector4 result = Vector4.Zero;
+
+#if NETCOREAPP3_0_OR_GREATER
+                // Using Fma.MultiplyAdd with Vector256<float> if available and if we have at least 8 color elements.
+                // Note that its result can be less accurate than the Vector4 fallback. Not using Fma.MultiplyAdd with Vector128<float> because
+                // it is not faster than the Vector4 fallback (and its precision is also less accurate). See also ConvolveTest in PerformanceTests.
+                if (Fma.IsSupported && Length >= 8)
+                {
+                    int vectorCount = Length >> 1;
+                    if (vectorCount != 0)
+                    {
+                        Vector256<float> result256 = Vector256<float>.Zero;
+                        ref Vector256<float> vecItem = ref Unsafe.As<PColorF, Vector256<float>>(ref colors.GetElementReferenceUnsafe(startIndex));
+                        ref float kernelItem = ref kernelBuffer.GetElementReferenceUnsafe(0);
+                        for (int i = 0; i < vectorCount; i++)
+                        {
+                            result256 = Fma.MultiplyAdd(Unsafe.Add(ref vecItem, i), Vector256.Create(Vector128.Create(kernelItem), Vector128.Create(Unsafe.Add(ref kernelItem, 1))), result256);
+                            kernelItem = ref Unsafe.Add(ref kernelItem, 2);
+                        }
+
+                        result = Sse.Add(result256.GetLower(), result256.GetUpper()).AsVector4();
+                    }
+
+                    // Processing last item as Vector4 if Length is odd (not using Fma.MultiplyAdd with Vector128, because it is not faster)
+                    if ((Length & 1) != 0)
+                        result += colors[startIndex + Length - 1].Rgba * kernelBuffer.GetElementUnsafe(Length - 1);
+                }
+                else
+#endif
+                {
+                    // The fallback solution with a span of Vector4. Not using FusedMultiplyAdd in .NET 9+ because it is not faster, and also its precision can be less accurate.
+#if NETCOREAPP3_0_OR_GREATER
+                    Span<Vector4> asSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<PColorF, Vector4>(ref colors.GetElementReferenceUnsafe(0)), colors.Length);
+#else
+                    Span<Vector4> asSpan = MemoryMarshal.Cast<PColorF, Vector4>(colors.AsSpan);
+#endif
+                    for (int i = 0; i < Length; i++)
+                        result += asSpan[startIndex + i] * kernelBuffer.GetElementUnsafe(i);
+                }
+
+                return new PColorF(result);
+#elif NET45_OR_GREATER || NETCOREAPP2_0 ||  NETSTANDARD2_0
+                Vector4 result = Vector4.Zero;
                 for (int i = 0; i < Length; i++)
                 {
                     float weight = kernelBuffer.GetElementUnsafe(i);
-                    ref PColorF c = ref colors.GetElementReferenceUnsafe(startIndex + i);
-                    result += c * weight;
+                    result += colors.GetElementReferenceUnsafe(startIndex + i).Rgba * weight;
+                }
+
+                return new PColorF(result);
+#else
+                PColorF result = default;
+                for (int i = 0; i < Length; i++)
+                {
+                    float weight = kernelBuffer.GetElementUnsafe(i);
+                    result += colors.GetElementReferenceUnsafe(startIndex + i) * weight;
                 }
 
                 return result;
+#endif
             }
 
             /// <summary>
-            /// Reinterprets the origin of the current kernel adjusting the destination column index
+            /// Returns a new kernel, reinterpreting the origin of the current one by adjusting the destination start column index
             /// </summary>
             internal ResizeKernel Slide(int newStartIndex) => new ResizeKernel(kernelBuffer, newStartIndex, Length);
 
-            public override string ToString() => kernelBuffer.IsNull ? PublicResources.Null
-                : kernelBuffer.Length < StartIndex + Length ? kernelBuffer.Slice(StartIndex).Join("; ")
-                : kernelBuffer.Slice(StartIndex, Length).Join("; ");
+            public override string ToString() => kernelBuffer.IsNull ? PublicResources.Null : $"Start: {StartIndex}; Length: {Length}";
 
             #endregion
         }

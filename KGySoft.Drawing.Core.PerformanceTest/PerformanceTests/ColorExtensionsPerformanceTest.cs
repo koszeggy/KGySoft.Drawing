@@ -210,9 +210,9 @@ namespace KGySoft.Drawing.PerformanceTests
 
             // Verdict: Using shifting, which is the fastest one both with vanilla and intrinsic operations, and have the same results.
             //          The only drawback: if the CPU supports SSSE3 only, then division would be faster.
-            // NOTE: Non-specific Vector128 performance is terrible in .NET 8, but it isn't worth using it even in .NET 10, because there vanilla shift is still faster.
+            // NOTE: Non-specific Vector128 performance is terrible in .NET 8/9, but it isn't worth using it even in .NET 10, because there vanilla shift is still faster.
 
-            // .NET 8:
+            // .NET 8 (9 is very similar):
             // 1. BlendWithBackgroundSrgb_2_IntrinsicsShift: average time: 19,24 ms
             //   #1          18,84 ms	 <---- Best
             //   #2          19,37 ms
