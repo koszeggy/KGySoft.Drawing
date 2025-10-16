@@ -23,7 +23,11 @@ using System.Runtime.CompilerServices;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#else
+using System.Security;
 #endif
+
+using KGySoft.Drawing.Imaging;
 
 #endregion
 
@@ -113,6 +117,7 @@ namespace KGySoft.Drawing
         internal static ref PointF AsPointF(this ref Vector2 vector) => ref Unsafe.As<Vector2, PointF>(ref vector);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SecuritySafeCritical]
         internal static unsafe ref PointF AsPointF(this ref Vector2 vector)
         {
             fixed (Vector2* p = &vector)
@@ -125,6 +130,7 @@ namespace KGySoft.Drawing
         internal static ref Vector2 AsVector2(this ref PointF point) => ref Unsafe.As<PointF, Vector2>(ref point);
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SecuritySafeCritical]
         internal static unsafe ref Vector2 AsVector2(this ref PointF point)
         {
             fixed (PointF* p = &point)
@@ -185,6 +191,29 @@ namespace KGySoft.Drawing
             return vector / new Vector4(value);
 #endif
         }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ref RgbF AsRgbF(this ref Vector3 vector) => ref Unsafe.As<Vector3, RgbF>(ref vector);
+#else
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SecuritySafeCritical]
+        internal unsafe static ref RgbF AsRgbF(this ref Vector3 vector)
+        {
+            fixed (Vector3* p = &vector)
+                return ref *(RgbF*)p;
+
+        }
+#endif
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToColor32(this Vector3 vector) => vector.AsRgbF().ToColor32();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float GetBrightness(this Vector3 vector) => vector.AsRgbF().GetBrightness();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static bool TolerantIsZero(this Vector3 vector) => vector.AsRgbF().TolerantIsZero();
 
         #endregion
     }

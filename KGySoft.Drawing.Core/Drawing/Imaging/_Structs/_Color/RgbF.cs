@@ -65,16 +65,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-        internal bool TolerantIsZero => Vector3.Max(tolerance, Vector3.Abs(Rgb)) == tolerance;
-#else
-        internal bool TolerantIsZero => R.TolerantIsZero() && G.TolerantIsZero() && B.TolerantIsZero();
-#endif
-
-        #endregion
-
         #region Operators
 
         public static bool operator ==(RgbF left, RgbF right) => Equals(left, right);
@@ -232,6 +222,12 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Internal Methods
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        internal bool TolerantIsZero() => Vector3.Max(tolerance, Vector3.Abs(Rgb)) == tolerance;
+#else
+        internal bool TolerantIsZero() => R.TolerantIsZero() && G.TolerantIsZero() && B.TolerantIsZero();
+#endif
 
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         internal RgbF Clip() => new RgbF(Rgb.ClipF());

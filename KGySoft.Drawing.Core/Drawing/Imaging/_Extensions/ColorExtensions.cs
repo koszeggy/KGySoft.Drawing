@@ -667,7 +667,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.R;
 
 #if NET5_0_OR_GREATER
-            // Actually it would be supported even in .NET Core 3.0 but it's not performant enough below .NET 5.0
+            // Actually it would be supported even in .NET Core 3.0, but it's not performant enough below .NET 5.0
             if (Sse2.IsSupported)
             {
                 // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
@@ -780,14 +780,7 @@ namespace KGySoft.Drawing.Imaging
         /// or use the <see cref="O:KGySoft.Drawing.Imaging.ColorExtensions.GetBrightnessF">GetBrightnessF</see> methods instead.</note>
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static float GetBrightness(this ColorF c)
-            => c.R.Equals(c.G) && c.R.Equals(c.B)
-                ? c.R
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                : Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
-#else
-                : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
-#endif
+        public static float GetBrightness(this ColorF c) => GetBrightness(c.RgbF);
 
         /// <summary>
         /// Gets the brightness of a <see cref="ColorF"/> instance as a <see cref="float">float</see> value in the linear color space.
@@ -1258,6 +1251,20 @@ namespace KGySoft.Drawing.Imaging
 
         internal static ColorF ToColorF(this ColorF c, bool isLinear) => isLinear ? c : c.ToLinear();
         internal static PColorF ToPColorF(this ColorF c, bool isLinear) => (isLinear ? c : c.ToLinear()).ToPColorF();
+
+        #endregion
+
+        #region Brightness
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float GetBrightness(this RgbF c)
+            => c.R.Equals(c.G) && c.R.Equals(c.B)
+                ? c.R
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                : Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
+#else
+                : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
+#endif
 
         #endregion
 
