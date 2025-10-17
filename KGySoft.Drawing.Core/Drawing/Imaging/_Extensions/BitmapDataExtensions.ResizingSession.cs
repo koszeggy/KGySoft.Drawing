@@ -21,8 +21,10 @@ using System.Drawing;
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
 #endif
-#if NETCOREAPP3_0_OR_GREATER
+#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#endif
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
@@ -1877,7 +1879,12 @@ namespace KGySoft.Drawing.Imaging
                             kernelItem = ref kernelItem.At(2);
                         }
 
+#if NET5_0_OR_GREATER
                         result = Sse.Add(result256.GetLower(), result256.GetUpper()).AsVector4();
+#else
+                        Vector128<float> result128 = Sse.Add(result256.GetLower(), result256.GetUpper());
+                        result = result128.AsVector4();
+#endif
                     }
 
                     // Processing last item as Vector4 if Length is odd (not using Fma.MultiplyAdd with Vector128, because it is not faster)

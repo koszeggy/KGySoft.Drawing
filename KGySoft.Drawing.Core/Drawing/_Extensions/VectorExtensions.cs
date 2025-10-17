@@ -37,12 +37,18 @@ namespace KGySoft.Drawing
         #region Methods
 
 #if NETCOREAPP3_0
-        // NOTE: Actually these would perform better in .NET Core 3.x if they were this ref + ref return like AsPointF/AsVector2.
-        // The .NET 5+ counterparts are intrinsics, so they are faster even in .NET 5 where value-in + value-return was still slower (see VectorCastTests in PerformanceTests).
-        internal static Vector128<float> AsVector128(this Vector3 v) => new Vector4(v, default).AsVector128();
-        internal static Vector128<float> AsVector128(this Vector4 v) => Unsafe.As<Vector4, Vector128<float>>(ref v);
-        internal static Vector3 AsVector3(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector3>(ref v);
-        internal static Vector4 AsVector4(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector4>(ref v);
+        internal static Vector128<float> AsVector128(this Vector3 v)
+        {
+            var result = new Vector4(v, default);
+            return result.AsVector128();
+        }
+
+        // NOTE: Unlike in .NET 5+, these are ref in/return methods here to perform better (like AsPointF/AsVector2).
+        // The .NET 5+ counterparts are intrinsics, that's why they can be faster as value-in + value-return methods (see VectorCastTests in PerformanceTests).
+        // Note 2: We can omit the [SecuritySafeCritical] attributes here, as it would be ignored for .NET Core anyway.
+        internal static ref Vector128<float> AsVector128(this ref Vector4 v) => ref v.As<Vector4, Vector128<float>>();
+        internal static ref Vector3 AsVector3(this ref Vector128<float> v) => ref v.As<Vector128<float>, Vector3>();
+        internal static ref Vector4 AsVector4(this ref Vector128<float> v) => ref v.As<Vector128<float>, Vector4>();
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -56,7 +62,8 @@ namespace KGySoft.Drawing
 #if NET8_0_OR_GREATER
                 return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector4();
 #else
-                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f)).AsVector4();
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f));
+                return result.AsVector4();
 #endif
             }
 #endif
@@ -80,7 +87,8 @@ namespace KGySoft.Drawing
 #if NET8_0_OR_GREATER
                 return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector3();
 #else
-                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f)).AsVector3();
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f));
+                return result.AsVector3();
 #endif
             }
 #endif
@@ -100,7 +108,14 @@ namespace KGySoft.Drawing
             // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
+            {
+#if NET5_0_OR_GREATER
                 return Sse.Min(Sse.Max(v.AsVector128(), min.AsVector128()), max.AsVector128()).AsVector4();
+#else
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), min.AsVector128()), max.AsVector128());
+                return result.AsVector4();
+#endif
+            }
 #endif
 #if NET9_0_OR_GREATER
             // there is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
@@ -128,7 +143,14 @@ namespace KGySoft.Drawing
         {
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse41.IsSupported)
+            {
+#if NET5_0_OR_GREATER
                 return Sse41.Floor(vector.AsVector128()).AsVector4();
+#else
+                Vector128<float> result = Sse41.Floor(vector.AsVector128());
+                return result.AsVector4();
+#endif
+            }
 #endif
 #if NET7_0_OR_GREATER
             if (Vector128.IsHardwareAccelerated)
