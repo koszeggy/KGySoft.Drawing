@@ -1481,7 +1481,7 @@ namespace KGySoft.Drawing.Imaging
             #region Internal Methods
 
             [SecuritySafeCritical]
-            internal unsafe static ResizingSessionInterpolated Create(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+            internal static ResizingSessionInterpolated Create(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
                 Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
             {
                 // On platforms where array pooling is available, we prefer byte element type.
@@ -1489,10 +1489,13 @@ namespace KGySoft.Drawing.Imaging
 #if NETFRAMEWORK || NETSTANDARD2_0
                 return new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
 #else
-                // Checking length with the target width and source height is intended, see the derived constructor
-                return (long)targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF) <= EnvironmentHelper.MaxByteArrayLength
-                    ? new ResizingSessionInterpolatedGeneric<byte>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
-                    : new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+                unsafe
+                {
+                    // Checking length with the target width and source height is intended, see the derived constructor
+                    return (long)targetRectangle.Width * sourceRectangle.Height * sizeof(PColorF) <= EnvironmentHelper.MaxByteArrayLength
+                        ? new ResizingSessionInterpolatedGeneric<byte>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace)
+                        : new ResizingSessionInterpolatedGeneric<PColorF>(context, source, target, sourceRectangle, targetRectangle, scalingMode, useLinearColorSpace);
+                }
 #endif
             }
 
@@ -1866,12 +1869,12 @@ namespace KGySoft.Drawing.Imaging
                     if (vectorCount != 0)
                     {
                         Vector256<float> result256 = Vector256<float>.Zero;
-                        ref Vector256<float> vecItem = ref Unsafe.As<PColorF, Vector256<float>>(ref colors.GetElementReferenceUnsafe(startIndex));
+                        ref Vector256<float> vecItem = ref colors.GetElementReferenceUnsafe(startIndex).As<PColorF, Vector256<float>>();
                         ref float kernelItem = ref kernelBuffer.GetElementReferenceUnsafe(0);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            result256 = Fma.MultiplyAdd(Unsafe.Add(ref vecItem, i), Vector256.Create(Vector128.Create(kernelItem), Vector128.Create(Unsafe.Add(ref kernelItem, 1))), result256);
-                            kernelItem = ref Unsafe.Add(ref kernelItem, 2);
+                            result256 = Fma.MultiplyAdd(vecItem.At(i), Vector256.Create(Vector128.Create(kernelItem), Vector128.Create(kernelItem.At(1))), result256);
+                            kernelItem = ref kernelItem.At(2);
                         }
 
                         result = Sse.Add(result256.GetLower(), result256.GetUpper()).AsVector4();
@@ -1885,11 +1888,7 @@ namespace KGySoft.Drawing.Imaging
 #endif
                 {
                     // The fallback solution with a span of Vector4. Not using FusedMultiplyAdd in .NET 9+ because it is not faster, and also its precision can be less accurate.
-#if NETCOREAPP3_0_OR_GREATER
-                    Span<Vector4> asSpan = MemoryMarshal.CreateSpan(ref Unsafe.As<PColorF, Vector4>(ref colors.GetElementReferenceUnsafe(0)), colors.Length);
-#else
-                    Span<Vector4> asSpan = MemoryMarshal.Cast<PColorF, Vector4>(colors.AsSpan);
-#endif
+                    Span<Vector4> asSpan = MemoryMarshal.CreateSpan(ref colors.GetElementReferenceUnsafe(0).As<PColorF, Vector4>(), colors.Length);
                     for (int i = 0; i < Length; i++)
                         result += asSpan[startIndex + i] * kernelBuffer.GetElementUnsafe(i);
                 }

@@ -49,33 +49,11 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x)
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            return Unsafe.Add(ref Unsafe.As<T, TResult>(ref row.Buffer.GetPinnableReference()), x);
-#else
-            unsafe
-            {
-                fixed (T* pRow = row.Buffer)
-                    return ((TResult*)pRow)[x];
-            }
-#endif
-        }
+        public sealed override TResult DoReadRaw<TResult>(int x) => row.Buffer.GetPinnableReference().At<T, TResult>(x);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override void DoWriteRaw<TValue>(int x, TValue data)
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            Unsafe.Add(ref Unsafe.As<T, TValue>(ref row.Buffer.GetPinnableReference()), x) = data;
-#else
-            unsafe
-            {
-                fixed (T* pRow = row.Buffer)
-                    ((TValue*)pRow)[x] = data;
-            }
-#endif
-        }
+        public sealed override void DoWriteRaw<TValue>(int x, TValue data) => row.Buffer.GetPinnableReference().At<T, TValue>(x) = data;
 
         #endregion
 

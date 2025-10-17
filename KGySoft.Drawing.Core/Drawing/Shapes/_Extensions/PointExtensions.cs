@@ -22,6 +22,7 @@ using System.Drawing;
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #if !(NETCOREAPP || NET45_OR_GREATER || NETSTANDARD)
 using KGySoft.CoreLibraries;
@@ -48,19 +49,9 @@ namespace KGySoft.Drawing.Shapes
 #endif
         }
 
-#if NETCOREAPP3_0_OR_GREATER
+        [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static ref Size AsSize(this ref Point point) => ref Unsafe.As<Point, Size>(ref point);
-#else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static unsafe ref Size AsSize(this ref Point point)
-        {
-            {
-                fixed (Point* p = &point)
-                    return ref *(Size*)p;
-            }
-        }
-#endif
+        internal static ref Size AsSize(this ref Point point) => ref point.As<Point, Size>();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "Intended, that's the point of the method.")]

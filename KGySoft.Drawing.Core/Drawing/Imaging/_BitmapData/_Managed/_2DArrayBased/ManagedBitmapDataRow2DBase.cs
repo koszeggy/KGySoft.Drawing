@@ -51,19 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected ref TPixel GetPixelRef<TPixel>(int x)
-            where TPixel : unmanaged
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Buffer[Index, 0]), x);
-#else
-            unsafe
-            {
-                fixed (T* pRow = &Buffer[Index, 0])
-                    return ref ((TPixel*)pRow)[x];
-            }
-#endif
-        }
+        protected ref TPixel GetPixelRef<TPixel>(int x) where TPixel : unmanaged => ref Buffer[Index, 0].At<T, TPixel>(x);
 
         protected sealed override void DoMoveToIndex()
         {

@@ -90,49 +90,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x, int y)
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            return Unsafe.Add(ref Unsafe.As<byte, TResult>(ref Unsafe.Add(ref GetPinnableReference(), y * RowSize)), x);
-#else
-            unsafe
-            {
-                fixed (byte* pBuf = &GetPinnableReference())
-                    return ((TResult*)&pBuf[y * RowSize])[x];
-            }
-#endif
-        }
+        public sealed override TResult DoReadRaw<TResult>(int x, int y) => GetPinnableReference().At<byte, TResult>(y * RowSize, x);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override void DoWriteRaw<TValue>(int x, int y, TValue data)
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            Unsafe.Add(ref Unsafe.As<byte, TValue>(ref Unsafe.Add(ref GetPinnableReference(), y * RowSize)), x) = data;
-#else
-            unsafe
-            {
-                fixed (byte* pBuf = &GetPinnableReference())
-                    ((TValue*)&pBuf[y * RowSize])[x] = data;
-            }
-#endif
-        }
+            => GetPinnableReference().At<byte, TValue>(y * RowSize, x) = data;
 
         #endregion
 
         #region Internal Methods
 
-#if NETCOREAPP3_0_OR_GREATER
-        internal sealed override ref byte GetPinnableReference() => ref Unsafe.As<T, byte>(ref underlyingBuffer.GetPinnableReference());
-#else
         [SecuritySafeCritical]
-        internal sealed override unsafe ref byte GetPinnableReference()
-        {
-            ref T head = ref underlyingBuffer.GetPinnableReference();
-            fixed (T* pHead = &head)
-                return ref *(byte*)pHead;
-        }
-#endif
+        internal sealed override ref byte GetPinnableReference() => ref underlyingBuffer.GetPinnableReference().As<T, byte>();
 
         #endregion
 

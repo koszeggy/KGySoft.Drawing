@@ -23,9 +23,8 @@ using System.Runtime.CompilerServices;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-#else
-using System.Security;
 #endif
+using System.Security;
 
 using KGySoft.Drawing.Imaging;
 
@@ -112,31 +111,13 @@ namespace KGySoft.Drawing
 #endif
         }
 
-#if NETCOREAPP3_0_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static ref PointF AsPointF(this ref Vector2 vector) => ref Unsafe.As<Vector2, PointF>(ref vector);
-#else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
         [SecuritySafeCritical]
-        internal static unsafe ref PointF AsPointF(this ref Vector2 vector)
-        {
-            fixed (Vector2* p = &vector)
-                return ref *(PointF*)p;
-        }
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ref PointF AsPointF(this ref Vector2 vector) => ref vector.As<Vector2, PointF>();
 
-#if NETCOREAPP3_0_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static ref Vector2 AsVector2(this ref PointF point) => ref Unsafe.As<PointF, Vector2>(ref point);
-#else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
         [SecuritySafeCritical]
-        internal static unsafe ref Vector2 AsVector2(this ref PointF point)
-        {
-            fixed (PointF* p = &point)
-                return ref *(Vector2*)p;
-        }
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ref Vector2 AsVector2(this ref PointF point) => ref point.As<PointF, Vector2>();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector4 RoundTo(this Vector4 vector, float smallestUnit)
@@ -192,19 +173,9 @@ namespace KGySoft.Drawing
 #endif
         }
 
-#if NETCOREAPP3_0_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static ref RgbF AsRgbF(this ref Vector3 vector) => ref Unsafe.As<Vector3, RgbF>(ref vector);
-#else
-        [MethodImpl(MethodImpl.AggressiveInlining)]
         [SecuritySafeCritical]
-        internal unsafe static ref RgbF AsRgbF(this ref Vector3 vector)
-        {
-            fixed (Vector3* p = &vector)
-                return ref *(RgbF*)p;
-
-        }
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ref RgbF AsRgbF(this ref Vector3 vector) => ref vector.As<Vector3, RgbF>();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToColor32(this Vector3 vector) => vector.AsRgbF().ToColor32();

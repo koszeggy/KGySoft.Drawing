@@ -119,18 +119,7 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged
-            {
-#if NETCOREAPP3_0_OR_GREATER
-                return ref Unsafe.Add(ref Unsafe.As<T, TValue>(ref Buffer[Index, 0]), x);
-#else
-                unsafe
-                {
-                    fixed (T* pRow = &Buffer[Index, 0])
-                        return ref ((TValue*)pRow)[x];
-                }
-#endif
-            }
+            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged => ref GetPixelRef<TValue>(x);
 
             #endregion
         }

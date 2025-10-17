@@ -2862,7 +2862,7 @@ namespace KGySoft.Drawing.Imaging
             using IBitmapDataInternal tempData = CreateManagedBitmapData(new Array2D<byte>(buffer, 1, byteLength), 1, pixelFormat,
                 bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.WorkingColorSpace, bitmapData.Palette, null, null);
 #endif
-            IBitmapDataRowInternal tempRow = tempData.GetRowCached(0);
+            IBitmapDataRowInternal tempRow = tempData.GetRowUncached(0);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)

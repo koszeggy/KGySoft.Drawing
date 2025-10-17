@@ -277,7 +277,7 @@ namespace KGySoft.Drawing
                         Vector512<float> vOffset = Vector512.Create(offset);
                         for (int i = 0; i < vectorCount; i++)
                         {
-                            ref float itemRef = ref Unsafe.As<PointF, float>(ref buffer.GetElementReferenceUnchecked(pos));
+                            ref float itemRef = ref buffer.GetElementReferenceUnchecked(pos).As<PointF, float>();
                             Avx512F.Add(Vector512.LoadUnsafe(ref itemRef), vOffset).StoreUnsafe(ref itemRef);
                             pos += 8;
                         }
@@ -296,7 +296,7 @@ namespace KGySoft.Drawing
                         for (int i = 0; i < vectorCount; i++)
                         {
                             // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
-                            ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
+                            ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos).As<PointF, byte>();
                             Unsafe.WriteUnaligned(ref itemRef, Avx.Add(Unsafe.ReadUnaligned<Vector256<float>>(ref itemRef), vOffset));
                             pos += 4;
                         }
@@ -312,7 +312,7 @@ namespace KGySoft.Drawing
                     for (int i = 0; i < vectorCount; i++)
                     {
                         // Load/StoreUnsafe are available in .NET 7+ only, so using Read/WriteUnaligned here
-                        ref byte itemRef = ref Unsafe.As<PointF, byte>(ref buffer.GetElementReferenceUnchecked(pos));
+                        ref byte itemRef = ref buffer.GetElementReferenceUnchecked(pos).As<PointF, byte>();
                         Unsafe.WriteUnaligned(ref itemRef, Sse.Add(Unsafe.ReadUnaligned<Vector128<float>>(ref itemRef), vOffset));
                         pos += 2;
                     }

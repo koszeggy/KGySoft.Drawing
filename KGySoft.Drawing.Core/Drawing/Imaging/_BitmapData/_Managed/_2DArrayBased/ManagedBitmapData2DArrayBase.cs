@@ -63,18 +63,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [SecuritySafeCritical]
 #if NET6_0_OR_GREATER
         internal sealed override ref byte GetPinnableReference() => ref MemoryMarshal.GetArrayDataReference(Buffer);
-#elif NETCOREAPP3_0_OR_GREATER
-        internal sealed override ref byte GetPinnableReference() => ref Unsafe.As<T, byte>(ref Buffer[0, 0]);
 #else
-        [SecuritySafeCritical]
-        internal sealed override unsafe ref byte GetPinnableReference()
-        {
-            ref T head = ref Buffer[0, 0];
-            fixed (T* pHead = &head)
-                return ref *(byte*)pHead;
-        }
+        internal sealed override ref byte GetPinnableReference() => ref Buffer[0, 0].As<T, byte>();
 #endif
 
         #endregion
@@ -87,17 +80,10 @@ namespace KGySoft.Drawing.Imaging
             where TPixel : unmanaged
         {
 #if NET6_0_OR_GREATER
-            return ref Unsafe.Add(ref Unsafe.As<byte, TPixel>(ref Unsafe.Add(ref GetPinnableReference(), rowIndex * RowSize)), offset);
-#elif NETCOREAPP3_0_OR_GREATER
-            // we could use the same as above but under .NET 6 the GetPinnableReference already has an indexed access so it is faster this way
-            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Buffer[rowIndex, 0]), offset);
+            return ref GetPinnableReference().At<byte, TPixel>(rowIndex * RowSize, offset);
 #else
-            unsafe
-            {
-                ref T row = ref Buffer[rowIndex, 0];
-                fixed (T* pRow = &row)
-                    return ref ((TPixel*)pRow)[offset];
-            }
+            // we could use the same as above but under .NET 6 the GetPinnableReference already has an indexed access so it is faster this way
+            return ref Buffer[rowIndex, 0].At<T, TPixel>(offset);
 #endif
         }
 
