@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 using KGySoft.CoreLibraries;
 
@@ -101,7 +102,7 @@ namespace KGySoft.Drawing
 #if NETFRAMEWORK
             $".NET Framework Runtime {typeof(object).Assembly.ImageRuntimeVersion}";
 #elif NETCOREAPP
-    $".NET Core {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))}";
+            $".NET Core {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))} ({RuntimeInformation.ProcessArchitecture})";
 #else
             $"{RuntimeInformation.FrameworkDescription}";
 #endif
@@ -117,16 +118,17 @@ namespace KGySoft.Drawing
         internal static void Main()
         {
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
-            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
+            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter or ClassNameFilter,
             // or just calling the method to debug directly
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
 
+            TestFilter filter = TestFilter.Empty; // (TestFilter)Reflection.Reflector.CreateInstance(Reflection.Reflector.ResolveType("NUnit.Framework.Internal.Filters.ClassNameFilter")!, "KGySoft.Drawing.UnitTests.MemoryHelperTest");
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
             ConsoleWriter = Console.Out;
-            ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
+            ITestResult result = runner.Run(new ConsoleTestReporter(), filter);
             Console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                 : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                 : ConsoleColor.Green;

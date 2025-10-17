@@ -30,18 +30,24 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Methods
 
-        [Test]
-        public unsafe void CopyAndCompareTest()
+        [TestCase(0, 0)] // no misalignment
+        [TestCase(4, 0)]
+        [TestCase(4, 4)]
+        [TestCase(2, 0)]
+        [TestCase(2, 2)]
+        [TestCase(1, 0)]
+        [TestCase(1, 1)]
+        public unsafe void CopyAndCompareTest(int offsetSrc, int offsetDst)
         {
             int testLength = 1024 + 8 + 4 + 2 + 1;
-            var src = new Random().NextBytes(testLength);
-            var dest = new byte[testLength];
+            var src = ThreadSafeRandom.Instance.NextBytes(testLength + offsetSrc);
+            var dest = new byte[testLength + offsetDst];
 
             fixed (byte* pSrc = src)
             fixed (byte* pDest = dest)
             {
-                MemoryHelper.CopyMemory(pSrc, pDest, testLength);
-                Assert.IsTrue(MemoryHelper.CompareMemory(new IntPtr(pSrc), new IntPtr(pDest), testLength));
+                MemoryHelper.CopyMemory(pSrc + offsetSrc, pDest + offsetDst, testLength);
+                Assert.IsTrue(MemoryHelper.CompareMemory(new IntPtr(pSrc + offsetSrc), new IntPtr(pDest + offsetDst), testLength));
             }
         }
 
