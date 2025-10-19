@@ -76,9 +76,10 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected ref TPixel GetPixelRef<TPixel>(int rowIndex, int offset)
+        protected unsafe ref TPixel GetPixelRef<TPixel>(int rowIndex, int offset)
             where TPixel : unmanaged
         {
+            Debug.Assert(!typeof(TPixel).IsPrimitive || Buffer[rowIndex, 0].At<T, TPixel>(offset).AsIntPtr() % sizeof(TPixel) == 0, $"Misaligned raw {typeof(TPixel).Name} access in row {rowIndex} at position {offset} - {PixelFormat} {Width}x{Height}");
 #if NET6_0_OR_GREATER
             return ref GetPinnableReference().At<byte, TPixel>(rowIndex * RowSize, offset);
 #else
@@ -88,12 +89,17 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected sealed override IBitmapDataRowInternal DoGetRow(int y) => new TRow
+        protected sealed override IBitmapDataRowInternal DoGetRow(int y)
         {
-            Buffer = Buffer,
-            BitmapData = this,
-            Index = y,
-        };
+            // Not asserting row alignment here because a 2D array is allowed to use a misaligned stride
+            //Debug.Assert(Buffer[y, 0].AsIntPtr() % PixelFormat.AlignmentReq == 0, $"Misaligned {typeof(T).Name} at row {y} - {PixelFormat} {Width}x{Height}");
+            return new TRow
+            {
+                Buffer = Buffer,
+                BitmapData = this,
+                Index = y,
+            };
+        }
 
         #endregion
 

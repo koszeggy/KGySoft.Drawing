@@ -518,7 +518,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The getter and setter delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.</para>
         /// <note type="implement">It is highly recommended that the delegates do not use the <paramref name="buffer"/> directly (they don't capture the <paramref name="buffer"/> instance).
         /// Instead, they should access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row, independently
-        /// from any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to true in <paramref name="customBitmapDataConfig"/>,
+        /// of any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to <see langword="true"/> in <paramref name="customBitmapDataConfig"/>,
         /// which allows some operations work with better quality and performance.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="customBitmapDataConfig"/> is <see langword="null"/>.</exception>
@@ -605,7 +605,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The getter and setter delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.</para>
         /// <note type="implement">It is highly recommended that the delegates do not use the <paramref name="buffer"/> directly (they don't capture the <paramref name="buffer"/> instance).
         /// Instead, they should access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row, independently
-        /// from any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to true in <paramref name="customBitmapDataConfig"/>,
+        /// of any specific buffer instance. If they do so, then you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/> to <see langword="true"/> in <paramref name="customBitmapDataConfig"/>,
         /// which allows some operations work with better quality and performance.</note>
         /// <para>If the <see cref="CustomIndexedBitmapDataConfig.Palette"/> property in <paramref name="customBitmapDataConfig"/> is <see langword="null"/> , then the closest not larger system palette will be used,
         /// possibly completed with transparent entries. For example, if <see cref="PixelFormatInfo.BitsPerPixel">PixelFormatInfo.BitsPerPixel</see> is 9

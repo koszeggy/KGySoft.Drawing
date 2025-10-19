@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Properties
 
-        internal IntPtr Scan0 { get; }
+        internal nint Scan0 { get; }
         internal int Stride { get; }
 
         #endregion
@@ -53,11 +53,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override unsafe T DoReadRaw<T>(int x, int y) => *GetPixelAddress<T>(y, x);
+        public sealed override unsafe T DoReadRaw<T>(int x, int y)
+        {
+            Debug.Assert(!typeof(T).IsPrimitive || (nint)GetPixelAddress<T>(y, x) % sizeof(T) == 0, $"Misaligned raw {typeof(T).Name} access in row {y} at position {x} - {PixelFormat} {Width}x{Height}");
+            return *GetPixelAddress<T>(y, x);
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override unsafe void DoWriteRaw<T>(int x, int y, T data) => *GetPixelAddress<T>(y, x) = data;
+        public sealed override unsafe void DoWriteRaw<T>(int x, int y, T data)
+        {
+            Debug.Assert(!typeof(T).IsPrimitive || (nint)GetPixelAddress<T>(y, x) % sizeof(T) == 0, $"Misaligned raw {typeof(T).Name} access in row {y} at position {x} - {PixelFormat} {Width}x{Height}");
+            *GetPixelAddress<T>(y, x) = data;
+        }
 
         #endregion
 
@@ -66,7 +74,7 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected unsafe TPixel* GetPixelAddress<TPixel>(int rowIndex, int offset) where TPixel : unmanaged
-            => (TPixel*)((byte*)Scan0 + rowIndex * Stride) + offset;
+            => (TPixel*)((byte*)Scan0 + (long)rowIndex * Stride) + offset;
 
         #endregion
 

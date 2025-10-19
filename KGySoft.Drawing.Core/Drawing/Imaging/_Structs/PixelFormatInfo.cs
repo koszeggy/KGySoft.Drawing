@@ -306,6 +306,21 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        // for internal checks only
+        internal int AlignmentReq => IsKnownFormat && Grayscale
+            ? BitsPerPixel switch
+            {
+                16 => 2, // ushort
+                32 => 4, // float
+                _ => 1
+            }
+            : BitsPerPixel switch
+            {
+                16 or 48 => 2, // ushort fields
+                32 or 96 or 128 => 4, // uint/float fields
+                _ => 1
+            };
+
         #endregion
 
         #region Private Properties

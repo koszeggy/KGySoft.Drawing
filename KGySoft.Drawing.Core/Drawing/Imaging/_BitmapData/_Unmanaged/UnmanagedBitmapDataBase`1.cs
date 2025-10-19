@@ -37,16 +37,17 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected sealed override IBitmapDataRowInternal DoGetRow(int y) => new TRow
+        protected sealed override IBitmapDataRowInternal DoGetRow(int y)
         {
-#if NET35
-            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
-#else
-            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
-#endif
-            BitmapData = this,
-            Index = y,
-        };
+            // Not asserting row alignment here because a raw buffer is allowed to be misaligned
+            //Debug.Assert((Scan0 + Stride * y) % PixelFormat.AlignmentReq == 0, $"Misaligned address  {(Scan0 + Stride * y)} at row {y} - {PixelFormat} {Width}x{Height}");
+            return new TRow
+            {
+                Row = y == 0 ? Scan0 : (nint)(Scan0 + (long)Stride * y),
+                BitmapData = this,
+                Index = y,
+            };
+        }
 
         #endregion
     }

@@ -17,11 +17,11 @@
 
 using System;
 using System.Collections.Generic;
-#if NETCOREAPP
 using System.IO;
-#elif !NETFRAMEWORK
+#if !NETFRAMEWORK
 using System.Runtime.InteropServices;
 #endif
+
 using KGySoft.CoreLibraries;
 
 using NUnit.Framework.Api;
@@ -36,6 +36,14 @@ namespace KGySoft.Drawing
     {
         #region Properties
 
+        #region Internal Properties
+
+        internal static TextWriter ConsoleWriter { get; private set; }
+
+        #endregion
+
+        #region Private Properties
+
         private static string FrameworkVersion =>
 #if NETFRAMEWORK
             $".NET Framework Runtime {typeof(object).Assembly.ImageRuntimeVersion}";
@@ -47,24 +55,29 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #endregion
+
         #region Methods
 
         internal static void Main()
         {
             // This executes all tests. Can be useful for .NET 3.5, which is executed on .NET 4.x otherwise.
-            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
+            // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter or ClassNameFilter,
             // or just calling the method to debug directly
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
 
+            TestFilter filter = TestFilter.Empty; // (TestFilter)Reflection.Reflector.CreateInstance(Reflection.Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter")!, "FillVsClearTest");
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
-            ITestResult result = runner.Run(null, TestFilter.Empty);
+            ConsoleWriter = Console.Out;
+            ITestResult result = runner.Run(null, filter);
             Console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                 : result.SkipCount > 0 ? ConsoleColor.Yellow
                 : ConsoleColor.Green;
             Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Skipped: {result.SkipCount}");
-            Console.WriteLine($"Message: {result.Message}");
+                Console.WriteLine($"Message: {result.Message}");
             ProcessChildren(result.Children);
         }
 
@@ -81,7 +94,10 @@ namespace KGySoft.Drawing
                 if (child.FailCount == 0)
                     continue;
 
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine();
                 Console.WriteLine("====================================");
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{child.Name}: {child.Message}");
                 Console.WriteLine(child.StackTrace);
                 if (!child.Output.IsNullOrEmpty())

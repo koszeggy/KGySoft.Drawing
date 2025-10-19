@@ -99,7 +99,11 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public unsafe ref T UnsafeGetRefAs<T>(int x) where T : unmanaged => ref ((T*)Row)[x];
+            public unsafe ref T UnsafeGetRefAs<T>(int x) where T : unmanaged
+            {
+                Debug.Assert(!typeof(T).IsPrimitive || (Row + sizeof(T)) % sizeof(T) == 0, $"Misaligned raw {typeof(T).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+                return ref ((T*)Row)[x];
+            }
 
             #endregion
         }

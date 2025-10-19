@@ -49,6 +49,11 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparam name="T">The type of the value to return a reference for. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
         /// <returns>A reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.</returns>
+        /// <remarks>
+        /// <note type="caution">If <typeparamref name="T"/> is a primitive type of size greater than 1 byte (for example <see cref="int">int</see>, <see cref="float">float</see>, etc.),
+        /// then the address of the result should be aligned to the size of <typeparamref name="T"/>. On most platforms misalignment affects only performance,
+        /// but depending on the architecture, dereferencing the returned misaligned managed pointer may provide an unexpected result, or can even throw a <see cref="DataMisalignedException"/>.</note>
+        /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is not valid for <see cref="IBitmapData.RowSize"/> and <typeparamref name="T"/>.</exception>
         [SecuritySafeCritical]
         ref T GetRefAs<T>(int x) where T : unmanaged;
@@ -61,6 +66,11 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparam name="T">The type of the value to return a reference for. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
         /// <returns>A reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.</returns>
+        /// <remarks>
+        /// <note type="caution">If <typeparamref name="T"/> is a primitive type of size greater than 1 byte (for example <see cref="int">int</see>, <see cref="float">float</see>, etc.),
+        /// then the address of the result should be aligned to the size of <typeparamref name="T"/>. On most platforms misalignment affects only performance,
+        /// but depending on the architecture, dereferencing the returned misaligned managed pointer may provide an unexpected result, or can even throw a <see cref="DataMisalignedException"/>.</note>
+        /// </remarks>
         [SecurityCritical]
         ref T UnsafeGetRefAs<T>(int x) where T : unmanaged;
         

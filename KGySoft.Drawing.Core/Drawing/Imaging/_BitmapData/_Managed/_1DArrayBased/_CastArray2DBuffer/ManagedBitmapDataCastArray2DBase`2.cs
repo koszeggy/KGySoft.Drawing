@@ -90,12 +90,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x, int y) => GetPinnableReference().At<byte, TResult>(y * RowSize, x);
+        public sealed override unsafe TResult DoReadRaw<TResult>(int x, int y)
+        {
+            Debug.Assert(!typeof(TResult).IsPrimitive || GetPinnableReference().At<byte, TResult>(y * RowSize, x).AsIntPtr() % sizeof(TResult) == 0, $"Misaligned raw {typeof(TResult).Name} access in row {y} at position {x} - {PixelFormat} {Width}x{Height}");
+            return GetPinnableReference().At<byte, TResult>(y * RowSize, x);
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override void DoWriteRaw<TValue>(int x, int y, TValue data)
-            => GetPinnableReference().At<byte, TValue>(y * RowSize, x) = data;
+        public sealed override unsafe void DoWriteRaw<TValue>(int x, int y, TValue data)
+        {
+            Debug.Assert(!typeof(TValue).IsPrimitive || GetPinnableReference().At<byte, TValue>(y * RowSize, x).AsIntPtr() % sizeof(TValue) == 0, $"Misaligned raw {typeof(TValue).Name} access in row {y} at position {x} - {PixelFormat} {Width}x{Height}");
+            GetPinnableReference().At<byte, TValue>(y * RowSize, x) = data;
+        }
 
         #endregion
 

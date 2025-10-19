@@ -360,7 +360,12 @@ namespace KGySoft.Drawing.PerformanceTests
                     kernelItem = ref Unsafe.Add(ref kernelItem, 2);
                 }
 
+#if NET5_0_OR_GREATER
                 result = Sse.Add(result256.GetLower(), result256.GetUpper()).AsVector4();
+#else
+                var result128 = Sse.Add(result256.GetLower(), result256.GetUpper());
+                result = result128.AsVector4();
+#endif
             }
 
             // Handle the remaining one as Vector4 if any

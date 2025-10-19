@@ -51,10 +51,16 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected ref TPixel GetPixelRef<TPixel>(int x) where TPixel : unmanaged => ref Buffer[Index, 0].At<T, TPixel>(x);
+        protected unsafe ref TPixel GetPixelRef<TPixel>(int x) where TPixel : unmanaged
+        {
+            Debug.Assert(!typeof(TPixel).IsPrimitive || Buffer[Index, 0].At<T, TPixel>(x).AsIntPtr() % sizeof(TPixel) == 0, $"Misaligned raw {typeof(TPixel).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            return ref Buffer[Index, 0].At<T, TPixel>(x);
+        }
 
         protected sealed override void DoMoveToIndex()
         {
+            // Not asserting row alignment here because a 2D array is allowed to use a misaligned stride
+            //Debug.Assert(Buffer[Index, 0].AsIntPtr() % BitmapData.PixelFormat.AlignmentReq == 0, $"Misaligned {typeof(T).Name} at row {Index} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
         }
 
         #endregion

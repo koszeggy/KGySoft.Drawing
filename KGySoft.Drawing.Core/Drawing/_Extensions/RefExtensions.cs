@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -40,6 +41,19 @@ namespace KGySoft.Drawing
                 fixed (TSource* p = &source)
                     return ref *(TTarget*)p;
             }
+#endif
+        }
+
+        [SecuritySafeCritical] // safe, as long as a misaligned pointer of a primitive type is not dereferenced on some platforms
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static unsafe nint AsIntPtr<TSource>(this ref TSource source)
+            where TSource : unmanaged
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            return (IntPtr)Unsafe.AsPointer(ref source);
+#else
+            fixed (TSource* p = &source)
+                return (IntPtr)p;
 #endif
         }
 

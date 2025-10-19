@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -27,7 +26,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        internal IntPtr Row;
+        internal nint Row;
 
         #endregion
 
@@ -37,11 +36,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override unsafe T DoReadRaw<T>(int x) => ((T*)Row)[x];
+        public sealed override unsafe T DoReadRaw<T>(int x)
+        {
+            Debug.Assert(!typeof(T).IsPrimitive || Row % sizeof(T) == 0, $"Misaligned raw {typeof(T).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            return ((T*)Row)[x];
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override unsafe void DoWriteRaw<T>(int x, T data) => ((T*)Row)[x] = data;
+        public sealed override unsafe void DoWriteRaw<T>(int x, T data)
+        {
+            Debug.Assert(!typeof(T).IsPrimitive || Row % sizeof(T) == 0, $"Misaligned raw {typeof(T).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            ((T*)Row)[x] = data;
+        }
 
         #endregion
 
@@ -49,11 +56,10 @@ namespace KGySoft.Drawing.Imaging
 
         protected override void DoMoveToIndex()
         {
-#if NET35
-            Row = new IntPtr(((UnmanagedBitmapDataBase)BitmapData).Scan0.ToInt64() + ((UnmanagedBitmapDataBase)BitmapData).Stride * Index);
-#else
-            Row = ((UnmanagedBitmapDataBase)BitmapData).Scan0 + ((UnmanagedBitmapDataBase)BitmapData).Stride * Index;
-#endif
+            Row = (nint)(((UnmanagedBitmapDataBase)BitmapData).Scan0 + (long)((UnmanagedBitmapDataBase)BitmapData).Stride * Index);
+      
+            // Not asserting row alignment here because a raw buffer is allowed to be misaligned
+            //Debug.Assert(Row % BitmapData.PixelFormat.AlignmentReq == 0, $"Misaligned address {Row} at row {Index} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
         }
 
         #endregion

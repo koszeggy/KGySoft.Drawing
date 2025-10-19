@@ -39,11 +39,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x) => Row.GetPinnableReference().At<T, TResult>(x);
+        public sealed override unsafe TResult DoReadRaw<TResult>(int x)
+        {
+            Debug.Assert(!typeof(TResult).IsPrimitive || Row.GetPinnableReference().At<T, TResult>(x).AsIntPtr() % sizeof(TResult) == 0, $"Misaligned raw {typeof(TResult).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            return Row.GetPinnableReference().At<T, TResult>(x);
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override void DoWriteRaw<TValue>(int x, TValue data) => Row.GetPinnableReference().At<T, TValue>(x) = data;
+        public sealed override unsafe void DoWriteRaw<TValue>(int x, TValue data)
+        {
+            Debug.Assert(!typeof(TValue).IsPrimitive || Row.GetPinnableReference().At<T, TValue>(x).AsIntPtr() % sizeof(TValue) == 0, $"Misaligned raw {typeof(TValue).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            Row.GetPinnableReference().At<T, TValue>(x) = data;
+        }
 
         #endregion
 
@@ -53,7 +61,11 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected ref T GetPixelRef(int x) => ref Row.GetElementReferenceUnchecked(x);
 
-        protected sealed override void DoMoveToIndex() => Row = ((ManagedBitmapDataArray2DBase<T>)BitmapData).Buffer[Index];
+        protected sealed override void DoMoveToIndex()
+        {
+            Row = ((ManagedBitmapDataArray2DBase<T>)BitmapData).Buffer[Index];
+            Debug.Assert(Row.GetElementReference(0).AsIntPtr() % BitmapData.PixelFormat.AlignmentReq == 0, $"Misaligned {typeof(T).Name} at row {Index} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+        }
 
         #endregion
 

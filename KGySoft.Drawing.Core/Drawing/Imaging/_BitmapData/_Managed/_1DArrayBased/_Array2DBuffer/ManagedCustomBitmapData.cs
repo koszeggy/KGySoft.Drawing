@@ -117,7 +117,11 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged => ref Row.GetPinnableReference().At<T, TValue>(x);
+            public unsafe ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+                Debug.Assert(!typeof(TValue).IsPrimitive || Row.GetPinnableReference().At<T, TValue>(x).AsIntPtr() % sizeof(TValue) == 0, $"Misaligned raw {typeof(TValue).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+                return ref Row.GetPinnableReference().At<T, TValue>(x);
+            }
 
             #endregion
         }

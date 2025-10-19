@@ -180,6 +180,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Sets the underlying raw value within the current <see cref="IWritableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm">online help</a> for an example.</div>
         /// </summary>
         /// <typeparam name="T">The type of the value to write. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to write. The valid range depends on the size of <typeparamref name="T"/>.</param>
@@ -188,6 +189,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method writes the actual raw underlying data. <typeparamref name="T"/> can have any size so you by using this method you can write multiple pixels as well as individual color channels.</para>
         /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IWritableBitmapData"/> instance.</para>
         /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IWritableBitmapData"/> instance.</para>
+        /// <note type="caution">If <typeparamref name="T"/> is a primitive type of size greater than 1 byte (for example <see cref="int">int</see>, <see cref="float">float</see>, etc.),
+        /// then the address determined by the <paramref name="x"/> coordinate should be aligned to the size of <typeparamref name="T"/>. On most platforms misalignment affects only performance,
+        /// but depending on the architecture, the operation may have an unexpected result, or even a <see cref="DataMisalignedException"/> can be thrown.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to write multiple pixels by a single <see cref="WriteRaw{T}">WriteRaw</see> call:

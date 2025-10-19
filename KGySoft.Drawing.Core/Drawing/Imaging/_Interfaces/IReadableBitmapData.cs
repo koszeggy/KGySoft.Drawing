@@ -250,6 +250,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the underlying raw value within the current <see cref="IReadableBitmapData"/> at the specified coordinates.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapData_ReadRaw__1.htm">online help</a> for an example.</div>
         /// </summary>
         /// <typeparam name="T">The type of the value to return. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
@@ -260,6 +261,9 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparamref name="T"/> can have any size so this method can access multiple pixels or individual color channels.</para>
         /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
         /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
+        /// <note type="caution">If <typeparamref name="T"/> is a primitive type of size greater than 1 byte (for example <see cref="int">int</see>, <see cref="float">float</see>, etc.),
+        /// then the address of the result should be aligned to the size of <typeparamref name="T"/>. On most platforms misalignment affects only performance,
+        /// but depending on the architecture, an unexpected result may be returned, or even a <see cref="DataMisalignedException"/> can be thrown.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to access the premultiplied color values of a bitmap data with premultiplied pixel format:

@@ -46,12 +46,16 @@ namespace KGySoft.Drawing.Imaging
         #region Private Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected sealed override IBitmapDataRowInternal DoGetRow(int y) => new TRow
+        protected sealed override IBitmapDataRowInternal DoGetRow(int y)
         {
-            Row = Buffer[y],
-            BitmapData = this,
-            Index = y,
-        };
+            Debug.Assert(Buffer.GetElementReference(y, 0).AsIntPtr() % PixelFormat.AlignmentReq == 0, $"Misaligned {typeof(T).Name} at row {y} - {PixelFormat} {Width}x{Height}");
+            return new TRow
+            {
+                Row = Buffer[y],
+                BitmapData = this,
+                Index = y,
+            };
+        }
 
         #endregion
 

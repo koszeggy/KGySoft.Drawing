@@ -49,11 +49,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x) => row.Buffer.GetPinnableReference().At<T, TResult>(x);
+        public sealed override unsafe TResult DoReadRaw<TResult>(int x)
+        {
+            Debug.Assert(!typeof(TResult).IsPrimitive || row.Buffer.GetPinnableReference().At<T, TResult>(x).AsIntPtr() % sizeof(TResult) == 0, $"Misaligned raw {typeof(TResult).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            return row.Buffer.GetPinnableReference().At<T, TResult>(x);
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override void DoWriteRaw<TValue>(int x, TValue data) => row.Buffer.GetPinnableReference().At<T, TValue>(x) = data;
+        public sealed override unsafe void DoWriteRaw<TValue>(int x, TValue data)
+        {
+            Debug.Assert(!typeof(TValue).IsPrimitive || row.Buffer.GetPinnableReference().At<T, TValue>(x).AsIntPtr() % sizeof(TValue) == 0, $"Misaligned raw {typeof(TValue).Name} access in row {Index} at position {x} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+            row.Buffer.GetPinnableReference().At<T, TValue>(x) = data;
+        }
 
         #endregion
 
@@ -63,7 +71,13 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected ref TPixel GetPixelRef(int x) => ref row.GetElementReferenceUnsafe(x);
 
-        protected sealed override void DoMoveToIndex() => row = ((ManagedBitmapDataCastArray2DBase<T, TPixel>)BitmapData).Buffer[Index];
+        protected sealed override void DoMoveToIndex()
+        {
+            row = ((ManagedBitmapDataCastArray2DBase<T, TPixel>)BitmapData).Buffer[Index];
+
+            // Not asserting row alignment here because a CastArray is allowed to use a misaligned underlying buffer
+            //Debug.Assert(row.GetElementReference(0).AsIntPtr() % BitmapData.PixelFormat.AlignmentReq == 0, $"Misaligned {typeof(T).Name} at row {Index} - {BitmapData.PixelFormat} {Width}x{BitmapData.Height}");
+        }
 
         #endregion
 
