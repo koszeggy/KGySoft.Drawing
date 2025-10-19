@@ -1049,7 +1049,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, KnownPixelFormat pixelFormat,
-            WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold, Action? disposeCallback = null)
+            WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat, workingColorSpace);
@@ -1352,7 +1352,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat,
-            WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold, Action? disposeCallback = null)
+            WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat, workingColorSpace);
