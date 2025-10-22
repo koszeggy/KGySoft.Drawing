@@ -19,8 +19,8 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
-using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
@@ -53,8 +53,8 @@ namespace KGySoft.Drawing.PerformanceTests
 
         private static object?[][] FillPathTestSource =>
         [
-            // string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, Color backColor /*Empty: AlphaGradient*/, Color fillColor, DrawingOptions options
-            ["32bppArgb_Alternate_NQ_Srgb_NA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, Color.Cyan, Color.Blue, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false }],
+            // string name, KnownPixelFormat pixelFormat, WorkingColorSpace colorSpace, DrawingOptions options
+            ["32bppArgb_Alternate_NQ_Srgb_NA_NB", KnownPixelFormat.Format32bppArgb, WorkingColorSpace.Srgb, new DrawingOptions { FillMode = ShapeFillMode.Alternate, AlphaBlending = false, AntiAliasing = false }],
         ];
 
 
@@ -78,29 +78,56 @@ namespace KGySoft.Drawing.PerformanceTests
 
             using var bitmapData = bitmapDataBackground.Clone();
             var brush = new SolidBrush(Color.Blue);
+            var context2Threads = new SimpleContext(2);
             new PerformanceTest { TestName = $"{name}_{path.Bounds.Size}", TestTime = 5000, /*Iterations = 10_000,*/ Repeat = 3 }
-                .AddCase(() =>
-                {
-                    //bitmapDataBackground.CopyTo(bitmapData);
-                    bitmapData.FillPath(null, brush, path, options);
-                }, "No cache multi-thread")
-                .AddCase(() =>
-                {
-                    //bitmapDataBackground.CopyTo(bitmapData);
-                    bitmapData.FillPath(null, brush, pathCached, options);
-                }, "Cache multi-thread")
-                .AddCase(() =>
-                {
-                    //bitmapData.Clear(default);
-                    bitmapData.FillPath(AsyncHelper.SingleThreadContext, brush, path, options);
-                }, "No cache single-thread")
-                .AddCase(() =>
-                {
-                    //bitmapData.Clear(default);
-                    bitmapData.FillPath(AsyncHelper.SingleThreadContext, brush, pathCached, options);
-                }, "Cache single-thread")
+                .AddCase(() => bitmapData.FillPath(null, brush, path, options), "No cache multi-thread")
+                .AddCase(() => bitmapData.FillPath(null, brush, pathCached, options), "Cache multi-thread")
+                .AddCase(() => bitmapData.FillPath(context2Threads, brush, path, options), "No cache 2 threads")
+                .AddCase(() => bitmapData.FillPath(context2Threads, brush, pathCached, options), "Cache 2 threads")
+                .AddCase(() => bitmapData.FillPath(AsyncHelper.SingleThreadContext, brush, path, options), "No cache single-thread")
+                .AddCase(() => bitmapData.FillPath(AsyncHelper.SingleThreadContext, brush, pathCached, options), "Cache single-thread")
                 .DoTest()
                 .DumpResults(Console.Out);
+
+            // ==[32bppArgb_Alternate_NQ_Srgb_NA_NB_{Width=350, Height=250} (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
+            // Test Time: 5 000 ms
+            // Warming up: Yes
+            // Test cases: 6
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. Cache multi-thread: 922 320 iterations in 15 000,01 ms. Adjusted for 5 000 ms: 307 439,84
+            //   #1  310 375 iterations in 5 000,00 ms. Adjusted: 310 374,74	 <---- Best
+            //   #2  308 526 iterations in 5 000,00 ms. Adjusted: 308 525,94
+            //   #3  303 419 iterations in 5 000,00 ms. Adjusted: 303 418,82	 <---- Worst
+            //   Worst-Best difference: 6 955,92 (2,29%)
+            // 2. No cache multi-thread: 693 052 iterations in 15 000,06 ms. Adjusted for 5 000 ms: 231 016,46 (-76 423,38 / 75,14%)
+            //   #1  231 755 iterations in 5 000,01 ms. Adjusted: 231 754,49
+            //   #2  228 886 iterations in 5 000,03 ms. Adjusted: 228 884,64	 <---- Worst
+            //   #3  232 411 iterations in 5 000,02 ms. Adjusted: 232 410,25	 <---- Best
+            //   Worst-Best difference: 3 525,62 (1,54%)
+            // 3. Cache 2 threads: 541 909 iterations in 15 000,06 ms. Adjusted for 5 000 ms: 180 635,59 (-126 804,25 / 58,75%)
+            //   #1  184 450 iterations in 5 000,00 ms. Adjusted: 184 449,93	 <---- Best
+            //   #2  178 143 iterations in 5 000,06 ms. Adjusted: 178 140,85	 <---- Worst
+            //   #3  179 316 iterations in 5 000,00 ms. Adjusted: 179 315,98
+            //   Worst-Best difference: 6 309,07 (3,54%)
+            // 4. No cache 2 threads: 384 857 iterations in 15 000,07 ms. Adjusted for 5 000 ms: 128 285,10 (-179 154,73 / 41,73%)
+            //   #1  130 075 iterations in 5 000,01 ms. Adjusted: 130 074,63
+            //   #2  130 784 iterations in 5 000,02 ms. Adjusted: 130 783,54	 <---- Best
+            //   #3  123 998 iterations in 5 000,03 ms. Adjusted: 123 997,14	 <---- Worst
+            //   Worst-Best difference: 6 786,41 (5,47%)
+            // 5. Cache single-thread: 293 177 iterations in 15 000,11 ms. Adjusted for 5 000 ms: 97 724,96 (-209 714,88 / 31,79%)
+            //   #1  97 600 iterations in 5 000,02 ms. Adjusted: 97 599,61
+            //   #2  97 518 iterations in 5 000,08 ms. Adjusted: 97 516,49	 <---- Worst
+            //   #3  98 059 iterations in 5 000,01 ms. Adjusted: 98 058,78	 <---- Best
+            //   Worst-Best difference: 542,28 (0,56%)
+            // 6. No cache single-thread: 221 150 iterations in 15 000,22 ms. Adjusted for 5 000 ms: 73 715,57 (-233 724,27 / 23,98%)
+            //   #1  73 584 iterations in 5 000,13 ms. Adjusted: 73 582,06	 <---- Worst
+            //   #2  73 923 iterations in 5 000,06 ms. Adjusted: 73 922,09	 <---- Best
+            //   #3  73 643 iterations in 5 000,03 ms. Adjusted: 73 642,55
+            //   Worst-Best difference: 340,02 (0,46%)
         }
 
         [Explicit]
@@ -576,6 +603,101 @@ namespace KGySoft.Drawing.PerformanceTests
             //   #2  1 206 642 iterations in 2 000,00 ms. Adjusted: 1 206 641,58
             //   #3  1 234 822 iterations in 2 000,00 ms. Adjusted: 1 234 821,14	 <---- Best
             //   Worst-Best difference: 165 184,47 (15,44%)             
+        }
+
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        public void FillRectangleVsClearTest(KnownPixelFormat pixelFormat)
+        {
+            #region Local Methods
+
+            static void CheckPixels(IReadableBitmapData bitmapData, Color32 color)
+            {
+                Color32 expectedColor = new SolidBitmapData(new Size(1, 1), color)
+                    .Clone(bitmapData.PixelFormat.AsKnownPixelFormatInternal, PredefinedColorsQuantizer.FromBitmapData(bitmapData))
+                    .GetColor32(0, 0);
+                var row = bitmapData.FirstRow;
+                do
+                {
+                    for (int x = 0; x < row.Width; x++)
+                        Assert.AreEqual(expectedColor, row[x]);
+                } while (row.MoveNextRow());
+            }
+
+            static int GetAutoCoreCount(IBitmapData bitmapData)
+            {
+                int rowSize = bitmapData.RowSize;
+                int pixelSize = bitmapData.PixelFormat.GetByteWidth(1);
+                int pixelWidth = rowSize / pixelSize;
+                int effectiveRowSize = pixelWidth * pixelSize;
+                long byteLength = (long)effectiveRowSize * bitmapData.Height;
+                int autoCoreCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // 160 << clearingScaleUp
+                    : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8)
+                    : (int)Math.Min(Environment.ProcessorCount, byteLength / (512 * 512) + 1);
+                return autoCoreCount;
+            }
+
+            #endregion
+
+            //Size size = new Size((100 << 2) / pixelFormat.GetByteWidth(1), (100 << 1)); // below threshold - A1: 100%, U1: 62%, U2: 47&, A2: 46%, 3: 29%, 4: 28%, 16: 10%
+            Size size = new Size((128 << 2) / pixelFormat.GetByteWidth(1), (128 << 2)); // unaligned threshold - A1: 100%, A2: 99%, U2: 95%, U1: 77%, 3: 72%, 4: 65%, 16: 59%
+            //Size size = new Size((160 << 2) / pixelFormat.GetByteWidth(1), (160 << 2)); // aligned threshold - U2: 100%, A2: 99%, 3: 95%, A1: 92%, 4: 82%, 16: 72%, U1: 71%
+            //Size size = new Size((256 << 2) / pixelFormat.GetByteWidth(1), (256 << 2)); // below 3 cores threshold - A2: 100%, 3: 89%, 4: 89%, U2: 88%, 16: 81%, A1: 68%, U1: 56%
+            //Size size = new Size((256 << 3) / pixelFormat.GetByteWidth(1), (256 << 3)); // 3 cores threshold - 3A: 100%, 3U: 94%, 4: 89%, 16: 83%, A2: 78%, U2: 65%, A1: 41%, U1: 35%
+            //Size size = new Size((256 << 4) / pixelFormat.GetByteWidth(1), (256 << 4)); // 4 cores threshold - 4A: 100%, 4U: 94%, 16: 82%, 3: 77%, A2: 54%, U2: 52%, A1: 26%, U1: 25%
+            //Size size = new Size((256 << 5) / pixelFormat.GetByteWidth(1), (256 << 5)); // 5 cores threshold - 5A: 100%, 16: 99%, 5U: 98%, 4: 90%, 3: 78%, U2: 64%, A2: 63%, A1: 41%, U1: 40%
+            //Size size = new Size((256 << 6) / pixelFormat.GetByteWidth(1), (256 << 6)); // 6 cores threshold - 6: 100%, 16: 99%, 4: 93%, 3: 78%, U2: 63%, A2: 62%, A1: 42%, U1: 41%
+
+            using var bitmapDataManaged = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+            IntPtr bufAligned = Marshal.AllocHGlobal(size.Height * pixelFormat.GetByteWidth(size.Width));
+            IntPtr bufUnaligned = Marshal.AllocHGlobal(size.Height * (pixelFormat.GetByteWidth(size.Width) + 1));
+            using var bitmapDataAligned = BitmapDataFactory.CreateBitmapData(bufAligned, size, pixelFormat.GetByteWidth(size.Width), pixelFormat, disposeCallback: () => Marshal.FreeHGlobal(bufAligned));
+            using var bitmapDataUnaligned = BitmapDataFactory.CreateBitmapData(bufUnaligned, size, pixelFormat.GetByteWidth(size.Width) + 1, pixelFormat, disposeCallback: () => Marshal.FreeHGlobal(bufUnaligned));
+            var context2Threads = new SimpleContext(2);
+            var context3Threads = new SimpleContext(3);
+            var context4Threads = new SimpleContext(4);
+            var contextMaxThreads = new SimpleContext(ParallelHelper.CoreCount);
+
+            Console.WriteLine($"Core count: {ParallelHelper.CoreCount}");
+            int autoCoreCountAligned = GetAutoCoreCount(bitmapDataAligned);
+            int autoCoreCountUnaligned = GetAutoCoreCount(bitmapDataUnaligned);
+            Console.WriteLine($"Auto core count aligned/unaligned: {autoCoreCountAligned}/{autoCoreCountUnaligned}");
+
+            Color32 color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
+            //bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color);
+            //CheckPixels(bitmapDataManaged, color);
+
+            color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
+            bitmapDataAligned.Clear(AsyncHelper.DefaultContext, color);
+            CheckPixels(bitmapDataAligned, color);
+
+            //color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
+            //bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color);
+            //CheckPixels(bitmapDataUnaligned, color);
+
+            color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
+            bitmapDataUnaligned.Clear(AsyncHelper.DefaultContext, color);
+            CheckPixels(bitmapDataUnaligned, color);
+
+            string prefix = pixelFormat.ToBitsPerPixel() <= 8 ? "extra padding" : "unaligned";
+
+            color = Color.White;
+            new PerformanceTest { TestName = $"{nameof(FillRectangleVsClearTest)} {pixelFormat} {size.Width}x{size.Height}", TestTime = 2000/*, Repeat = 3*/ }
+                //.AddCase(() => bitmapDataManaged.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (managed)")
+                //.AddCase(() => bitmapDataAligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (aligned)")
+                //.AddCase(() => bitmapDataUnaligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), $"FillRectangle ({prefix})")
+                //.AddCase(() => bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color), $"Clear (managed, auto ({autoCoreCountAligned}) threads)")
+                .AddCase(() => bitmapDataAligned.Clear(AsyncHelper.DefaultContext, color), $"Clear (aligned, auto ({autoCoreCountAligned}) threads)")
+                .AddCase(() => bitmapDataAligned.Clear(AsyncHelper.SingleThreadContext, color), "Clear (aligned, single thread)")
+                .AddCase(() => bitmapDataAligned.Clear(context2Threads, color), "Clear (aligned, 2 threads)")
+                .AddCase(() => bitmapDataUnaligned.Clear(AsyncHelper.DefaultContext, color), $"Clear ({prefix} auto ({autoCoreCountUnaligned}) threads)")
+                .AddCase(() => bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color), $"Clear ({prefix}, single thread)")
+                .AddCase(() => bitmapDataUnaligned.Clear(context2Threads, color), $"Clear ({prefix} 2 threads)")
+                .AddCase(() => bitmapDataUnaligned.Clear(context3Threads, color), $"Clear ({prefix} 3 threads)")
+                .AddCase(() => bitmapDataUnaligned.Clear(context4Threads, color), $"Clear ({prefix} 4 threads)")
+                .AddCase(() => bitmapDataUnaligned.Clear(contextMaxThreads, color), $"Clear ({prefix} max ({ParallelHelper.CoreCount}) threads)")
+                .DoTest()
+                .DumpResults(Console.Out);
         }
 
         [Test, Explicit]

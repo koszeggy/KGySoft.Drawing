@@ -51,6 +51,32 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
+        [TestCase((byte)0x12)]
+        [TestCase((ushort)0x1234)]
+        [TestCase((uint)0x12345678)]
+        [TestCase((ulong)0x01234567_89ABCDEF)]
+        public unsafe void FillTest<T>(T value)
+            where T : unmanaged, IEquatable<T>
+        {
+            int length = 1023;
+            int count = length / sizeof(T);
+            var buf = new byte[length];
+
+            // aligned fill
+            MemoryHelper.FillMemory(ref buf[0], count, value);
+            var array = new T[count];
+            Buffer.BlockCopy(buf, 0, array, 0, count * sizeof(T));
+            for (int i = 0; i < count; i++)
+                Assert.IsTrue(array[i].Equals(value));
+
+            // unaligned fill
+            count -= 1;
+            MemoryHelper.FillMemory(ref buf[1], count, value);
+            Buffer.BlockCopy(buf, 1, array, 0, count * sizeof(T));
+            for (int i = 0; i < count; i++)
+                Assert.IsTrue(array[i].Equals(value));
+        }
+
         #endregion
     }
 }

@@ -17,7 +17,13 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Runtime.InteropServices;
+#endif
 using System.Security;
+
+using KGySoft.Drawing.Imaging;
 
 #endregion
 
@@ -56,6 +62,91 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         internal static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
             => DoCompareMemory(p1, p2, length);
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static void FillMemory<T>(ref byte start, int length, T value)
+            where T : unmanaged
+        {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            MemoryMarshal.CreateSpan(ref start.As<byte, T>(), length).Fill(value);
+#else
+            unsafe
+            {
+                fixed (byte* pStart = &start)
+                    FillMemory(pStart, (long)length, value);
+            }
+#endif
+        }
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static unsafe void FillMemory<T>(ref byte start, long length, T value)
+            where T : unmanaged
+        {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Debug.Assert(IntPtr.Size == 8 || length <= Int32.MaxValue);
+            while (length > Int32.MaxValue)
+            {
+                MemoryMarshal.CreateSpan(ref start.As<byte, T>(), Int32.MaxValue).Fill(value);
+                start = Unsafe.AddByteOffset(ref start, (nint)Int32.MaxValue * sizeof(T));
+                length -= Int32.MaxValue;
+            }
+
+            MemoryMarshal.CreateSpan(ref start.As<byte, T>(), (int)length).Fill(value);
+#else
+            fixed (byte* pStart = &start)
+                FillMemory(pStart, length, value);
+#endif
+        }
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static unsafe void FillMemory<T>(void* start, int length, T value) where T : unmanaged
+        {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            new Span<T>(start, length).Fill(value);
+#else
+            FillMemory((byte*)start, (long)length, value);
+#endif
+        }
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static unsafe void FillMemory<T>(void* start, long length, T value) where T : unmanaged
+        {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            while (length > Int32.MaxValue)
+            {
+                new Span<T>(start, Int32.MaxValue).Fill(value);
+                start = (byte*)start + (long)Int32.MaxValue * sizeof(T);
+                length -= Int32.MaxValue;
+            }
+
+            new Span<T>(start, (int)length).Fill(value);
+#else
+            // For primitive types we have to ensure proper alignment. If not aligned, using a non-primitive substitute type of the same size.
+            if (sizeof(T) > 1 && typeof(T).IsPrimitive)
+            {
+                switch (sizeof(T))
+                {
+                    case 2 when ((nint)start & 1) != 0:
+                        DoFillMemory(start, length, value.As<T, Gray16>());
+                        return;
+
+                    case 4 when ((nint)start & 3) != 0:
+                        DoFillMemory(start, length, value.As<T, Color32>());
+                        return;
+
+                    case 8 when IntPtr.Size == 8 && ((nint)start & 7) != 0 || IntPtr.Size == 4 && ((nint)start & 3) != 0:
+                        DoFillMemory(start, length, value.As<T, Color64>());
+                        return;
+                }
+            }
+
+            DoFillMemory(start, length, value);
+#endif
+        }
 
         #endregion
 
@@ -397,6 +488,63 @@ namespace KGySoft.Drawing
             }
 
             return true;
+        }
+
+        [SecurityCritical]
+        private static unsafe void DoFillMemory<T>(void* start, long count, T value)
+            where T : unmanaged
+        {
+            // NOTE: No special handling for unaligned addresses because it would require creating a rotated version of 'value'.
+            // Instead, the caller ensures non-primitive T replacements for unaligned addresses.
+            Debug.Assert(!typeof(T).IsPrimitive || (nint)start % sizeof(T) == 0, $"Unaligned primitive type: {typeof(T).Name}");
+
+            byte* pos = (byte*)start;
+
+            // Trying to unroll the loop just a little bit (writing 16 bytes at once) for better performance.
+            // As T can have any size, doing this only when size of T is 1, 2, 4 or 8 bytes.
+            if (sizeof(T) is 1 or 2 or 4 or 8)
+            {
+                long vecCount = (count / (8 / sizeof(T))) >> 1; // number of 16-byte chunks
+                if (vecCount > 0L)
+                {
+                    ulong valueUInt64 = sizeof(T) switch
+                    {
+                        1 => value.As<T, byte>() * 0x01_01_01_01_01_01_01_01UL, // repeating the byte value 8 times to fill all 8 bytes
+                        2 => value.As<T, ushort>() * 0x0001_0001_0001_0001UL, // repeating the ushort value 4 times to fill all 8 bytes
+                        4 => value.As<T, uint>() * 0x00000001_00000001UL, // repeating the uint value 2 times to fill all 8 bytes
+                        _ => value.As<T, ulong>(),
+                    };
+
+                    // Filling 16 bytes at a time. If the address is unaligned, using the non-primitive Color64 type as a substitute to avoid
+                    // possible alignment issues on some platforms (e.g. ARM64).
+                    if (((nuint)start & pointerSizeMask) != 0u)
+                    {
+                        ref Color64 vec = ref valueUInt64.As<ulong, Color64>();
+                        for (long i = 0; i < vecCount; i++)
+                        {
+                            *(Color64*)pos = vec;
+                            *(Color64*)(pos + 8) = vec;
+                            pos += 16;
+                        }
+                    }
+                    else
+                    {
+                        for (long i = 0; i < vecCount; i++)
+                        {
+                            *(ulong*)pos = valueUInt64;
+                            *(ulong*)(pos + 8) = valueUInt64;
+                            pos += 16;
+                        }
+                    }
+
+                    count -= vecCount * (16 / sizeof(T));
+                }
+            }
+
+            // Filling remaining items
+            T* pEnd = (T*)pos + count;
+            for (T* p = (T*)pos; p < pEnd; p++)
+                *p = value;
         }
 
         #endregion

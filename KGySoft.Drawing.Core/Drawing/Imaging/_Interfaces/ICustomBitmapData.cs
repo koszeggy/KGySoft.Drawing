@@ -32,6 +32,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers or as a clone.
+        /// Expected to be called only if BackBufferIndependentPixelAccess is true.
         /// </summary>
         Func<Size, WorkingColorSpace, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
 

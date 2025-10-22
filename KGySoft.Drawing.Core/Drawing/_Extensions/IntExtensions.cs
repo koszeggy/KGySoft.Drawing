@@ -27,7 +27,7 @@ using System.Runtime.CompilerServices;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// In fact, Int32, UInt32, UInt64, BitVector32
+    /// In fact, Int32, UInt32, Int64, UInt64, BitVector32
     /// </summary>
     internal static class IntExtensions
     {
@@ -126,6 +126,16 @@ namespace KGySoft.Drawing
         {
             Debug.Assert(endIndex >= startIndex && startIndex >> 3 == endIndex >> 3);
             bits |= (byte)((Byte.MaxValue << (8 - (endIndex - startIndex + 1)) & Byte.MaxValue) >> (startIndex & 7));
+        }
+
+        internal static int Log2(this long value)
+        {
+            Debug.Assert(value > 0L);
+#if NETCOREAPP3_0_OR_GREATER
+            return BitOperations.Log2((ulong)value);
+#else
+            return (int)Math.Log(value, 2);
+#endif
         }
 
         #endregion

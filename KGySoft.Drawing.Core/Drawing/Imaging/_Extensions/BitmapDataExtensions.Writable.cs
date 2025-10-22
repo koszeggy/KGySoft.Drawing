@@ -19,7 +19,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Security;
-
 #if !NET35
 using System.Threading.Tasks;
 #endif
@@ -287,7 +286,10 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 if (ditherer == null || !accessor.PixelFormat.CanBeDithered)
-                    return DirectDrawer.FillRectangle(context, accessor, new Rectangle(Point.Empty, bitmapData.Size), color);
+                {
+                    if (bitmapData is not (ManagedBitmapDataBase or UnmanagedBitmapDataBase) || !TryClearRaw(context, accessor, color))
+                        return DirectDrawer.FillRectangle(context, accessor, new Rectangle(Point.Empty, bitmapData.Size), color);
+                }
                 else
                     ClearWithDithering(context, accessor, color, ditherer);
                 return !context.IsCancellationRequested;
@@ -299,12 +301,163 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        private static bool TryClearRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color)
+        {
+            Debug.Assert(bitmapData is ManagedBitmapDataBase or UnmanagedBitmapDataBase { RowSize: > 0 });
+            var pixelFormat = bitmapData.PixelFormat;
+
+            // known formats
+            if (bitmapData is not ICustomBitmapData customBitmapData)
+            {
+                Debug.Assert(pixelFormat.IsKnownFormat);
+                switch (pixelFormat.AsKnownPixelFormatInternal)
+                {
+                    case KnownPixelFormat.Format32bppArgb:
+                        DoClearRaw(context, bitmapData, color.ToArgbUInt32());
+                        return true;
+                    case KnownPixelFormat.Format8bppIndexed:
+                        DoClearRaw(context, bitmapData, (byte)bitmapData.Palette!.GetNearestColorIndex(color));
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            // custom formats (the early bpp check is needed just to avoid unnecessary compatible bitmap creation, though the switch is enough functionally)
+            int bpp;
+            if (customBitmapData.BackBufferIndependentPixelAccess && (bpp = pixelFormat.BitsPerPixel) is 32 or 8)
+            {
+                // using a compatible 1x1 bitmap data to get the raw pixel of whatever format
+                using IBitmapDataInternal compatibleBitmap = customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(new Size(1, 1), customBitmapData.WorkingColorSpace);
+                IBitmapDataRowInternal pixel = compatibleBitmap.GetRowUncached(0);
+                pixel.DoSetColor32(0, color);
+                switch (bpp)
+                {
+                    case 32:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<uint>(0));
+                        return true;
+                    case 8:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<byte>(0));
+                        return true;
+                    default:
+                        return false; // not expected though
+                }
+            }
+
+            return false;
+        }
+
+        [SecuritySafeCritical]
+        private static unsafe void DoClearRaw<T>(IAsyncContext context, IBitmapDataInternal bitmapData, T value)
+            where T : unmanaged
+        {
+            int pixelSize = sizeof(T); // actually can cover more pixels for < 8bpp formats
+            int height = bitmapData.Height;
+            int rowSize = bitmapData.RowSize;
+            int pixelWidth = rowSize / pixelSize; // not using bitmapData.Width because of < 8bpp formats
+            int effectiveRowSize = pixelWidth * pixelSize;
+            int parallelCount = context.MaxDegreeOfParallelism;
+            long byteLength = (long)effectiveRowSize * height;
+
+            // potential parallel clear
+            if (parallelCount != 1 && effectiveRowSize >= parallelThreshold)
+            {
+                // Unlike in other parallel paths, we don't rely on ParallelHelper.For to auto adjust max degree of parallelism,
+                // because allowing too many cores on smaller bitmaps would just add too much overhead, making the process slower than with fewer threads.
+                // Based on test results (see also FillRectangleVsClearTest in PerformanceTests), starting to allow 2 cores above 512^2 bytes (unaligned) or 640^2 bytes (aligned),
+                // and 3+ cores only above 2048^2 bytes (both aligned and unaligned).
+                if (parallelCount <= 0)
+                {
+                    parallelCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                        : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                        : (int)Math.Min(Environment.ProcessorCount, byteLength / (512 * 512) + 1); // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                }
+
+                if (parallelCount > 1)
+                {
+                    ParallelHelper.For(parallelCount == context.MaxDegreeOfParallelism ? context : new AsyncContextWrapper(context, parallelCount),
+                        DrawingOperation.ProcessingPixels, 0, bitmapData.Height, bitmapData is ManagedBitmapDataBase ? ProcessRowManaged : ProcessRowUnmanaged);
+                    return;
+                }
+            }
+
+            // optimized single-thread path: if RowSize is multiple of pixel size, we can clear the whole bitmap at once
+            if (rowSize == effectiveRowSize)
+            {
+                long length = (long)pixelWidth * height;
+                switch (bitmapData)
+                {
+                    case ManagedBitmapDataBase managedBitmapData:
+                        MemoryHelper.FillMemory(ref managedBitmapData.GetPinnableReference(), length, value);
+                        return;
+
+                    case UnmanagedBitmapDataBase unmanagedBitmapData:
+                        Debug.Assert(unmanagedBitmapData.Stride.Abs() == rowSize);
+                        byte* startAddress = (byte*)unmanagedBitmapData.Scan0;
+                        if (unmanagedBitmapData.Stride < 0)
+                            startAddress += unmanagedBitmapData.Stride * (height - 1L);
+                        MemoryHelper.FillMemory(startAddress, length, value);
+                        return;
+                }
+            }
+
+            // fallback path: row by row
+            context.Progress?.New(DrawingOperation.ProcessingPixels, height);
+            switch (bitmapData)
+            {
+                case ManagedBitmapDataBase managedBitmapData:
+                    ref byte rowRef = ref managedBitmapData.GetPinnableReference();
+                    for (int y = 0; y < height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        MemoryHelper.FillMemory(ref rowRef, pixelWidth, value);
+                        rowRef = ref rowRef.At(rowSize);
+                        context.Progress?.Increment();
+                    }
+
+                    return;
+
+                case UnmanagedBitmapDataBase unmanagedBitmapData:
+                    byte* rowAddress = (byte*)unmanagedBitmapData.Scan0;
+                    for (int y = 0; y < height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+
+                        MemoryHelper.FillMemory(rowAddress, pixelWidth, value);
+                        context.Progress?.Increment();
+                        rowAddress += unmanagedBitmapData.Stride;
+                    }
+
+                    return;
+            }
+
+            #region Local Methods
+
+            [SecuritySafeCritical]
+            void ProcessRowManaged(int y)
+            {
+                ref byte rowRef = ref ((ManagedBitmapDataBase)bitmapData).GetPinnableReference().At(bitmapData.RowSize * y);
+                MemoryHelper.FillMemory(ref rowRef, pixelWidth, value);
+            }
+
+            [SecuritySafeCritical]
+            void ProcessRowUnmanaged(int y)
+            {
+                var unmanagedBitmap = (UnmanagedBitmapDataBase)bitmapData;
+                MemoryHelper.FillMemory((byte*)unmanagedBitmap.Scan0 + (long)unmanagedBitmap.Stride * y, pixelWidth, value);
+            }
+
+            #endregion
+        }
+
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-            context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
+            context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast, but in case someone tracks progress...
             using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
             if (context.IsCancellationRequested)
                 return;
