@@ -1164,7 +1164,11 @@ namespace KGySoft.Drawing.PerformanceTests
                 resultF *= Vector128.ConvertToSingle(Vector128.Create(inverseAlpha));
 
                 // resultF = (bgrF + resultF) / 255f
+#if NET8_0_OR_GREATER
                 resultF = (bgrF + resultF) / 255f;
+#else
+                resultF = (bgrF + resultF) / Vector128.Create(255f);
+#endif
 
                 Vector128<int> bgraI32 = Vector128.ConvertToInt32(resultF);
 
@@ -1189,7 +1193,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 return backColor;
             int inverseAlpha = Byte.MaxValue - c.A;
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
             if (Vector128.IsHardwareAccelerated)
             {
                 // c.RGB * c.A
@@ -1205,7 +1209,6 @@ namespace KGySoft.Drawing.PerformanceTests
                 result = ((bgraI32 + result) >>> 8).WithElement(3, Byte.MaxValue);
 
                 return new Color32(Vector128.Shuffle(result.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
-
             }
 #endif
 

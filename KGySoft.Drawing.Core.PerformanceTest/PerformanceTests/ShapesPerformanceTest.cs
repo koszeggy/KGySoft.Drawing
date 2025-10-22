@@ -631,18 +631,40 @@ namespace KGySoft.Drawing.PerformanceTests
                 int pixelWidth = rowSize / pixelSize;
                 int effectiveRowSize = pixelWidth * pixelSize;
                 long byteLength = (long)effectiveRowSize * bitmapData.Height;
-                int autoCoreCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // 160 << clearingScaleUp
-                    : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8)
-                    : (int)Math.Min(Environment.ProcessorCount, byteLength / (512 * 512) + 1);
+#if NETFRAMEWORK
+                // On .NET Framework allowing only a single core below 2048^2 bytes (both aligned and unaligned). Parallelizing aligned bitmap is just slower below that threshold,
+                // while for unaligned bitmaps allowing more cores may gain better results for too much cost. But above the limit we allow full parallelization.
+                int autoCoreCount = byteLength < (2048 * 2048) ? 1 : Environment.ProcessorCount;
+#elif NET9_0_OR_GREATER
+                // On .NET 9+ we start to allow 2 cores above 512^2 bytes (unaligned) or 640^2 bytes (aligned), and 3+ cores only above 2048^2 bytes (both aligned and unaligned).
+                // This means that on .NET Core we practically never allow more than 6 cores due to practical bitmap sizes.
+                int autoCoreCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                    : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                    : byteLength >= (512 * 512) ? Math.Min(Environment.ProcessorCount, 2) // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                    : 1;
+#elif NET6_0_OR_GREATER
+                // On .NET 6/7/8 we start to allow 2 cores above 1024^2 bytes (unaligned) or 1280^2 bytes (aligned). The condition of 3+ cores is the same as in .NET 9+.
+                int autoCoreCount = rowSize == effectiveRowSize && byteLength < (1280 * 1280) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                    : Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8); // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+#else
+                // .NET Core 2.x-.NET 5 and .NET Standard (note: .NET Standard is a complicated case as the actual runtime may vary)
+                int autoCoreCount = rowSize == effectiveRowSize && byteLength < (800 * 800) ? 1 // aligned: a 1-shot clear is faster below around 800^2 bytes
+                    : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                    : byteLength >= (576 * 576) ? Math.Min(Environment.ProcessorCount, 2) : 1 ; // unaligned: 2 cores already above 576^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+#endif
                 return autoCoreCount;
             }
 
             #endregion
 
-            //Size size = new Size((100 << 2) / pixelFormat.GetByteWidth(1), (100 << 1)); // below threshold - A1: 100%, U1: 62%, U2: 47&, A2: 46%, 3: 29%, 4: 28%, 16: 10%
-            Size size = new Size((128 << 2) / pixelFormat.GetByteWidth(1), (128 << 2)); // unaligned threshold - A1: 100%, A2: 99%, U2: 95%, U1: 77%, 3: 72%, 4: 65%, 16: 59%
-            //Size size = new Size((160 << 2) / pixelFormat.GetByteWidth(1), (160 << 2)); // aligned threshold - U2: 100%, A2: 99%, 3: 95%, A1: 92%, 4: 82%, 16: 72%, U1: 71%
-            //Size size = new Size((256 << 2) / pixelFormat.GetByteWidth(1), (256 << 2)); // below 3 cores threshold - A2: 100%, 3: 89%, 4: 89%, U2: 88%, 16: 81%, A1: 68%, U1: 56%
+            // The results in the comments below are for .NET 10.
+            //Size size = new Size((100 << 2) / pixelFormat.GetByteWidth(1), (100 << 1)); // below threshold - .NET 10: A1: 100%, U1: 62%, U2: 47&, A2: 46%, 3: 29%, 4: 28%, 16: 10%
+            Size size = new Size((128 << 2) / pixelFormat.GetByteWidth(1), (128 << 2)); // .NET 9/10 unaligned threshold - A1: 100%, A2: 99%, U2: 95%, U1: 77%, 3: 72%, 4: 65%, 16: 59%
+            //Size size = new Size((144 << 2) / pixelFormat.GetByteWidth(1), (144 << 2)); // .NET Core 3/5 unaligned threshold - A1: 100%, 16: 96%, U2: 94%, 4: 85%, A2: 84%, U1: 70%
+            //Size size = new Size((160 << 2) / pixelFormat.GetByteWidth(1), (160 << 2)); // .NET 9/10 aligned threshold - U2: 100%, A2: 99%, 3: 95%, A1: 92%, 4: 82%, 16: 72%, U1: 71%
+            //Size size = new Size((200 << 2) / pixelFormat.GetByteWidth(1), (200 << 2)); // .NET Core 3/5 aligned threshold
+            //Size size = new Size((256 << 2) / pixelFormat.GetByteWidth(1), (256 << 2)); // .NET 6/7/8: unaligned threshold; otherwise, below 3 cores threshold - A2: 100%, 3: 89%, 4: 89%, U2: 88%, 16: 81%, A1: 68%, U1: 56%
+            //Size size = new Size((320 << 2) / pixelFormat.GetByteWidth(1), (320 << 2)); // .NET 6/7/8: aligned threshold
             //Size size = new Size((256 << 3) / pixelFormat.GetByteWidth(1), (256 << 3)); // 3 cores threshold - 3A: 100%, 3U: 94%, 4: 89%, 16: 83%, A2: 78%, U2: 65%, A1: 41%, U1: 35%
             //Size size = new Size((256 << 4) / pixelFormat.GetByteWidth(1), (256 << 4)); // 4 cores threshold - 4A: 100%, 4U: 94%, 16: 82%, 3: 77%, A2: 54%, U2: 52%, A1: 26%, U1: 25%
             //Size size = new Size((256 << 5) / pixelFormat.GetByteWidth(1), (256 << 5)); // 5 cores threshold - 5A: 100%, 16: 99%, 5U: 98%, 4: 90%, 3: 78%, U2: 64%, A2: 63%, A1: 41%, U1: 40%
@@ -653,10 +675,10 @@ namespace KGySoft.Drawing.PerformanceTests
             IntPtr bufUnaligned = Marshal.AllocHGlobal(size.Height * (pixelFormat.GetByteWidth(size.Width) + 1));
             using var bitmapDataAligned = BitmapDataFactory.CreateBitmapData(bufAligned, size, pixelFormat.GetByteWidth(size.Width), pixelFormat, disposeCallback: () => Marshal.FreeHGlobal(bufAligned));
             using var bitmapDataUnaligned = BitmapDataFactory.CreateBitmapData(bufUnaligned, size, pixelFormat.GetByteWidth(size.Width) + 1, pixelFormat, disposeCallback: () => Marshal.FreeHGlobal(bufUnaligned));
-            var context2Threads = new SimpleContext(2);
-            var context3Threads = new SimpleContext(3);
-            var context4Threads = new SimpleContext(4);
-            var contextMaxThreads = new SimpleContext(ParallelHelper.CoreCount);
+            //var context2Threads = new SimpleContext(2);
+            //var context3Threads = new SimpleContext(3);
+            //var context4Threads = new SimpleContext(4);
+            //var contextMaxThreads = new SimpleContext(ParallelHelper.CoreCount);
 
             Console.WriteLine($"Core count: {ParallelHelper.CoreCount}");
             int autoCoreCountAligned = GetAutoCoreCount(bitmapDataAligned);
@@ -664,16 +686,16 @@ namespace KGySoft.Drawing.PerformanceTests
             Console.WriteLine($"Auto core count aligned/unaligned: {autoCoreCountAligned}/{autoCoreCountUnaligned}");
 
             Color32 color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
-            //bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color);
-            //CheckPixels(bitmapDataManaged, color);
+            bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color);
+            CheckPixels(bitmapDataManaged, color);
 
             color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
             bitmapDataAligned.Clear(AsyncHelper.DefaultContext, color);
             CheckPixels(bitmapDataAligned, color);
 
-            //color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
-            //bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color);
-            //CheckPixels(bitmapDataUnaligned, color);
+            color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
+            bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color);
+            CheckPixels(bitmapDataUnaligned, color);
 
             color = Color32.FromRgb(ThreadSafeRandom.Instance.Next());
             bitmapDataUnaligned.Clear(AsyncHelper.DefaultContext, color);
@@ -682,20 +704,20 @@ namespace KGySoft.Drawing.PerformanceTests
             string prefix = pixelFormat.ToBitsPerPixel() <= 8 ? "extra padding" : "unaligned";
 
             color = Color.White;
-            new PerformanceTest { TestName = $"{nameof(FillRectangleVsClearTest)} {pixelFormat} {size.Width}x{size.Height}", TestTime = 2000/*, Repeat = 3*/ }
-                //.AddCase(() => bitmapDataManaged.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (managed)")
-                //.AddCase(() => bitmapDataAligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (aligned)")
-                //.AddCase(() => bitmapDataUnaligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), $"FillRectangle ({prefix})")
-                //.AddCase(() => bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color), $"Clear (managed, auto ({autoCoreCountAligned}) threads)")
+            new PerformanceTest { TestName = $"{nameof(FillRectangleVsClearTest)} {pixelFormat} {size.Width}x{size.Height}", TestTime = 2000, Repeat = 3 }
+                .AddCase(() => bitmapDataManaged.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (managed)")
+                .AddCase(() => bitmapDataAligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), "FillRectangle (aligned)")
+                .AddCase(() => bitmapDataUnaligned.FillRectangle(AsyncHelper.DefaultContext, color, new Rectangle(Point.Empty, size)), $"FillRectangle ({prefix})")
+                .AddCase(() => bitmapDataManaged.Clear(AsyncHelper.DefaultContext, color), $"Clear (managed, auto ({autoCoreCountAligned}) threads)")
                 .AddCase(() => bitmapDataAligned.Clear(AsyncHelper.DefaultContext, color), $"Clear (aligned, auto ({autoCoreCountAligned}) threads)")
-                .AddCase(() => bitmapDataAligned.Clear(AsyncHelper.SingleThreadContext, color), "Clear (aligned, single thread)")
-                .AddCase(() => bitmapDataAligned.Clear(context2Threads, color), "Clear (aligned, 2 threads)")
+                //.AddCase(() => bitmapDataAligned.Clear(AsyncHelper.SingleThreadContext, color), "Clear (aligned, single thread)")
+                //.AddCase(() => bitmapDataAligned.Clear(context2Threads, color), "Clear (aligned, 2 threads)")
                 .AddCase(() => bitmapDataUnaligned.Clear(AsyncHelper.DefaultContext, color), $"Clear ({prefix} auto ({autoCoreCountUnaligned}) threads)")
-                .AddCase(() => bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color), $"Clear ({prefix}, single thread)")
-                .AddCase(() => bitmapDataUnaligned.Clear(context2Threads, color), $"Clear ({prefix} 2 threads)")
-                .AddCase(() => bitmapDataUnaligned.Clear(context3Threads, color), $"Clear ({prefix} 3 threads)")
-                .AddCase(() => bitmapDataUnaligned.Clear(context4Threads, color), $"Clear ({prefix} 4 threads)")
-                .AddCase(() => bitmapDataUnaligned.Clear(contextMaxThreads, color), $"Clear ({prefix} max ({ParallelHelper.CoreCount}) threads)")
+                //.AddCase(() => bitmapDataUnaligned.Clear(AsyncHelper.SingleThreadContext, color), $"Clear ({prefix}, single thread)")
+                //.AddCase(() => bitmapDataUnaligned.Clear(context2Threads, color), $"Clear ({prefix} 2 threads)")
+                //.AddCase(() => bitmapDataUnaligned.Clear(context3Threads, color), $"Clear ({prefix} 3 threads)")
+                //.AddCase(() => bitmapDataUnaligned.Clear(context4Threads, color), $"Clear ({prefix} 4 threads)")
+                //.AddCase(() => bitmapDataUnaligned.Clear(contextMaxThreads, color), $"Clear ({prefix} max ({ParallelHelper.CoreCount}) threads)")
                 .DoTest()
                 .DumpResults(Console.Out);
         }

@@ -362,15 +362,33 @@ namespace KGySoft.Drawing.Imaging
             // potential parallel clear
             if (parallelCount != 1 && effectiveRowSize >= parallelThreshold)
             {
-                // Unlike in other parallel paths, we don't rely on ParallelHelper.For to auto adjust max degree of parallelism,
+                // Unlike in other parallel paths, we don't rely simply on ParallelHelper.For to auto adjust max degree of parallelism,
                 // because allowing too many cores on smaller bitmaps would just add too much overhead, making the process slower than with fewer threads.
-                // Based on test results (see also FillRectangleVsClearTest in PerformanceTests), starting to allow 2 cores above 512^2 bytes (unaligned) or 640^2 bytes (aligned),
-                // and 3+ cores only above 2048^2 bytes (both aligned and unaligned).
+                // Also, considering also the full size (if row width is above the usual threshold). The square-like comparisons are just to visualize the
+                // dimensions better - the actual width and height can vary. See also FillRectangleVsClearTest in PerformanceTests.
                 if (parallelCount <= 0)
                 {
+#if NETFRAMEWORK
+                    // On .NET Framework allowing only a single core below 2048^2 bytes (both aligned and unaligned). Parallelizing aligned bitmap is just slower below that threshold,
+                    // while for unaligned bitmaps allowing more cores may gain better results for too much cost. But above the limit we allow full parallelization.
+                    parallelCount = byteLength < (2048 * 2048) ? 1 : Environment.ProcessorCount;
+#elif NET9_0_OR_GREATER
+                    // On .NET 9+ we start to allow 2 cores above 512^2 bytes (unaligned) or 640^2 bytes (aligned), and 3+ cores only above 2048^2 bytes (both aligned and unaligned).
+                    // This means that on .NET Core we practically never allow more than 6 cores due to practical bitmap sizes.
                     parallelCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
                         : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
-                        : (int)Math.Min(Environment.ProcessorCount, byteLength / (512 * 512) + 1); // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                        : byteLength >= (512 * 512) ? Math.Min(Environment.ProcessorCount, 2) // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                        : 1;
+#elif NET6_0_OR_GREATER
+                    // On .NET 6/7/8 we start to allow 2 cores above 1024^2 bytes (unaligned) or 1280^2 bytes (aligned). The condition of 3+ cores is the same as in .NET 9+.
+                    parallelCount = rowSize == effectiveRowSize && byteLength < (1280 * 1280) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                        : Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8); // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+#else
+                    // .NET Core 2.x-.NET 5 and .NET Standard (note: .NET Standard is a complicated case as the actual runtime may vary)
+                    parallelCount = rowSize == effectiveRowSize && byteLength < (800 * 800) ? 1 // aligned: a 1-shot clear is faster below around 800^2 bytes
+                        : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                        : byteLength >= (576 * 576) ? Math.Min(Environment.ProcessorCount, 2) : 1 ; // unaligned: 2 cores already above 576^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+#endif
                 }
 
                 if (parallelCount > 1)

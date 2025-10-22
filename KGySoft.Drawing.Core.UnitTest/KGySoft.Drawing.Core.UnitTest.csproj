@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>-->
+    <TargetFrameworks>net40;net10.0</TargetFrameworks>
 
-    <!--For UnitTesting the .NET Standard versions-->
+		<!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them (if the targets are enabled in the main project, too). -->
@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <!-- .NET 7.0 or newer references on non-Windows systems: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
     <Net70OrGreater>true</Net70OrGreater>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'!='true' AND '$(Net70OrGreater)'=='true'">
@@ -57,7 +57,7 @@
     <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
   </ItemGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no nonger supported by System.Drawing.Common, using SkiaSharp instead -->
+  <!-- .NET 7.0 or newer references: Unix is no longer supported by System.Drawing.Common, using SkiaSharp instead -->
   <ItemGroup Condition="'$(UseSkia)'=='true'">
     <PackageReference Include="SkiaSharp" Version="3.116.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
