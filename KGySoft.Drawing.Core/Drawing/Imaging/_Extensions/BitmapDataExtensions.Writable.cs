@@ -301,7 +301,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static bool TryClearRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color)
+        private static bool TryClearRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 c)
         {
             Debug.Assert(bitmapData is ManagedBitmapDataBase or UnmanagedBitmapDataBase { RowSize: > 0 });
             var pixelFormat = bitmapData.PixelFormat;
@@ -309,38 +309,164 @@ namespace KGySoft.Drawing.Imaging
             // known formats
             if (bitmapData is not ICustomBitmapData customBitmapData)
             {
+                // the order supposed to represent the most common formats first
                 Debug.Assert(pixelFormat.IsKnownFormat);
                 switch (pixelFormat.AsKnownPixelFormatInternal)
                 {
                     case KnownPixelFormat.Format32bppArgb:
-                        DoClearRaw(context, bitmapData, color.ToArgbUInt32());
+                        DoClearRaw(context, bitmapData, c.ToArgbUInt32());
                         return true;
+
+                    case KnownPixelFormat.Format32bppPArgb:
+                        DoClearRaw(context, bitmapData, new PColor32(c).ToArgbUInt32());
+                        return true;
+
+                    case KnownPixelFormat.Format32bppRgb:
+                        DoClearRaw(context, bitmapData, (c.A == Byte.MaxValue ? c : c.BlendWithBackground(bitmapData.BackColor, bitmapData.IsLinearGamma())).Value);
+                        return true;
+
+                    case KnownPixelFormat.Format24bppRgb:
+                        DoClearRaw(context, bitmapData, new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bitmapData.BackColor, bitmapData.IsLinearGamma())));
+                        return true;
+
                     case KnownPixelFormat.Format8bppIndexed:
-                        DoClearRaw(context, bitmapData, (byte)bitmapData.Palette!.GetNearestColorIndex(color));
+                        DoClearRaw(context, bitmapData, (byte)bitmapData.Palette!.GetNearestColorIndex(c));
                         return true;
+
+                    case KnownPixelFormat.Format1bppIndexed:
+                        DoClearRaw(context, bitmapData, bitmapData.Palette!.GetNearestColorIndex(c) is 0 ? Byte.MinValue : Byte.MaxValue);
+                        return true;
+
+                    case KnownPixelFormat.Format4bppIndexed:
+                        DoClearRaw(context, bitmapData, (byte)(bitmapData.Palette!.GetNearestColorIndex(c) * 0x11));
+                        return true;
+
+                    case KnownPixelFormat.Format16bppGrayScale:
+                        DoClearRaw(context, bitmapData, (bitmapData.IsLinearGamma()
+                            ? new Gray16(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                            : new Gray16(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value);
+                        return true;
+
+                    case KnownPixelFormat.Format16bppRgb555:
+                        DoClearRaw(context, bitmapData, new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bitmapData.BackColor, bitmapData.IsLinearGamma())).Value);
+                        return true;
+
+                    case KnownPixelFormat.Format16bppRgb565:
+                        DoClearRaw(context, bitmapData, new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bitmapData.BackColor, bitmapData.IsLinearGamma())).Value);
+                        return true;
+
+                    case KnownPixelFormat.Format16bppArgb1555:
+                        if (c.A != Byte.MaxValue)
+                        {
+                            c = c.A >= bitmapData.AlphaThreshold ? c.BlendWithBackground(bitmapData.BackColor, bitmapData.IsLinearGamma())
+                                : c.A < 128 ? c
+                                : default;
+                        }
+
+                        DoClearRaw(context, bitmapData, new Color16Argb1555(c).Value);
+                        return true;
+
+                    case KnownPixelFormat.Format64bppArgb:
+                        DoClearRaw(context, bitmapData, new Color64(c).Value);
+                        return true;
+                        
+                    case KnownPixelFormat.Format64bppPArgb:
+                        DoClearRaw(context, bitmapData, new PColor64(c).Value);
+                        return true;
+                        
+                    case KnownPixelFormat.Format128bppRgba:
+                        DoClearRaw(context, bitmapData, new ColorF(c));
+                        return true;
+                        
+                    case KnownPixelFormat.Format128bppPRgba:
+                        DoClearRaw(context, bitmapData, new PColorF(c));
+                        return true;
+                        
+                    case KnownPixelFormat.Format48bppRgb:
+                        Color64 c64 = c.ToColor64();
+                        DoClearRaw(context, bitmapData, new Color48(c64.A == UInt16.MaxValue ? c64 : c64.BlendWithBackground(bitmapData.BackColor.ToColor64(), bitmapData.IsLinearGamma())));
+                        return true;
+                        
+                    case KnownPixelFormat.Format96bppRgb:
+                        DoClearRaw(context, bitmapData, c.A == Byte.MaxValue
+                            ? new RgbF(c)
+                            : new RgbF(c.ToColorF().BlendWithBackground(bitmapData.BackColor.ToColorF(), bitmapData.IsLinearGamma())));
+                        return true;
+                        
+                    case KnownPixelFormat.Format8bppGrayScale:
+                        DoClearRaw(context, bitmapData, (bitmapData.IsLinearGamma()
+                            ? new Gray8(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                            : new Gray8(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(bitmapData.BackColor))).Value);
+                        return true;
+                        
+                    case KnownPixelFormat.Format32bppGrayScale:
+                        DoClearRaw(context, bitmapData, (bitmapData.IsLinearGamma()
+                            ? new GrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                            : new GrayF(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(bitmapData.BackColor))).Value);
+                        return true;
+                        
                     default:
+                        Debug.Fail($"Unsupported known pixel format: {pixelFormat}");
                         return false;
                 }
             }
 
-            // custom formats (the early bpp check is needed just to avoid unnecessary compatible bitmap creation, though the switch is enough functionally)
+            // custom formats (the early bpp check is needed just to avoid unnecessary compatible bitmap creation, though the switch would be enough functionally)
             int bpp;
-            if (customBitmapData.BackBufferIndependentPixelAccess && (bpp = pixelFormat.BitsPerPixel) is 32 or 8)
+            if (customBitmapData.BackBufferIndependentPixelAccess && (bpp = pixelFormat.BitsPerPixel) is 32 or 24 or 16 or 8 or 4 or 2 or 1 or 64 or 128 or 48 or 96)
             {
-                // using a compatible 1x1 bitmap data to get the raw pixel of whatever format
-                using IBitmapDataInternal compatibleBitmap = customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(new Size(1, 1), customBitmapData.WorkingColorSpace);
+                // Using a compatible bitmap data to get the raw pixel of whatever format. For < 8bpp formats the smallest unit is a byte, so the pixel width depends on bpp.
+                int pixelWidth = bpp switch
+                {
+                    1 => 8,
+                    2 => 4, // yes, we support even custom 2bpp formats that have no KnownPixelFormat equivalent
+                    4 => 2,
+                    _ => 1,
+                };
+                using IBitmapDataInternal compatibleBitmap = customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(new Size(pixelWidth, 1), customBitmapData.WorkingColorSpace);
                 IBitmapDataRowInternal pixel = compatibleBitmap.GetRowUncached(0);
-                pixel.DoSetColor32(0, color);
+                pixel.DoSetColor32(0, c);
                 switch (bpp)
                 {
                     case 32:
                         DoClearRaw(context, bitmapData, pixel.ReadRaw<uint>(0));
                         return true;
-                    case 8:
+
+                    case 1 or 2 or 4 or 8:
+                        // As we can't tell how a custom format arranges pixels within a byte, we have to fill an entire byte.
+                        // We do this even for custom 1bpp formats where the result is either 0 or 255, because we cannot be sure whether palette index 0/1 sets or clears a bit.
+                        for (int i = 1; i < pixelWidth; i++)
+                            pixel.DoSetColor32(i, c);
                         DoClearRaw(context, bitmapData, pixel.ReadRaw<byte>(0));
                         return true;
+
+                    case 16:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<ushort>(0));
+                        return true;
+
+                    case 24:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<Color24>(0));
+                        return true;
+
+                    case 64:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<ulong>(0));
+                        return true;
+
+                    case 128:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<ColorF>(0));
+                        return true;
+
+                    case 48:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<Color48>(0));
+                        return true;
+
+                    case 96:
+                        DoClearRaw(context, bitmapData, pixel.ReadRaw<RgbF>(0));
+                        return true;
+
                     default:
-                        return false; // not expected though
+                        Debug.Fail($"Unhandled custom bpp: {bpp}");
+                        return false;
                 }
             }
 
@@ -371,27 +497,31 @@ namespace KGySoft.Drawing.Imaging
 #if NETFRAMEWORK
                     // On .NET Framework allowing only a single core below 2048^2 bytes (both aligned and unaligned). Parallelizing aligned bitmap is just slower below that threshold,
                     // while for unaligned bitmaps allowing more cores may gain better results for too much cost. But above the limit we allow full parallelization.
-                    parallelCount = byteLength < (2048 * 2048) ? 1 : Environment.ProcessorCount;
+                    parallelCount = byteLength < (2048 * 2048) ? 1 : ParallelHelper.CoreCount;
 #elif NET9_0_OR_GREATER
                     // On .NET 9+ we start to allow 2 cores above 512^2 bytes (unaligned) or 640^2 bytes (aligned), and 3+ cores only above 2048^2 bytes (both aligned and unaligned).
                     // This means that on .NET Core we practically never allow more than 6 cores due to practical bitmap sizes.
-                    parallelCount = rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
-                        : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
-                        : byteLength >= (512 * 512) ? Math.Min(Environment.ProcessorCount, 2) // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                    // The exceptions are 24/48 bpp formats, for which we allow full parallelization.
+                    parallelCount = bitmapData.PixelFormat.BitsPerPixel is 24 or 48 ? ParallelHelper.CoreCount // non-vectorizable sizes: always full parallelization
+                        : rowSize == effectiveRowSize && byteLength < (640 * 640) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                        : byteLength >= (1024 * 1024) ? Math.Min(ParallelHelper.CoreCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                        : byteLength >= (512 * 512) ? Math.Min(ParallelHelper.CoreCount, 2) // unaligned: 2 cores already above 512^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
                         : 1;
 #elif NET6_0_OR_GREATER
                     // On .NET 6/7/8 we start to allow 2 cores above 1024^2 bytes (unaligned) or 1280^2 bytes (aligned). The condition of 3+ cores is the same as in .NET 9+.
-                    parallelCount = rowSize == effectiveRowSize && byteLength < (1280 * 1280) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
-                        : Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8); // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                    parallelCount = bitmapData.PixelFormat.BitsPerPixel is 24 or 48 ? ParallelHelper.CoreCount // non-vectorizable sizes: always full parallelization
+                        : rowSize == effectiveRowSize && byteLength < (1280 * 1280) ? 1 // aligned: a 1-shot clear is faster below around 640^2 bytes
+                        : ((byteLength.Log2() >> 1) - 8).Clip(1, ParallelHelper.CoreCount); // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
 #else
                     // .NET Core 2.x-.NET 5 and .NET Standard (note: .NET Standard is a complicated case as the actual runtime may vary)
-                    parallelCount = rowSize == effectiveRowSize && byteLength < (800 * 800) ? 1 // aligned: a 1-shot clear is faster below around 800^2 bytes
-                        : byteLength >= (1024 * 1024) ? Math.Min(Environment.ProcessorCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
-                        : byteLength >= (576 * 576) ? Math.Min(Environment.ProcessorCount, 2) : 1 ; // unaligned: 2 cores already above 576^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
+                    parallelCount = bitmapData.PixelFormat.BitsPerPixel is 24 or 48 ? ParallelHelper.CoreCount // non-vectorizable sizes: always full parallelization
+                        : rowSize == effectiveRowSize && byteLength < (800 * 800) ? 1 // aligned: a 1-shot clear is faster below around 800^2 bytes
+                        : byteLength >= (1024 * 1024) ? Math.Min(ParallelHelper.CoreCount, (byteLength.Log2() >> 1) - 8) // 1024^2: 2; 2048^2: 3; 4096^2: 4; etc.
+                        : byteLength >= (576 * 576) ? Math.Min(ParallelHelper.CoreCount, 2) : 1 ; // unaligned: 2 cores already above 576^2 bytes (the general formula above would allow 2 cores from 1024^2 bytes only)
 #endif
                 }
 
-                if (parallelCount > 1)
+                if (parallelCount != 1)
                 {
                     ParallelHelper.For(parallelCount == context.MaxDegreeOfParallelism ? context : new AsyncContextWrapper(context, parallelCount),
                         DrawingOperation.ProcessingPixels, 0, bitmapData.Height, bitmapData is ManagedBitmapDataBase ? ProcessRowManaged : ProcessRowUnmanaged);

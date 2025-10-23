@@ -611,56 +611,62 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(KnownPixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
-        [TestCase(KnownPixelFormat.Format4bppIndexed, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format8bppIndexed, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format8bppGrayScale, 0xFF888888)]
-        [TestCase(KnownPixelFormat.Format16bppGrayScale, 0xFF888888)]
-        [TestCase(KnownPixelFormat.Format32bppGrayScale, 0xFF888888)]
-        [TestCase(KnownPixelFormat.Format16bppRgb555, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format16bppRgb565, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format16bppArgb1555, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format24bppRgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format32bppRgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format32bppRgb, 0x800000FF)]
-        [TestCase(KnownPixelFormat.Format32bppArgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format32bppArgb, 0x800000FF)]
-        [TestCase(KnownPixelFormat.Format32bppPArgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format32bppPArgb, 0x800000FF)]
-        [TestCase(KnownPixelFormat.Format48bppRgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format64bppArgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format64bppPArgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format96bppRgb, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format128bppRgba, 0xFF0000FF)]
-        [TestCase(KnownPixelFormat.Format128bppPRgba, 0xFF0000FF)]
-        public void ClearTest(KnownPixelFormat pixelFormat, uint argb)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format32bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format96bppRgb)]
+        [TestCase(KnownPixelFormat.Format128bppRgba)]
+        [TestCase(KnownPixelFormat.Format128bppPRgba)]
+        public void ClearTest(KnownPixelFormat pixelFormat)
         {
-            const int size = 17;
-            Color32 color = Color32.FromArgb((int)argb);
+            const int width = 17;
+            const int height = 17;
+            var size = new Size(width, height);
+            Color32 color = Color32.FromArgb(ThreadSafeRandom.Instance.SampleUInt32());
 
             foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
             {
-                using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat, colorSpace);
+                int byteWidth = pixelFormat.GetByteWidth(width);
+                using var bitmapData = BitmapDataFactory.CreateBitmapData(size, pixelFormat, colorSpace);
                 (string Name, IReadWriteBitmapData BitmapData)[] sources = new[]
                 {
-                    ("full", bitmapData),
-                    ($"clipped right, width={size - 1}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 1, 1))),
-                    ($"clipped right, width={size - 2}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 2, 1))),
-                    ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, size - 1, 1))),
+                    ("full, aligned", bitmapData),
+                    ($"clipped right, width={width - 1}", bitmapData.Clone().Clip(new Rectangle(0, 0, width - 1, 1))),
+                    ($"clipped right, width={width - 2}", bitmapData.Clone().Clip(new Rectangle(0, 0, width - 2, 1))),
+                    ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, width - 1, 1))),
+                    ("unaligned buffer", BitmapDataFactory.CreateBitmapData(new byte[height * byteWidth + 1].AsSection(1), size, byteWidth, pixelFormat, colorSpace)),
+                    ("uneven stride", BitmapDataFactory.CreateBitmapData(new byte[height, byteWidth + 1], width, pixelFormat, colorSpace)),
                 };
+
+                Color32 expected = new SolidBitmapData(new Size(1, 1), color)
+                    .Clone(pixelFormat, colorSpace)
+                    .GetColor32(0, 0);
 
                 foreach ((string name, IReadWriteBitmapData target) in sources)
                 {
                     target.Clear(color);
 
                     IReadableBitmapDataRowMovable row = target.FirstRow;
-                    var expected = color;
-                    if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
-                        expected = expected.BlendWithBackground(Color32.Black, colorSpace);
                     do
                     {
                         for (int x = 0; x < target.Width; x++)
-                            Assert.AreEqual(expected, row[x]);
+                            Assert.AreEqual(expected, row[x], $"{pixelFormat} {name} {colorSpace}");
                     } while (row.MoveNextRow());
 
                     //SaveBitmapData($"{pixelFormat} {name} {colorSpace}", target);

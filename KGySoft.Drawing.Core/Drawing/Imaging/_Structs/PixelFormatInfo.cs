@@ -57,7 +57,7 @@ namespace KGySoft.Drawing.Imaging
         internal const int Format96bppRgb = 16 | (96 << 8) | prefersColorF | isLinear;
         internal const int Format128bppRgba = 17 | (128 << 8) | FlagHasAlpha | prefersColorF | isLinear;
         internal const int Format128bppPRgba = 18 | (128 << 8) | FlagHasAlpha | hasPAlpha | prefersColorF | isLinear;
-        internal const int Format8ppGrayScale = 19 | (8 << 8) | isGrayscale;
+        internal const int Format8bppGrayScale = 19 | (8 << 8) | isGrayscale;
         internal const int Format32bppGrayScale = 20 | (32 << 8) | prefersColorF | isLinear | isGrayscale;
         // ReSharper restore InconsistentNaming
 

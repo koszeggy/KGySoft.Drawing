@@ -73,7 +73,9 @@ namespace KGySoft.Drawing
 
         internal static int RoundUpToPowerOf2(this uint value)
         {
-            // In .NET 6 and above there is a BitOperations.RoundUpToPowerOf2
+#if NET6_0_OR_GREATER
+            return (int)BitOperations.RoundUpToPowerOf2(value);
+#else
             --value;
             value |= value >> 1;
             value |= value >> 2;
@@ -81,6 +83,7 @@ namespace KGySoft.Drawing
             value |= value >> 8;
             value |= value >> 16;
             return (int)(value + 1);
+#endif
         }
 
         internal static int GetMask(this BitVector32.Section section) => section.Mask << section.Offset;
@@ -98,24 +101,6 @@ namespace KGySoft.Drawing
         {
             Debug.Assert(i != Int64.MinValue);
             return i >= 0 ? i : -i;
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static int GetFlagsCount(this ulong value)
-        {
-#if NETCOREAPP3_0_OR_GREATER
-            return BitOperations.PopCount(value);
-#else
-            // There are actually better general solutions than this but the callers cache the result.
-            int result = 0;
-            while (value != 0)
-            {
-                result++;
-                value &= value - 1;
-            }
-
-            return result;
-#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

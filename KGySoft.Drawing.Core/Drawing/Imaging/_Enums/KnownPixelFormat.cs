@@ -175,10 +175,10 @@ namespace KGySoft.Drawing.Imaging
         Format128bppPRgba = PixelFormatInfo.Format128bppPRgba,
 
         /// <summary>
-        /// <para>Represents a 8 bit per pixel grayscale format. The color information specifies 256 shades of gray.</para>
+        /// <para>Represents an 8 bit per pixel grayscale format. The color information specifies 256 shades of gray.</para>
         /// <para>The closest color type that can represent this pixel format without losing information is <see cref="Color32"/>.</para>
         /// </summary>
-        Format8bppGrayScale = PixelFormatInfo.Format8ppGrayScale,
+        Format8bppGrayScale = PixelFormatInfo.Format8bppGrayScale,
 
         /// <summary>
         /// <para>Represents a 32 bit per pixel grayscale format. The color information specifies about one billion shades of gray

@@ -11,7 +11,7 @@
 
 * Assembly changes:
 ===================
-* Targeting also .NET 10.
+* Targeting also .NET 9 and .NET 10.
 
 * General changes:
 ==================
@@ -33,14 +33,16 @@
   ! EndTransformColors/EndAdjustBrightness/EndAdjustContrast/EndAdjustGamma/EndClear/EndCopyTo/EndDither
     /EndDrawInto/EndInvert/EndMakeGrayscale/EndMakeOpaque/EndMakeTransparent/EndQuantize/EndReplaceColor methods:
     The return type has been changed to bool from void.
-  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/ClearAsync/CopyToAsync/DitherAsync/DrawIntoAsync/
-    InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/MakeTransparentAsync/QuantizeAsync/ReplaceColorAsync methods:
-    The return type has been changed to Task<bool> from Task.
   + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps using a specified function.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/
     Resize/ToGrayscale/ToTransparent overloads with ParallelConfig and IAsyncContext parameters.
+  * Clear/BeginClear/ClearAsync methods:
+    * Radically improving performance for all known and many custom pixel formats.
+  * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/ClearAsync/CopyToAsync/DitherAsync/DrawIntoAsync/
+    InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/MakeTransparentAsync/QuantizeAsync/ReplaceColorAsync methods:
+    The return type has been changed to Task<bool> from Task.
 * BitmapDataFactory class:
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:
