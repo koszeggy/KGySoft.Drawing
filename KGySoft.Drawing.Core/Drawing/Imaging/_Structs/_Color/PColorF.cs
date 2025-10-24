@@ -93,33 +93,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        #region Static Properties
-
-#if NET5_0_OR_GREATER
-        // In .NET 5.0 and above these perform better as inlined rather than caching a static field
-        private static Vector4 Max8Bit => new Vector4(255f);
-        private static Vector4 Max8BitRecip => new Vector4(1f / 255f);
-        private static Vector4 Max16Bit => new Vector4(65535f);
-        private static Vector4 Max16BitRecip => new Vector4(1f / 65535f);
-        private static Vector4 Half => new Vector4(0.5f);
-        private static Vector128<byte> PackRgbaAsPColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        private static Vector128<byte> PackRgbaAsPColor64Mask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-        private static Vector4 Max8Bit { get; } = new Vector4(Byte.MaxValue);
-        private static Vector4 Max8BitRecip { get; } = new Vector4(1f / Byte.MaxValue);
-        private static Vector4 Max16Bit { get; } = new Vector4(UInt16.MaxValue);
-        private static Vector4 Max16BitRecip { get; } = new Vector4(1f / UInt16.MaxValue);
-        private static Vector4 Half { get; } = new Vector4(0.5f);
-#if NETCOREAPP3_0_OR_GREATER
-        private static Vector128<byte> PackRgbaAsPColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        private static Vector128<byte> PackRgbaAsPColor64Mask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#endif
-#endif
-
-        #endregion
-
-        #region Instance Properties
-
         #region Public Properties
 
         /// <summary>
@@ -132,8 +105,6 @@ namespace KGySoft.Drawing.Imaging
 #else
         public bool IsValid => Clip() == this;
 #endif
-
-        #endregion
 
         #endregion
 
@@ -489,7 +460,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return new PColorF(new Vector4(c.R, c.G, c.B, c.A) * Max8BitRecip);
+            return new PColorF(new Vector4(c.R, c.G, c.B, c.A) * VectorExtensions.Max8BitRecip);
 #else
             return new PColorF(ColorSpaceHelper.ToFloat(c.A),
                 ColorSpaceHelper.ToFloat(c.R),
@@ -525,7 +496,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            return new PColorF(new Vector4(c.R, c.G, c.B, c.A) * Max16BitRecip);
+            return new PColorF(new Vector4(c.R, c.G, c.B, c.A) * VectorExtensions.Max16BitRecip);
 #else
             return new PColorF(ColorSpaceHelper.ToFloat(c.A),
                 ColorSpaceHelper.ToFloat(c.R),
@@ -636,7 +607,7 @@ namespace KGySoft.Drawing.Imaging
         internal PColor32 ToPColor32NoColorSpaceChange()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector4 result = Rgba * Max8Bit + Half;
+            Vector4 result = Rgba * VectorExtensions.Max8Bit + VectorExtensions.Half;
             result = result.Clip(Vector4.Zero, new Vector4(result.W.Clip(0f, Byte.MaxValue)));
 
 #if NETCOREAPP3_0_OR_GREATER
@@ -646,7 +617,7 @@ namespace KGySoft.Drawing.Imaging
                 // Using Sse2.ConvertToVector128Int32WithTruncation here because above we already added +0.5
                 Vector128<byte> rgbaI32 = Sse2.ConvertToVector128Int32WithTruncation(result.AsVector128()).AsByte();
                 return Ssse3.IsSupported
-                    ? new PColor32(Ssse3.Shuffle(rgbaI32, PackRgbaAsPColor32Mask).AsUInt32().ToScalar())
+                    ? new PColor32(Ssse3.Shuffle(rgbaI32, VectorExtensions.PackRgbaAsBgraBytesMask).AsUInt32().ToScalar())
                     : new PColor32(rgbaI32.GetElement(12), rgbaI32.GetElement(0), rgbaI32.GetElement(4), rgbaI32.GetElement(8));
             }
 #endif
@@ -665,7 +636,7 @@ namespace KGySoft.Drawing.Imaging
         internal PColor64 ToPColor64NoColorSpaceChange()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-            Vector4 result = Rgba * Max16Bit + Half;
+            Vector4 result = Rgba * VectorExtensions.Max16Bit + VectorExtensions.Half;
             result = result.Clip(Vector4.Zero, new Vector4(result.W.Clip(0f, UInt16.MaxValue)));
 
 #if NETCOREAPP3_0_OR_GREATER
@@ -675,7 +646,7 @@ namespace KGySoft.Drawing.Imaging
                 // Using Sse2.ConvertToVector128Int32WithTruncation here because above we already added +0.5
                 Vector128<ushort> rgbaI32 = Sse2.ConvertToVector128Int32WithTruncation(result.AsVector128()).AsUInt16();
                 return Ssse3.IsSupported
-                    ? new PColor64(Ssse3.Shuffle(rgbaI32.AsByte(), PackRgbaAsPColor64Mask).AsUInt64().ToScalar())
+                    ? new PColor64(Ssse3.Shuffle(rgbaI32.AsByte(), VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar())
                     : new PColor64(rgbaI32.GetElement(6), rgbaI32.GetElement(0), rgbaI32.GetElement(2), rgbaI32.GetElement(4));
             }
 #endif

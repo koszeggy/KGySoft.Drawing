@@ -80,19 +80,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        #region Static Properties
-
-#if NET5_0_OR_GREATER
-        // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
-        private static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
-        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#endif
-
-        #endregion
-
-        #region Instance Properties
-
         #region Public Properties
 
         /// <summary>
@@ -113,8 +100,6 @@ namespace KGySoft.Drawing.Imaging
 
         bool IColor<PColor32>.IsTransparent => A == Byte.MinValue;
         bool IColor<PColor32>.IsOpaque => A == Byte.MaxValue;
-
-        #endregion
 
         #endregion
 
@@ -260,7 +245,7 @@ namespace KGySoft.Drawing.Imaging
                         if (Ssse3.IsSupported)
                         {
                             // Compressing 32-bit values to 8 bit ones and initializing value from the first 32 bit
-                            value = Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, c.A), PackLowBytesMask).AsUInt32().ToScalar();
+                            value = Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, c.A), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar();
                             return;
                         }
 
@@ -417,7 +402,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
                         if (Ssse3.IsSupported)
-                            return new Color32(Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, A), PackLowBytesMask).AsUInt32().ToScalar());
+                            return new Color32(Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, A), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar());
                         
                         return new Color32(A,
                             (byte)bgrxI32.GetElement(2),

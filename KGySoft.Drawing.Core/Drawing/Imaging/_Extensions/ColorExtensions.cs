@@ -54,16 +54,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-#if NET5_0_OR_GREATER
-        private static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
-        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#endif
-
-        #endregion
-
         #region Methods
 
         #region Public Methods
@@ -1323,7 +1313,7 @@ namespace KGySoft.Drawing.Imaging
                 resultI32 = Sse2.ShiftRightLogical(Sse2.Add(bgraI32, resultI32), 8).WithElement(3, Byte.MaxValue);
 
                 // Initializing directly from uint by packing the bytes of resultI32
-                return new Color32(Ssse3.Shuffle(resultI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+                return new Color32(Ssse3.Shuffle(resultI32.AsByte(), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar());
             }
 #endif
 
@@ -1488,7 +1478,7 @@ namespace KGySoft.Drawing.Imaging
                     Sse.Divide(Sse.Add(srcBgrxF, dstBgrxF), Vector128.Create(alphaOut)).WithElement(3, alphaOut * Byte.MaxValue));
 
                 // Initializing directly from uint by packing the bytes of bgraI32
-                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar());
             }
 #endif
 
@@ -1590,7 +1580,7 @@ namespace KGySoft.Drawing.Imaging
                     bgraI32 = bgraI32.AsByte().WithElement(12, Byte.MaxValue).AsInt32();
 
                 // Initializing directly from uint by packing the bytes of bgraI32
-                return new PColor32(Ssse3.Shuffle(bgraI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+                return new PColor32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar());
             }
 #endif
 

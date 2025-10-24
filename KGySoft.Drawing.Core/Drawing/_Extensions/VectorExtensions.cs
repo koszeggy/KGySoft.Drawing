@@ -34,6 +34,41 @@ namespace KGySoft.Drawing
 {
     internal static class VectorExtensions
     {
+        #region Properties
+
+#if NET5_0_OR_GREATER
+        // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
+        internal static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackLowWordsMask => Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, default(byte), default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackHighBytesOfLowWordsMask => Vector128.Create(1, 5, 9, 13, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackRgbaAsBgraBytesMask => Vector128.Create(8, 4, 0, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackRgbaAsBgraWordsMask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
+#elif NETCOREAPP3_0_OR_GREATER
+        internal static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackLowWordsMask { get; } = Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, default(byte), default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackHighBytesOfLowWordsMask { get; } = Vector128.Create(1, 5, 9, 13, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackRgbaAsBgraBytesMask { get; } = Vector128.Create(8, 4, 0, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+        internal static Vector128<byte> PackRgbaAsBgraWordsMask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
+#endif
+
+#if NET5_0_OR_GREATER
+        // In .NET 5.0 and above these perform better as inlined rather than caching a static field
+        internal static Vector4 Max8Bit => new Vector4(255f);
+        internal static Vector4 Max8BitRecip => new Vector4(1f / 255f);
+        internal static Vector4 Max16Bit => new Vector4(65535f);
+        internal static Vector4 Max16BitRecip => new Vector4(1f / 65535f);
+        internal static Vector4 Half => new Vector4(0.5f);
+#elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+        internal static Vector4 Max8Bit { get; } = new Vector4(Byte.MaxValue);
+        internal static Vector4 Max8BitRecip { get; } = new Vector4(1f / Byte.MaxValue);
+        internal static Vector4 Max16Bit { get; } = new Vector4(UInt16.MaxValue);
+        internal static Vector4 Max16BitRecip { get; } = new Vector4(1f / UInt16.MaxValue);
+        internal static Vector4 Half { get; } = new Vector4(0.5f);
+#endif
+
+
+        #endregion
+
         #region Methods
 
 #if NETCOREAPP3_0

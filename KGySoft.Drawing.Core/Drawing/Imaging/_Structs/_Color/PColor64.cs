@@ -85,21 +85,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        #region Static Properties
-
-#if NET5_0_OR_GREATER
-        // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
-        private static Vector128<byte> PackLowWordsMask => Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        private static Vector128<byte> PackHighBytesOfLowWordsMask => Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
-        private static Vector128<byte> PackLowWordsMask { get; } = Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        private static Vector128<byte> PackHighBytesOfLowWordsMask { get; } = Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#endif
-            
-        #endregion
-
-        #region Instance Properties
-
         #region Public Properties
 
         /// <summary>
@@ -120,8 +105,6 @@ namespace KGySoft.Drawing.Imaging
 
         bool IColor<PColor64>.IsTransparent => A == UInt16.MinValue;
         bool IColor<PColor64>.IsOpaque => A == UInt16.MaxValue;
-
-        #endregion
 
         #endregion
 
@@ -276,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
                             // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
                             value = (Sse41.IsSupported
                                     ? Sse41.PackUnsignedSaturate(bgrxI32, bgrxI32).AsUInt64()
-                                    : Ssse3.Shuffle(bgrxI32.AsByte(), PackLowWordsMask).AsUInt64())
+                                    : Ssse3.Shuffle(bgrxI32.AsByte(), VectorExtensions.PackLowWordsMask).AsUInt64())
                                 .ToScalar();
                             return;
                         }
@@ -485,7 +468,7 @@ namespace KGySoft.Drawing.Imaging
                             // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
                             return new Color64((Sse41.IsSupported
                                     ? Sse41.PackUnsignedSaturate(bgrxI32, bgrxI32).AsUInt64()
-                                    : Ssse3.Shuffle(bgrxI32.AsByte(), PackLowWordsMask).AsUInt64())
+                                    : Ssse3.Shuffle(bgrxI32.AsByte(), VectorExtensions.PackLowWordsMask).AsUInt64())
                                 .ToScalar());
                         }
 
@@ -562,7 +545,7 @@ namespace KGySoft.Drawing.Imaging
                         if (Ssse3.IsSupported)
                         {
                             // Taking the 2nd byte of every 32-bit value (high byte of the 16-bit values), ignoring the rest.
-                            return new Color32(Ssse3.Shuffle(bgraI32, PackHighBytesOfLowWordsMask).AsUInt32().ToScalar());
+                            return new Color32(Ssse3.Shuffle(bgraI32, VectorExtensions.PackHighBytesOfLowWordsMask).AsUInt32().ToScalar());
                         }
 
                         // Casting from the int results one by one. It's still faster than
