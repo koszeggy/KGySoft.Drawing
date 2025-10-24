@@ -18,6 +18,13 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 using System.Security;
 using System.Threading;
 #if !NET35
@@ -3075,27 +3082,130 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Local Methods
 
-            static Color32 TransformLighten32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+            static Color32 TransformLightenPerChannel32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? (byte)((Byte.MaxValue - c.R) * brightness + c.R) : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? (byte)((Byte.MaxValue - c.G) * brightness + c.G) : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? (byte)((Byte.MaxValue - c.B) * brightness + c.B) : c.B);
 
-            static Color32 TransformDarken32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+            static Color32 TransformDarkenPerChannel32(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
 
-            static Color64 TransformLighten64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
+            static Color32 TransformLighten32(Color32 c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse2.IsSupported)
+                {
+                    Vector128<int> bgraI32 = Sse41.IsSupported
+                        ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
+                        : Vector128.Create(c.B, c.G, c.R, default);
+
+                    // bgrF = (float)(c.B, c.G, c.R, _)
+                    Vector128<float> bgrF = Sse2.ConvertToVector128Single(bgraI32);
+
+                    // bgrF = (255 - bgrF) * brightness + bgrF
+                    bgrF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness), bgrF)
+                        : Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness)), bgrF);
+
+                    bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
+                    return Ssse3.IsSupported
+                        ? new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).WithElement(3, c.A).AsUInt32().ToScalar())
+                        : new Color32(c.A, bgraI32.AsByte().GetElement(8), bgraI32.AsByte().GetElement(4), bgraI32.AsByte().GetElement(0));
+                }
+#endif
+                return new Color32(c.A,
+                    (byte)((Byte.MaxValue - c.R) * brightness + c.R),
+                    (byte)((Byte.MaxValue - c.G) * brightness + c.G),
+                    (byte)((Byte.MaxValue - c.B) * brightness + c.B));
+            }
+
+            static Color32 TransformDarken32(Color32 c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse2.IsSupported)
+                {
+                    Vector128<int> bgraI32 = Sse41.IsSupported
+                        ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
+                        : Vector128.Create(c.B, c.G, c.R, default);
+
+                    // bgrF = (float)(c.B, c.G, c.R, _)
+                    Vector128<float> bgrF = Sse2.ConvertToVector128Single(bgraI32);
+
+                    // bgrF *= brightness
+                    bgrF = Sse.Multiply(bgrF, Vector128.Create(brightness));
+
+                    bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
+                    return Ssse3.IsSupported
+                        ? new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).WithElement(3, c.A).AsUInt32().ToScalar())
+                        : new Color32(c.A, bgraI32.AsByte().GetElement(8), bgraI32.AsByte().GetElement(4), bgraI32.AsByte().GetElement(0));
+                }
+
+#endif
+                return new Color32(c.A,
+                    (byte)(c.R * brightness),
+                    (byte)(c.G * brightness),
+                    (byte)(c.B * brightness));
+            }
+
+            static Color64 TransformLightenPerChannel64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? (ushort)((UInt16.MaxValue - c.R) * brightness + c.R) : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? (ushort)((UInt16.MaxValue - c.G) * brightness + c.G) : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? (ushort)((UInt16.MaxValue - c.B) * brightness + c.B) : c.B);
 
-            static Color64 TransformDarken64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
+            static Color64 TransformDarkenPerChannel64(Color64 c, float brightness, ColorChannels channels) => new Color64(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? (ushort)(c.R * brightness) : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? (ushort)(c.G * brightness) : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? (ushort)(c.B * brightness) : c.B);
 
-            static ColorF TransformLightenF(ColorF c, float brightness, ColorChannels channels)
+            static Color64 TransformLighten64(Color64 c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse41.IsSupported)
+                {
+                    // bgrF = (float)(c.B, c.G, c.R, _)
+                    Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
+
+                    // bgrF = (65535 - bgrF) * brightness + bgrF
+                    bgrF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(65535f), bgrF), Vector128.Create(brightness), bgrF)
+                        : Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(65535f), bgrF), Vector128.Create(brightness)), bgrF);
+
+                    Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
+                    return new Color64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).WithElement(3, c.A).AsUInt64().ToScalar());
+                }
+#endif
+
+                return new Color64(c.A,
+                    (ushort)((UInt16.MaxValue - c.R) * brightness + c.R),
+                    (ushort)((UInt16.MaxValue - c.G) * brightness + c.G),
+                    (ushort)((UInt16.MaxValue - c.B) * brightness + c.B));
+            }
+
+            static Color64 TransformDarken64(Color64 c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse41.IsSupported)
+                {
+                    // bgrF = (float)(c.B, c.G, c.R, _)
+                    Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
+
+                    // bgrF *= brightness
+                    bgrF = Sse.Multiply(bgrF, Vector128.Create(brightness));
+
+                    Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
+                    return new Color64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).WithElement(3, c.A).AsUInt64().ToScalar());
+                }
+#endif
+
+                return new Color64(c.A,
+                    (ushort)(c.R * brightness),
+                    (ushort)(c.G * brightness),
+                    (ushort)(c.B * brightness));
+            }
+
+            static ColorF TransformLightenPerChannelF(ColorF c, float brightness, ColorChannels channels)
             {
                 c = c.Clip();
                 return new ColorF(c.A,
@@ -3104,13 +3214,64 @@ namespace KGySoft.Drawing.Imaging
                     (channels & ColorChannels.B) == ColorChannels.B ? (1f - c.B) * brightness + c.B : c.B);
             }
 
-            static ColorF TransformDarkenF(ColorF c, float brightness, ColorChannels channels)
+            static ColorF TransformDarkenPerChannelF(ColorF c, float brightness, ColorChannels channels)
             {
                 c = c.Clip();
                 return new ColorF(c.A,
                     (channels & ColorChannels.R) == ColorChannels.R ? c.R * brightness : c.R,
                     (channels & ColorChannels.G) == ColorChannels.G ? c.G * brightness : c.G,
                     (channels & ColorChannels.B) == ColorChannels.B ? c.B * brightness : c.B);
+            }
+
+            static ColorF TransformLightenF(ColorF c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                // Using native vectorization if possible.
+                if (Sse.IsSupported)
+                {
+                    Vector128<float> rgbaF = c.Rgba.ClipF().AsVector128();
+
+                    // rgbaF = (1 - rgbaF) * brightness + rgbaF
+                    rgbaF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(1f), rgbaF), Vector128.Create(brightness), rgbaF)
+                        : Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(1f), rgbaF), Vector128.Create(brightness)), rgbaF);
+                    return new ColorF(rgbaF.WithElement(3, c.A));
+                }
+#endif
+
+#if NET45_OR_GREATER || NETCOREAPP
+                // The possibly still accelerated auto vectorization
+                Vector3 rgbF = c.Rgb.ClipF();
+                rgbF = (Vector3.One - rgbF) * brightness + rgbF;
+                return new ColorF(new Vector4(rgbF, c.A));
+#else
+                c = c.Clip();
+                return new ColorF(c.A,
+                    (1f - c.R) * brightness + c.R,
+                    (1f - c.G) * brightness + c.G,
+                    (1f - c.B) * brightness + c.B);
+#endif
+            }
+
+            static ColorF TransformDarkenF(ColorF c, float brightness)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                // Using native vectorization if possible.
+                if (Sse.IsSupported)
+                    return new ColorF(Sse.Multiply(c.Rgba.ClipF().AsVector128(), Vector128.Create(brightness)).WithElement(3, c.A));
+#endif
+
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                // The possibly still accelerated auto vectorization
+                Vector3 rgbF = c.Rgb.ClipF() * brightness;
+                return new ColorF(new Vector4(rgbF, c.A));
+#else
+                c = c.Clip();
+                return new ColorF(c.A,
+                    c.R * brightness,
+                    c.G * brightness,
+                    c.B * brightness);
+#endif
             }
 
             #endregion
@@ -3128,22 +3289,23 @@ namespace KGySoft.Drawing.Imaging
                 var pixelFormat = bitmapData.PixelFormat;
                 if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
                 {
-                    return darken
-                        ? DoTransformColors(context, bitmapData, c => TransformDarkenF(c, brightness, channels))
-                        : DoTransformColors(context, bitmapData, c => TransformLightenF(c, brightness, channels));
+                    return DoTransformColors(context, bitmapData, darken
+                        ? channels == ColorChannels.Rgb ? c => TransformDarkenF(c, brightness) : c => TransformDarkenPerChannelF(c, brightness, channels)
+                        : channels == ColorChannels.Rgb ? c => TransformLightenF(c, brightness) : c => TransformLightenPerChannelF(c, brightness, channels));
                 }
 
                 if (pixelFormat.IsWide)
                 {
-                    return darken
-                        ? DoTransformColors(context, bitmapData, c => TransformDarken64(c, brightness, channels))
-                        : DoTransformColors(context, bitmapData, c => TransformLighten64(c, brightness, channels));
+                    return DoTransformColors(context, bitmapData, darken
+                        ? channels == ColorChannels.Rgb ? c => TransformDarken64(c, brightness) : c => TransformDarkenPerChannel64(c, brightness, channels)
+                        : channels == ColorChannels.Rgb ? c => TransformLighten64(c, brightness) : c => TransformLightenPerChannel64(c, brightness, channels));
                 }
             }
 
-            return darken
-                ? DoTransformColors(context, bitmapData, c => TransformDarken32(c, brightness, channels), ditherer)
-                : DoTransformColors(context, bitmapData, c => TransformLighten32(c, brightness, channels), ditherer);
+            return DoTransformColors(context, bitmapData, darken
+                    ? channels == ColorChannels.Rgb ? c => TransformDarken32(c, brightness) : c => TransformDarkenPerChannel32(c, brightness, channels)
+                    : channels == ColorChannels.Rgb ? c => TransformLighten32(c, brightness) : c => TransformLightenPerChannel32(c, brightness, channels),
+                ditherer);
         }
 
         private static bool DoAdjustContrast(IAsyncContext context, IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer, ColorChannels channels)
