@@ -763,6 +763,103 @@ namespace KGySoft.Drawing.PerformanceTests
                 (c.B - 0.5f) * contrast + 0.5f);
         }
 
+        private static Color32 TransformInvert32_1_Vanilla(Color32 c) => new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+        
+        private static Color32 TransformInvert32_2_Vector128(Color32 c)
+        {
+#if NET7_0_OR_GREATER
+            Vector128<byte> bgra8 = Vector128.CreateScalar(c.Value).AsByte();
+            return new Color32((VectorExtensions.Max8BitU8 - bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+#else
+            return new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+#endif
+        }
+
+        private static Color32 TransformInvert32_3_Vector64(Color32 c)
+        {
+#if NET7_0_OR_GREATER
+            Vector64<byte> bgra8 = Vector64.CreateScalar(c.Value).AsByte();
+            return new Color32((Vector64.Create(Byte.MaxValue) - bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+#else
+            return new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+#endif
+        }
+
+        private static Color32 TransformInvert32_4_Intrinsics(Color32 c)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                Vector128<byte> bgra8 = Vector128.CreateScalar(c.Value).AsByte();
+                return new Color32(Sse2.Subtract(VectorExtensions.Max8BitU8, bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+            }
+#endif
+
+            return new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+        }
+
+        private static Color64 TransformInvert64_1_Vanilla(Color64 c)
+            => new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+
+        private static Color64 TransformInvert64_2_Vector128(Color64 c)
+        {
+#if NET7_0_OR_GREATER
+            Vector128<ushort> bgra16 = Vector128.CreateScalar(c.Value).AsUInt16();
+            return new Color64((VectorExtensions.Max16BitU16 - bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+#else
+            return new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+#endif
+        }
+
+        private static Color64 TransformInvert64_3_Vector64(Color64 c)
+        {
+#if NET7_0_OR_GREATER
+            Vector64<ushort> bgra16 = Vector64.CreateScalar(c.Value).AsUInt16();
+            return new Color64((Vector64.Create(UInt16.MaxValue) - bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+#else
+            return new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+#endif
+        }
+
+        private static Color64 TransformInvert64_4_Intrinsics(Color64 c)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                Vector128<ushort> bgra16 = Vector128.CreateScalar(c.Value).AsUInt16();
+                return new Color64(Sse2.Subtract(VectorExtensions.Max16BitU16, bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+            }
+#endif
+
+            return new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+        }
+
+        private static ColorF TransformInvertF_1_Vanilla(ColorF c)
+        {
+            c = c.Clip();
+            return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
+        }
+
+        private static ColorF TransformInvertF_2_Vector(ColorF c)
+        {
+#if NET45_OR_GREATER || NETCOREAPP
+            return new ColorF(new Vector4(Vector3.One - c.Rgb.ClipF(), c.A));
+#else
+            c = c.Clip();
+            return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
+#endif
+        }
+
+        private static ColorF TransformInvertF_3_Intrinsics(ColorF c)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+                return new ColorF(Sse.Subtract(VectorExtensions.OneF, c.RgbaV128.ClipF()).WithElement(3, c.A));
+#endif
+            c = c.Clip();
+            return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
+        }
+
         #endregion
 
         #region Instance Methods
@@ -1406,6 +1503,219 @@ namespace KGySoft.Drawing.PerformanceTests
             //   #2  98 674 324 iterations in 2 000,00 ms. Adjusted: 98 674 324,00	 <---- Best
             //   #3  95 822 806 iterations in 2 000,00 ms. Adjusted: 95 822 806,00
             //   Worst-Best difference: 3 140 729,00 (3,29%)
+        }
+
+        [Test]
+        public void TransformInvert32Test()
+        {
+            Color32 color = new Color32(128, 255, 64);
+
+            Color32 expected = new Color32(color.A, (byte)(Byte.MaxValue - color.R), (byte)(Byte.MaxValue - color.G), (byte)(Byte.MaxValue - color.B));
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<Color32>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                Color32 actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformInvert32_1_Vanilla(color));
+            DoAssert(() => TransformInvert32_2_Vector128(color));
+            DoAssert(() => TransformInvert32_3_Vector64(color));
+            DoAssert(() => TransformInvert32_4_Intrinsics(color));
+
+            new PerformanceTest<Color32>
+                {
+                    TestName = nameof(TransformInvert32Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformInvert32_1_Vanilla(color), nameof(TransformInvert32_1_Vanilla))
+                .AddCase(() => TransformInvert32_2_Vector128(color), nameof(TransformInvert32_2_Vector128))
+                .AddCase(() => TransformInvert32_3_Vector64(color), nameof(TransformInvert32_3_Vector64))
+                .AddCase(() => TransformInvert32_4_Intrinsics(color), nameof(TransformInvert32_4_Intrinsics))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformInvert32_4_Intrinsics: 438 571 117 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 146 190 362,61
+            //   #1  148 147 690 iterations in 2 000,00 ms. Adjusted: 148 147 682,59    <---- Best
+            //   #2  144 906 911 iterations in 2 000,00 ms. Adjusted: 144 906 896,51    <---- Worst
+            //   #3  145 516 516 iterations in 2 000,00 ms. Adjusted: 145 516 508,72
+            //   Worst-Best difference: 3 240 786,08 (2,24%)
+            // 2. TransformInvert32_2_Vector128: 436 162 770 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 145 387 587,61 (-802 775,00 / 99,45%)
+            //   #1  143 218 521 iterations in 2 000,00 ms. Adjusted: 143 218 513,84    <---- Worst
+            //   #2  147 604 727 iterations in 2 000,00 ms. Adjusted: 147 604 727,00    <---- Best
+            //   #3  145 339 522 iterations in 2 000,00 ms. Adjusted: 145 339 522,00
+            //   Worst-Best difference: 4 386 213,16 (3,06%)
+            // 3. TransformInvert32_1_Vanilla: 432 352 026 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 144 117 337,30 (-2 073 025,31 / 98,58%)
+            //   #1  133 754 855 iterations in 2 000,00 ms. Adjusted: 133 754 848,31    <---- Worst
+            //   #2  148 321 852 iterations in 2 000,00 ms. Adjusted: 148 321 844,58
+            //   #3  150 275 319 iterations in 2 000,00 ms. Adjusted: 150 275 319,00    <---- Best
+            //   Worst-Best difference: 16 520 470,69 (12,35%)
+            // 4. TransformInvert32_3_Vector64: 188 008 019 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 62 669 338,61 (-83 521 024,00 / 42,87%)
+            //   #1  63 324 217 iterations in 2 000,00 ms. Adjusted: 63 324 213,83      <---- Best
+            //   #2  62 625 619 iterations in 2 000,00 ms. Adjusted: 62 625 619,00
+            //   #3  62 058 183 iterations in 2 000,00 ms. Adjusted: 62 058 183,00      <---- Worst
+            //   Worst-Best difference: 1 266 030,83 (2,04%)
+        }
+
+        [Test]
+        public void TransformInvert64Test()
+        {
+            Color64 color = new Color32(128, 255, 64).ToColor64();
+
+            Color64 expected = new Color64(color.A, (ushort)(UInt16.MaxValue - color.R), (ushort)(UInt16.MaxValue - color.G), (ushort)(UInt16.MaxValue - color.B));
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<Color64>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                Color64 actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformInvert64_1_Vanilla(color));
+            DoAssert(() => TransformInvert64_2_Vector128(color));
+            DoAssert(() => TransformInvert64_3_Vector64(color));
+            DoAssert(() => TransformInvert64_4_Intrinsics(color));
+
+            new PerformanceTest<Color64>
+                {
+                    TestName = nameof(TransformInvert64Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformInvert64_1_Vanilla(color), nameof(TransformInvert64_1_Vanilla))
+                .AddCase(() => TransformInvert64_2_Vector128(color), nameof(TransformInvert64_2_Vector128))
+                .AddCase(() => TransformInvert64_3_Vector64(color), nameof(TransformInvert64_3_Vector64))
+                .AddCase(() => TransformInvert64_4_Intrinsics(color), nameof(TransformInvert64_4_Intrinsics))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformInvert64_4_Intrinsics: 440 379 053 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 146 793 015,08
+            //   #1  155 276 174 iterations in 2 000,00 ms. Adjusted: 155 276 166,24	 <---- Best
+            //   #2  153 587 675 iterations in 2 000,00 ms. Adjusted: 153 587 675,00
+            //   #3  131 515 204 iterations in 2 000,00 ms. Adjusted: 131 515 204,00	 <---- Worst
+            //   Worst-Best difference: 23 760 962,24 (18,07%)
+            // 2. TransformInvert64_2_Vector128: 398 431 113 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 132 810 371,00 (-13 982 644,08 / 90,47%)
+            //   #1  155 717 335 iterations in 2 000,00 ms. Adjusted: 155 717 335,00	 <---- Best
+            //   #2  136 447 777 iterations in 2 000,00 ms. Adjusted: 136 447 777,00
+            //   #3  106 266 001 iterations in 2 000,00 ms. Adjusted: 106 266 001,00	 <---- Worst
+            //   Worst-Best difference: 49 451 334,00 (46,54%)
+            // 3. TransformInvert64_1_Vanilla: 388 432 068 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 129 477 356,00 (-17 315 659,08 / 88,20%)
+            //   #1  127 206 506 iterations in 2 000,00 ms. Adjusted: 127 206 506,00
+            //   #2  123 920 349 iterations in 2 000,00 ms. Adjusted: 123 920 349,00	 <---- Worst
+            //   #3  137 305 213 iterations in 2 000,00 ms. Adjusted: 137 305 213,00	 <---- Best
+            //   Worst-Best difference: 13 384 864,00 (10,80%)
+            // 4. TransformInvert64_3_Vector64: 191 504 275 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 63 834 757,25 (-82 958 257,83 / 43,49%)
+            //   Worst-Best difference: 7 688 659,00 (12,97%)
+            //   #1  65 247 250 iterations in 2 000,00 ms. Adjusted: 65 247 246,74
+            //   #2  59 284 183 iterations in 2 000,00 ms. Adjusted: 59 284 183,00	 <---- Worst
+            //   #3  66 972 842 iterations in 2 000,00 ms. Adjusted: 66 972 842,00	 <---- Best
+        }
+
+        [Test]
+        public void TransformInvertFTest()
+        {
+            ColorF color = new Color32(128, 255, 64).ToColorF();
+
+            ColorF expected = new ColorF(color.A, 1f - color.R, 1f - color.G, 1f - color.B);
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<ColorF>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                ColorF actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformInvertF_1_Vanilla(color));
+            DoAssert(() => TransformInvertF_2_Vector(color));
+            DoAssert(() => TransformInvertF_3_Intrinsics(color));
+
+            new PerformanceTest<ColorF>
+                {
+                    TestName = nameof(TransformInvertFTest),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformInvertF_1_Vanilla(color), nameof(TransformInvertF_1_Vanilla))
+                .AddCase(() => TransformInvertF_2_Vector(color), nameof(TransformInvertF_2_Vector))
+                .AddCase(() => TransformInvertF_3_Intrinsics(color), nameof(TransformInvertF_3_Intrinsics))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformInvertF_2_Vector: 447 381 001 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 149 126 997,82
+            //   #1  146 034 837 iterations in 2 000,00 ms. Adjusted: 146 034 837,00    <---- Worst
+            //   #2  150 786 125 iterations in 2 000,00 ms. Adjusted: 150 786 117,46    <---- Best
+            //   #3  150 560 039 iterations in 2 000,00 ms. Adjusted: 150 560 039,00
+            //   Worst-Best difference: 4 751 280,46 (3,25%)
+            // 2. TransformInvertF_3_Intrinsics: 404 309 740 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 134 769 904,34 (-14 357 093,48 / 90,37%)
+            //   #1  133 559 760 iterations in 2 000,00 ms. Adjusted: 133 559 753,32    <---- Worst
+            //   #2  135 220 560 iterations in 2 000,00 ms. Adjusted: 135 220 546,48
+            //   #3  135 529 420 iterations in 2 000,00 ms. Adjusted: 135 529 413,22    <---- Best
+            //   Worst-Best difference: 1 969 659,90 (1,47%)
+            // 3. TransformInvertF_1_Vanilla: 335 409 711 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 111 803 231,41 (-37 323 766,41 / 74,97%)
+            //   #1  110 332 559 iterations in 2 000,00 ms. Adjusted: 110 332 553,48    <---- Worst
+            //   #2  111 744 087 iterations in 2 000,00 ms. Adjusted: 111 744 081,41
+            //   #3  113 333 065 iterations in 2 000,00 ms. Adjusted: 113 333 059,33    <---- Best
+            //   Worst-Best difference: 3 000 505,85 (2,72%)
+
+            // .NET 6: (same order in .NET 7/8/9)
+            // 1. TransformInvertF_3_Intrinsics: 362 113 628 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 120 704 506,53
+            //   #1  119 152 033 iterations in 2 000,00 ms. Adjusted: 119 151 985,34    <---- Worst
+            //   #2  120 298 511 iterations in 2 000,00 ms. Adjusted: 120 298 480,93
+            //   #3  122 663 084 iterations in 2 000,00 ms. Adjusted: 122 663 053,33    <---- Best
+            //   Worst-Best difference: 3 511 068,00 (2,95%)
+            // 2. TransformInvertF_2_Vector: 324 705 287 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 108 235 052,41 (-12 469 454,12 / 89,67%)
+            //   #1  109 460 494 iterations in 2 000,00 ms. Adjusted: 109 460 461,16    <---- Best
+            //   #2  107 276 136 iterations in 2 000,00 ms. Adjusted: 107 276 098,45    <---- Worst
+            //   #3  107 968 657 iterations in 2 000,00 ms. Adjusted: 107 968 597,62
+            //   Worst-Best difference: 2 184 362,71 (2,04%)
+            // 3. TransformInvertF_1_Vanilla: 285 190 341 iterations in 6 000,02 ms. Adjusted for 2 000 ms: 95 063 183,58 (-25 641 322,96 / 78,76%)
+            //   #1  90 884 264 iterations in 2 000,02 ms. Adjusted: 90 883 541,48      <---- Worst
+            //   #2  94 530 748 iterations in 2 000,00 ms. Adjusted: 94 530 710,19
+            //   #3  99 775 329 iterations in 2 000,00 ms. Adjusted: 99 775 299,07      <---- Best
+            //   Worst-Best difference: 8 891 757,59 (9,78%)
+
+            // .NET Core 3.0: (same order in .NET 5)
+            // 1. TransformInvertF_3_Intrinsics: 303 206 082 iterations in 6 000,02 ms. Adjusted for 2 000 ms: 101 068 338,55
+            //   #1  101 427 756 iterations in 2 000,01 ms. Adjusted: 101 427 390,86
+            //   #2  100 160 198 iterations in 2 000,01 ms. Adjusted: 100 159 852,45    <---- Worst
+            //   #3  101 618 128 iterations in 2 000,01 ms. Adjusted: 101 617 772,34    <---- Best
+            //   Worst-Best difference: 1 457 919,89 (1,46%)
+            // 2. TransformInvertF_1_Vanilla: 250 756 114 iterations in 6 000,04 ms. Adjusted for 2 000 ms: 83 584 844,93 (-17 483 493,61 / 82,70%)
+            //   #1  80 218 063 iterations in 2 000,02 ms. Adjusted: 80 217 140,50      <---- Worst
+            //   #2  83 963 958 iterations in 2 000,01 ms. Adjusted: 83 963 638,94
+            //   #3  86 574 093 iterations in 2 000,01 ms. Adjusted: 86 573 755,36      <---- Best
+            //   Worst-Best difference: 6 356 614,86 (7,92%)
+            // 3. TransformInvertF_2_Vector: 227 589 824 iterations in 6 000,02 ms. Adjusted for 2 000 ms: 75 863 022,97 (-25 205 315,58 / 75,06%)
+            //   #1  74 293 556 iterations in 2 000,01 ms. Adjusted: 74 293 318,26      <---- Worst
+            //   #2  76 882 775 iterations in 2 000,01 ms. Adjusted: 76 882 517,44      <---- Best
+            //   #3  76 413 493 iterations in 2 000,01 ms. Adjusted: 76 413 233,20
+            //   Worst-Best difference: 2 589 199,18 (3,49%)
+
+            // .NET Framework 4.5+:
+            // 1. TransformInvertF_2_Vector: 294 083 928 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 98 027 972,83
+            //   #1  95 223 085 iterations in 2 000,00 ms. Adjusted: 95 223 075,48      <---- Worst
+            //   #2  99 140 525 iterations in 2 000,00 ms. Adjusted: 99 140 525,00
+            //   #3  99 720 318 iterations in 2 000,00 ms. Adjusted: 99 720 318,00      <---- Best
+            //   Worst-Best difference: 4 497 242,52 (4,72%)
+            // 2. TransformInvertF_1_Vanilla: 238 730 660 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 79 576 879,93 (-18 451 092,90 / 81,18%)
+            //   #1  80 301 422 iterations in 2 000,00 ms. Adjusted: 80 301 417,98
+            //   #2  80 980 743 iterations in 2 000,00 ms. Adjusted: 80 980 726,80      <---- Best
+            //   #3  77 448 495 iterations in 2 000,00 ms. Adjusted: 77 448 495,00      <---- Worst
+            //   Worst-Best difference: 3 532 231,80 (4,56%)
         }
 
         #endregion

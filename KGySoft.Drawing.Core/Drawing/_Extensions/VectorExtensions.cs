@@ -49,8 +49,10 @@ namespace KGySoft.Drawing
         internal static Vector128<float> OneF => Vector128.Create(1f);
 #endif
         internal static Vector128<float> Max8BitF => Vector128.Create(255f);
+        internal static Vector128<byte> Max8BitU8 => Vector128.Create(Byte.MaxValue);
         internal static Vector128<int> Max8BitI32 => Vector128.Create(255);
         internal static Vector128<float> Max16BitF => Vector128.Create(65535f);
+        internal static Vector128<ushort> Max16BitU16 => Vector128.Create(UInt16.MaxValue);
         internal static Vector128<int> Max16BitI32 => Vector128.Create(65535);
         internal static Vector128<float> HalfF => Vector128.Create(0.5f);
 #elif NETCOREAPP3_0_OR_GREATER
@@ -61,8 +63,10 @@ namespace KGySoft.Drawing
         internal static Vector128<byte> PackRgbaAsBgraWordsMask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
         internal static Vector128<float> OneF { get; } = Vector128.Create(1f);
         internal static Vector128<float> Max8BitF { get; } = Vector128.Create(255f);
+        internal static Vector128<byte> Max8BitU8 { get; } = Vector128.Create(Byte.MaxValue);
         internal static Vector128<int> Max8BitI32 { get; } = Vector128.Create(255);
         internal static Vector128<float> Max16BitF { get; } = Vector128.Create(65535f);
+        internal static Vector128<ushort> Max16BitU16 { get; } = Vector128.Create(UInt16.MaxValue);
         internal static Vector128<int> Max16BitI32 { get; } = Vector128.Create(65535);
         internal static Vector128<float> HalfF { get; } = Vector128.Create(0.5f);
 #endif

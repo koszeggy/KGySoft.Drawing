@@ -3053,13 +3053,70 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Local Methods
 
-            static Color32 TransformInvert32(Color32 c) => new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
-            static Color64 TransformInvert64(Color64 c) => new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+            static Color32 TransformInvert32(Color32 c)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse2.IsSupported)
+                {
+                    Vector128<byte> bgra8 = Vector128.CreateScalar(c.Value).AsByte();
+                    return new Color32(Sse2.Subtract(VectorExtensions.Max8BitU8, bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+                }
+#endif
+#if NET7_0_OR_GREATER
+                if (Vector64.IsHardwareAccelerated)
+                {
+                    Vector64<byte> bgra8 = Vector64.CreateScalar(c.Value).AsByte();
+                    return new Color32((Vector64.Create(Byte.MaxValue) - bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+                }
+
+                if (Vector128.IsHardwareAccelerated)
+                {
+                    Vector128<byte> bgra8 = Vector128.CreateScalar(c.Value).AsByte();
+                    return new Color32((VectorExtensions.Max8BitU8 - bgra8).WithElement(3, c.A).AsUInt32().ToScalar());
+                }
+#endif
+
+                return new Color32(c.A, (byte)(Byte.MaxValue - c.R), (byte)(Byte.MaxValue - c.G), (byte)(Byte.MaxValue - c.B));
+            }
+
+            static Color64 TransformInvert64(Color64 c)
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                if (Sse2.IsSupported)
+                {
+                    Vector128<ushort> bgra16 = Vector128.CreateScalar(c.Value).AsUInt16();
+                    return new Color64(Sse2.Subtract(VectorExtensions.Max16BitU16, bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+                }
+#endif
+#if NET7_0_OR_GREATER
+                if (Vector128.IsHardwareAccelerated)
+                {
+                    Vector128<ushort> bgra16 = Vector128.CreateScalar(c.Value).AsUInt16();
+                    return new Color64((VectorExtensions.Max16BitU16 - bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+                }
+
+                if (Vector64.IsHardwareAccelerated)
+                {
+                    Vector64<ushort> bgra16 = Vector64.CreateScalar(c.Value).AsUInt16();
+                    return new Color64((Vector64.Create(UInt16.MaxValue) - bgra16).WithElement(3, c.A).AsUInt64().ToScalar());
+                }
+#endif
+
+                return new Color64(c.A, (ushort)(UInt16.MaxValue - c.R), (ushort)(UInt16.MaxValue - c.G), (ushort)(UInt16.MaxValue - c.B));
+            }
 
             static ColorF TransformInvertF(ColorF c)
             {
+#if NETCOREAPP3_0_OR_GREATER && !NET10_0_OR_GREATER // Starting with .NET 10, the auto-vectorized solution outperforms this one. See TransformInvertFTest in PerformanceTests.
+                if (Sse.IsSupported)
+                    return new ColorF(Sse.Subtract(VectorExtensions.OneF, c.RgbaV128.ClipF()).WithElement(3, c.A));
+#endif
+#if NET6_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD // Note that not using this version in .NET Core 3.x - .NET 5, because it is actually slower than the vanilla version.
+                return new ColorF(new Vector4(Vector3.One - c.Rgb.ClipF(), c.A));
+#else
                 c = c.Clip();
                 return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
+#endif
             }
 
             #endregion
@@ -3239,7 +3296,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 #endif
 
-#if NET45_OR_GREATER || NETCOREAPP
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
                 // The possibly still accelerated auto vectorization
                 Vector3 rgbF = c.Rgb.ClipF();
                 rgbF = (Vector3.One - rgbF) * brightness + rgbF;
@@ -3430,23 +3487,38 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Local Methods
 
-            static Color32 TransformGamma32(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+            static Color32 TransformGammaPerChannel32(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
 
-            static Color64 TransformGamma64(Color64 c, ColorChannels channels, ushort[] table) => new Color64(c.A,
+            static Color32 TransformGamma32(Color32 c, byte[] table) => new Color32(c.A, table[c.R], table[c.G], table[c.B]);
+
+            static Color64 TransformGammaPerChannel64(Color64 c, ColorChannels channels, ushort[] table) => new Color64(c.A,
                 (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
                 (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
                 (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
 
-            static ColorF TransformGammaF(ColorF c, ColorChannels channels, float gamma)
+            static Color64 TransformGamma64(Color64 c, ushort[] table) => new Color64(c.A, table[c.R], table[c.G], table[c.B]);
+
+            static ColorF TransformGammaPerChannelF(ColorF c, ColorChannels channels, float gamma)
             {
                 c = c.Clip();
+                float invGamma = 1f / gamma;
                 return new ColorF(c.A,
-                    (channels & ColorChannels.R) == ColorChannels.R ? MathF.Pow(c.R, 1f / gamma) : c.R,
-                    (channels & ColorChannels.G) == ColorChannels.G ? MathF.Pow(c.G, 1f / gamma) : c.G,
-                    (channels & ColorChannels.B) == ColorChannels.B ? MathF.Pow(c.B, 1f / gamma) : c.B);
+                    (channels & ColorChannels.R) == ColorChannels.R ? MathF.Pow(c.R, invGamma) : c.R,
+                    (channels & ColorChannels.G) == ColorChannels.G ? MathF.Pow(c.G, invGamma) : c.G,
+                    (channels & ColorChannels.B) == ColorChannels.B ? MathF.Pow(c.B, invGamma) : c.B);
+            }
+
+            static ColorF TransformGammaF(ColorF c, float gamma)
+            {
+                c = c.Clip();
+                float invGamma = 1f / gamma;
+                return new ColorF(c.A,
+                    MathF.Pow(c.R, invGamma),
+                    MathF.Pow(c.G, invGamma),
+                    MathF.Pow(c.B, invGamma));
             }
 
             #endregion
@@ -3455,16 +3527,16 @@ namespace KGySoft.Drawing.Imaging
             {
                 var pixelFormat = bitmapData.PixelFormat;
                 if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
-                    return DoTransformColors(context, bitmapData, c => TransformGammaF(c, channels, gamma));
+                    return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGammaF(c, gamma) : c => TransformGammaPerChannelF(c, channels, gamma));
                 if (pixelFormat.IsWide)
                 {
                     ushort[] table64 = GammaLookupTableCache64[gamma];
-                    return DoTransformColors(context, bitmapData, c => TransformGamma64(c, channels, table64));
+                    return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGamma64(c, table64) : c => TransformGammaPerChannel64(c, channels, table64));
                 }
             }
 
             byte[] table32 = GammaLookupTableCache32[gamma];
-            return DoTransformColors(context, bitmapData, c => TransformGamma32(c, channels, table32), ditherer);
+            return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGamma32(c, table32) : c => TransformGammaPerChannel32(c, channels, table32), ditherer);
         }
 
         private static bool DoMakeOpaque(IAsyncContext context, IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer)
