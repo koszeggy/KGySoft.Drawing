@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
-            Vector3 result = (new Vector3(255f) - rgbF) * brightness + rgbF;
+            Vector3 result = (VectorExtensions.Max8Bit3 - rgbF) * brightness + rgbF;
 
             return new Color32(c.A,
                 (byte)result.X,
@@ -179,7 +179,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(bgraI32);
 
                 // bgrF = (255 - bgrF) * brightness + bgrF
-                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness)), bgrF);
+                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(VectorExtensions.Max8BitF, bgrF), Vector128.Create(brightness)), bgrF);
 
                 var bgraI32Byte = Sse2.ConvertToVector128Int32WithTruncation(bgrF).AsByte();
 
@@ -206,7 +206,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(bgraI32);
 
                 // bgrF = (255 - bgrF) * brightness + bgrF
-                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness)), bgrF);
+                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(VectorExtensions.Max8BitF, bgrF), Vector128.Create(brightness)), bgrF);
 
                 bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
 
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
 
                 // bgrF = (255 - bgrF) * brightness + bgrF
-                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness)), bgrF);
+                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(VectorExtensions.Max8BitF, bgrF), Vector128.Create(brightness)), bgrF);
 
                 Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
 
@@ -250,7 +250,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
 
                 // bgrF = (255 - bgrF) * brightness + bgrF
-                bgrF = Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(255f), bgrF), Vector128.Create(brightness), bgrF);
+                bgrF = Fma.MultiplyAdd(Sse.Subtract(VectorExtensions.Max8BitF, bgrF), Vector128.Create(brightness), bgrF);
 
                 Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
 
@@ -330,7 +330,7 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
 
-            rgbF = (new Vector3(UInt16.MaxValue) - rgbF) * brightness + rgbF;
+            rgbF = (VectorExtensions.Max16Bit3 - rgbF) * brightness + rgbF;
             return new Color64(c.A,
                 (ushort)rgbF.X,
                 (ushort)rgbF.Y,
@@ -352,7 +352,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
 
                 // bgrF = (65535 - bgrF) * brightness + bgrF
-                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(65535f), bgrF), Vector128.Create(brightness)), bgrF);
+                bgrF = Sse.Add(Sse.Multiply(Sse.Subtract(VectorExtensions.Max16BitF, bgrF), Vector128.Create(brightness)), bgrF);
 
                 Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
 
@@ -375,7 +375,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
 
                 // bgrF = (65535 - bgrF) * brightness + bgrF
-                bgrF = Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(65535f), bgrF), Vector128.Create(brightness), bgrF);
+                bgrF = Fma.MultiplyAdd(Sse.Subtract(VectorExtensions.Max16BitF, bgrF), Vector128.Create(brightness), bgrF);
 
                 Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF);
 
@@ -425,7 +425,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
-                return new ColorF(Sse.Multiply(c.Rgba.ClipF().AsVector128(), Vector128.Create(brightness)).WithElement(3, c.A)); 
+                return new ColorF(Sse.Multiply(c.RgbaV128.ClipF(), Vector128.Create(brightness)).WithElement(3, c.A)); 
 #endif
             c = c.Clip();
             return new ColorF(c.A,
@@ -472,10 +472,10 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
             {
-                Vector128<float> rgbF = c.Rgba.ClipF().AsVector128();
+                Vector128<float> rgbF = c.RgbaV128.ClipF();
 
                 // rgbF = (1 - rgbF) * brightness + rgbF
-                rgbF = Sse.Add(Sse.Multiply(Sse.Subtract(Vector128.Create(1f), rgbF), Vector128.Create(brightness)), rgbF);
+                rgbF = Sse.Add(Sse.Multiply(Sse.Subtract(VectorExtensions.OneF, rgbF), Vector128.Create(brightness)), rgbF);
                 return new ColorF(rgbF.WithElement(3, c.A));
             }
 #endif
@@ -491,10 +491,10 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NETCOREAPP3_0_OR_GREATER
             if (Fma.IsSupported)
             {
-                Vector128<float> rgbF = c.Rgba.ClipF().AsVector128();
+                Vector128<float> rgbF = c.RgbaV128.ClipF();
 
                 // rgbF = (1 - rgbF) * brightness + rgbF
-                rgbF = Fma.MultiplyAdd(Sse.Subtract(Vector128.Create(1f), rgbF), Vector128.Create(brightness), rgbF);
+                rgbF = Fma.MultiplyAdd(Sse.Subtract(VectorExtensions.OneF, rgbF), Vector128.Create(brightness), rgbF);
                 return new ColorF(rgbF.WithElement(3, c.A));
             }
 #endif
@@ -503,6 +503,264 @@ namespace KGySoft.Drawing.PerformanceTests
                 (1f - c.R) * brightness + c.R,
                 (1f - c.G) * brightness + c.G,
                 (1f - c.B) * brightness + c.B);
+        }
+
+        private static Color32 TransformContrastPerChannel32(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte() : c.B);
+
+        private static Color32 TransformContrast32_1_Vanilla(Color32 c, float contrast)
+        {
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+        }
+
+        private static Color32 TransformContrast32_2_Vector(Color32 c, float contrast)
+        {
+#if NET45_OR_GREATER || NETCOREAPP
+            var rgbF = new Vector3(c.R, c.G, c.B);
+            rgbF = (((rgbF.Div(Byte.MaxValue) - VectorExtensions.Half3) * contrast + VectorExtensions.Half3) * Byte.MaxValue).Clip(Vector3.Zero, VectorExtensions.Max8Bit3);
+
+            return new Color32(c.A,
+                (byte)rgbF.X,
+                (byte)rgbF.Y,
+                (byte)rgbF.Z);
+#else
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+#endif
+        }
+
+        private static Color32 TransformContrast32_3_IntrinsicsFma(Color32 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Fma.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
+
+                // bgrF = ((bgrF / 255f - 0.5f) * contrast + 0.5f) * 255f
+                bgrF = Sse.Multiply(Fma.MultiplyAdd(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max8BitF), VectorExtensions.HalfF), Vector128.Create(contrast), VectorExtensions.HalfF), VectorExtensions.Max8BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF).Clip(Vector128<int>.Zero, VectorExtensions.Max8BitI32);
+
+                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).WithElement(3, c.A).AsUInt32().ToScalar());
+            }
+#endif
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+        }
+
+        private static Color32 TransformContrast32_4_IntrinsicsSse41(Color32 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse41.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
+
+                // bgrF = ((bgrF / 255f - 0.5f) * contrast + 0.5f) * 255f
+                bgrF = Sse.Multiply(Sse.Add(Sse.Multiply(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max8BitF), VectorExtensions.HalfF), Vector128.Create(contrast)), VectorExtensions.HalfF), VectorExtensions.Max8BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF).Clip(Vector128<int>.Zero, VectorExtensions.Max8BitI32);
+
+                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).WithElement(3, c.A).AsUInt32().ToScalar());
+            }
+#endif
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+        }
+
+        private static Color32 TransformContrast32_5_IntrinsicsSse3(Color32 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Ssse3.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Vector128.Create(c.B, c.G, c.R, default));
+
+                // bgrF = ((bgrF / 255f - 0.5f) * contrast + 0.5f) * 255f
+                bgrF = Sse.Multiply(Sse.Add(Sse.Multiply(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max8BitF), VectorExtensions.HalfF), Vector128.Create(contrast)), VectorExtensions.HalfF), VectorExtensions.Max8BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF.Clip(Vector128<float>.Zero, VectorExtensions.Max8BitF));
+
+                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).WithElement(3, c.A).AsUInt32().ToScalar());
+            }
+#endif
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+        }
+
+        private static Color32 TransformContrast32_6_IntrinsicsSse2(Color32 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Vector128.Create(c.B, c.G, c.R, default));
+
+                // bgrF = ((bgrF / 255f - 0.5f) * contrast + 0.5f) * 255f
+                bgrF = Sse.Multiply(Sse.Add(Sse.Multiply(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max8BitF), VectorExtensions.HalfF), Vector128.Create(contrast)), VectorExtensions.HalfF), VectorExtensions.Max8BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF.Clip(Vector128<float>.Zero, VectorExtensions.Max8BitF));
+
+                return new Color32(c.A, bgraI32.AsByte().GetElement(8), bgraI32.AsByte().GetElement(4), bgraI32.AsByte().GetElement(0));
+            }
+#endif
+            return new Color32(c.A,
+                ((int)((((float)c.R / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.G / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte(),
+                ((int)((((float)c.B / Byte.MaxValue - 0.5f) * contrast + 0.5f) * Byte.MaxValue)).ClipToByte());
+        }
+
+        private static Color64 TransformContrastPerChannel64(Color64 c, float contrast, ColorChannels channels) => new Color64(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16() : c.B);
+
+        private static Color64 TransformContrast64_1_Vanilla(Color64 c, float contrast) => new(c.A,
+            ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+            ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+            ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16());
+
+        private static Color64 TransformContrast64_2_Vector(Color64 c, float contrast)
+        {
+#if NET45_OR_GREATER || NETCOREAPP
+            var rgbF = new Vector3(c.R, c.G, c.B);
+            rgbF = (((rgbF.Div(UInt16.MaxValue) - VectorExtensions.Half3) * contrast + VectorExtensions.Half3) * UInt16.MaxValue).Clip(Vector3.Zero, VectorExtensions.Max16Bit3);
+
+            return new Color64(c.A,
+                (ushort)rgbF.X,
+                (ushort)rgbF.Y,
+                (ushort)rgbF.Z);
+#else
+            return new Color64(c.A,
+                ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16());
+#endif
+        }
+
+        private static Color64 TransformContrast64_3_IntrinsicsFma(Color64 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Fma.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
+
+                // bgrF = ((bgrF / 65535f - 0.5f) * contrast + 0.5f) * 65535f
+                bgrF = Sse.Multiply(Fma.MultiplyAdd(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max16BitF), VectorExtensions.HalfF), Vector128.Create(contrast), VectorExtensions.HalfF), VectorExtensions.Max16BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF).Clip(Vector128<int>.Zero, VectorExtensions.Max16BitI32);
+
+                return new Color64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).WithElement(3, c.A).AsUInt64().ToScalar());
+            }
+#endif
+            return new Color64(c.A,
+                ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16());
+        }
+
+        private static Color64 TransformContrast64_4_IntrinsicsSse41(Color64 c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse41.IsSupported)
+            {
+                // bgrF = (float)(c.B, c.G, c.R, _)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
+
+                // bgrF = ((bgrF / 65535f - 0.5f) * contrast + 0.5f) * 65535f
+                bgrF = Sse.Multiply(Sse.Add(Sse.Multiply(Sse.Subtract(Sse.Divide(bgrF, VectorExtensions.Max16BitF), VectorExtensions.HalfF), Vector128.Create(contrast)), VectorExtensions.HalfF), VectorExtensions.Max16BitF);
+
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32WithTruncation(bgrF).Clip(Vector128<int>.Zero, VectorExtensions.Max16BitI32);
+
+                return new Color64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).WithElement(3, c.A).AsUInt64().ToScalar());
+            }
+#endif
+            return new Color64(c.A,
+                ((int)((((float)c.R / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.G / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16(),
+                ((int)((((float)c.B / UInt16.MaxValue - 0.5f) * contrast + 0.5f) * UInt16.MaxValue)).ClipToUInt16());
+        }
+
+        private static ColorF TransformContrastPerChannelF(ColorF c, float contrast, ColorChannels channels)
+        {
+            c = c.Clip();
+            return new ColorF(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? (c.R - 0.5f) * contrast + 0.5f : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (c.G - 0.5f) * contrast + 0.5f : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (c.B - 0.5f) * contrast + 0.5f : c.B);
+        }
+
+        private static ColorF TransformContrastF_1_Vanilla(ColorF c, float contrast)
+        {
+            c = c.Clip();
+            return new ColorF(c.A,
+                (c.R - 0.5f) * contrast + 0.5f,
+                (c.G - 0.5f) * contrast + 0.5f,
+                (c.B - 0.5f) * contrast + 0.5f);
+        }
+
+        private static ColorF TransformContrastF_2_Vector(ColorF c, float contrast)
+        {
+#if NET45_OR_GREATER || NETCOREAPP
+            Vector3 rgbF = c.Rgb.ClipF();
+            rgbF = (rgbF - VectorExtensions.Half3) * contrast + VectorExtensions.Half3;
+            return new ColorF(new Vector4(rgbF, c.A));
+#else
+            c = c.Clip();
+            return new ColorF(c.A,
+                (c.R - 0.5f) * contrast + 0.5f,
+                (c.G - 0.5f) * contrast + 0.5f,
+                (c.B - 0.5f) * contrast + 0.5f);
+#endif
+        }
+
+        private static ColorF TransformContrastF_3_IntrinsicsFma(ColorF c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Fma.IsSupported)
+            {
+                // rgbaF = (c - 0.5f) * contrast + 0.5f
+                Vector128<float> rgbaF = Fma.MultiplyAdd(Sse.Subtract(c.RgbaV128.ClipF(), VectorExtensions.HalfF), Vector128.Create(contrast), VectorExtensions.HalfF);
+                return new ColorF(rgbaF.WithElement(3, c.A));
+            }
+#endif
+            c = c.Clip();
+            return new ColorF(c.A,
+                (c.R - 0.5f) * contrast + 0.5f,
+                (c.G - 0.5f) * contrast + 0.5f,
+                (c.B - 0.5f) * contrast + 0.5f);
+        }
+
+        private static ColorF TransformContrastF_4_IntrinsicsSse(ColorF c, float contrast)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+            {
+                // rgbaF = (c - 0.5f) * contrast + 0.5f
+                Vector128<float> rgbaF = Sse.Add(Sse.Multiply(Sse.Subtract(c.RgbaV128.ClipF(), VectorExtensions.HalfF), Vector128.Create(contrast)), VectorExtensions.HalfF);
+                return new ColorF(rgbaF.WithElement(3, c.A));
+            }
+#endif
+            c = c.Clip();
+            return new ColorF(c.A,
+                (c.R - 0.5f) * contrast + 0.5f,
+                (c.G - 0.5f) * contrast + 0.5f,
+                (c.B - 0.5f) * contrast + 0.5f);
         }
 
         #endregion
@@ -634,7 +892,6 @@ namespace KGySoft.Drawing.PerformanceTests
 
             DoAssert(() => TransformLighten32_1_Vanilla(color, factor));
             DoAssert(() => TransformLighten32_2_Vector(color, factor));
-            DoAssert(() => TransformLighten32_5_IntrinsicsSse41(color, factor));
             DoAssert(() => TransformLighten32_3_IntrinsicsSse2(color, factor));
             DoAssert(() => TransformLighten32_4_IntrinsicsSse3(color, factor));
             DoAssert(() => TransformLighten32_5_IntrinsicsSse41(color, factor));
@@ -940,6 +1197,215 @@ namespace KGySoft.Drawing.PerformanceTests
             //   #2  93 921 713 iterations in 2 000,00 ms. Adjusted: 93 921 713,00	 <---- Best
             //   #3  91 653 962 iterations in 2 000,00 ms. Adjusted: 91 653 962,00
             //   Worst-Best difference: 6 585 076,00 (7,54%)
+        }
+
+        [Test]
+        public void TransformContrast32Test()
+        {
+            Color32 color = new Color32(128, 255, 64);
+            const float factor = 0.5f;
+
+            Color32 expected = TransformContrastPerChannel32(color, factor, ColorChannels.Rgb);
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<Color32>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                Color32 actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformContrast32_1_Vanilla(color, factor));
+            DoAssert(() => TransformContrast32_2_Vector(color, factor));
+            DoAssert(() => TransformContrast32_3_IntrinsicsFma(color, factor));
+            DoAssert(() => TransformContrast32_4_IntrinsicsSse41(color, factor));
+            DoAssert(() => TransformContrast32_5_IntrinsicsSse3(color, factor));
+            DoAssert(() => TransformContrast32_6_IntrinsicsSse2(color, factor));
+
+            new PerformanceTest<Color32>
+                {
+                    TestName = nameof(TransformContrast32Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformContrastPerChannel32(color, factor, ColorChannels.Rgb), nameof(TransformContrastPerChannel32))
+                .AddCase(() => TransformContrast32_1_Vanilla(color, factor), nameof(TransformContrast32_1_Vanilla))
+                .AddCase(() => TransformContrast32_2_Vector(color, factor), nameof(TransformContrast32_2_Vector))
+                .AddCase(() => TransformContrast32_3_IntrinsicsFma(color, factor), nameof(TransformContrast32_3_IntrinsicsFma))
+                .AddCase(() => TransformContrast32_4_IntrinsicsSse41(color, factor), nameof(TransformContrast32_4_IntrinsicsSse41))
+                .AddCase(() => TransformContrast32_5_IntrinsicsSse3(color, factor), nameof(TransformContrast32_5_IntrinsicsSse3))
+                .AddCase(() => TransformContrast32_6_IntrinsicsSse2(color, factor), nameof(TransformContrast32_6_IntrinsicsSse2))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformContrast32_3_IntrinsicsFma: 294 125 617 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 98 041 872,33
+            //   #1  97 866 065 iterations in 2 000,00 ms. Adjusted: 97 866 065,00
+            //   #2  97 865 546 iterations in 2 000,00 ms. Adjusted: 97 865 546,00	 <---- Worst
+            //   #3  98 394 006 iterations in 2 000,00 ms. Adjusted: 98 394 006,00	 <---- Best
+            //   Worst-Best difference: 528 460,00 (0,54%)
+            // 2. TransformContrast32_4_IntrinsicsSse41: 285 940 659 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 95 313 551,41 (-2 728 320,92 / 97,22%)
+            //   #1  95 436 815 iterations in 2 000,00 ms. Adjusted: 95 436 815,00	 <---- Best
+            //   #2  95 258 082 iterations in 2 000,00 ms. Adjusted: 95 258 082,00
+            //   #3  95 245 762 iterations in 2 000,00 ms. Adjusted: 95 245 757,24	 <---- Worst
+            //   Worst-Best difference: 191 057,76 (0,20%)
+            // 3. TransformContrast32_5_IntrinsicsSse3: 264 229 466 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 88 076 488,67 (-9 965 383,67 / 89,84%)
+            //   #1  88 167 762 iterations in 2 000,00 ms. Adjusted: 88 167 762,00	 <---- Best
+            //   #2  87 925 768 iterations in 2 000,00 ms. Adjusted: 87 925 768,00	 <---- Worst
+            //   #3  88 135 936 iterations in 2 000,00 ms. Adjusted: 88 135 936,00
+            //   Worst-Best difference: 241 994,00 (0,28%)
+            // 4. TransformContrast32_6_IntrinsicsSse2: 253 048 370 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 84 349 456,67 (-13 692 415,67 / 86,03%)
+            //   #1  84 356 868 iterations in 2 000,00 ms. Adjusted: 84 356 868,00
+            //   #2  85 028 692 iterations in 2 000,00 ms. Adjusted: 85 028 692,00	 <---- Best
+            //   #3  83 662 810 iterations in 2 000,00 ms. Adjusted: 83 662 810,00	 <---- Worst
+            //   Worst-Best difference: 1 365 882,00 (1,63%)
+            // 5. TransformContrast32_1_Vanilla: 249 561 800 iterations in 6 000,01 ms. Adjusted for 2 000 ms: 83 187 184,31 (-14 854 688,03 / 84,85%)
+            //   #1  81 812 435 iterations in 2 000,00 ms. Adjusted: 81 812 435,00	 <---- Worst
+            //   #2  83 994 693 iterations in 2 000,00 ms. Adjusted: 83 994 693,00	 <---- Best
+            //   #3  83 754 672 iterations in 2 000,01 ms. Adjusted: 83 754 424,92
+            //   Worst-Best difference: 2 182 258,00 (2,67%)
+            // 6. TransformContrastPerChannel32: 221 736 420 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 73 912 140,00 (-24 129 732,33 / 75,39%)
+            //   #1  76 503 418 iterations in 2 000,00 ms. Adjusted: 76 503 418,00	 <---- Best
+            //   #2  71 798 691 iterations in 2 000,00 ms. Adjusted: 71 798 691,00	 <---- Worst
+            //   #3  73 434 311 iterations in 2 000,00 ms. Adjusted: 73 434 311,00
+            //   Worst-Best difference: 4 704 727,00 (6,55%)
+            // 7. TransformContrast32_2_Vector: 199 762 577 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 66 587 523,45 (-31 454 348,88 / 67,92%)
+            //   #1  64 607 815 iterations in 2 000,00 ms. Adjusted: 64 607 811,77	 <---- Worst
+            //   #2  68 162 776 iterations in 2 000,00 ms. Adjusted: 68 162 772,59	 <---- Best
+            //   #3  66 991 986 iterations in 2 000,00 ms. Adjusted: 66 991 986,00
+            //   Worst-Best difference: 3 554 960,82 (5,50%)
+        }
+
+        [Test]
+        public void TransformContrast64Test()
+        {
+            Color64 color = new Color32(128, 255, 64).ToColor64();
+            const float factor = 0.5f;
+
+            Color64 expected = TransformContrastPerChannel64(color, factor, ColorChannels.Rgb);
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<Color64>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                Color64 actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformContrast64_1_Vanilla(color, factor));
+            DoAssert(() => TransformContrast64_2_Vector(color, factor));
+            DoAssert(() => TransformContrast64_3_IntrinsicsFma(color, factor));
+            DoAssert(() => TransformContrast64_4_IntrinsicsSse41(color, factor));
+
+            new PerformanceTest<Color64>
+                {
+                    TestName = nameof(TransformContrast64Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformContrastPerChannel64(color, factor, ColorChannels.Rgb), nameof(TransformContrastPerChannel64))
+                .AddCase(() => TransformContrast64_1_Vanilla(color, factor), nameof(TransformContrast64_1_Vanilla))
+                .AddCase(() => TransformContrast64_2_Vector(color, factor), nameof(TransformContrast64_2_Vector))
+                .AddCase(() => TransformContrast64_3_IntrinsicsFma(color, factor), nameof(TransformContrast64_3_IntrinsicsFma))
+                .AddCase(() => TransformContrast64_4_IntrinsicsSse41(color, factor), nameof(TransformContrast64_4_IntrinsicsSse41))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformContrast64_3_IntrinsicsFma: 283 164 023 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 94 388 007,67
+            //   #1  94 753 948 iterations in 2 000,00 ms. Adjusted: 94 753 948,00	 <---- Best
+            //   #2  93 807 116 iterations in 2 000,00 ms. Adjusted: 93 807 116,00	 <---- Worst
+            //   #3  94 602 959 iterations in 2 000,00 ms. Adjusted: 94 602 959,00
+            //   Worst-Best difference: 946 832,00 (1,01%)
+            // 2. TransformContrast64_4_IntrinsicsSse41: 276 491 459 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 92 163 819,67 (-2 224 188,00 / 97,64%)
+            //   #1  92 152 308 iterations in 2 000,00 ms. Adjusted: 92 152 308,00
+            //   #2  92 200 745 iterations in 2 000,00 ms. Adjusted: 92 200 745,00	 <---- Best
+            //   #3  92 138 406 iterations in 2 000,00 ms. Adjusted: 92 138 406,00	 <---- Worst
+            //   Worst-Best difference: 62 339,00 (0,07%)
+            // 3. TransformContrast64_1_Vanilla: 249 477 881 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 83 159 293,67 (-11 228 714,00 / 88,10%)
+            //   #1  84 664 812 iterations in 2 000,00 ms. Adjusted: 84 664 812,00	 <---- Best
+            //   #2  84 661 780 iterations in 2 000,00 ms. Adjusted: 84 661 780,00
+            //   #3  80 151 289 iterations in 2 000,00 ms. Adjusted: 80 151 289,00	 <---- Worst
+            //   Worst-Best difference: 4 513 523,00 (5,63%)
+            // 4. TransformContrastPerChannel64: 220 681 351 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 73 560 449,14 (-20 827 558,53 / 77,93%)
+            //   #1  75 486 816 iterations in 2 000,00 ms. Adjusted: 75 486 816,00	 <---- Best
+            //   #2  73 577 211 iterations in 2 000,00 ms. Adjusted: 73 577 211,00
+            //   #3  71 617 324 iterations in 2 000,00 ms. Adjusted: 71 617 320,42	 <---- Worst
+            //   Worst-Best difference: 3 869 495,58 (5,40%)
+            // 5. TransformContrast64_2_Vector: 207 369 256 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 69 123 085,33 (-25 264 922,33 / 73,23%)
+            //   #1  74 540 239 iterations in 2 000,00 ms. Adjusted: 74 540 239,00	 <---- Best
+            //   #2  66 193 685 iterations in 2 000,00 ms. Adjusted: 66 193 685,00	 <---- Worst
+            //   #3  66 635 332 iterations in 2 000,00 ms. Adjusted: 66 635 332,00
+            //   Worst-Best difference: 8 346 554,00 (12,61%)
+        }
+
+        [Test]
+        public void TransformContrastFTest()
+        {
+            ColorF color = new Color32(128, 255, 64).ToColorF();
+            const float factor = 0.5f;
+
+            ColorF expected = TransformContrastPerChannelF(color, factor, ColorChannels.Rgb);
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<ColorF>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                ColorF actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.AreEqual(expected, actual);
+            }
+
+            DoAssert(() => TransformContrastF_1_Vanilla(color, factor));
+            DoAssert(() => TransformContrastF_2_Vector(color, factor));
+            DoAssert(() => TransformContrastF_3_IntrinsicsFma(color, factor));
+            DoAssert(() => TransformContrastF_4_IntrinsicsSse(color, factor));
+
+            new PerformanceTest<ColorF>
+                {
+                    TestName = nameof(TransformContrastFTest),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformContrastPerChannelF(color, factor, ColorChannels.Rgb), nameof(TransformContrastPerChannelF))
+                .AddCase(() => TransformContrastF_1_Vanilla(color, factor), nameof(TransformContrastF_1_Vanilla))
+                .AddCase(() => TransformContrastF_2_Vector(color, factor), nameof(TransformContrastF_2_Vector))
+                .AddCase(() => TransformContrastF_3_IntrinsicsFma(color, factor), nameof(TransformContrastF_3_IntrinsicsFma))
+                .AddCase(() => TransformContrastF_4_IntrinsicsSse(color, factor), nameof(TransformContrastF_4_IntrinsicsSse))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformContrastF_3_IntrinsicsFma: 399 939 703 iterations in 6 000,07 ms. Adjusted for 2 000 ms: 133 311 745,77
+            //   #1  133 105 471 iterations in 2 000,00 ms. Adjusted: 133 105 471,00	 <---- Worst
+            //   #2  133 525 609 iterations in 2 000,00 ms. Adjusted: 133 525 609,00	 <---- Best
+            //   #3  133 308 623 iterations in 2 000,07 ms. Adjusted: 133 304 157,31
+            //   Worst-Best difference: 420 138,00 (0,32%)
+            // 2. TransformContrastF_4_IntrinsicsSse: 379 796 286 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 126 598 762,00 (-6 712 983,77 / 94,96%)
+            //   #1  126 644 779 iterations in 2 000,00 ms. Adjusted: 126 644 779,00
+            //   #2  126 488 470 iterations in 2 000,00 ms. Adjusted: 126 488 470,00	 <---- Worst
+            //   #3  126 663 037 iterations in 2 000,00 ms. Adjusted: 126 663 037,00	 <---- Best
+            //   Worst-Best difference: 174 567,00 (0,14%)
+            // 3. TransformContrastF_2_Vector: 376 818 323 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 125 606 105,58 (-7 705 640,19 / 94,22%)
+            //   #1  130 090 593 iterations in 2 000,00 ms. Adjusted: 130 090 593,00	 <---- Best
+            //   #2  125 292 562 iterations in 2 000,00 ms. Adjusted: 125 292 555,74
+            //   #3  121 435 168 iterations in 2 000,00 ms. Adjusted: 121 435 168,00	 <---- Worst
+            //   Worst-Best difference: 8 655 425,00 (7,13%)
+            // 4. TransformContrastF_1_Vanilla: 310 243 600 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 103 414 531,54 (-29 897 214,23 / 77,57%)
+            //   #1  107 357 503 iterations in 2 000,00 ms. Adjusted: 107 357 497,63	 <---- Best
+            //   #2  106 208 877 iterations in 2 000,00 ms. Adjusted: 106 208 877,00
+            //   #3  96 677 220 iterations in 2 000,00 ms. Adjusted: 96 677 220,00	 <---- Worst
+            //   Worst-Best difference: 10 680 277,63 (11,05%)
+            // 5. TransformContrastPerChannelF: 290 030 725 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 96 676 908,33 (-36 634 837,44 / 72,52%)
+            //   #1  95 533 595 iterations in 2 000,00 ms. Adjusted: 95 533 595,00	 <---- Worst
+            //   #2  98 674 324 iterations in 2 000,00 ms. Adjusted: 98 674 324,00	 <---- Best
+            //   #3  95 822 806 iterations in 2 000,00 ms. Adjusted: 95 822 806,00
+            //   Worst-Best difference: 3 140 729,00 (3,29%)
         }
 
         #endregion

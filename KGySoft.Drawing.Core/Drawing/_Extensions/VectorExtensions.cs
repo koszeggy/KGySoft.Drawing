@@ -43,27 +43,49 @@ namespace KGySoft.Drawing
         internal static Vector128<byte> PackHighBytesOfLowWordsMask => Vector128.Create(1, 5, 9, 13, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraBytesMask => Vector128.Create(8, 4, 0, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraWordsMask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
+#if NET8_0_OR_GREATER
+        internal static Vector128<float> OneF => Vector128<float>.One;
+#else
+        internal static Vector128<float> OneF => Vector128.Create(1f);
+#endif
+        internal static Vector128<float> Max8BitF => Vector128.Create(255f);
+        internal static Vector128<int> Max8BitI32 => Vector128.Create(255);
+        internal static Vector128<float> Max16BitF => Vector128.Create(65535f);
+        internal static Vector128<int> Max16BitI32 => Vector128.Create(65535);
+        internal static Vector128<float> HalfF => Vector128.Create(0.5f);
 #elif NETCOREAPP3_0_OR_GREATER
         internal static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackLowWordsMask { get; } = Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, default(byte), default, default, default, default, default, default, default);
         internal static Vector128<byte> PackHighBytesOfLowWordsMask { get; } = Vector128.Create(1, 5, 9, 13, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraBytesMask { get; } = Vector128.Create(8, 4, 0, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraWordsMask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
+        internal static Vector128<float> OneF { get; } = Vector128.Create(1f);
+        internal static Vector128<float> Max8BitF { get; } = Vector128.Create(255f);
+        internal static Vector128<int> Max8BitI32 { get; } = Vector128.Create(255);
+        internal static Vector128<float> Max16BitF { get; } = Vector128.Create(65535f);
+        internal static Vector128<int> Max16BitI32 { get; } = Vector128.Create(65535);
+        internal static Vector128<float> HalfF { get; } = Vector128.Create(0.5f);
 #endif
 
 #if NET5_0_OR_GREATER
         // In .NET 5.0 and above these perform better as inlined rather than caching a static field
         internal static Vector4 Max8Bit => new Vector4(255f);
+        internal static Vector3 Max8Bit3 => new Vector3(255f);
         internal static Vector4 Max8BitRecip => new Vector4(1f / 255f);
         internal static Vector4 Max16Bit => new Vector4(65535f);
+        internal static Vector3 Max16Bit3 => new Vector3(65535f);
         internal static Vector4 Max16BitRecip => new Vector4(1f / 65535f);
         internal static Vector4 Half => new Vector4(0.5f);
+        internal static Vector3 Half3 => new Vector3(0.5f);
 #elif NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
         internal static Vector4 Max8Bit { get; } = new Vector4(Byte.MaxValue);
+        internal static Vector3 Max8Bit3 { get; } = new Vector3(Byte.MaxValue);
         internal static Vector4 Max8BitRecip { get; } = new Vector4(1f / Byte.MaxValue);
         internal static Vector4 Max16Bit { get; } = new Vector4(UInt16.MaxValue);
+        internal static Vector3 Max16Bit3 { get; } = new Vector3(UInt16.MaxValue);
         internal static Vector4 Max16BitRecip { get; } = new Vector4(1f / UInt16.MaxValue);
         internal static Vector4 Half { get; } = new Vector4(0.5f);
+        internal static Vector3 Half3 { get; } = new Vector3(0.5f);
 #endif
 
 
@@ -97,7 +119,7 @@ namespace KGySoft.Drawing
 #if NET8_0_OR_GREATER
                 return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector4();
 #else
-                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f));
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), OneF);
                 return result.AsVector4();
 #endif
             }
@@ -119,12 +141,8 @@ namespace KGySoft.Drawing
 #if NETCOREAPP3_0_OR_GREATER
             if (Sse.IsSupported)
             {
-#if NET8_0_OR_GREATER
-                return Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128<float>.One).AsVector3();
-#else
-                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), Vector128.Create(1f));
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), Vector128<float>.Zero), OneF);
                 return result.AsVector3();
-#endif
             }
 #endif
 #if NET9_0_OR_GREATER
@@ -135,6 +153,27 @@ namespace KGySoft.Drawing
             return new Vector3(v.X.ClipF(), v.Y.ClipF(), v.Z.ClipF());
 #endif
         }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> ClipF(this Vector128<float> v)
+        {
+            // SSE._mm_min_ps/_mm_max_ps are reliable in replacing NaN values: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
+            if (Sse41.IsSupported)
+                return Sse.Min(Sse.Max(v, Vector128<float>.Zero), OneF);
+
+            Debug.Fail("Do not call this method when intrinsics are not supported.");
+#if NET9_0_OR_GREATER
+            // There is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector128.MinNumber(Vector128.MaxNumber(v, Vector128<float>.Zero), OneF);
+#else
+            return Vector128.Create(v.GetElement(0).ClipF(),
+                v.GetElement(1).ClipF(),
+                v.GetElement(2).ClipF(),
+                v.GetElement(3).ClipF());
+#endif
+        }
+#endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector4 Clip(this Vector4 v, Vector4 min, Vector4 max)
@@ -158,6 +197,69 @@ namespace KGySoft.Drawing
 #else
             // The non-accelerated fallback version that returns 0f for NaN
             return new Vector4(v.X.Clip(min.X, max.X), v.Y.Clip(min.Y, max.Y), v.Z.Clip(min.Z, max.Z), v.W.Clip(min.W, max.W));
+#endif
+        }
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<int> Clip(this Vector128<int> v, Vector128<int> min, Vector128<int> max)
+        {
+            if (Sse41.IsSupported)
+                return Sse41.Min(Sse41.Max(v, min), max);
+
+            Debug.Fail("It is not expected to call this method when SSE 4.1 intrinsics are not supported.");
+#if NET9_0_OR_GREATER
+            return Vector128.Clamp(v, min, max);
+#else
+            return Vector128.Create(v.GetElement(0).Clip(min.GetElement(0), max.GetElement(0)),
+                v.GetElement(1).Clip(min.GetElement(1), max.GetElement(1)),
+                v.GetElement(2).Clip(min.GetElement(2), max.GetElement(2)),
+                v.GetElement(3).Clip(min.GetElement(3), max.GetElement(3)));
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> Clip(this Vector128<float> v, Vector128<float> min, Vector128<float> max)
+        {
+            // SSE._mm_min_ps/_mm_max_ps are reliable in replacing NaN values: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
+            if (Sse.IsSupported)
+                return Sse.Min(Sse.Max(v, min), max);
+
+            Debug.Fail("It is not expected to call this method when SSE intrinsics are not supported.");
+#if NET9_0_OR_GREATER
+            // There is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector128.MinNumber(Vector128.MaxNumber(v, min), max);
+#else
+            return Vector128.Create(v.GetElement(0).Clip(min.GetElement(0), max.GetElement(0)),
+                v.GetElement(1).Clip(min.GetElement(1), max.GetElement(1)),
+                v.GetElement(2).Clip(min.GetElement(2), max.GetElement(2)),
+                v.GetElement(3).Clip(min.GetElement(3), max.GetElement(3)));
+#endif
+        }
+#endif
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector3 Clip(this Vector3 v, Vector3 min, Vector3 max)
+        {
+            // Vector*.Min/Max/Clamp are not reliable in handling NaN: https://github.com/dotnet/runtime/discussions/83683
+            // But we can use SSE._mm_min_ps/_mm_max_ps if available, which replaces NaN as we need: https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=minps&ig_expand=4918,4521
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse.IsSupported)
+            {
+#if NET5_0_OR_GREATER
+                return Sse.Min(Sse.Max(v.AsVector128(), min.AsVector128()), max.AsVector128()).AsVector3();
+#else
+                Vector128<float> result = Sse.Min(Sse.Max(v.AsVector128(), min.AsVector128()), max.AsVector128());
+                return result.AsVector3();
+#endif
+            }
+#endif
+#if NET9_0_OR_GREATER
+            // there is no ClampNumber, but MinNumber and MaxNumber handle NaN as needed
+            return Vector3.MinNumber(Vector3.MaxNumber(v, min), max);
+#else
+            // The non-accelerated fallback version that returns 0f for NaN
+            return new Vector3(v.X.Clip(min.X, max.X), v.Y.Clip(min.Y, max.Y), v.Z.Clip(min.Z, max.Z));
 #endif
         }
 
