@@ -579,8 +579,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 // Sse2.ConvertToVector128Int32 performs actual rounding
                 // so we can spare the additional operation +0.5 of the non-accelerated version.
-                Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), Vector128.Create(255f));
-                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), Vector128.Create(255f));
+                Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), VectorExtensions.Max8BitF);
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), VectorExtensions.Max8BitF);
                 Vector128<byte> rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsByte();
                 return Ssse3.IsSupported
                     ? new Color32(Ssse3.Shuffle(rgbaI32, VectorExtensions.PackRgbaAsBgraBytesMask).AsUInt32().ToScalar())
@@ -608,8 +608,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 // Sse2.ConvertToVector128Int32 performs actual rounding
                 // so we can spare the additional operation +0.5 of the non-accelerated version.
-                Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), Vector128.Create(65535f));
-                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), Vector128.Create(65535f));
+                Vector128<float> rgbaF = Sse.Multiply(ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128), VectorExtensions.Max16BitF);
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), VectorExtensions.Max16BitF);
                 Vector128<ushort> rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsUInt16();
                 return Ssse3.IsSupported
                     ? new Color64(Ssse3.Shuffle(rgbaI32.AsByte(), VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar())

@@ -373,7 +373,7 @@ namespace KGySoft.Drawing.Imaging
                             // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(B, G, R, default));
 
-                        bgrxF = Sse.Multiply(bgrxF, Vector128.Create(255f));
+                        bgrxF = Sse.Multiply(bgrxF, VectorExtensions.Max8BitF);
 
                         Vector128<int> aI32;
                         if (Sse41.IsSupported)

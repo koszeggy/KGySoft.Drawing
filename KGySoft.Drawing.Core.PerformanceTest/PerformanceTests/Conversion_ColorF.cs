@@ -268,9 +268,9 @@ namespace KGySoft.Drawing.PerformanceTests
 #endif
                 {
 #if NET7_0_OR_GREATER
-                    if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), Vector128.Create(1f)))
+                    if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
 #else
-                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), Vector128.Create(1f)).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
+                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), VectorExtensions.OneF).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
 #endif
                     {
                         Vector128<float> resultF = Vector128.Create(
@@ -332,13 +332,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 if (c.Rgb.LessThanAll(1f))
                 {
                     Vector3 result = new Vector3(MathF.Pow(c.R, 1f / 2.4f), MathF.Pow(c.G, 1f / 2.4f), MathF.Pow(c.B, 1f / 2.4f));
-                    result = (result * 1.055f - new Vector3(0.055f)) * 255f + new Vector3(0.5f);
+                    result = (result * 1.055f - new Vector3(0.055f)) * 255f + VectorExtensions.Half3;
                     return new Color32(ColorSpaceHelper.ToByte(c.A), (byte)result.X, (byte)result.Y, (byte)result.Z);
                 }
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + VectorExtensions.Half3;
                 return new Color32(ColorSpaceHelper.ToByte(c.A), (byte)result.X, (byte)result.Y, (byte)result.Z);
             }
 
@@ -364,24 +364,24 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NET7_0_OR_GREATER
                     if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), Vector4.One.AsVector128()))
 #else
-                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), Vector128.Create(1f)).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
+                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), VectorExtensions.OneF).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
 #endif
                     {
                         Vector128<float> resultF = Vector128.Create(MathF.Pow(c.R, 1f / 2.4f), MathF.Pow(c.G, 1f / 2.4f), MathF.Pow(c.B, 1f / 2.4f), 0f);
                         if (Fma.IsSupported)
                         {
                             resultF = Fma.MultiplyAdd(resultF, Vector128.Create(1.055f), Vector128.Create(-0.055f));
-                            //resultF = Fma.MultiplyAdd(resultF.WithElement(3, c.A.ClipF()), Vector128.Create(255f), Vector128.Create(0.5f));
+                            //resultF = Fma.MultiplyAdd(resultF.WithElement(3, c.A.ClipF()), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
                         }
                         else
                         {
                             resultF = Sse.Multiply(resultF, Vector128.Create(1.055f));
                             resultF = Sse.Subtract(resultF, Vector128.Create(0.055f));
-                            //resultF = Sse.Multiply(resultF.WithElement(3, c.A.ClipF()), Vector128.Create(255f));
-                            //resultF = Sse.Add(resultF, Vector128.Create(0.5f));
+                            //resultF = Sse.Multiply(resultF.WithElement(3, c.A.ClipF()), VectorExtensions.Max8BitF);
+                            //resultF = Sse.Add(resultF, VectorExtensions.HalfF);
                         }
 
-                        resultF = Sse.Multiply(resultF.WithElement(3, c.A.ClipF()), Vector128.Create(255f));
+                        resultF = Sse.Multiply(resultF.WithElement(3, c.A.ClipF()), VectorExtensions.Max8BitF);
 
                         result = Sse2.ConvertToVector128Int32(resultF).AsByte();
                         return Ssse3.IsSupported
@@ -396,7 +396,7 @@ namespace KGySoft.Drawing.PerformanceTests
 #endif
                 {
                     Vector128<float> resultF = Sse.Multiply(c.RgbaV128, Vector128.Create(12.92f)).WithElement(3, c.A.ClipF());
-                    resultF = Sse.Multiply(resultF, Vector128.Create(255f));
+                    resultF = Sse.Multiply(resultF, VectorExtensions.Max8BitF);
 
                     result = Sse2.ConvertToVector128Int32(resultF).AsByte();
                     return Ssse3.IsSupported
@@ -404,7 +404,7 @@ namespace KGySoft.Drawing.PerformanceTests
                         : new Color32(result.GetElement(12), result.GetElement(0), result.GetElement(4), result.GetElement(8));
                 }
 
-                result = Sse2.ConvertToVector128Int32(Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, Vector128.Create(255f))).AsByte();
+                result = Sse2.ConvertToVector128Int32(Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, VectorExtensions.Max8BitF)).AsByte();
                 return Ssse3.IsSupported
                     ? new Color32(Ssse3.Shuffle(result, PackRgbaAsColor32Mask).AsUInt32().ToScalar())
                     : new Color32(result.GetElement(12), result.GetElement(0), result.GetElement(4), result.GetElement(8));
@@ -421,7 +421,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             if (Sse2.IsSupported)
             {
-                var resultF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, Vector128.Create(255f));
+                var resultF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, VectorExtensions.Max8BitF);
                 var result = Sse2.ConvertToVector128Int32(resultF).AsByte();
                 return Ssse3.IsSupported
                     ? new Color32(Ssse3.Shuffle(result, PackRgbaAsColor32Mask).AsUInt32().ToScalar())
@@ -439,7 +439,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             if (Sse2.IsSupported)
             {
-                var resultF = Sse.Multiply(c.RgbaV128.ToSrgb_2_Intrinsics(), Vector128.Create(255f));
+                var resultF = Sse.Multiply(c.RgbaV128.ToSrgb_2_Intrinsics(), VectorExtensions.Max8BitF);
                 var result = Sse2.ConvertToVector128Int32(resultF).AsByte();
                 return Ssse3.IsSupported
                     ? new Color32(Ssse3.Shuffle(result, PackRgbaAsColor32Mask).AsUInt32().ToScalar())
@@ -468,13 +468,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 if (c.Rgb.LessThanAll(1f))
                 {
                     Vector3 result = new Vector3(MathF.Pow(c.R, 1f / 2.4f), MathF.Pow(c.G, 1f / 2.4f), MathF.Pow(c.B, 1f / 2.4f));
-                    result = (result * 1.055f - new Vector3(0.055f)) * 65535f + new Vector3(0.5f);
+                    result = (result * 1.055f - new Vector3(0.055f)) * 65535f + VectorExtensions.Half3;
                     return new Color64(ColorSpaceHelper.ToUInt16(c.A), (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
                 }
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + VectorExtensions.Half3;
                 return new Color64(ColorSpaceHelper.ToUInt16(c.A), (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
             }
 
@@ -489,7 +489,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             if (Sse2.IsSupported)
             {
-                var rgbaF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, Vector128.Create(65535f));
+                var rgbaF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, VectorExtensions.Max16BitF);
                 var rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsUInt16();
                 return Ssse3.IsSupported
                     ? new Color64(Ssse3.Shuffle(rgbaI32.AsByte(), PackRgbaAsColor64Mask).AsUInt64().ToScalar())

@@ -438,7 +438,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
 
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
+                        bgraF = Sse.Multiply(bgraF, VectorExtensions.Max8BitF);
                         bgraF = Sse.Divide(bgraF, Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(c.A))));
                         Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
 
@@ -467,7 +467,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Vector128.Create(c.B, c.G, c.R, default));
 
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
+                        bgraF = Sse.Multiply(bgraF, VectorExtensions.Max8BitF);
 
                         // cannot just use Create((int)c.A), see https://github.com/dotnet/runtime/issues/83387
                         int a = c.A;
@@ -500,7 +500,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Vector128.Create(c.B, c.G, c.R, default));
 
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
+                        bgraF = Sse.Multiply(bgraF, VectorExtensions.Max8BitF);
 
                         // cannot just use Create((int)c.A), see https://github.com/dotnet/runtime/issues/83387
                         int a = c.A;

@@ -452,7 +452,7 @@ namespace KGySoft.Drawing.Imaging
                         // and cannot use Sse.Reciprocal because it has only 1.5*2^-12 precision.
                         bgrxF = Sse.Divide(bgrxF, Sse2.ConvertToVector128Single(aI32));
 
-                        bgrxF = Sse.Multiply(bgrxF, Vector128.Create(65535f));
+                        bgrxF = Sse.Multiply(bgrxF, VectorExtensions.Max16BitF);
 
                         // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
                         // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
@@ -536,7 +536,7 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         bgrxF = Sse.Divide(bgrxF, Sse2.ConvertToVector128Single(aI32));
-                        bgrxF = Sse.Multiply(bgrxF, Vector128.Create(65535f));
+                        bgrxF = Sse.Multiply(bgrxF, VectorExtensions.Max16BitF);
 
                         Vector128<byte> bgraI32 = Sse2.ConvertToVector128Int32(bgrxF).AsUInt16().WithElement(6, A).AsByte();
 

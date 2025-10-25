@@ -1030,7 +1030,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 resultF = Sse.Multiply(resultF, Sse2.ConvertToVector128Single(Vector128.Create(inverseAlpha)));
 
                 // resultF = (bgrF + resultF) / 255f
-                resultF = Sse.Divide(Sse.Add(bgrF, resultF), Vector128.Create(255f));
+                resultF = Sse.Divide(Sse.Add(bgrF, resultF), VectorExtensions.Max8BitF);
 
                 Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(resultF);
 
@@ -1071,7 +1071,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 resultF = Sse.Multiply(resultF, Sse2.ConvertToVector128Single(Vector128.Create(inverseAlpha)));
 
                 // resultF = (bgrF + resultF) / 255f
-                resultF = Sse.Divide(Sse.Add(bgrF, resultF), Vector128.Create(255f));
+                resultF = Sse.Divide(Sse.Add(bgrF, resultF), VectorExtensions.Max8BitF);
 
 
                 // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
@@ -1117,7 +1117,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 resultF = Sse.Multiply(resultF, Sse2.ConvertToVector128Single(Vector128.Create(inverseAlpha)));
 
                 // resultF = (bgrF + resultF) / 255f
-                resultF = Sse.Divide(Sse.Add(bgrF, resultF), Vector128.Create(255f));
+                resultF = Sse.Divide(Sse.Add(bgrF, resultF), VectorExtensions.Max8BitF);
 
                 // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
                 // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
@@ -1167,7 +1167,7 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NET8_0_OR_GREATER
                 resultF = (bgrF + resultF) / 255f;
 #else
-                resultF = (bgrF + resultF) / Vector128.Create(255f);
+                resultF = (bgrF + resultF) / VectorExtensions.Max8BitF;
 #endif
 
                 Vector128<int> bgraI32 = Vector128.ConvertToInt32(resultF);

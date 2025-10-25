@@ -290,7 +290,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     Vector128<float> v = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
                     //v = Avx.Multiply(v, Vector128.Create((float)c.A));
                     v = Sse.Multiply(v, Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(c.A))));
-                    v = Sse.Divide(v, Vector128.Create(65535f));
+                    v = Sse.Divide(v, VectorExtensions.Max16BitF);
                     Vector128<int> vi = Sse2.ConvertToVector128Int32WithTruncation(v);
                     return new PColor64(c.A, (ushort)vi.GetElement(2), (ushort)vi.GetElement(1), (ushort)vi.GetElement(0));
             }
@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 default:
                     //Vector128<float> v = Vector128.Create(c.R, c.G, c.B, 0f);
                     Vector128<float> v = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
-                    v = Sse.Multiply(v, Vector128.Create(65535f));
+                    v = Sse.Multiply(v, VectorExtensions.Max16BitF);
                     //v = Avx.Divide(v, Vector128.Create((float)c.A));
                     v = Sse.Divide(v, Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(c.A))));
                     Vector128<int> vi = Sse2.ConvertToVector128Int32WithTruncation(v);
@@ -390,7 +390,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     Vector128<float> v = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()));
                     //v = Sse.Multiply(v, Sse.Reciprocal(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(c.A)))));
                     v = Sse.Multiply(v, Vector128.Create(1f / c.A)); // Sse.Reciprocal has only 1.5*2^-12 precision
-                    v = Sse.Multiply(v, Vector128.Create(65535f));
+                    v = Sse.Multiply(v, VectorExtensions.Max16BitF);
                     //v = Avx.Divide(v, Vector128.Create((float)c.A));
                     //v = Sse.Divide(v, Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(c.A))));
                     Vector128<int> vi = Sse2.ConvertToVector128Int32WithTruncation(v);
@@ -603,7 +603,7 @@ namespace KGySoft.Drawing.PerformanceTests
                             ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
                             : Vector128.Create((int)c.A)));
 
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(65535f));
+                        bgraF = Sse.Multiply(bgraF, VectorExtensions.Max16BitF);
 
                         Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
 

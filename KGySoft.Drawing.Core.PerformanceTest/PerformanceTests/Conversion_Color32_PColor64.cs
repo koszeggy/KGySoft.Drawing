@@ -102,7 +102,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
                 : Vector128.Create((int)c.A)));
 
-            bgraF = Sse.Multiply(bgraF, Vector128.Create(65535f));
+            bgraF = Sse.Multiply(bgraF, VectorExtensions.Max16BitF);
 
             Vector128<byte> bgraI32 = Sse2.ConvertToVector128Int32(bgraF).AsUInt16().WithElement(6, c.A).AsByte();
 
@@ -120,7 +120,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
                 : Vector128.Create((int)c.A)));
 
-            bgraF = Sse.Multiply(bgraF, Vector128.Create(65535f));
+            bgraF = Sse.Multiply(bgraF, VectorExtensions.Max16BitF);
 
             Vector128<byte> bgraI32 = Sse2.ConvertToVector128Int32(bgraF).AsUInt16().WithElement(6, c.A).AsByte();
 

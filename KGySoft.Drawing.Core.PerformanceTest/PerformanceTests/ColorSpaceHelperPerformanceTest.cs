@@ -179,9 +179,9 @@ namespace KGySoft.Drawing.PerformanceTests
 #endif
                 {
 #if NET7_0_OR_GREATER
-                    if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), Vector128.Create(1f)))
+                    if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
 #else
-                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), Vector128.Create(1f)).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
+                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), VectorExtensions.OneF).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
 #endif
                     {
                         // If all of the RGB components are between 0.0031308 and 1 we need to the same operations on them.
