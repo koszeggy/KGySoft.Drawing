@@ -2998,18 +2998,18 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
+            AdjustDitherer(bitmapData, ref ditherer);
             if (ditherer == null)
             {
                 var pixelFormat = bitmapData.PixelFormat;
-                if (pixelFormat.Prefers128BitColors && (newColor.A is Byte.MinValue or Byte.MaxValue)
-                    || (newColor.A is not (Byte.MinValue or Byte.MaxValue) && (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)))
+                if (pixelFormat.Prefers128BitColors)
                 {
                     ColorF oldColorF = oldColor.ToColorF();
                     ColorF newColorF = newColor.ToColorF();
                     return DoTransformColors(context, bitmapData, c => TransformReplaceColorF(c, oldColorF, newColorF));
                 }
 
-                if (pixelFormat.IsWide)
+                if (pixelFormat.Prefers64BitColors)
                 {
                     Color64 oldColor64 = oldColor.ToColor64();
                     Color64 newColor64 = newColor.ToColor64();
@@ -3121,16 +3121,19 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                     return DoTransformColors(context, bitmapData, TransformInvertF);
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, TransformInvert64);
             }
 
-            return DoTransformColors(context, bitmapData, TransformInvert32, ditherer);
+            return DoTransformColors(context, bitmapData, linear ? c => TransformInvertF(c.ToColorF()).ToColor32() : TransformInvert32, ditherer);
         }
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
@@ -3341,17 +3344,20 @@ namespace KGySoft.Drawing.Imaging
                 darken = true;
             }
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                 {
                     return DoTransformColors(context, bitmapData, darken
                         ? channels == ColorChannels.Rgb ? c => TransformDarkenF(c, brightness) : c => TransformDarkenPerChannelF(c, brightness, channels)
                         : channels == ColorChannels.Rgb ? c => TransformLightenF(c, brightness) : c => TransformLightenPerChannelF(c, brightness, channels));
                 }
 
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                 {
                     return DoTransformColors(context, bitmapData, darken
                         ? channels == ColorChannels.Rgb ? c => TransformDarken64(c, brightness) : c => TransformDarkenPerChannel64(c, brightness, channels)
@@ -3360,8 +3366,12 @@ namespace KGySoft.Drawing.Imaging
             }
 
             return DoTransformColors(context, bitmapData, darken
-                    ? channels == ColorChannels.Rgb ? c => TransformDarken32(c, brightness) : c => TransformDarkenPerChannel32(c, brightness, channels)
-                    : channels == ColorChannels.Rgb ? c => TransformLighten32(c, brightness) : c => TransformLightenPerChannel32(c, brightness, channels),
+                    ? channels == ColorChannels.Rgb
+                        ? linear ? c => TransformDarkenF(c.ToColorF(), brightness).ToColor32() : c => TransformDarken32(c, brightness)
+                        : linear ? c => TransformDarkenPerChannelF(c.ToColorF(), brightness, channels).ToColor32() : c => TransformDarkenPerChannel32(c, brightness, channels)
+                    : channels == ColorChannels.Rgb
+                        ? linear ? c => TransformLightenF(c.ToColorF(), brightness).ToColor32() : c => TransformLighten32(c, brightness)
+                        : linear ? c => TransformLightenPerChannelF(c.ToColorF(), brightness, channels).ToColor32() : c => TransformLightenPerChannel32(c, brightness, channels),
                 ditherer);
         }
 
@@ -3471,16 +3481,22 @@ namespace KGySoft.Drawing.Imaging
             contrast += 1f;
             contrast *= contrast;
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                     return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformContrastF(c, contrast) : c => TransformContrastPerChannelF(c, contrast, channels));
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformContrast64(c, contrast) : c => TransformContrastPerChannel64(c, contrast, channels));
             }
 
-            return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformContrast32(c, contrast) : c => TransformContrastPerChannel32(c, contrast, channels), ditherer);
+            return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb
+                    ? linear ? c => TransformContrastF(c.ToColorF(), contrast).ToColor32() : c => TransformContrast32(c, contrast)
+                    : linear ? c => TransformContrastPerChannelF(c.ToColorF(), contrast, channels).ToColor32() : c => TransformContrastPerChannel32(c, contrast, channels),
+                ditherer);
         }
 
         private static bool DoAdjustGamma(IAsyncContext context, IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer, ColorChannels channels)
@@ -3523,17 +3539,23 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                     return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGammaF(c, gamma) : c => TransformGammaPerChannelF(c, channels, gamma));
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                 {
                     ushort[] table64 = GammaLookupTableCache64[gamma];
                     return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGamma64(c, table64) : c => TransformGammaPerChannel64(c, channels, table64));
                 }
             }
+
+            if (linear)
+                return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGammaF(c.ToColorF(), gamma).ToColor32() : c => TransformGammaPerChannelF(c.ToColorF(), channels, gamma).ToColor32(), ditherer);
 
             byte[] table32 = GammaLookupTableCache32[gamma];
             return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGamma32(c, table32) : c => TransformGammaPerChannel32(c, channels, table32), ditherer);
@@ -3549,21 +3571,32 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             backColor = backColor.ToOpaque();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                 {
                     ColorF backColorF = backColor.ToColorF();
                     return DoTransformColors(context, bitmapData, c => TransformMakeOpaqueF(c, backColorF));
                 }
 
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                 {
                     Color64 backColor64 = backColor.ToColor64();
                     return DoTransformColors(context, bitmapData, c => TransformMakeOpaque64(c, backColor64));
                 }
+            }
+
+            if (linear)
+            {
+                // We could use a TransformMakeOpaque32Linear method like in DoMakeGrayscale and call BlendWithBackgroundLinear for Color32 from there,
+                // but that would convert backColor to ColorF for every pixel, which is less efficient.
+                ColorF backColorF = backColor.ToColorF();
+                return DoTransformColors(context, bitmapData, c => TransformMakeOpaqueF(c.ToColorF(), backColorF).ToColor32(), ditherer);
             }
 
             return DoTransformColors(context, bitmapData, c => TransformMakeOpaque32(c, backColor), ditherer);
@@ -3576,21 +3609,24 @@ namespace KGySoft.Drawing.Imaging
             static Color32 TransformMakeGrayscale32(Color32 c) => c.ToGray();
             static Color64 TransformMakeGrayscale64(Color64 c) => c.ToGray();
             static ColorF TransformMakeGrayscaleF(ColorF c) => c.ToGray();
+            static Color32 TransformMakeGrayscale32Linear(Color32 c) => c.ToGray(WorkingColorSpace.Linear);
 
             #endregion
 
+            // Determining ColorF usage by IsLinearGamma rather than Prefers128BitColors, because the transform function produces a color space dependent result.
+            // When there is dithering, we must use Color32, regardless of the color space.
+            AdjustDitherer(bitmapData, ref ditherer);
+            bool linear = bitmapData.IsLinearGamma();
             if (ditherer == null)
             {
-                var pixelFormat = bitmapData.PixelFormat;
-                if (bitmapData.IsLinearGamma() || pixelFormat.Prefers128BitColors && bitmapData.WorkingColorSpace != WorkingColorSpace.Srgb)
+                if (linear)
                     return DoTransformColors(context, bitmapData, TransformMakeGrayscaleF);
-                if (pixelFormat.IsWide)
+                if (bitmapData.PixelFormat.IsWide)
                     return DoTransformColors(context, bitmapData, TransformMakeGrayscale64);
             }
 
-            return DoTransformColors(context, bitmapData, TransformMakeGrayscale32, ditherer);
+            return DoTransformColors(context, bitmapData, linear ? TransformMakeGrayscale32Linear : TransformMakeGrayscale32, ditherer);
         }
-
 
         private static byte[] GenerateGammaLookupTable32(float gamma)
         {

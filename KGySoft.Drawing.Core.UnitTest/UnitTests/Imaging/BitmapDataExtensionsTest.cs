@@ -1006,6 +1006,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [Test]
+        public void TransformVsColorSpaceTest()
+        {
+            // testing if dithering still uses correct color space during transformations
+            using var bmpDataRef = GetInfoIcon256().Clone(KnownPixelFormat.Format16bppArgb1555);
+
+            using var transformedLinearSimple = bmpDataRef.Clone(WorkingColorSpace.Linear);
+            transformedLinearSimple.Invert();
+
+            using var transformedLinearDithered = bmpDataRef.Clone(WorkingColorSpace.Linear);
+            transformedLinearDithered.Invert(OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Constant));
+
+            // max difference between 8 and 5 bpp colors is 8 in each channel (linear color space: only when using constant auto strength mode for dithering)
+            AssertAreEqual(transformedLinearSimple, transformedLinearDithered, false, tolerance: 8);
+        }
+
         [Explicit]
         [TestCase(WorkingColorSpace.Srgb)]
         [TestCase(WorkingColorSpace.Linear)]

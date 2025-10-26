@@ -142,6 +142,14 @@ namespace KGySoft.Drawing.Imaging
                 ditherer = null;
         }
 
+        internal static void AdjustDitherer(this IBitmapData target, ref IDitherer? ditherer)
+        {
+            if (ditherer == null)
+                return;
+            if (!target.PixelFormat.CanBeDithered)
+                ditherer = null;
+        }
+
         #endregion
 
         #region Private Methods
