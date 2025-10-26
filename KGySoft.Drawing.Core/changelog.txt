@@ -43,6 +43,8 @@
   * TransformColorsAsync/AdjustBrightnessAsync/AdjustContrastAsync/ClearAsync/CopyToAsync/DitherAsync/DrawIntoAsync/
     InvertAsync/MakeGrayscaleAsync/MakeOpaqueAsync/MakeTransparentAsync/QuantizeAsync/ReplaceColorAsync methods:
     The return type has been changed to Task<bool> from Task.
+  - Clone/BeginClone/CloneAsync methods: Fixing palette color space when creating an exact clone with identical
+    pixel format of an indexed bitmap with a different color space.
 * BitmapDataFactory class:
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:

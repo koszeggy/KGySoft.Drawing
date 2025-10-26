@@ -1022,6 +1022,27 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(transformedLinearSimple, transformedLinearDithered, false, tolerance: 8);
         }
 
+        [Test]
+        public void CorrectPaletteColorSpaceTest()
+        {
+            // testing if dithering still uses correct color space during transformations
+            using var bmpDataRef = GetInfoIcon256().Clone(KnownPixelFormat.Format8bppIndexed);
+
+            using (var clonedLinear = bmpDataRef.Clone(WorkingColorSpace.Linear))
+            {
+                Assert.AreEqual(bmpDataRef.PixelFormat, clonedLinear.PixelFormat);
+                Assert.AreEqual(WorkingColorSpace.Linear, clonedLinear.WorkingColorSpace);
+                Assert.AreEqual(WorkingColorSpace.Linear, clonedLinear.Palette?.WorkingColorSpace);
+            }
+
+            using (var clonedLinear = bmpDataRef.Clone(bmpDataRef.PixelFormat.AsKnownPixelFormatInternal, WorkingColorSpace.Linear))
+            {
+                Assert.AreEqual(bmpDataRef.PixelFormat, clonedLinear.PixelFormat);
+                Assert.AreEqual(WorkingColorSpace.Linear, clonedLinear.WorkingColorSpace);
+                Assert.AreEqual(WorkingColorSpace.Linear, clonedLinear.Palette?.WorkingColorSpace);
+            }
+        }
+
         [Explicit]
         [TestCase(WorkingColorSpace.Srgb)]
         [TestCase(WorkingColorSpace.Linear)]

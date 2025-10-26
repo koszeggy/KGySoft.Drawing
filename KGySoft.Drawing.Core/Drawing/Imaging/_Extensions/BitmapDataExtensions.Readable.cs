@@ -4249,13 +4249,16 @@ namespace KGySoft.Drawing.Imaging
             Size size = source.Size;
             var session = new CopySession(context) { SourceRectangle = new Rectangle(Point.Empty, size) };
             Unwrap(ref source, ref session.SourceRectangle);
-            session.TargetRectangle = session.SourceRectangle;
 
+            Palette? palette = source.Palette;
+            if (palette != null && palette.WorkingColorSpace != workingColorSpace)
+                palette = new Palette(palette, workingColorSpace, palette.BackColor, palette.AlphaThreshold);
+
+            session.TargetRectangle = session.SourceRectangle;
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData { BackBufferIndependentPixelAccess: true } customBitmapData
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
-                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
-                    source.BackColor, source.AlphaThreshold, workingColorSpace, source.Palette);
+                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(), source.BackColor, source.AlphaThreshold, workingColorSpace, palette);
             bool canceled = false;
             try
             {
@@ -4294,9 +4297,11 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
+                {
                     palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold && workingColorSpace == source.Palette.WorkingColorSpace
                         ? source.Palette
-                        : new Palette(source.Palette.Entries, backColor, alphaThreshold, workingColorSpace, null);
+                        : new Palette(source.Palette, workingColorSpace, backColor, alphaThreshold);
+                }
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
