@@ -28,8 +28,23 @@ namespace KGySoft.Drawing
     {
         #region Constants
 
+        #region Internal Constants
+
+#if NETCOREAPP3_0_OR_GREATER
+
+        internal const float MinPreciseIntAsFloat = -2_147_483_392f; // The smallest integer that can be precisely represented by a float
+        internal const float MaxPreciseIntAsFloat = 2_147_483_392f; // The largest integer that can be precisely represented by a float
+
+#endif
+
+        #endregion
+
+        #region Private Constants
+
         private const float oneDegreeInRadian = MathF.PI / 180f;
         private const float oneRadianInDegree = 1f / oneDegreeInRadian;
+
+        #endregion
 
         #endregion
 

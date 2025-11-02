@@ -41,13 +41,40 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase(0.5f, 0.5f, 0.25f, 0.125f)] // Pow x3
         [TestCase(0.5f, 0.001f, 0.002f, 0.003f)] // Linear conversion, 0 pow
         [TestCase(0.5f, 1f, 0.5f, 0.25f)] // Different channels, Pow x2
-        [TestCase(0.5f, 1f, 1f, 0f)] // Different channels, 0 pow
+        [TestCase(0.5f, 0f, 1f, 0.001f)] // Different channels, 0 pow
+        [TestCase(0.5f, 1.5f, -1f, Single.NaN)] // Out-of-range values
         public void LinearToSrgbTest(float a, float r, float g, float b)
         {
             var linear = Vector128.Create(r, g, b, a);
-            var srgb = ColorSpaceHelper.LinearToSrgbVectorRgba(Vector128.Create(r, g, b, a));
+            var srgb = linear.ToSrgb_0_Vanilla();
 
+            Console.WriteLine($"{"Original color:",-40} {linear}");
             Console.WriteLine($"{"Expected color:",-40} {srgb}");
+
+#if NET7_0_OR_GREATER
+            DoAssert(_ => linear.ToSrgb_1_AutoVectorization());
+#endif
+            DoAssert(_ => linear.ToSrgb_2_Intrinsics());
+
+            new PerformanceTest<Vector128<float>>
+                {
+                    TestName = "Linear to sRGB",
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => linear.ToSrgb_0_Vanilla(), nameof(Extensions.ToSrgb_0_Vanilla))
+#if NET7_0_OR_GREATER
+                .AddCase(() => linear.ToSrgb_1_AutoVectorization(), nameof(Extensions.ToSrgb_1_AutoVectorization))
+                .AddCase(() => linear.ToSrgb_1_Vector_b(), nameof(Extensions.ToSrgb_1_Vector_b))
+                .AddCase(() => linear.ToSrgb_1_Vector_c(), nameof(Extensions.ToSrgb_1_Vector_c))
+#endif
+                .AddCase(() => linear.ToSrgb_2_Intrinsics(), nameof(Extensions.ToSrgb_2_Intrinsics))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            #region Local Methods
+
             void DoAssert(Expression<Func<Vector128<float>, Vector128<float>>> e)
             {
                 var m = (MethodCallExpression)e.Body;
@@ -56,23 +83,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 Assert.IsTrue(new ColorF(srgb).TolerantEquals(new ColorF(actual)), $"{m.Method.Name}: {srgb} vs. {actual}");
             }
 
-            DoAssert(_ => linear.ToSrgb_0_Vanilla());
-            DoAssert(_ => linear.ToSrgb_1_Vector_a_VanillaCompare());
-#if NET7_0_OR_GREATER
-            DoAssert(_ => linear.ToSrgb_1_Vector_b_IntrinsicCompare());
-#endif
-            DoAssert(_ => linear.ToSrgb_2_Intrinsics());
-
-            new PerformanceTest { TestName = "Linear to sRGB", TestTime = 2000, Iterations = 10_000_000, Repeat = 3 }
-                .AddCase(() => linear.ToSrgb_0_Vanilla(), nameof(Extensions.ToSrgb_0_Vanilla))
-                .AddCase(() => linear.ToSrgb_1_Vector_a_VanillaCompare(), nameof(Extensions.ToSrgb_1_Vector_a_VanillaCompare))
-#if NET7_0_OR_GREATER
-                .AddCase(() => linear.ToSrgb_1_Vector_b_IntrinsicCompare(), nameof(Extensions.ToSrgb_1_Vector_b_IntrinsicCompare))
-#endif
-                .AddCase(() => linear.ToSrgb_2_Intrinsics(), nameof(Extensions.ToSrgb_2_Intrinsics))
-                .DoTest()
-                .DumpResults(Console.Out);
-
+            #endregion
         }
 
         [TestCase(0.1f, 1f / 2.4f)]
@@ -81,14 +92,251 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase(0.1f, 2.4f)]
         [TestCase(0.5f, 2.4f)]
         [TestCase(0.9f, 2.4f)]
+        [TestCase(0.25f, 2.4f)]
+        [TestCase(0.125f, 2.4f)]
         public void PowTest(float x, float p)
         {
-            // Verdict: My Pow is about 1.5x-2x slower, it MAY worth to vectorize it if at least 2 color components are in the Pow range.
-            Console.WriteLine($"{x} ^ {p}: {MathF.Pow(x, p)} vs. {x.Pow(p)}");
-            Assert.IsTrue(MathF.Pow(x, p).TolerantEquals(x.Pow(p)));
-            new PerformanceTest<float> { TestName = "Pow", Iterations = 10_000_000, Repeat = 3 }
+            float expected = MathF.Pow(x, p);
+            Console.WriteLine($"{$"Expected result of Pow({x}; {p}):",-50} {expected:R}");
+
+            DoAssert(() => x.Pow_0_ByMathExpLog(p));
+            DoAssert(() => x.Pow_1_Float(p));
+            DoAssert(() => Vector128.Create(x).Pow_2_Vector128Full(Vector128.Create(p)).ToScalar());
+            DoAssert(() => Vector128.Create(x).Pow_3_Vector128SamePower(p).ToScalar());
+            DoAssert(() => Vector256.Create(x).Pow_4_Vector256SamePower(p).ToScalar());
+#if NET9_0_OR_GREATER
+            DoAssert(() => x.Pow_5_ByVector128ExpLog_Scalar(p));
+            DoAssert(() => Vector128.Create(x).Pow_6_ByVector128ExpLog(p).ToScalar());
+#endif
+
+            //return;
+
+            new PerformanceTest<float>
+                {
+                    TestName = nameof(PowTest),
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
                 .AddCase(() => MathF.Pow(x, p), "MathF.Pow")
-                .AddCase(() => x.Pow(p), "Pow")
+                .AddCase(() => x.Pow_0_ByMathExpLog(p), nameof(Extensions.Pow_0_ByMathExpLog))
+                .AddCase(() => x.Pow_1_Float(p), nameof(Extensions.Pow_1_Float))
+                .AddCase(() => Vector128.Create(x).Pow_2_Vector128Full(Vector128.Create(p)).ToScalar(), nameof(Extensions.Pow_2_Vector128Full))
+                .AddCase(() => Vector128.Create(x).Pow_3_Vector128SamePower(p).ToScalar(), nameof(Extensions.Pow_3_Vector128SamePower))
+                .AddCase(() => Vector256.Create(x).Pow_4_Vector256SamePower(p).ToScalar(), nameof(Extensions.Pow_4_Vector256SamePower))
+#if NET9_0_OR_GREATER
+                .AddCase(() => x.Pow_5_ByVector128ExpLog_Scalar(p), nameof(Extensions.Pow_5_ByVector128ExpLog_Scalar))
+                .AddCase(() => Vector128.Create(x).Pow_6_ByVector128ExpLog(p).ToScalar(), nameof(Extensions.Pow_6_ByVector128ExpLog))
+#endif
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            #region Local Methods
+            
+            void DoAssert(Expression<Func<float>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                float actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual:R}");
+                Assert.IsTrue(Single.IsNaN(expected) && Single.IsNaN(actual) // both NaN
+                    || Single.IsInfinity(expected) && Single.IsInfinity(actual) && MathF.Sign(expected) == MathF.Sign(actual) // both same infinity
+                    || Single.IsNaN(p) && Single.IsNaN(actual) // when power is NaN, we return NaN, whereas Math.Pow returns 1 for base 1
+                    || Single.IsNaN(actual) && (Single.IsInfinity(x) || Single.IsInfinity(p)) // we may return NaN when base or power is infinite, e.g. 1^infinity or Infinity^0
+                    || expected.TolerantEquals(actual, MathF.Max(1e-6f, Single.IsInfinity(expected) ? 0f : MathF.Pow(10, MathF.Log10(Math.Abs(expected)) - 6))),
+                    $"{expected:R} <-> {actual:R}");
+            }
+
+            #endregion
+
+            // Verdict: It's always worth to use the vectorized version if it can replace 3 vanilla Pow operations at one time.
+            // But with integer powers it can be faster even for a scalar operation.
+            // For non-integer powers the VectorXXX.Exp/Log based solutions are better if they are available.
+
+            // Expected result of Pow(0,9; 2,4):                  0,77657247
+            // ==[PowTest (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
+            // Test Time: 2 000 ms
+            // Warming up: Yes
+            // Test cases: 8
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. Pow_0_ByMathExpLog: 193 841 510 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 64 613 836,67
+            //   #1  64 655 612 iterations in 2 000,00 ms. Adjusted: 64 655 612,00
+            //   #2  64 468 956 iterations in 2 000,00 ms. Adjusted: 64 468 956,00	 <---- Worst
+            //   #3  64 716 942 iterations in 2 000,00 ms. Adjusted: 64 716 942,00	 <---- Best
+            //   Worst-Best difference: 247 986,00 (0,38%)
+            // 2. MathF.Pow: 191 700 623 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 63 900 207,67 (-713 629,00 / 98,90%)
+            //   #1  63 632 364 iterations in 2 000,00 ms. Adjusted: 63 632 364,00	 <---- Worst
+            //   #2  64 188 700 iterations in 2 000,00 ms. Adjusted: 64 188 700,00	 <---- Best
+            //   #3  63 879 559 iterations in 2 000,00 ms. Adjusted: 63 879 559,00
+            //   Worst-Best difference: 556 336,00 (0,87%)
+            // 3. Pow_5_ByVector128ExpLog_Scalar: 181 505 954 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 60 501 984,67 (-4 111 852,00 / 93,64%)
+            //   #1  60 667 242 iterations in 2 000,00 ms. Adjusted: 60 667 242,00	 <---- Best
+            //   #2  60 397 891 iterations in 2 000,00 ms. Adjusted: 60 397 891,00	 <---- Worst
+            //   #3  60 440 821 iterations in 2 000,00 ms. Adjusted: 60 440 821,00
+            //   Worst-Best difference: 269 351,00 (0,45%)
+            // 4. Pow_6_ByVector128ExpLog: 175 660 750 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 58 553 583,33 (-6 060 253,33 / 90,62%)
+            //   #1  58 506 513 iterations in 2 000,00 ms. Adjusted: 58 506 513,00
+            //   #2  58 693 607 iterations in 2 000,00 ms. Adjusted: 58 693 607,00	 <---- Best
+            //   #3  58 460 630 iterations in 2 000,00 ms. Adjusted: 58 460 630,00	 <---- Worst
+            //   Worst-Best difference: 232 977,00 (0,40%)
+            // 5. Pow_1_Float: 159 393 535 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 53 131 178,33 (-11 482 658,33 / 82,23%)
+            //   #1  53 659 158 iterations in 2 000,00 ms. Adjusted: 53 659 158,00	 <---- Best
+            //   #2  52 849 305 iterations in 2 000,00 ms. Adjusted: 52 849 305,00	 <---- Worst
+            //   #3  52 885 072 iterations in 2 000,00 ms. Adjusted: 52 885 072,00
+            //   Worst-Best difference: 809 853,00 (1,53%)
+            // 6. Pow_3_Vector128SamePower: 145 919 835 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 48 639 945,00 (-15 973 891,67 / 75,28%)
+            //   #1  48 440 149 iterations in 2 000,00 ms. Adjusted: 48 440 149,00	 <---- Worst
+            //   #2  48 868 652 iterations in 2 000,00 ms. Adjusted: 48 868 652,00	 <---- Best
+            //   #3  48 611 034 iterations in 2 000,00 ms. Adjusted: 48 611 034,00
+            //   Worst-Best difference: 428 503,00 (0,88%)
+            // 7. Pow_4_Vector256SamePower: 136 608 681 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 45 536 227,00 (-19 077 609,67 / 70,47%)
+            //   #1  45 519 135 iterations in 2 000,00 ms. Adjusted: 45 519 135,00	 <---- Worst
+            //   #2  45 563 302 iterations in 2 000,00 ms. Adjusted: 45 563 302,00	 <---- Best
+            //   #3  45 526 244 iterations in 2 000,00 ms. Adjusted: 45 526 244,00
+            //   Worst-Best difference: 44 167,00 (0,10%)
+            // 8. Pow_2_Vector128Full: 108 393 945 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 36 131 315,00 (-28 482 521,67 / 55,92%)
+            //   #1  36 119 373 iterations in 2 000,00 ms. Adjusted: 36 119 373,00
+            //   #2  36 114 881 iterations in 2 000,00 ms. Adjusted: 36 114 881,00	 <---- Worst
+            //   #3  36 159 691 iterations in 2 000,00 ms. Adjusted: 36 159 691,00	 <---- Best
+            //   Worst-Best difference: 44 810,00 (0,12%)
+
+            // Expected result of Pow(1,5; 2):                    2,25
+            // ==[PowTest (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
+            // Test Time: 2 000 ms
+            // Warming up: Yes
+            // Test cases: 8
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. Pow_4_Vector256SamePower: 365 132 643 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 121 710 881,00
+            //   #1  122 002 936 iterations in 2 000,00 ms. Adjusted: 122 002 936,00	 <---- Best
+            //   #2  121 692 235 iterations in 2 000,00 ms. Adjusted: 121 692 235,00
+            //   #3  121 437 472 iterations in 2 000,00 ms. Adjusted: 121 437 472,00	 <---- Worst
+            //   Worst-Best difference: 565 464,00 (0,47%)
+            // 2. Pow_3_Vector128SamePower: 362 331 122 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 120 777 040,67 (-933 840,33 / 99,23%)
+            //   #1  120 604 894 iterations in 2 000,00 ms. Adjusted: 120 604 894,00	 <---- Worst
+            //   #2  121 056 720 iterations in 2 000,00 ms. Adjusted: 121 056 720,00	 <---- Best
+            //   #3  120 669 508 iterations in 2 000,00 ms. Adjusted: 120 669 508,00
+            //   Worst-Best difference: 451 826,00 (0,37%)
+            // 3. Pow_1_Float: 335 630 810 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 111 876 936,67 (-9 833 944,33 / 91,92%)
+            //   #1  113 009 767 iterations in 2 000,00 ms. Adjusted: 113 009 767,00
+            //   #2  113 278 170 iterations in 2 000,00 ms. Adjusted: 113 278 170,00	 <---- Best
+            //   #3  109 342 873 iterations in 2 000,00 ms. Adjusted: 109 342 873,00	 <---- Worst
+            //   Worst-Best difference: 3 935 297,00 (3,60%)
+            // 4. Pow_2_Vector128Full: 288 085 699 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 96 028 566,33 (-25 682 314,67 / 78,90%)
+            //   #1  95 905 089 iterations in 2 000,00 ms. Adjusted: 95 905 089,00	 <---- Worst
+            //   #2  96 166 319 iterations in 2 000,00 ms. Adjusted: 96 166 319,00	 <---- Best
+            //   #3  96 014 291 iterations in 2 000,00 ms. Adjusted: 96 014 291,00
+            //   Worst-Best difference: 261 230,00 (0,27%)
+            // 5. Pow_0_ByMathExpLog: 184 832 796 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 61 610 930,96 (-60 099 950,04 / 50,62%)
+            //   #1  58 119 592 iterations in 2 000,00 ms. Adjusted: 58 119 592,00	 <---- Worst
+            //   #2  62 106 816 iterations in 2 000,00 ms. Adjusted: 62 106 812,89
+            //   #3  64 606 388 iterations in 2 000,00 ms. Adjusted: 64 606 388,00	 <---- Best
+            //   Worst-Best difference: 6 486 796,00 (11,16%)
+            // 6. Pow_5_ByVector128ExpLog_Scalar: 181 330 399 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 60 443 466,33 (-61 267 414,67 / 49,66%)
+            //   #1  60 178 511 iterations in 2 000,00 ms. Adjusted: 60 178 511,00	 <---- Worst
+            //   #2  60 555 069 iterations in 2 000,00 ms. Adjusted: 60 555 069,00
+            //   #3  60 596 819 iterations in 2 000,00 ms. Adjusted: 60 596 819,00	 <---- Best
+            //   Worst-Best difference: 418 308,00 (0,70%)
+            // 7. Pow_6_ByVector128ExpLog: 178 454 568 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 59 484 855,01 (-62 226 025,99 / 48,87%)
+            //   #1  59 302 784 iterations in 2 000,00 ms. Adjusted: 59 302 781,03
+            //   #2  59 204 689 iterations in 2 000,00 ms. Adjusted: 59 204 689,00	 <---- Worst
+            //   #3  59 947 095 iterations in 2 000,00 ms. Adjusted: 59 947 095,00	 <---- Best
+            //   Worst-Best difference: 742 406,00 (1,25%)
+            // 8. MathF.Pow: 171 310 195 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 57 103 397,36 (-64 607 483,64 / 46,92%)
+            //   #1  58 516 376 iterations in 2 000,00 ms. Adjusted: 58 516 373,07	 <---- Best
+            //   #2  56 638 081 iterations in 2 000,00 ms. Adjusted: 56 638 081,00
+            //   #3  56 155 738 iterations in 2 000,00 ms. Adjusted: 56 155 738,00	 <---- Worst
+            //   Worst-Best difference: 2 360 635,07 (4,20%)
+        }
+
+        // TODO: Move this into UnitTests when a Pow method with non-scalar power will be required
+        [TestCase(2f, 2f, 2f, -2f, -2f, 2f, -2f, -2f)]
+        [TestCase(2f, 35f, 2f, -35f, -2f, 35f, -2f, -35f)]
+        [TestCase(2f, 1.5f, 2f, -1.5f, -2f, 1.5f, -2f, -1.5f)]
+        [TestCase(1.5f, 2f, 1.5f, -2f, -1.5f, 2f, -1.5f, -2f)]
+        [TestCase(1.5f, 1.5f, 1.5f, -1.5f, -1.5f, 1.5f, -1.5f, -1.5f)]
+        [TestCase(0f, 0f, 0f, 2f, 0f, -2f, 0f, 1.5f)]
+        [TestCase(0f, -1.5f, 0f, Single.NegativeInfinity, 0f, Single.PositiveInfinity, 0f, Single.NaN)]
+        [TestCase(2f, 0f, -2f, 0f, 1.5f, 0f, -1.5f, 0f)]
+        [TestCase(Single.PositiveInfinity, 0f, Single.NegativeInfinity, 0f, Single.NaN, 0f, Single.NaN, -0f)]
+        [TestCase(2.148e+9f, 2f, 2.148e+9f, -2f, 2.148e+9f, 1.5f, 2.148e+9f, -1.5f)]
+        [TestCase(-2.148e+9f, 2f, -2.148e+9f, -2f, -2.148e+9f, 1.5f, -2.148e+9f, -1.5f)]
+        [TestCase(0.9999999f, 2.148e+9f, 0.9999999f, -2.148e+9f, 1.0000001f, 2.148e+9f, 1.0000001f, -2.148e+9f)]
+        [TestCase(-0.9999999f, 2.148e+9f, -0.9999999f, -2.148e+9f, -1.0000001f, 2.148e+9f, -1.0000001f, -2.148e+9f)]
+        [TestCase(Single.PositiveInfinity, 2f, Single.PositiveInfinity, 1.5f, Single.PositiveInfinity, -2f, Single.PositiveInfinity, -1.5f)]
+        [TestCase(Single.NegativeInfinity, 2f, Single.NegativeInfinity, 1.5f, Single.NegativeInfinity, -2f, Single.NegativeInfinity, -1.5f)]
+        [TestCase(0.9999999f, Single.PositiveInfinity, -0.9999999f, Single.PositiveInfinity, 0.9999999f, Single.NegativeInfinity, -0.9999999f, Single.NegativeInfinity)]
+        [TestCase(1.0000001f, Single.PositiveInfinity, -1.0000001f, Single.PositiveInfinity, 1.0000001f, Single.NegativeInfinity, -1.0000001f, Single.NegativeInfinity)]
+        [TestCase(Single.NaN, 2f, Single.NaN, 1.5f, Single.NaN, -2f, Single.NaN, -1.5f)]
+        [TestCase(0.9999999f, Single.NaN, -0.9999999f, Single.NaN, 1.0000001f, Single.NaN, -1.0000001f, Single.NaN)]
+        [TestCase(0.1f, 1f / 2.4f, 0.5f, 2.4f, 2f, -1.5f, -2f, 5f)]
+        [TestCase(0.5f, 1f / 2.4f, 2.148e+9f, 2f, 0.9999999f, 2.148e+9f, 0.9999999f, Single.NaN)]
+        [TestCase(0.9f, 1f / 2.4f, Single.NaN, 2f, Single.PositiveInfinity, 2f, 0.9999999f, Single.NegativeInfinity)]
+        [TestCase(0.1f, 2.4f, Single.NegativeInfinity, 2f, 0.9999999f, Single.PositiveInfinity, 1.0000001f, -2.148e+9f)]
+        public void PowVectorTest(float v1, float p1, float v2, float p2, float v3, float p3, float v4, float p4)
+        {
+            var vecExpected = Vector128.Create(
+                v1.Pow_1_Float(p1),
+                v2.Pow_1_Float(p2),
+                v3.Pow_1_Float(p3),
+                v4.Pow_1_Float(p4));
+            var vecActual = Vector128.Create(v1, v2, v3, v4).Pow_2_Vector128Full(Vector128.Create(p1, p2, p3, p4));
+
+            Console.WriteLine($"Expected: {vecExpected}");
+            Console.WriteLine($"Actual:   {vecActual}");
+            Assert.AreEqual(vecExpected.Or(vecExpected.IsNaN()).AsUInt32(), vecActual.Or(vecActual.IsNaN()).AsUInt32(), $"{vecExpected} vs. {vecActual}");
+        }
+
+        [TestCase(2f, -2f, 1.5f, -1.5f, 1.5f)]
+        [TestCase(0.5f, 0.25f, 0.125f, Single.NaN, 2.4f)] // LinearToSrgb Pow x3 range
+        [TestCase(0.5f, 0.5f, 0.5f, 0.5f, 2.4f)] // same value
+        public void PowVectorTestSamePower(float v1, float v2, float v3, float v4, float p)
+        {
+            #region Local Methods
+
+            static void AssertEqual(Vector128<float> expected, Vector128<float> actual)
+            {
+                //Assert.AreEqual(expected.Or(expected.IsNaN()).AsUInt32(), actual.Or(actual.IsNaN()).AsUInt32(), $"{expected} vs. {actual}");
+                Assert.IsTrue(new ColorF(expected).Clip().TolerantEquals(new ColorF(actual).Clip()), $"{expected} vs. {actual}");
+            }
+
+            #endregion
+
+            Vector128<float> expected = Vector128.Create(
+                Vector128.Create(v1).Pow_3_Vector128SamePower(p).ToScalar(),
+                Vector128.Create(v2).Pow_3_Vector128SamePower(p).ToScalar(),
+                Vector128.Create(v3).Pow_3_Vector128SamePower(p).ToScalar(),
+                Vector128.Create(v4).Pow_3_Vector128SamePower(p).ToScalar());
+
+
+            AssertEqual(expected, Vector128.Create(v1, v2, v3, v4).Pow_2_Vector128Full(Vector128.Create(p)));
+            AssertEqual(expected, Vector128.Create(v1, v2, v3, v4).Pow_3_Vector128SamePower(p));
+#if NET9_0_OR_GREATER
+            AssertEqual(expected, Vector128.Create(v1, v2, v3, v4).Pow_6_ByVector128ExpLog(p));
+#endif
+
+            Vector256<float> actual256 = Vector256.Create(v1, v2, v3, v4, v1, v2, v3, v4).Pow_4_Vector256SamePower(p);
+            AssertEqual(expected, actual256.GetLower());
+            AssertEqual(expected, actual256.GetUpper());
+
+            new PerformanceTest<Vector128<float>>
+                {
+                    TestName = "Linear to sRGB",
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => Vector128.Create(v1.Pow_0_ByMathExpLog(p), v2.Pow_0_ByMathExpLog(p), v3.Pow_0_ByMathExpLog(p), v4.ClipF()), "Math.PowF x3")
+                .AddCase(() => Vector128.Create(v1, v2, v3, v4).Pow_2_Vector128Full(Vector128.Create(p)), nameof(Extensions.Pow_2_Vector128Full))
+                .AddCase(() => Vector128.Create(v1, v2, v3, v4).Pow_3_Vector128SamePower(p), nameof(Extensions.Pow_3_Vector128SamePower))
+#if NET9_0_OR_GREATER
+                .AddCase(() => Vector128.Create(v1, v2, v3, v4).Pow_6_ByVector128ExpLog(p), nameof(Extensions.Pow_6_ByVector128ExpLog))
+#endif
                 .DoTest()
                 .DumpResults(Console.Out);
         }
@@ -110,238 +358,1468 @@ namespace KGySoft.Drawing.PerformanceTests
                 c.GetElement(3).ClipF());
         }
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> ToSrgb_1_Vector_a_VanillaCompare(this Vector128<float> c)
-        {
-            var rgb = new Vector3(c.GetElement(0), c.GetElement(1), c.GetElement(2));
-            if (rgb.GreaterThanAll(0.0031308f))
-            {
-                if (rgb.LessThanAll(1f))
-                {
-                    var result = new Vector3(
-                        MathF.Pow(rgb.X, 1f / 2.4f),
-                        MathF.Pow(rgb.Y, 1f / 2.4f),
-                        MathF.Pow(rgb.Z, 1f / 2.4f));
-                    result = result * 1.055f - new Vector3(0.055f);
-                    return result.AsVector128().WithElement(3, c.GetElement(3));
-                }
-            }
-            else if (rgb.GreaterThanAll(0f))
-            {
-                rgb *= 12.92f;
-                return rgb.AsVector128().WithElement(3, c.GetElement(3));
-            }
-
-            return c.ToSrgb_0_Vanilla();
-        }
-
 #if NET7_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> ToSrgb_1_Vector_b_IntrinsicCompare(this Vector128<float> c)
+        internal static Vector128<float> ToSrgb_1_Vector_b(this Vector128<float> c)
         {
             Vector128<float> rgbx = c.WithElement(3, 1f);
-            //if (c.Rgb.GreaterThanAll(0.0031308f))
             if (Vector128.GreaterThanAll(rgbx, Vector128.Create(0.0031308f)))
             {
-                //if (c.Rgb.LessThanAll(1f))
-                if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), Vector4.One.AsVector128()))
+                if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
                 {
                     var result = new Vector3(
                         MathF.Pow(c.GetElement(0), 1f / 2.4f),
                         MathF.Pow(c.GetElement(1), 1f / 2.4f),
                         MathF.Pow(c.GetElement(2), 1f / 2.4f));
                     result = result * 1.055f - new Vector3(0.055f);
-                    return result.AsVector128().WithElement(3, c.GetElement(3));
+                    return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
                 }
             }
             //else if (c.Rgb.GreaterThanAll(0f))
             else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
             {
                 var result = rgbx.AsVector4() * 12.92f;
-                return result.AsVector128().WithElement(3, c.GetElement(3));
+                return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
             }
 
             return c.ToSrgb_0_Vanilla();
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> ToSrgb_1_Vector_c(this Vector128<float> c)
+        {
+            Vector128<float> rgbx = c.WithElement(3, 1f);
+            if (Vector128.GreaterThanAll(rgbx, Vector128.Create(0.0031308f)))
+            {
+                if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
+                {
+                    var result = c.WithElement(3, Single.NaN).Pow(1f / 2.4f);
+                    result = result * 1.055f - Vector128.Create(0.055f);
+                    return result.WithElement(3, c.GetElement(3).ClipF());
+                }
+            }
+            else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
+            {
+                var result = rgbx.AsVector4() * 12.92f;
+                return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
+            }
+
+            return c.ToSrgb_0_Vanilla();
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> ToSrgb_1_AutoVectorization(this Vector128<float> c)
+        {
+            Vector128<float> rgb = c.WithElement(3, Single.NaN);
+            Vector128<float> result;
+
+            // value > 0.0031308f
+            Vector128<float> maskGreaterThanPowLimit = Vector128.GreaterThan(rgb, Vector128.Create(0.0031308f));
+            if (maskGreaterThanPowLimit.AsUInt32() != Vector128<uint>.Zero)
+            {
+                // value < 1f
+                Vector128<float> maskLessThanOne = Vector128.LessThan(rgb, VectorExtensions.OneF);
+                Vector128<float> maskPowRange = Vector128.BitwiseAnd(maskGreaterThanPowLimit, maskLessThanOne);
+                if (maskPowRange.AsUInt32() != Vector128<uint>.Zero)
+                {
+                    // selecting NaN for out-of-range values, because it provides the best performance for Pow, both by our custom implementation and by the .NET 9+ Exp/Log based solutions.
+                    result = Vector128.ConditionalSelect(maskPowRange, rgb, VectorExtensions.NaN128F).Pow(1f / 2.4f);
+                    result = result * Vector128.Create(1.055f) - Vector128.Create(0.055f);
+
+                    // Happy path: if all components are in the pow range, we can return immediately
+                    if (maskPowRange.AsUInt32().WithElement(3, UInt32.MaxValue) == Vector128<uint>.AllBitsSet)
+                        return result.WithElement(3, c.GetElement(3).ClipF());
+
+                    // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
+                    result = Vector128.ConditionalSelect(maskPowRange, result, VectorExtensions.OneF);
+                }
+                else
+                {
+                    // Here all values are outside the pow range, assuming value >= 1f for now that can be refined later.
+                    result = VectorExtensions.OneF;
+                }
+            }
+            else
+            {
+                // value <= 0.0031308f or NaN
+                result = Vector128<float>.Zero;
+            }
+
+            // 0 < value <= 0.0031308f
+            Vector128<float> maskGreaterThanZero = Vector128.GreaterThan(rgb, Vector128<float>.Zero);
+            Vector128<float> maskLinearRange = Vector128.AndNot(maskGreaterThanZero, maskGreaterThanPowLimit);
+            if (maskLinearRange.AsUInt32() != Vector128<uint>.Zero)
+                result = Vector128.ConditionalSelect(maskLinearRange, rgb * Vector128.Create(12.92f), result);
+
+            // value <= 0f or NaN
+            result = Vector128.ConditionalSelect(Vector128.OnesComplement(maskGreaterThanZero), Vector128<float>.Zero, result);
+
+            return result.WithElement(3, c.GetElement(3).ClipF());
         }
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector128<float> ToSrgb_2_Intrinsics(this Vector128<float> c)
         {
-            // Applying the same formula as in LinearToSrgb(float) but with vectorization if possible
-            if (Sse.IsSupported)
-            {
-                Vector128<float> rgbx = c.WithElement(3, 1f);
-#if NET7_0_OR_GREATER
-                if (Vector128.GreaterThanAll(rgbx, Vector128.Create(0.0031308f)))
-#else
-                if (Sse.CompareGreaterThan(rgbx, Vector128.Create(0.0031308f)).AsUInt64().Equals(AllBitsSet))
-#endif
-                {
-#if NET7_0_OR_GREATER
-                    if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
-#else
-                    if (Sse.CompareNotGreaterThanOrEqual(rgbx.WithElement(3, 0f), VectorExtensions.OneF).AsUInt64().Equals(Vector128.Create(UInt64.MaxValue)))
-#endif
-                    {
-                        // If all of the RGB components are between 0.0031308 and 1 we need to the same operations on them.
-                        // Unfortunately, Pow, which is the slowest operation here cannot be vectorized (good enough approximations are too slow).
-                        Vector128<float> result = Vector128.Create(
-                            MathF.Pow(c.GetElement(0), 1f / 2.4f),
-                            MathF.Pow(c.GetElement(1), 1f / 2.4f),
-                            MathF.Pow(c.GetElement(2), 1f / 2.4f),
-                            0f);
-                        
-                        if (Fma.IsSupported)
-                            result = Fma.MultiplyAdd(result, Vector128.Create(1.055f), Vector128.Create(-0.055f));
-                        else
-                        {
-                            result = Sse.Multiply(result, Vector128.Create(1.055f));
-                            result = Sse.Subtract(result, Vector128.Create(0.055f));
-                        }
+            // The non-accelerated version
+            if (!Sse41.IsSupported)
+                return c.ToSrgb_0_Vanilla();
 
+            Vector128<float> rgb = c.WithElement(3, Single.NaN);
+            Vector128<float> result;
+
+            // value > 0.0031308f
+            Vector128<float> maskGreaterThanPowLimit = Sse.CompareGreaterThan(rgb, Vector128.Create(0.0031308f));
+            if (!maskGreaterThanPowLimit.AsUInt32().Equals(Vector128<uint>.Zero))
+            {
+                // value < 1f
+                Vector128<float> maskLessThanOne = Sse.CompareLessThan(rgb, VectorExtensions.OneF);
+                Vector128<float> maskPowRange = Sse.And(maskGreaterThanPowLimit, maskLessThanOne);
+                if (!maskPowRange.AsUInt32().Equals(Vector128<uint>.Zero))
+                {
+                    // selecting NaN for out-of-range values, because it provides the best performance for Pow, both by our custom implementation and by the .NET 9+ Exp/Log based solutions.
+                    result = Sse41.BlendVariable(VectorExtensions.NaN128F, rgb, maskPowRange).PowIntrinsics(1f / 2.4f);
+                    result = Fma.IsSupported
+                        ? Fma.MultiplySubtract(result, Vector128.Create(1.055f), Vector128.Create(0.055f))
+                        : Sse.Subtract(Sse.Multiply(result, Vector128.Create(1.055f)), Vector128.Create(0.055f));
+
+                    // Happy path: if all components are in the pow range, we can return immediately
+                    if (maskPowRange.AsUInt32().WithElement(3, UInt32.MaxValue).Equals(VectorExtensions.AllBitsSetF.AsUInt32()))
                         return result.WithElement(3, c.GetElement(3).ClipF());
-                    }
-                }
-#if NET7_0_OR_GREATER
-                else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
-#else
-                else if (Sse.CompareGreaterThan(rgbx, Vector128<float>.Zero).AsUInt64().Equals(AllBitsSet))
-#endif
-                {
-                    // If all of the RGB components are between 0 and 0.0031308 we need to the same operations on them.
-                    // This branch can be vectorized much better though a much lower range of the colors belongs here.
-                    return Sse.Multiply(c, Vector128.Create(12.92f)).WithElement(3, c.GetElement(3).ClipF());
-                }
-            }
 
-            // The non-accelerated version.
-            return c.ToSrgb_0_Vanilla();
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static float PowI(float value, int power)
-        {
-            float current = value;
-            if (power < 0)
-            {
-                power = power > Int32.MinValue ? -power : Int32.MaxValue;
-                current = 1f / current;
-            }
-
-            float result = 1f;
-            while (power > 0)
-            {
-                if ((power & 1) == 1)
-                {
-                    result = current * result;
-                    power -= 1;
-                }
-
-                power >>= 1;
-                if (power > 0)
-                    current *= current;
-            }
-
-            return result;
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static float Exp(float power)
-        {
-            int integerPart = 0;
-            if (power > 1f)
-            {
-                float diff = MathF.Floor(power);
-                power -= diff;
-                integerPart += (int)diff;
-            }
-            else if (power < 0f)
-            {
-                float diff = MathF.Floor(MathF.Abs(power));
-                if (diff > Int32.MaxValue)
-                {
-                    diff = Int32.MaxValue;
-                    power = 0f;
+                    // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
+                    result = Sse41.BlendVariable(VectorExtensions.OneF, result, maskPowRange);
                 }
                 else
-                    power += diff;
-                integerPart -= (int)diff;
+                {
+                    // Here all values are outside the pow range, assuming value >= 1f for now that can be refined later.
+                    result = VectorExtensions.OneF;
+                }
             }
-
-            float result = 1f;
-            float acc = 1f;
-            for (int i = 1; ; i++)
+            else
             {
-                float prevResult = result;
-                acc *= power / i;
-                result += acc;
-                if (prevResult == result)
-                    break;
+                // value <= 0.0031308f or NaN
+                result = Vector128<float>.Zero;
             }
 
-            if (integerPart != 0)
-                result *= PowI(MathF.E, integerPart);
+            // 0 < value <= 0.0031308f
+            Vector128<float> maskGreaterThanZero = Sse.CompareGreaterThan(rgb, Vector128<float>.Zero);
+            Vector128<float> maskLinearRange = Sse.AndNot(maskGreaterThanPowLimit, maskGreaterThanZero);
+            if (!maskLinearRange.AsUInt32().Equals(Vector128<uint>.Zero))
+                result = Sse41.BlendVariable(result, Sse.Multiply(rgb, Vector128.Create(12.92f)), maskLinearRange);
 
-            return result;
+            // value <= 0f or NaN
+            result = Sse41.BlendVariable(result, Vector128<float>.Zero, Sse.Xor(maskGreaterThanZero, VectorExtensions.AllBitsSetF));
+
+            return result.WithElement(3, c.GetElement(3).ClipF());
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static float LogE(float value)
+        internal static float Pow_0_ByMathExpLog(this float value, float power) => value switch
         {
-            if (value < 0f)
-                return Single.NaN;
-
-            int count = 0;
-            while (value >= 1f)
+            > 0f => MathF.Exp(power * MathF.Log(value)),
+            < 0f => (power % 2f) switch
             {
-                value *= 1 / MathF.E;
-                count += 1;
-            }
-
-            while (value <= 1 / MathF.E)
+                0f => MathF.Exp(power * MathF.Log(-value)),
+                1f or -1f => -MathF.Exp(power * MathF.Log(-value)),
+                _ => power switch
+                {
+                    Single.PositiveInfinity => value < -1f ? Single.PositiveInfinity : 0f,
+                    Single.NegativeInfinity => value < -1f ? 0f : Single.PositiveInfinity,
+                    _ => Single.NaN
+                } 
+            },
+            0f => power switch
             {
-                value *= MathF.E;
-                count -= 1;
-            }
+                > 0f => 0f,
+                < 0f => Single.PositiveInfinity,
+                0f => 1f,
+                _ => Single.NaN
+            },
+            _ => power is 0f ? 1f : Single.NaN
+        };
 
-            value -= 1f;
-            if (value == 0f)
-                return count;
-
-            // going on with Taylor series
-            float result = 0f;
-            float acc = 1f;
-            for (int i = 1; ; i++)
-            {
-                float prevResult = result;
-                acc *= -value;
-                result += acc / i;
-                if (prevResult == result)
-                    break;
-            }
-
-            return count - result;
-
-        }
-
+        // This is the same SW implementation as the one I used for decimals in KGySoft.CoreLibraries, extended with float specific handling (e.g. NaN, Infinity).
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static float Pow(this float value, float power)
+        internal static float Pow_1_Float(this float value, float power)
         {
-            // Faster if we calculate the result for the integer part fist, and then for the fractional
-            //if (Math.Abs(power) <= (1 << 24))
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static float PowI(float value, int power)
             {
-                int integerPart = (int)power;
-                float diff = power - integerPart;
-                float result = PowI(value, integerPart);
-                if (diff > 0f)
-                    result *= Exp(diff * LogE(value));
+                if (power < 0)
+                {
+                    power = -power;
+                    value = 1f / value;
+                }
+                else if (power == 0)
+                    return 1f;
+
+                float result = 1f;
+                float current = value;
+                while (true)
+                {
+                    if ((power & 1) == 1)
+                    {
+                        result = current * result;
+                        if (power == 1)
+                            return result;
+                    }
+
+                    power >>= 1;
+                    if (power > 0)
+                        current *= current;
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static float ExpE(float power)
+            {
+                int integerPart = 0;
+                if (power > 1f)
+                {
+                    if (Single.IsPositiveInfinity(power))
+                        return Single.PositiveInfinity;
+                    float diff = MathF.Floor(power);
+                    power -= diff;
+                    integerPart = (int)diff;
+                }
+                else if (power < 0f)
+                {
+                    float diff = MathF.Floor(MathF.Abs(power));
+                    if (diff > FloatExtensions.MaxPreciseIntAsFloat)
+                    {
+                        diff = FloatExtensions.MaxPreciseIntAsFloat;
+                        power = 0f;
+                    }
+                    else
+                        power += diff;
+                    integerPart = -(int)diff;
+                }
+
+                float result = 1f;
+                float acc = 1f;
+                for (int i = 1; ; i++)
+                {
+                    float prevResult = result;
+                    acc *= power / i;
+                    result += acc;
+                    if (prevResult.Equals(result)) // == would cause an infinite loop for NaN
+                        break;
+                }
+
+                if (integerPart != 0)
+                    result *= PowI(MathF.E, integerPart);
 
                 return result;
             }
 
-            //return Exp(power * LogE(value));
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static float LogE(float value)
+            {
+                if (value <= 0f)
+                    return value is 0f ? Single.NegativeInfinity : Single.NaN;
+
+                int count = 0;
+                while (value >= 1f)
+                {
+                    if (Single.IsPositiveInfinity(value))
+                        return Single.PositiveInfinity;
+                    value *= 1 / MathF.E;
+                    count += 1;
+                }
+
+                while (value <= 1 / MathF.E)
+                {
+                    value *= MathF.E;
+                    count -= 1;
+                }
+
+                value -= 1f;
+                if (value == 0f)
+                    return count;
+
+                // going on with Taylor series
+                float result = 0f;
+                float acc = 1f;
+                for (int i = 1; ; i++)
+                {
+                    float prevResult = result;
+                    acc *= -value;
+                    result += acc / i;
+                    if (prevResult.Equals(result)) // == would cause an infinite loop for NaN
+                        break;
+                }
+
+                return count - result;
+            }
+
+            #endregion
+
+            if (Single.IsNaN(power))
+                return Single.NaN;
+
+            // FloatExtensions.MaxPreciseIntAsFloat is the largest integer that has exactly the same float representation.
+            // If the absolute value of power is larger than that, the result will be either 0 or Infinity anyway.
+            // But clipping is needed to avoid other issues as well (e.g. Int32.MaxValue is an odd number, so if value is negative, the sign could be flipped).
+            power = power.Clip(FloatExtensions.MinPreciseIntAsFloat, FloatExtensions.MaxPreciseIntAsFloat);
+
+            // Faster if we calculate the result for the integer part fist, and then for the fractional
+            float integerPart = MathF.Truncate(power);
+            float fracPart = power - integerPart; // without clipping power, it should be: Single.IsPositiveInfinity(power) ? 0f : power - integerPart;
+            float result = PowI(value, (int)integerPart); // without clipping power, the cast may turn large even numbers the odd Int32.MaxValue
+            if (fracPart != 0f)
+                result *= ExpE(fracPart * LogE(value));
+
+            return result;
         }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> Pow_2_Vector128Full(this Vector128<float> value, Vector128<float> power)
+        {
+            // Full version means it handles all cases (NaN, Infinity, negative bases, etc.) with vectorization where possible
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> PowI(Vector128<float> value, Vector128<int> power)
+            {
+                //if (power < 0)
+                //{
+                //    power = -power;
+                //    value = 1f / value;
+                //}
+
+                Vector128<int> negativePowerMask = Sse2.CompareLessThan(power, Vector128<int>.Zero);
+                if (!negativePowerMask.Equals(Vector128<int>.Zero))
+                {
+                    power = Sse2.Subtract(Sse2.Xor(power, negativePowerMask), negativePowerMask);
+                    Vector128<float> inverseValue = Sse.Divide(VectorExtensions.OneF, value); //Sse.Reciprocal(value); - Reciprocal has a terrible precision, e.g. for 2f it returns 0.49987793f
+                    value = Sse41.BlendVariable(value, inverseValue, negativePowerMask.AsSingle());
+                }
+
+                Vector128<float> current = value;
+                Vector128<float> result = VectorExtensions.OneF;
+
+                while (true)
+                {
+                    //if ((power & 1) == 1)
+                    //    result = current * result;
+
+                    Vector128<int> powerOddMask = Sse2.CompareEqual(Sse2.And(power, VectorExtensions.OneI32), VectorExtensions.OneI32);
+                    if (!powerOddMask.Equals(Vector128<int>.Zero))
+                        result = Sse41.BlendVariable(result, Sse.Multiply(result, current), powerOddMask.AsSingle());
+
+                    //power >>= 1;
+                    //if (power > 0)
+                    //    current *= current;
+
+                    power = Sse2.ShiftRightLogical(power, 1);
+                    current = Sse.Multiply(current, current);
+
+                    if (power.Equals(Vector128<int>.Zero))
+                        return result;
+                }
+            }
+
+            // vectorized LogE (natural log) for base 'value'
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> LogE(Vector128<float> value)
+            {
+                // invalidMask = value < 0f || IsNaN(value)
+                // infinity = value == 0f || IsPositiveInfinity(value)
+                Vector128<float> invalidMask = Sse.Or(Sse.CompareLessThan(value, Vector128<float>.Zero), value.IsNaN());
+                Vector128<float> infinityMask = Sse.CompareEqual(value, VectorExtensions.PositiveInfinityF);
+                Vector128<float> zeroMask = Sse.CompareEqual(value, Vector128<float>.Zero);
+                Vector128<float> zeroOrInfinityOrInvalid = Sse.Or(zeroMask, Sse.Or(infinityMask, invalidMask));
+
+                var count = Vector128<int>.Zero;
+
+                // while (value >= 1f && !Single.IsPositiveInfinity(value))
+                // {
+                //     value *= 1 / MathF.E;
+                //     count += 1;
+                // }
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Sse.AndNot(infinityMask, Sse.CompareGreaterThanOrEqual(value, VectorExtensions.OneF)).AsInt32()) != Vector128<int>.Zero)
+                //{
+                //    value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.InvE128, value), mask.AsSingle());
+                //    count = Sse2.Add(count, Sse2.And(mask, VectorExtensions.OneI32));
+                //}
+
+                Vector128<int> mask = Sse.AndNot(infinityMask, Sse.CompareGreaterThanOrEqual(value, VectorExtensions.OneF)).AsInt32();
+                if (!mask.Equals(Vector128<int>.Zero))
+                {
+                    Vector128<float> v = Sse.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when 1 <= value < e)
+                    if (Sse.CompareGreaterThan(v, VectorExtensions.E128).Equals(Vector128<float>.Zero))
+                    {
+                        value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.InvE128, value), mask.AsSingle());
+                        count = Sse2.Add(count, Sse2.And(mask, VectorExtensions.OneI32));
+                    }
+                    else
+                    {
+                        v = Sse41.BlendVariable(VectorExtensions.NaN128F, v, mask.AsSingle());
+                        Vector128<int> c = Vector128<int>.Zero;
+                        do
+                        {
+                            v = Sse.Multiply(VectorExtensions.InvE128, v);
+                            c = Sse2.Add(c, VectorExtensions.OneI32);
+                        } while (!Sse.CompareGreaterThanOrEqual(v, VectorExtensions.OneF).AsUInt32().Equals(Vector128<uint>.Zero));
+
+                        value = Sse41.BlendVariable(value, v, mask.AsSingle());
+                        count = Sse2.Add(count, Sse2.And(mask, c));
+                    }
+                }
+
+                //while (value <= 1 / MathF.E && !zeroOrInfinityOrInvalid)
+                //{
+                //    value *= MathF.E;
+                //    count -= 1;
+                //}
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Sse.AndNot(zeroOrInfinityOrInvalid, Sse.CompareLessThanOrEqual(value, VectorExtensions.InvE128)).AsInt32()) != Vector128<int>.Zero)
+                //{
+                //    value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.E128, value), mask.AsSingle());
+                //    count = Sse2.Subtract(count, Sse2.And(mask, VectorExtensions.OneI32));
+                //}
+
+                mask = Sse.AndNot(zeroOrInfinityOrInvalid, Sse.CompareLessThanOrEqual(value, VectorExtensions.InvE128)).AsInt32();
+                if (!mask.Equals(Vector128<int>.Zero))
+                {
+                    Vector128<float> v = Sse.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when invE/e < value <= 1)
+                    if (Sse.CompareLessThan(v, VectorExtensions.InvEPerE128).AsUInt32().Equals(Vector128<uint>.Zero))
+                    {
+                        value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.E128, value), mask.AsSingle());
+                        count = Sse2.Subtract(count, Sse2.And(mask, VectorExtensions.OneI32));
+                    }
+                    else
+                    {
+                        v = Sse41.BlendVariable(VectorExtensions.NaN128F, v, mask.AsSingle());
+                        Vector128<int> c = Vector128<int>.Zero;
+                        do
+                        {
+                            v = Sse.Multiply(VectorExtensions.E128, v);
+                            c = Sse2.Add(c, VectorExtensions.OneI32);
+                        } while (!Sse.CompareLessThanOrEqual(v, VectorExtensions.InvE128).AsUInt32().Equals(Vector128<uint>.Zero));
+
+                        value = Sse41.BlendVariable(value, v, mask.AsSingle());
+                        count = Sse2.Subtract(count, Sse2.And(mask, c));
+                    }
+                }
+
+                //value -= 1f;
+                //if (value == 0f)
+                //    return count;
+
+                value = Sse.Subtract(value, VectorExtensions.OneF);
+
+                // going on with Taylor series
+                //float result = 0f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= -value;
+                //    result += acc / i;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                Vector128<float> result = Sse.Or(Vector128<float>.Zero, zeroOrInfinityOrInvalid);
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector128<float> acc = VectorExtensions.OneF;
+                //Vector128<float> negativeValue = Negate(value);
+                //for (var i = VectorExtensions.OneF; ; i = Sse.Add(i, VectorExtensions.OneF))
+                //{
+                //    Vector128<uint> prevResult = result.AsUInt32();
+                //    acc = Sse.Multiply(acc, negativeValue);
+                //    result = Sse.Add(result, Sse.Divide(acc, i));
+                //    if (prevResult == result.AsUInt32())
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector128<uint> prevResult = result.AsUInt32();
+                Vector128<float> negativeValue = value.Negate();
+                Vector128<float> acc = negativeValue;
+                result = Sse.Add(result, acc);
+
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.TwoF;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Sse.Multiply(acc, negativeValue);
+                        result = Sse.Add(result, Sse.Divide(acc, i));
+                        if (prevResult.Equals(result.AsUInt32()))
+                            break;
+                        i = Sse.Add(i, VectorExtensions.OneF);
+                    }
+                }
+
+                //return count - result;
+                result = Sse.Subtract(Sse2.ConvertToVector128Single(count), result);
+                result = Sse41.BlendVariable(result, VectorExtensions.PositiveInfinityF, infinityMask);
+                result = Sse41.BlendVariable(result, VectorExtensions.NegativeInfinityF, zeroMask);
+                return Sse.Or(invalidMask, result);
+            }
+
+            // vectorized Exp implementation (copied/recreated algorithmically)
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> Exp(Vector128<float> power)
+            {
+                Vector128<int> integerPart = Vector128<int>.Zero;
+
+                //if (power > 1f)
+                //{
+                //    if (Single.IsPositiveInfinity(power))
+                //        power = Single.PositiveInfinity;
+                //    else
+                //    {
+                //        float diff = MathF.Floor(power);
+                //        power -= diff;
+                //    }
+
+                //    integerPart += (int)diff;
+                //}
+                Vector128<float> mask = Sse.CompareGreaterThan(power, VectorExtensions.OneF);
+                if (!mask.AsUInt32().Equals(Vector128<uint>.Zero))
+                {
+                    Vector128<float> finiteMask = Sse.CompareNotEqual(power, VectorExtensions.PositiveInfinityF);
+                    Vector128<float> diff = Sse41.Floor(Sse.And(power, finiteMask));
+                    power = Sse.Subtract(power, Sse.And(diff, mask));
+                    integerPart = Sse2.Add(integerPart, Sse2.ConvertToVector128Int32WithTruncation(Sse.And(diff, mask)));
+                }
+
+                //else if (power < 0f)
+                //{
+                //    float diff = MathF.Floor(-power);
+                //    if (diff > Int32.MaxValue)
+                //    {
+                //        diff = Int32.MaxValue;
+                //        power = 0f;
+                //    }
+                //    else
+                //        power += diff;
+                //    integerPart -= (int)diff;
+                //}
+
+                mask = Sse.CompareLessThan(power, VectorExtensions.OneF);
+                if (!mask.AsUInt32().Equals(Vector128<uint>.Zero))
+                {
+                    Vector128<float> diff = Sse.And(Sse41.Floor(power.Negate()), mask);
+                    Vector128<float> diffTooLargeMask = Sse.CompareGreaterThan(diff, VectorExtensions.MaxPreciseIntAsFloat);
+                    diff = Sse41.BlendVariable(diff, VectorExtensions.MaxPreciseIntAsFloat, diffTooLargeMask);
+                    power = Sse41.BlendVariable(power, Vector128<float>.Zero, diffTooLargeMask);
+                    power = Sse.Add(power, Sse.AndNot(diffTooLargeMask, Sse.And(diff, mask)));
+                    integerPart = Sse2.Subtract(integerPart, Sse2.ConvertToVector128Int32(Sse.And(diff, mask)));
+                }
+
+                //float result = 1f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= power / i;
+                //    result += acc;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector128<float> invalidMask = power.IsNaN();
+                //Vector128<float> result = Sse.Or(VectorExtensions.OneF, invalidMask);
+                //Vector128<float> acc = VectorExtensions.OneF;
+                //for (Vector128<float> i = VectorExtensions.OneF; ; i = Sse.Add(i, VectorExtensions.OneF))
+                //{
+                //    Vector128<float> prevResult = result;
+                //    acc = Sse.Multiply(acc, Sse.Divide(power, i));
+                //    result = Sse.Add(result, acc);
+                //    if (prevResult.AsUInt32() == result.AsUInt32()) // bitwise comparison to handle NaN and infinities
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector128<float> invalidMask = power.IsNaN();
+                Vector128<float> acc = power;
+                Vector128<uint> prevResult = Sse.Or(VectorExtensions.OneF, invalidMask).AsUInt32();
+                Vector128<float> result = Sse.Or(Sse.Add(VectorExtensions.OneF, acc), invalidMask);
+
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.TwoF;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Sse.Multiply(acc, Sse.Divide(power, i));
+                        result = Sse.Add(result, acc);
+                        if (prevResult.AsUInt32().Equals(result.AsUInt32())) // bitwise int comparison to handle NaN and infinities
+                            break;
+                        i = Sse.Add(i, VectorExtensions.OneF);
+                    }
+                }
+
+                //if (integerPart != 0)
+                //    result *= PowI(MathF.E, integerPart);
+                integerPart = Sse2.AndNot(invalidMask.AsInt32(), integerPart);
+                if (!integerPart.Equals(Vector128<int>.Zero))
+                    result = Sse.Multiply(result, PowI(VectorExtensions.E128, integerPart));
+
+                return result;
+            }
+
+            #endregion
+
+            // Clipping is needed, because unlike (int)floatValue, ConvertToVector128Int32WithTruncation turns too large values into Int32.MinValue rather than MaxValue.
+            // But Int32.MaxValue is not a good choice here either, because representable float values around this value are all even, and using an odd power may turn the result negative.
+            // Also, blending is needed to preserve NaN values that would be otherwise replaced by Clip.
+            //power = power.Clip(FloatExtensions.MinPreciseIntAsFloat, FloatExtensions.MaxPreciseIntAsFloat);
+#if NET9_0_OR_GREATER // Clamp is intended instead of Clip so NaNs are propagated
+            power = Vector128.Clamp(power, VectorExtensions.MinPreciseIntAsFloat, VectorExtensions.MaxPreciseIntAsFloat);
+#else
+            power = Sse41.BlendVariable(power.Clip(VectorExtensions.MinPreciseIntAsFloat, VectorExtensions.MaxPreciseIntAsFloat), VectorExtensions.NaN128F, power.IsNaN());
+#endif
+
+            //int integerPart = (int)power;
+            //float diff = power - integerPart;
+            Vector128<int> integerPart = Sse2.ConvertToVector128Int32WithTruncation(power);
+            Vector128<float> fracPart = Sse.Subtract(power, Sse2.ConvertToVector128Single(integerPart));
+
+            Vector128<float> intResult = PowI(value, integerPart);
+            if (fracPart.AsUInt32().Equals(Vector128<uint>.Zero))
+                return intResult;
+
+            // result = Exp(fracPart * LogE(value))
+            Vector128<float> fracIsZero = Sse.CompareEqual(fracPart, Vector128<float>.Zero);
+            Vector128<float> log = LogE(Sse41.BlendVariable(value, VectorExtensions.AllBitsSetF, fracIsZero));
+            Vector128<float> fracResult = Exp(Sse.Multiply(fracPart, Sse41.BlendVariable(log, VectorExtensions.AllBitsSetF, fracIsZero)));
+            Vector128<float> result = Sse.Multiply(intResult, fracResult);
+
+            return Sse41.BlendVariable(result, intResult, fracIsZero);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> Pow_3_Vector128SamePower(this Vector128<float> value, float power)
+        {
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> PowI(Vector128<float> value, int power)
+            {
+                if (power < 0)
+                {
+                    power = -power;
+                    value = Sse.Divide(VectorExtensions.OneF, value); //Sse.Reciprocal(value); - Reciprocal has a terrible precision, e.g. for 2f it returns 0.49987793f
+                }
+                else if (power == 0)
+                    return VectorExtensions.OneF;
+
+                Vector128<float> result = VectorExtensions.OneF;
+                Vector128<float> current = value;
+
+                while (true)
+                {
+                    if ((power & 1) == 1)
+                    {
+                        result = Sse.Multiply(result, current);
+                        if (power == 1)
+                            return result;
+                    }
+
+                    power >>= 1;
+                    if (power > 0)
+                        current = Sse.Multiply(current, current);
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> LogE(Vector128<float> value)
+            {
+                // invalidMask = value < 0f || IsNaN(value)
+                // infinity = value == 0f || IsPositiveInfinity(value)
+                Vector128<float> invalidMask = Sse.Or(Sse.CompareLessThan(value, Vector128<float>.Zero), value.IsNaN());
+                Vector128<float> infinityMask = Sse.CompareEqual(value, VectorExtensions.PositiveInfinityF);
+                Vector128<float> zeroMask = Sse.CompareEqual(value, Vector128<float>.Zero);
+                Vector128<float> zeroOrInfinityOrInvalid = Sse.Or(zeroMask, Sse.Or(infinityMask, invalidMask));
+
+                var count = Vector128<int>.Zero;
+
+                // while (value >= 1f && !Single.IsPositiveInfinity(value))
+                // {
+                //     value *= 1 / MathF.E;
+                //     count += 1;
+                // }
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Sse.AndNot(infinityMask, Sse.CompareGreaterThanOrEqual(value, VectorExtensions.OneF)).AsInt32()) != Vector128<int>.Zero)
+                //{
+                //    value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.InvE128, value), mask.AsSingle());
+                //    count = Sse2.Add(count, Sse2.And(mask, VectorExtensions.OneI32));
+                //}
+
+                Vector128<int> mask = Sse.AndNot(infinityMask, Sse.CompareGreaterThanOrEqual(value, VectorExtensions.OneF)).AsInt32();
+                if (!mask.Equals(Vector128<int>.Zero))
+                {
+                    Vector128<float> v = Sse.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when 1 <= value < e)
+                    if (Sse.CompareGreaterThan(v, VectorExtensions.E128).AsUInt32().Equals(Vector128<uint>.Zero))
+                    {
+                        value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.InvE128, value), mask.AsSingle());
+                        count = Sse2.Add(count, Sse2.And(mask, VectorExtensions.OneI32));
+                    }
+                    else
+                    {
+                        v = Sse41.BlendVariable(VectorExtensions.NaN128F, v, mask.AsSingle());
+                        Vector128<int> c = Vector128<int>.Zero;
+                        do
+                        {
+                            v = Sse.Multiply(VectorExtensions.InvE128, v);
+                            c = Sse2.Add(c, VectorExtensions.OneI32);
+                        } while (!Sse.CompareGreaterThanOrEqual(v, VectorExtensions.OneF).AsUInt32().Equals(Vector128<uint>.Zero));
+
+                        value = Sse41.BlendVariable(value, v, mask.AsSingle());
+                        count = Sse2.Add(count, Sse2.And(mask, c));
+                    }
+                }
+
+                //while (value <= 1 / MathF.E && !zeroOrInfinityOrInvalid)
+                //{
+                //    value *= MathF.E;
+                //    count -= 1;
+                //}
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Sse.AndNot(zeroOrInfinityOrInvalid, Sse.CompareLessThanOrEqual(value, VectorExtensions.InvE128)).AsInt32()) != Vector128<int>.Zero)
+                //{
+                //    value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.E128, value), mask.AsSingle());
+                //    count = Sse2.Subtract(count, Sse2.And(mask, VectorExtensions.OneI32));
+                //}
+
+                mask = Sse.AndNot(zeroOrInfinityOrInvalid, Sse.CompareLessThanOrEqual(value, VectorExtensions.InvE128)).AsInt32();
+                if (!mask.Equals(Vector128<int>.Zero))
+                {
+                    Vector128<float> v = Sse.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when invE/e < value <= 1)
+                    if (Sse.CompareLessThan(v, VectorExtensions.InvEPerE128).AsUInt32().Equals(Vector128<uint>.Zero))
+                    {
+                        value = Sse41.BlendVariable(value, Sse.Multiply(VectorExtensions.E128, value), mask.AsSingle());
+                        count = Sse2.Subtract(count, Sse2.And(mask, VectorExtensions.OneI32));
+                    }
+                    else
+                    {
+                        v = Sse41.BlendVariable(VectorExtensions.NaN128F, v, mask.AsSingle());
+                        Vector128<int> c = Vector128<int>.Zero;
+                        do
+                        {
+                            v = Sse.Multiply(VectorExtensions.E128, v);
+                            c = Sse2.Add(c, VectorExtensions.OneI32);
+                        } while (!Sse.CompareLessThanOrEqual(v, VectorExtensions.InvE128).AsUInt32().Equals(Vector128<uint>.Zero));
+
+                        value = Sse41.BlendVariable(value, v, mask.AsSingle());
+                        count = Sse2.Subtract(count, Sse2.And(mask, c));
+                    }
+                }
+
+                //value -= 1f;
+                //if (value == 0f)
+                //    return count;
+
+                value = Sse.Subtract(value, VectorExtensions.OneF);
+
+                // going on with Taylor series
+                //float result = 0f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= -value;
+                //    result += acc / i;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                Vector128<float> result = Sse.Or(Vector128<float>.Zero, zeroOrInfinityOrInvalid);
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector128<float> acc = VectorExtensions.OneF;
+                //Vector128<float> negativeValue = Negate(value);
+                //for (var i = VectorExtensions.OneF; ; i = Sse.Add(i, VectorExtensions.OneF))
+                //{
+                //    Vector128<uint> prevResult = result.AsUInt32();
+                //    acc = Sse.Multiply(acc, negativeValue);
+                //    result = Sse.Add(result, Sse.Divide(acc, i));
+                //    if (prevResult == result.AsUInt32())
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector128<uint> prevResult = result.AsUInt32();
+                Vector128<float> negativeValue = value.Negate();
+                Vector128<float> acc = negativeValue;
+                result = Sse.Add(result, acc);
+
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.TwoF;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Sse.Multiply(acc, negativeValue);
+                        result = Sse.Add(result, Sse.Divide(acc, i));
+                        if (prevResult.Equals(result.AsUInt32()))
+                            break;
+                        i = Sse.Add(i, VectorExtensions.OneF);
+                    }
+                }
+
+                //return count - result;
+                result = Sse.Subtract(Sse2.ConvertToVector128Single(count), result);
+                result = Sse41.BlendVariable(result, VectorExtensions.PositiveInfinityF, infinityMask);
+                result = Sse41.BlendVariable(result, VectorExtensions.NegativeInfinityF, zeroMask);
+                return Sse.Or(invalidMask, result);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> ExpE(Vector128<float> power)
+            {
+                Vector128<int> integerPart = Vector128<int>.Zero;
+
+                //if (power > 1f)
+                //{
+                //    if (Single.IsPositiveInfinity(power))
+                //        power = Single.PositiveInfinity;
+                //    else
+                //    {
+                //        float diff = MathF.Floor(power);
+                //        power -= diff;
+                //    }
+
+                //    integerPart += (int)diff;
+                //}
+                Vector128<float> mask = Sse.CompareGreaterThan(power, VectorExtensions.OneF);
+                if (!mask.AsUInt32().Equals(Vector128<uint>.Zero))
+                {
+                    Vector128<float> finiteMask = Sse.CompareNotEqual(power, VectorExtensions.PositiveInfinityF);
+                    Vector128<float> diff = Sse41.Floor(Sse.And(power, finiteMask));
+                    power = Sse.Subtract(power, Sse.And(diff, mask));
+                    integerPart = Sse2.Add(integerPart, Sse2.ConvertToVector128Int32WithTruncation(Sse.And(diff, mask)));
+                }
+
+                //else if (power < 0f)
+                //{
+                //    float diff = MathF.Floor(-power);
+                //    if (diff > Int32.MaxValue)
+                //    {
+                //        diff = Int32.MaxValue;
+                //        power = 0f;
+                //    }
+                //    else
+                //        power += diff;
+                //    integerPart -= (int)diff;
+                //}
+
+                mask = Sse.CompareLessThan(power, VectorExtensions.OneF);
+                if (!mask.AsUInt32().Equals(Vector128<uint>.Zero))
+                {
+                    Vector128<float> diff = Sse.And(Sse41.Floor(power.Negate()), mask);
+                    Vector128<float> diffTooLargeMask = Sse.CompareGreaterThan(diff, VectorExtensions.MaxPreciseIntAsFloat);
+                    diff = Sse41.BlendVariable(diff, VectorExtensions.MaxPreciseIntAsFloat, diffTooLargeMask);
+                    power = Sse41.BlendVariable(power, Vector128<float>.Zero, diffTooLargeMask);
+                    power = Sse.Add(power, Sse.AndNot(diffTooLargeMask, Sse.And(diff, mask)));
+                    integerPart = Sse2.Subtract(integerPart, Sse2.ConvertToVector128Int32(Sse.And(diff, mask)));
+                }
+
+                //float result = 1f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= power / i;
+                //    result += acc;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector128<float> invalidMask = power.IsNaN();
+                //Vector128<float> result = Sse.Or(VectorExtensions.OneF, invalidMask);
+                //Vector128<float> acc = VectorExtensions.OneF;
+                //for (Vector128<float> i = VectorExtensions.OneF; ; i = Sse.Add(i, VectorExtensions.OneF))
+                //{
+                //    Vector128<float> prevResult = result;
+                //    acc = Sse.Multiply(acc, Sse.Divide(power, i));
+                //    result = Sse.Add(result, acc);
+                //    if (prevResult.AsUInt32() == result.AsUInt32()) // bitwise comparison to handle NaN and infinities
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector128<float> invalidMask = power.IsNaN();
+                Vector128<float> acc = power;
+                Vector128<uint> prevResult = Sse.Or(VectorExtensions.OneF, invalidMask).AsUInt32();
+                Vector128<float> result = Sse.Or(Sse.Add(VectorExtensions.OneF, acc), invalidMask);
+                
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.TwoF;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Sse.Multiply(acc, Sse.Divide(power, i));
+                        result = Sse.Add(result, acc);
+                        if (prevResult.AsUInt32().Equals(result.AsUInt32())) // bitwise int comparison to handle NaN and infinities
+                            break;
+                        i = Sse.Add(i, VectorExtensions.OneF);
+                    }
+                }
+
+                //if (integerPart != 0)
+                //    result *= PowI(MathF.E, integerPart);
+                integerPart = Sse2.AndNot(invalidMask.AsInt32(), integerPart);
+                if (!integerPart.Equals(Vector128<int>.Zero))
+                    result = Sse.Multiply(result, PowE(integerPart));
+
+                return result;
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector128<float> PowE(Vector128<int> power)
+            {
+                Vector128<float> value = VectorExtensions.E128;
+                //if (power < 0)
+                //{
+                //    power = -power;
+                //    value = 1f / value;
+                //}
+
+                Vector128<int> negativePowerMask = Sse2.CompareLessThan(power, Vector128<int>.Zero);
+                if (!negativePowerMask.Equals(Vector128<int>.Zero))
+                {
+                    power = Sse2.Subtract(Sse2.Xor(power, negativePowerMask), negativePowerMask);
+                    Vector128<float> inverseValue = Sse.Divide(VectorExtensions.OneF, value); //Sse.Reciprocal(value); - Reciprocal has a terrible precision, e.g. for 2f it returns 0.49987793f
+                    value = Sse41.BlendVariable(value, inverseValue, negativePowerMask.AsSingle());
+                }
+
+                Vector128<float> current = value;
+                Vector128<float> result = VectorExtensions.OneF;
+
+                while (true)
+                {
+                    //if ((power & 1) == 1)
+                    //    result = current * result;
+
+                    Vector128<int> powerOddMask = Sse2.CompareEqual(Sse2.And(power, VectorExtensions.OneI32), VectorExtensions.OneI32);
+                    if (!powerOddMask.Equals(Vector128<int>.Zero))
+                        result = Sse41.BlendVariable(result, Sse.Multiply(result, current), powerOddMask.AsSingle());
+
+                    //power >>= 1;
+                    //if (power > 0)
+                    //    current *= current;
+
+                    power = Sse2.ShiftRightLogical(power, 1);
+                    current = Sse.Multiply(current, current);
+
+                    if (power.Equals(Vector128<int>.Zero))
+                        return result;
+                }
+            }
+
+            #endregion
+
+            if (Single.IsNaN(power))
+                return VectorExtensions.NaN128F;
+
+            // FloatExtensions.MaxPreciseIntAsFloat is the largest integer that has exactly the same float representation.
+            // If the absolute value of power is larger than that, the result will be either 0 or Infinity anyway.
+            // But clipping is needed to avoid issues (e.g. Int32.MaxValue is an odd number, so if value is negative, the sign could be flipped).
+            power = power.Clip(FloatExtensions.MinPreciseIntAsFloat, FloatExtensions.MaxPreciseIntAsFloat);
+
+            // Faster if we calculate the result for the integer part fist, and then for the fractional
+            float integerPart = MathF.Truncate(power);
+            float fracPart = power - integerPart; // without clipping power, it should be: Single.IsPositiveInfinity(power) ? 0f : power - integerPart;
+            var result = PowI(value, (int)integerPart); // without clipping power, the cast may turn large even numbers into the odd Int32.MaxValue
+            if (fracPart != 0f)
+                result = Sse.Multiply(result,  ExpE(Sse.Multiply(Vector128.Create(fracPart), LogE(value))));
+
+            return result;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector256<float> Pow_4_Vector256SamePower(this Vector256<float> value, float power)
+        {
+            #region Local Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector256<float> PowI(Vector256<float> value, int power)
+            {
+                if (power < 0)
+                {
+                    power = -power;
+                    value = Avx.Divide(VectorExtensions.One256F, value); //Avx.Reciprocal(value); // Reciprocal has a quite low precision
+                }
+                else if (power == 0)
+                    return VectorExtensions.One256F;
+
+                Vector256<float> result = VectorExtensions.One256F;
+                Vector256<float> current = value;
+
+                while (true)
+                {
+                    if ((power & 1) == 1)
+                    {
+                        result = Avx.Multiply(result, current);
+                        if (power == 1)
+                            return result;
+                    }
+
+                    power >>= 1;
+                    if (power > 0)
+                        current = Avx.Multiply(current, current);
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector256<float> LogE(Vector256<float> value)
+            {
+                // invalidMask = value < 0f || IsNaN(value)
+                // infinity = value == 0f || IsPositiveInfinity(value)
+                Vector256<float> invalidMask = Avx.Or(Avx.Compare(value, Vector256<float>.Zero, FloatComparisonMode.OrderedLessThanNonSignaling), value.IsNaN());
+                Vector256<float> infinityMask = Avx.Compare(value, VectorExtensions.PositiveInfinity256F, FloatComparisonMode.OrderedEqualNonSignaling);
+                Vector256<float> zeroMask = Avx.Compare(value, Vector256<float>.Zero, FloatComparisonMode.OrderedEqualNonSignaling);
+                Vector256<float> zeroOrInfinityOrInvalid = Avx.Or(zeroMask, Avx.Or(infinityMask, invalidMask));
+
+                Vector256<int> count = Vector256<int>.Zero;
+
+                // while (value >= 1f && !Single.IsPositiveInfinity(value))
+                // {
+                //     value *= 1 / MathF.E;
+                //     count += 1;
+                // }
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Avx.AndNot(infinityMask, Avx.CompareGreaterThanOrEqual(value, VectorExtensions.OneF256)).AsInt32()) != Vector256<int>.Zero)
+                //{
+                //    value = Avx.BlendVariable(value, Avx.Multiply(VectorExtensions.InvE256, value), mask.AsSingle());
+                //    count = Avx.Add(count, Avx.And(mask, VectorExtensions.One256I32));
+                //}
+
+                Vector256<int> mask = Avx.AndNot(infinityMask, Avx.Compare(value, VectorExtensions.One256F, FloatComparisonMode.OrderedGreaterThanOrEqualNonSignaling)).AsInt32();
+                if (!mask.Equals(Vector256<int>.Zero))
+                {
+                    Vector256<float> v = Avx.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when 1 <= value < e)
+                    if (Avx.Compare(v, VectorExtensions.E256, FloatComparisonMode.OrderedGreaterThanNonSignaling).AsUInt32().Equals(Vector256<uint>.Zero))
+                    {
+                        value = Avx.BlendVariable(value, Avx.Multiply(VectorExtensions.InvE256, value), mask.AsSingle());
+                        count = Avx2.Add(count, Avx2.And(mask, VectorExtensions.One256I32));
+                    }
+                    else
+                    {
+                        v = Avx.BlendVariable(VectorExtensions.NaN256F, v, mask.AsSingle());
+                        Vector256<int> c = Vector256<int>.Zero;
+                        do
+                        {
+                            v = Avx.Multiply(VectorExtensions.InvE256, v);
+                            c = Avx2.Add(c, VectorExtensions.One256I32);
+                        } while (!Avx.Compare(v, VectorExtensions.One256F, FloatComparisonMode.OrderedGreaterThanOrEqualNonSignaling).AsUInt32().Equals(Vector256<uint>.Zero));
+
+                        value = Avx.BlendVariable(value, v, mask.AsSingle());
+                        count = Avx2.Add(count, Avx2.And(mask, c));
+                    }
+                }
+
+                //while (value <= 1 / MathF.E && !zeroOrInfinityOrInvalid)
+                //{
+                //    value *= MathF.E;
+                //    count -= 1;
+                //}
+
+                // we could simply implement it like this, but it applies the mask in every iteration:
+                //while ((mask = Avx.AndNot(zeroOrInfinityOrInvalid, Avx.CompareLessThanOrEqual(value, VectorExtensions.InvE256)).AsInt32()) != Vector256<int>.Zero)
+                //{
+                //    value = Avx.BlendVariable(value, Avx.Multiply(VectorExtensions.E256, value), mask.AsSingle());
+                //    count = Avx.Subtract(count, Avx.And(mask, VectorExtensions.One256I32));
+                //}
+
+                mask = Avx.AndNot(zeroOrInfinityOrInvalid, Avx.Compare(value, VectorExtensions.InvE256, FloatComparisonMode.OrderedLessThanOrEqualNonSignaling)).AsInt32();
+                if (!mask.Equals(Vector256<int>.Zero))
+                {
+                    Vector256<float> v = Avx.And(value, mask.AsSingle());
+
+                    // shortcut for one iteration (when invE/e < value <= 1)
+                    if (Avx.Compare(v, VectorExtensions.InvEPerE256, FloatComparisonMode.OrderedLessThanNonSignaling).AsUInt32().Equals(Vector256<uint>.Zero))
+                    {
+                        value = Avx.BlendVariable(value, Avx.Multiply(VectorExtensions.E256, value), mask.AsSingle());
+                        count = Avx2.Subtract(count, Avx2.And(mask, VectorExtensions.One256I32));
+                    }
+                    else
+                    {
+                        v = Avx.BlendVariable(VectorExtensions.NaN256F, v, mask.AsSingle());
+                        Vector256<int> c = Vector256<int>.Zero;
+                        do
+                        {
+                            v = Avx.Multiply(VectorExtensions.E256, v);
+                            c = Avx2.Add(c, VectorExtensions.One256I32);
+                        } while (!Avx.Compare(v, VectorExtensions.InvE256, FloatComparisonMode.OrderedLessThanOrEqualNonSignaling).AsUInt32().Equals(Vector256<uint>.Zero));
+
+                        value = Avx.BlendVariable(value, v, mask.AsSingle());
+                        count = Avx2.Subtract(count, Avx2.And(mask, c));
+                    }
+                }
+
+                //value -= 1f;
+                //if (value == 0f)
+                //    return count;
+
+                value = Avx.Subtract(value, VectorExtensions.One256F);
+
+                // going on with Taylor series
+                //float result = 0f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= -value;
+                //    result += acc / i;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                Vector256<float> result = Avx.Or(Vector256<float>.Zero, zeroOrInfinityOrInvalid);
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector256<float> acc = VectorExtensions.OneF256;
+                //Vector256<float> negativeValue = Negate(value);
+                //for (var i = VectorExtensions.OneF256; ; i = Avx.Add(i, VectorExtensions.OneF256))
+                //{
+                //    Vector256<uint> prevResult = result.AsUInt32();
+                //    acc = Avx.Multiply(acc, negativeValue);
+                //    result = Avx.Add(result, Avx.Divide(acc, i));
+                //    if (prevResult == result.AsUInt32())
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector256<uint> prevResult = result.AsUInt32();
+                Vector256<float> negativeValue = value.Negate();
+                Vector256<float> acc = negativeValue;
+                result = Avx.Add(result, acc);
+
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.Two256F;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Avx.Multiply(acc, negativeValue);
+                        result = Avx.Add(result, Avx.Divide(acc, i));
+                        if (prevResult.Equals(result.AsUInt32()))
+                            break;
+                        i = Avx.Add(i, VectorExtensions.One256F);
+                    }
+                }
+
+                //return count - result;
+                result = Avx.Subtract(Avx.ConvertToVector256Single(count), result);
+                result = Avx.BlendVariable(result, VectorExtensions.PositiveInfinity256F, infinityMask);
+                result = Avx.BlendVariable(result, VectorExtensions.NegativeInfinity256F, zeroMask);
+                return Avx.Or(invalidMask, result);
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector256<float> ExpE(Vector256<float> power)
+            {
+                Vector256<int> integerPart = Vector256<int>.Zero;
+
+                //if (power > 1f)
+                //{
+                //    if (Single.IsPositiveInfinity(power))
+                //        power = Single.PositiveInfinity;
+                //    else
+                //    {
+                //        float diff = MathF.Floor(power);
+                //        power -= diff;
+                //    }
+
+                //    integerPart += (int)diff;
+                //}
+                Vector256<float> mask = Avx.Compare(power, VectorExtensions.One256F, FloatComparisonMode.OrderedGreaterThanNonSignaling);
+                if (!mask.AsUInt32().Equals(Vector256<uint>.Zero))
+                {
+                    Vector256<float> finiteMask = Avx.Compare(power, VectorExtensions.PositiveInfinity256F, FloatComparisonMode.UnorderedNotEqualNonSignaling);
+                    Vector256<float> diff = Avx.Floor(Avx.And(power, finiteMask));
+                    power = Avx.Subtract(power, Avx.And(diff, mask));
+                    integerPart = Avx2.Add(integerPart, Avx.ConvertToVector256Int32WithTruncation(Avx.And(diff, mask)));
+                }
+
+                //else if (power < 0f)
+                //{
+                //    float diff = MathF.Floor(-power);
+                //    if (diff > Int32.MaxValue)
+                //    {
+                //        diff = Int32.MaxValue;
+                //        power = 0f;
+                //    }
+                //    else
+                //        power += diff;
+                //    integerPart -= (int)diff;
+                //}
+
+                mask = Avx.Compare(power, VectorExtensions.One256F, FloatComparisonMode.OrderedLessThanNonSignaling);
+                if (!mask.AsUInt32().Equals(Vector256<uint>.Zero))
+                {
+                    Vector256<float> diff = Avx.And(Avx.Floor(power.Negate()), mask);
+                    Vector256<float> diffTooLargeMask = Avx.Compare(diff, VectorExtensions.MaxPreciseIntAsFloat256, FloatComparisonMode.OrderedGreaterThanNonSignaling);
+                    diff = Avx.BlendVariable(diff, VectorExtensions.MaxPreciseIntAsFloat256, diffTooLargeMask);
+                    power = Avx.BlendVariable(power, Vector256<float>.Zero, diffTooLargeMask);
+                    power = Avx.Add(power, Avx.AndNot(diffTooLargeMask, Avx.And(diff, mask)));
+                    integerPart = Avx2.Subtract(integerPart, Avx.ConvertToVector256Int32(Avx.And(diff, mask)));
+                }
+
+                //float result = 1f;
+                //float acc = 1f;
+                //for (int i = 1; ; i++)
+                //{
+                //    float prevResult = result;
+                //    acc *= power / i;
+                //    result += acc;
+                //    if (prevResult == result)
+                //        break;
+                //}
+
+                // we could implement it like this, but it would do an unnecessary multiplication and division in the first iteration:
+                //Vector256<float> invalidMask = power.IsNaN();
+                //Vector256<float> result = Avx.Or(VectorExtensions.OneF256, invalidMask);
+                //Vector256<float> acc = VectorExtensions.OneF256;
+                //for (Vector256<float> i = VectorExtensions.OneF256; ; i = Avx.Add(i, VectorExtensions.OneF256))
+                //{
+                //    Vector256<float> prevResult = result;
+                //    acc = Avx.Multiply(acc, Avx.Divide(power, i));
+                //    result = Avx.Add(result, acc);
+                //    if (prevResult.AsUInt32() == result.AsUInt32()) // bitwise comparison to handle NaN and infinities
+                //        break;
+                //}
+
+                // first iteration (i == 1)
+                Vector256<float> invalidMask = power.IsNaN();
+                Vector256<float> acc = power;
+                Vector256<uint> prevResult = Avx.Or(VectorExtensions.One256F, invalidMask).AsUInt32();
+                Vector256<float> result = Avx.Or(Avx.Add(VectorExtensions.One256F, acc), invalidMask);
+                
+                // further iterations (i >= 2)
+                if (!prevResult.Equals(result.AsUInt32()))
+                {
+                    var i = VectorExtensions.Two256F;
+                    while (true)
+                    {
+                        prevResult = result.AsUInt32();
+                        acc = Avx.Multiply(acc, Avx.Divide(power, i));
+                        result = Avx.Add(result, acc);
+                        if (prevResult.AsUInt32().Equals(result.AsUInt32())) // bitwise int comparison to handle NaN and infinities
+                            break;
+                        i = Avx.Add(i, VectorExtensions.One256F);
+                    }
+                }
+
+                //if (integerPart != 0)
+                //    result *= PowI(MathF.E, integerPart);
+                integerPart = Avx2.AndNot(invalidMask.AsInt32(), integerPart);
+                if (!integerPart.Equals(Vector256<int>.Zero))
+                    result = Avx.Multiply(result, PowE(integerPart));
+
+                return result;
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static Vector256<float> PowE(Vector256<int> power)
+            {
+                Vector256<float> value = VectorExtensions.E256;
+                //if (power < 0)
+                //{
+                //    power = -power;
+                //    value = 1f / value;
+                //}
+
+                Vector256<int> negativePowerMask = Avx2.ShiftRightArithmetic(power, 31); // same as CompareLessThan(power, Vector256<int>.Zero), which exists only starting with Avx512F.VL for ints.
+                if (!negativePowerMask.Equals(Vector256<int>.Zero))
+                {
+                    power = Avx2.Subtract(Avx2.Xor(power, negativePowerMask), negativePowerMask);
+                    Vector256<float> inverseValue = Avx.Divide(VectorExtensions.One256F, value); //Avx.Reciprocal(value); - Reciprocal has a terrible precision, e.g. for 2f it returns 0.49987793f
+                    value = Avx.BlendVariable(value, inverseValue, negativePowerMask.AsSingle());
+                }
+
+                Vector256<float> current = value;
+                Vector256<float> result = VectorExtensions.One256F;
+
+                while (true)
+                {
+                    //if ((power & 1) == 1)
+                    //    result = current * result;
+
+                    Vector256<int> powerOddMask = Avx2.CompareEqual(Avx2.And(power, VectorExtensions.One256I32), VectorExtensions.One256I32);
+                    if (!powerOddMask.Equals(Vector256<int>.Zero))
+                        result = Avx.BlendVariable(result, Avx.Multiply(result, current), powerOddMask.AsSingle());
+
+                    //power >>= 1;
+                    //if (power > 0)
+                    //    current *= current;
+
+                    power = Avx2.ShiftRightLogical(power, 1);
+                    current = Avx.Multiply(current, current);
+
+                    if (power.Equals(Vector256<int>.Zero))
+                        return result;
+                }
+            }
+
+            #endregion
+
+            if (Single.IsNaN(power))
+                return VectorExtensions.NaN256F;
+
+            // FloatExtensions.MaxPreciseIntAsFloat is the largest integer that has exactly the same float representation.
+            // If the absolute value of power is larger than that, the result will be either 0 or Infinity anyway.
+            // But clipping is needed to avoid issues (e.g. Int32.MaxValue is an odd number, so if value is negative, the sign could be flipped).
+            power = power.Clip(FloatExtensions.MinPreciseIntAsFloat, FloatExtensions.MaxPreciseIntAsFloat);
+
+            // Faster if we calculate the result for the integer part fist, and then for the fractional
+            float integerPart = MathF.Truncate(power);
+            float fracPart = power - integerPart; // without clipping power, it should be: Single.IsPositiveInfinity(power) ? 0f : power - integerPart;
+            var result = PowI(value, (int)integerPart); // without clipping power, the cast may turn large even numbers into the odd Int32.MaxValue
+            if (fracPart != 0f)
+                result = Avx.Multiply(result,  ExpE(Avx.Multiply(Vector256.Create(fracPart), LogE(value))));
+
+            return result;
+        }
+
+#if NET9_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float Pow_5_ByVector128ExpLog_Scalar(this float value, float power)
+        {
+            return value switch
+            {
+                > 0f => Vector128.Exp(power * Vector128.Log(Vector128.Create(value))).ToScalar(),
+                < 0f => (power % 2f) switch
+                {
+                    0f => Vector128.Exp(power * Vector128.Log(Vector128.Create(-value))).ToScalar(),
+                    1f or -1f => -Vector128.Exp(power * Vector128.Log(Vector128.Create(-value))).ToScalar(),
+                    _ => power switch
+                    {
+                        Single.PositiveInfinity => value < -1f ? Single.PositiveInfinity : 0f,
+                        Single.NegativeInfinity => value < -1f ? 0f : Single.PositiveInfinity,
+                        _ => Single.NaN
+                    }
+                },
+                0f => power switch
+                {
+                    > 0f => 0f,
+                    < 0f => Single.PositiveInfinity,
+                    0f => 1f,
+                    _ => Single.NaN
+                },
+                _ => power is 0f ? 1f : Single.NaN
+            };
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> Pow_6_ByVector128ExpLog(this Vector128<float> value, float power)
+        {
+            Vector128<float> p = Vector128.Create(power);
+
+            // if (value > 0f)
+            //     return MathF.Exp(power * MathF.Log(value));
+
+            Vector128<float> mask = Vector128.GreaterThan(value, Vector128<float>.Zero);
+            Vector128<float> result = mask.AsUInt32() == Vector128<uint>.Zero
+                ? Vector128<float>.Zero
+                : Vector128.Exp(p * Vector128.Log(value));
+
+            if (mask.AsUInt32() == Vector128<uint>.AllBitsSet)
+                return result;
+
+            //if (value < 0f)
+            //{
+            //    return (power % 2f) switch
+            //    {
+            //        0f => MathF.Exp(power * MathF.Log(-value)),
+            //        1f or -1f => -MathF.Exp(power * MathF.Log(-value)),
+            //        _ => power switch
+            //        {
+            //            Single.PositiveInfinity => value < -1f ? Single.PositiveInfinity : 0f,
+            //            Single.NegativeInfinity => value < -1f ? 0f : Single.PositiveInfinity,
+            //            _ => Single.NaN
+            //        }
+            //    };
+            //}
+
+            mask = Vector128.LessThan(value, Vector128<float>.Zero);
+            if (mask.AsUInt32() != Vector128<uint>.Zero)
+            {
+                Vector128<float> res = (power % 2f) switch
+                {
+                    0f => Vector128.Exp(p * Vector128.Log(-value)),
+                    1f or -1f => -Vector128.Exp(p * Vector128.Log(-value)),
+                    _ => power switch
+                    {
+                        Single.PositiveInfinity => Vector128.ConditionalSelect(Vector128.LessThan(value, Vector128.Create(-1f)), VectorExtensions.PositiveInfinityF, Vector128<float>.Zero),
+                        Single.NegativeInfinity => Vector128.ConditionalSelect(Vector128.LessThan(value, Vector128.Create(-1f)), Vector128<float>.Zero, VectorExtensions.PositiveInfinityF),
+                        _ => VectorExtensions.NaN128F
+                    }
+                };
+
+                result = Vector128.ConditionalSelect(mask, res, result);
+            }
+
+            //if (value == 0f)
+            //{
+            //    return power switch
+            //    {
+            //        > 0f => 0f,
+            //        < 0f => Single.PositiveInfinity,
+            //        0f => 1f,
+            //        _ => Single.NaN
+            //    };
+            //}
+
+            mask = Vector128.Equals(value, Vector128<float>.Zero);
+            if (mask.AsUInt32() != Vector128<uint>.Zero)
+            {
+                Vector128<float> res = power switch
+                {
+                    > 0f => Vector128<float>.Zero,
+                    < 0f => VectorExtensions.PositiveInfinityF,
+                    0f => VectorExtensions.OneF,
+                    _ => VectorExtensions.NaN128F
+                };
+
+                result = Vector128.ConditionalSelect(mask, res, result);
+            }
+
+            // if (value is NaN)
+            //     return power is 0f ? 1f : Single.NaN;
+            mask = Vector128.IsNaN(value);
+            if (mask.AsUInt32() != Vector128<uint>.Zero)
+                result = Vector128.ConditionalSelect(mask, power is 0f ? Vector128<float>.One : VectorExtensions.NaN128F, result);
+
+            return result;
+        }
+#endif
 
         #endregion
     }

@@ -535,7 +535,6 @@ namespace KGySoft.Drawing.PerformanceTests
             }
         }
 
-        private static Vector128<byte> mask = Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColor64 ToPColor64_9c_Final(this Color64 c)
         {
@@ -566,7 +565,7 @@ namespace KGySoft.Drawing.PerformanceTests
 
                             return new PColor64((/*Sse41.IsSupported
                                     ? Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64()
-                                    : */Ssse3.Shuffle(bgraI32.AsByte(), mask).AsUInt64())
+                                    : */Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowWordsMask).AsUInt64())
                                 .ToScalar());
                         }
 
