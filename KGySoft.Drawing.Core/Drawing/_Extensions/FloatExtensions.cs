@@ -48,6 +48,16 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Fields
+
+#if NETCOREAPP3_0_OR_GREATER && !NET9_0_OR_GREATER
+
+        internal static readonly float AllBitsSetF = BitConverter.Int32BitsToSingle(-1);
+
+#endif
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

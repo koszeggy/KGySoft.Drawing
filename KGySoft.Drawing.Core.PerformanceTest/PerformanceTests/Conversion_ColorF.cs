@@ -332,13 +332,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 if (c.Rgb.LessThanAll(1f))
                 {
                     Vector3 result = new Vector3(MathF.Pow(c.R, 1f / 2.4f), MathF.Pow(c.G, 1f / 2.4f), MathF.Pow(c.B, 1f / 2.4f));
-                    result = (result * 1.055f - new Vector3(0.055f)) * 255f + VectorExtensions.Half3;
+                    result = (result * 1.055f - new Vector3(0.055f)) * 255f + new Vector3(0.5f);
                     return new Color32(ColorSpaceHelper.ToByte(c.A), (byte)result.X, (byte)result.Y, (byte)result.Z);
                 }
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + VectorExtensions.Half3;
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
                 return new Color32(ColorSpaceHelper.ToByte(c.A), (byte)result.X, (byte)result.Y, (byte)result.Z);
             }
 
@@ -468,13 +468,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 if (c.Rgb.LessThanAll(1f))
                 {
                     Vector3 result = new Vector3(MathF.Pow(c.R, 1f / 2.4f), MathF.Pow(c.G, 1f / 2.4f), MathF.Pow(c.B, 1f / 2.4f));
-                    result = (result * 1.055f - new Vector3(0.055f)) * 65535f + VectorExtensions.Half3;
+                    result = (result * 1.055f - new Vector3(0.055f)) * 65535f + new Vector3(0.5f);
                     return new Color64(ColorSpaceHelper.ToUInt16(c.A), (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
                 }
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + VectorExtensions.Half3;
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
                 return new Color64(ColorSpaceHelper.ToUInt16(c.A), (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
             }
 

@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
-            Vector3 result = (VectorExtensions.Max8Bit3 - rgbF) * brightness + rgbF;
+            Vector3 result = (new Vector3(255f) - rgbF) * brightness + rgbF;
 
             return new Color32(c.A,
                 (byte)result.X,
@@ -330,7 +330,7 @@ namespace KGySoft.Drawing.PerformanceTests
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
 
-            rgbF = (VectorExtensions.Max16Bit3 - rgbF) * brightness + rgbF;
+            rgbF = (new Vector3(65535f) - rgbF) * brightness + rgbF;
             return new Color64(c.A,
                 (ushort)rgbF.X,
                 (ushort)rgbF.Y,
@@ -522,7 +522,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
-            rgbF = (((rgbF.Div(Byte.MaxValue) - VectorExtensions.Half3) * contrast + VectorExtensions.Half3) * Byte.MaxValue).Clip(Vector3.Zero, VectorExtensions.Max8Bit3);
+            rgbF = (((rgbF.Div(Byte.MaxValue) - new Vector3(0.5f)) * contrast + new Vector3(0.5f)) * Byte.MaxValue).Clip(Vector3.Zero, new Vector3(255f));
 
             return new Color32(c.A,
                 (byte)rgbF.X,
@@ -638,7 +638,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NET45_OR_GREATER || NETCOREAPP
             var rgbF = new Vector3(c.R, c.G, c.B);
-            rgbF = (((rgbF.Div(UInt16.MaxValue) - VectorExtensions.Half3) * contrast + VectorExtensions.Half3) * UInt16.MaxValue).Clip(Vector3.Zero, VectorExtensions.Max16Bit3);
+            rgbF = (((rgbF.Div(UInt16.MaxValue) - new Vector3(0.5f)) * contrast + new Vector3(0.5f)) * UInt16.MaxValue).Clip(Vector3.Zero, new Vector3(65535f));
 
             return new Color64(c.A,
                 (ushort)rgbF.X,
@@ -718,7 +718,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
 #if NET45_OR_GREATER || NETCOREAPP
             Vector3 rgbF = c.Rgb.ClipF();
-            rgbF = (rgbF - VectorExtensions.Half3) * contrast + VectorExtensions.Half3;
+            rgbF = (rgbF - new Vector3(0.5f)) * contrast + new Vector3(0.5f);
             return new ColorF(new Vector4(rgbF, c.A));
 #else
             c = c.Clip();
