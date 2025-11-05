@@ -573,7 +573,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color32 ToColor32()
         {
-#if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER // NOTE: though this block would compile on .NET 7+, allowing auto-vectorization on .NET9+ only is intended
             if (Vector128.IsHardwareAccelerated)
             {
                 // Unlike Sse2.ConvertToVector128Int32, Vector128.ConvertToInt32 does not perform actual rounding, so we need to add +0.5f
@@ -613,8 +613,19 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color64 ToColor64()
         {
-#if NETCOREAPP3_0_OR_GREATER
-            // Using vectorization for the float -> int conversion if possible.
+#if NET9_0_OR_GREATER // NOTE: though this block would compile on .NET 7+, allowing auto-vectorization on .NET9+ only is intended
+            if (Vector128.IsHardwareAccelerated)
+            {
+                // Unlike Sse2.ConvertToVector128Int32, Vector128.ConvertToInt32 does not perform actual rounding, so we need to add +0.5f
+                Vector128<float> rgbaF = (ColorSpaceHelper.LinearToSrgbVectorRgba(RgbaV128) * VectorExtensions.Max16BitF + VectorExtensions.HalfF).Clip(Vector128<float>.Zero, VectorExtensions.Max16BitF);
+                Vector128<byte> rgbaI32 = Vector128.ConvertToInt32(rgbaF).AsByte();
+#if NET10_0_OR_GREATER
+                return new Color64(Vector128.ShuffleNative(rgbaI32, VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar());
+#else
+                return new Color64(Vector128.Shuffle(rgbaI32, VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar());
+#endif
+            }
+#elif NETCOREAPP3_0_OR_GREATER
             if (Sse2.IsSupported)
             {
                 // Sse2.ConvertToVector128Int32 performs actual rounding

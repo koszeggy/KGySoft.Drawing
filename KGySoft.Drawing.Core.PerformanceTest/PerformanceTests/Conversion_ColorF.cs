@@ -225,15 +225,54 @@ namespace KGySoft.Drawing.PerformanceTests
             }
 
             DoAssert(_ => testColorF.ToColor64_0_Vanilla());
-            DoAssert(_ => testColorF.ToColor64_1_Vector());
-            DoAssert(_ => testColorF.ToColor64_2_ToSrgbVanillaFirst());
+            DoAssert(_ => testColorF.ToColor64_1_Vector3_HappyRangesOnly_VanillaCompare_MathFPow());
+            DoAssert(_ => testColorF.ToColor64_2_IntrinsicsToSrgbVanillaFirst());
+            DoAssert(_ => testColorF.ToColor64_3_IntrinsicsToSrgbVectorsFirst());
+            DoAssert(_ => testColorF.ToColor64_4_VectorsToSrgbVectorsFirst());
 
-            new PerformanceTest<Color64> { TestName = "ColorF -> Color32", TestTime = 5000, Iterations = 10_000_000, Repeat = 3 }
+            new PerformanceTest<Color64> { TestName = "ColorF -> Color64", TestTime = 2000, Repeat = 3 }
                 .AddCase(() => testColorF.ToColor64_0_Vanilla(), nameof(Extensions.ToColor64_0_Vanilla))
-                .AddCase(() => testColorF.ToColor64_1_Vector(), nameof(Extensions.ToColor64_1_Vector))
-                .AddCase(() => testColorF.ToColor64_2_ToSrgbVanillaFirst(), nameof(Extensions.ToColor64_2_ToSrgbVanillaFirst))
+                .AddCase(() => testColorF.ToColor64_1_Vector3_HappyRangesOnly_VanillaCompare_MathFPow(), nameof(Extensions.ToColor64_1_Vector3_HappyRangesOnly_VanillaCompare_MathFPow))
+                .AddCase(() => testColorF.ToColor64_2_IntrinsicsToSrgbVanillaFirst(), nameof(Extensions.ToColor64_2_IntrinsicsToSrgbVanillaFirst))
+                .AddCase(() => testColorF.ToColor64_3_IntrinsicsToSrgbVectorsFirst(), nameof(Extensions.ToColor64_3_IntrinsicsToSrgbVectorsFirst))
+                .AddCase(() => testColorF.ToColor64_4_VectorsToSrgbVectorsFirst(), nameof(Extensions.ToColor64_4_VectorsToSrgbVectorsFirst))
                 .DoTest()
                 .DumpResults(Console.Out);
+
+            //  ==[ColorF -> Color64 (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
+            //  Test Time: 2,000 ms
+            //  Warming up: Yes
+            //  Test cases: 5
+            //  Repeats: 3
+            //  Calling GC.Collect: Yes
+            //  Forced CPU Affinity: No
+            //  Cases are sorted by fulfilled iterations (the most first)
+            //  --------------------------------------------------
+            //  1. ToColor64_4_VectorsToSrgbVectorsFirst: 130,786,391 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 43,595,462.21
+            //    #1  41,922,417 iterations in 2,000.00 ms. Adjusted: 41,922,414.90	 <---- Worst
+            //    #2  45,709,787 iterations in 2,000.00 ms. Adjusted: 45,709,784.71	 <---- Best
+            //    #3  43,154,187 iterations in 2,000.00 ms. Adjusted: 43,154,187.00
+            //    Worst-Best difference: 3,787,369.81 (9.03%)
+            //  2. ToColor64_3_IntrinsicsToSrgbVectorsFirst: 124,266,379 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 41,422,125.65 (-2,173,336.55 / 95.01%)
+            //    #1  42,511,544 iterations in 2,000.00 ms. Adjusted: 42,511,544.00	 <---- Best
+            //    #2  40,795,666 iterations in 2,000.00 ms. Adjusted: 40,795,663.96	 <---- Worst
+            //    #3  40,959,169 iterations in 2,000.00 ms. Adjusted: 40,959,169.00
+            //    Worst-Best difference: 1,715,880.04 (4.21%)
+            //  3. ToColor64_1_Vector3_HappyRangesOnly_VanillaCompare_MathFPow: 112,041,251 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 37,347,083.07 (-6,248,379.13 / 85.67%)
+            //    #1  35,579,203 iterations in 2,000.00 ms. Adjusted: 35,579,201.22	 <---- Worst
+            //    #2  36,756,548 iterations in 2,000.00 ms. Adjusted: 36,756,548.00
+            //    #3  39,705,500 iterations in 2,000.00 ms. Adjusted: 39,705,500.00	 <---- Best
+            //    Worst-Best difference: 4,126,298.78 (11.60%)
+            //  4. ToColor64_2_IntrinsicsToSrgbVanillaFirst: 111,690,189 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 37,230,063.00 (-6,365,399.21 / 85.40%)
+            //    #1  35,146,315 iterations in 2,000.00 ms. Adjusted: 35,146,315.00	 <---- Worst
+            //    #2  35,327,476 iterations in 2,000.00 ms. Adjusted: 35,327,476.00
+            //    #3  41,216,398 iterations in 2,000.00 ms. Adjusted: 41,216,398.00	 <---- Best
+            //    Worst-Best difference: 6,070,083.00 (17.27%)
+            //  5. ToColor64_0_Vanilla: 105,517,383 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 35,172,461.00 (-8,423,001.21 / 80.68%)
+            //    #1  33,212,148 iterations in 2,000.00 ms. Adjusted: 33,212,148.00	 <---- Worst
+            //    #2  36,958,879 iterations in 2,000.00 ms. Adjusted: 36,958,879.00	 <---- Best
+            //    #3  35,346,356 iterations in 2,000.00 ms. Adjusted: 35,346,356.00
+            //    Worst-Best difference: 3,746,731.00 (11.28%)
         }
 
         #endregion
@@ -462,7 +501,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 ColorSpaceHelper.LinearToSrgb16Bit(c.B));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToColor64_1_Vector(this ColorF c)
+        internal static Color64 ToColor64_1_Vector3_HappyRangesOnly_VanillaCompare_MathFPow(this ColorF c)
         {
             // NOTE: On .NET 4.6 it's still slower than vanilla. On .NET Core 2.0 it's just a bit faster.
             if (c.Rgb.GreaterThanAll(0.0031308f))
@@ -487,16 +526,54 @@ namespace KGySoft.Drawing.PerformanceTests
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToColor64_2_ToSrgbVanillaFirst(this ColorF c)
+        internal static Color64 ToColor64_2_IntrinsicsToSrgbVanillaFirst(this ColorF c)
         {
             if (Sse2.IsSupported)
             {
-                var rgbaF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, VectorExtensions.Max16BitF);
+                var rgbaF = Sse.Multiply(c.ToSrgb_2_Intrinsics().RgbaV128, VectorExtensions.Max16BitF);
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), VectorExtensions.Max16BitF);
                 var rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsUInt16();
                 return Ssse3.IsSupported
                     ? new Color64(Ssse3.Shuffle(rgbaI32.AsByte(), VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar())
                     : new Color64(rgbaI32.GetElement(6), rgbaI32.GetElement(0), rgbaI32.GetElement(2), rgbaI32.GetElement(4));
             }
+
+            return new Color64(ColorSpaceHelper.ToUInt16(c.A),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.R),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.G),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.B));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToColor64_3_IntrinsicsToSrgbVectorsFirst(this ColorF c)
+        {
+            if (Sse2.IsSupported)
+            {
+                var rgbaF = Sse.Multiply(c.ToSrgb_0_Vanilla().RgbaV128, VectorExtensions.Max16BitF);
+                rgbaF = Sse.Min(Sse.Max(rgbaF, Vector128<float>.Zero), VectorExtensions.Max16BitF);
+                var rgbaI32 = Sse2.ConvertToVector128Int32(rgbaF).AsUInt16();
+                return Ssse3.IsSupported
+                    ? new Color64(Ssse3.Shuffle(rgbaI32.AsByte(), VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar())
+                    : new Color64(rgbaI32.GetElement(6), rgbaI32.GetElement(0), rgbaI32.GetElement(2), rgbaI32.GetElement(4));
+            }
+
+            return new Color64(ColorSpaceHelper.ToUInt16(c.A),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.R),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.G),
+                ColorSpaceHelper.LinearToSrgb16Bit(c.B));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToColor64_4_VectorsToSrgbVectorsFirst(this ColorF c)
+        {
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                var rgbaF = (c.RgbaV128.ToSrgb_1_AutoVectorization() * VectorExtensions.Max16BitF + VectorExtensions.HalfF).Clip(Vector128<float>.Zero, VectorExtensions.Max16BitF);
+                var rgbaI32 = Vector128.ConvertToInt32(rgbaF).AsByte();
+                return new Color64(Vector128.Shuffle(rgbaI32, VectorExtensions.PackRgbaAsBgraWordsMask).AsUInt64().ToScalar());
+            }
+#endif
 
             return new Color64(ColorSpaceHelper.ToUInt16(c.A),
                 ColorSpaceHelper.LinearToSrgb16Bit(c.R),
