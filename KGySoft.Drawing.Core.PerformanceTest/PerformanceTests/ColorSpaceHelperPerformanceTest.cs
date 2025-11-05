@@ -50,8 +50,8 @@ namespace KGySoft.Drawing.PerformanceTests
             var linear = Vector128.Create(r, g, b, a);
             var srgb = linear.ToSrgb_0_Vanilla();
 
-            Console.WriteLine($"{"Original color:",-40} {linear}");
-            Console.WriteLine($"{"Expected color:",-40} {srgb}");
+            Console.WriteLine($"{"Original color:",-40} {new ColorF(linear)}");
+            Console.WriteLine($"{"Expected color:",-40} {new ColorF(srgb)}");
 
 #if NET7_0_OR_GREATER
             DoAssert(_ => linear.ToSrgb_1_AutoVectorization());
@@ -68,8 +68,6 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() => linear.ToSrgb_0_Vanilla(), nameof(Extensions.ToSrgb_0_Vanilla))
 #if NET7_0_OR_GREATER
                 .AddCase(() => linear.ToSrgb_1_AutoVectorization(), nameof(Extensions.ToSrgb_1_AutoVectorization))
-                .AddCase(() => linear.ToSrgb_3_HappyRangesMathF(), nameof(Extensions.ToSrgb_3_HappyRangesMathF))
-                .AddCase(() => linear.ToSrgb_4_HappyRangesVector(), nameof(Extensions.ToSrgb_4_HappyRangesVector))
 #endif
                 .AddCase(() => linear.ToSrgb_2_Intrinsics(), nameof(Extensions.ToSrgb_2_Intrinsics))
                 .DoTest()
@@ -93,124 +91,124 @@ namespace KGySoft.Drawing.PerformanceTests
             // Custom intrinsics implementation does not add much value in .NET9+ where Pow can be vectorized.
 
             // All components > 0.0031308 and < 1: (Pow range)
-            // Original color:                          <0.5, 0.25, 0.125, 0.5>
-            // Expected color:                          <0.7353569, 0.5370987, 0.38857284, 0.5>
+            // Original color:                          [A=0,50000000; R=0,50000000; G=0,25000000; B=0,12500000]
+            // Expected color:                          [A=0,50000000; R=0,73535693; G=0,53709871; B=0,38857284]
             // ToSrgb_1_AutoVectorization:              <0.73535705, 0.5370987, 0.38857278, 0.5>
             // ToSrgb_2_Intrinsics:                     <0.73535705, 0.5370987, 0.38857278, 0.5>
             // ==[Linear to sRGB (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
             // Test Time: 2 000 ms
             // Warming up: Yes
-            // Test cases: 5
+            // Test cases: 3
             // Repeats: 3
             // Calling GC.Collect: Yes
             // Forced CPU Affinity: No
             // Cases are sorted by fulfilled iterations (the most first)
             // --------------------------------------------------
-            // 1. ToSrgb_1_AutoVectorization: 163 384 701 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 54 461 567,00
-            //   #1  54 391 756 iterations in 2 000,00 ms. Adjusted: 54 391 756,00
-            //   #2  54 629 270 iterations in 2 000,00 ms. Adjusted: 54 629 270,00	 <---- Best
-            //   #3  54 363 675 iterations in 2 000,00 ms. Adjusted: 54 363 675,00	 <---- Worst
-            //   Worst-Best difference: 265 595,00 (0,49%)
-            // 2. ToSrgb_2_Intrinsics: 152 886 048 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 50 962 016,00 (-3 499 551,00 / 93,57%)
-            //   #1  53 569 781 iterations in 2 000,00 ms. Adjusted: 53 569 781,00	 <---- Best
-            //   #2  53 323 493 iterations in 2 000,00 ms. Adjusted: 53 323 493,00
-            //   #3  45 992 774 iterations in 2 000,00 ms. Adjusted: 45 992 774,00	 <---- Worst
-            //   Worst-Best difference: 7 577 007,00 (16,47%)
-            // 3. ToSrgb_0_Vanilla: 135 843 745 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 45 281 248,33 (-9 180 318,67 / 83,14%)
-            //   #1  42 327 697 iterations in 2 000,00 ms. Adjusted: 42 327 697,00	 <---- Worst
-            //   #2  46 853 470 iterations in 2 000,00 ms. Adjusted: 46 853 470,00	 <---- Best
-            //   #3  46 662 578 iterations in 2 000,00 ms. Adjusted: 46 662 578,00
-            //   Worst-Best difference: 4 525 773,00 (10,69%)
-            // 4. ToSrgb_4_HappyRangesVector: 135 546 197 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 45 182 065,67 (-9 279 501,33 / 82,96%)
-            //   #1  41 606 759 iterations in 2 000,00 ms. Adjusted: 41 606 759,00	 <---- Worst
-            //   #2  46 839 619 iterations in 2 000,00 ms. Adjusted: 46 839 619,00
-            //   #3  47 099 819 iterations in 2 000,00 ms. Adjusted: 47 099 819,00	 <---- Best
-            //   Worst-Best difference: 5 493 060,00 (13,20%)
-            // 5. ToSrgb_3_HappyRangesMathF: 121 563 547 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 40 521 181,65 (-13 940 385,35 / 74,40%)
-            //   #1  41 925 617 iterations in 2 000,00 ms. Adjusted: 41 925 617,00	 <---- Best
-            //   #2  38 794 531 iterations in 2 000,00 ms. Adjusted: 38 794 531,00	 <---- Worst
-            //   #3  40 843 399 iterations in 2 000,00 ms. Adjusted: 40 843 396,96
-            //   Worst-Best difference: 3 131 086,00 (8,07%)
+            // 1. ToSrgb_2_Intrinsics: 173 129 274 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 57 709 758,00
+            //   #1  57 845 352 iterations in 2 000,00 ms. Adjusted: 57 845 352,00
+            //   #2  57 918 299 iterations in 2 000,00 ms. Adjusted: 57 918 299,00	 <---- Best
+            //   #3  57 365 623 iterations in 2 000,00 ms. Adjusted: 57 365 623,00	 <---- Worst
+            //   Worst-Best difference: 552 676,00 (0,96%)
+            // 2. ToSrgb_1_AutoVectorization: 166 133 673 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 55 377 890,05 (-2 331 867,95 / 95,96%)
+            //   #1  52 993 640 iterations in 2 000,00 ms. Adjusted: 52 993 640,00	 <---- Worst
+            //   #2  56 834 355 iterations in 2 000,00 ms. Adjusted: 56 834 352,16	 <---- Best
+            //   #3  56 305 678 iterations in 2 000,00 ms. Adjusted: 56 305 678,00
+            //   Worst-Best difference: 3 840 712,16 (7,25%)
+            // 3. ToSrgb_0_Vanilla: 132 066 168 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 44 022 056,00 (-13 687 702,00 / 76,28%)
+            //   #1  42 716 470 iterations in 2 000,00 ms. Adjusted: 42 716 470,00	 <---- Worst
+            //   #2  44 329 640 iterations in 2 000,00 ms. Adjusted: 44 329 640,00
+            //   #3  45 020 058 iterations in 2 000,00 ms. Adjusted: 45 020 058,00	 <---- Best
+            //   Worst-Best difference: 2 303 588,00 (5,39%)
 
             // All components <= 0.0031308: (Linear range)
-            // Original color:                          <0.001, 0.002, 0.003, 0.5>
-            // Expected color:                          <0.012920001, 0.025840001, 0.03876, 0.5>
+            // Original color:                          [A=0,50000000; R=0,00100000; G=0,00200000; B=0,00300000]
+            // Expected color:                          [A=0,50000000; R=0,01292000; G=0,02584000; B=0,03876000]
             // ToSrgb_1_AutoVectorization:              <0.012920001, 0.025840001, 0.03876, 0.5>
             // ToSrgb_2_Intrinsics:                     <0.012920001, 0.025840001, 0.03876, 0.5>
             // ==[Linear to sRGB (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
             // Test Time: 2 000 ms
             // Warming up: Yes
-            // Test cases: 5
+            // Test cases: 3
             // Repeats: 3
             // Calling GC.Collect: Yes
             // Forced CPU Affinity: No
             // Cases are sorted by fulfilled iterations (the most first)
             // --------------------------------------------------
-            // 1. ToSrgb_3_HappyRangesMathF: 443 142 937 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 147 714 309,85
-            //   #1  149 517 923 iterations in 2 000,00 ms. Adjusted: 149 517 923,00	 <---- Best
-            //   #2  149 078 219 iterations in 2 000,00 ms. Adjusted: 149 078 211,55
-            //   #3  144 546 795 iterations in 2 000,00 ms. Adjusted: 144 546 795,00	 <---- Worst
-            //   Worst-Best difference: 4 971 128,00 (3,44%)
-            // 2. ToSrgb_1_AutoVectorization: 429 649 300 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 143 216 433,33 (-4 497 876,52 / 96,96%)
-            //   #1  142 880 881 iterations in 2 000,00 ms. Adjusted: 142 880 881,00	 <---- Worst
-            //   #2  142 929 276 iterations in 2 000,00 ms. Adjusted: 142 929 276,00
-            //   #3  143 839 143 iterations in 2 000,00 ms. Adjusted: 143 839 143,00	 <---- Best
-            //   Worst-Best difference: 958 262,00 (0,67%)
-            // 3. ToSrgb_2_Intrinsics: 407 937 010 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 135 979 001,14 (-11 735 308,71 / 92,06%)
-            //   #1  131 452 583 iterations in 2 000,00 ms. Adjusted: 131 452 576,43	 <---- Worst
-            //   #2  137 367 791 iterations in 2 000,00 ms. Adjusted: 137 367 791,00
-            //   #3  139 116 636 iterations in 2 000,00 ms. Adjusted: 139 116 636,00	 <---- Best
-            //   Worst-Best difference: 7 664 059,57 (5,83%)
-            // 4. ToSrgb_4_HappyRangesVector: 399 331 470 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 133 110 485,57 (-14 603 824,28 / 90,11%)
-            //   #1  134 524 795 iterations in 2 000,00 ms. Adjusted: 134 524 788,27	 <---- Best
-            //   #2  131 540 115 iterations in 2 000,00 ms. Adjusted: 131 540 108,42	 <---- Worst
-            //   #3  133 266 560 iterations in 2 000,00 ms. Adjusted: 133 266 560,00
-            //   Worst-Best difference: 2 984 679,85 (2,27%)
-            // 5. ToSrgb_0_Vanilla: 364 039 939 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 121 346 646,33 (-26 367 663,52 / 82,15%)
-            //   #1  125 129 637 iterations in 2 000,00 ms. Adjusted: 125 129 637,00	 <---- Best
-            //   #2  121 095 756 iterations in 2 000,00 ms. Adjusted: 121 095 756,00
-            //   #3  117 814 546 iterations in 2 000,00 ms. Adjusted: 117 814 546,00	 <---- Worst
-            //   Worst-Best difference: 7 315 091,00 (6,21%)
+            // 1. ToSrgb_2_Intrinsics: 422 405 202 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 140 801 734,00
+            //   #1  140 395 713 iterations in 2 000,00 ms. Adjusted: 140 395 713,00	 <---- Worst
+            //   #2  141 137 165 iterations in 2 000,00 ms. Adjusted: 141 137 165,00	 <---- Best
+            //   #3  140 872 324 iterations in 2 000,00 ms. Adjusted: 140 872 324,00
+            //   Worst-Best difference: 741 452,00 (0,53%)
+            // 2. ToSrgb_1_AutoVectorization: 419 960 613 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 139 986 871,00 (-814 863,00 / 99,42%)
+            //   #1  140 001 200 iterations in 2 000,00 ms. Adjusted: 140 001 200,00
+            //   #2  140 394 391 iterations in 2 000,00 ms. Adjusted: 140 394 391,00	 <---- Best
+            //   #3  139 565 022 iterations in 2 000,00 ms. Adjusted: 139 565 022,00	 <---- Worst
+            //   Worst-Best difference: 829 369,00 (0,59%)
+            // 3. ToSrgb_0_Vanilla: 412 010 074 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 137 336 691,33 (-3 465 042,67 / 97,54%)
+            //   #1  136 099 834 iterations in 2 000,00 ms. Adjusted: 136 099 834,00	 <---- Worst
+            //   #2  138 056 222 iterations in 2 000,00 ms. Adjusted: 138 056 222,00	 <---- Best
+            //   #3  137 854 018 iterations in 2 000,00 ms. Adjusted: 137 854 018,00
+            //   Worst-Best difference: 1 956 388,00 (1,44%)
 
-            // All components fall into different ranges:
-            // Original color:                          <0, 1, 0.001, 0.5>
-            // Expected color:                          <0, 1, 0.012920001, 0.5>
-            // ToSrgb_1_AutoVectorization:              <0, 1, 0.012920001, 0.5>
-            // ToSrgb_2_Intrinsics:                     <0, 1, 0.012920001, 0.5>
+            // Mixed ranges:
+            // Original color:                          [A=0,50000000; R=1,00000000; G=0,50000000; B=0,25000000]
+            // Expected color:                          [A=0,50000000; R=1,00000000; G=0,73535693; B=0,53709871]
+            // ToSrgb_1_AutoVectorization:              <1, 0.73535705, 0.5370987, 0.5>
+            // ToSrgb_2_Intrinsics:                     <1, 0.73535705, 0.5370987, 0.5>
             // ==[Linear to sRGB (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
             // Test Time: 2 000 ms
             // Warming up: Yes
-            // Test cases: 5
+            // Test cases: 3
             // Repeats: 3
             // Calling GC.Collect: Yes
             // Forced CPU Affinity: No
             // Cases are sorted by fulfilled iterations (the most first)
             // --------------------------------------------------
-            // 1. ToSrgb_2_Intrinsics: 407 627 605 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 135 875 868,33
-            //   #1  136 177 966 iterations in 2 000,00 ms. Adjusted: 136 177 966,00	 <---- Best
-            //   #2  136 088 214 iterations in 2 000,00 ms. Adjusted: 136 088 214,00
-            //   #3  135 361 425 iterations in 2 000,00 ms. Adjusted: 135 361 425,00	 <---- Worst
-            //   Worst-Best difference: 816 541,00 (0,60%)
-            // 2. ToSrgb_1_AutoVectorization: 406 468 588 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 135 489 524,77 (-386 343,57 / 99,72%)
-            //   #1  137 819 502 iterations in 2 000,00 ms. Adjusted: 137 819 495,11	 <---- Best
-            //   #2  136 133 712 iterations in 2 000,00 ms. Adjusted: 136 133 705,19
-            //   #3  132 515 374 iterations in 2 000,00 ms. Adjusted: 132 515 374,00	 <---- Worst
-            //   Worst-Best difference: 5 304 121,11 (4,00%)
-            // 3. ToSrgb_0_Vanilla: 398 331 481 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 132 777 155,98 (-3 098 712,35 / 97,72%)
-            //   #1  133 039 255 iterations in 2 000,00 ms. Adjusted: 133 039 248,35
-            //   #2  127 953 703 iterations in 2 000,00 ms. Adjusted: 127 953 696,60	 <---- Worst
-            //   #3  137 338 523 iterations in 2 000,00 ms. Adjusted: 137 338 523,00	 <---- Best
-            //   Worst-Best difference: 9 384 826,40 (7,33%)
-            // 4. ToSrgb_4_HappyRangesVector: 389 119 090 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 129 706 361,17 (-6 169 507,16 / 95,46%)
-            //   #1  130 282 359 iterations in 2 000,00 ms. Adjusted: 130 282 359,00	 <---- Best
-            //   #2  129 881 458 iterations in 2 000,00 ms. Adjusted: 129 881 451,51
-            //   #3  128 955 273 iterations in 2 000,00 ms. Adjusted: 128 955 273,00	 <---- Worst
-            //   Worst-Best difference: 1 327 086,00 (1,03%)
-            // 5. ToSrgb_3_HappyRangesMathF: 372 057 206 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 124 019 064,54 (-11 856 803,79 / 91,27%)
-            //   #1  123 667 933 iterations in 2 000,00 ms. Adjusted: 123 667 926,82	 <---- Worst
-            //   #2  123 668 921 iterations in 2 000,00 ms. Adjusted: 123 668 914,82
-            //   #3  124 720 352 iterations in 2 000,00 ms. Adjusted: 124 720 352,00	 <---- Best
-            //   Worst-Best difference: 1 052 425,18 (0,85%)
+            // 1. ToSrgb_2_Intrinsics: 168 355 752 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 56 118 584,00
+            //   #1  56 068 982 iterations in 2 000,00 ms. Adjusted: 56 068 982,00
+            //   #2  56 042 830 iterations in 2 000,00 ms. Adjusted: 56 042 830,00	 <---- Worst
+            //   #3  56 243 940 iterations in 2 000,00 ms. Adjusted: 56 243 940,00	 <---- Best
+            //   Worst-Best difference: 201 110,00 (0,36%)
+            // 2. ToSrgb_1_AutoVectorization: 164 826 695 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 54 942 231,67 (-1 176 352,33 / 97,90%)
+            //   #1  55 106 757 iterations in 2 000,00 ms. Adjusted: 55 106 757,00	 <---- Best
+            //   #2  54 674 121 iterations in 2 000,00 ms. Adjusted: 54 674 121,00	 <---- Worst
+            //   #3  55 045 817 iterations in 2 000,00 ms. Adjusted: 55 045 817,00
+            //   Worst-Best difference: 432 636,00 (0,79%)
+            // 3. ToSrgb_0_Vanilla: 158 827 602 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 52 942 534,00 (-3 176 050,00 / 94,34%)
+            //   #1  52 949 868 iterations in 2 000,00 ms. Adjusted: 52 949 868,00
+            //   #2  52 688 091 iterations in 2 000,00 ms. Adjusted: 52 688 091,00	 <---- Worst
+            //   #3  53 189 643 iterations in 2 000,00 ms. Adjusted: 53 189 643,00	 <---- Best
+            //   Worst-Best difference: 501 552,00 (0,95%)
+
+            // Out-of-range values:
+            // Original color:                          [A=0,50000000; R=1,50000000; G=-1,00000000; B=NaN]
+            // Expected color:                          [A=0,50000000; R=1,00000000; G=0,00000000; B=0,00000000]
+            // ToSrgb_1_AutoVectorization:              <1, 0, 0, 0.5>
+            // ToSrgb_2_Intrinsics:                     <1, 0, 0, 0.5>
+            // ==[Linear to sRGB (.NET Core 10.0.0-rc.2.25502.107) Results]================================================
+            // Test Time: 2 000 ms
+            // Warming up: Yes
+            // Test cases: 3
+            // Repeats: 3
+            // Calling GC.Collect: Yes
+            // Forced CPU Affinity: No
+            // Cases are sorted by fulfilled iterations (the most first)
+            // --------------------------------------------------
+            // 1. ToSrgb_0_Vanilla: 423 523 013 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 141 174 337,67
+            //   #1  140 791 715 iterations in 2 000,00 ms. Adjusted: 140 791 715,00	 <---- Worst
+            //   #2  141 492 266 iterations in 2 000,00 ms. Adjusted: 141 492 266,00	 <---- Best
+            //   #3  141 239 032 iterations in 2 000,00 ms. Adjusted: 141 239 032,00
+            //   Worst-Best difference: 700 551,00 (0,50%)
+            // 2. ToSrgb_2_Intrinsics: 416 380 397 iterations in 6 000,01 ms. Adjusted for 2 000 ms: 138 793 248,73 (-2 381 088,94 / 98,31%)
+            //   #1  139 435 679 iterations in 2 000,00 ms. Adjusted: 139 435 679,00	 <---- Best
+            //   #2  138 471 448 iterations in 2 000,00 ms. Adjusted: 138 471 448,00	 <---- Worst
+            //   #3  138 473 270 iterations in 2 000,01 ms. Adjusted: 138 472 619,18
+            //   Worst-Best difference: 964 231,00 (0,70%)
+            // 3. ToSrgb_1_AutoVectorization: 415 243 493 iterations in 6 000,00 ms. Adjusted for 2 000 ms: 138 414 497,67 (-2 759 840,00 / 98,05%)
+            //   #1  138 093 417 iterations in 2 000,00 ms. Adjusted: 138 093 417,00	 <---- Worst
+            //   #2  138 439 271 iterations in 2 000,00 ms. Adjusted: 138 439 271,00
+            //   #3  138 710 805 iterations in 2 000,00 ms. Adjusted: 138 710 805,00	 <---- Best
+            //   Worst-Best difference: 617 388,00 (0,45%)
         }
 
         [TestCase(0.1f, 1f / 2.4f)]
@@ -552,6 +550,7 @@ namespace KGySoft.Drawing.PerformanceTests
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector128<float> ToSrgb_1_AutoVectorization(this Vector128<float> c)
         {
+            // replacing alpha with red to improve the chance of falling into the same range
             Vector128<float> rgb = c.WithElement(3, c.GetElement(0));
             Vector128<float> result;
 
@@ -559,17 +558,14 @@ namespace KGySoft.Drawing.PerformanceTests
             Vector128<float> maskGreaterThanPowLimit = Vector128.GreaterThan(rgb, Vector128.Create(0.0031308f));
             if (maskGreaterThanPowLimit.AsUInt32() != Vector128<uint>.Zero)
             {
-                // value < 1f
-                Vector128<float> maskLessThanOne = Vector128.LessThan(rgb, VectorExtensions.OneF);
-                Vector128<float> maskPowRange = Vector128.BitwiseAnd(maskGreaterThanPowLimit, maskLessThanOne);
+                // 0.0031308f < value < 1f
+                Vector128<float> maskPowRange = Vector128.BitwiseAnd(maskGreaterThanPowLimit, Vector128.LessThan(rgb, VectorExtensions.OneF));
                 if (maskPowRange.AsUInt32() != Vector128<uint>.Zero)
                 {
-                    // selecting NaN for out-of-range values, because it provides the best performance for Pow, both by our custom implementation and by the .NET 9+ Exp/Log based solutions.
-                    result = Vector128.ConditionalSelect(maskPowRange, rgb, Vector128.Create(Single.NaN)).Pow(1f / 2.4f);
-                    result = result * Vector128.Create(1.055f) - Vector128.Create(0.055f);
+                    result = rgb.Pow(1f / 2.4f) * Vector128.Create(1.055f) - Vector128.Create(0.055f);
 
                     // Happy path: if all components are in the pow range, we can return immediately
-                    if (maskPowRange.AsUInt32().WithElement(3, UInt32.MaxValue) == Vector128<uint>.AllBitsSet)
+                    if (maskPowRange.AsUInt32() == Vector128<uint>.AllBitsSet)
                         return result.WithElement(3, c.GetElement(3).ClipF());
 
                     // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
@@ -577,7 +573,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 }
                 else
                 {
-                    // Here all values are outside the pow range, assuming value >= 1f for now that can be refined later.
+                    // Here all values are outside the pow range (>= 1f or NaN). Assuming value >= 1f for now that can be refined later.
                     result = VectorExtensions.OneF;
                 }
             }
@@ -607,6 +603,7 @@ namespace KGySoft.Drawing.PerformanceTests
             if (!Sse41.IsSupported)
                 return c.ToSrgb_0_Vanilla();
 
+            // replacing alpha with red to improve the chance of falling into the same range
             Vector128<float> rgb = c.WithElement(3, c.GetElement(0));
             Vector128<float> result;
 
@@ -614,19 +611,17 @@ namespace KGySoft.Drawing.PerformanceTests
             Vector128<float> maskGreaterThanPowLimit = Sse.CompareGreaterThan(rgb, Vector128.Create(0.0031308f));
             if (!maskGreaterThanPowLimit.AsUInt32().Equals(Vector128<uint>.Zero))
             {
-                // value < 1f
-                Vector128<float> maskLessThanOne = Sse.CompareLessThan(rgb, VectorExtensions.OneF);
-                Vector128<float> maskPowRange = Sse.And(maskGreaterThanPowLimit, maskLessThanOne);
+                // 0.0031308f < value < 1f
+                Vector128<float> maskPowRange = Sse.And(maskGreaterThanPowLimit, Sse.CompareLessThan(rgb, VectorExtensions.OneF));
                 if (!maskPowRange.AsUInt32().Equals(Vector128<uint>.Zero))
                 {
-                    // selecting NaN for out-of-range values, because it provides the best performance for Pow, both by our custom implementation and by the .NET 9+ Exp/Log based solutions.
-                    result = Sse41.BlendVariable(Vector128.Create(Single.NaN), rgb, maskPowRange).Pow(1f / 2.4f);
+                    result = rgb.Pow(1f / 2.4f);
                     result = Fma.IsSupported
                         ? Fma.MultiplySubtract(result, Vector128.Create(1.055f), Vector128.Create(0.055f))
                         : Sse.Subtract(Sse.Multiply(result, Vector128.Create(1.055f)), Vector128.Create(0.055f));
 
                     // Happy path: if all components are in the pow range, we can return immediately
-                    if (maskPowRange.AsUInt32().WithElement(3, UInt32.MaxValue).Equals(VectorExtensions.AllBitsSetF.AsUInt32()))
+                    if (maskPowRange.AsUInt32().Equals(VectorExtensions.AllBitsSetF.AsUInt32()))
                         return result.WithElement(3, c.GetElement(3).ClipF());
 
                     // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
@@ -656,55 +651,6 @@ namespace KGySoft.Drawing.PerformanceTests
             return result.WithElement(3, c.GetElement(3).ClipF());
         }
 
-#if NET7_0_OR_GREATER
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> ToSrgb_3_HappyRangesMathF(this Vector128<float> c)
-        {
-            Vector128<float> rgbx = c.WithElement(3, c.GetElement(0));
-            if (Vector128.GreaterThanAll(rgbx, Vector128.Create(0.0031308f)))
-            {
-                if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
-                {
-                    var result = new Vector3(
-                        MathF.Pow(c.GetElement(0), 1f / 2.4f),
-                        MathF.Pow(c.GetElement(1), 1f / 2.4f),
-                        MathF.Pow(c.GetElement(2), 1f / 2.4f));
-                    result = result * 1.055f - new Vector3(0.055f);
-                    return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
-                }
-            }
-            //else if (c.Rgb.GreaterThanAll(0f))
-            else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
-            {
-                var result = rgbx.AsVector4() * 12.92f;
-                return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
-            }
-
-            return c.ToSrgb_0_Vanilla();
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> ToSrgb_4_HappyRangesVector(this Vector128<float> c)
-        {
-            Vector128<float> rgbx = c.WithElement(3, c.GetElement(0));
-            if (Vector128.GreaterThanAll(rgbx, Vector128.Create(0.0031308f)))
-            {
-                if (Vector128.LessThanAll(rgbx.WithElement(3, 0f), VectorExtensions.OneF))
-                {
-                    var result = c.WithElement(3, Single.NaN).Pow(1f / 2.4f);
-                    result = result * 1.055f - Vector128.Create(0.055f);
-                    return result.WithElement(3, c.GetElement(3).ClipF());
-                }
-            }
-            else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
-            {
-                var result = rgbx.AsVector4() * 12.92f;
-                return result.AsVector128().WithElement(3, c.GetElement(3).ClipF());
-            }
-
-            return c.ToSrgb_0_Vanilla();
-        }
-#endif
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static float Pow_0_ByMathExpLog(this float value, float power) => value switch
         {

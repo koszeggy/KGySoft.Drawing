@@ -181,7 +181,6 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float SrgbToLinear(ushort value) => UInt16ToLinearCache.LookupTable[value];
 
-
         /// <summary>
         /// Converts a floating-point value representing an sRGB color component to a value representing an RGB color component in the linear color space.
         /// </summary>
@@ -205,11 +204,18 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The vector to convert.</param>
         /// <returns>A vector of floating-point values between 0 and 1 representing a linear color with RGBA color components.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Vector4 SrgbToLinearVectorRgba(Vector4 value) => new Vector4(
-            SrgbToLinear(value.X),
-            SrgbToLinear(value.Y),
-            SrgbToLinear(value.Z),
-            value.W.ClipF());
+        public static Vector4 SrgbToLinearVectorRgba(Vector4 value)
+        {
+#if NET9_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+                return SrgbToLinearVectorRgba(value.AsVector128()).AsVector4();
+#endif
+            return new Vector4(
+                SrgbToLinear(value.X),
+                SrgbToLinear(value.Y),
+                SrgbToLinear(value.Z),
+                value.W.ClipF());
+        }
 #endif
 
         /// <summary>
@@ -223,7 +229,7 @@ namespace KGySoft.Drawing.Imaging
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
             >= 1f => 1f,
-            > 0.0031308f => (1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f,
+            > 0.0031308f => 1.055f * MathF.Pow(value, 1f / 2.4f) - 0.055f,
             > 0f => value * 12.92f,
             _ => 0 // <= 0 or NaN
         };
@@ -269,11 +275,18 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The vector to convert.</param>
         /// <returns>A vector of floating-point values between 0 and 1 representing an sRGB color with RGBA color components.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Vector4 LinearToSrgbVectorRgba(Vector4 value) => new Vector4(
-            LinearToSrgb(value.X),
-            LinearToSrgb(value.Y),
-            LinearToSrgb(value.Z),
-            value.W.ClipF());
+        public static Vector4 LinearToSrgbVectorRgba(Vector4 value)
+        {
+#if NET9_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+                return LinearToSrgbVectorRgba(value.AsVector128()).AsVector4();
+#endif
+            return new Vector4(
+                LinearToSrgb(value.X),
+                LinearToSrgb(value.Y),
+                LinearToSrgb(value.Z),
+                value.W.ClipF());
+        }
 #endif
 
         #endregion
@@ -282,18 +295,122 @@ namespace KGySoft.Drawing.Imaging
 
 #if NETCOREAPP3_0_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> SrgbToLinearVectorRgba(Vector128<float> value) => Vector128.Create(
-            SrgbToLinear(value.GetElement(0)),
-            SrgbToLinear(value.GetElement(1)),
-            SrgbToLinear(value.GetElement(2)),
-            value.GetElement(3).ClipF());
+        internal static Vector128<float> SrgbToLinearVectorRgba(Vector128<float> value)
+        {
+#if NET9_0_OR_GREATER // NOTE: Though this block would compile in .NET 7+, Pow is vectorized only in .NET 9+
+            if (Vector128.IsHardwareAccelerated)
+            {
+                // replacing alpha with red to improve the chance of falling into the same range
+                Vector128<float> rgb = value.WithElement(3, value.GetElement(0));
+                Vector128<float> result;
+
+                // value > 0.04045f
+                Vector128<float> maskGreaterThanPowLimit = Vector128.GreaterThan(rgb, Vector128.Create(0.04045f));
+                if (maskGreaterThanPowLimit.AsUInt32() != Vector128<uint>.Zero)
+                {
+                    // 0.04045f < value < 1f
+                    Vector128<float> maskPowRange = Vector128.BitwiseAnd(maskGreaterThanPowLimit, Vector128.LessThan(rgb, VectorExtensions.OneF));
+                    if (maskPowRange.AsUInt32() != Vector128<uint>.Zero)
+                    {
+                        result = ((rgb + Vector128.Create(0.055f)) / Vector128.Create(1.055f)).Pow(2.4f);
+
+                        // Happy path: if all components are in the pow range, we can return immediately
+                        if (maskPowRange.AsUInt32() == Vector128<uint>.AllBitsSet)
+                            return result.WithElement(3, value.GetElement(3).ClipF());
+
+                        // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
+                        result = Vector128.ConditionalSelect(maskPowRange, result, VectorExtensions.OneF);
+                    }
+                    else
+                    {
+                        // Here all values are outside the pow range (>= 1f or NaN). Assuming value >= 1f for now that can be refined later.
+                        result = VectorExtensions.OneF;
+                    }
+                }
+                else
+                {
+                    // value <= 0.04045f or NaN
+                    result = Vector128<float>.Zero;
+                }
+
+                // 0 < value <= 0.04045f
+                Vector128<float> maskGreaterThanZero = Vector128.GreaterThan(rgb, Vector128<float>.Zero);
+                Vector128<float> maskLinearRange = Vector128.AndNot(maskGreaterThanZero, maskGreaterThanPowLimit);
+                if (maskLinearRange.AsUInt32() != Vector128<uint>.Zero)
+                    result = Vector128.ConditionalSelect(maskLinearRange, rgb * Vector128.Create(1f / 12.92f), result);
+
+                // value <= 0f or NaN
+                result = Vector128.ConditionalSelect(Vector128.OnesComplement(maskGreaterThanZero), Vector128<float>.Zero, result);
+
+                return result.WithElement(3, value.GetElement(3).ClipF());
+            }
+#endif
+
+            return Vector128.Create(
+                SrgbToLinear(value.GetElement(0)),
+                SrgbToLinear(value.GetElement(1)),
+                SrgbToLinear(value.GetElement(2)),
+                value.GetElement(3).ClipF());
+        }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Vector128<float> LinearToSrgbVectorRgba(Vector128<float> value) => Vector128.Create(
-            LinearToSrgb(value.GetElement(0)),
-            LinearToSrgb(value.GetElement(1)),
-            LinearToSrgb(value.GetElement(2)),
-            value.GetElement(3).ClipF());
+        internal static Vector128<float> LinearToSrgbVectorRgba(Vector128<float> value)
+        {
+#if NET9_0_OR_GREATER // NOTE: Though this block would compile in .NET 7+, Pow is vectorized only in .NET 9+
+            if (Vector128.IsHardwareAccelerated)
+            {
+                // replacing alpha with red to improve the chance of falling into the same range
+                Vector128<float> rgb = value.WithElement(3, value.GetElement(0));
+                Vector128<float> result;
+
+                // value > 0.0031308f
+                Vector128<float> maskGreaterThanPowLimit = Vector128.GreaterThan(rgb, Vector128.Create(0.0031308f));
+                if (maskGreaterThanPowLimit.AsUInt32() != Vector128<uint>.Zero)
+                {
+                    // 0.0031308f < value < 1f
+                    Vector128<float> maskPowRange = Vector128.BitwiseAnd(maskGreaterThanPowLimit, Vector128.LessThan(rgb, VectorExtensions.OneF));
+                    if (maskPowRange.AsUInt32() != Vector128<uint>.Zero)
+                    {
+                        result = rgb.Pow(1f / 2.4f) * Vector128.Create(1.055f) - Vector128.Create(0.055f);
+
+                        // Happy path: if all components are in the pow range, we can return immediately
+                        if (maskPowRange.AsUInt32() == Vector128<uint>.AllBitsSet)
+                            return result.WithElement(3, value.GetElement(3).ClipF());
+
+                        // Here some values are in the pow range, others are not. Assuming value >= 1f for the out-of-range values for now that can be refined later.
+                        result = Vector128.ConditionalSelect(maskPowRange, result, VectorExtensions.OneF);
+                    }
+                    else
+                    {
+                        // Here all values are outside the pow range (>= 1f or NaN). Assuming value >= 1f for now that can be refined later.
+                        result = VectorExtensions.OneF;
+                    }
+                }
+                else
+                {
+                    // value <= 0.0031308f or NaN
+                    result = Vector128<float>.Zero;
+                }
+
+                // 0 < value <= 0.0031308f
+                Vector128<float> maskGreaterThanZero = Vector128.GreaterThan(rgb, Vector128<float>.Zero);
+                Vector128<float> maskLinearRange = Vector128.AndNot(maskGreaterThanZero, maskGreaterThanPowLimit);
+                if (maskLinearRange.AsUInt32() != Vector128<uint>.Zero)
+                    result = Vector128.ConditionalSelect(maskLinearRange, rgb * Vector128.Create(12.92f), result);
+
+                // value <= 0f or NaN
+                result = Vector128.ConditionalSelect(Vector128.OnesComplement(maskGreaterThanZero), Vector128<float>.Zero, result);
+
+                return result.WithElement(3, value.GetElement(3).ClipF());
+            }
+#endif
+
+            return Vector128.Create(
+                LinearToSrgb(value.GetElement(0)),
+                LinearToSrgb(value.GetElement(1)),
+                LinearToSrgb(value.GetElement(2)),
+                value.GetElement(3).ClipF());
+        }
 #endif
 
         #endregion

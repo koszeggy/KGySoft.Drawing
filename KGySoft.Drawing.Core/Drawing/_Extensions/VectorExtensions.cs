@@ -350,7 +350,8 @@ namespace KGySoft.Drawing
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector128<float> Pow(this Vector128<float> value, float power)
         {
-            Debug.Assert(value.GetElement(0) >= 0f && value.GetElement(1) >= 0f && value.GetElement(2) >= 0f && value.GetElement(3) >= 0f && power > 0,
+            // NOTE: using || in the Debug.Assert, as we allow unsupported values if at least one element is valid. The caller is responsible for masking out invalid results.
+            Debug.Assert((value.GetElement(0) >= 0f || value.GetElement(1) >= 0f || value.GetElement(2) >= 0f || value.GetElement(3) >= 0f) && power > 0,
                 $"Unexpected value or power: ({value})^{power}");
 #if NET11_0_OR_GREATER
 #error Check if there is already a (correctly working) Vector128.Pow // see also https://github.com/dotnet/runtime/issues/93513#issuecomment-2226781888
