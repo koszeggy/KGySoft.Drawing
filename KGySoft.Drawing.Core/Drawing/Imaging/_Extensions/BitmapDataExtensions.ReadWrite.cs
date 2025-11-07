@@ -18,12 +18,13 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-#if NETCOREAPP3_0_OR_GREATER
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
-#endif
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
 using System.Numerics;
+#endif
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 #endif
 using System.Security;
 using System.Threading;
@@ -3529,6 +3530,11 @@ namespace KGySoft.Drawing.Imaging
 
             static ColorF TransformGammaF(ColorF c, float gamma)
             {
+#if NET9_0_OR_GREATER
+                if (Vector128.IsHardwareAccelerated)
+                    return new ColorF(c.RgbaV128.ClipF().Pow(1f / gamma).WithElement(3, c.A));
+#endif
+
                 c = c.Clip();
                 float invGamma = 1f / gamma;
                 return new ColorF(c.A,
@@ -3630,17 +3636,367 @@ namespace KGySoft.Drawing.Imaging
 
         private static byte[] GenerateGammaLookupTable32(float gamma)
         {
+            #region Local Methods
+
+#if NET7_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector128(float gamma, byte[] table)
+            {
+                Debug.Assert(Vector128.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 256; i += 4, current += Vector128.Create(4f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+#else
+                    Vector128<float> resultF = (current * (1f / 255f)).Pow(power) * VectorExtensions.Max8BitF + VectorExtensions.HalfF;
+#endif
+                    Vector128<int> resultI32 = Vector128.Shuffle(Vector128.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytesMask).AsInt32();
+                    table[i].As<byte, int>() = resultI32.ToScalar();
+                }
+            }
+#endif
+
+#if NETCOREAPP3_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableVector128Sse2(float gamma, byte[] table)
+            {
+                Debug.Assert(Sse2.IsSupported);
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 256; i += 16, current = Sse.Add(current, Vector128.Create(4f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector128Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector128<float> resultF = Sse.Multiply(current, VectorExtensions.Max8BitRecipF).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, VectorExtensions.Max8BitRecipF).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+                    Vector128<short> resultI16Left = Sse2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, VectorExtensions.Max8BitRecipF).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, VectorExtensions.Max8BitRecipF).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+                    Vector128<short> resultI16Right = Sse2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    table[i].As<byte, Vector128<byte>>() = Sse2.PackUnsignedSaturate(resultI16Left, resultI16Right);
+                }
+            }
+#endif
+
+#if NET9_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector256(float gamma, byte[] table)
+            {
+                Debug.Assert(Vector256.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 256; i += 8, current += Vector256.Create(8f))
+                {
+                    Vector256<float> resultF = Vector256.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8Bit256F, VectorExtensions.Half256F);
+                    Vector256<long> resultI64 = Vector256.Shuffle(Vector256.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytes256Mask).AsInt64();
+                    table[i].As<byte, long>() = resultI64.ToScalar();
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableVector256Avx2(float gamma, byte[] table)
+            {
+                Debug.Assert(Avx2.IsSupported);
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 256; i += 32, current = Avx.Add(current, Vector256.Create(8f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector256Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector256<float> resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+                    Vector256<short> resultI16Left = Avx2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+                    Vector256<short> resultI16Right = Avx2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    // NOTE: Unlike in case of SSE, the PackSignedSaturate methods in AVX interleave the results from left and right vectors, so the order in resultBytes will be as follows:
+                    // 0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31
+                    // An apparently obvious solution would be to fix it by Avx2.Shuffle(resultBytes, Vector256.Create((byte)0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23, 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31)),
+                    // but it just messes up the result even more, as it does not work across 128-bit lanes. The real solution is to use PermuteVar8x32 on ints, which is 3x slower, but works in the whole 256-bit range.
+                    Vector256<byte> resultBytes = Avx2.PackUnsignedSaturate(resultI16Left, resultI16Right);
+                    resultBytes = Avx2.PermuteVar8x32(resultBytes.AsInt32(), Vector256.Create(0, 4, 1, 5, 2, 6, 3, 7)).AsByte();
+                    table[i].As<byte, Vector256<byte>>() = resultBytes;
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector512(float gamma, byte[] table)
+            {
+                Debug.Assert(Vector512.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector512.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f);
+                for (int i = 0; i < 256; i += 16, current += Vector512.Create(16f))
+                {
+                    Vector512<float> resultF = Vector512.FusedMultiplyAdd((current / 255f).Pow(power), Vector512.Create(255f), Vector512.Create(0.5f));
+                    Vector512<byte> resultBytes = Vector512.Shuffle(Vector512.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytes512Mask);
+                    table[i].As<byte, Vector128<byte>>() = resultBytes.GetLower().GetLower();
+                }
+            }
+#endif
+
+            #endregion
+
             byte[] result = new byte[256];
+            if (gamma.TolerantIsZero())
+            {
+                result[255] = 255;
+                return result;
+            }
+
+            // Vector256/512: Using only in .NET9+, because Pow is not vectorized below that, causing that even the fallback version is faster than Vector256/512 in .NET 8 and earlier.
+            // But the Vector128 version is faster than the vanilla version even in .NET8-, maybe because of the double packing. See also GenerateGammaLookupTable32Test in PerformanceTests.
+#if NET9_0_OR_GREATER
+            if (Vector512.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector512(gamma, result);
+                return result;
+            }
+
+            if (Avx2.IsSupported)
+            {
+                GenerateTableVector256Avx2(gamma, result);
+                return result;
+            }
+
+            if (Vector256.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector256(gamma, result);
+                return result;
+            }
+#endif
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                GenerateTableVector128Sse2(gamma, result);
+                return result;
+            }
+#endif
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector128(gamma, result);
+                return result;
+            }
+#endif
+
+            // The fallback implementation
+            float power = 1f / gamma;
             for (int i = 0; i < 256; i++)
-                result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
+                result[i] = (byte)(255f * MathF.Pow(i / 255f, power) + 0.5f);
             return result;
         }
 
         private static ushort[] GenerateGammaLookupTable64(float gamma)
         {
+            #region Local Methods
+
+#if NET7_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector128(float gamma, ushort[] table)
+            {
+                Debug.Assert(Vector128.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 65536; i += 4, current += Vector128.Create(4f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16BitF, VectorExtensions.HalfF);
+#else
+                    Vector128<float> resultF = (current * (1f / 65535f)).Pow(power) * VectorExtensions.Max16BitF + VectorExtensions.HalfF;
+#endif
+                    Vector128<ulong> resultU64 = Vector128.Shuffle(Vector128.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowWordsMask).AsUInt64();
+                    table[i].As<ushort, ulong>() = resultU64.ToScalar();
+                }
+            }
+#endif
+
+#if NETCOREAPP3_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableVector128Sse2(float gamma, ushort[] table)
+            {
+                Debug.Assert(Sse2.IsSupported);
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 65536; i += 8, current = Sse.Add(current, Vector128.Create(4f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector128Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector128<float> resultF = Sse.Multiply(current, Vector128.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max16BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, Vector128.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max16BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    table[i].As<ushort, Vector128<ushort>>() = Sse41.PackUnsignedSaturate(resultI32Left, resultI32Right);
+                }
+            }
+#endif
+
+#if NET9_0_OR_GREATER
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector256(float gamma, ushort[] table)
+            {
+                Debug.Assert(Vector256.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 65536; i += 8, current += Vector256.Create(8f))
+                {
+                    Vector256<float> resultF = Vector256.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16Bit256F, VectorExtensions.Half256F);
+                    Vector256<ushort> resultU16 = Vector256.Shuffle(Vector256.ConvertToInt32(resultF).AsUInt16(), VectorExtensions.PackLowWords256Mask);
+                    table[i].As<ushort, Vector128<ushort>>() = resultU16.GetLower();
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableVector256Avx2(float gamma, ushort[] table)
+            {
+                Debug.Assert(Avx2.IsSupported);
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 65536; i += 16, current = Avx.Add(current, Vector256.Create(8f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector256Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector256<float> resultF = Avx.Multiply(current, Vector256.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max16Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max16Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    // NOTE: Unlike in case of SSE, the PackSignedSaturate methods in AVX interleave the results from left and right vectors, so the order in resultWords will be as follows:
+                    // 0, 1, 2, 3, 8, 9, 10, 11, 4, 5, 6, 7, 12, 13, 14, 15
+                    // To fix this, we have to use PermuteVar8x32.
+                    Vector256<ushort> resultWords = Avx2.PackUnsignedSaturate(resultI32Left, resultI32Right);
+                    resultWords = Avx2.PermuteVar8x32(resultWords.AsInt32(), Vector256.Create(0, 1, 4, 5, 2, 3, 6, 7)).AsUInt16();
+                    table[i].As<ushort, Vector256<ushort>>() = resultWords;
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            static void GenerateTableAutoVector512(float gamma, ushort[] table)
+            {
+                Debug.Assert(Vector512.IsHardwareAccelerated);
+                float power = 1f / gamma;
+                var current = Vector512.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f);
+                for (int i = 0; i < 65536; i += 16, current += Vector512.Create(16f))
+                {
+                    Vector512<float> resultF = Vector512.FusedMultiplyAdd((current / 65535f).Pow(power), Vector512.Create(65535f), Vector512.Create(0.5f));
+                    Vector512<ushort> resultWords = Vector512.Shuffle(Vector512.ConvertToInt32(resultF).AsUInt16(), VectorExtensions.PackLowWords512Mask);
+                    table[i].As<ushort, Vector256<ushort>>() = resultWords.GetLower();
+                }
+            }
+#endif
+
+            #endregion
+
             ushort[] result = new ushort[65536];
+            if (gamma.TolerantIsZero())
+            {
+                result[65535] = 65535;
+                return result;
+            }
+
+            // Vector256/512: Using only in .NET9+, because Pow is not vectorized below that, causing that even the fallback version is faster than Vector256/512 in .NET 8 and earlier.
+            // But the Vector128 version is faster than the vanilla version even in .NET8-, maybe because of the double packing. See also GenerateGammaLookupTable64Test in PerformanceTests.
+#if NET9_0_OR_GREATER
+            if (Vector512.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector512(gamma, result);
+                return result;
+            }
+
+            if (Avx2.IsSupported)
+            {
+                GenerateTableVector256Avx2(gamma, result);
+                return result;
+            }
+
+            if (Vector256.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector256(gamma, result);
+                return result;
+            }
+#endif
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                GenerateTableVector128Sse2(gamma, result);
+                return result;
+            }
+#endif
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                GenerateTableAutoVector128(gamma, result);
+                return result;
+            }
+#endif
+
+            float power = 1f / gamma;
             for (int i = 0; i < 65536; i++)
-                result[i] = ((int)(65535f * MathF.Pow(i / 65535f, 1f / gamma) + 0.5f)).ClipToUInt16();
+                result[i] = (ushort)(65535f * MathF.Pow(i / 65535f, power) + 0.5f);
             return result;
         }
 

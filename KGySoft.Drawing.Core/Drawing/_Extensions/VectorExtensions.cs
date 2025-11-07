@@ -39,7 +39,23 @@ namespace KGySoft.Drawing
 #if NET5_0_OR_GREATER
         // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
         internal static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
+
+        internal static Vector256<byte> PackLowBytes256Mask => Vector256.Create(0, 4, 8, 12, 16, 20, 24, 28, default(byte), default, default, default, default, default, default, default,
+            default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default);
+
+#if NET8_0_OR_GREATER
+        internal static Vector512<byte> PackLowBytes512Mask => Vector512.Create(0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60,
+            default(byte), default, default, default, default, default, default, default, default, default, default, default, default, default, default, default,
+            default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default,
+            default, default, default, default, default, default, default, default, default, default, default, default, default, default, default, default);
+#endif
+
         internal static Vector128<byte> PackLowWordsMask => Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, default(byte), default, default, default, default, default, default, default);
+        internal static Vector256<ushort> PackLowWords256Mask => Vector256.Create(0, 2, 4, 6, 8, 10, 12, 14, default(ushort), default, default, default, default, default, default, default);
+#if NET8_0_OR_GREATER
+        internal static Vector512<ushort> PackLowWords512Mask => Vector512.Create(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30,
+            default(ushort), default, default, default, default, default, default, default, default, default, default, default, default, default, default, default);
+#endif
         internal static Vector128<byte> PackHighBytesOfLowWordsMask => Vector128.Create(1, 5, 9, 13, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraBytesMask => Vector128.Create(8, 4, 0, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
         internal static Vector128<byte> PackRgbaAsBgraWordsMask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
@@ -51,12 +67,16 @@ namespace KGySoft.Drawing
         internal static Vector128<float> OneF => Vector128.Create(1f);
 #endif
         internal static Vector128<float> Max8BitF => Vector128.Create(255f);
+        internal static Vector256<float> Max8Bit256F => Vector256.Create(255f);
         internal static Vector128<byte> Max8BitU8 => Vector128.Create(Byte.MaxValue);
         internal static Vector128<int> Max8BitI32 => Vector128.Create(255);
+        internal static Vector128<float> Max8BitRecipF => Vector128.Create(1f / 255f);
         internal static Vector128<float> Max16BitF => Vector128.Create(65535f);
+        internal static Vector256<float> Max16Bit256F => Vector256.Create(65535f);
         internal static Vector128<ushort> Max16BitU16 => Vector128.Create(UInt16.MaxValue);
         internal static Vector128<int> Max16BitI32 => Vector128.Create(65535);
         internal static Vector128<float> HalfF => Vector128.Create(0.5f);
+        internal static Vector256<float> Half256F => Vector256.Create(0.5f);
         internal static Vector128<float> AllBitsSetF => Vector128<float>.AllBitsSet;
 #elif NETCOREAPP3_0_OR_GREATER
         internal static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, default(byte), default, default, default, default, default, default, default, default, default, default, default);
@@ -66,12 +86,16 @@ namespace KGySoft.Drawing
         internal static Vector128<byte> PackRgbaAsBgraWordsMask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, default(byte), default, default, default, default, default, default, default);
         internal static Vector128<float> OneF { get; } = Vector128.Create(1f);
         internal static Vector128<float> Max8BitF { get; } = Vector128.Create(255f);
+        internal static Vector256<float> Max8Bit256F { get; } = Vector256.Create(255f);
         internal static Vector128<byte> Max8BitU8 { get; } = Vector128.Create(Byte.MaxValue);
         internal static Vector128<int> Max8BitI32 { get; } = Vector128.Create(255);
+        internal static Vector128<float> Max8BitRecipF { get; } = Vector128.Create(1f / 255f);
         internal static Vector128<float> Max16BitF { get; } = Vector128.Create(65535f);
+        internal static Vector256<float> Max16Bit256F { get; } = Vector256.Create(65535f);
         internal static Vector128<ushort> Max16BitU16 { get; } = Vector128.Create(UInt16.MaxValue);
         internal static Vector128<int> Max16BitI32 { get; } = Vector128.Create(65535);
         internal static Vector128<float> HalfF { get; } = Vector128.Create(0.5f);
+        internal static Vector256<float> Half256F { get; } = Vector256.Create(0.5f);
         internal static Vector128<float> AllBitsSetF { get; } = Vector128.Create(FloatExtensions.AllBitsSetF);
 #endif
 
@@ -350,8 +374,9 @@ namespace KGySoft.Drawing
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Vector128<float> Pow(this Vector128<float> value, float power)
         {
-            // NOTE: using || in the Debug.Assert, as we allow unsupported values if at least one element is valid. The caller is responsible for masking out invalid results.
-            Debug.Assert((value.GetElement(0) >= 0f || value.GetElement(1) >= 0f || value.GetElement(2) >= 0f || value.GetElement(3) >= 0f) && power > 0,
+            // NOTE: using || in the Debug.Assert, as we allow unsupported values if at least one element is valid. The caller is responsible for masking out/fixing invalid results.
+            Debug.Assert((value.GetElement(0) >= 0f || value.GetElement(1) >= 0f || value.GetElement(2) >= 0f || value.GetElement(3) >= 0f)
+                && power > 0 && (power < Single.PositiveInfinity || value.GetElement(0) < 1f || value.GetElement(1) < 1f || value.GetElement(2) < 1f || value.GetElement(3) < 1f),
                 $"Unexpected value or power: ({value})^{power}");
 #if NET11_0_OR_GREATER
 #error Check if there is already a (correctly working) Vector128.Pow // see also https://github.com/dotnet/runtime/issues/93513#issuecomment-2226781888

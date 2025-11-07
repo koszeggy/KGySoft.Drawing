@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq.Expressions;
+
 #if NET45_OR_GREATER || NETCOREAPP
 using System.Numerics;
 #endif
@@ -25,6 +26,7 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -860,6 +862,518 @@ namespace KGySoft.Drawing.PerformanceTests
             return new ColorF(c.A, 1f - c.R, 1f - c.G, 1f - c.B);
         }
 
+        private static ColorF TransformGammaPerChannelF(ColorF c, ColorChannels channels, float gamma)
+        {
+            c = c.Clip();
+            float invGamma = 1f / gamma;
+            return new ColorF(c.A,
+                (channels & ColorChannels.R) == ColorChannels.R ? MathF.Pow(c.R, invGamma) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? MathF.Pow(c.G, invGamma) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? MathF.Pow(c.B, invGamma) : c.B);
+        }
+
+        private static byte[] GenerateGammaLookupTable32_1_Vanilla(float gamma, byte[] table)
+        {
+            byte[] result = table;
+            if (gamma.TolerantIsZero())
+            {
+                result[255] = 255;
+                return result;
+            }
+
+            float power = 1f / gamma;
+            for (int i = 0; i < 256; i++)
+                result[i] = (byte)(255f * MathF.Pow(i / 255f, power) + 0.5f);
+            return result;
+        }
+
+        private static byte[] GenerateGammaLookupTable32_2_AutoVector128SimpleLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 256; i += 4, current += Vector128.Create(4f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+#else
+                    Vector128<float> resultF = (current * (1f / 255f)).Pow(power) * VectorExtensions.Max8BitF + VectorExtensions.HalfF;
+#endif
+                    Vector128<int> resultI32 = Vector128.Shuffle(Vector128.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytesMask).AsInt32();
+                    table[i].As<byte, int>() = resultI32.ToScalar();
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+
+        private static byte[] GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+#if NET9_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 256; i += Vector128<byte>.Count, current += Vector128.Create(4f))
+                {
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Vector128.ConvertToInt32(resultF);
+                    current += Vector128.Create(4f);
+                    resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Vector128.ConvertToInt32(resultF);
+                    Vector128<short> resultI16Left = Vector128.Narrow(resultI32Left, resultI32Right);
+
+                    current += Vector128.Create(4f);
+                    resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+                    resultI32Left = Vector128.ConvertToInt32(resultF);
+                    current += Vector128.Create(4f);
+                    resultF = Vector128.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8BitF, VectorExtensions.HalfF);
+                    resultI32Right = Vector128.ConvertToInt32(resultF);
+                    Vector128<short> resultI16Right = Vector128.Narrow(resultI32Left, resultI32Right);
+
+                    table[i].As<byte, Vector128<byte>>() = Vector128.Narrow(resultI16Left.AsUInt16(), resultI16Right.AsUInt16());
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+
+        private static byte[] GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 256; i += 16, current = Sse.Add(current, Vector128.Create(4f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector128Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector128<float> resultF = Sse.Multiply(current, Vector128.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, Vector128.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+                    Vector128<short> resultI16Left = Sse2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, Vector128.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, Vector128.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max8BitF), VectorExtensions.HalfF);
+                    resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+                    Vector128<short> resultI16Right = Sse2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    table[i].As<byte, Vector128<byte>>() = Sse2.PackUnsignedSaturate(resultI16Left, resultI16Right);
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+
+        private static byte[] GenerateGammaLookupTable32_5_AutoVector256SimpleLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+#if NET7_0_OR_GREATER
+            if (Vector256.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 256; i += 8, current += Vector256.Create(8f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector256<float> resultF = Vector256.FusedMultiplyAdd((current / 255f).Pow(power), VectorExtensions.Max8Bit256F, VectorExtensions.Half256F);
+#else
+                    Vector256<float> resultF = (current * (1f / 255f)).Pow(power) * VectorExtensions.Max8Bit256F + VectorExtensions.Half256F;
+#endif
+                    Vector256<long> resultI64 = Vector256.Shuffle(Vector256.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytes256Mask).AsInt64();
+                    table[i].As<byte, long>() = resultI64.ToScalar();
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+
+        private static byte[] GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Avx2.IsSupported)
+            {
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 256; i += 32, current = Avx.Add(current, Vector256.Create(8f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector256Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector256<float> resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+                    Vector256<short> resultI16Left = Avx2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 255f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max8Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max8Bit256F), VectorExtensions.Half256F);
+                    resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+                    Vector256<short> resultI16Right = Avx2.PackSignedSaturate(resultI32Left, resultI32Right);
+
+                    // NOTE: Unlike in case of SSE, the PackSignedSaturate methods in AVX interleave the results from left and right vectors, so the order in resultBytes will be as follows:
+                    // 0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31
+                    // An apparently obvious solution would be to fix it by Avx2.Shuffle(resultBytes, Vector256.Create((byte)0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23, 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31)),
+                    // but it just messes up the result even more, as it does not work across 128-bit lanes. The real solution is to use PermuteVar8x32 on ints, which is 3x slower, but works in the whole 256-bit range.
+                    Vector256<byte> resultBytes = Avx2.PackUnsignedSaturate(resultI16Left, resultI16Right);
+                    resultBytes = Avx2.PermuteVar8x32(resultBytes.AsInt32(), Vector256.Create(0, 4, 1, 5, 2, 6, 3, 7)).AsByte();
+                    table[i].As<byte, Vector256<byte>>() = resultBytes;
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+
+#if NET8_0_OR_GREATER
+        private static byte[] GenerateGammaLookupTable32_7_AutoVector512SimpleLoop(float gamma, byte[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[255] = 255;
+                return table;
+            }
+
+            //if (Vector512.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector512.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f);
+                for (int i = 0; i < 256; i += 16, current += Vector512.Create(16f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector512<float> resultF = Vector512.FusedMultiplyAdd((current / 255f).Pow(power), Vector512.Create(255f), Vector512.Create(0.5f));
+#else
+                    Vector512<float> resultF = (current / 255f).Pow(power) * Vector512.Create(255f) + Vector512.Create(0.5f);
+#endif
+                    Vector512<byte> resultBytes = Vector512.Shuffle(Vector512.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowBytes512Mask);
+                    table[i].As<byte, Vector128<byte>>() = resultBytes.GetLower().GetLower();
+                }
+
+                return table;
+            }
+            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
+        }
+#endif
+
+        private static ushort[] GenerateGammaLookupTable64_1_Vanilla(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+            ushort[] result = table;
+            float power = 1f / gamma;
+            for (int i = 0; i < 65536; i++)
+                result[i] = (ushort)(65535f * MathF.Pow(i / 65535f, power) + 0.5f);
+            return result;
+        }
+
+        private static ushort[] GenerateGammaLookupTable64_2_AutoVector128SimpleLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+#if NET7_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 65536; i += 4, current += Vector128.Create(4f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16BitF, VectorExtensions.HalfF);
+#else
+                    Vector128<float> resultF = (current * (1f / 65535f)).Pow(power) * VectorExtensions.Max16BitF + VectorExtensions.HalfF;
+#endif
+                    Vector128<ulong> resultU64 = Vector128.Shuffle(Vector128.ConvertToInt32(resultF).AsByte(), VectorExtensions.PackLowWordsMask).AsUInt64();
+                    table[i].As<ushort, ulong>() = resultU64.ToScalar();
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+
+        private static ushort[] GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+#if NET9_0_OR_GREATER
+            if (Vector128.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 65536; i += Vector128<ushort>.Count, current += Vector128.Create(4f))
+                {
+                    Vector128<float> resultF = Vector128.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16BitF, VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Vector128.ConvertToInt32(resultF);
+                    current += Vector128.Create(4f);
+                    resultF = Vector128.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16BitF, VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Vector128.ConvertToInt32(resultF);
+
+                    table[i].As<ushort, Vector128<ushort>>() = Vector128.Narrow(resultI32Left.AsUInt32(), resultI32Right.AsUInt32());
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+
+        private static ushort[] GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse41.IsSupported)
+            {
+                float power = 1f / gamma;
+                var current = Vector128.Create(0f, 1f, 2f, 3f);
+                for (int i = 0; i < 65536; i += 8, current = Sse.Add(current, Vector128.Create(4f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector128Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector128<float> resultF = Sse.Multiply(current, Vector128.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max16BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Left = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    current = Sse.Add(current, Vector128.Create(4f));
+                    resultF = Sse.Multiply(current, Vector128.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16BitF, VectorExtensions.HalfF)
+                        : Sse.Add(Sse.Multiply(resultF, VectorExtensions.Max16BitF), VectorExtensions.HalfF);
+                    Vector128<int> resultI32Right = Sse2.ConvertToVector128Int32WithTruncation(resultF);
+
+                    table[i].As<ushort, Vector128<ushort>>() = Sse41.PackUnsignedSaturate(resultI32Left, resultI32Right);
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+
+        private static ushort[] GenerateGammaLookupTable64_5_AutoVector256SimpleLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+#if NET7_0_OR_GREATER
+            if (Vector256.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 65536; i += 8, current += Vector256.Create(8f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector256<float> resultF = Vector256.FusedMultiplyAdd((current / 65535f).Pow(power), VectorExtensions.Max16Bit256F, VectorExtensions.Half256F);
+#else
+                    Vector256<float> resultF = (current * (1f / 65535f)).Pow(power) * VectorExtensions.Max16Bit256F + VectorExtensions.Half256F;
+#endif
+                    Vector256<ushort> resultU16 = Vector256.Shuffle(Vector256.ConvertToInt32(resultF).AsUInt16(), VectorExtensions.PackLowWords256Mask);
+                    table[i].As<ushort, Vector128<ushort>>() = resultU16.GetLower();
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+
+        private static ushort[] GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Avx2.IsSupported)
+            {
+                float power = 1f / gamma;
+                var current = Vector256.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f);
+                for (int i = 0; i < 65536; i += 16, current = Avx.Add(current, Vector256.Create(8f)))
+                {
+                    // We could spare adding +0.5f by using the slower ConvertToVector256Int32 that rounds the result instead of truncating it,
+                    // but if FMA is supported, this is faster. Otherwise, the performance is about the same.
+                    Vector256<float> resultF = Avx.Multiply(current, Vector256.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max16Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Left = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    current = Avx.Add(current, Vector256.Create(8f));
+                    resultF = Avx.Multiply(current, Vector256.Create(1f / 65535f)).Pow(power);
+                    resultF = Fma.IsSupported
+                        ? Fma.MultiplyAdd(resultF, VectorExtensions.Max16Bit256F, VectorExtensions.Half256F)
+                        : Avx.Add(Avx.Multiply(resultF, VectorExtensions.Max16Bit256F), VectorExtensions.Half256F);
+                    Vector256<int> resultI32Right = Avx.ConvertToVector256Int32WithTruncation(resultF);
+
+                    // NOTE: Unlike in case of SSE, the PackSignedSaturate methods in AVX interleave the results from left and right vectors, so the order in resultWords will be as follows:
+                    // 0, 1, 2, 3, 8, 9, 10, 11, 4, 5, 6, 7, 12, 13, 14, 15
+                    // To fix this, we have to use PermuteVar8x32.
+                    Vector256<ushort> resultWords = Avx2.PackUnsignedSaturate(resultI32Left, resultI32Right);
+                    resultWords = Avx2.PermuteVar8x32(resultWords.AsInt32(), Vector256.Create(0, 1, 4, 5, 2, 3, 6, 7)).AsUInt16();
+                    table[i].As<ushort, Vector256<ushort>>() = resultWords;
+                }
+
+                return table;
+            }
+#endif
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+
+#if NET8_0_OR_GREATER
+        private static ushort[] GenerateGammaLookupTable64_7_AutoVector512SimpleLoop(float gamma, ushort[] table)
+        {
+            if (gamma.TolerantIsZero())
+            {
+                table[65535] = 65535;
+                return table;
+            }
+
+            //if (Vector512.IsHardwareAccelerated)
+            {
+                float power = 1f / gamma;
+                var current = Vector512.Create(0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f);
+                for (int i = 0; i < 65536; i += 16, current += Vector512.Create(16f))
+                {
+#if NET9_0_OR_GREATER
+                    Vector512<float> resultF = Vector512.FusedMultiplyAdd((current / 65535f).Pow(power), Vector512.Create(65535f), Vector512.Create(0.5f));
+#else
+                    Vector512<float> resultF = (current / 65535f).Pow(power) * Vector512.Create(65535f) + Vector512.Create(0.5f);
+#endif
+                    Vector512<ushort> resultWords = Vector512.Shuffle(Vector512.ConvertToInt32(resultF).AsUInt16(), VectorExtensions.PackLowWords512Mask);
+                    table[i].As<ushort, Vector256<ushort>>() = resultWords.GetLower();
+                }
+
+                return table;
+            }
+            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
+        }
+#endif
+
+        private static ColorF TransformGammaF_1_Vanilla(ColorF c, float gamma)
+        {
+            c = c.Clip();
+            float invGamma = 1f / gamma;
+            return new ColorF(c.A,
+                MathF.Pow(c.R, invGamma),
+                MathF.Pow(c.G, invGamma),
+                MathF.Pow(c.B, invGamma));
+        }
+
+        private static ColorF TransformGammaF_2_Vector(ColorF c, float gamma)
+        {
+#if NET9_0_OR_GREATER
+            return new ColorF(c.RgbaV128.ClipF().Pow(1f / gamma).WithElement(3, c.A));
+#else
+            c = c.Clip();
+            float invGamma = 1f / gamma;
+            return new ColorF(c.A,
+                MathF.Pow(c.R, invGamma),
+                MathF.Pow(c.G, invGamma),
+                MathF.Pow(c.B, invGamma));
+#endif
+        }
+
         #endregion
 
         #region Instance Methods
@@ -867,7 +1381,6 @@ namespace KGySoft.Drawing.PerformanceTests
         [Test]
         public void TransformDarken32Test()
         {
-            const int iterations = 10_000_000;
             Color32 color = new Color32(128, 255, 64);
             const float factor = 0.5f;
 
@@ -972,7 +1485,6 @@ namespace KGySoft.Drawing.PerformanceTests
         [Test]
         public void TransformLighten32Test()
         {
-            const int iterations = 10_000_000;
             Color32 color = new Color32(128, 255, 64);
             const float factor = 0.5f;
 
@@ -1110,7 +1622,6 @@ namespace KGySoft.Drawing.PerformanceTests
         [Test]
         public void TransformLighten64Test()
         {
-            const int iterations = 10_000_000;
             Color64 color = new Color32(128, 255, 64).ToColor64();
             const float factor = 0.5f;
 
@@ -1716,6 +2227,312 @@ namespace KGySoft.Drawing.PerformanceTests
             //   #2  80 980 743 iterations in 2 000,00 ms. Adjusted: 80 980 726,80      <---- Best
             //   #3  77 448 495 iterations in 2 000,00 ms. Adjusted: 77 448 495,00      <---- Worst
             //   Worst-Best difference: 3 532 231,80 (4,56%)
+        }
+
+        [Test]
+        public void GenerateGammaLookupTable32Test()
+        {
+            float gamma = 2.4f;
+            byte[] tableRef = new byte[256];
+            byte[] tableActual = new byte[256];
+
+            GenerateGammaLookupTable32_1_Vanilla(gamma, tableRef);
+            GenerateGammaLookupTable32_2_AutoVector128SimpleLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+            
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+            
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+            
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable32_5_AutoVector256SimpleLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+
+#if NET8_0_OR_GREATER
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable32_7_AutoVector512SimpleLoop(gamma, tableActual);
+            CollectionAssert.AreEqual(tableRef, tableActual);
+#endif
+
+            new PerformanceTest<byte[]>
+                {
+                    TestName = nameof(GenerateGammaLookupTable32Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => GenerateGammaLookupTable32_1_Vanilla(gamma, tableRef), nameof(GenerateGammaLookupTable32_1_Vanilla))
+                .AddCase(() => GenerateGammaLookupTable32_2_AutoVector128SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_2_AutoVector128SimpleLoop))
+                .AddCase(() => GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop))
+                .AddCase(() => GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop))
+                .AddCase(() => GenerateGammaLookupTable32_5_AutoVector256SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_5_AutoVector256SimpleLoop))
+                .AddCase(() => GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop))
+#if NET8_0_OR_GREATER
+                //.AddCase(() => GenerateGammaLookupTable32_7_AutoVector512SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable32_7_AutoVector512SimpleLoop))
+#endif
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // Verdict: Auto-vectorization is not good at narrowing even on .NET 10, but the simple loop can be auto-vectorized quite well.
+            // So using intrinsics narrowing in the first place, then the auto-vectorized simple loop on .NET 9+, before falling back to the vanilla version.
+            // Pow is not vectorized in .NET 8 and lower. Still, the intrinsics Vector128 vectorization is faster than vanilla (but not with Vector256).
+            // Assuming that Vector512 auto-vectorization is faster than Vector256, though not providing an intrinsics version for it (for now).
+
+            // .NET 10:
+            // 1. GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop: 13,984,489 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 4,661,495.95
+            //   #1  4,694,172 iterations in 2,000.00 ms. Adjusted: 4,694,172.00	 <---- Best
+            //   #2  4,643,744 iterations in 2,000.00 ms. Adjusted: 4,643,743.77	 <---- Worst
+            //   #3  4,646,573 iterations in 2,000.00 ms. Adjusted: 4,646,572.07
+            //   Worst-Best difference: 50,428.23 (1.09%)
+            // 2. GenerateGammaLookupTable32_5_AutoVector256SimpleLoop: 10,573,049 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 3,524,348.85 (-1,137,147.10 / 75.61%)
+            //   #1  3,505,559 iterations in 2,000.00 ms. Adjusted: 3,505,557.42	 <---- Worst
+            //   #2  3,550,117 iterations in 2,000.00 ms. Adjusted: 3,550,116.47	 <---- Best
+            //   #3  3,517,373 iterations in 2,000.00 ms. Adjusted: 3,517,372.65
+            //   Worst-Best difference: 44,559.04 (1.27%)
+            // 3. GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop: 9,505,094 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 3,168,364.29 (-1,493,131.66 / 67.97%)
+            //   #1  2,310,428 iterations in 2,000.00 ms. Adjusted: 2,310,427.77	 <---- Worst
+            //   #2  3,523,508 iterations in 2,000.00 ms. Adjusted: 3,523,507.47
+            //   #3  3,671,158 iterations in 2,000.00 ms. Adjusted: 3,671,157.63	 <---- Best
+            //   Worst-Best difference: 1,360,729.86 (58.90%)
+            // 4. GenerateGammaLookupTable32_2_AutoVector128SimpleLoop: 7,669,888 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 2,556,628.82 (-2,104,867.12 / 54.85%)
+            //   #1  2,083,682 iterations in 2,000.00 ms. Adjusted: 2,083,681.58	 <---- Worst
+            //   #2  2,772,789 iterations in 2,000.00 ms. Adjusted: 2,772,788.45
+            //   #3  2,813,417 iterations in 2,000.00 ms. Adjusted: 2,813,416.44	 <---- Best
+            //   Worst-Best difference: 729,734.85 (35.02%)
+            // 5. GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop: 7,392,427 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 2,464,141.70 (-2,197,354.24 / 52.86%)
+            //   #1  2,954,207 iterations in 2,000.00 ms. Adjusted: 2,954,206.26	 <---- Best
+            //   #2  2,606,737 iterations in 2,000.00 ms. Adjusted: 2,606,736.22
+            //   #3  1,831,483 iterations in 2,000.00 ms. Adjusted: 1,831,482.63	 <---- Worst
+            //   Worst-Best difference: 1,122,723.63 (61.30%)
+            // 6. GenerateGammaLookupTable32_1_Vanilla: 2,100,455 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 700,151.26 (-3,961,344.68 / 15.02%)
+            //   #1  731,370 iterations in 2,000.00 ms. Adjusted: 731,369.71
+            //   #2  772,199 iterations in 2,000.00 ms. Adjusted: 772,198.50	 <---- Best
+            //   #3  596,886 iterations in 2,000.00 ms. Adjusted: 596,885.58	 <---- Worst
+            //   Worst-Best difference: 175,312.92 (29.37%)
+
+            // .NET 8:
+            // 1. GenerateGammaLookupTable32_4_IntrinsicsVector128UnrolledNarrowingLoop: 3,141,886 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 1,047,294.53
+            //   #1  1,073,801 iterations in 2,000.00 ms. Adjusted: 1,073,800.41	 <---- Best
+            //   #2  1,044,057 iterations in 2,000.00 ms. Adjusted: 1,044,056.11
+            //   #3  1,024,028 iterations in 2,000.00 ms. Adjusted: 1,024,027.08	 <---- Worst
+            //   Worst-Best difference: 49,773.33 (4.86%)
+            // 2. GenerateGammaLookupTable32_3_AutoVector128UnrolledNarrowingLoop: 2,536,835 iterations in 6,000.01 ms. Adjusted for 2,000 ms: 845,610.68 (-201,683.86 / 80.74%)
+            //   #1  870,747 iterations in 2,000.00 ms. Adjusted: 870,746.17
+            //   #2  871,095 iterations in 2,000.00 ms. Adjusted: 871,094.09	 <---- Best
+            //   #3  794,993 iterations in 2,000.00 ms. Adjusted: 794,991.77	 <---- Worst
+            //   Worst-Best difference: 76,102.32 (9.57%)
+            // 3. GenerateGammaLookupTable32_2_AutoVector128SimpleLoop: 2,499,003 iterations in 6,000.01 ms. Adjusted for 2,000 ms: 832,999.46 (-214,295.07 / 79.54%)
+            //   #1  830,920 iterations in 2,000.01 ms. Adjusted: 830,917.47
+            //   #2  853,322 iterations in 2,000.00 ms. Adjusted: 853,320.93	 <---- Best
+            //   #3  814,761 iterations in 2,000.00 ms. Adjusted: 814,759.98	 <---- Worst
+            //   Worst-Best difference: 38,560.95 (4.73%)
+            // 4. GenerateGammaLookupTable32_1_Vanilla: 2,299,454 iterations in 6,000.02 ms. Adjusted for 2,000 ms: 766,482.67 (-280,811.86 / 73.19%)
+            //   #1  723,930 iterations in 2,000.01 ms. Adjusted: 723,925.19	 <---- Worst
+            //   #2  822,449 iterations in 2,000.00 ms. Adjusted: 822,448.59	 <---- Best
+            //   #3  753,075 iterations in 2,000.00 ms. Adjusted: 753,074.25
+            //   Worst-Best difference: 98,523.40 (13.61%)
+            // 5. GenerateGammaLookupTable32_6_IntrinsicsVector256UnrolledNarrowingLoop: 1,640,178 iterations in 6,000.01 ms. Adjusted for 2,000 ms: 546,725.33 (-500,569.21 / 52.20%)
+            //   #1  548,295 iterations in 2,000.00 ms. Adjusted: 548,294.26	 <---- Best
+            //   #2  545,174 iterations in 2,000.00 ms. Adjusted: 545,173.18	 <---- Worst
+            //   #3  546,709 iterations in 2,000.00 ms. Adjusted: 546,708.54
+            //   Worst-Best difference: 3,121.08 (0.57%)
+            // 6. GenerateGammaLookupTable32_5_AutoVector256SimpleLoop: 1,318,256 iterations in 6,000.01 ms. Adjusted for 2,000 ms: 439,417.90 (-607,876.63 / 41.96%)
+            //   #1  412,009 iterations in 2,000.00 ms. Adjusted: 412,008.09	 <---- Worst
+            //   #2  446,494 iterations in 2,000.00 ms. Adjusted: 446,493.29
+            //   #3  459,753 iterations in 2,000.00 ms. Adjusted: 459,752.33	 <---- Best
+            //   Worst-Best difference: 47,744.24 (11.59%)
+        }
+
+        [Test]
+        public void GenerateGammaLookupTable64Test()
+        {
+            #region Local Methods
+
+            static void DoAssert(ushort[] expected, ushort[] actual)
+            {
+                for (int i = 0; i < expected.Length; i++)
+                {
+                    // the vectorized Pow may differ by one in 16 bit range
+                    if ((expected[i] - actual[i]).Abs() > 1)
+                        Assert.Fail($"Tables differ at index {i}: expected={expected[i]}, actual={actual[i]}");
+                }
+            }
+
+            #endregion
+
+            float gamma = 2.4f;
+            ushort[] tableRef = new ushort[65536];
+            ushort[] tableActual = new ushort[65536];
+
+            GenerateGammaLookupTable64_1_Vanilla(gamma, tableRef);
+            GenerateGammaLookupTable64_2_AutoVector128SimpleLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable64_5_AutoVector256SimpleLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+
+#if NET9_0_OR_GREATER
+            Array.Clear(tableActual, 0, tableActual.Length);
+            GenerateGammaLookupTable64_7_AutoVector512SimpleLoop(gamma, tableActual);
+            DoAssert(tableRef, tableActual);
+#endif
+
+            new PerformanceTest<ushort[]>
+                {
+                    TestName = nameof(GenerateGammaLookupTable64Test),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => GenerateGammaLookupTable64_1_Vanilla(gamma, tableRef), nameof(GenerateGammaLookupTable64_1_Vanilla))
+                .AddCase(() => GenerateGammaLookupTable64_2_AutoVector128SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_2_AutoVector128SimpleLoop))
+                .AddCase(() => GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop))
+                .AddCase(() => GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop))
+                .AddCase(() => GenerateGammaLookupTable64_5_AutoVector256SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_5_AutoVector256SimpleLoop))
+                .AddCase(() => GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop))
+#if NET8_0_OR_GREATER
+                //.AddCase(() => GenerateGammaLookupTable64_7_AutoVector512SimpleLoop(gamma, tableActual), nameof(GenerateGammaLookupTable64_7_AutoVector512SimpleLoop))
+#endif
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // Verdict: The same as in GenerateGammaLookupTable32Test.
+
+            // .NET 10:
+            // 1. GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop: 61,023 iterations in 6,000.15 ms. Adjusted for 2,000 ms: 20,340.51
+            //   #1  20,488 iterations in 2,000.00 ms. Adjusted: 20,487.95	 <---- Best
+            //   #2  20,352 iterations in 2,000.07 ms. Adjusted: 20,351.31
+            //   #3  20,183 iterations in 2,000.07 ms. Adjusted: 20,182.26	 <---- Worst
+            //   Worst-Best difference: 305.69 (1.51%)
+            // 2. GenerateGammaLookupTable64_5_AutoVector256SimpleLoop: 50,232 iterations in 6,000.14 ms. Adjusted for 2,000 ms: 16,743.62 (-3,596.89 / 82.32%)
+            //   #1  16,723 iterations in 2,000.01 ms. Adjusted: 16,722.94
+            //   #2  16,704 iterations in 2,000.08 ms. Adjusted: 16,703.35	 <---- Worst
+            //   #3  16,805 iterations in 2,000.05 ms. Adjusted: 16,804.56	 <---- Best
+            //   Worst-Best difference: 101.21 (0.61%)
+            // 3. GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop: 41,937 iterations in 6,000.20 ms. Adjusted for 2,000 ms: 13,978.52 (-6,361.99 / 68.72%)
+            //   #1  12,905 iterations in 2,000.04 ms. Adjusted: 12,904.77	 <---- Worst
+            //   #2  13,118 iterations in 2,000.06 ms. Adjusted: 13,117.61
+            //   #3  15,914 iterations in 2,000.10 ms. Adjusted: 15,913.19	 <---- Best
+            //   Worst-Best difference: 3,008.42 (23.31%)
+            // 4. GenerateGammaLookupTable64_2_AutoVector128SimpleLoop: 39,163 iterations in 6,000.14 ms. Adjusted for 2,000 ms: 13,054.04 (-7,286.46 / 64.18%)
+            //   #1  14,054 iterations in 2,000.05 ms. Adjusted: 14,053.66
+            //   #2  14,102 iterations in 2,000.01 ms. Adjusted: 14,101.96	 <---- Best
+            //   #3  11,007 iterations in 2,000.09 ms. Adjusted: 11,006.52	 <---- Worst
+            //   Worst-Best difference: 3,095.44 (28.12%)
+            // 5. GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop: 29,983 iterations in 6,000.38 ms. Adjusted for 2,000 ms: 9,993.70 (-10,346.80 / 49.13%)
+            //   #1  10,883 iterations in 2,000.10 ms. Adjusted: 10,882.46	 <---- Best
+            //   #2  8,367 iterations in 2,000.12 ms. Adjusted: 8,366.48	 <---- Worst
+            //   #3  10,733 iterations in 2,000.15 ms. Adjusted: 10,732.17
+            //   Worst-Best difference: 2,515.97 (30.07%)
+            // 6. GenerateGammaLookupTable64_1_Vanilla: 7,912 iterations in 6,001.16 ms. Adjusted for 2,000 ms: 2,636.83 (-17,703.68 / 12.96%)
+            //   #1  2,850 iterations in 2,000.09 ms. Adjusted: 2,849.88	 <---- Best
+            //   #2  2,652 iterations in 2,000.87 ms. Adjusted: 2,650.84
+            //   #3  2,410 iterations in 2,000.20 ms. Adjusted: 2,409.76	 <---- Worst
+            //   Worst-Best difference: 440.12 (18.26%)
+
+            // .NET 8:
+            // 1. GenerateGammaLookupTable64_4_IntrinsicsVector128UnrolledNarrowingLoop: 11,805 iterations in 6,001.06 ms. Adjusted for 2,000 ms: 3,934.32
+            //   #1  3,784 iterations in 2,000.61 ms. Adjusted: 3,782.84	 <---- Worst
+            //   #2  3,793 iterations in 2,000.29 ms. Adjusted: 3,792.44
+            //   #3  4,228 iterations in 2,000.15 ms. Adjusted: 4,227.68	 <---- Best
+            //   Worst-Best difference: 444.84 (11.76%)
+            // 2. GenerateGammaLookupTable64_2_AutoVector128SimpleLoop: 10,381 iterations in 6,001.84 ms. Adjusted for 2,000 ms: 3,459.29 (-475.03 / 87.93%)
+            //   #1  3,379 iterations in 2,001.30 ms. Adjusted: 3,376.80
+            //   #2  3,271 iterations in 2,000.27 ms. Adjusted: 3,270.56	 <---- Worst
+            //   #3  3,731 iterations in 2,000.26 ms. Adjusted: 3,730.51	 <---- Best
+            //   Worst-Best difference: 459.96 (14.06%)
+            // 3. GenerateGammaLookupTable64_3_AutoVector128UnrolledNarrowingLoop: 9,036 iterations in 6,001.35 ms. Adjusted for 2,000 ms: 3,011.31 (-923.01 / 76.54%)
+            //   #1  3,472 iterations in 2,000.53 ms. Adjusted: 3,471.09	 <---- Best
+            //   #2  2,906 iterations in 2,000.37 ms. Adjusted: 2,905.46
+            //   #3  2,658 iterations in 2,000.45 ms. Adjusted: 2,657.40	 <---- Worst
+            //   Worst-Best difference: 813.69 (30.62%)
+            // 4. GenerateGammaLookupTable64_1_Vanilla: 8,500 iterations in 6,000.81 ms. Adjusted for 2,000 ms: 2,832.96 (-1,101.36 / 72.01%)
+            //   #1  3,018 iterations in 2,000.03 ms. Adjusted: 3,017.95	 <---- Best
+            //   #2  2,788 iterations in 2,000.35 ms. Adjusted: 2,787.51
+            //   #3  2,694 iterations in 2,000.43 ms. Adjusted: 2,693.42	 <---- Worst
+            //   Worst-Best difference: 324.53 (12.05%)
+            // 5. GenerateGammaLookupTable64_6_IntrinsicsVector256UnrolledNarrowingLoop: 6,603 iterations in 6,001.96 ms. Adjusted for 2,000 ms: 2,200.28 (-1,734.04 / 55.93%)
+            //   #1  2,202 iterations in 2,000.67 ms. Adjusted: 2,201.26
+            //   #2  2,198 iterations in 2,000.84 ms. Adjusted: 2,197.08	 <---- Worst
+            //   #3  2,203 iterations in 2,000.45 ms. Adjusted: 2,202.51	 <---- Best
+            //   Worst-Best difference: 5.43 (0.25%)
+            // 6. GenerateGammaLookupTable64_5_AutoVector256SimpleLoop: 6,243 iterations in 6,000.87 ms. Adjusted for 2,000 ms: 2,080.70 (-1,853.63 / 52.89%)
+            //   #1  2,086 iterations in 2,000.26 ms. Adjusted: 2,085.73
+            //   #2  2,087 iterations in 2,000.49 ms. Adjusted: 2,086.49	 <---- Best
+            //   #3  2,070 iterations in 2,000.12 ms. Adjusted: 2,069.87	 <---- Worst
+            //   Worst-Best difference: 16.61 (0.80%)
+        }
+
+        [Test]
+        public void TransformGammaFTest()
+        {
+            ColorF color = new Color32(128, 255, 64).ToColorF();
+            const float gamma = 2.4f;
+
+            ColorF expected = TransformGammaPerChannelF(color, ColorChannels.Rgb, gamma);
+            Console.WriteLine($"{"Expected color:",-50} {expected}");
+
+            void DoAssert(Expression<Func<ColorF>> e)
+            {
+                var m = (MethodCallExpression)e.Body;
+                ColorF actual = e.Compile().Invoke();
+                Console.WriteLine($"{$"{m.Method.Name}:",-50} {actual}");
+                Assert.IsTrue(expected.TolerantEquals(actual));
+            }
+
+            DoAssert(() => TransformGammaF_1_Vanilla(color, gamma));
+            DoAssert(() => TransformGammaF_2_Vector(color, gamma));
+
+            new PerformanceTest<ColorF>
+                {
+                    TestName = nameof(TransformContrastFTest),
+                    TestTime = 2000,
+                    //Iterations = 10_000_000,
+                    Repeat = 3
+                }
+                .AddCase(() => TransformGammaPerChannelF(color, ColorChannels.Rgb, gamma), nameof(TransformGammaPerChannelF))
+                .AddCase(() => TransformGammaF_1_Vanilla(color, gamma), nameof(TransformGammaF_1_Vanilla))
+                .AddCase(() => TransformGammaF_2_Vector(color, gamma), nameof(TransformGammaF_2_Vector))
+                .DoTest()
+                .DumpResults(Console.Out);
+
+            // .NET 10:
+            // 1. TransformGammaF_2_Vector: 147,921,390 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 49,307,130.00
+            //   #1  47,139,830 iterations in 2,000.00 ms. Adjusted: 47,139,830.00
+            //   #2  46,413,256 iterations in 2,000.00 ms. Adjusted: 46,413,256.00	 <---- Worst
+            //   #3  54,368,304 iterations in 2,000.00 ms. Adjusted: 54,368,304.00	 <---- Best
+            //   Worst-Best difference: 7,955,048.00 (17.14%)
+            // 2. TransformGammaPerChannelF: 125,676,671 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 41,892,223.67 (-7,414,906.33 / 84.96%)
+            //   #1  40,546,701 iterations in 2,000.00 ms. Adjusted: 40,546,701.00	 <---- Worst
+            //   #2  42,654,478 iterations in 2,000.00 ms. Adjusted: 42,654,478.00	 <---- Best
+            //   #3  42,475,492 iterations in 2,000.00 ms. Adjusted: 42,475,492.00
+            //   Worst-Best difference: 2,107,777.00 (5.20%)
+            // 3. TransformGammaF_1_Vanilla: 123,985,555 iterations in 6,000.00 ms. Adjusted for 2,000 ms: 41,328,504.53 (-7,978,625.47 / 83.82%)
+            //   #1  40,581,126 iterations in 2,000.00 ms. Adjusted: 40,581,126.00	 <---- Worst
+            //   #2  41,401,944 iterations in 2,000.00 ms. Adjusted: 41,401,902.60
+            //   #3  42,002,485 iterations in 2,000.00 ms. Adjusted: 42,002,485.00	 <---- Best
+            //   Worst-Best difference: 1,421,359.00 (3.50%)
         }
 
         #endregion

@@ -50,6 +50,7 @@ namespace KGySoft.Drawing.Imaging
 
             private static float[] InitLookupTable()
             {
+                // Could be vectorized in two sessions (pow range starts at i == 11), but as it executes only once, it's not worth the complexity.
                 var result = new float[1 << 8];
                 for (int i = 0; i <= Byte.MaxValue; i++)
                     result[i] = SrgbToLinear(i / (float)Byte.MaxValue);
@@ -76,6 +77,7 @@ namespace KGySoft.Drawing.Imaging
 
             private static float[] InitLookupTable()
             {
+                // Could be vectorized in two sessions (pow range starts at i == 2651), but as it executes only once, it's not worth the complexity.
                 var result = new float[1 << 16];
                 for (int i = 0; i <= UInt16.MaxValue; i++)
                     result[i] = SrgbToLinear(i / (float)UInt16.MaxValue);
