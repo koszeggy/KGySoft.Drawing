@@ -4051,9 +4051,10 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginSave">BeginSave</see>
         /// or <see cref="SaveAsync">SaveAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
-        /// <para>To reload the content use the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see> method.</para>
-        /// <para>The saved content always preserves known <see cref="KnownPixelFormat"/>s so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
-        /// method can restore it the same way on any platform. Custom pixel formats are saved by a compatible known pixel format.</para>
+        /// <para>To reload the content use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.Load">BitmapDataFactory.Load</see> overloads.</para>
+        /// <para>The saved content always preserves known <see cref="KnownPixelFormat"/>s. Custom pixel formats are saved by a compatible known pixel format.</para>
+        /// <para>The working color space information indicated by the <see cref="IBitmapData.WorkingColorSpace"/> property is not saved, but you can set
+        /// any working color space on loading a saved bitmap data by the <see cref="BitmapDataFactory.Load(Stream,WorkingColorSpace)"/> overload.</para>
         /// </remarks>
         public static void Save(this IReadableBitmapData bitmapData, Stream stream)
         {

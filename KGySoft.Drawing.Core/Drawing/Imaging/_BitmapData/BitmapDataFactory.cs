@@ -1964,14 +1964,27 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stream">The stream to load the bitmap data from.</param>
         /// <returns>A managed <see cref="IReadWriteBitmapData"/> instance loaded from the specified <paramref name="stream"/>.</returns>
         /// <remarks>
-        /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad">BeginLoad</see>
-        /// or <see cref="LoadAsync">LoadAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad(Stream,AsyncConfig?)">BeginLoad</see>
+        /// or <see cref="LoadAsync(Stream,TaskConfig?)">LoadAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// </remarks>
-        public static IReadWriteBitmapData Load(Stream stream)
+        public static IReadWriteBitmapData Load(Stream stream) => Load(stream, WorkingColorSpace.Default);
+
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the loaded bitmap data.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <returns>A managed <see cref="IReadWriteBitmapData"/> instance loaded from the specified <paramref name="stream"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad(Stream,WorkingColorSpace,AsyncConfig?)">BeginLoad</see>
+        /// or <see cref="LoadAsync(Stream,WorkingColorSpace,TaskConfig?)">LoadAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// </remarks>
+        public static IReadWriteBitmapData Load(Stream stream, WorkingColorSpace workingColorSpace)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return DoLoadBitmapData(AsyncHelper.DefaultContext, stream)!;
+            ValidateArguments(stream, workingColorSpace);
+            return DoLoadBitmapData(AsyncHelper.DefaultContext, stream, workingColorSpace)!;
         }
 
         /// <summary>
@@ -1986,20 +1999,39 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync">LoadAsync</see> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync(Stream,TaskConfig?)">LoadAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
-        public static IAsyncResult BeginLoad(Stream stream, AsyncConfig? asyncConfig = null)
+        public static IAsyncResult BeginLoad(Stream stream, AsyncConfig? asyncConfig = null) => BeginLoad(stream, WorkingColorSpace.Default, asyncConfig);
+
+        /// <summary>
+        /// Begins to load a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the loaded bitmap data.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync(Stream,WorkingColorSpace,TaskConfig?)">LoadAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
+        public static IAsyncResult BeginLoad(Stream stream, WorkingColorSpace workingColorSpace, AsyncConfig? asyncConfig = null)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncHelper.BeginOperation(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
+            ValidateArguments(stream, workingColorSpace);
+            return AsyncHelper.BeginOperation(ctx => DoLoadBitmapData(ctx, stream, workingColorSpace), asyncConfig);
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="BeginLoad">BeginLoad</see> method to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.BeginLoad">BeginLoad</see> method to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.LoadAsync">LoadAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
@@ -2023,11 +2055,29 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
-        public static Task<IReadWriteBitmapData?> LoadAsync(Stream stream, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> LoadAsync(Stream stream, TaskConfig? asyncConfig = null) => LoadAsync(stream, WorkingColorSpace.Default, asyncConfig);
+
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the loaded bitmap data.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.
+        /// its result can be <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
+        public static Task<IReadWriteBitmapData?> LoadAsync(Stream stream, WorkingColorSpace workingColorSpace, TaskConfig? asyncConfig = null)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncHelper.DoOperationAsync(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
+            ValidateArguments(stream, workingColorSpace);
+            return AsyncHelper.DoOperationAsync(ctx => DoLoadBitmapData(ctx, stream, workingColorSpace), asyncConfig);
         }
 #endif
 
@@ -2835,6 +2885,14 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(customBitmapDataConfig.Palette), Res.ImagingPaletteTooLarge(maxColors, bpp)), nameof(customBitmapDataConfig));
         }
 
+        private static void ValidateArguments(Stream stream, WorkingColorSpace workingColorSpace)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            if ((uint)workingColorSpace > (uint)WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+        }
+
         #endregion
 
         #region Save
@@ -3111,7 +3169,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         [SecuritySafeCritical]
-        private static IReadWriteBitmapData? DoLoadBitmapData(IAsyncContext context, Stream stream)
+        private static IReadWriteBitmapData? DoLoadBitmapData(IAsyncContext context, Stream stream, WorkingColorSpace workingColorSpace)
         {
             context.Progress?.New(DrawingOperation.Loading, 1000);
             var reader = new BinaryReader(stream);
@@ -3131,16 +3189,14 @@ namespace KGySoft.Drawing.Imaging
                 for (int i = 0; i < paletteLength; i++)
                     entries[i] = new Color32(reader.ReadUInt32());
 
-                // useLinearBlending: unfortunately, cannot be added to BDAT without breaking compatibility
-                palette = new Palette(entries, backColor, alphaThreshold, default, null);
+                palette = new Palette(entries, backColor, alphaThreshold, workingColorSpace, null);
             }
 
             context.Progress?.SetProgressValue((int)(stream.Position * 1000 / stream.Length));
             if (context.IsCancellationRequested)
                 return null;
 
-            // workingColorSpace: unfortunately, cannot be added to BDAT without breaking compatibility
-            IBitmapDataInternal result = CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold, WorkingColorSpace.Default, palette);
+            IBitmapDataInternal result = CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold, workingColorSpace, palette);
             int bpp = pixelFormat.ToBitsPerPixel();
             bool canceled = false;
             try
