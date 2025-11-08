@@ -86,6 +86,9 @@
   - AddArc methods: the startAngle parameter is respected even when a full ellipse is added. Matters if the arc is
     connected to other path segments.
   - StartFigure: not marking the figure closed when called on an empty path.
+* Brush class:
+  * CreateTexture methods: when TextureMapMode is Stretch or Zoom, using a small internal cache to improve
+    performance when the texture is painted repeatedly with the same size.
 + TransformationMatrix struct:
   + New CreateTranslation, CreateScale, CreateRotation and CreateRotationDegrees overloads with Vector2 parameter.
   + New Transform methods to transform a point

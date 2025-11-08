@@ -46,6 +46,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
+        internal override bool MayUsePooledBuffer => ownsBuffer;
+#endif
+
+        #endregion
+
         #region Constructors
 
         protected unsafe ManagedBitmapDataArray2DBase(in BitmapDataConfig cfg)

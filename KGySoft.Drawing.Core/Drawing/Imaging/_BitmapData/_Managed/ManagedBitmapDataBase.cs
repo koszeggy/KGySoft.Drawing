@@ -23,6 +23,12 @@ namespace KGySoft.Drawing.Imaging
 {
     internal abstract class ManagedBitmapDataBase : BitmapDataBase
     {
+        #region Properties
+
+        internal virtual bool MayUsePooledBuffer => false;
+
+        #endregion
+
         #region Constructors
 
         protected ManagedBitmapDataBase(in BitmapDataConfig cfg)

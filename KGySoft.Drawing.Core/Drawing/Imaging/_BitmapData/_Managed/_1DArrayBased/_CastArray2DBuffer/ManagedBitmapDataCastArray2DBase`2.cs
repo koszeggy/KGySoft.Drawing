@@ -46,6 +46,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
+        internal override bool MayUsePooledBuffer => ownsBuffer;
+#endif
+
+        #endregion
+
         #region Constructors
 
         protected unsafe ManagedBitmapDataCastArray2DBase(in BitmapDataConfig cfg)
@@ -57,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(BitmapDataFactory.PoolingStrategy != ArrayPoolingStrategy.Never, "When pooling is disabled, calling the CastArray-based self allocation is not expected.");
 
             int byteWidth = cfg.PixelFormat.GetByteWidth(cfg.Size.Width);
-            if (BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased)
+            if (BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased) // this condition is alright, T is always byte in this constructor
             {
                 // Using the self-allocating constructor that allows array pooling.
                 underlyingBuffer = new ArraySection<T>(checked(cfg.Size.Height * byteWidth));

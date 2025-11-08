@@ -127,7 +127,7 @@ namespace KGySoft.Drawing.Shapes
         /// if <see cref="DrawingOptions.AntiAliasing">DrawingOptions.AntiAliasing</see> is <see langword="true"/>, then the texture is resized with an
         /// automatically selected interpolation; otherwise, the texture is resized using the nearest neighbor algorithm. The used color space for resizing depends
         /// on the <see cref="IBitmapData.WorkingColorSpace"/> of the original texture.
-        /// Please note that this generates a new texture for each shape, so it can be slow for large shapes.
+        /// Please note that this generates a new texture for each shape, so it can be slow for large shapes (though a cache with very limited size is used internally).
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Stretch,
