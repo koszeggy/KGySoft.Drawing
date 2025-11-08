@@ -255,9 +255,9 @@ namespace KGySoft.Drawing.Imaging
         public static bool TrySetPalette(this IWritableBitmapData bitmapData, Palette palette)
         {
             if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData));
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (palette == null)
-                throw new ArgumentNullException(nameof(palette));
+                throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             return bitmapData is IBitmapDataInternal internalBitmapData && internalBitmapData.TrySetPalette(palette);
         }
 
@@ -301,6 +301,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long, but simple switch cases")]
         private static bool TryClearRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 c)
         {
             Debug.Assert(bitmapData is ManagedBitmapDataBase or UnmanagedBitmapDataBase { RowSize: > 0 });

@@ -1128,7 +1128,6 @@ namespace KGySoft.Drawing.PerformanceTests
 
                 return table;
             }
-            return GenerateGammaLookupTable32_1_Vanilla(gamma, table);
         }
 #endif
 
@@ -1346,7 +1345,6 @@ namespace KGySoft.Drawing.PerformanceTests
 
                 return table;
             }
-            return GenerateGammaLookupTable64_1_Vanilla(gamma, table);
         }
 #endif
 

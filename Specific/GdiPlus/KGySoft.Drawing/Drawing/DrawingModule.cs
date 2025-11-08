@@ -42,8 +42,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <remarks>
         /// <note>The module initializer is executed automatically when any member is accessed in the module for the first time. This method is public to be able
-        /// to trigger module initialization without performing any other operation. Normally you don't need to call it explicitly but it can be useful if you use
-        /// the KGy SOFT Drawing Libraries in an application and you want to configure resource management on starting the application via
+        /// to trigger module initialization without performing any other operation. Normally you don't need to call it explicitly, but it can be useful if you use
+        /// the KGy SOFT Drawing Libraries in an application, and you want to configure resource management on starting the application via
         /// the <a href="http://docs.kgysoft.net/corelibraries/html/T_KGySoft_LanguageSettings.htm">LanguageSettings</a> class.
         /// In such case you can call this method before configuring language settings to make sure that the resources of
         /// the <c>KGySoft.Drawing.dll</c> are also affected by the settings.</note>

@@ -494,7 +494,7 @@ namespace KGySoft.Drawing.Imaging
         /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.</para>
-        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmapData"/>, or you want to transform the actual
         /// pixels of an indexed <paramref name="bitmapData"/> instead of modifying the palette, then use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32},IDitherer)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
@@ -524,7 +524,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
@@ -558,7 +558,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
@@ -692,7 +692,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{Color64,Color64}, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.
         /// Though for indexed formats it's preferred to use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})"/> overload instead.</para>
-        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
@@ -801,7 +801,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="TransformColorsAsync(IReadWriteBitmapData, Func{ColorF,ColorF}, TaskConfig)"/> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.
         /// Though for indexed formats it's preferred to use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})"/> overload instead.</para>
-        /// <para>On multicore systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
+        /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
@@ -3376,6 +3376,8 @@ namespace KGySoft.Drawing.Imaging
                 ditherer);
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "False alarm, the new analyzer includes the complexity of local methods")]
         private static bool DoAdjustContrast(IAsyncContext context, IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer, ColorChannels channels)
         {
             #region Local Methods
@@ -3760,7 +3762,7 @@ namespace KGySoft.Drawing.Imaging
                     // NOTE: Unlike in case of SSE, the PackSignedSaturate methods in AVX interleave the results from left and right vectors, so the order in resultBytes will be as follows:
                     // 0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27, 4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31
                     // An apparently obvious solution would be to fix it by Avx2.Shuffle(resultBytes, Vector256.Create((byte)0, 1, 2, 3, 16, 17, 18, 19, 4, 5, 6, 7, 20, 21, 22, 23, 8, 9, 10, 11, 24, 25, 26, 27, 12, 13, 14, 15, 28, 29, 30, 31)),
-                    // but it just messes up the result even more, as it does not work across 128-bit lanes. The real solution is to use PermuteVar8x32 on ints, which is 3x slower, but works in the whole 256-bit range.
+                    // but it just messes up the result even more, as it does not work across 128-bit lanes. The real solution is to use PermuteVar8x32 as int, which is 3x slower, but works in the whole 256-bit range.
                     Vector256<byte> resultBytes = Avx2.PackUnsignedSaturate(resultI16Left, resultI16Right);
                     resultBytes = Avx2.PermuteVar8x32(resultBytes.AsInt32(), Vector256.Create(0, 4, 1, 5, 2, 6, 3, 7)).AsByte();
                     table[i].As<byte, Vector256<byte>>() = resultBytes;

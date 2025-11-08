@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 using KGySoft.CoreLibraries;
@@ -116,6 +117,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="path">The <see cref="Path"/> instance to convert to an <see cref="SKPath"/>.</param>
         /// <returns>An <see cref="SKPath"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Moving out the cases would be a bad idea.")]
         public static SKPath ToSKPath(this Path path)
         {
             #region Local Methods
@@ -168,7 +170,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     {
                         case LineSegment lineSegment:
                             // cannot use AddPoly because it always starts a new figure
-                            IList<PointF> points = lineSegment.Points;
+                            ReadOnlyCollection<PointF> points = lineSegment.Points;
                             int toAddCount = isStartPointAdded ? points.Count - 1 : points.Count;
 
                             // SkiaSharp ignores single-point figures, so we add a one-pixel long line in this case

@@ -205,6 +205,8 @@ namespace KGySoft.Drawing.Shapes
 
         [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
             Justification = "Rectangles: Preventing creating defensive copies on older platforms where the properties are not readonly.")]
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier",
+            Justification = "Rectangles: Preventing creating defensive copies on older platforms where the properties are not readonly.")]
         private abstract class RegionScanner : IDisposable
         {
             #region Fields
@@ -361,10 +363,10 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
-                internal int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
+                internal readonly int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
+                internal readonly int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
 
-                internal bool IsVisibleScanlineDirty
+                internal readonly bool IsVisibleScanlineDirty
                 {
                     get
                     {
@@ -783,10 +785,10 @@ namespace KGySoft.Drawing.Shapes
 
                 #region Properties
 
-                internal int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
-                internal int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
+                internal readonly int StartX => Math.Max(scanner.VisibleLeft, rowStartMin) - scanner.Left;
+                internal readonly int EndX => Math.Min(scanner.VisibleLeft + scanner.VisibleWidth - 1, rowEndMax) - scanner.Left;
 
-                internal bool IsVisibleScanlineDirty
+                internal readonly bool IsVisibleScanlineDirty
                 {
                     get
                     {
@@ -1459,7 +1461,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Fields
 
-            private CastArray<byte, IntersectionType> intersectionTypes;
+            private readonly CastArray<byte, IntersectionType> intersectionTypes;
 
             #endregion
 
@@ -2274,7 +2276,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region EdgeTable struct
 
-        private ref struct EdgeTable
+        private readonly ref struct EdgeTable
         {
             #region Properties
 
@@ -2406,7 +2408,7 @@ namespace KGySoft.Drawing.Shapes
 
             #region Public Methods
 
-            public override string ToString() => $"{Start} -> {End} ({Kind}) - Emit start/end: [{EmitStart};{EmitEnd}]";
+            public override readonly string ToString() => $"{Start} -> {End} ({Kind}) - Emit start/end: [{EmitStart};{EmitEnd}]";
 
             #endregion
 
@@ -2571,7 +2573,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region RegionScanline struct
 
-        private protected ref struct RegionScanline
+        private protected readonly ref struct RegionScanline
         {
             #region Fields
 
@@ -2622,6 +2624,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Properties
 
+#if NET5_0_OR_GREATER
+            [SuppressMessage("Style", "IDE0251:Member can be made 'readonly'",
+                Justification = "Rectangle: Preventing creating a defensive copy when accessing visibleBounds.Width on older platforms where the property accessor is not readonly.")]
+#endif
             internal bool IsSingleThreaded
             {
                 get
@@ -2667,6 +2673,10 @@ namespace KGySoft.Drawing.Shapes
 
             #region Private Methods
 
+#if NET5_0_OR_GREATER
+            [SuppressMessage("Style", "IDE0251:Member can be made 'readonly'",
+                Justification = "Rectangle: Preventing creating a defensive copies when getting bounds/visibleBounds properties on older platforms where the property accessor is not readonly.")] 
+#endif
             private void ApplyScanlineSolid(int y)
             {
                 int startX = visibleBounds.Left - bounds.Left;
@@ -2697,6 +2707,10 @@ namespace KGySoft.Drawing.Shapes
                 session.ApplyScanlineSolid(new RegionScanline(y, bounds.Left, scanline, startX, endX));
             }
 
+#if NET5_0_OR_GREATER
+            [SuppressMessage("Style", "IDE0251:Member can be made 'readonly'",
+                Justification = "Rectangle: Preventing creating a defensive copies when getting bounds/visibleBounds properties on older platforms where the property accessor is not readonly.")] 
+#endif
             private void ApplyScanlineAntiAliased(int y)
             {
                 int startX = visibleBounds.Left - bounds.Left;

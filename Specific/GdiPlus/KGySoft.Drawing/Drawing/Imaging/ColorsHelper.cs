@@ -243,9 +243,8 @@ namespace KGySoft.Drawing.Imaging
                     max16BppInv = new Vector4(1f / max16BppValue);
 #endif
                 }
-                catch (Exception e) when (e is not StackOverflowException)
+                catch (Exception e) when (!e.IsCriticalGdi())
                 {
-                    // catching even OutOfMemoryException because Gdip.StatusException() can throw it for unsupported formats
                     lookupTableSrgb8ToLinear16Bit = null;
                     max16BppValue = UInt16.MaxValue;
                 }
@@ -315,9 +314,9 @@ namespace KGySoft.Drawing.Imaging
                         lookupTableLinear16ToSrgb8Bit[i] = translatedColor.R;
                     }
                 }
-                catch (Exception e) when (e is not StackOverflowException)
+                catch (Exception e) when (!e.IsCriticalGdi())
                 {
-                    // Not this IS a problem because initialization of the other direction in GetLookupTableSrgb8ToLinear16Bit was successful.
+                    // Now this IS a problem because initialization of the other direction in GetLookupTableSrgb8ToLinear16Bit was successful.
                     // Reinitializing the table by the official Linear -> sRGB formula
                     for (int i = 0; i <= max16BppValue; i++)
                         lookupTableLinear16ToSrgb8Bit[i] = ColorSpaceHelper.ToByte(ColorSpaceHelper.LinearToSrgb(ToFloat((ushort)i)));

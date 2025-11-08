@@ -25,7 +25,8 @@ namespace KGySoft.Drawing
     {
         #region Methods
 
-        internal static bool IsCritical(this Exception e) => e is OutOfMemoryException or StackOverflowException or AccessViolationException;
+        // For GDI exceptions we allow even OutOfMemoryException because Gdip.StatusException() can throw it for unsupported formats
+        internal static bool IsCriticalGdi(this Exception e) => e.IsCritical() && e is not OutOfMemoryException;
 
         #endregion
     }

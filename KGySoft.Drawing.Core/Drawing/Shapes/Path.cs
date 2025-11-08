@@ -493,7 +493,7 @@ namespace KGySoft.Drawing.Shapes
             if (points.Length == 0)
                 return this;
             if ((points.Length - 1) % 3 != 0)
-                throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
+                throw new ArgumentException(Res.ShapesBezierPointsInvalid, nameof(points));
             AppendBeziers(points, true);
             return this;
         }
@@ -516,6 +516,10 @@ namespace KGySoft.Drawing.Shapes
         /// <para>The coordinates of the specified <paramref name="points"/> are not validated here but in the moment of drawing the coordinates of the possibly transformed path points
         /// must fall into the bounds of an <see cref="int">int</see> value; otherwise, an <see cref="OverflowException"/> will be thrown.</para>
         /// </remarks>
+#if !NET5_0 // For some reason, triggered only for non-.NET 5.0 targets
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance",
+            Justification = "False alarm, type of pointsList must not be changed to List<PointF>, because it changes the behavior of the method.")]
+#endif
         public Path AddBeziers(IEnumerable<PointF> points)
         {
             if (points == null)
@@ -530,7 +534,7 @@ namespace KGySoft.Drawing.Shapes
             if (pointsList.Count == 0)
                 return this;
             if ((pointsList.Count - 1) % 3 != 0)
-                throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
+                throw new ArgumentException(Res.ShapesBezierPointsInvalid, nameof(points));
             AppendBeziers(pointsList, copy);
             return this;
         }
@@ -604,7 +608,7 @@ namespace KGySoft.Drawing.Shapes
             if (points.Length == 0)
                 return this;
             if ((points.Length & 1) == 0)
-                throw new ArgumentException(nameof(points), Res.ShapesQuadraticPointsInvalid);
+                throw new ArgumentException(Res.ShapesQuadraticPointsInvalid, nameof(points));
 
             if (points.Length == 1)
                 AppendBeziers(points, true);
@@ -643,6 +647,10 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
+#if !NET5_0 // For some reason, triggered only for non-.NET 5.0 targets
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance",
+            Justification = "False alarm, type of pointsList must not be changed to List<PointF>, because it changes the behavior of the method.")]
+#endif
         public Path AddQuadraticCurves(IEnumerable<PointF> points)
         {
             if (points == null)
@@ -657,7 +665,7 @@ namespace KGySoft.Drawing.Shapes
             if (pointsList.Count == 0)
                 return this;
             if ((pointsList.Count & 1) == 0)
-                throw new ArgumentException(nameof(points), Res.ShapesQuadraticPointsInvalid);
+                throw new ArgumentException(Res.ShapesQuadraticPointsInvalid, nameof(points));
 
             if (pointsList.Count == 1)
                 AppendBeziers(pointsList, copy);
@@ -1533,6 +1541,10 @@ namespace KGySoft.Drawing.Shapes
         #region Private Methods
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration", Justification = "TryAppendPoints does not enumerate if it returns false")]
+#if !NET5_0 // For some reason, triggered only for non-.NET 5.0 targets
+        [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance",
+            Justification = "False alarm, type of list must not be changed to List<PointF>, because it changes the behavior of the method.")]
+#endif
         private void AppendPoints(IEnumerable<PointF> points, bool copy)
         {
             if (transformation.IsIdentity && currentFigure.TryAppendPoints(points))

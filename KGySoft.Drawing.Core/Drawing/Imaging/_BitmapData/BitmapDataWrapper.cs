@@ -276,7 +276,7 @@ namespace KGySoft.Drawing.Imaging
             cachedRows = result;
         }
 
-        private IBitmapDataRowInternal DoGetRow(int y)
+        private BitmapDataRowWrapper DoGetRow(int y)
             => new BitmapDataRowWrapper(this, isReading ? AsReadable.GetMovableRow(y) : AsWritable.GetMovableRow(y), isReading, isWriting);
 
         #endregion

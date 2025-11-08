@@ -290,6 +290,8 @@ namespace KGySoft.Drawing
         /// <param name="path">The <see cref="Path"/> instance to convert to a <see cref="GraphicsPath"/>.</param>
         /// <returns>A <see cref="GraphicsPath"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "False alarm, the new analyzer includes the complexity of local methods")]
         public static GraphicsPath ToGraphicsPath(this Path path)
         {
             #region Local Methods

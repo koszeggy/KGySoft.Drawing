@@ -1322,7 +1322,7 @@ namespace KGySoft.Drawing
             Bitmap bmp = image.AsBitmap();
             try
             {
-                return Icons.Combine(new[] { bmp }, new[] { transparentColor });
+                return Icons.Combine([bmp], [transparentColor]);
             }
             finally
             {
@@ -1630,9 +1630,9 @@ namespace KGySoft.Drawing
                     bmp.Save(stream, encoder, null);
                     return;
                 }
-                catch (Exception e) when (e is not StackOverflowException)
+                catch (Exception e) when (!e.IsCriticalGdi())
                 {
-                    // if could not save, then falling back to GifEncoder
+                    // when could not save, falling back to GifEncoder
                 }
             }
 

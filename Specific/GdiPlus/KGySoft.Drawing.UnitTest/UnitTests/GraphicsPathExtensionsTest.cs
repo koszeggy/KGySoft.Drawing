@@ -191,6 +191,7 @@ namespace KGySoft.Drawing.UnitTests
                 g.Clear(Color.Cyan);
                 g.TranslateTransform(-bounds.Left + 1, -bounds.Top + 1);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.FillPath(Brushes.Yellow, graphicsPath);
                 g.DrawPath(Pens.Blue, graphicsPath);
             }
 
@@ -200,8 +201,10 @@ namespace KGySoft.Drawing.UnitTests
             using var bmp = new Bitmap(bmpRef.Width, bmpRef.Height);
             using (var bmpData = bmp.GetReadWriteBitmapData())
             {
+                var options = new DrawingOptions { AntiAliasing = true, Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1) };
                 bmpData.Clear(Color.Cyan);
-                bmpData.DrawPath(Color.Blue, path, new DrawingOptions { AntiAliasing = true, DrawPathPixelOffset = PixelOffset.Half, Transformation = TransformationMatrix.CreateTranslation(-bounds.Left + 1, -bounds.Top + 1) });
+                bmpData.FillPath(Color.Yellow, path, options);
+                bmpData.DrawPath(Color.Blue, path, options);
             }
 
             SaveImage($"{name}_converted", bmp);
