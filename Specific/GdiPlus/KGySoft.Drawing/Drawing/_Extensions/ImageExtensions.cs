@@ -2317,29 +2317,34 @@ namespace KGySoft.Drawing
             if (image1 == null || image2 == null)
                 return false;
 
+            // Pixel format should be checked before Size, because if an image is disposed,
+            // every other property throws an exception, whereas PixelFormat returns Undefined
+            PixelFormat format1 = image1.PixelFormat;
+            PixelFormat format2 = image2.PixelFormat;
+            if (format1 == PixelFormat.Undefined || format1 != format2)
+                return false;
+
             Type type1 = image1.GetType();
             Type type2 = image2.GetType();
-            if (type1 != type2 || image1.Size != image2.Size || image1.PixelFormat != image2.PixelFormat)
+            if (type1 != type2 || image1.Size != image2.Size)
                 return false;
 
             if (type1 == typeof(Metafile))
             {
-                using (MemoryStream ms1 = new MemoryStream())
-                using (MemoryStream ms2 = new MemoryStream())
+                using var ms1 = new MemoryStream();
+                using var ms2 = new MemoryStream();
+                bool forceWmf = image1.RawFormat.Equals(ImageFormat.Wmf) || image2.RawFormat.Equals(ImageFormat.Wmf);
+                ((Metafile)image1).Save(ms1, forceWmf);
+                ((Metafile)image2).Save(ms2, forceWmf);
+
+                if (ms1.Length != ms2.Length)
+                    return false;
+
+                unsafe
                 {
-                    bool forceWmf = image1.RawFormat.Equals(ImageFormat.Wmf) || image2.RawFormat.Equals(ImageFormat.Wmf);
-                    ((Metafile)image1).Save(ms1, forceWmf);
-                    ((Metafile)image2).Save(ms2, forceWmf);
-
-                    if (ms1.Length != ms2.Length)
-                        return false;
-
-                    unsafe
-                    {
-                        fixed (byte* pbuf1 = ms1.GetBuffer())
-                        fixed (byte* pbuf2 = ms2.GetBuffer())
-                            return MemoryHelper.CompareMemory(pbuf1, pbuf2, (int)ms1.Length);
-                    }
+                    fixed (byte* pBuf1 = ms1.GetBuffer())
+                    fixed (byte* pBuf2 = ms2.GetBuffer())
+                        return MemoryHelper.CompareMemory(pBuf1, pBuf2, (int)ms1.Length);
                 }
             }
 
