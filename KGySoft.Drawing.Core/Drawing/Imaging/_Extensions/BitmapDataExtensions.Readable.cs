@@ -3892,10 +3892,10 @@ namespace KGySoft.Drawing.Imaging
         /// You can use the <see cref="Resize(IReadableBitmapData, Size, ScalingMode, bool, ParallelConfig)"/> overload to configure these, while still executing the method synchronously.
         /// Alternatively, use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
-        /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.PixelFormat"/> and <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
+        /// bitmap data but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
         /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
-        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that allow also quantizing and dithering.</para>
+        /// and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods, which have several overloads that allow also quantizing and dithering.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newSize"/> is invalid
@@ -3926,10 +3926,10 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
         /// cancellation and progress reporting. Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
-        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
-        /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.PixelFormat"/> and <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
+        /// bitmap data but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
         /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
-        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that allow also quantizing and dithering.</para>
+        /// and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods, which have several overloads that allow also quantizing and dithering.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newSize"/> is invalid
@@ -5329,9 +5329,10 @@ namespace KGySoft.Drawing.Imaging
             bool canceled = false;
             bool isLinear = bitmapData.IsLinearGamma();
             PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
-            var targetFormat = sourceFormat.Prefers128BitColors ? isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
-                : sourceFormat.Prefers64BitColors ? isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
-                : isLinear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
+            bool hasAlpha = bitmapData.HasAlpha();
+            var targetFormat = sourceFormat.Prefers128BitColors ? !hasAlpha ? KnownPixelFormat.Format96bppRgb : isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
+                : sourceFormat.Prefers64BitColors ? !hasAlpha ? KnownPixelFormat.Format48bppRgb : isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
+                : !hasAlpha ? KnownPixelFormat.Format24bppRgb : isLinear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
             IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, targetFormat, bitmapData.WorkingColorSpace);
             try
             {
