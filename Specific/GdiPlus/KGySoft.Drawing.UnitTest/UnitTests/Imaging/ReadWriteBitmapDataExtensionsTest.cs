@@ -125,6 +125,35 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 #endif
 
+        [Explicit]
+        [TestCase(WorkingColorSpace.Srgb, 0xFFFFFF, 0x000000)]
+        [TestCase(WorkingColorSpace.Linear, 0xFFFFFF, 0x000000)]
+        [TestCase(WorkingColorSpace.Srgb, 0x000000, 0xFFFFFF)]
+        [TestCase(WorkingColorSpace.Linear, 0x000000, 0xFFFFFF)]
+        [TestCase(WorkingColorSpace.Srgb, 0x00FFFF, 0x0000FF)]
+        [TestCase(WorkingColorSpace.Linear, 0x00FFFF, 0x0000FF)]
+        [TestCase(WorkingColorSpace.Srgb, 0x0000FF, 0x00FFFF)]
+        [TestCase(WorkingColorSpace.Linear, 0x0000FF, 0x00FFFF)]
+        [TestCase(WorkingColorSpace.Srgb, 0x008000, 0xFF0000)]
+        [TestCase(WorkingColorSpace.Linear, 0x008000, 0xFF0000)]
+        [TestCase(WorkingColorSpace.Srgb, 0x800000, 0x00FF00)]
+        [TestCase(WorkingColorSpace.Linear, 0x800000, 0x00FF00)]
+        public void BlendTextTest(WorkingColorSpace workingColorSpace, int backColor, int foreColor)
+        {
+            using var bitmap = new Bitmap(250, 25);
+
+            using (var bitmapData = bitmap.GetReadWriteBitmapData(workingColorSpace))
+            {
+                bitmapData.Clear(Color32.FromRgb(backColor));
+                using var format = new StringFormat { Alignment = StringAlignment.Center };
+                var bounds = new Rectangle(Point.Empty, bitmapData.Size);
+                bitmapData.DrawText(Color32.FromRgb(foreColor), $"This is an anti-aliased sample text using a small font. The blending is performed in the {(workingColorSpace is WorkingColorSpace.Linear ? "linear" : "sRGB")} color space.",
+                    SystemFonts.MessageBoxFont, bounds, format, antiAliasingOptions);
+            }
+
+            SaveImage($"{backColor:X6} {foreColor:X6} {workingColorSpace}", bitmap);
+        }
+
         #endregion
     }
 }

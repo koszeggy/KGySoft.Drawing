@@ -1623,6 +1623,42 @@
     <Content Include="Help\Images\BrushLinearGradientWrapModeMirror.png">
       <ImageId>BrushLinearGradientWrapModeMirror</ImageId>
     </Content>
+    <Content Include="Help\Images\TextBlackOnWhiteSrgb.png">
+      <ImageId>TextBlackOnWhiteSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextWhiteOnBlackSrgb.png">
+      <ImageId>TextWhiteOnBlackSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextBlueOnCyanSrgb.png">
+      <ImageId>TextBlueOnCyanSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextCyanOnBlueSrgb.png">
+      <ImageId>TextCyanOnBlueSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextRedOnGreenSrgb.png">
+      <ImageId>TextRedOnGreenSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextGreenOnRedSrgb.png">
+      <ImageId>TextGreenOnRedSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextBlackOnWhiteLinear.png">
+      <ImageId>TextBlackOnWhiteLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextWhiteOnBlackLinear.png">
+      <ImageId>TextWhiteOnBlackLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextBlueOnCyanLinear.png">
+      <ImageId>TextBlueOnCyanLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextCyanOnBlueLinear.png">
+      <ImageId>TextCyanOnBlueLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextRedOnGreenLinear.png">
+      <ImageId>TextRedOnGreenLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\TextGreenOnRedLinear.png">
+      <ImageId>TextGreenOnRedLinear</ImageId>
+    </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
