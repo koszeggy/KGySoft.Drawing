@@ -595,6 +595,12 @@
       <ImageId>ConvertPixelFormat8bppOptimizedDithered</ImageId>
       <AlternateText>Convert Pixel Format 8bpp Optimized Dithered</AlternateText>
     </Content>
+    <Content Include="Help\Images\ShieldDarkenedSrgb.png">
+      <ImageId>ShieldDarkenedSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldDarkenedLinear.png">
+      <ImageId>ShieldDarkenedLinear</ImageId>
+    </Content>
     <Content Include="Help\Images\AlphaGradient.png">
       <ImageId>AlphaGradient</ImageId>
       <AlternateText>Alpha Gradient</AlternateText>
@@ -1278,9 +1284,27 @@
       <ImageId>ShieldMedianCut256TrContrastFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr ContrastFS</AlternateText>
     </Content>
+    <Content Include="Help\Images\ShieldTrContrastSrgb.gif">
+      <ImageId>ShieldTrContrastSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldTrContrastLinear.gif">
+      <ImageId>ShieldTrContrastLinear</ImageId>
+    </Content>
     <Content Include="Help\Images\ShieldMedianCut256TrGammaFS.gif">
       <ImageId>ShieldMedianCut256TrGammaFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr GammaFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldTrGammaSrgb.gif">
+      <ImageId>ShieldTrGammaSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldTrGammaLinear.gif">
+      <ImageId>ShieldTrGammaLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldInvertedSrgb.gif">
+      <ImageId>ShieldInvertedSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldInvertedLinear.gif">
+      <ImageId>ShieldInvertedLinear</ImageId>
     </Content>
     <Content Include="Help\Images\AlphaGradientArgb8888BlackA128.png">
       <ImageId>AlphaGradientArgb8888BlackA128</ImageId>

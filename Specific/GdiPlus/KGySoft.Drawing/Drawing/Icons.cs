@@ -829,7 +829,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file it is recommended to use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
-        /// <para>If <paramref name="fileName"/> has no full path, then it refers to a system library. For example, <c>Icons.FromFile("shell32", 13)</c> loads a chip icon <c>shell32.dll</c>.</para>
+        /// <para>If <paramref name="fileName"/> has no full path, then it refers to a system library. For example, <c>Icons.FromFile("shell32", 13)</c> loads a chip icon from <c>shell32.dll</c>.</para>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         [SecuritySafeCritical]

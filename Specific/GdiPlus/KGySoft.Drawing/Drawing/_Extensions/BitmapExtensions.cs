@@ -127,13 +127,12 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginResize(IReadableBitmapData, Size, ScalingMode, bool, AsyncConfig)">BitmapDataExtensions.BeginResize</see>
         /// or <see cref="BitmapDataExtensions.ResizeAsync(IReadableBitmapData, Size, ScalingMode, bool, TaskConfig)">BitmapDataExtensions.ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
-        /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
-        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods.</para>
-        /// <para>This method always performs resizing in the sRGB color space. To perform resizing in the linear color space obtain a readable bitmap data
-        /// by the <see cref="GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method specifying the <see cref="WorkingColorSpace.Linear"/> color space
-        /// and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">BitmapDataExtensions.Resize</see> methods instead. You can convert the result back to a <see cref="Bitmap"/>
-        /// instance by the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData)">ToBitmap</see> extension method.</para>
+        /// <para>Assuming that the result will be most likely rendered by GDI+, this method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>, and performs the operation
+        /// in the sRGB color space. To resize an image with a custom pixel format create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor using
+        /// the desired pixel format and size, obtain a readable bitmap data from the source image and a read-write bitmap data from the newly created target image
+        /// by the <see cref="GetReadableBitmapData(Bitmap, Color, byte)"/> and <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> methods respectively,
+        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods. To perform the operation in the linear color space
+        /// just pass <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see> as the working color space when obtaining the target bitmap data.</para>
         /// </remarks>
         public static Bitmap Resize(this Bitmap image, Size newSize, ScalingMode scalingMode, bool keepAspectRatio = false)
         {
@@ -918,6 +917,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmap"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmap"/>
@@ -930,7 +930,38 @@ namespace KGySoft.Drawing
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <note>This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. To use an arbitrary color space,
+        /// obtain an <see cref="IReadWriteBitmapData"/> instance by the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method,
+        /// and call the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Invert">BitmapDataExtensions.Invert</see> extension method on it.</note>
         /// </remarks>
+        /// <example>
+        /// <h4>Example 1: Simple usage</h4>
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// bmp.Invert();
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldInvertedSrgb.png" alt="Shield icon inverted in the sRGB color space"/></term></item>
+        /// </list></para>
+        /// <h4>Example 2: Using linear color space</h4>
+        /// This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. In <strong>Example 1</strong> the
+        /// original bitmap had a 32 BPP pixel format, so the sRGB color space was used. To specify a color space explicitly, you can obtain an <see cref="IReadWriteBitmapData"/> instance
+        /// and use the <see cref="BitmapDataExtensions.Invert(IReadWriteBitmapData,IDitherer)">BitmapDataExtensions.Invert</see> method instead:
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData(WorkingColorSpace.Linear))
+        ///     bitmapData.Invert();
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldInvertedLinear.png" alt="Shield icon inverted in the linear color space"/></term></item>
+        /// </list></para>
+        /// </example>
         /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Invert"/>
         public static void Invert(this Bitmap bitmap, IDitherer? ditherer = null)
         {
@@ -999,7 +1030,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmap"/> brighter,
@@ -1016,9 +1047,25 @@ namespace KGySoft.Drawing
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <note>This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. To use an arbitrary color space,
+        /// obtain an <see cref="IReadWriteBitmapData"/> instance by the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method,
+        /// and call the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustBrightness">BitmapDataExtensions.AdjustBrightness</see> extension method on it.</note>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to use this method:
+        /// <h4>Example 1: Simple usage</h4>
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// bmp.AdjustBrightness(-0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldDarkenedSrgb.png" alt="Shield icon darkened in the sRGB color space"/></term></item>
+        /// </list></para>
+        /// <h4>Example 2: Adjusting the brightness of an indexed bitmap with dithering</h4>
+        /// <para>By default, adjusting the brightness of an indexed bitmap transforms the palette entries only, which is both faster and provides a better result.
+        /// To force using the original palette, you can specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>:</para>
         /// <code lang="C#"><![CDATA[
         /// using Bitmap original = Icons.Shield.ExtractBitmap(new Size(256, 256));
         ///
@@ -1042,6 +1089,21 @@ namespace KGySoft.Drawing
         /// <item><term><c>before.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256Black.gif" alt="Shield icon quantized to 256 colors using the Median Cut algorithm"/></term></item>
         /// <item><term><c>after.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256TrBrightnessFS.gif" alt="Shield icon transformed to be darker with Floyd-Steinberg dithering while still using a palette optimized for the original image"/></term></item>
         /// </list></para>
+        /// <h4>Example 3: Using linear color space</h4>
+        /// This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. In <strong>Example 1</strong> the
+        /// original bitmap had a 32 BPP pixel format, so the sRGB color space was used. To specify a color space explicitly, you can obtain an <see cref="IReadWriteBitmapData"/> instance
+        /// and use the <see cref="BitmapDataExtensions.AdjustBrightness(IReadWriteBitmapData,float,IDitherer,ColorChannels)">BitmapDataExtensions.AdjustBrightness</see> method instead:
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData(WorkingColorSpace.Linear))
+        ///     bitmapData.AdjustBrightness(-0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldDarkenedLinear.png" alt="Shield icon darkened in the linear color space"/></term></item>
+        /// </list></para>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1059,7 +1121,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -1076,9 +1138,25 @@ namespace KGySoft.Drawing
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <note>This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. To use an arbitrary color space,
+        /// obtain an <see cref="IReadWriteBitmapData"/> instance by the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method,
+        /// and call the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustContrast">BitmapDataExtensions.AdjustContrast</see> extension method on it.</note>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to use this method:
+        /// <h4>Example 1: Simple usage</h4>
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// bmp.AdjustContrast(-0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldTrContrastSrgb.png" alt="Shield icon with adjusted contrast in the sRGB color space"/></term></item>
+        /// </list></para>
+        /// <h4>Example 2: Adjusting the contrast of an indexed bitmap with dithering</h4>
+        /// <para>By default, adjusting the contrast of an indexed bitmap transforms the palette entries only, which is both faster and provides a better result.
+        /// To force using the original palette, you can specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>:</para>
         /// <code lang="C#"><![CDATA[
         /// using Bitmap original = Icons.Shield.ExtractBitmap(new Size(256, 256));
         ///
@@ -1102,6 +1180,21 @@ namespace KGySoft.Drawing
         /// <item><term><c>before.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256Black.gif" alt="Shield icon quantized to 256 colors using the Median Cut algorithm"/></term></item>
         /// <item><term><c>after.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256TrContrastFS.gif" alt="Shield icon with decreased contrast using Floyd-Steinberg dithering and a palette optimized for the untransformed image"/></term></item>
         /// </list></para>
+        /// <h4>Example 3: Using linear color space</h4>
+        /// This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. In <strong>Example 1</strong> the
+        /// original bitmap had a 32 BPP pixel format, so the sRGB color space was used. To specify a color space explicitly, you can obtain an <see cref="IReadWriteBitmapData"/> instance
+        /// and use the <see cref="BitmapDataExtensions.AdjustContrast(IReadWriteBitmapData,float,IDitherer,ColorChannels)">BitmapDataExtensions.AdjustContrast</see> method instead:
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData(WorkingColorSpace.Linear))
+        ///     bitmapData.AdjustContrast(-0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldTrContrastLinear.png" alt="Shield icon with adjusted contrast in the linear color space"/></term></item>
+        /// </list></para>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -1119,7 +1212,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
@@ -1136,9 +1229,25 @@ namespace KGySoft.Drawing
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <note>This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. To use an arbitrary color space,
+        /// obtain an <see cref="IReadWriteBitmapData"/> instance by the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method,
+        /// and call the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustGamma">BitmapDataExtensions.AdjustGamma</see> extension method on it.</note>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to use this method:
+        /// <h4>Example 1: Simple usage</h4>
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// bmp.AdjustGamma(0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldTrGammaSrgb.png" alt="Shield icon with adjusted gamma in the sRGB color space"/></term></item>
+        /// </list></para>
+        /// <h4>Example 2: Adjusting the gamma of an indexed bitmap with dithering</h4>
+        /// <para>By default, adjusting the gamma of an indexed bitmap transforms the palette entries only, which is both faster and provides a better result.
+        /// To force using the original palette, you can specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>:</para>
         /// <code lang="C#"><![CDATA[
         /// using Bitmap original = Icons.Shield.ExtractBitmap(new Size(256, 256));
         ///
@@ -1161,6 +1270,21 @@ namespace KGySoft.Drawing
         /// <list type="table">
         /// <item><term><c>before.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256Black.gif" alt="Shield icon quantized to 256 colors using the Median Cut algorithm"/></term></item>
         /// <item><term><c>after.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256TrGammaFS.gif" alt="Shield icon with decreased gamma using Floyd-Steinberg dithering and a palette optimized for the untransformed image"/></term></item>
+        /// </list></para>
+        /// <h4>Example 3: Using linear color space</h4>
+        /// This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. In <strong>Example 1</strong> the
+        /// original bitmap had a 32 BPP pixel format, so the sRGB color space was used. To specify a color space explicitly, you can obtain an <see cref="IReadWriteBitmapData"/> instance
+        /// and use the <see cref="BitmapDataExtensions.AdjustContrast(IReadWriteBitmapData,float,IDitherer,ColorChannels)">BitmapDataExtensions.AdjustContrast</see> method instead:
+        /// <code lang="C#"><![CDATA[
+        /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+        /// bmp.SaveAsPng(@"c:\temp\before.png");
+        /// using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData(WorkingColorSpace.Linear))
+        ///     bitmapData.AdjustGamma(0.5f);
+        /// bmp.SaveAsPng(@"c:\temp\after.png");]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Windows shield icon"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldTrGammaLinear.png" alt="Shield icon with adjusted gamma in the linear color space"/></term></item>
         /// </list></para>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>

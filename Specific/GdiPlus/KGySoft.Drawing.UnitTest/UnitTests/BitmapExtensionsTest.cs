@@ -544,12 +544,22 @@ namespace KGySoft.Drawing.UnitTests
 
         [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
         [TestCase("8 bit by palette", PixelFormat.Format8bppIndexed, false)]
-        [TestCase("32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
+        [TestCase("8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
         public void InvertTest(string testName, PixelFormat pixelFormat, bool useDithering)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.Invert(useDithering ? OrderedDitherer.Bayer8x8 : null));
-            SaveImage(testName, bmp);
+            using Bitmap bmpOrig = Icons.Information.ExtractBitmap(new Size(256, 256))!.ConvertPixelFormat(pixelFormat);
+
+            using Bitmap srgb = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() => srgb.Invert(useDithering ? OrderedDitherer.Bayer8x8 : null));
+            SaveImage($"{testName}_sRGB", srgb);
+
+            using Bitmap linear = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() =>
+            {
+                using var bmpData = linear.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+                bmpData.Invert(useDithering ? OrderedDitherer.Bayer8x8 : null);
+            });
+            SaveImage($"{testName}_Linear", linear);
         }
 
         [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
@@ -574,59 +584,89 @@ namespace KGySoft.Drawing.UnitTests
 
         [TestCase("Lighten 100% 32 bit ARGB", PixelFormat.Format32bppArgb, false, 1f)]
         [TestCase("Lighten 100% 8 bit by palette", PixelFormat.Format8bppIndexed, false, 1f)]
-        [TestCase("Lighten 100% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 1f)]
+        [TestCase("Lighten 100% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 1f)]
         [TestCase("Lighten 50% 32 bit ARGB", PixelFormat.Format32bppArgb, false, 0.5f)]
         [TestCase("Lighten 50% 8 bit by palette", PixelFormat.Format8bppIndexed, false, 0.5f)]
-        [TestCase("Lighten 50% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.5f)]
+        [TestCase("Lighten 50% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.5f)]
         [TestCase("Darken 100% 32 bit ARGB", PixelFormat.Format32bppArgb, false, -1f)]
         [TestCase("Darken 100% 8 bit by palette", PixelFormat.Format8bppIndexed, false, -1f)]
-        [TestCase("Darken 100% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -1f)]
+        [TestCase("Darken 100% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -1f)]
         [TestCase("Darken 50% 32 bit ARGB", PixelFormat.Format32bppArgb, false, -0.5f)]
         [TestCase("Darken 50% 8 bit by palette", PixelFormat.Format8bppIndexed, false, -0.5f)]
-        [TestCase("Darken 50% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -0.5f)]
+        [TestCase("Darken 50% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -0.5f)]
         public void AdjustBrightnessTest(string testName, PixelFormat pixelFormat, bool useDithering, float brightness)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustBrightness(brightness, useDithering ? OrderedDitherer.Bayer8x8 : null));
-            SaveImage(testName, bmp);
+            using Bitmap bmpOrig = Icons.Information.ExtractBitmap(new Size(256, 256))!.ConvertPixelFormat(pixelFormat);
+
+            using Bitmap srgb = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() => srgb.AdjustBrightness(brightness, useDithering ? OrderedDitherer.Bayer8x8 : null));
+            SaveImage($"{testName}_sRGB", srgb);
+
+            using Bitmap linear = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() =>
+            {
+                using var bmpData = linear.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+                bmpData.AdjustBrightness(brightness, useDithering ? OrderedDitherer.Bayer8x8 : null);
+            });
+            SaveImage($"{testName}_Linear", linear);
         }
 
         [TestCase("Increase 100% 32 bit ARGB", PixelFormat.Format32bppArgb, false, 1f)]
         [TestCase("Increase 100% 8 bit by palette", PixelFormat.Format8bppIndexed, false, 1f)]
-        [TestCase("Increase 100% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 1f)]
+        [TestCase("Increase 100% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 1f)]
         [TestCase("Increase 50% 32 bit ARGB", PixelFormat.Format32bppArgb, false, 0.5f)]
         [TestCase("Increase 50% 8 bit by palette", PixelFormat.Format8bppIndexed, false, 0.5f)]
-        [TestCase("Increase 50% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.5f)]
+        [TestCase("Increase 50% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.5f)]
         [TestCase("Decrease 100% 32 bit ARGB", PixelFormat.Format32bppArgb, false, -1f)]
         [TestCase("Decrease 100% 8 bit by palette", PixelFormat.Format8bppIndexed, false, -1f)]
-        [TestCase("Decrease 100% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -1f)]
+        [TestCase("Decrease 100% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -1f)]
         [TestCase("Decrease 50% 32 bit ARGB", PixelFormat.Format32bppArgb, false, -0.5f)]
         [TestCase("Decrease 50% 8 bit by palette", PixelFormat.Format8bppIndexed, false, -0.5f)]
-        [TestCase("Decrease 50% 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -0.5f)]
+        [TestCase("Decrease 50% 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, -0.5f)]
         public void AdjustContrastTest(string testName, PixelFormat pixelFormat, bool useDithering, float contrast)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustContrast(contrast, useDithering ? OrderedDitherer.Bayer8x8 : null));
-            SaveImage(testName, bmp);
+            using Bitmap bmpOrig = Icons.Information.ExtractBitmap(new Size(256, 256))!.ConvertPixelFormat(pixelFormat);
+
+            using Bitmap srgb = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() => srgb.AdjustContrast(contrast, useDithering ? OrderedDitherer.Bayer8x8 : null));
+            SaveImage($"{testName}_sRGB", srgb);
+
+            using Bitmap linear = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() =>
+            {
+                using var bmpData = linear.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+                bmpData.AdjustContrast(contrast, useDithering ? OrderedDitherer.Bayer8x8 : null);
+            });
+            SaveImage($"{testName}_Linear", linear);
         }
 
         [TestCase("10 32 bit ARGB", PixelFormat.Format32bppArgb, false, 10f)]
         [TestCase("10 8 bit by palette", PixelFormat.Format8bppIndexed, false, 10f)]
-        [TestCase("10 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 10f)]
+        [TestCase("10 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 10f)]
         [TestCase("2.5 32 bit ARGB", PixelFormat.Format32bppArgb, false, 2.5f)]
         [TestCase("2.5 8 bit by palette", PixelFormat.Format8bppIndexed, false, 2.5f)]
-        [TestCase("2.5 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 2.5f)]
+        [TestCase("2.5 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 2.5f)]
         [TestCase("0 32 bit ARGB", PixelFormat.Format32bppArgb, false, 0f)]
         [TestCase("0 8 bit by palette", PixelFormat.Format8bppIndexed, false, 0f)]
-        [TestCase("0 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0f)]
+        [TestCase("0 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0f)]
         [TestCase("0.25 32 bit ARGB", PixelFormat.Format32bppArgb, false, 0.25f)]
         [TestCase("0.25 8 bit by palette", PixelFormat.Format8bppIndexed, false, 0.25f)]
-        [TestCase("0.25 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.25f)]
+        [TestCase("0.25 8 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true, 0.25f)]
         public void AdjustGammaTest(string testName, PixelFormat pixelFormat, bool useDithering, float gamma)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustGamma(gamma, useDithering ? OrderedDitherer.Bayer8x8 : null));
-            SaveImage(testName, bmp);
+            using Bitmap bmpOrig = Icons.Information.ExtractBitmap(new Size(256, 256))!.ConvertPixelFormat(pixelFormat);
+
+            using Bitmap srgb = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() => srgb.AdjustGamma(gamma, useDithering ? OrderedDitherer.Bayer8x8 : null));
+            SaveImage($"{testName}_sRGB", srgb);
+
+            using Bitmap linear = bmpOrig.CloneCurrentFrame();
+            Assert.DoesNotThrow(() =>
+            {
+                using var bmpData = linear.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+                bmpData.AdjustGamma(gamma, useDithering ? OrderedDitherer.Bayer8x8 : null);
+            });
+            SaveImage($"{testName}_Linear", linear);
         }
 
         #endregion

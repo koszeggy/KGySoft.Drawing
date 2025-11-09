@@ -1079,6 +1079,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> of the <c>BitmapExtensions.Invert</c> method for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
@@ -1094,6 +1095,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">BitmapExtensions.Invert</a> method for a couple of examples.</note>
         /// </remarks>
         public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
@@ -1103,6 +1105,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> of the <c>BitmapExtensions.Invert</c> method for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
@@ -1124,6 +1127,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">BitmapExtensions.Invert</a> method for a couple of examples.</note>
         /// </remarks>
         public static bool Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer, ParallelConfig? parallelConfig)
         {
@@ -1133,6 +1137,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> of the <c>BitmapExtensions.Invert</c> method for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -1162,6 +1167,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to Invert the colors of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> of the <c>BitmapExtensions.Invert</c> method for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
@@ -1198,6 +1204,7 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> of the <c>BitmapExtensions.Invert</c> method for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
@@ -1897,6 +1904,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> of the <c>BitmapExtensions.AdjustBrightness</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
@@ -1916,7 +1924,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1934,6 +1942,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> of the <c>BitmapExtensions.AdjustBrightness</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
@@ -1958,7 +1967,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">BitmapExtensions.AdjustBrightness</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1976,6 +1985,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> of the <c>BitmapExtensions.AdjustBrightness</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2018,6 +2028,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to adjust the brightness of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> of the <c>BitmapExtensions.AdjustBrightness</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
@@ -2037,6 +2048,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustBrightness">EndAdjustBrightness</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note>See the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -2065,6 +2077,7 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> of the <c>BitmapExtensions.AdjustBrightness</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
@@ -2081,6 +2094,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <note>See the <see cref="AdjustBrightness(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -2105,6 +2119,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> of the <c>BitmapExtensions.AdjustContrast</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -2124,7 +2139,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -2143,6 +2158,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> of the <c>BitmapExtensions.AdjustContrast</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -2167,7 +2183,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">BitmapExtensions.AdjustContrast</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -2186,6 +2202,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> of the <c>BitmapExtensions.AdjustContrast</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2229,6 +2246,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to adjust the contrast of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> of the <c>BitmapExtensions.AdjustContrast</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -2248,6 +2266,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustContrast">EndAdjustContrast</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note>See the <see cref="AdjustContrast(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -2277,6 +2296,7 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> of the <c>BitmapExtensions.AdjustContrast</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -2295,6 +2315,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note>See the <see cref="AdjustContrast(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -2319,6 +2340,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> of the <c>BitmapExtensions.AdjustGamma</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
@@ -2338,7 +2360,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
@@ -2357,6 +2379,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> of the <c>BitmapExtensions.AdjustGamma</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
@@ -2381,7 +2404,7 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, this method attempts to preserve the original color depth, including wide pixel formats.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">BitmapExtensions.AdjustGamma</a> method for a few examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
@@ -2400,6 +2423,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> of the <c>BitmapExtensions.AdjustGamma</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
@@ -2441,6 +2465,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to adjust the gamma correction of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> of the <c>BitmapExtensions.AdjustGamma</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
@@ -2460,6 +2485,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustGamma">EndAdjustGamma</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note>See the <see cref="AdjustGamma(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
@@ -2489,6 +2515,7 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> of the <c>BitmapExtensions.AdjustGamma</c> method for some examples with images.</div>
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
@@ -2507,6 +2534,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note>See the <see cref="AdjustGamma(IReadWriteBitmapData,float,IDitherer?,ColorChannels)"/> method for more details about the other parameters.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
