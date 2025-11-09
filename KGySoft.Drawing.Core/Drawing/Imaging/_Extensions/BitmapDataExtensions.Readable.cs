@@ -5329,7 +5329,7 @@ namespace KGySoft.Drawing.Imaging
             bool canceled = false;
             bool isLinear = bitmapData.IsLinearGamma();
             PixelFormatInfo sourceFormat = bitmapData.PixelFormat;
-            bool hasAlpha = bitmapData.HasAlpha();
+            bool hasAlpha = bitmapData.HasAlpha() || newSize != targetRectangle.Size; // forcing alpha if keeping aspect ratio produces blank borders
             var targetFormat = sourceFormat.Prefers128BitColors ? !hasAlpha ? KnownPixelFormat.Format96bppRgb : isLinear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format128bppRgba
                 : sourceFormat.Prefers64BitColors ? !hasAlpha ? KnownPixelFormat.Format48bppRgb : isLinear ? KnownPixelFormat.Format64bppArgb : KnownPixelFormat.Format64bppPArgb
                 : !hasAlpha ? KnownPixelFormat.Format24bppRgb : isLinear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
