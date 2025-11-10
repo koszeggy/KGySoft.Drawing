@@ -2071,8 +2071,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
-            public int MapY(int y) => y % size.Height;
-            public int MapX(int x) => x % size.Width;
+            public readonly int MapY(int y) => y % size.Height;
+            public readonly int MapX(int x) => x % size.Width;
 
             #endregion
         }
@@ -2098,13 +2098,13 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 return (y %= size.Height) < 0 ? y + size.Height : y;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 return (x %= size.Width) < 0 ? x + size.Width : x;
@@ -2128,8 +2128,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
-            public int MapY(int y) => y % size.Height;
-            public int MapX(int x)
+            public readonly int MapY(int y) => y % size.Height;
+            public readonly int MapX(int x)
             {
                 x %= size.Width << 1;
                 return x < size.Width ? x : size.Width - (x - size.Width) - 1;
@@ -2159,13 +2159,13 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 return (y %= size.Height) < 0 ? y + size.Height : y;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 x %= size.Width << 1;
@@ -2192,9 +2192,9 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
-            public int MapX(int x) => x % size.Width;
+            public readonly int MapX(int x) => x % size.Width;
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y %= size.Height << 1;
                 return y < size.Height ? y : size.Height - (y - size.Height) - 1;
@@ -2224,13 +2224,13 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 return (x %= size.Width) < 0 ? x + size.Width : x;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 y %= size.Height << 1;
@@ -2246,6 +2246,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTileFlipXY struct
 
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "XY should not be Xy")]
         private struct TextureMapperTileFlipXY : ITextureMapper
         {
             #region Fields
@@ -2258,13 +2259,13 @@ namespace KGySoft.Drawing.Shapes
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y %= size.Height << 1;
                 return y < size.Height ? y : size.Height - (y - size.Height) - 1;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x %= size.Width << 1;
                 return x < size.Width ? x : size.Width - (x - size.Width) - 1;
@@ -2277,6 +2278,7 @@ namespace KGySoft.Drawing.Shapes
 
         #region TextureMapperTileFlipXYOffset struct
 
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "XY should not be Xy")]
         private struct TextureMapperTileFlipXYOffset : ITextureMapper
         {
             #region Fields
@@ -2294,7 +2296,7 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 y %= size.Height << 1;
@@ -2303,7 +2305,7 @@ namespace KGySoft.Drawing.Shapes
                 return y < size.Height ? y : size.Height - (y - size.Height) - 1;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 x %= size.Width << 1;
@@ -2330,8 +2332,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
-            public int MapY(int y) => (uint)y < (uint)size.Height ? y : -1;
-            public int MapX(int x) => (uint)x < (uint)size.Width ? x : -1;
+            public readonly int MapY(int y) => (uint)y < (uint)size.Height ? y : -1;
+            public readonly int MapX(int x) => (uint)x < (uint)size.Width ? x : -1;
 
             #endregion
         }
@@ -2351,8 +2353,8 @@ namespace KGySoft.Drawing.Shapes
             #region Methods
 
             public void InitTexture(IBitmapDataInternal texture, Point _) => size = texture.Size;
-            public int MapY(int y) => (uint)y < (uint)size.Height ? y : size.Height - 1;
-            public int MapX(int x) => (uint)x < (uint)size.Width ? x : size.Width - 1;
+            public readonly int MapY(int y) => (uint)y < (uint)size.Height ? y : size.Height - 1;
+            public readonly int MapX(int x) => (uint)x < (uint)size.Width ? x : size.Width - 1;
 
             #endregion
         }
@@ -2378,13 +2380,13 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 return (uint)y < (uint)size.Height ? y : -1;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 return (uint)x < (uint)size.Width ? x : -1;
@@ -2414,7 +2416,7 @@ namespace KGySoft.Drawing.Shapes
                 offset = textureOffset;
             }
 
-            public int MapY(int y)
+            public readonly int MapY(int y)
             {
                 y += offset.Y;
                 return y < 0 ? 0
@@ -2422,7 +2424,7 @@ namespace KGySoft.Drawing.Shapes
                     : y;
             }
 
-            public int MapX(int x)
+            public readonly int MapX(int x)
             {
                 x += offset.X;
                 return x < 0 ? 0

@@ -75,7 +75,7 @@ namespace KGySoft.Drawing.Imaging
                 case OptimizedPaletteQuantizer optimized:
                     return optimized.WorkingColorSpace;
                 default:
-                    // non built-in one: testing with a single pixel bitmap
+                    // not a built-in one: testing with a single pixel bitmap
                     using (var session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
                         return session.WorkingColorSpace;
             }

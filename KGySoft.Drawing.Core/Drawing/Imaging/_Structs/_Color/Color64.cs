@@ -295,8 +295,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe Color32 ToColor32()
         {
-            // Bit-shifting every component to the right by 8 bits is the same as getting the high bytes of each components.
-            // The most elegant solution would be using Vector64<byte> or ReadOnlySpan<byte> to wrap value but they are still slower than this:
+            // Bit-shifting every component to the right by 8 bits is the same as getting the high bytes of each component.
+            // The most elegant solution would be using Vector64<byte> or ReadOnlySpan<byte> to wrap value, but they are still slower than this:
             ulong bgraU16 = value;
             byte* bytes = (byte*)&bgraU16;
             return new Color32(bytes[7], bytes[5], bytes[3], bytes[1]);

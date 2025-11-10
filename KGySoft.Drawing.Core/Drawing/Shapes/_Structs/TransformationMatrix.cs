@@ -599,7 +599,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="point">The point to transform.</param>
         /// <returns>The transformed point.</returns>
-        public PointF Transform(PointF point)
+        public readonly PointF Transform(PointF point)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             Vector2 result = Vector2.Transform(point.AsVector2(), Matrix);
@@ -617,7 +617,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="point">The point to transform, represented as a <see cref="Vector2"/> instance.</param>
         /// <returns>A <see cref="Vector2"/> instance representing the transformed point.</returns>
-        public Vector2 Transform(Vector2 point) => Vector2.Transform(point, Matrix);
+        public readonly Vector2 Transform(Vector2 point) => Vector2.Transform(point, Matrix);
 #endif
 
         /// <summary>
@@ -625,7 +625,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="other">The other matrix to test equality against.</param>
         /// <returns><see langword="true"/> if this matrix is equal to <paramref name="other"/>; otherwise, <see langword="false"/>.</returns>
-        public bool Equals(TransformationMatrix other)
+        public readonly bool Equals(TransformationMatrix other)
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return Matrix.Equals(other.Matrix);
@@ -641,7 +641,7 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="obj">The <see cref="object"/> to compare against.</param>
         /// <returns><see langword="true"/> if the object is equal to this matrix; otherwise, <see langword="false"/>.</returns>
-        public override bool Equals(object? obj)
+        public override readonly bool Equals(object? obj)
         {
             return obj is TransformationMatrix other && Equals(other);
         }
@@ -650,7 +650,7 @@ namespace KGySoft.Drawing.Shapes
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode()
+        public override readonly int GetHashCode()
         {
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
             return Matrix.GetHashCode();
@@ -665,7 +665,7 @@ namespace KGySoft.Drawing.Shapes
         /// <returns>The string representation of this matrix.</returns>
         /// <remarks>The numeric values in the returned string are formatted by using the conventions of the current culture.</remarks>
         public override readonly string ToString() => IsIdentity
-            ? "Identity"
+            ? nameof(Identity)
             : $"{{ {{M11:{M11} M12:{M12}}} {{M21:{M21} M22:{M22}}} {{M31:{M31} M32:{M32}}} }}";
 
         #endregion

@@ -46,7 +46,7 @@ namespace KGySoft.Drawing
         Box,
 
         /// <summary>
-        /// Represents a 2-dimensional linear interpolation scaling mode. It is among the faster scaling techniques but
+        /// Represents a 2-dimensional linear interpolation scaling mode. It is among the faster scaling techniques, but
         /// it provides an acceptable quality only if the difference between the source and target size does not exceed 25%.
         /// </summary>
         Bilinear,
@@ -66,12 +66,12 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Represents the resampling algorithm suggested by Kornél Lánczos using a kernel radius of 3 pixels.
-        /// It is among the slower filters and it tends to increase the sharpness of the original image.
+        /// It is among the slower filters, and it tends to increase the sharpness of the original image.
         /// </summary>
         Lanczos3,
 
         /// <summary>
-        /// Represents the spline cubic interpolation. It provides smooth results but it tends to overly blur the details.
+        /// Represents the spline cubic interpolation. It provides smooth results, but it tends to overly blur the details.
         /// </summary>
         Spline,
 

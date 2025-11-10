@@ -2827,7 +2827,7 @@ namespace KGySoft.Drawing.Imaging
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
 
-                context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
+                context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast, but in case someone tracks progress...
                 using IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context);
                 if (context.IsCancellationRequested)
                     return false;

@@ -31,14 +31,14 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Represents an auto strength strategy where strength is calibrated to a fix value that assures that neither the black nor the white colors
-        /// will suffer from overdithering. This is the default auto strength strategy when quantizing in the sRGB color space and it usually works fine
+        /// will suffer from overdithering. This is the default auto strength strategy when quantizing in the sRGB color space, and it usually works fine
         /// if palette entries are evenly distributed in the sRGB color space.
         /// </summary>
         Constant,
 
         /// <summary>
         /// Represents an auto strength strategy where strength is calibrated both for white and black colors individually so none of them suffer from
-        /// overdithering. During dithering the actual applied strength will be a dynamic value for each pixels using interpolation between
+        /// overdithering. During dithering the actual applied strength will be a dynamic value for each pixel using interpolation between
         /// the white and black strengths based on the pixel brightness. This is the default auto strength strategy when quantizing in the linear color space.
         /// </summary>
         Interpolated

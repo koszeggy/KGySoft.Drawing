@@ -390,7 +390,7 @@ namespace KGySoft.Drawing.Imaging
                 var result = new Color32[cubes!.Count + (hasTransparency ? 1 : 0)];
                 for (int k = 0; k < cubes.Count; k++)
                 {
-                    // The original algorithm here marks an array of tags but we don't need it because
+                    // The original algorithm here marks an array of tags, but we don't need it because
                     // we don't want to produce an array of quantized pixels just the palette.
                     long weight = cubes[k].Volume(ref wt);
                     if (weight <= 0)
@@ -558,8 +558,8 @@ namespace KGySoft.Drawing.Imaging
                 long wholeR, long wholeG, long wholeB, long wholeW)
             {
                 // Original comment from Xiaolin Wu:
-                // We want to minimize the sum of the variances of two subboxes.
-                // The sum(c^2) terms can be ignored since their sum over both subboxes
+                // We want to minimize the sum of the variances of two sub-boxes.
+                // The sum(c^2) terms can be ignored since their sum over both sub-boxes
                 // is the same (the sum for the whole box) no matter where we split.
                 // The remaining terms have a minus sign in the variance formula,
                 // so we drop the minus sign and MAXIMIZE the sum of the two terms.

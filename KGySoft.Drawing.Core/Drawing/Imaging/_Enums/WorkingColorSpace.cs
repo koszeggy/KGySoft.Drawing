@@ -17,8 +17,6 @@
 
 using System.Drawing;
 
-using KGySoft.Drawing.Shapes;
-
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -52,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
     /// </list></para>
     /// </remarks>
     /// <example>
-    /// <para>Most common color representations (just like the <see cref="Color"/> or <see cref="Color32"/> types that use 8 bit color channels) use the sRGB color space
+    /// <para>Most common color representations (just like the <see cref="Color"/> or <see cref="Color32"/> types that use 8-bit color channels) use the sRGB color space
     /// that has gamma corrected color values. In a color type that uses the sRGB color space the consecutive RGB values don't represent linear light intensity increase.
     /// Instead, a gamma correction of approximately γ = 2.2 is applied to the actual light intensity, so it is adjusted for the perception of the human eye
     /// (in fact, the sRGB color space is linear for the darkest values and uses a γ = 2.4 correction above a threshold limit so the overall average is
@@ -64,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
     /// resulting an apparently linear gradient with half-gray tones at the middle.</div>
     /// </term></item></list>
     /// <h2>Alpha Blending</h2>
-    /// <para>Blending partially transparent (alpha) colors in the sRGB color space ends up in incorrect results, though it is not always obvious.
+    /// <para>When blending partially transparent (alpha) colors in the sRGB color space, it often ends up in incorrect results, though it is not always obvious.
     /// The most apparent incorrect results are for colors that have disjunct RGB values, for which the result is typically too dark.</para>
     /// <table class="table is-hoverable">
     /// <thead><tr><th width="50%"><div style="text-align:center;">Blending in the sRGB color space</div></th>
@@ -114,7 +112,7 @@ namespace KGySoft.Drawing.Imaging
     /// to prevent the overhead of unnecessary conversions back and forth.</note>
     /// <h2>Quantizing</h2>
     /// <para>When reducing the number of colors to some specified set of colors (either by using a <see cref="Palette"/> of predefined entries or some custom
-    /// quantizer function) measuring the distance between colors may return different results depending on the used color space.
+    /// quantizer function), measuring the distance between colors may return different results depending on the used color space.
     /// Looking up for the nearest colors in the sRGB color space tends to turn the darker shades too bright, though
     /// the more colors the quantizer uses the less noticeable the difference is.</para>
     /// <table class="table is-hoverable">

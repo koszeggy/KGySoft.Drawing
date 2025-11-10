@@ -15,10 +15,12 @@
 
 #region Usings
 
+#if NETCOREAPP3_0_OR_GREATER
 using System;
 using System.Runtime.Intrinsics;
 
 using KGySoft.CoreLibraries;
+#endif
 
 using NUnit.Framework;
 

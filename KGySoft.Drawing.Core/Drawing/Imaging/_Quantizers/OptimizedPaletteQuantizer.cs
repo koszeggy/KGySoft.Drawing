@@ -149,6 +149,7 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
     /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
     /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
+    [SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message", Justification = "Those members are not even browsable anymore, and do not appear in the documentation either.")]
     public sealed partial class OptimizedPaletteQuantizer : IQuantizer
     {
         #region Nested types

@@ -510,7 +510,7 @@ namespace KGySoft.Drawing.UnitTests
 
             using var bmp = new Bitmap(size, size, pixelFormat);
             bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(serpentine) : OrderedDitherer.Bayer8x8);
-            SaveImage($"{pixelFormat} {(errorDiffusion ? $"Error diffusion {(serpentine ? "serpentine" : "raster")}" : "Ordered")}", bmp);
+            SaveImage($"{pixelFormat} {(errorDiffusion ? $"Error diffusion {(serpentine ? nameof(serpentine) : "raster")}" : "Ordered")}", bmp);
         }
 
         [Test]

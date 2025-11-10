@@ -200,7 +200,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets or sets whether the represented pixel format supports single-bit alpha only (a pixel is either completely transparent or completely opaque).
         /// Setting this property to <see langword="true"/> sets also the <see cref="HasAlpha"/> property.
-        /// It is not mandatory to set this property for custom single-bit alpha formats but it helps optimizing some drawing operations.
+        /// It is not mandatory to set this property for custom single-bit alpha formats, but it helps optimizing some drawing operations.
         /// </summary>
         public bool HasSingleBitAlpha
         {
@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         // for internal checks only
-        internal int AlignmentReq => IsKnownFormat && Grayscale
+        internal readonly int AlignmentReq => IsKnownFormat && Grayscale
             ? BitsPerPixel switch
             {
                 16 => 2, // ushort
@@ -467,7 +467,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="PixelFormatInfo"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="PixelFormatInfo"/> instance.</returns>
-        public override string ToString() => DebuggerValue;
+        public override readonly string ToString() => DebuggerValue;
 
         #endregion
 
@@ -481,7 +481,7 @@ namespace KGySoft.Drawing.Imaging
             return (bpp & 7) == 0 || ((bpp * x) & 7) == 0;
         }
 
-        internal int GetColorsLimit()
+        internal readonly int GetColorsLimit()
         {
             int bpp = BitsPerPixel;
             return bpp switch

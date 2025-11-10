@@ -38,7 +38,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        private static readonly TimeSpan[] defaultDelays = { new TimeSpan(100 * TimeSpan.TicksPerMillisecond) };
+        private static readonly TimeSpan[] defaultDelays = [new TimeSpan(100 * TimeSpan.TicksPerMillisecond)];
 
         #endregion
 
@@ -132,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="true"/>.
         /// </summary>
         /// <value>
-        /// If <see langword="true"/>, then the required memory during encoding may be larger but it allows creating more compact files and even high color frames (see also the <strong>Remarks</strong> section).
+        /// If <see langword="true"/>, then the required memory during encoding may be larger, but it allows creating more compact files and even high color frames (see also the <strong>Remarks</strong> section).
         /// <br/>If <see langword="false"/>, then all frames will be encoded individually. This provides lower memory consumption but may produce larger files.
         /// </value>
         /// <remarks>
@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.Imaging
         /// <value>
         /// If 0, then even a minimal color difference will be considered as a change to be encoded.
         /// <br/>If 255, then nothing will be treated as a change. The animation will have no new frames unless a frame contains new transparent pixels compared to the previous one.
-        /// <br/>The reasonable range is between 0 and 16 with an optimized quantizer. Predefined quantizers may tolerate larger values (eg. up to 32) with some dithering.
+        /// <br/>The reasonable range is between 0 and 16 with an optimized quantizer. Predefined quantizers may tolerate larger values (e.g. up to 32) with some dithering.
         /// </value>
         public byte DeltaTolerance { get; set; }
 
@@ -190,7 +190,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="frames">The collection of the frames to be added to the result animation. Disposing of the frames must be performed by the caller.
         /// <see cref="GifEncoder.EncodeAnimation">GifEncoder.EncodeAnimation</see> enumerates the collection lazily so you can pass an iterator that disposes
-        /// the previous frame once the next one is queried, or you can even re-use the same bitmap data for each frames if you generate them dynamically.</param>
+        /// the previous frame once the next one is queried, or you can even re-use the same bitmap data for each frame if you generate them dynamically.</param>
         /// <param name="delay">An optional <see cref="TimeSpan"/> to specify the delay for all frames. If <see langword="null"/>,
         /// then a default 100 ms delay will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -205,10 +205,10 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="frames">The collection of the frames to be added to the result animation. Disposing of the frames must be performed by the caller.
         /// <see cref="GifEncoder.EncodeAnimation">GifEncoder.EncodeAnimation</see> enumerates the collection lazily so you can pass an iterator that disposes
-        /// the previous frame once the next one is queried, or you can even re-use the same bitmap data for each frames if you generate them dynamically.</param>
+        /// the previous frame once the next one is queried, or you can even re-use the same bitmap data for each frame if you generate them dynamically.</param>
         /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/> or empty,
         /// then a default 100 ms delay will be used for all frames.
-        /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
+        /// If contains fewer elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <exception cref="ArgumentNullException"><paramref name="frames"/> is <see langword="null"/>.</exception>
         public AnimatedGifConfiguration(IEnumerable<IReadableBitmapData> frames, IEnumerable<TimeSpan>? delays)
         {
@@ -236,8 +236,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (getNextFrame == null)
                 throw new ArgumentNullException(nameof(getNextFrame), PublicResources.ArgumentNull);
-            IReadableBitmapData? nextFrame;
-            while ((nextFrame = getNextFrame.Invoke()) != null)
+            while (getNextFrame.Invoke() is IReadableBitmapData nextFrame)
                 yield return nextFrame;
         }
 

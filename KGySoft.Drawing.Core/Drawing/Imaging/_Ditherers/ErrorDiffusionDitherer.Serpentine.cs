@@ -76,7 +76,7 @@ namespace KGySoft.Drawing.Imaging
             private void PreprocessOddRow(int y)
             {
                 // Odd rows are preprocessed so we don't need to complicate the IDitheringSession interface with processing path.
-                // It is not even a significant overhead unless not every pixel is queried (eg. DrawInto with clipped region).
+                // It is not even a significant overhead unless not every pixel is queried (e.g. DrawInto with clipped region).
                 IReadableBitmapDataRow row = source[y];
 
                 // processing odd rows from right to left
@@ -150,7 +150,7 @@ namespace KGySoft.Drawing.Imaging
             private void PreprocessOddRow(int y)
             {
                 // Odd rows are preprocessed so we don't need to complicate the IDitheringSession interface with processing path.
-                // It is not even a significant overhead unless not every pixel is queried (eg. DrawInto with clipped region).
+                // It is not even a significant overhead unless not every pixel is queried (e.g. DrawInto with clipped region).
                 IReadableBitmapDataRow row = source[y];
 
                 // processing odd rows from right to left

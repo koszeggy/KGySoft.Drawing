@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>
-    <!--<TargetFrameworks>net9.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>-->
+		<TargetFrameworks>net40;netcoreapp3.0;net10.0</TargetFrameworks>
 
-    <!--For UnitTesting the .NET Standard versions-->
+		<!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100-rc.2.25502.107">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -56,10 +56,11 @@
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
     <PackageReference Include="KGySoft.Drawing.Core" Version="9.1.1" />
+    <!--<PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0-alpha.1" />-->
   </ItemGroup>
 
   <!-- .NET 7.0 or newer references: Unix is no longer supported -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="System.Drawing.Common" Version="8.0.11" />
   </ItemGroup>
 

@@ -1016,7 +1016,7 @@ namespace KGySoft.Drawing.Imaging
                 // no more input frame
                 if (inputFrame == null)
                 {
-                    // And no more stacked reverse frame (Count can be 0 here only when PingPong was set but there are no more than 1 frames)
+                    // And no more stacked reverse frame (Count can be 0 here only when PingPong was set but there are no more than 1 frame)
                     if (reversedFramesStack == null || asyncContext.IsCancellationRequested || reversedFramesStack.Count == 0)
                         return false;
 
@@ -1076,7 +1076,7 @@ namespace KGySoft.Drawing.Imaging
                         : KnownPixelFormat.Format32bppArgb;
                 }
 
-                // If cannot use delta image, then we can already quantize the frame.
+                // If we cannot use delta image, then we can already quantize the frame.
                 // For already indexed images we preserve the original palette only if no explicit quantizer was specified.
                 IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat.AsKnownPixelFormatInternal != preparedPixelFormat) ? quantizer : null;
                 IDitherer? preparedDitherer = preparedQuantizer == null ? null : config.Ditherer;

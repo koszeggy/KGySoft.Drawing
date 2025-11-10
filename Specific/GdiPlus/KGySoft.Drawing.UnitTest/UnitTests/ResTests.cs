@@ -57,10 +57,10 @@ namespace KGySoft.Drawing.UnitTests
         public void Initialize() => LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledOnly;
 
         [Test]
-        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(DrawingRes), "Get", "unknown").ToString().StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
+        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(DrawingRes), "Get", "unknown")!.ToString().StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
 
         [Test]
-        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(DrawingRes), "Get", "General_InternalErrorFormat", new object[0]).ToString().StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
+        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(DrawingRes), "Get", "General_InternalErrorFormat", Reflector.EmptyArray<object>())!.ToString().StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
 
         [Test]
         public void TestResources()
@@ -95,7 +95,7 @@ namespace KGySoft.Drawing.UnitTests
             var generateSettings = new GenerateObjectSettings { AllowCreateObjectWithoutConstructor = true }; // for PropertyDescriptors
             foreach (MethodInfo mi in methods)
             {
-                var method = mi.IsGenericMethodDefinition ? mi.MakeGenericMethod(random.NextObject(typeof(Enum)).GetType()) : mi;
+                var method = mi.IsGenericMethodDefinition ? mi.MakeGenericMethod(random.NextObject<Enum>()!.GetType()) : mi;
                 if (method.ReturnType == typeof(void))
                     continue;
 
@@ -122,14 +122,14 @@ namespace KGySoft.Drawing.UnitTests
 
         private void CheckCoverage(HashSet<string> obtainedMembers)
         {
-            var rm = (ResourceManager)Reflector.GetField(typeof(DrawingRes), "resourceManager");
+            var rm = (ResourceManager)Reflector.GetField(typeof(DrawingRes), "resourceManager")!;
             ResourceSet rs = rm.GetResourceSet(CultureInfo.InvariantCulture, true, false);
             IDictionaryEnumerator enumerator = rs.GetEnumerator();
             var uncovered = new List<string>();
             while (enumerator.MoveNext())
             {
                 // ReSharper disable once PossibleNullReferenceException
-                string key = ((string)enumerator.Key).Replace("_", String.Empty);
+                string key = ((string)enumerator.Key).Replace(nameof(_), String.Empty);
                 if (key.StartsWith("General", StringComparison.Ordinal))
                     key = key.Substring("General".Length);
                 if (!obtainedMembers.Contains(key) && key.EndsWith("Format", StringComparison.Ordinal))

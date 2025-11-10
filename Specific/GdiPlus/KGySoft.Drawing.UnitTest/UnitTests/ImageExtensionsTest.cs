@@ -849,7 +849,7 @@ namespace KGySoft.Drawing.UnitTests
                 var tiff = new Bitmap(ms);
                 Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
                 Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
-                SaveStream(null, ms, "tiff");
+                SaveStream(null, ms, nameof(tiff));
             }, PlatformID.Win32NT);
         }
 

@@ -15,7 +15,9 @@
 
 #region Usings
 
+#if NET5_0_OR_GREATER
 using System;
+#endif
 
 using KGySoft.Collections;
 #if !NET5_0_OR_GREATER

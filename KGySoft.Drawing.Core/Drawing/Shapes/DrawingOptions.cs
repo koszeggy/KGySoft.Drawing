@@ -437,7 +437,7 @@ namespace KGySoft.Drawing.Shapes
         /// <returns><see langword="true"/>, if the current <see cref="DrawingOptions"/> instance is equal to the <paramref name="obj" /> parameter; otherwise, <see langword="false" />.</returns>
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(obj, null))
+            if (obj is null)
                 return false;
 
             if (ReferenceEquals(this, obj))

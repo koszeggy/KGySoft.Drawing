@@ -23,7 +23,7 @@ using System.Collections.Generic;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 8-bit grayscale color.
+    /// Represents an 8-bit grayscale color.
     /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapDataExtensions.GetColorCount{T}"/>
     /// </summary>
     internal readonly struct Gray8 : IEquatable<Gray8>

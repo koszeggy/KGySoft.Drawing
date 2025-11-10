@@ -510,7 +510,7 @@ namespace KGySoft.Drawing.Imaging
             }
             catch (Exception)
             {
-                // From explicit dispose we throw it further but we ignore it from destructor.
+                // From explicit dispose we throw it further, but we ignore it from destructor.
                 if (disposing)
                     throw;
             }

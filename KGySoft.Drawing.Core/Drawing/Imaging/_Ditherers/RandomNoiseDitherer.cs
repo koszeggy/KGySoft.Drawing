@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.Imaging
     /// <note type="tip">There are also a couple of ditherers with non-random noise-like patterns in this library. See also
     /// the <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> property and the <see cref="InterleavedGradientNoiseDitherer"/> class.</note>
     /// <para>To get always the same result for the same source image and quantizer you can specify a <em>seed</em> when initializing a <see cref="RandomNoiseDitherer"/> instance.
-    /// Please note though that specifying a seed prevents parallel processing, which makes performance worse on multi-core systems.</para>
+    /// Please note though that specifying a seed prevents parallel processing, which makes performance worse on multicore systems.</para>
     /// </remarks>
     /// <example>
     /// <para>The following table demonstrates the effect of the dithering:

@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.Threading;
 
@@ -243,8 +242,8 @@ namespace KGySoft.Drawing.Imaging
             private int levelCount;
             private bool hasTransparency;
 
-            [AllowNull]private List<OctreeNode>[] levels;
-            [AllowNull]private OctreeNode root;
+            private List<OctreeNode>[] levels = null!;
+            private OctreeNode root = null!;
             private int leavesCount;
 
             #endregion
@@ -305,8 +304,8 @@ namespace KGySoft.Drawing.Imaging
 
             public void Dispose()
             {
-                root = null;
-                levels = null;
+                root = null!;
+                levels = null!;
             }
 
             #endregion

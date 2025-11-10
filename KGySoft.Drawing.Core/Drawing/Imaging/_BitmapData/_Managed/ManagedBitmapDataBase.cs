@@ -15,9 +15,9 @@
 
 #region Usings
 
-#endregion
-
 using System.Security;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {

@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>For some operations, such as drawing a bitmap data into another one by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see>
         /// methods the working color space is determined by the <see cref="WorkingColorSpace"/> of the target bitmap data.</para>
         /// <para>When using a quantizer for some operations, it may override the value of this property. As quantizers are limited to the 32 bit ARGB color space,
-        /// the built-in <see cref="IQuantizer"/> implementations in this library also use sRGB blending by default but you can override it by
+        /// the built-in <see cref="IQuantizer"/> implementations in this library also use sRGB blending by default, but you can override it by
         /// the <see cref="PredefinedColorsQuantizer.ConfigureColorSpace">PredefinedColorsQuantizer.ConfigureColorSpace</see>
         /// and <see cref="OptimizedPaletteQuantizer.ConfigureColorSpace">OptimizedPaletteQuantizer.ConfigureColorSpace</see> methods.</para>
         /// </remarks>

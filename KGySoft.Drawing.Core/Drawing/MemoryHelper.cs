@@ -23,7 +23,9 @@ using System.Runtime.InteropServices;
 #endif
 using System.Security;
 
-using KGySoft.Drawing.Imaging;
+#if !(NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using KGySoft.Drawing.Imaging; 
+#endif
 
 #endregion
 
@@ -490,9 +492,10 @@ namespace KGySoft.Drawing
             return true;
         }
 
+#if !(NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
         [SecurityCritical]
         private static unsafe void DoFillMemory<T>(void* start, long count, T value)
-            where T : unmanaged
+    where T : unmanaged
         {
             // NOTE: No special handling for unaligned addresses because it would require creating a rotated version of 'value'.
             // Instead, the caller ensures non-primitive T replacements for unaligned addresses.
@@ -546,6 +549,7 @@ namespace KGySoft.Drawing
             for (T* p = (T*)pos; p < pEnd; p++)
                 *p = value;
         }
+#endif
 
         #endregion
 

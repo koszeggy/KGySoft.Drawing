@@ -52,7 +52,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Properties
 
-        protected static bool SaveToFile => false;
+        protected static bool SaveToFile => true;
         private static bool AddTimestamp => true;
 
         #endregion

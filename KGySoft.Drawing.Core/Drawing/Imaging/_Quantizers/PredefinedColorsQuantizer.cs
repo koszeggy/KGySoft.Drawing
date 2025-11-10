@@ -18,9 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-#if NET35 || NET40
 using System.Diagnostics.CodeAnalysis;
-#endif
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -47,6 +45,7 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="OptimizedPaletteQuantizer"/>
     /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
     /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
+    [SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message", Justification = "Those members are not even browsable anymore, and do not appear in the documentation either.")]
     public sealed class PredefinedColorsQuantizer : IQuantizer
     {
         #region Nested classes
@@ -408,7 +407,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that can quantize colors to the 32-bit ARGB color space.</returns>
         /// <remarks>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space,
-        /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
+        /// and it is effective only for some bitmap data operations (e.g. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
         /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with more than 32 bpp) without specifying a quantizer.</para>
         /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
         /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
@@ -804,7 +803,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -979,7 +978,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -1072,7 +1071,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantizing.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>

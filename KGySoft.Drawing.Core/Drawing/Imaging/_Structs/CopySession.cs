@@ -266,32 +266,32 @@ namespace KGySoft.Drawing.Imaging
             {
                 Debug.Assert(!quantizer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used quantizer would require two-pass processing");
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
+                
+                using IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context);
+                if (context.IsCancellationRequested)
+                    return;
+                if (quantizingSession == null)
+                    throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                // quantizing without dithering
+                if (ditherer == null)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    if (quantizingSession == null)
-                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                    // quantizing without dithering
-                    if (ditherer == null)
-                    {
-                        PerformDrawWithQuantizer(quantizingSession);
-                        return;
-                    }
-
-                    // quantizing with dithering
-                    Debug.Assert(!ditherer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used ditherer would require two-pass processing");
-
-                    context.Progress?.New(DrawingOperation.InitializingDitherer);
-                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
-                    if (context.IsCancellationRequested)
-                        return;
-                    if (ditheringSession == null)
-                        throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-
-                    PerformDrawWithDithering(quantizingSession, ditheringSession);
+                    PerformDrawWithQuantizer(quantizingSession);
+                    return;
                 }
+
+                // quantizing with dithering
+                Debug.Assert(!ditherer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used ditherer would require two-pass processing");
+
+                context.Progress?.New(DrawingOperation.InitializingDitherer);
+                
+                using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                if (context.IsCancellationRequested)
+                    return;
+                if (ditheringSession == null)
+                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                PerformDrawWithDithering(quantizingSession, ditheringSession);
             }
             finally
             {

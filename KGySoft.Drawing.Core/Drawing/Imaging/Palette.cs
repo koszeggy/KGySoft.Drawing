@@ -69,6 +69,7 @@ namespace KGySoft.Drawing.Imaging
     /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multithreaded operations.
     /// If this type is initialized with a custom lookup logic, then thread-safety depends on the custom lookup implementation.</threadsafety>
     [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
+    [SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message", Justification = "Those members are not even browsable anymore, and do not appear in the documentation either.")]
     public sealed class Palette : IPalette
     {
         #region Constants
@@ -117,13 +118,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Properties
 
-        private static Color32[] System4BppPalette => system4BppPalette ??= new[]
-        {
+        private static Color32[] System4BppPalette => system4BppPalette ??=
+        [
             new Color32(0xFF000000), new Color32(0xFF800000), new Color32(0xFF008000), new Color32(0xFF808000),
             new Color32(0xFF000080), new Color32(0xFF800080), new Color32(0xFF008080), new Color32(0xFF808080),
             new Color32(0xFFC0C0C0), new Color32(0xFFFF0000), new Color32(0xFF00FF00), new Color32(0xFFFFFF00),
             new Color32(0xFF0000FF), new Color32(0xFFFF00FF), new Color32(0xFF00FFFF), new Color32(0xFFFFFFFF)
-        };
+        ];
 
         private static Color32[] System8BppPalette
         {
@@ -216,7 +217,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { Color32.Black, Color32.White };
+        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= [Color32.Black, Color32.White];
 
         #endregion
 
@@ -255,7 +256,7 @@ namespace KGySoft.Drawing.Imaging
         public bool HasAlpha { get; }
 
         /// <summary>
-        /// Gets the preferred color space of this <see cref="Palette"/> instance for performing blending and measuring distance when looking for a nearest color.
+        /// Gets the preferred color space of this <see cref="Palette"/> instance for performing blending and measuring distance when looking for the nearest color.
         /// You can use the <see cref="Palette(Palette, Imaging.WorkingColorSpace, Color32, byte)"/> constructor to create a clone of this <see cref="Palette"/> using
         /// a different working color space.
         /// </summary>
@@ -315,7 +316,7 @@ namespace KGySoft.Drawing.Imaging
         /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>).</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
-        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// If specified, it must be thread-safe, and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
         /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> is empty.</exception>
@@ -375,7 +376,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/>
-        /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
+        /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe, and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
         /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
         /// as this delegate can be re-used in another <see cref="Palette"/> instance when calling the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
@@ -405,7 +406,7 @@ namespace KGySoft.Drawing.Imaging
         /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>).</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
-        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// If specified, it must be thread-safe, and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
         /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
@@ -433,7 +434,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
-        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// If specified, it must be thread-safe, and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
         /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
@@ -462,7 +463,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
-        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// If specified, it must be thread-safe, and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
         /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
@@ -740,7 +741,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -764,7 +765,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -871,7 +872,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -894,7 +895,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -941,7 +942,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -964,7 +965,7 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black">Color.Black</see>.</param>
-        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for the nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -1309,7 +1310,7 @@ namespace KGySoft.Drawing.Imaging
                     Color32 current = Entries[i];
 
                     // If the palette is not grayscale, then distance is measured by Manhattan distance based on ARGB components.
-                    // Using premultiplied colors would be more precise (eg. when alpha is 0, RGB differences should not matter)
+                    // Using premultiplied colors would be more precise (e.g. when alpha is 0, RGB differences should not matter)
                     // but in the sRGB color space it would cause too much distortion.
                     int diff;
 #if NETCOREAPP3_0_OR_GREATER

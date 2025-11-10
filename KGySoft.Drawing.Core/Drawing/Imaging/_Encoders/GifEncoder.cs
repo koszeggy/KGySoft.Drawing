@@ -429,10 +429,12 @@ namespace KGySoft.Drawing.Imaging
             // Sort Flag                     1 Bit
             // Color Resolution              3 Bits
             // Global Color Table Flag       1 Bit
-            var packedFields = new BitVector32();
-            packedFields[globalColorTableFlag.GetMask()] = globalPalette != null;
-            packedFields[globalColorTableSizeSection] = (globalPalette?.Count.ToBitsPerPixel() ?? bpp) - 1;
-            packedFields[colorResolutionSection] = bpp - 1;
+            var packedFields = new BitVector32
+            {
+                [globalColorTableFlag.GetMask()] = globalPalette != null,
+                [globalColorTableSizeSection] = (globalPalette?.Count.ToBitsPerPixel() ?? bpp) - 1,
+                [colorResolutionSection] = bpp - 1
+            };
             writer.Write((byte)packedFields.Data);
 
             // Background Color Index
@@ -473,10 +475,6 @@ namespace KGySoft.Drawing.Imaging
             writer.Write(buffer);
 
             writer.Write(blockTerminator);
-
-            #region Local Methods
-
-            #endregion
         }
 
         /// <summary>
@@ -535,9 +533,11 @@ namespace KGySoft.Drawing.Imaging
             // User Input Flag               1 Bit
             // Disposal Method               3 Bits
             // Reserved                      3 Bits
-            var packedFields = new BitVector32();
-            packedFields[disposalMethodSection] = (int)disposalMethod;
-            packedFields[transparentColorFlag.GetMask()] = transparentIndex >= 0;
+            var packedFields = new BitVector32
+            {
+                [disposalMethodSection] = (int)disposalMethod,
+                [transparentColorFlag.GetMask()] = transparentIndex >= 0
+            };
             writer.Write((byte)packedFields.Data);
 
             writer.Write((ushort)delay);

@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Provides fast write-only access to a single row of an <see cref="IWritableBitmapData"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a>method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>

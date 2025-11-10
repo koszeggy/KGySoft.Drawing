@@ -912,7 +912,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("icons")]public static Icon? Combine(IEnumerable<Icon>? icons)
+        [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(IEnumerable<Icon>? icons)
             => Combine(OSUtils.IsXpOrEarlier, icons);
 
         /// <summary>
@@ -924,7 +924,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("icons")]public static Icon? Combine(params Icon[]? icons)
+        [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(params Icon[]? icons)
             => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Icon>?)icons);
 
         /// <summary>
@@ -935,7 +935,7 @@ namespace KGySoft.Drawing
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
-        [return:NotNullIfNotNull("icons")]public static Icon? Combine(bool forceUncompressedResult, params Icon[]? icons)
+        [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(bool forceUncompressedResult, params Icon[]? icons)
             => Combine(forceUncompressedResult, (IEnumerable<Icon>?)icons);
 
         /// <summary>
@@ -947,7 +947,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
         [SecuritySafeCritical]
-        [return:NotNullIfNotNull("icons")]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Icon>? icons)
+        [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Icon>? icons)
         {
             if (icons == null)
                 return null;
@@ -971,7 +971,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(params Bitmap[]? images)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(params Bitmap[]? images)
             => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
@@ -984,7 +984,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(IEnumerable<Bitmap>? images)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(IEnumerable<Bitmap>? images)
             => Combine(OSUtils.IsXpOrEarlier, images);
 
         /// <summary>
@@ -998,7 +998,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(bool forceUncompressedResult, params Bitmap[]? images)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(bool forceUncompressedResult, params Bitmap[]? images)
             => Combine(forceUncompressedResult, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
@@ -1013,7 +1013,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [SecuritySafeCritical]
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Bitmap>? images)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Bitmap>? images)
         {
             if (images == null)
                 return null;
@@ -1039,7 +1039,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
             => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
 
         /// <summary>
@@ -1056,7 +1056,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [SecuritySafeCritical]
-        [return:NotNullIfNotNull("images")]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors, bool forceUncompressedResult)
+        [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors, bool forceUncompressedResult)
         {
             int imageCount = images?.Length ?? 0;
             int colorCount = transparentColors?.Length ?? 0;
@@ -1141,7 +1141,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(int id, Func<Icon>? getLegacyIcon)
+        [return:NotNullIfNotNull(nameof(getLegacyIcon))]private static Icon? GetSystemIcon(int id, Func<Icon>? getLegacyIcon)
             => SystemIconsCache.GetOrAdd(id, getSystemIconAddValueFactory, getLegacyIcon)?.ToIcon(false);
 
         [SecuritySafeCritical]

@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Saving to local variables to prevent capturing self reference
             Func<ICustomBitmapDataRow, int, int>? getColorIndex = RowGetColorIndex;
-            return getColorIndex ?? new Func<ICustomBitmapDataRow, int, int>((_, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataWriteOnly));
+            return getColorIndex ?? ((_, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataWriteOnly));
         }
 
         internal Action<ICustomBitmapDataRow<T>, int, int> GetRowSetColorIndex<T>()
@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Saving to local variables to prevent capturing self reference
             Action<ICustomBitmapDataRow, int, int>? setColorIndex = RowSetColorIndex;
-            return setColorIndex ?? new Action<ICustomBitmapDataRow, int, int>((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
+            return setColorIndex ?? ((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly));
         }
 
         internal override bool CanRead() => (RowGetColorIndex ?? RowGetColorIndexLegacy) != null;

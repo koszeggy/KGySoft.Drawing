@@ -5,10 +5,13 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+[assembly: SuppressMessage("Style", "IDE0057:Use range operator", Justification = "Cannot be used because it is not supported in every targeted platform")]
 [assembly: SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "Decided individually")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Decided individually")]
 [assembly: SuppressMessage("Style", "IDE0042:Deconstruct variable declaration", Justification = "Decided individually")]
 [assembly: SuppressMessage("Style", "IDE0090:Use 'new(...)'", Justification = "Decided individually")]
+[assembly: SuppressMessage("Style", "IDE0300:Use collection expression for array'", Justification = "Decided individually")]
+[assembly: SuppressMessage("Style", "IDE0305:Use collection expression for fluent", Justification = "Decided individually")]
 [assembly: SuppressMessage("ReSharper", "LocalizableElement", Justification = "This is just a Unit Test project")]
 
 #if NET

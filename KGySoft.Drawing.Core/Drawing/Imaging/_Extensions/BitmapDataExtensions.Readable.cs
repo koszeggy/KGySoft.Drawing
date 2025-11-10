@@ -380,9 +380,9 @@ namespace KGySoft.Drawing.Imaging
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually be quantized to <paramref name="pixelFormat"/>, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specigied and the target format can represent the colors of the source format without losing information.</para>
+        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specified and the target format can represent the colors of the source format without losing information.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
         /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
         /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
@@ -475,9 +475,9 @@ namespace KGySoft.Drawing.Imaging
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually be quantized to <paramref name="pixelFormat"/>, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specigied and the target format can represent the colors of the source format without losing information.</para>
+        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specified and the target format can represent the colors of the source format without losing information.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
         /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
         /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
@@ -866,9 +866,9 @@ namespace KGySoft.Drawing.Imaging
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually be quantized to <paramref name="pixelFormat"/>, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specigied and the target format can represent the colors of the source format without losing information.</para>
+        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specified and the target format can represent the colors of the source format without losing information.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
         /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
         /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
@@ -908,9 +908,9 @@ namespace KGySoft.Drawing.Imaging
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually be quantized to <paramref name="pixelFormat"/>, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specigied and the target format can represent the colors of the source format without losing information.</para>
+        /// <para>Color depth can be preserved if <paramref name="quantizer"/> is not specified and the target format can represent the colors of the source format without losing information.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
         /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
         /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
@@ -1634,7 +1634,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -1642,7 +1642,7 @@ namespace KGySoft.Drawing.Imaging
         /// <list type="bullet">
         /// <item>The overloads with a <see cref="Rectangle"/> parameter allow to copy only a portion of the source bitmap.</item>
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
-        /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
+        /// <item>If the target pixel format has a low bit-per-pixel value, or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
         /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item>
@@ -1732,7 +1732,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -1773,7 +1773,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -1810,7 +1810,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The copied area is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2447,7 +2447,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2459,7 +2459,7 @@ namespace KGySoft.Drawing.Imaging
         /// or, they have two <see cref="Rectangle"/> parameters to allow drawing a portion of the source bitmap into the specified target rectangle. All of these methods have also
         /// a <see cref="ScalingMode"/> parameter that specifies the behavior of the potential shrinking or enlarging.</item>
         /// <item>If an overload has an <see cref="IQuantizer"/> parameter, then it allows limiting the set of colors of the result even if the pixel format of the target would allow more colors.</item>
-        /// <item>If the target pixel format has a low bit-per-pixel value or you use a quantizer and you want to preserve the details as much as possible, then look for the
+        /// <item>If the target pixel format has a low bit-per-pixel value, or you use a quantizer and you want to preserve the details as much as possible, then look for the
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
         /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
         /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item> 
@@ -2561,7 +2561,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2605,7 +2605,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2645,7 +2645,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2828,7 +2828,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -2985,7 +2985,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -3035,7 +3035,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -3081,7 +3081,7 @@ namespace KGySoft.Drawing.Imaging
         /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods (without scaling).</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
-        /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="target"/> can represent,
+        /// <para>If <paramref name="quantizer"/> is specified, but it uses more/different colors than <paramref name="target"/> can represent,
         /// then the result will eventually be quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
@@ -5095,6 +5095,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region ToGrayscale
 
+        [SuppressMessage("Style", "IDE0350:Use implicitly typed lambda", Justification = "False alarm, it would cause ambiguity")]
         private static IReadWriteBitmapData? DoToGrayscale(IAsyncContext context, IReadableBitmapData bitmapData)
         {
             if (context.IsCancellationRequested)
@@ -5140,14 +5141,14 @@ namespace KGySoft.Drawing.Imaging
             bool success = targetFormat.ToBitsPerPixel() switch
             {
                 128 => isLinear
-                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((ColorF src, ColorF _) => src.ToGray()))
-                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((ColorF src, ColorF _) => src.ToGray(WorkingColorSpace.Srgb))),
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (ColorF src, ColorF _) => src.ToGray())
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (ColorF src, ColorF _) => src.ToGray(WorkingColorSpace.Srgb)),
                 64 => isLinear
-                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color64 src, Color64 _) => src.ToGray(WorkingColorSpace.Linear)))
-                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color64 src, Color64 _) => src.ToGray())),
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (Color64 src, Color64 _) => src.ToGray(WorkingColorSpace.Linear))
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (Color64 src, Color64 _) => src.ToGray()),
                 _ => isLinear
-                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color32 src, Color32 _) => src.ToGray(WorkingColorSpace.Linear)), null)
-                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, ((Color32 src, Color32 _) => src.ToGray()), null),
+                    ? DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (Color32 src, Color32 _) => src.ToGray(WorkingColorSpace.Linear), null)
+                    : DoCombine(context, bitmapData, result, sourceRect, Point.Empty, (Color32 src, Color32 _) => src.ToGray(), null),
             };
 
             if (!success)
@@ -5187,7 +5188,7 @@ namespace KGySoft.Drawing.Imaging
                     if (transparentColorF.A < 1f)
                         break;
                     result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
-                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty,  (ColorF c, ColorF _) => c == transparentColorF ? default : c);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (c, _) => c == transparentColorF ? default : c);
                     break;
 
                 case KnownPixelFormat.Format64bppArgb:
@@ -5195,7 +5196,7 @@ namespace KGySoft.Drawing.Imaging
                     if (transparentColor64.A < UInt16.MaxValue)
                         break;
                     result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
-                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (Color64 c, Color64 _) => c == transparentColor64 ? default : c);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (c, _) => c == transparentColor64 ? default : c);
                     break;
 
                 default:
@@ -5261,13 +5262,13 @@ namespace KGySoft.Drawing.Imaging
                 case KnownPixelFormat.Format128bppRgba:
                     ColorF transparentColorF = transparentColor.ToColorF();
                     result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
-                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (ColorF c, ColorF _) => c == transparentColorF ? default : c);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (c, _) => c == transparentColorF ? default : c);
                     break;
 
                 case KnownPixelFormat.Format64bppArgb:
                     Color64 transparentColor64 = transparentColor.ToColor64();
                     result = BitmapDataFactory.CreateManagedBitmapData(bitmapData.Size, targetFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, targetColorSpace, null);
-                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (Color64 c, Color64 _) => c == transparentColor64 ? default : c);
+                    success = DoCombine(context, bitmapData, result, srcRect, Point.Empty, (c, _) => c == transparentColor64 ? default : c);
                     break;
 
                 default:

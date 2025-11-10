@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para>Use the static properties to obtain an instance with a predefined pattern. For the best results use the <see cref="Bayer8x8">Bayer8x8</see>
     /// or <see cref="BlueNoise">BlueNoise</see> properties. Or you can use the <see cref="DottedHalftone">DottedHalftone</see> property for artistic results.</para>
     /// <para>The <see cref="OrderedDitherer"/> class offers a very fast dithering technique based on an ordered pattern specified in a matrix of bytes.
-    /// The more different values the matrix has the more number of different patterns can be mapped to the shades of the original pixels.
+    /// The more different values the matrix has the more numbers of different patterns can be mapped to the shades of the original pixels.
     /// While quantizing lighter and lighter colors, the different patterns appear in the order of the values in the specified matrix.</para>
     /// </remarks>
     /// <example>

@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
     /// <remarks>
     /// <para>The <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> can be used to create an error diffusion ditherer using a custom matrix.</para>
     /// <para>Use the static properties to obtain an instance with predefined parameters.</para>
-    /// <para>The <see cref="ErrorDiffusionDitherer"/> class uses an adaptive dithering technique, which disperses the quantization error of each pixels to the neighboring ones.
+    /// <para>The <see cref="ErrorDiffusionDitherer"/> class uses an adaptive dithering technique, which disperses the quantization error of each pixel to the neighboring ones.
     /// Thereby the strength of the dithering is automatically adjusted by the algorithm itself, which provides good results also for palettes with uneven color distribution
     /// (which is not the case for <see cref="OrderedDitherer">ordered dithering</see>, for example).</para>
     /// <para>As the dithered result of a pixel depends on the already processed pixels, the <see cref="ErrorDiffusionDitherer"/> does not support parallel processing, which makes
@@ -75,7 +75,7 @@ namespace KGySoft.Drawing.Imaging
     /// 100% on the blue channel. The problem is that this error cannot be propagated to the neighboring pixels if they have the same color because adding any more blue
     /// to already fully saturated blue pixels will not change anything. Therefore, the <see cref="ErrorDiffusionDitherer"/> can propagate quantization error
     /// by brightness based on human perception, which is more appropriate for palettes with grayscale colors.
-    /// The <see cref="ErrorDiffusionDitherer"/> tries to auto detect the strategy for each dithering session but this can be overridden by
+    /// The <see cref="ErrorDiffusionDitherer"/> tries to auto-detect the strategy for each dithering session but this can be overridden by
     /// the <see cref="ConfigureErrorDiffusionMode">ConfigureErrorDiffusionMode</see> method.</para>
     /// <para>The following table demonstrates the effect of different strategies:
     /// <table class="table is-hoverable">
@@ -635,7 +635,7 @@ namespace KGySoft.Drawing.Imaging
         /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer__ctor.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients for the quantization errors to be propagated to the neighboring pixels.</param>
-        /// <param name="divisor">Each elements in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
+        /// <param name="divisor">Each element in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
         /// in the <paramref name="matrix"/>, then only a fraction of the error will be propagated.</param>
         /// <param name="matrixFirstPixelIndex">Specifies the first effective index in the first row of the matrix. If larger than zero, then the error will be propagated also to the bottom-left direction.
         /// Must be between 0 and <paramref name="matrix"/> width, excluding upper bound.</param>

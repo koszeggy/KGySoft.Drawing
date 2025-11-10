@@ -3,10 +3,16 @@ Bézier
 beziers
 expando
 grayscale
+hotspot
 localizable
-overridable
+metafile
 natively
+octree
+overdithering
+overridable
 premultiplied
+prequantize
+prequantized
 quantizer
 quantizes
 quantizing

@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.WinUI.UnitTests
             Assert.AreEqual(size.Width, result.PixelWidth);
             Assert.AreEqual(size.Height, result.PixelHeight);
             using var resultData = result.GetReadableBitmapData();
-            AssertAreEqual(await src.CloneAsync(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer), resultData);
+            AssertAreEqual((await src.CloneAsync(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer))!, resultData);
         });
 
         #endregion

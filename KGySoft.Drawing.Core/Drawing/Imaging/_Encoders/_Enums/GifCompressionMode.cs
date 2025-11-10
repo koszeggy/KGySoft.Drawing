@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Indicates that all written codes must use the same bit size (3 to 9 bits, depending on palette size).
-        /// It uses less memory but it may lead to poor compression, especially with palettes using no more than 4 colors.
+        /// It uses less memory, but it may lead to poor compression, especially with palettes using no more than 4 colors.
         /// </summary>
         DoNotIncreaseBitSize,
 

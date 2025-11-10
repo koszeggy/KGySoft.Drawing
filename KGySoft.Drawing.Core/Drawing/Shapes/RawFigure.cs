@@ -112,7 +112,7 @@ namespace KGySoft.Drawing.Shapes
             #endregion
 
             Debug.Assert(points.Count > 0);
-            Debug.Assert(!offset || isClosed, "Ofsetting is expected for closed figures only");
+            Debug.Assert(!offset || isClosed, "offset == true is expected for closed figures only");
 
             // removing points too close to each other and the ones lying on the same line
             int maxPoints = points.Count + (points.Count > 2 && !points[0].TolerantEquals(points[points.Count - 1], Constants.PointEqualityTolerance) ? 1 : 0);

@@ -13,10 +13,6 @@
 
 #endregion
 
-#region Usings
-
-#endregion
-
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>

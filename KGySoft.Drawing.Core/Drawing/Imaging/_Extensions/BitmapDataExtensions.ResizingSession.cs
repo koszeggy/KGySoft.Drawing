@@ -101,31 +101,31 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
                     context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
+                    
+                    using IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context);
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                    // quantizing without dithering
+                    if (ditherer == null)
                     {
-                        if (context.IsCancellationRequested)
-                            return;
-                        if (quantizingSession == null)
-                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                        // quantizing without dithering
-                        if (ditherer == null)
-                        {
-                            PerformResizeWithQuantizer(quantizingSession);
-                            return;
-                        }
-
-                        // quantizing with dithering
-                        Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
-                        context.Progress?.New(DrawingOperation.InitializingDitherer);
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
-                        if (context.IsCancellationRequested)
-                            return;
-                        if (ditheringSession == null)
-                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-
-                        PerformResizeWithDithering(quantizingSession, ditheringSession);
+                        PerformResizeWithQuantizer(quantizingSession);
+                        return;
                     }
+
+                    // quantizing with dithering
+                    Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+                    context.Progress?.New(DrawingOperation.InitializingDitherer);
+                    
+                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (ditheringSession == null)
+                        throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                    PerformResizeWithDithering(quantizingSession, ditheringSession);
                 }
                 finally
                 {
@@ -699,32 +699,32 @@ namespace KGySoft.Drawing.Imaging
                     {
                         Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
                         context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                        using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
+                        
+                        using IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context);
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                        // quantizing without dithering
+                        if (ditherer == null)
                         {
-                            if (context.IsCancellationRequested)
-                                return;
-                            if (quantizingSession == null)
-                                throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                            // quantizing without dithering
-                            if (ditherer == null)
-                            {
-                                PerformResizeWithQuantizer(quantizingSession);
-                                return;
-                            }
-
-                            // quantizing with dithering
-                            Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
-
-                            context.Progress?.New(DrawingOperation.InitializingDitherer);
-                            using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
-                            if (context.IsCancellationRequested)
-                                return;
-                            if (ditheringSession == null)
-                                throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-
-                            PerformResizeWithDithering(quantizingSession, ditheringSession);
+                            PerformResizeWithQuantizer(quantizingSession);
+                            return;
                         }
+
+                        // quantizing with dithering
+                        Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
+                        
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                        PerformResizeWithDithering(quantizingSession, ditheringSession);
                     }
                     finally
                     {
@@ -810,7 +810,7 @@ namespace KGySoft.Drawing.Imaging
                                 if (colorDst.A != 0)
                                 {
                                     // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
-                                    // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
+                                    // because of the 2nd full transparency check, but it's alright because when blending in the linear color space the
                                     // conversion from Color32 to linear again is fast due to the lookup tables.
                                     colorSrc = colorDst.A == Byte.MaxValue
                                         // target pixel is fully solid: simple blending
@@ -925,7 +925,7 @@ namespace KGySoft.Drawing.Imaging
                                 if (colorDst.A != 0)
                                 {
                                     // Note that unlike in PerformResizeColorF we didn't keep the original working color space of colorSrc until this point
-                                    // because of the 2nd full transparency check but it's alright because when blending in the linear color space the
+                                    // because of the 2nd full transparency check, but it's alright because when blending in the linear color space the
                                     // conversion from Color64 to linear again is fast due to the lookup tables.
                                     colorSrc = colorDst.A == UInt16.MaxValue
                                         // target pixel is fully solid: simple blending
@@ -1820,12 +1820,11 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Points to a collection of weights allocated in <see cref="ResizingSessionInterpolated"/>.
         /// </summary>
-        private struct ResizeKernel
+        private readonly struct ResizeKernel
         {
             #region Fields
 
-            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local", Justification = "Rectangles: Preventing creating defensive copies on older platforms.")]
-            private CastArray<byte, float> kernelBuffer;
+            private readonly CastArray<byte, float> kernelBuffer;
 
             #endregion
 

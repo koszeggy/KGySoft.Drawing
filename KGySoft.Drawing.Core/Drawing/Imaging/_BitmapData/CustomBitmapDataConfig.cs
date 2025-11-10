@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 #endregion
@@ -31,11 +32,11 @@ namespace KGySoft.Drawing.Imaging
     /// <para>The <see cref="CustomBitmapDataConfigBase.PixelFormat"/> property and at least one getter or setter delegate must be set
     /// to create a valid custom bitmap data.</para>
     /// <para>It is enough to set only one getter and/or setter with the best matching color type. For example, if you set the <see cref="CustomBitmapDataConfig.RowGetColor64"/> property only,
-    /// which returns the pixels as <see cref="Color64"/> values, then all of the other pixel-reading methods will use this delegate and will convert the result from <see cref="Color64"/>.</para>
+    /// which returns the pixels as <see cref="Color64"/> values, then all the other pixel-reading methods will use this delegate and will convert the result from <see cref="Color64"/>.</para>
     /// <para>If none of the setter delegates are set, then the custom bitmap data will be read-only.
     /// And if none of the getter delegates are set, then the custom bitmap data will be write-only.</para>
     /// <para>The delegates should not reference or capture the back buffer directly. Instead, they should use the <see cref="ICustomBitmapDataRow"/>
-    /// property of the accessor delegates to access the bitmap data. If this is true for all of the delegates you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/>
+    /// property of the accessor delegates to access the bitmap data. If this is true for all the delegates you can set the <see cref="CustomBitmapDataConfigBase.BackBufferIndependentPixelAccess"/>
     /// property to provide better performance and quality in case of certain operations.</para>
     /// </remarks>
     public sealed class CustomBitmapDataConfig : CustomBitmapDataConfigBase
@@ -281,6 +282,7 @@ namespace KGySoft.Drawing.Imaging
                 : new Action<ICustomBitmapDataRow, int, Color32>((_, _, _) => throw new InvalidOperationException(Res.ImagingCustomBitmapDataReadOnly)));
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use getColorLegacy here like this")]
         internal Func<ICustomBitmapDataRow, int, PColor32> GetRowGetPColor32<T>()
             where T : unmanaged
         {
@@ -308,6 +310,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowGetPColor32<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use setColorLegacy here like this")]
         internal Action<ICustomBitmapDataRow, int, PColor32> GetRowSetPColor32<T>()
             where T : unmanaged
         {
@@ -335,6 +338,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowSetPColor32<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use getColorLegacy here like this")]
         internal Func<ICustomBitmapDataRow, int, Color64> GetRowGetColor64<T>()
             where T : unmanaged
         {
@@ -361,6 +365,8 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(RowGetColorLegacy == null, "Expected to call from unmanaged bitmap data only");
             return GetRowGetColor64<_>();
         }
+
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use setColorLegacy here like this")]
         internal Action<ICustomBitmapDataRow, int, Color64> GetRowSetColor64<T>()
             where T : unmanaged
         {
@@ -388,6 +394,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowSetColor64<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use getColorLegacy here like this")]
         internal Func<ICustomBitmapDataRow, int, PColor64> GetRowGetPColor64<T>()
             where T : unmanaged
         {
@@ -415,6 +422,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowGetPColor64<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use setColorLegacy here like this")]
         internal Action<ICustomBitmapDataRow, int, PColor64> GetRowSetPColor64<T>()
             where T : unmanaged
         {
@@ -442,6 +450,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowSetPColor64<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use getColorLegacy here like this")]
         internal Func<ICustomBitmapDataRow, int, ColorF> GetRowGetColorF<T>()
             where T : unmanaged
         {
@@ -469,6 +478,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowGetColorF<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use setColorLegacy here like this")]
         internal Action<ICustomBitmapDataRow, int, ColorF> GetRowSetColorF<T>()
             where T : unmanaged
         {
@@ -497,6 +507,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowSetColorF<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use getColorLegacy here like this")]
         internal Func<ICustomBitmapDataRow, int, PColorF> GetRowGetPColorF<T>()
             where T : unmanaged
         {
@@ -524,6 +535,7 @@ namespace KGySoft.Drawing.Imaging
             return GetRowGetPColorF<_>();
         }
 
+        [SuppressMessage("Style", "IDE0019:Use pattern matching to avoid as followed by a null check", Justification = "It's cleaner to use setColorLegacy here like this")]
         internal Action<ICustomBitmapDataRow, int, PColorF> GetRowSetPColorF<T>()
             where T : unmanaged
         {

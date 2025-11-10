@@ -243,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ColorF"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate if the color components are between 0 and 1 but you can use
+        /// For performance reasons this overload does not validate if the color components are between 0 and 1, but you can use
         /// the <see cref="ColorF(float, float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
         /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
@@ -274,7 +274,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ColorF"/> struct from RGB (red, green, and blue) values.
-        /// For performance reasons this overload does not validate if the color components are between 0 and 1 but you can use
+        /// For performance reasons this overload does not validate if the color components are between 0 and 1, but you can use
         /// the <see cref="ColorF(float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
         /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
@@ -400,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates a <see cref="ColorF"/> instance from the specified <see cref="ColorF"/> structure, but with the new specified alpha value.
-        /// This method does not validate if the color components are between 0 and 1 but you can use the the <see cref="IsValid"/> property
+        /// This method does not validate if the color components are between 0 and 1, but you can use the <see cref="IsValid"/> property
         /// or the <see cref="Clip">Clip</see> method on the result.
         /// </summary>
         /// <param name="a">The alpha value for the new <see cref="ColorF"/> instance.</param>
@@ -418,7 +418,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="ColorF"/> structure from a <see cref="Vector4"/> instance mapping <see cref="Vector4.X"/> to <see cref="R"/>,
         /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
         /// </summary>
-        /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
+        /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated, but
         /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
         public static ColorF FromRgba(Vector4 vector) => new ColorF(vector);
@@ -427,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="ColorF"/> structure from a <see cref="Vector3"/> instance mapping <see cref="Vector3.X"/> to <see cref="R"/>,
         /// <see cref="Vector3.Y"/> to <see cref="G"/> and <see cref="Vector3.Z"/> to <see cref="B"/>. The <see cref="A"/> component of the result will be 1.
         /// </summary>
-        /// <param name="vector">A <see cref="Vector3"/> representing the RGB color components. The parameter is not validated but
+        /// <param name="vector">A <see cref="Vector3"/> representing the RGB color components. The parameter is not validated, but
         /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure converted from the specified <see cref="Vector3"/>.</returns>
         public static ColorF FromRgb(Vector3 vector) => new ColorF(new Vector4(vector, 1f));
@@ -437,7 +437,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="ColorF"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.
         /// </summary>
         /// <param name="brightness">The brightness of the gray color to be created where 0 represents the black color and 1 represents the white color.
-        /// The parameter is not validated but you can use the &lt;see cref="IsValid"/&gt; property or the &lt;see cref="Clip"&gt;Clip&lt;/see&gt; method on the created result.</param>
+        /// The parameter is not validated, but you can use the &lt;see cref="IsValid"/&gt; property or the &lt;see cref="Clip"&gt;Clip&lt;/see&gt; method on the created result.</param>
         /// <returns>A <see cref="ColorF"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.</returns>
         public static ColorF FromGray(float brightness)
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD

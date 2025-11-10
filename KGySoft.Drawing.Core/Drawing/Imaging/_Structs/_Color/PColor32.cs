@@ -29,7 +29,7 @@ using System.Runtime.Intrinsics;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 32-bit premultiplied sRGB color where every color channel is represented by a 8-bit integer.
+    /// Represents a 32-bit premultiplied sRGB color where every color channel is represented by an 8-bit integer.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor32"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor32(byte, byte, byte, byte, bool)"/> constructor
+        /// For performance reasons this overload does not validate the parameters, but you can use the <see cref="PColor32(byte, byte, byte, byte, bool)"/> constructor
         /// or the <see cref="IsValid"/> property for validation, or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="a">The alpha component.</param>
@@ -297,7 +297,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="PColor32"/> structure from a 32-bit ARGB value.
         /// </summary>
         /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
-        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated, but
         /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
         public static PColor32 FromArgb(int argb) => new PColor32((uint)argb);
@@ -306,7 +306,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="PColor32"/> structure from a 32-bit ARGB value.
         /// </summary>
         /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
-        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated, but
         /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
         [CLSCompliant(false)]

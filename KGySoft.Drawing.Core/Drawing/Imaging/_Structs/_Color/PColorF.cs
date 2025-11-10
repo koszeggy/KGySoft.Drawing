@@ -239,7 +239,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColorF"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate if the color components are between 0 and 1 but you can use
+        /// For performance reasons this overload does not validate if the color components are between 0 and 1, but you can use
         /// the <see cref="PColorF(float, float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
         /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
@@ -269,7 +269,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColorF"/> struct from RGB (red, green, and blue) values.
-        /// For performance reasons this overload does not validate if the color components are between 0 and 1 but you can use
+        /// For performance reasons this overload does not validate if the color components are between 0 and 1, but you can use
         /// the <see cref="PColorF(float, float, float, bool)"/> constructor or the <see cref="IsValid"/> property for validation,
         /// or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
@@ -411,7 +411,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates a <see cref="PColorF"/> instance from the specified <see cref="ColorF"/> structure specifying a custom alpha value.
-        /// This method does not validate if the color components are between 0 and 1 but you can use the the <see cref="IsValid"/> property
+        /// This method does not validate if the color components are between 0 and 1, but you can use the <see cref="IsValid"/> property
         /// or the <see cref="Clip">Clip</see> method on the result.
         /// </summary>
         /// <param name="a">The alpha value for the result <see cref="PColorF"/> instance.</param>
@@ -424,7 +424,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a <see cref="PColorF"/> structure from a <see cref="Vector4"/> instance mapping <see cref="Vector4.X"/> to <see cref="R"/>,
         /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
         /// </summary>
-        /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
+        /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated, but
         /// you can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
         public static PColorF FromRgba(Vector4 vector) => new PColorF(vector);

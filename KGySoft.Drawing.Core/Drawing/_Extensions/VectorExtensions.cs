@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -32,6 +33,8 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing
 {
+    [SuppressMessage("ReSharper", "PreferConcreteValueOverDefault",
+        Justification = "default denotes don't care values. Cannot use 0xFF for example, because auto-vectorization emits extra code to turn them in-range values.")]
     internal static class VectorExtensions
     {
         #region Properties

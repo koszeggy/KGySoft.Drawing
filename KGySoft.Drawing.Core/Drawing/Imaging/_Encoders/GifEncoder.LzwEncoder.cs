@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
                 private const int maxCodeCount = 1 << maxBits;
 
                 /// <summary>
-                /// A prime that provides about 80% occupancy in the code table considering the max used entries when bit size is 12.
+                /// A prime that provides about 80% occupancy in the code table considering the max used entries when the bit size is 12.
                 /// </summary>
                 private const int tableSize = 5003;
 
@@ -93,11 +93,11 @@ namespace KGySoft.Drawing.Imaging
                 #region Properties
 
                 internal int MinimumCodeSize { get; }
-                internal int ClearCode => 1 << MinimumCodeSize;
-                internal int EndInformationCode => ClearCode + 1;
-                internal int FirstAvailableCode => ClearCode + 2;
+                internal readonly int ClearCode => 1 << MinimumCodeSize;
+                internal readonly int EndInformationCode => ClearCode + 1;
+                internal readonly int FirstAvailableCode => ClearCode + 2;
                 internal int CurrentCodeSize { get; private set; }
-                internal int NextSizeLimit => 1 << CurrentCodeSize;
+                internal readonly int NextSizeLimit => 1 << CurrentCodeSize;
                 internal byte CurrentIndex { get; private set; }
 
                 #endregion
@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Public Method
 
-                public void Dispose() => entries.Buffer.Release();
+                public readonly void Dispose() => entries.Buffer.Release();
 
                 #endregion
 
@@ -278,7 +278,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Internal Methods
 
-                internal void WriteByte(byte value) => writer.Write(value);
+                internal readonly void WriteByte(byte value) => writer.Write(value);
 
                 internal void WriteCode(int code, int bitSize)
                 {

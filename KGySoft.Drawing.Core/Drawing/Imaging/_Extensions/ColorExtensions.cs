@@ -42,15 +42,15 @@ namespace KGySoft.Drawing.Imaging
 
         // In sRGB color space using the coefficients used also by the Y'UV color space (used by PAL/SECAM/NTSC systems)
         // because for gamma compressed RGB values it approximates perceptual brightness quite well so no linear conversion is needed.
-        private const float RLumSrgb = 0.299f;
-        private const float GLumSrgb = 0.587f;
-        private const float BLumSrgb = 0.114f;
+        private const float rLumSrgb = 0.299f;
+        private const float gLumSrgb = 0.587f;
+        private const float bLumSrgb = 0.114f;
 
         // In the linear color space using the coefficients recommended by the ITU-R BT.709 standard.
         // The values were taken from here: https://en.wikipedia.org/wiki/Grayscale
-        private const float RLumLinear = 0.2126f;
-        private const float GLumLinear = 0.7152f;
-        private const float BLumLinear = 0.0722f;
+        private const float rLumLinear = 0.2126f;
+        private const float gLumLinear = 0.7152f;
+        private const float bLumLinear = 0.0722f;
 
         #endregion
 
@@ -669,7 +669,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Multiplying the RGB components with the sRGB grayscale coefficients and returning the sum
                 // NOTE: this is actually the dot product with the grayscale coefficients but Vector128.Dot is slower than the explicit Multiply + Sum
-                var result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb, GLumSrgb, RLumSrgb, default));
+                var result = Sse.Multiply(bgrF, Vector128.Create(bLumSrgb, gLumSrgb, rLumSrgb, default));
 
 #if NET7_0_OR_GREATER
                 return (byte)Vector128.Sum(result);
@@ -679,7 +679,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 
-            return (byte)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+            return (byte)(c.R * rLumSrgb + c.G * gLumSrgb + c.B * bLumSrgb);
         }
 
         /// <summary>
@@ -726,7 +726,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Multiplying the RGB components with the sRGB grayscale coefficients and returning the sum.
                 // NOTE: this is actually the dot product with the grayscale coefficients but Vector128.Dot is slower than the explicit Multiply + Sum
-                var result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb, GLumSrgb, RLumSrgb, default));
+                var result = Sse.Multiply(bgrF, Vector128.Create(bLumSrgb, gLumSrgb, rLumSrgb, default));
 
 #if NET7_0_OR_GREATER
                 return (ushort)Vector128.Sum(result);
@@ -736,7 +736,7 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
 
-            return (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+            return (ushort)(c.R * rLumSrgb + c.G * gLumSrgb + c.B * bLumSrgb);
         }
 
         /// <summary>
@@ -818,12 +818,12 @@ namespace KGySoft.Drawing.Imaging
                 //if (Sse41.IsSupported)
                 //    return Sse41.DotProduct(bgrF, Vector128.Create(BLumSrgb / Byte.MaxValue, GLumSrgb / Byte.MaxValue, RLumSrgb / Byte.MaxValue, default), 0b_0111_0001).ToScalar();
 
-                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb / Byte.MaxValue, GLumSrgb / Byte.MaxValue, RLumSrgb / Byte.MaxValue, default));
+                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(bLumSrgb / Byte.MaxValue, gLumSrgb / Byte.MaxValue, rLumSrgb / Byte.MaxValue, default));
                 return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);
             }
 #endif
 
-            return c.R * RLumSrgb / Byte.MaxValue + c.G * GLumSrgb / Byte.MaxValue + c.B * BLumSrgb / Byte.MaxValue;
+            return c.R * rLumSrgb / Byte.MaxValue + c.G * gLumSrgb / Byte.MaxValue + c.B * bLumSrgb / Byte.MaxValue;
         }
 
         /// <summary>
@@ -871,12 +871,12 @@ namespace KGySoft.Drawing.Imaging
                 //if (Sse41.IsSupported)
                 //    return Sse41.DotProduct(bgrF, Vector128.Create(BLumSrgb / UInt16.MaxValue, GLumSrgb / UInt16.MaxValue, RLumSrgb / UInt16.MaxValue, default), 0b_0111_0001).ToScalar();
 
-                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb / UInt16.MaxValue, GLumSrgb / UInt16.MaxValue, RLumSrgb / UInt16.MaxValue, default));
+                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(bLumSrgb / UInt16.MaxValue, gLumSrgb / UInt16.MaxValue, rLumSrgb / UInt16.MaxValue, default));
                 return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);
             }
 #endif
 
-            return c.R * RLumSrgb / UInt16.MaxValue + c.G * GLumSrgb / UInt16.MaxValue + c.B * BLumSrgb / UInt16.MaxValue;
+            return c.R * rLumSrgb / UInt16.MaxValue + c.G * gLumSrgb / UInt16.MaxValue + c.B * bLumSrgb / UInt16.MaxValue;
         }
 
         /// <summary>
@@ -1251,9 +1251,9 @@ namespace KGySoft.Drawing.Imaging
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                : Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
+                : Vector3.Dot(c.Rgb, new Vector3(rLumLinear, gLumLinear, bLumLinear));
 #else
-                : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
+                : c.R * rLumLinear + c.G * gLumLinear + c.B * bLumLinear;
 #endif
 
         #endregion
@@ -1456,6 +1456,7 @@ namespace KGySoft.Drawing.Imaging
             // Using vectorization if possible. We cannot spare the floating point operations due to the division by output alpha.
             if (Sse41.IsSupported)
             {
+                // ReSharper disable InconsistentNaming
                 // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion.
                 // In fact, it's so much faster that the SSE2 compatible solution would be even slower than the fallback version, especially with the workaround for https://github.com/dotnet/runtime/issues/83387
                 // srcAF = (float)src.A / 255f
@@ -1479,6 +1480,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Initializing directly from uint by packing the bytes of bgraI32
                 return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), VectorExtensions.PackLowBytesMask).AsUInt32().ToScalar());
+                // ReSharper restore InconsistentNaming
             }
 #endif
 
@@ -1823,9 +1825,9 @@ namespace KGySoft.Drawing.Imaging
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
 #if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                : Vector3.Dot(c.Rgb, new Vector3(RLumSrgb, GLumSrgb, BLumSrgb));
+                : Vector3.Dot(c.Rgb, new Vector3(rLumSrgb, gLumSrgb, bLumSrgb));
 #else
-                : c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb;
+                : c.R * rLumSrgb + c.G * gLumSrgb + c.B * bLumSrgb;
 #endif
 
         #endregion

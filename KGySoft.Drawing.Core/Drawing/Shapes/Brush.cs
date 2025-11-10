@@ -673,7 +673,7 @@ namespace KGySoft.Drawing.Shapes
                     Session.ApplyScanlineSolid(new RegionScanline(mainContext.CurrentY, Left, mainContext.ScanlineBuffer, mainContext.StartX, mainContext.EndX));
             }
 
-            // TODO: remove (this helps testing the multi-threaded context on a single thread)
+            // TODO: remove (this helps testing the multithreaded context on a single thread)
             //private int? currY;
             //internal override void ProcessNextScanline()
             //{

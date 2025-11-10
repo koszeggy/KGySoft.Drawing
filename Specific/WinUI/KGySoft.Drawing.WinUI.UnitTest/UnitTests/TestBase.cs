@@ -210,7 +210,7 @@ namespace KGySoft.Drawing.WinUI.UnitTests
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
 
-        protected async Task<string?> SaveBitmap(string name, WriteableBitmap bmp, [CallerMemberName] string testName = null)
+        protected async Task<string?> SaveBitmap(string name, WriteableBitmap bmp, [CallerMemberName]string testName = null!)
         {
             if (!SaveToFile)
                 return null;

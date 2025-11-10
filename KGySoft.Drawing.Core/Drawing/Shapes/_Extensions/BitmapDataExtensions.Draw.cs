@@ -3584,7 +3584,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
-        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
@@ -3634,7 +3634,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
-        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
@@ -3684,7 +3684,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
-        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
@@ -3735,7 +3735,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
         /// where the last point of the previous curve is the starting point of the next curve.</para>
         /// <para>This method draws quadratic Bézier curves. A quadratic Bézier curve is defined by three points: the starting point, the control point, and the end point.
-        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAync</see> methods.
+        /// To draw cubic Bézier curves, you can use the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.
         /// In fact, this method transforms the quadratic curves into cubic Bézier curves internally.</para>
         /// <para>This method tries to use a shortcut to draw the curves directly, which is faster than creating a <see cref="Path"/> and adding the curves to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
@@ -3839,6 +3839,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static void DrawConicCurve(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null)
             => DrawConicCurve(bitmapData, color, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions);
 
@@ -3961,6 +3962,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
             => DrawConicCurve(bitmapData, color, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, parallelConfig);
 
@@ -4054,6 +4056,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
             => DrawConicCurve(bitmapData, pen, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, parallelConfig);
 
@@ -4155,6 +4158,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null)
             => DrawConicCurve(bitmapData, context, color, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions);
 
@@ -4251,6 +4255,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null)
             => DrawConicCurve(bitmapData, context, pen, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions);
 
@@ -4349,6 +4354,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static IAsyncResult BeginDrawConicCurve(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
             => BeginDrawConicCurve(bitmapData, color, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, asyncConfig);
 
@@ -4435,6 +4441,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static IAsyncResult BeginDrawConicCurve(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, AsyncConfig? asyncConfig = null)
             => BeginDrawConicCurve(bitmapData, pen, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, asyncConfig);
 
@@ -4539,6 +4546,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawConicCurveAsync(bitmapData, color, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, asyncConfig);
 
@@ -4627,6 +4635,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
         /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
+        [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawConicCurveAsync(bitmapData, pen, (PointF)p1, (PointF)p2, (PointF)p3, weight, drawingOptions, asyncConfig);
 
@@ -7909,7 +7918,7 @@ namespace KGySoft.Drawing.Shapes
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
-            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(AsyncHelper.DefaultContext, bitmapData, new Pen(color), startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
         /// <summary>
@@ -7962,7 +7971,7 @@ namespace KGySoft.Drawing.Shapes
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
-            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(AsyncHelper.DefaultContext, bitmapData, new Pen(color), startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, new Pen(color), startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
         /// <summary>
@@ -8019,7 +8028,7 @@ namespace KGySoft.Drawing.Shapes
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
-            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(AsyncHelper.DefaultContext, bitmapData, pen, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, pen, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
         /// <summary>
@@ -8076,7 +8085,7 @@ namespace KGySoft.Drawing.Shapes
                 return AsyncHelper.FromResult(true, parallelConfig);
             }
 
-            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(AsyncHelper.DefaultContext, bitmapData, pen, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoDrawArc(ctx, bitmapData, pen, startPoint, endPoint, radiusX, radiusY, rotationAngle, isLargeArc, isClockwise, drawingOptions ?? DrawingOptions.Default), parallelConfig);
         }
 
         #endregion
@@ -12596,7 +12605,7 @@ namespace KGySoft.Drawing.Shapes
             };
 
             if (pointsList.Count != 0 && (pointsList.Count - 1) % 3 != 0)
-                throw new ArgumentException(nameof(points), Res.ShapesBezierPointsInvalid);
+                throw new ArgumentException(Res.ShapesBezierPointsInvalid, nameof(points));
         }
 
         private static void ValidateArguments(IReadWriteBitmapData bitmapData, Pen pen, IEnumerable points)
@@ -12650,7 +12659,7 @@ namespace KGySoft.Drawing.Shapes
                 return new List<PointF>(0);
 
             if (quadraticPoints.Count != 0 && (quadraticPoints.Count & 1) != 0)
-                throw new ArgumentException(nameof(points), Res.ShapesQuadraticPointsInvalid);
+                throw new ArgumentException(Res.ShapesQuadraticPointsInvalid, nameof(points));
 
             var cubicPoints = new List<PointF>(quadraticPoints.Count / 2 * 3 + 1) { quadraticPoints[0] };
             for (int i = 1; i < quadraticPoints.Count; i += 2)

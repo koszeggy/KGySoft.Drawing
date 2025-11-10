@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.Wpf
                 if (byteSize / 8 <= EnvironmentHelper.MaxArrayLength && (stride & 7) == 0)
                     return new double[byteSize / 8];
 
-                throw new ArgumentException(nameof(bitmap), WpfRes.BitmapSourceDataTooLarge);
+                throw new ArgumentException(WpfRes.BitmapSourceDataTooLarge, nameof(bitmap));
             }
 
             static IReadableBitmapData CreateKnownIndexed(Array array, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette, Func<Palette, bool> trySetPalette) => array switch

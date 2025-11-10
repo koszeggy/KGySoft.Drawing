@@ -16,11 +16,6 @@
 #region Usings
 
 using System;
-#if !NET6_0_OR_GREATER
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Security;
-#endif
 #if NET35 || NET40
 using System.Threading;
 #endif

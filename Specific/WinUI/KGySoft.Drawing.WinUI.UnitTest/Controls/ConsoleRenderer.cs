@@ -128,13 +128,13 @@ namespace KGySoft.Drawing.WinUI.Controls
             #region Public Methods
 
             public override void Write(char value) => DoWrite(value.ToString());
-            public override void Write(string value) => DoWrite(value);
+            public override void Write(string? value) => DoWrite(value);
 
             #endregion
 
             #region Private Methods
 
-            private void DoWrite(string value) => Invoke(() => ((Run)((Paragraph)text.Blocks.Last()).Inlines.Last()).Text += value);
+            private void DoWrite(string? value) => Invoke(() => ((Run)((Paragraph)text.Blocks.Last()).Inlines.Last()).Text += value);
 
             private void Invoke(DispatcherQueueHandler handler)
             {

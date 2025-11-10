@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
-                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }, default, 0, default, null));
+                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette([Color32.Black, default], default, 0, default, null));
             }
 
             #endregion
@@ -218,11 +218,8 @@ namespace KGySoft.Drawing.Imaging
 
                         partialExpansion.Width = 1;
 
-                        if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                        {
-                            currentColors.Add(default);
+                        if (additionalColors.Count == additionalLimit && currentColors.Add(default))
                             currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                        }
                         else
                             currentColors.AddRange(additionalColors);
 
@@ -272,11 +269,8 @@ namespace KGySoft.Drawing.Imaging
 
                             partialExpansion.Height = 1;
 
-                            if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                            {
-                                currentColors.Add(default);
+                            if (additionalColors.Count == additionalLimit && currentColors.Add(default))
                                 currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                            }
                             else
                                 currentColors.AddRange(additionalColors);
 
@@ -327,11 +321,8 @@ namespace KGySoft.Drawing.Imaging
                         if (y == currentRegion.Top + 16 || additionalLimit == 0 && !currentColors.Contains(default))
                             break;
 
-                        if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                        {
-                            currentColors.Add(default);
+                        if (additionalColors.Count == additionalLimit && currentColors.Add(default))
                             currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                        }
                         else
                             currentColors.AddRange(additionalColors);
 

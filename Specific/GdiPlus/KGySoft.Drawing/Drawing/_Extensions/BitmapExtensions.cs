@@ -54,7 +54,7 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
+        private static readonly int[] iconSizes = [512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4];
 
         #endregion
 

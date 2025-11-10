@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 32-bit sRGB color where every color channel is represented by a 8-bit integer.
+    /// Represents a 32-bit sRGB color where every color channel is represented by an 8-bit integer.
     /// It represents the same color space as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
