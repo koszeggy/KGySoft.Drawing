@@ -273,6 +273,7 @@ For example, this is how you can create a managed accessor for a `WriteableBitma
 ```cs
 // Though naming is different, PixelFormats.Pbgra32 is the same as KnownPixelFormat.Format32bppPArgb.
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
+bitmap.Lock();
 
 // creating the managed bitmap data for WriteableBitmap:
 using (var bitmapData = BitmapDataFactory.CreateBitmapData(
@@ -328,6 +329,7 @@ var customConfig = new CustomBitmapDataConfig
 };
 
 // Returning an IReadWriteBitmapData instance that wraps our native bitmap with the custom format:
+bitmap.Lock();
 return BitmapDataFactory.CreateBitmapData(
     bitmap.BackBuffer, new Size(bitmap.PixelWidth, bitmap.PixelHeight), bitmap.BackBufferStride,
     customConfig); 
