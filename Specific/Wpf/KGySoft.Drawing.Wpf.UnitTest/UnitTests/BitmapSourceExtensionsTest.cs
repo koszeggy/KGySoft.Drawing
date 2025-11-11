@@ -265,32 +265,30 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             }
 
             // As read-write, all color types
-            using (IReadWriteBitmapData readWriteBitmapData = bmp.GetReadWriteBitmapData())
-            {
-                // as Color32
-                readWriteBitmapData.SetColor32(0, 0, color.ToColor32());
-                AssertEqual(() => expectedResult.ToColor32(),  () => readWriteBitmapData.GetColor32(0, 0));
+            using IReadWriteBitmapData readWriteBitmapData = bmp.GetReadWriteBitmapData();
+            // as Color32
+            readWriteBitmapData.SetColor32(0, 0, color.ToColor32());
+            AssertEqual(() => expectedResult.ToColor32(),  () => readWriteBitmapData.GetColor32(0, 0));
 
-                // as PColor32
-                readWriteBitmapData.SetPColor32(0, 0, color.ToPColor32());
-                AssertEqual(() => expectedResult.ToPColor32().ToColor32(), () => readWriteBitmapData.GetPColor32(0, 0).ToColor32());
+            // as PColor32
+            readWriteBitmapData.SetPColor32(0, 0, color.ToPColor32());
+            AssertEqual(() => expectedResult.ToPColor32().ToColor32(), () => readWriteBitmapData.GetPColor32(0, 0).ToColor32());
 
-                // as Color64
-                readWriteBitmapData.SetColor64(0, 0, color.ToColor64());
-                AssertEqual(() => expectedResult.ToColor64().ToColor32(), () => readWriteBitmapData.GetColor64(0, 0).ToColor32());
+            // as Color64
+            readWriteBitmapData.SetColor64(0, 0, color.ToColor64());
+            AssertEqual(() => expectedResult.ToColor64().ToColor32(), () => readWriteBitmapData.GetColor64(0, 0).ToColor32());
 
-                // as PColor64
-                readWriteBitmapData.SetPColor64(0, 0, color.ToPColor64());
-                AssertEqual(() => expectedResult.ToPColor64().ToColor32(), () => readWriteBitmapData.GetPColor64(0, 0).ToColor32());
+            // as PColor64
+            readWriteBitmapData.SetPColor64(0, 0, color.ToPColor64());
+            AssertEqual(() => expectedResult.ToPColor64().ToColor32(), () => readWriteBitmapData.GetPColor64(0, 0).ToColor32());
 
-                // as ColorF
-                readWriteBitmapData.SetColorF(0, 0, color.ToColorF());
-                AssertEqual(() => expectedResult.ToColorF().ToColor32(), () => readWriteBitmapData.GetColorF(0, 0).ToColor32());
+            // as ColorF
+            readWriteBitmapData.SetColorF(0, 0, color.ToColorF());
+            AssertEqual(() => expectedResult.ToColorF().ToColor32(), () => readWriteBitmapData.GetColorF(0, 0).ToColor32());
 
-                // as PColorF
-                readWriteBitmapData.SetPColorF(0, 0, color.ToPColorF());
-                AssertEqual(() => expectedResult.ToPColorF().ToColor32(), () => readWriteBitmapData.GetPColorF(0, 0).ToColor32());
-            }
+            // as PColorF
+            readWriteBitmapData.SetPColorF(0, 0, color.ToPColorF());
+            AssertEqual(() => expectedResult.ToPColorF().ToColor32(), () => readWriteBitmapData.GetPColorF(0, 0).ToColor32());
         }
 
         [TestCaseSource(nameof(sourceConvertPixelFormatDirectTest))]
