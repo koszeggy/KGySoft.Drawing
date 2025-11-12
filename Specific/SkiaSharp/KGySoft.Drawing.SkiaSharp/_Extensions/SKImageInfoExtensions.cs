@@ -95,10 +95,10 @@ namespace KGySoft.Drawing.SkiaSharp
             {
                 info.Prefers128BitColors = true;
             }
-            // [P]Color64 preference: when the range demands it (>8 bit color channels)
+            // [P]Color64 preference: when the range demands it (> 8-bit color channels)
             else if (imageInfo.ColorType is SKColorType.Rgba1010102 or SKColorType.Rgb101010x or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgF16
-                     or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x
-                // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha and < 8 channel per color formats
+                     or SKColorType.Alpha16 or SKColorType.Rg1616 or SKColorType.Rgba16161616 or SKColorType.Bgra1010102 or SKColorType.Bgr101010x or SKColorType.Rgba10x6
+                // or when precision could be lost otherwise (8 bits per channel but in linear) - except Alpha8 because gamma does not affect alpha and < 8 bpp channel per color formats
                 || info.LinearGamma && imageInfo.ColorType is not (SKColorType.Alpha8 or SKColorType.Rgb565 or SKColorType.Argb4444 or SKColorType.Srgba8888)
                 // or when 8-bit precision could be lost only in sRGB (in linear these are the same as existing sRGB formats with no precision loss)
                 || !info.LinearGamma && imageInfo.ColorType is SKColorType.Srgba8888)
@@ -121,7 +121,8 @@ namespace KGySoft.Drawing.SkiaSharp
                     && (imageInfo.ColorType is SKColorType.Bgra8888 or SKColorType.Rgba8888
                         or SKColorType.Rgba1010102 or SKColorType.Bgra1010102 or SKColorType.Argb4444
                         or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgbaF32 or SKColorType.Rgba16161616
-                        or SKColorType.Srgba8888));
+                        or SKColorType.Srgba8888
+                        or SKColorType.Rgba10x6));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="imageInfo"/>.

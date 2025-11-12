@@ -121,7 +121,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constants
 
-        internal const SKColorType MaxColorType = SKColorType.R8Unorm;
+        internal const SKColorType MaxColorType = SKColorType.Rgba10x6;
         internal const SKAlphaType MaxAlphaType = SKAlphaType.Unpremul;
 
         #endregion

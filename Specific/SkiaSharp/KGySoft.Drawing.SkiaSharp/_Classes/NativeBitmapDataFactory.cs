@@ -385,6 +385,28 @@ namespace KGySoft.Drawing.SkiaSharp
                         : c.ToColor32().Blend(row.BitmapData.BackColor));
                     break;
 
+                case (SKColorType.Rgba10x6, SKAlphaType.Unpremul):
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x).ToColor32();
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x) = new ColorRgba10x6Srgb(c);
+                    break;
+
+                case (SKColorType.Rgba10x6, SKAlphaType.Premul):
+                    config.RowGetPColor32 = (row, x) => row.UnsafeGetRefAs<ColorPrgba10x6Srgb>(x).ToPColor32();
+                    config.RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba10x6Srgb>(x).ToPColor64();
+                    config.RowSetPColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorPrgba10x6Srgb>(x) = new ColorPrgba10x6Srgb(c);
+                    break;
+
+                case (SKColorType.Rgba10x6, SKAlphaType.Opaque):
+                    config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x).ToColor32();
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x) =
+                        new ColorRgba10x6Srgb(c.A == UInt16.MaxValue ? c : c.Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace));
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Srgb>(x) = new ColorRgba10x6Srgb(c.A >= 1f ? c.ToColor64()
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear ? c.Blend(row.BitmapData.BackColor.ToColorF()).ToColor64()
+                        : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()));
+                    break;
+
                 default:
                     throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly in the sRGB color space. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."));
             }
@@ -764,6 +786,30 @@ namespace KGySoft.Drawing.SkiaSharp
                     config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorR8UnormLinear>(x).ToColorF();
                     config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorR8UnormLinear>(x) =
                         new ColorR8UnormLinear(c.A >= 1f ? c : c.Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace));
+                    break;
+
+                case (SKColorType.Rgba10x6, SKAlphaType.Unpremul):
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x) = new ColorRgba10x6Linear(c);
+                    config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x).ToColorF();
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x) = new ColorRgba10x6Linear(c);
+                    break;
+
+                case (SKColorType.Rgba10x6, SKAlphaType.Premul):
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba10x6Linear>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorPrgba10x6Linear>(x) = new ColorPrgba10x6Linear(c);
+                    config.RowGetPColorF = (row, x) => row.UnsafeGetRefAs<ColorPrgba10x6Linear>(x).ToPColorF();
+                    config.RowSetPColorF = (row, x, c) => row.UnsafeGetRefAs<ColorPrgba10x6Linear>(x) = new ColorPrgba10x6Linear(c);
+                    break;
+
+                case (SKColorType.Rgba10x6, SKAlphaType.Opaque):
+                    config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x).ToColor64().ToOpaque();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x) = c.A == UInt16.MaxValue ? new ColorRgba10x6Linear(c)
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new ColorRgba10x6Linear(c.Blend(row.BitmapData.BackColor.ToColor64()))
+                        : new ColorRgba10x6Linear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()));
+                    config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x).ToColorF();
+                    config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgba10x6Linear>(x) =
+                        new ColorRgba10x6Linear(c.A >= 1f ? c : c.Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace));
                     break;
 
                 default:
