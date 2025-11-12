@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Gets a managed read-only accessor for a <see cref="BitmapSource"/> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">A <see cref="BitmapSource"/> instance, whose data is about to be accessed.</param>
@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Gets a managed read-only accessor for a <see cref="BitmapSource"/> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">A <see cref="BitmapSource"/> instance, whose data is about to be accessed.</param>
@@ -355,7 +355,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> of the desired <see cref="PixelFormat"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat_1.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat_1.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -494,7 +494,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> with the desired <see cref="PixelFormat"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -623,19 +623,19 @@ namespace KGySoft.Drawing.Wpf
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color, byte, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
-        /// To avoid blocking waiting for the result set the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
+        /// To avoid blocking waiting for the result set the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
@@ -661,19 +661,19 @@ namespace KGySoft.Drawing.Wpf
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color[], Color, byte, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
-        /// To avoid blocking waiting for the result set the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
+        /// To avoid blocking waiting for the result set the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details, or the other overloads for image examples.</note>
         /// </remarks>
@@ -698,19 +698,19 @@ namespace KGySoft.Drawing.Wpf
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution"><list type="bullet"><item>This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
-        /// To avoid blocking waiting for the result set the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
+        /// To avoid blocking waiting for the result set the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</item>
         /// <item>If <paramref name="quantizer"/> is not a <see cref="PredefinedColorsQuantizer"/>, then the result <see cref="WriteableBitmap"/> is created by a synchronized callback
         /// on the thread of the source <paramref name="bitmap"/> even if you call this method from the same thread. Do not block the thread of the source <paramref name="bitmap"/>;
@@ -732,13 +732,13 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Wpf.BitmapSourceExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> methods to complete.
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Wpf.BitmapSourceExtensions.ConvertPixelFormatAsync">ConvertPixelFormatAsync</see> methods instead.
-        /// To avoid blocking the source thread it is recommended to call this method from the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
+        /// To avoid blocking the source thread it is recommended to call this method from the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm">CompletedCallback</a>
         /// delegate of the <c>asyncConfig</c> parameter of the <see cref="O:KGySoft.Drawing.Wpf.BitmapSourceExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> methods.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?, AsyncConfig?)"/> method for details.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="WriteableBitmap"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>, or was not returned by a <see cref="O:KGySoft.Drawing.Wpf.BitmapSourceExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> overload.</exception>
         /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         public static WriteableBitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<WriteableBitmap?>(asyncResult, nameof(BeginConvertPixelFormat));
@@ -762,15 +762,15 @@ namespace KGySoft.Drawing.Wpf
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="WriteableBitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
@@ -801,15 +801,15 @@ namespace KGySoft.Drawing.Wpf
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="WriteableBitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution">This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
@@ -840,15 +840,15 @@ namespace KGySoft.Drawing.Wpf
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="WriteableBitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="caution"><list type="bullet"><item>This method can be called from any thread but if it is called from a different one from the thread of the source <paramref name="bitmap"/>'s dispatcher,
         /// then the result <see cref="WriteableBitmap"/> will be created by using a synchronized callback. To avoid possible deadlocks, the thread of the source <paramref name="bitmap"/>
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.

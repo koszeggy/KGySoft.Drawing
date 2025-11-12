@@ -33,13 +33,13 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Initializes the <c>KGySoft.Drawing.Wpf</c> module (and also the <c>KGySoft.Drawing.Core</c> module).
         /// It initializes the resource manager for string resources and registers its central management
-        /// in the <a href="http://docs.kgysoft.net/corelibraries/html/T_KGySoft_LanguageSettings.htm">LanguageSettings</a> class.
+        /// in the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_LanguageSettings.htm">LanguageSettings</a> class.
         /// </summary>
         /// <remarks>
         /// <note>The module initializer is executed automatically when any member is accessed in the module for the first time. This method is public to be able
         /// to trigger module initialization without performing any other operation. Normally you don't need to call it explicitly, but it can be useful if you use
         /// the KGy SOFT Drawing Libraries in an application, and you want to configure resource management on starting the application via
-        /// the <a href="http://docs.kgysoft.net/corelibraries/html/T_KGySoft_LanguageSettings.htm">LanguageSettings</a> class.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_LanguageSettings.htm">LanguageSettings</a> class.
         /// In such case you can call this method before configuring language settings to make sure that the resources of
         /// the <c>KGySoft.Drawing.Wpf.dll</c> are also affected by the settings.</note>
         /// </remarks>

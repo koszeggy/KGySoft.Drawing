@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed write-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed write-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -155,7 +155,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-write accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -178,7 +178,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-write accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance, whose data is about to be accessed.</param>
@@ -366,14 +366,14 @@ namespace KGySoft.Drawing.SkiaSharp
         /// the color is considered completely transparent. If 0, then the converted colors attempt to preserve their original alpha value. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance converted from the specified <paramref name="bitmap"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
@@ -407,14 +407,14 @@ namespace KGySoft.Drawing.SkiaSharp
         /// Can be <see cref="WorkingColorSpace.Default"/> to preserve the original color space. This parameter is optional.
         /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a> instance converted from the specified <paramref name="bitmap"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>

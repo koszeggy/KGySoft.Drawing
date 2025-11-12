@@ -17,7 +17,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a single row of an <see cref="IReadableBitmapData"/> instance that allows setting its position to any row.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     public interface IReadableBitmapDataRowMovable : IReadableBitmapDataRow, IBitmapDataRowMovable
     {

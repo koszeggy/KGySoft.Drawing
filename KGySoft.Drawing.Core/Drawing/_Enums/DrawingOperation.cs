@@ -16,8 +16,8 @@
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Represents various drawing operations to indicate the current operation when reporting progress using an <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> implementation.
-    /// This library always uses the <see cref="DrawingOperation"/> type as a type argument when calling the <a href="https://docs.kgysoft.net/corelibraries/html/M_KGySoft_Threading_IAsyncProgress_New__1.htm">New&lt;T>(T, int, int)</a> method.
+    /// Represents various drawing operations to indicate the current operation when reporting progress using an <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> implementation.
+    /// This library always uses the <see cref="DrawingOperation"/> type as a type argument when calling the <a href="https://koszeggy.github.io/docs/corelibraries/html/M_KGySoft_Threading_IAsyncProgress_New__1.htm">New&lt;T>(T, int, int)</a> method.
     /// </summary>
     public enum DrawingOperation
     {

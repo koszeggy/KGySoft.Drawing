@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Provides fast write-only access to a single row of an <see cref="IWritableBitmapData"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>
@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
         /// This member is practically the same as the <see cref="SetColor32">SetColor32</see> method.</para>
         /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
         /// <para>If the color to be set cannot be represented precisely by the owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
-        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
         /// <seealso cref="SetColor32"/>
@@ -180,7 +180,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Sets the underlying raw value within the current <see cref="IWritableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm">online help</a> for an example.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm">online help</a> for an example.</div>
         /// </summary>
         /// <typeparam name="T">The type of the value to write. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to write. The valid range depends on the size of <typeparamref name="T"/>.</param>

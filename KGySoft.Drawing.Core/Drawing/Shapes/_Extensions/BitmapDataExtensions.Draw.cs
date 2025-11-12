@@ -91,7 +91,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -118,7 +118,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -184,7 +184,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLine">BeginDrawLine</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -220,12 +220,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="p2">The end point of the line.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
@@ -240,7 +240,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -266,12 +266,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="p2">The end point of the line.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
@@ -285,7 +285,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Color32 color, PointF p1, PointF p2, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -313,13 +313,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -333,7 +333,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -362,13 +362,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -382,7 +382,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLine(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -408,7 +408,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide line between two points with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the line to draw.</param>
         /// <param name="p1">The starting point of the line.</param>
@@ -426,13 +426,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -457,7 +457,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide line between two points with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the line to draw.</param>
         /// <param name="p1">The starting point of the line.</param>
@@ -474,13 +474,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -505,7 +505,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a line between two points with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the line.</param>
         /// <param name="p1">The starting point of the line.</param>
@@ -522,13 +522,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -554,7 +554,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a line between two points with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the line.</param>
         /// <param name="p1">The starting point of the line.</param>
@@ -571,13 +571,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -616,9 +616,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -629,7 +629,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -660,9 +660,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -672,7 +672,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -703,9 +703,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -715,7 +715,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -747,9 +747,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -759,7 +759,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLineAsync">DrawLineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLine">EndDrawLine</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -786,9 +786,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawLine(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawLine));
 
         #endregion
@@ -807,24 +807,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The right/bottom values of the coordinates are inclusive, so if the start and end points are the same, a single pixel will be drawn.</para>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLineAsync(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -852,23 +852,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLineAsync(this IReadWriteBitmapData bitmapData, Color32 color, PointF p1, PointF p2, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -896,23 +896,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLineAsync(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -941,23 +941,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the line directly, which is faster than creating a <see cref="Path"/> and adding the line to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same line is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the line is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLineAsync(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1003,7 +1003,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1042,7 +1042,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawLines">BeginDrawLines</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1077,12 +1077,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the line segments to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
@@ -1098,7 +1098,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1123,12 +1123,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the line segments to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
@@ -1144,7 +1144,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -1171,13 +1171,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
@@ -1193,7 +1193,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1221,13 +1221,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
@@ -1243,7 +1243,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawLines(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -1269,7 +1269,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the lines to draw.</param>
         /// <param name="points">The points of the line segments to draw.</param>
@@ -1287,13 +1287,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1318,7 +1318,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of connected, one-pixel wide lines with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the lines to draw.</param>
         /// <param name="points">The points of the line segments to draw.</param>
@@ -1336,13 +1336,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1367,7 +1367,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of connected lines with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
         /// <param name="points">The points of the line segments to draw.</param>
@@ -1385,13 +1385,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1417,7 +1417,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of connected lines with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the lines.</param>
         /// <param name="points">The points of the line segments to draw.</param>
@@ -1435,13 +1435,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1479,9 +1479,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1493,7 +1493,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1523,9 +1523,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1537,7 +1537,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1567,9 +1567,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1581,7 +1581,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1612,9 +1612,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1626,7 +1626,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawLinesAsync">DrawLinesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawLines">EndDrawLines</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -1653,9 +1653,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawLines(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawLines));
 
         #endregion
@@ -1673,12 +1673,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
         /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
@@ -1686,12 +1686,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1718,12 +1718,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
         /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
@@ -1731,12 +1731,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1763,12 +1763,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
         /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
@@ -1776,12 +1776,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1809,12 +1809,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The first point of the <paramref name="points"/> array will be the starting point of the first line segment.
         /// Each additional point specifies the endpoint of a line segment, whose starting point is the endpoint of the previous line.</para>
@@ -1822,12 +1822,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same lines are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the lines are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawLinesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1877,7 +1877,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1921,7 +1921,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawBeziers">BeginDrawBeziers</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1957,12 +1957,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the curves to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
@@ -1983,7 +1983,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2008,12 +2008,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the curves to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
@@ -2034,7 +2034,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2061,13 +2061,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
@@ -2088,7 +2088,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -2116,13 +2116,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
@@ -2143,7 +2143,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawBeziers(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -2169,7 +2169,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curves to draw.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -2191,13 +2191,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2223,7 +2223,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of one-pixel wide cubic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curves to draw.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -2245,13 +2245,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2277,7 +2277,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -2299,13 +2299,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2332,7 +2332,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of cubic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -2354,13 +2354,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2399,9 +2399,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -2417,7 +2417,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2448,9 +2448,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -2466,7 +2466,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2497,9 +2497,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -2515,7 +2515,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2547,9 +2547,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -2565,7 +2565,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawBeziersAsync">DrawBeziersAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawBeziers">EndDrawBeziers</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -2593,9 +2593,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawBeziers(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawBeziers));
 
         #endregion
@@ -2613,12 +2613,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
@@ -2630,13 +2630,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -2663,12 +2663,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
@@ -2680,13 +2680,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -2713,12 +2713,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
@@ -2730,13 +2730,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -2764,12 +2764,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The allowed number of points in the <paramref name="points"/> parameter is 0, 1, or a multiple of 3 plus 1.</para>
         /// <para>When <paramref name="points"/> has at least four items, the first four points define the first Bézier curve. Each additional three points define a new Bézier curve,
@@ -2781,13 +2781,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same Bézier curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not a multiple of 3 plus 1.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawBeziersAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -2837,7 +2837,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -2881,7 +2881,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawQuadraticCurves">BeginDrawQuadraticCurves</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -2917,12 +2917,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the curves to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
@@ -2943,7 +2943,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -2968,12 +2968,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The points of the curves to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
@@ -2994,7 +2994,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -3021,13 +3021,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
@@ -3048,7 +3048,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -3076,13 +3076,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
@@ -3103,7 +3103,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawQuadraticCurves(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -3129,7 +3129,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curves to draw.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -3151,13 +3151,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3183,7 +3183,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of one-pixel wide quadratic Bézier curves with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curves to draw.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -3205,13 +3205,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3237,7 +3237,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -3259,13 +3259,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3292,7 +3292,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a series of quadratic Bézier curves with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="points">The points of the curves to draw.</param>
@@ -3314,13 +3314,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3359,9 +3359,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -3377,7 +3377,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3408,9 +3408,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -3426,7 +3426,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3457,9 +3457,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -3475,7 +3475,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3507,9 +3507,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -3525,7 +3525,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawQuadraticCurvesAsync">DrawQuadraticCurvesAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawQuadraticCurves">EndDrawQuadraticCurves</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/>, or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -3553,9 +3553,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawQuadraticCurves(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawQuadraticCurves));
 
         #endregion
@@ -3573,12 +3573,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
@@ -3590,13 +3590,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -3623,12 +3623,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
@@ -3640,13 +3640,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -3673,12 +3673,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
@@ -3690,13 +3690,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -3724,12 +3724,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>In the <paramref name="points"/> parameter 0 or odd number of points are expected.</para>
         /// <para>When <paramref name="points"/> has at least three items, the first three points define the first quadratic curve. Each additional two points define a new quadratic curve,
@@ -3741,13 +3741,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curves are drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curves are drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">The number of points is not zero, or an odd number.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawQuadraticCurvesAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -3800,7 +3800,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawConicCurve">BeginDrawConicCurve</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -3831,7 +3831,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawConicCurve">BeginDrawConicCurve</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -3866,7 +3866,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawConicCurve">BeginDrawConicCurve</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -3897,7 +3897,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawConicCurve">BeginDrawConicCurve</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -3938,12 +3938,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="weight">The weight of the conic curve, which determines the shape of the curve. Must be a positive value.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
@@ -3960,7 +3960,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
@@ -3977,12 +3977,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="weight">The weight of the conic curve, which determines the shape of the curve. Must be a positive value.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
@@ -3999,7 +3999,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Color32 color, PointF p1, PointF p2, PointF p3, float weight, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -4031,13 +4031,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
@@ -4054,7 +4054,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
@@ -4073,13 +4073,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
@@ -4096,7 +4096,7 @@ namespace KGySoft.Drawing.Shapes
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawConicCurve(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, PointF p3, float weight, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -4124,7 +4124,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide conic curve with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curve to draw.</param>
         /// <param name="p1">The starting point of the conic curve.</param>
@@ -4145,13 +4145,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4166,7 +4166,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide conic curve with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the curve to draw.</param>
         /// <param name="p1">The starting point of the conic curve.</param>
@@ -4187,13 +4187,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4221,7 +4221,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a conic curve with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="p1">The starting point of the conic curve.</param>
@@ -4242,13 +4242,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -4263,7 +4263,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a conic curve with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the curves.</param>
         /// <param name="p1">The starting point of the conic curve.</param>
@@ -4284,13 +4284,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -4334,9 +4334,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -4348,7 +4348,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawConicCurve">EndDrawConicCurve</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4371,9 +4371,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -4385,7 +4385,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawConicCurve">EndDrawConicCurve</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -4421,9 +4421,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -4435,7 +4435,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawConicCurve">EndDrawConicCurve</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -4458,9 +4458,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -4472,7 +4472,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawConicCurveAsync">DrawConicCurveAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawConicCurve">EndDrawConicCurve</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -4502,9 +4502,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawConicCurve(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawConicCurve));
 
         #endregion
@@ -4525,12 +4525,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
         /// If the <paramref name="weight"/> is less than 1, the curve is an elliptic arc, and if it's greater than 1, the curve is a hyperbolic arc.</para>
@@ -4538,13 +4538,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Color32 color, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -4563,12 +4563,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
         /// If the <paramref name="weight"/> is less than 1, the curve is an elliptic arc, and if it's greater than 1, the curve is a hyperbolic arc.</para>
@@ -4576,13 +4576,13 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Color32 color, PointF p1, PointF p2, PointF p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -4614,12 +4614,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
         /// If the <paramref name="weight"/> is less than 1, the curve is an elliptic arc, and if it's greater than 1, the curve is a hyperbolic arc.</para>
@@ -4627,13 +4627,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "False alarm, without the casts it would be a recursive call")]
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Pen pen, Point p1, Point p2, Point p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -4652,12 +4652,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <paramref name="weight"/> is 1, the conic curve is equivalent to a parabolic (quadratic) Bézier curve.
         /// If the <paramref name="weight"/> is less than 1, the curve is an elliptic arc, and if it's greater than 1, the curve is a hyperbolic arc.</para>
@@ -4665,13 +4665,13 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same curve is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the curve is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="weight"/> must be a finite non-negative value.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawConicCurveAsync(this IReadWriteBitmapData bitmapData, Pen pen, PointF p1, PointF p2, PointF p3, float weight, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -4718,7 +4718,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -4756,7 +4756,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPolygon">BeginDrawPolygon</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -4791,12 +4791,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The vertices of the polygon to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
@@ -4811,7 +4811,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -4836,12 +4836,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="points">The vertices of the polygon to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
@@ -4856,7 +4856,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -4883,13 +4883,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
@@ -4904,7 +4904,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -4932,13 +4932,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
@@ -4953,7 +4953,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPolygon(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -4979,7 +4979,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide polygon with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the polygon to draw.</param>
         /// <param name="points">The vertices of the polygon to draw.</param>
@@ -4996,13 +4996,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5027,7 +5027,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide polygon with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the polygon to draw.</param>
         /// <param name="points">The vertices of the polygon to draw.</param>
@@ -5044,13 +5044,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5075,7 +5075,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a polygon with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the polygon.</param>
         /// <param name="points">The vertices of the polygon to draw.</param>
@@ -5092,13 +5092,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5124,7 +5124,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a polygon with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the polygon.</param>
         /// <param name="points">The vertices of the polygon to draw.</param>
@@ -5141,13 +5141,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5185,9 +5185,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -5198,7 +5198,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5228,9 +5228,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -5241,7 +5241,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5271,9 +5271,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -5284,7 +5284,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5315,9 +5315,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -5328,7 +5328,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPolygonAsync">DrawPolygonAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPolygon">EndDrawPolygon</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
@@ -5355,9 +5355,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawPolygon(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawPolygon));
 
         #endregion
@@ -5375,24 +5375,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method tries to use a shortcut to draw the polygon directly, which is faster than creating a <see cref="Path"/> and adding the points to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPolygonAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -5419,24 +5419,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method tries to use a shortcut to draw the polygon directly, which is faster than creating a <see cref="Path"/> and adding the points to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPolygonAsync(this IReadWriteBitmapData bitmapData, Color32 color, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -5463,24 +5463,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method tries to use a shortcut to draw the polygon directly, which is faster than creating a <see cref="Path"/> and adding the points to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">A <see cref="Path"/> is created internally and the width or height of <see cref="Path.Bounds">Path.Bounds</see> overflows.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPolygonAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<Point> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -5508,24 +5508,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Every pair of two consecutive points specifies a side of the polygon. In addition, if the last point and the first point do not coincide, they specify the last side of the polygon.</para>
         /// <para>This method tries to use a shortcut to draw the polygon directly, which is faster than creating a <see cref="Path"/> and adding the points to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same polygon is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the polygon is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="points"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPolygonAsync(this IReadWriteBitmapData bitmapData, Pen pen, IEnumerable<PointF> points, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -5574,7 +5574,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -5600,7 +5600,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -5641,7 +5641,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -5667,7 +5667,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRectangle">BeginDrawRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -5702,12 +5702,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="rectangle">The rectangle to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rectangle, the right/bottom values of the coordinates are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -5722,7 +5722,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -5747,12 +5747,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="rectangle">The rectangle to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rectangle, the right/bottom values of the coordinates are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -5767,7 +5767,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -5794,13 +5794,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -5814,7 +5814,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -5842,13 +5842,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -5862,7 +5862,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -5888,7 +5888,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide rectangle with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rectangle to draw.</param>
         /// <param name="rectangle">The rectangle to draw.</param>
@@ -5905,13 +5905,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5936,7 +5936,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide rectangle with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rectangle to draw.</param>
         /// <param name="rectangle">The rectangle to draw.</param>
@@ -5953,13 +5953,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -5984,7 +5984,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a rectangle with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rectangle.</param>
         /// <param name="rectangle">The rectangle to draw.</param>
@@ -6000,13 +6000,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6032,7 +6032,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a rectangle with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rectangle.</param>
         /// <param name="rectangle">The rectangle to draw.</param>
@@ -6048,13 +6048,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6092,9 +6092,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -6105,7 +6105,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6135,9 +6135,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -6148,7 +6148,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6178,9 +6178,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -6190,7 +6190,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6221,9 +6221,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -6233,7 +6233,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRectangleAsync">DrawRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRectangle">EndDrawRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6260,9 +6260,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawRectangle(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawRectangle));
 
         #endregion
@@ -6280,24 +6280,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rectangle, the right/bottom values of the coordinates are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -6324,24 +6324,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rectangle, the right/bottom values of the coordinates are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -6368,23 +6368,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -6412,23 +6412,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the rectangle directly, which is faster than creating a <see cref="Path"/> and adding the rectangle to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF rectangle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -6477,7 +6477,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -6503,7 +6503,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -6544,7 +6544,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -6570,7 +6570,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawEllipse">BeginDrawEllipse</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -6605,12 +6605,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide ellipse, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -6625,7 +6625,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -6650,12 +6650,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide ellipse, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -6670,7 +6670,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -6697,13 +6697,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -6717,7 +6717,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -6745,13 +6745,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -6765,7 +6765,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawEllipse(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -6791,7 +6791,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide ellipse with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the ellipse to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
@@ -6808,13 +6808,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6839,7 +6839,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide ellipse with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the ellipse to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
@@ -6856,13 +6856,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -6887,7 +6887,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an ellipse with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the ellipse.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
@@ -6903,13 +6903,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6935,7 +6935,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an ellipse with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the ellipse.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse.</param>
@@ -6951,13 +6951,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -6995,9 +6995,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -7008,7 +7008,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7038,9 +7038,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -7051,7 +7051,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -7081,9 +7081,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -7093,7 +7093,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -7124,9 +7124,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -7136,7 +7136,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -7163,9 +7163,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawEllipse(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawEllipse));
 
         #endregion
@@ -7183,24 +7183,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide ellipse, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -7227,24 +7227,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide ellipse, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -7271,23 +7271,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -7315,23 +7315,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the ellipse directly, which is faster than creating a <see cref="Path"/> and adding the ellipse to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same ellipse is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the ellipse is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawEllipseAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -7382,7 +7382,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7410,7 +7410,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7453,7 +7453,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7481,7 +7481,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7529,7 +7529,7 @@ namespace KGySoft.Drawing.Shapes
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7563,7 +7563,7 @@ namespace KGySoft.Drawing.Shapes
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7611,7 +7611,7 @@ namespace KGySoft.Drawing.Shapes
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7645,7 +7645,7 @@ namespace KGySoft.Drawing.Shapes
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawArc">BeginDrawArc</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -7683,12 +7683,12 @@ namespace KGySoft.Drawing.Shapes
         /// If its absolute value is greater than or equal to 360, a complete ellipse is drawn.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
@@ -7702,7 +7702,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7730,12 +7730,12 @@ namespace KGySoft.Drawing.Shapes
         /// If its absolute value is greater than or equal to 360, a complete ellipse is drawn.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
@@ -7749,7 +7749,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7779,13 +7779,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -7799,7 +7799,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -7830,13 +7830,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -7850,7 +7850,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -7882,12 +7882,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="isClockwise"><see langword="true"/> if the arc is drawn in a clockwise direction; otherwise, <see langword="false"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
@@ -7904,7 +7904,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, Point startPoint, Point endPoint, int radiusX, int radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7935,12 +7935,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="isClockwise"><see langword="true"/> if the arc is drawn in a clockwise direction; otherwise, <see langword="false"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
@@ -7957,7 +7957,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Color32 color, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -7990,13 +7990,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -8013,7 +8013,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, Point startPoint, Point endPoint, int radiusX, int radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -8047,13 +8047,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
@@ -8070,7 +8070,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawArc(this IReadWriteBitmapData bitmapData, Pen pen, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -8096,7 +8096,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide elliptical arc within a bounding rectangle with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the arc to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the arc is drawn.</param>
@@ -8115,13 +8115,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8146,7 +8146,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide elliptical arc within a bounding rectangle with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the arc to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the arc is drawn.</param>
@@ -8165,13 +8165,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8196,7 +8196,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an elliptical arc within a bounding rectangle with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the arc.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the arc is drawn.</param>
@@ -8215,13 +8215,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8247,7 +8247,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an elliptical arc within a bounding rectangle with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the arc.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the arc is drawn.</param>
@@ -8266,13 +8266,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8298,7 +8298,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide elliptical arc between two points with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the arc to draw.</param>
         /// <param name="startPoint">The starting point of the arc to add.</param>
@@ -8323,13 +8323,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8354,7 +8354,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide elliptical arc between two points with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the arc to draw.</param>
         /// <param name="startPoint">The starting point of the arc to add.</param>
@@ -8379,13 +8379,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8410,7 +8410,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an elliptical arc between two points with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the arc.</param>
         /// <param name="startPoint">The starting point of the arc to add.</param>
@@ -8435,13 +8435,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8467,7 +8467,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws an elliptical arc between two points with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the arc.</param>
         /// <param name="startPoint">The starting point of the arc to add.</param>
@@ -8492,13 +8492,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8539,9 +8539,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8551,7 +8551,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8584,9 +8584,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8596,7 +8596,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8629,9 +8629,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8641,7 +8641,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8675,9 +8675,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8687,7 +8687,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8724,9 +8724,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8739,7 +8739,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8776,9 +8776,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8791,7 +8791,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -8828,9 +8828,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8843,7 +8843,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8881,9 +8881,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -8896,7 +8896,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawArcAsync">DrawArcAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawArc">EndDrawArc</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -8924,9 +8924,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawArc(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawArc));
 
         #endregion
@@ -8947,23 +8947,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -8993,23 +8993,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -9039,23 +9039,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -9086,23 +9086,23 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same arc is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -9136,12 +9136,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
@@ -9150,12 +9150,12 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, Point startPoint, Point endPoint, int radiusX, int radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -9189,12 +9189,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
@@ -9203,12 +9203,12 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Color32 color, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -9242,12 +9242,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
@@ -9256,12 +9256,12 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, Point startPoint, Point endPoint, int radiusX, int radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -9296,12 +9296,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method tries to use a shortcut to draw the arc directly, which is faster than creating a <see cref="Path"/> and adding the arc to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
@@ -9310,12 +9310,12 @@ namespace KGySoft.Drawing.Shapes
         /// <para>This overload provides the same parameters that are used in SVG paths for elliptical arcs,
         /// and also by several XAML-based frameworks, such as WPF, UWP, and WinUI.</para>
         /// <para>If <paramref name="radiusX"/> or <paramref name="radiusY"/> is negative, their absolute value will be used.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the arc is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Task<bool> DrawArcAsync(this IReadWriteBitmapData bitmapData, Pen pen, PointF startPoint, PointF endPoint, float radiusX, float radiusY, float rotationAngle, bool isLargeArc, bool isClockwise, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -9367,7 +9367,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -9395,7 +9395,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -9438,7 +9438,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -9466,7 +9466,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -9503,12 +9503,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="sweepAngle">The sweep angle of the pie shape, measured in degrees clockwise from <paramref name="startAngle"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
@@ -9517,13 +9517,13 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -9550,12 +9550,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="sweepAngle">The sweep angle of the pie shape, measured in degrees clockwise from <paramref name="startAngle"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
@@ -9564,13 +9564,13 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -9599,13 +9599,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
@@ -9614,13 +9614,13 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -9650,13 +9650,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
@@ -9665,13 +9665,13 @@ namespace KGySoft.Drawing.Shapes
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPie">BeginDrawPie</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPie(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -9697,7 +9697,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide pie shape with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the pie to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the pie is drawn.</param>
@@ -9716,13 +9716,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -9747,7 +9747,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a one-pixel wide pie shape with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the pie to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the pie is drawn.</param>
@@ -9766,13 +9766,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -9797,7 +9797,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a pie shape with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the pie shape.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the pie is drawn.</param>
@@ -9816,13 +9816,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -9848,7 +9848,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws a pie shape with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the pie shape.</param>
         /// <param name="bounds">The bounding rectangle that defines the ellipse from which the pie is drawn.</param>
@@ -9867,13 +9867,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -9913,9 +9913,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -9926,7 +9926,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -9958,9 +9958,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -9971,7 +9971,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -10003,9 +10003,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -10016,7 +10016,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -10049,9 +10049,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -10062,7 +10062,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPieAsync">DrawPieAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPie">EndDrawPie</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -10089,9 +10089,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawPie(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawPie));
 
         #endregion
@@ -10111,24 +10111,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
         /// <para>This method tries to use a shortcut to draw the pie shape directly, which is faster than creating a <see cref="Path"/> and adding the pie to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPieAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -10157,24 +10157,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
         /// <para>This method tries to use a shortcut to draw the pie shape directly, which is faster than creating a <see cref="Path"/> and adding the pie to it. A shortcut is possible when <paramref name="drawingOptions"/> is <see langword="null"/>
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPieAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -10203,24 +10203,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
         /// <para>This method tries to use a shortcut to draw the pie shape directly, which is faster than creating a <see cref="Path"/> and adding the pie to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPieAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -10250,24 +10250,24 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>The pie shape is defined by a partial outline of an ellipse and the two radial lines that intersect the endpoints of the partial outline.</para>
         /// <para>This method tries to use a shortcut to draw the pie shape directly, which is faster than creating a <see cref="Path"/> and adding the pie to it. A shortcut is possible when the specified <paramref name="pen"/>
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same pie shape is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the pie shape is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPieAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float startAngle, float sweepAngle, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -10319,7 +10319,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10354,7 +10354,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10384,7 +10384,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10428,7 +10428,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10472,7 +10472,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10507,7 +10507,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10537,7 +10537,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10581,7 +10581,7 @@ namespace KGySoft.Drawing.Shapes
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawRoundedRectangle">BeginDrawRoundedRectangle</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -10618,12 +10618,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="cornerRadius">The size of the corner radius of the rounded rectangle for all corners.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -10640,7 +10640,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -10669,12 +10669,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="radiusBottomLeft">The size of the bottom-left corner radius of the rounded rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -10691,7 +10691,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
@@ -10718,12 +10718,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="cornerRadius">The size of the corner radius of the rounded rectangle for all corners.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -10740,7 +10740,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -10769,12 +10769,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="radiusBottomLeft">The size of the bottom-left corner radius of the rounded rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
@@ -10791,7 +10791,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
@@ -10820,13 +10820,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
@@ -10842,7 +10842,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -10874,13 +10874,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
@@ -10896,7 +10896,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
@@ -10926,13 +10926,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
@@ -10948,7 +10948,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -10980,13 +10980,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
@@ -11002,7 +11002,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawRoundedRectangle(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
@@ -11030,7 +11030,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rounded rectangle to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11050,13 +11050,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11082,7 +11082,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rounded rectangle to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11105,13 +11105,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11138,7 +11138,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rounded rectangle to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11158,13 +11158,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11190,7 +11190,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the rounded rectangle to draw.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11213,13 +11213,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11246,7 +11246,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rounded rectangle.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11265,13 +11265,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11298,7 +11298,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rounded rectangle.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11320,13 +11320,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11354,7 +11354,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rounded rectangle.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11373,13 +11373,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11406,7 +11406,7 @@ namespace KGySoft.Drawing.Shapes
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the rounded rectangle.</param>
         /// <param name="bounds">The bounding rectangle that defines the rounded rectangle.</param>
@@ -11428,13 +11428,13 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11474,9 +11474,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11489,7 +11489,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11523,9 +11523,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11538,7 +11538,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11570,9 +11570,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11585,7 +11585,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11619,9 +11619,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11634,7 +11634,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -11666,9 +11666,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11680,7 +11680,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11715,9 +11715,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11729,7 +11729,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11762,9 +11762,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11776,7 +11776,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawRoundedRectangleAsync">DrawRoundedRectangleAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawRoundedRectangle">EndDrawRoundedRectangle</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11811,9 +11811,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -11825,7 +11825,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawEllipseAsync">DrawEllipseAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawEllipse">EndDrawEllipse</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
@@ -11853,9 +11853,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawRoundedRectangle(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawRoundedRectangle));
 
         #endregion
@@ -11874,12 +11874,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
@@ -11888,12 +11888,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -11924,12 +11924,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
@@ -11938,12 +11938,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -11972,12 +11972,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
@@ -11986,12 +11986,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -12022,12 +12022,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>When drawing a one-pixel wide rounded rectangle, the right/bottom values of the bounding rectangle are inclusive, so if the width and height are zero, a single pixel will be drawn.</para>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
@@ -12036,12 +12036,12 @@ namespace KGySoft.Drawing.Shapes
         /// and the specified <paramref name="color"/> is opaque, or when <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>, and it specifies that no anti-aliasing and no alpha blending is required,
         /// the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Color32 color, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -12070,12 +12070,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple rectangle will be drawn.</para>
@@ -12083,12 +12083,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds, int cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -12120,12 +12120,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
@@ -12133,12 +12133,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, Rectangle bounds,
             int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -12168,12 +12168,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If <paramref name="cornerRadius"/> is negative, the absolute value will be used. If it is greater than the half of the smaller side of the bounding rectangle,
         /// it will be adjusted to the half of the smaller side, so the result will be an oval shape. If the <paramref name="cornerRadius"/> is 0, a simple rectangle will be drawn.</para>
@@ -12181,12 +12181,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds, float cornerRadius, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -12218,12 +12218,12 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If a corner radius parameter is negative, its absolute value will be used. If the sum of any adjacent corner radius parameters is greater
         /// than the corresponding side of the bounding rectangle, then all corner radius parameters will be scaled down proportionally to fit into the bounding rectangle.</para>
@@ -12231,12 +12231,12 @@ namespace KGySoft.Drawing.Shapes
         /// has a width between 0.25 and 1, it uses a solid <see cref="Brush"/> with an opaque color, and if <paramref name="drawingOptions"/> is either <see langword="null"/>, or its <see cref="DrawingOptions.FastThinLines"/> is enabled in <paramref name="drawingOptions"/>,
         /// it specifies that no anti-aliasing and no alpha blending is required, the transformation is the identity matrix, and neither <see cref="DrawingOptions.Quantizer"/> nor <see cref="DrawingOptions.Ditherer"/> is specified.</para>
         /// <para>When no shortcut can be used and the same rounded rectangle is drawn repeatedly, creating a <see cref="Path"/> with <see cref="Path.PreferCaching"/> enabled can provide a better performance.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <para>If the rounded rectangle is drawn by using a shortcut, then the operation is executed synchronously, it cannot be canceled, it is not parallelized, and there is no progress reporting, regardless of the <paramref name="asyncConfig"/> parameter.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="pen"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawRoundedRectangleAsync(this IReadWriteBitmapData bitmapData, Pen pen, RectangleF bounds,
             float radiusTopLeft, float radiusTopRight, float radiusBottomRight, float radiusBottomLeft, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
@@ -12275,7 +12275,7 @@ namespace KGySoft.Drawing.Shapes
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.BeginDrawPath">BeginDrawPath</see> or <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -12295,12 +12295,12 @@ namespace KGySoft.Drawing.Shapes
         /// <param name="path">The <see cref="Path"/> instance to draw.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
@@ -12311,7 +12311,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions, ParallelConfig? parallelConfig)
         {
@@ -12329,13 +12329,13 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
@@ -12346,7 +12346,7 @@ namespace KGySoft.Drawing.Shapes
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="parallelConfig"/> was <see langword="true"/>.</exception>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool DrawPath(this IReadWriteBitmapData bitmapData, Pen pen, Path path, DrawingOptions? drawingOptions = null, ParallelConfig? parallelConfig = null)
         {
@@ -12358,7 +12358,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws the one-pixel wide outline of a <see cref="Path"/> with the specified <paramref name="color"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the outline to draw.</param>
         /// <param name="path">The <see cref="Path"/> instance to draw.</param>
@@ -12372,13 +12372,13 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -12393,7 +12393,7 @@ namespace KGySoft.Drawing.Shapes
         /// Draws the outline of a <see cref="Path"/> with the specified <see cref="Pen"/>, using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the path outline.</param>
         /// <param name="path">The <see cref="Path"/> instance to draw.</param>
@@ -12407,13 +12407,13 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
@@ -12434,9 +12434,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -12444,7 +12444,7 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPath">EndDrawPath</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -12464,9 +12464,9 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -12474,7 +12474,7 @@ namespace KGySoft.Drawing.Shapes
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Shapes.BitmapDataExtensions.DrawPathAsync">DrawPathAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawPath">EndDrawPath</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -12490,9 +12490,9 @@ namespace KGySoft.Drawing.Shapes
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawPath(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawPath));
 
 #if !NET35
@@ -12506,20 +12506,20 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPathAsync(this IReadWriteBitmapData bitmapData, Color32 color, Path path, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -12537,20 +12537,20 @@ namespace KGySoft.Drawing.Shapes
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>If the <see cref="DrawingOptions.Transformation"/> property of <paramref name="drawingOptions"/> is not the identity matrix, then the path region is not cached, even if <see cref="Path.PreferCaching"/> is enabled.
         /// To improve the performance of drawing transformed paths repeatedly, apply the transformations to the <paramref name="path"/> instance instead, and use the identity matrix in <paramref name="drawingOptions"/>.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="path"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawPathAsync(this IReadWriteBitmapData bitmapData, Pen pen, Path path, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {

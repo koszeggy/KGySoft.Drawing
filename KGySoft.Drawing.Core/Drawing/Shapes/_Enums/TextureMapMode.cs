@@ -25,7 +25,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents the possible modes how a texture is mapped when filling a shape by a texture <see cref="Brush"/>.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <example>
     /// <para>The following table demonstrates the possible <see cref="TextureMapMode"/> values and their effect:
@@ -71,25 +71,25 @@ namespace KGySoft.Drawing.Shapes
     {
         /// <summary>
         /// The texture is tiled, using the same orientation for each tile.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Tile,
 
         /// <summary>
         /// The texture is tiled, mirroring the adjacent tiles horizontally in each row.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         TileFlipX,
 
         /// <summary>
         /// The texture is tiled, mirroring the adjacent tiles vertically in each column.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         TileFlipY,
 
         /// <summary>
         /// The texture is tiled, mirroring the adjacent tiles horizontally in each row and vertically in each column.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "No, it should NOT be TileFlipXy")]
         TileFlipXY,
@@ -97,28 +97,28 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// The texture is clipped to the shape without tiling. If the texture does not cover the entire shape, the exceeding regions are simply handled as if they were transparent.
         /// If no offset is specified, the texture's location is the top-left corner of the target <see cref="IReadWriteBitmapData"/>, regardless of the shape's location.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Clip,
 
         /// <summary>
         /// The texture is clipped to the shape without tiling. If the texture does not cover the entire shape, the exceeding regions are filled by extending the texture's edge pixels.
         /// If no offset is specified, the texture's location is the top-left corner of the target <see cref="IReadWriteBitmapData"/>, regardless of the shape's location.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Extend,
 
         /// <summary>
         /// Similar to <see cref="Clip"/>, but the texture is always centered in the currently filled shape.
         /// If there is an offset specified, it is applied relative to the center of the shape.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Center,
 
         /// <summary>
         /// Similar to <see cref="Extend"/>, but the texture is always centered in the currently filled shape.
         /// If there is an offset specified, it is applied relative to the center of the shape.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         CenterExtend,
 
@@ -128,14 +128,14 @@ namespace KGySoft.Drawing.Shapes
         /// automatically selected interpolation; otherwise, the texture is resized using the nearest neighbor algorithm. The used color space for resizing depends
         /// on the <see cref="IBitmapData.WorkingColorSpace"/> of the original texture.
         /// Please note that this generates a new texture for each shape, so it can be slow for large shapes (though a cache with very limited size is used internally).
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Stretch,
 
         /// <summary>
         /// Similar to <see cref="Stretch"/>, but the texture's aspect ratio is preserved.
         /// If the texture does not cover the entire shape, the exceeding regions are simply handled as if they were transparent.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_TextureMapMode.htm">online help</a> for image examples.</div>
         /// </summary>
         Zoom,
     }

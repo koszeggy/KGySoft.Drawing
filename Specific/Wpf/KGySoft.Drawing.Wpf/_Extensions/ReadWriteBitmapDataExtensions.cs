@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -120,7 +120,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -146,12 +146,12 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawText">DrawText</see> methods instead.</para>
@@ -186,13 +186,13 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawText">DrawText</see> methods instead.</para>
@@ -229,7 +229,7 @@ namespace KGySoft.Drawing.Wpf
         /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
@@ -255,13 +255,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -274,7 +274,7 @@ namespace KGySoft.Drawing.Wpf
         /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
@@ -300,13 +300,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -334,9 +334,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -355,7 +355,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawTextOutline">EndDrawTextOutline</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -373,9 +373,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -394,7 +394,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawTextOutline">EndDrawTextOutline</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -410,9 +410,9 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawTextOutline(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawTextOutline));
 
         #endregion
@@ -431,12 +431,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods instead.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -451,11 +451,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextOutlineAsync(this IReadWriteBitmapData bitmapData, Color32 color, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawTextOutlineAsync(bitmapData, new Pen(color), text, location, drawingOptions, asyncConfig);
@@ -471,12 +471,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods instead.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -491,11 +491,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextOutlineAsync(this IReadWriteBitmapData bitmapData, Pen pen, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -539,7 +539,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -571,7 +571,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawTextOutline">BeginDrawTextOutline</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -597,12 +597,12 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="offset">The offset to be applied to the <see cref="GlyphRun.BaselineOrigin"/> of <paramref name="text"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawText">DrawText</see> methods instead.</para>
@@ -635,13 +635,13 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawText">DrawText</see> methods instead.</para>
@@ -676,7 +676,7 @@ namespace KGySoft.Drawing.Wpf
         /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
@@ -700,13 +700,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -719,7 +719,7 @@ namespace KGySoft.Drawing.Wpf
         /// using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
@@ -743,13 +743,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -777,9 +777,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -796,7 +796,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawTextOutline">EndDrawTextOutline</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -814,9 +814,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -833,7 +833,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawTextOutline">EndDrawTextOutline</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -859,12 +859,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods instead.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -877,11 +877,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextOutlineAsync(this IReadWriteBitmapData bitmapData, Color32 color, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawTextOutlineAsync(bitmapData, new Pen(color), text, offset, drawingOptions, asyncConfig);
@@ -897,12 +897,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method draws only the outline of a text. To draw a text with filled characters, use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods instead.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -915,11 +915,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="pen"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextOutlineAsync(this IReadWriteBitmapData bitmapData, Pen pen, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -969,7 +969,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1003,7 +1003,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1029,12 +1029,12 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> methods.</para>
@@ -1069,13 +1069,13 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> methods.</para>
@@ -1112,7 +1112,7 @@ namespace KGySoft.Drawing.Wpf
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
@@ -1138,13 +1138,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -1157,7 +1157,7 @@ namespace KGySoft.Drawing.Wpf
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="FormattedText"/> instance representing the text to draw.</param>
@@ -1183,13 +1183,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -1217,9 +1217,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1238,7 +1238,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -1256,9 +1256,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1277,7 +1277,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -1293,9 +1293,9 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was set to <see langword="false"/>.</returns>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <see cref="DrawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
+        /// <exception cref="OperationCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in the <c>asyncConfig</c> parameter was <see langword="true"/>.</exception>
         public static bool EndDrawText(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<bool>(asyncResult, nameof(BeginDrawText));
 
         #endregion
@@ -1314,12 +1314,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -1334,11 +1334,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextAsync(this IReadWriteBitmapData bitmapData, Color32 color, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawTextAsync(bitmapData, Brush.CreateSolid(color), text, location, drawingOptions, asyncConfig);
@@ -1354,12 +1354,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -1374,11 +1374,11 @@ namespace KGySoft.Drawing.Wpf
         /// <para>When <see cref="DrawingOptions.AntiAliasing"/> is set in <paramref name="drawingOptions"/> and you use non-monochromatic colors, it is recommended to specify <see cref="WorkingColorSpace.Linear"/>
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextAsync(this IReadWriteBitmapData bitmapData, Brush brush, FormattedText text, PointF location, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {
@@ -1422,7 +1422,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1454,7 +1454,7 @@ namespace KGySoft.Drawing.Wpf
         /// color space when you obtain the <see cref="IReadWriteBitmapData"/> instance, especially for small fonts; otherwise, the quality of the drawn text can be poor if alpha colors are blended in the sRGB color space.
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. You can use the overloads that have
-        /// a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm" target="_blank">ParallelConfig</a> parameter to configure these, while still executing the method synchronously. Alternatively, use
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.BeginDrawText">BeginDrawText</see> or <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// </remarks>
@@ -1480,12 +1480,12 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="offset">The offset to be applied to the <see cref="GlyphRun.BaselineOrigin"/> of <paramref name="text"/>.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> methods.</para>
@@ -1518,13 +1518,13 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
         /// If <see langword="null"/>, then the degree of parallelization is configured automatically. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>, if the operation completed successfully.
-        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutline">DrawTextOutline</see> methods.</para>
@@ -1559,7 +1559,7 @@ namespace KGySoft.Drawing.Wpf
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
@@ -1583,13 +1583,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -1602,7 +1602,7 @@ namespace KGySoft.Drawing.Wpf
         /// and using a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
-        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="GlyphRun"/> instance representing the text to draw.</param>
@@ -1626,13 +1626,13 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
-        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
         /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
-        /// passing <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
         /// the method will be forced to use a single thread only.</para>
         /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
@@ -1660,9 +1660,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1679,7 +1679,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -1697,9 +1697,9 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -1716,7 +1716,7 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
@@ -1742,12 +1742,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -1762,11 +1762,11 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextAsync(this IReadWriteBitmapData bitmapData, Color32 color, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
             => DrawTextAsync(bitmapData, Brush.CreateSolid(color), text, offset, drawingOptions, asyncConfig);
@@ -1782,12 +1782,12 @@ namespace KGySoft.Drawing.Wpf
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
-        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method fills the characters of the text. To draw the outline of a text, you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextOutlineAsync">DrawTextOutlineAsync</see> methods.</para>
         /// <note type="tip">To draw a text with both filled and outlined characters, instead of calling <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see>
@@ -1802,11 +1802,11 @@ namespace KGySoft.Drawing.Wpf
         /// See more details at the <strong>Examples</strong> section of the <see cref="WorkingColorSpace"/> enumeration.</para>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="O:KGySoft.Drawing.Wpf.ReadWriteBitmapDataExtensions.DrawTextAsync">DrawTextAsync</see> methods.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndDrawText">EndDrawText</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="brush"/> or <paramref name="text"/> is <see langword="null"/>.</exception>
         /// <exception cref="OverflowException">The coordinates (after a possible transformation specified in <paramref name="drawingOptions"/>) are outside the bounds of an <see cref="int">int</see> value.</exception>
-        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// <exception cref="TaskCanceledException">The operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
         /// in <paramref name="asyncConfig"/> was <see langword="true"/>. This exception is thrown when the result is awaited.</exception>
         public static Task<bool> DrawTextAsync(this IReadWriteBitmapData bitmapData, Brush brush, GlyphRun text, PointF offset, DrawingOptions? drawingOptions = null, TaskConfig? asyncConfig = null)
         {

@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents a pen for drawing operations.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para><see cref="Pen"/>s are used to draw the outline of shapes, or to draw primitive lines and curves.</para>

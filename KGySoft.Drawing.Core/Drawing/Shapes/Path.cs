@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents the path of a custom shape to be drawn or filled. The path can consist of multiple open or closed figures.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm">online help</a> for an example with image.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Path.htm">online help</a> for an example with image.</div>
     /// </summary>
     /// <remarks>
     /// <para>Though you can use the dedicated methods of the <see cref="BitmapDataExtensions"/> class to draw or fill simple shapes, the <see cref="Path"/> class

@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Provides fast read-only access to a single row of an <see cref="IReadableBitmapData"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IWritableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>
@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
         /// This member is practically the same as the <see cref="GetColor32">GetColor32</see> method.</para>
         /// <para>To retrieve the color in other color formats use the <c>GetColor...</c>/<c>GetPColor...</c> methods.</para>
         /// <para>To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
-        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="GetColor32"/>
@@ -175,7 +175,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the underlying raw value within the current <see cref="IReadableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm">online help</a> for an example.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm">online help</a> for an example.</div>
         /// </summary>
         /// <typeparam name="T">The type of the value to return. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>

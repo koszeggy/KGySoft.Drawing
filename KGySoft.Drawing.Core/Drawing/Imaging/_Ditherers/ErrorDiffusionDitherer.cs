@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for error diffusion dithering.
     /// Use the static properties of this class to use predefined error diffusion filters or the <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> to create a custom one.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> can be used to create an error diffusion ditherer using a custom matrix.</para>
@@ -162,7 +162,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
         /// Uses a small, 3x2 matrix so the processing is somewhat faster than by the other alternatives.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -235,7 +235,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by Jarvis, Judice and Ninke in 1976.
         /// Uses a 5x3 matrix so the processing is slower than by the original <see cref="FloydSteinberg">Floyd-Steinberg</see> filter but distributes errors in a wider range.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_JarvisJudiceNinke.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_JarvisJudiceNinke.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -283,7 +283,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by P. Stucki in 1981.
         /// Uses a 5x3 matrix so the processing is slower than by the original <see cref="FloydSteinberg">Floyd-Steinberg</see> filter but distributes errors in a wider range.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Stucki.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Stucki.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -331,7 +331,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by D. Burkes in 1988.
         /// Uses a 5x2 matrix, which is actually the same as the first two lines of the matrix used by the <see cref="Stucki"/> filter.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Burkes.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Burkes.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -378,7 +378,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the three-line filter proposed by Frankie Sierra in 1989.
         /// Uses a 5x3 matrix so this is the slowest Sierra filter but this disperses errors to the furthest among them.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Sierra3.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Sierra3.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -426,7 +426,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the two-line filter proposed by Frankie Sierra in 1990.
         /// Uses a 5x2 matrix so this somewhat faster than the <see cref="Sierra3">three-line version</see> and still provides a similar quality.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Sierra2.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Sierra2.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -473,7 +473,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using a small two-line filter proposed by Frankie Sierra.
         /// Uses a 3x2 matrix so it has the same performance as the <see cref="FloydSteinberg">Floyd-Steinberg</see> algorithm and also produces a quite similar result.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_SierraLite.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_SierraLite.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -520,7 +520,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the hexagonal filter proposed by Stevenson and Arce in 1985.
         /// Uses a fairly large, 7x4 matrix, but due to the hexagonal arrangement of the coefficients the processing performance is comparable to a rectangular 5x3 matrix.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_StevensonArce.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_StevensonArce.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -571,7 +571,7 @@ namespace KGySoft.Drawing.Imaging
         /// Uses a 4x3 matrix of only 6 effective values, and propagates only the 75% of the quantization error, which may cause
         /// total loss of details of light and dark areas (result may seem under- or overexposed) whereas midtones have higher contrast
         /// and preserve details better.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Atkinson.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_Atkinson.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -632,7 +632,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorDiffusionDitherer" /> class using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer__ctor.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer__ctor.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients for the quantization errors to be propagated to the neighboring pixels.</param>
         /// <param name="divisor">Each element in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
@@ -760,7 +760,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="ErrorDiffusionDitherer"/> instance that has the specified error diffusion mode.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_ConfigureErrorDiffusionMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_ConfigureErrorDiffusionMode.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <param name="byBrightness"><see langword="true"/> to apply the same quantization error on every color channel determined by brightness difference;
         /// <see langword="false"/> to handle quantization errors on each color channels independently; <see langword="null"/> to auto select strategy.
@@ -813,7 +813,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="ErrorDiffusionDitherer"/> instance that has the specified processing direction.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_ConfigureProcessingDirection.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_ConfigureProcessingDirection.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <param name="serpentine"><see langword="true"/> to process odd lines right-to-left and even lines left-to-right;
         /// <see langword="false"/> to process all lines left-to-right.</param>

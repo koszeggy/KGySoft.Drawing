@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents a brush for shape filling operations. Use the static <c>Create...</c> methods to create an instance.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>Brushes are used for filling shapes. There are several shape-filling methods in the <see cref="BitmapDataExtensions"/> class, whose names start with <c>Fill</c> or <c>BeginFill</c>.
@@ -2762,7 +2762,7 @@ namespace KGySoft.Drawing.Shapes
 
         /// <summary>
         /// Creates a solid <see cref="Brush"/> with the specified 32-bit color.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateSolid.htm">online help</a> for an image example.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateSolid.htm">online help</a> for an image example.</div>
         /// </summary>
         /// <param name="color">A <see cref="Color32"/> value that represents the color of the brush.
         /// This overload can be used also for <see cref="Color"/> instances as there is an implicit cast from <see cref="Color"/> to <see cref="Color32"/>.</param>
@@ -2951,7 +2951,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Creates a linear gradient <see cref="Brush"/> that blends from one color to another along a straight line. The line is specified by an <paramref name="angle"/> only,
         /// whereas the actual start and end points are determined by the bounding rectangle of the current <see cref="Path"/> in each session.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateLinearGradient_3.htm">online help</a> for an example with image.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Shapes_Brush_CreateLinearGradient_3.htm">online help</a> for an example with image.</div>
         /// </summary>
         /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
         /// <param name="startColor">The starting color of the gradient.</param>

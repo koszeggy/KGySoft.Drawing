@@ -42,7 +42,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Provides some icon-related methods as well as properties returning general icons in multi resolution.
     /// Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used anymore.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Icons.htm">online help</a> to observe the icons visually that are returned by the properties.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Icons.htm">online help</a> to observe the icons visually that are returned by the properties.</div>
     /// </summary>
     /// <remarks>
     /// <note>When targeting .NET 7.0 or later versions this class is supported on Windows only.</note>
@@ -92,7 +92,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Information icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemInformation.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemInformation.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -135,7 +135,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Warning icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemWarning.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -173,7 +173,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Error icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemError.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemError.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -210,7 +210,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Question icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemQuestion.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -253,7 +253,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Application icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemApplication.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemApplication.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -291,7 +291,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
         /// <br/>On Windows Vista and above sizes range from 16x16 to 256x256, on Windows XP the largest resolution is 48x48, and on Linux the icon has always 32x32 and 16x16 image sizes.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemShield.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemShield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>For compatibility reasons in Windows 7 and above this property returns the two-colored UAC shield as it appears in the current operating system.
@@ -340,7 +340,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Security Success icon as it is displayed by the current operating system.
         /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecuritySuccess"/> property.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecuritySuccess.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemSecuritySuccess.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -367,7 +367,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Security Warning icon as it is displayed by the current operating system.
         /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityWarning"/> property.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityWarning.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -394,7 +394,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Security Question icon as it is displayed by the current operating system.
         /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityQuestion"/> property.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityQuestion.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -421,7 +421,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Security Error icon as it is displayed by the current operating system.
         /// <br/>On Windows XP and on Linux this property returns the same icon as the <see cref="SecurityError"/> property.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityError.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SystemSecurityError.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <example>
         /// <para>
@@ -446,7 +446,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
         /// Gets the Information icon displaying a white "i" in a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Information.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Information.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemInformation"/>
@@ -469,7 +469,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
         /// Gets the Warning icon displaying a black "!" in a yellow triangle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Warning.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Warning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemWarning"/>
@@ -492,7 +492,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
         /// Gets the Question icon displaying a white "?" in a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Question.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Question.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemQuestion"/>
@@ -515,7 +515,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
         /// Gets the Error icon displaying a white "X" in a red circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Error.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Error.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemError"/>
@@ -538,7 +538,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Shield16.png" alt="Shield (small version for the summary)"/>
         /// Gets the Windows Shield icon displaying a red-green-blue-yellow shield (Sizes: 256x256, 128x128, 48x48, 32x32, 24x24, 16x16, 8x8)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Shield.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Shield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemShield"/> property, which returns
@@ -562,7 +562,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Security Shield (small version for the summary)"/>
         /// Gets the Security Shield icon displaying a blue-yellow shield (Sizes: 256x256, 128x128, 48x48, 32x32, 24x24, 16x16, 8x8)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityShield.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SecurityShield.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemShield"/> property instead.</note>
@@ -584,7 +584,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success (small version for the summary)"/>
         /// Gets the Security Success icon displaying a green shield with a white check (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecuritySuccess.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SecuritySuccess.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecuritySuccess"/> property instead.</note>
@@ -604,7 +604,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning (small version for the summary)"/>
         /// Gets the Security Warning icon displaying a yellow shield with a black "!" (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityWarning.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SecurityWarning.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityWarning"/> property instead.</note>
@@ -624,7 +624,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question (small version for the summary)"/>
         /// Gets the Security Question icon displaying a blue shield with a white "?" (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityQuestion.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SecurityQuestion.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityQuestion"/> property instead.</note>
@@ -644,7 +644,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error (small version for the summary)"/>
         /// Gets the Security Error icon displaying a red shield with a white "X" (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_SecurityError.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_SecurityError.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has the Windows Vista appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemSecurityError"/> property instead.</note>
@@ -664,7 +664,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
         /// Gets the Application icon displaying a window (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 16x16)
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Icons_Application.htm">online help</a> for the icon images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Icons_Application.htm">online help</a> for the icon images.</div>
         /// </summary>
         /// <remarks>
         /// <note>This icon has a Windows Vista-like appearance on all platforms. To get an OS-specific appearance use the <see cref="SystemApplication"/>

@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// or <c>GetReadWriteBitmapData</c> extension methods when applicable (see the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list
     /// about the supported platforms). Otherwise, you can use the members of the <see cref="BitmapDataFactory"/> class to create a bitmap data for
     /// any managed or unmanaged preallocated buffer of any bitmap implementation.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
     /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
@@ -94,7 +94,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, gets the color of the background.
         /// For example, when setting color values with alpha, which are considered opaque, they will be blended with this color before setting the pixel.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> extension method for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> extension method for details and examples.
         /// </summary>
         Color32 BackColor { get; }
 

@@ -25,7 +25,7 @@ namespace KGySoft.Drawing.Imaging
     /// Represents the preferred working color space for various operations such as alpha blending, measuring distance of colors, interpolation,
     /// quantizing, dithering and some other operations. The working color space can be specified independently of the color space of the actual pixel format
     /// of an <see cref="IBitmapData"/> instance.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <remarks>
     /// <para>The working color space can be specified at various places in KGy SOFT Drawing Libraries:

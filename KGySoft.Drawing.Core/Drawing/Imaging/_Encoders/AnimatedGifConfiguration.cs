@@ -160,7 +160,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets whether to report overall and/or sub-task progress when encoding by <see cref="GifEncoder.BeginEncodeAnimation">GifEncoder.BeginEncodeAnimation</see>
-        /// and <see cref="GifEncoder.EncodeAnimationAsync">GifEncoder.EncodeAnimationAsync</see> methods and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">AsyncConfigBase.Progress</a> property is set.
+        /// and <see cref="GifEncoder.EncodeAnimationAsync">GifEncoder.EncodeAnimationAsync</see> methods and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">AsyncConfigBase.Progress</a> property is set.
         /// When <see langword="null"/>, then both are reported.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>

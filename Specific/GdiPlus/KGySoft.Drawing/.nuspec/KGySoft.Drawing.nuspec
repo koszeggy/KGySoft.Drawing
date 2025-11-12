@@ -7,7 +7,7 @@
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
     <license type="file">LICENSE</license>
-    <projectUrl>https://kgysoft.net/drawing</projectUrl>
+    <!--<projectUrl>https://kgysoft.net/drawing</projectUrl>-->
     <readme>readme.md</readme>
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -29,7 +29,7 @@ Among others:
 
 Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
 Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
-Online Documentation: https://docs.kgysoft.net/drawing
+Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/

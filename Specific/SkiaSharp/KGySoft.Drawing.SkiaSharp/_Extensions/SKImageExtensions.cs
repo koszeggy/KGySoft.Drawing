@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="image">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a> instance, whose data is about to be accessed.</param>
@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         /// <summary>
         /// Gets a managed read-only accessor for an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a> instance.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="image">An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimage">SKImage</a> instance, whose data is about to be accessed.</param>

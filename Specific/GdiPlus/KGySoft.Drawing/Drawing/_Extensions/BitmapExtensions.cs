@@ -519,7 +519,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
         /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">online help</a> for examples with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">online help</a> for examples with images.</div>
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
@@ -823,7 +823,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Transforms the colors of a <paramref name="bitmap"/> using the specified <paramref name="transformFunction"/> delegate.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmap"/>. It must be thread-safe.</param>
@@ -917,7 +917,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> for a couple of examples with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Invert.htm">online help</a> for a couple of examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmap"/>
@@ -1030,7 +1030,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> for some examples with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmap"/> brighter,
@@ -1121,7 +1121,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> for some examples with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -1212,7 +1212,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmap"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> for some examples with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm">online help</a> for some examples with images.</div>
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,

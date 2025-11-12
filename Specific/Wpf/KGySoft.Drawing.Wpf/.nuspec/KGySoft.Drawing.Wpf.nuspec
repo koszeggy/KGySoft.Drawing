@@ -7,8 +7,7 @@
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
     <license type="file">LICENSE</license>
-    <projectUrl>https://kgysoft.net/drawing</projectUrl>
-    <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
+    <!--<projectUrl>https://kgysoft.net/drawing</projectUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, shape drawing, quantizing and dithering for any pixel format.</summary>
@@ -23,7 +22,7 @@ Among others:
 
 Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
 Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
-Online Documentation: https://docs.kgysoft.net/drawing
+Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/

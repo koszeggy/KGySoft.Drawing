@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the transformation matrix to apply when drawing shapes.
         /// <br/>Default value: <see cref="TransformationMatrix.Identity">TransformationMatrix.Identity</see>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Transformation.htm">online help</a> for an example with image.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Transformation.htm">online help</a> for an example with image.</div>
         /// </summary>
         /// <remarks>
         /// <para>This property allows applying transformations (e.g. translation, rotation, zoom, etc.) when drawing shapes.
@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets whether anti-aliasing is enabled when drawing shapes.
         /// <br/>Default value: <see langword="false"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AntiAliasing.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AntiAliasing.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When anti-aliasing is enabled, the shapes are drawn with smooth edges, which affects both shape filling and path drawing.</para>
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets whether drawing <see cref="Path"/>s and primitive shapes with thin lines are drawn with a faster algorithm when <see cref="AntiAliasing"/> is <see langword="false"/>.
         /// <br/>Default value: <see langword="true"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FastThinLines.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FastThinLines.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When <see cref="FastThinLines"/> is <see langword="true"/>, thin lines (that is, when <see cref="Pen.Width">Pen.Width</see> is less or equal to 1) and arcs
@@ -174,7 +174,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets whether alpha blending is enabled when drawing shapes.
         /// <br/>Default value: <see langword="true"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AlphaBlending.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AlphaBlending.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When this property is <see langword="true"/>, the alpha channel of the colors is blended with the target image.
@@ -209,7 +209,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the fill mode to use when filling shapes.
         /// <br/>Default value: <see cref="ShapeFillMode.Alternate"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FillMode.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_FillMode.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>If a polygon has no self-crossing lines, then both fill modes produce the same result, in which case the default <see cref="ShapeFillMode.Alternate"/> mode can be a better choice because it is faster.</para>
@@ -241,7 +241,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the pixel offset to use for the scanlines when scanning the region of a <see cref="Path"/> instance.
         /// <br/>Default value: <see cref="PixelOffset.Half"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_ScanPathPixelOffset.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_ScanPathPixelOffset.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When filling a <see cref="Path"/> instance, the region is scanned by horizontal lines (scanlines) to determine which pixels are inside the path.
@@ -282,7 +282,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets the pixel offset to use before applying the <see cref="Pen.Width">Pen.Width</see> when drawing a shape.
         /// <br/>Default value: <see cref="PixelOffset.None"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm">online help</a> for image examples.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_DrawPathPixelOffset.htm">online help</a> for image examples.</div>
         /// </summary>
         /// <remarks>
         /// <para>When drawing a shape, the pen width is applied around the path. When the value of this property is <see cref="PixelOffset.Half"/>,
@@ -329,7 +329,7 @@ namespace KGySoft.Drawing.Shapes
         /// <summary>
         /// Gets or sets an <see cref="IDitherer"/> instance to use when drawing shapes.
         /// <br/>Default value: <see langword="null"/>.
-        /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Ditherer.htm">online help</a> for an example with images.</div>
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Ditherer.htm">online help</a> for an example with images.</div>
         /// </summary>
         /// <remarks>
         /// <para>If the target <see cref="IReadWriteBitmapData"/> does not support the color depth of the drawn shape,

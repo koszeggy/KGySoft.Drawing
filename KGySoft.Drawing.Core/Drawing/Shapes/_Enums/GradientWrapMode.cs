@@ -19,7 +19,7 @@ namespace KGySoft.Drawing.Shapes
 {
     /// <summary>
     /// Represents the mode how a gradient is treated when the gradient area is exceeded.
-    /// <div style="display: none;"><br/>See the <a href="https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Shapes_GradientWrapMode.htm">online help</a> for image examples.</div>
+    /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_GradientWrapMode.htm">online help</a> for image examples.</div>
     /// </summary>
     /// <example>
     /// <para>The following table demonstrates the possible <see cref="GradientWrapMode"/> values and their effect:
