@@ -45,7 +45,7 @@
   <!--Common references-->
   <ItemGroup>
     <PackageReference Include="KGySoft.CoreLibraries" Version="10.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100-rc.2.25502.107">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
