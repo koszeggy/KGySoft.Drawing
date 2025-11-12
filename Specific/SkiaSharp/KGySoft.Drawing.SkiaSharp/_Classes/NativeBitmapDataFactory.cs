@@ -191,7 +191,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
                 case (SKColorType.RgbaF32, SKAlphaType.Premul):
                     // Because of the different color spaces we assign the ColorF methods instead of PColorF for performance reasons.
-                    // It's still slower than the other colors but it's the preferred format to preserve as much information as possible.
+                    // It's still slower than the other colors, but it's the preferred format to preserve as much information as possible.
                     config.RowGetPColor32 = (row, x) => row.UnsafeGetRefAs<ColorPrgbaF32Srgb>(x).ToPColor32();
                     config.RowSetPColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorPrgbaF32Srgb>(x) = new ColorPrgbaF32Srgb(c);
                     config.RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgbaF32Srgb>(x).ToPColor64();
@@ -530,9 +530,10 @@ namespace KGySoft.Drawing.SkiaSharp
 
                 case (SKColorType.Rgba16161616, SKAlphaType.Unpremul):
                     config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba16161616Linear>(x).ToColor64();
+                    config.RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<ColorRgba16161616Linear>(x) = new ColorRgba16161616Linear(c);
                     config.RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorRgba16161616Linear>(x).ToColorF();
                     config.RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<ColorRgba16161616Linear>(x) = new ColorRgba16161616Linear(c);
-                break;
+                    break;
 
                 case (SKColorType.Rgba16161616, SKAlphaType.Premul):
                     config.RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba16161616Linear>(x).ToColor64();
@@ -611,6 +612,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
                 case (SKColorType.Argb4444, SKAlphaType.Premul):
                     config.RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x).ToColor32();
+                    //config.RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x) = new ColorPargb4444Linear(c); // see the commented out ctor
                     config.RowGetPColorF = (row, x) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x).ToPColorF();
                     config.RowSetPColorF = (row, x, c) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x) = new ColorPargb4444Linear(c);
                     break;

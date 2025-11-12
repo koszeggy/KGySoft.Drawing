@@ -49,6 +49,22 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
+        // Due to rounding differences, forcing to use the PColorF overload, even though the preferred color type is Color32 as per the PixelFormatInfo.
+        // Though the result is very similar (check in SetGetPixelCompareTestLinear, for example), even a 1-shade difference of this format is very large.
+        // Since PixelFormatInfo.LinearGamma is true, many operations would use PColorF anyway (and we still have the ToColor32 method for getting the color).
+        //internal ColorPargb4444Linear(Color32 c)
+        //{
+        //    PColor32 linear32 = new Color32(c.A,
+        //        c.R.ToLinear(),
+        //        c.G.ToLinear(),
+        //        c.B.ToLinear()).ToPremultiplied();
+
+        //    value = (ushort)((linear32.A >> 4)
+        //        | ((linear32.R >> 4) << 12)
+        //        | ((linear32.G >> 4) << 8)
+        //        | ((linear32.B >> 4) << 4));
+        //}
+
         internal ColorPargb4444Linear(PColorF c)
         {
             PColor32 linear32 = c.ToPColor32(false);

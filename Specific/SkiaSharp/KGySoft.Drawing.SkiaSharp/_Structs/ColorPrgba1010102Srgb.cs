@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal ColorPrgba1010102Srgb(Color64 c)
         {
-            // We can't do a similar initialization from PColor64 as in ColorRgba1010102Srgb because A has smaller depth than RGB.
+            // We can't do a similar initialization as in ColorRgba1010102Srgb because A has smaller depth than RGB.
             if (c.A == UInt16.MinValue)
             {
                 value = 0u;
@@ -82,6 +82,8 @@ namespace KGySoft.Drawing.SkiaSharp
             Debug.Assert(ToPColor64().IsValid);
         }
 
+        #endregion
+
         #region Private Constructors
 
         private ColorPrgba1010102Srgb(uint a, uint r, uint g, uint b)
@@ -92,8 +94,6 @@ namespace KGySoft.Drawing.SkiaSharp
                 | g << 10
                 | r;
         }
-
-        #endregion
 
         #endregion
 

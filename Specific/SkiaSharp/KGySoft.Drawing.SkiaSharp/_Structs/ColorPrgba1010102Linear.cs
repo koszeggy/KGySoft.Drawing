@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal ColorPrgba1010102Linear(Color64 c)
         {
-            // We can't do a similar initialization from PColor64 as in ColorRgba1010102Linear because A has smaller depth than RGB.
+            // We can't do a similar initialization as in ColorRgba1010102Linear because A has smaller depth than RGB.
             if (c.A == UInt16.MinValue)
             {
                 value = 0u;
