@@ -35,15 +35,14 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>9.2.0</HelpFileVersion>
+    <HelpFileVersion>10.0.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <NamespaceGrouping>False</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
     <Preliminary>False</Preliminary>
-    <FooterText>Find the complete KGy SOFT Libraries documentation at the &amp;lt%3ba href=&amp;quot%3bhttps://docs.kgysoft.net&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGy SOFT Docs&amp;lt%3b/a&amp;gt%3b page.
-&amp;lt%3bbr/&amp;gt%3bProject Site: &amp;lt%3ba href=&amp;quot%3bhttps://kgysoft.net/drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://kgysoft.net/drawing&amp;lt%3b/a&amp;gt%3b
+    <FooterText>Find the complete KGy SOFT Libraries documentation at the &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/docs&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGy SOFT Docs&amp;lt%3b/a&amp;gt%3b page.
 &amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b
 &amp;lt%3bbr/&amp;gt%3bNuGet packages:
 &amp;lt%3bli&amp;gt%3bCore functionality: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Core&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
@@ -67,25 +66,29 @@
       </PlugInConfig>
     </PlugInConfigurations>
     <TransformComponentArguments>
-      <Argument Key="RobotsMetadata" Value="" xmlns="" />
-      <Argument Key="BibliographyDataFile" Value="" xmlns="" />
-      <Argument Key="RootBreadcrumbTitleText" Value="KGy SOFT Drawing Libraries" xmlns="" />
-      <Argument Key="CollapsibleSections" Value="True" xmlns="" />
-      <Argument Key="LogoFile" Value="logo.png" xmlns="" />
-      <Argument Key="LogoHeight" Value="" xmlns="" />
-      <Argument Key="LogoWidth" Value="" xmlns="" />
-      <Argument Key="LogoAltText" Value="KGy SOFT Logo" xmlns="" />
-      <Argument Key="LogoPlacement" Value="Above" xmlns="" />
-      <Argument Key="LogoAlignment" Value="Left" xmlns="" />
-      <Argument Key="LogoUrl" Value="https://kgysoft.net/drawing" xmlns="" />
-      <Argument Key="MaxVersionParts" Value="" xmlns="" />
-      <Argument Key="DefaultLanguage" Value="cs" xmlns="" />
-      <Argument Key="IncludeEnumValues" Value="True" xmlns="" />
-      <Argument Key="EnumMemberSortOrder" Value="Value" xmlns="" />
-      <Argument Key="FlagsEnumValueFormat" Value="HexValue" xmlns="" />
-      <Argument Key="FlagsEnumSeparatorSize" Value="0" xmlns="" />
-      <Argument Key="BaseSourceCodeUrl" Value="" xmlns="" />
-      <Argument Key="RequestExampleUrl" Value="" xmlns="" />
+      <Argument Key="RobotsMetadata" Value="" />
+      <Argument Key="BibliographyDataFile" Value="" />
+      <Argument Key="RootBreadcrumbTitleText" Value="KGy SOFT Drawing Libraries" />
+      <Argument Key="ResizableTocColumn" Value="False" />
+      <Argument Key="CollapsibleSections" Value="True" />
+      <Argument Key="LogoFile" Value="logo.png" />
+      <Argument Key="LogoHeight" Value="64" />
+      <Argument Key="LogoWidth" Value="64" />
+      <Argument Key="LogoAltText" Value="KGy SOFT" />
+      <Argument Key="LogoPlacement" Value="Left" />
+      <Argument Key="LogoAlignment" Value="Left" />
+      <Argument Key="LogoUrl" Value="https://github.com/koszeggy/KGySoft.Drawing" />
+      <Argument Key="MaxVersionParts" Value="" />
+      <Argument Key="DefaultLanguage" Value="cs" />
+      <Argument Key="IncludeEnumValues" Value="True" />
+      <Argument Key="EnumMemberSortOrder" Value="Value" />
+      <Argument Key="FlagsEnumValueFormat" Value="HexValue" />
+      <Argument Key="FlagsEnumSeparatorSize" Value="0" />
+      <Argument Key="IncludeIntegerEnumSeparators" Value="true" />
+      <Argument Key="BaseSourceCodeUrl" Value="" />
+      <Argument Key="RequestExampleUrl" Value="" />
+      <Argument Key="ShowParametersOnAllMethods" Value="False" />
+      <Argument Key="AlwaysShowTopLevelAutoOutline" Value="False" />
     </TransformComponentArguments>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -1284,26 +1287,26 @@
       <ImageId>ShieldMedianCut256TrContrastFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr ContrastFS</AlternateText>
     </Content>
-    <Content Include="Help\Images\ShieldTrContrastSrgb.gif">
+    <Content Include="Help\Images\ShieldTrContrastSrgb.png">
       <ImageId>ShieldTrContrastSrgb</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldTrContrastLinear.gif">
+    <Content Include="Help\Images\ShieldTrContrastLinear.png">
       <ImageId>ShieldTrContrastLinear</ImageId>
     </Content>
     <Content Include="Help\Images\ShieldMedianCut256TrGammaFS.gif">
       <ImageId>ShieldMedianCut256TrGammaFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr GammaFS</AlternateText>
     </Content>
-    <Content Include="Help\Images\ShieldTrGammaSrgb.gif">
+    <Content Include="Help\Images\ShieldTrGammaSrgb.png">
       <ImageId>ShieldTrGammaSrgb</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldTrGammaLinear.gif">
+    <Content Include="Help\Images\ShieldTrGammaLinear.png">
       <ImageId>ShieldTrGammaLinear</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldInvertedSrgb.gif">
+    <Content Include="Help\Images\ShieldInvertedSrgb.png">
       <ImageId>ShieldInvertedSrgb</ImageId>
     </Content>
-    <Content Include="Help\Images\ShieldInvertedLinear.gif">
+    <Content Include="Help\Images\ShieldInvertedLinear.png">
       <ImageId>ShieldInvertedLinear</ImageId>
     </Content>
     <Content Include="Help\Images\AlphaGradientArgb8888BlackA128.png">

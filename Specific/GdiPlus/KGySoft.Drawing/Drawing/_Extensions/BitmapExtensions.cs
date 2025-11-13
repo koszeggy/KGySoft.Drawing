@@ -1109,7 +1109,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustBrightness"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustBrightness">BitmapDataExtensions.AdjustBrightness</seealso>
         public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
@@ -1200,7 +1200,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustContrast"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustContrast">BitmapDataExtensions.AdjustContrast</seealso>
         public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
@@ -1274,7 +1274,7 @@ namespace KGySoft.Drawing
         /// <h4>Example 3: Using linear color space</h4>
         /// This method uses the color space that naturally matches the pixel format of the <paramref name="bitmap"/>. In <strong>Example 1</strong> the
         /// original bitmap had a 32 BPP pixel format, so the sRGB color space was used. To specify a color space explicitly, you can obtain an <see cref="IReadWriteBitmapData"/> instance
-        /// and use the <see cref="BitmapDataExtensions.AdjustContrast(IReadWriteBitmapData,float,IDitherer,ColorChannels)">BitmapDataExtensions.AdjustContrast</see> method instead:
+        /// and use the <see cref="BitmapDataExtensions.AdjustGamma(IReadWriteBitmapData,float,IDitherer,ColorChannels)">BitmapDataExtensions.AdjustGamma</see> method instead:
         /// <code lang="C#"><![CDATA[
         /// using Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmp.SaveAsPng(@"c:\temp\before.png");
@@ -1291,7 +1291,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustGamma"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.AdjustGamma">BitmapDataExtensions.AdjustGamma</seealso>
         public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)

@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="x">The x-coordinate of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="y">The y-coordinate of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
@@ -94,7 +94,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -133,7 +133,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
@@ -169,7 +169,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text, not counting the width of the outline.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -217,7 +217,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -260,7 +260,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text, not counting the width of the outline.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -309,7 +309,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the text outline to draw.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -347,7 +347,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="pen">The <see cref="Pen"/> that determines the characteristics of the text outline.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text, not counting the width of the outline.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -399,7 +399,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="x">The x-coordinate of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="y">The y-coordinate of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
@@ -431,7 +431,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -470,7 +470,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used.</param>
         /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
@@ -506,7 +506,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use. If <see langword="null"/>, then the default options are used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -554,7 +554,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -597,7 +597,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -646,7 +646,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="color">The color of the solid brush to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.
@@ -684,7 +684,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> instance to draw on.</param>
         /// <param name="brush">The <see cref="Brush"/> to draw the text with.</param>
         /// <param name="text">A <see cref="string">string</see> that represents the text to draw.</param>
-        /// <param name="font">The <see cref="SKFont"/> that defines the typeface, size, and style of the text.</param>
+        /// <param name="font">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skfont" target="_blank">SKFont</a> that defines the typeface, size, and style of the text.</param>
         /// <param name="location">The location of the upper-left corner of the text's bounding rectangle.</param>
         /// <param name="drawingOptions">A <see cref="DrawingOptions"/> instance that specifies the drawing options to use.
         /// If <see langword="null"/>, then the default options are used. This parameter is optional.

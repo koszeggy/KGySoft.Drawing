@@ -3893,7 +3893,7 @@ namespace KGySoft.Drawing.Imaging
         /// Alternatively, use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.PixelFormat"/> and <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
-        /// bitmap data but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// bitmap data, but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
         /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
         /// and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods, which have several overloads that allow also quantizing and dithering.</para>
         /// </remarks>
@@ -3927,7 +3927,7 @@ namespace KGySoft.Drawing.Imaging
         /// cancellation and progress reporting. Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
         /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.PixelFormat"/> and <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
-        /// bitmap data but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// bitmap data, but is always at least a 24 BPP format. To resize a bitmap data with a custom pixel format you can create a
         /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
         /// and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods, which have several overloads that allow also quantizing and dithering.</para>
         /// </remarks>

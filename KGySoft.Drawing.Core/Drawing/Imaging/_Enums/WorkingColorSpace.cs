@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// <item>At the lowest level, you can specify it when blending colors manually, for example by
     /// the <see cref="ColorExtensions.Blend(Color32, Color32, WorkingColorSpace)">ColorExtensions.Blend</see> method.</item>
     /// <item><see cref="IBitmapData"/> instances have a <see cref="IBitmapData.WorkingColorSpace"/> property, which can be set by the factory methods
-    /// such as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
+    /// such as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see>/<see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.Load">Load</see> methods
     /// or the <c>GetReadWriteBitmapData</c> methods for the technology-specific bitmap types.
     /// The <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see> property is considered when setting pixels with transparency
     /// and the pixel format of the bitmap data does not support transparency so the color has to be blended with <see cref="IBitmapData.BackColor">IBitmapData.BackColor</see>.
@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
     /// working color space of the built-in quantizers of KGy SOFT Drawing Libraries.</item>
     /// <item>Ditherers may also have specific behavior for the different color spaces. The ditherer implementations in KGy SOFT Drawing Libraries
     /// always take the working color space of the corresponding quantizer exposed by the <see cref="IQuantizingSession.WorkingColorSpace">IQuantizingSession.WorkingColorSpace</see> property.</item>
-    /// <item>Some operations allow you to specify the working color space explicitly. For example, the <see cref="O:Shapes.Brush.CreateLinearGradient">Brush.CreateLinearGradient</see>
+    /// <item>Some operations allow you to specify the working color space explicitly. For example, the <see cref="O:KGySoft.Drawing.Shapes.Brush.CreateLinearGradient">Brush.CreateLinearGradient</see>
     /// overloads allow you to specify the color space used to create the linear gradient.</item>
     /// </list></para>
     /// </remarks>
@@ -223,7 +223,7 @@ namespace KGySoft.Drawing.Imaging
     /// <br/><img src="../Help/Images/TextCyanOnBlueSrgb.png" alt="Cyan text on blue background, blending in the sRGB color space"/>
     /// <br/><img src="../Help/Images/TextRedOnGreenSrgb.png" alt="Red text on green background, blending in the sRGB color space"/>
     /// <br/><img src="../Help/Images/TextGreenOnRedSrgb.png" alt="Green text on red background, blending in the sRGB color space"/>
-    /// <br/>Rendering anti-aliased text in the sRGB color space. The result is better only when using monochromatic colors and the background is light.</div></td>
+    /// <br/>Rendering small anti-aliased text in the sRGB color space. The result is better only when using monochromatic colors and the background is light.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/TextBlackOnWhiteLinear.png" alt="Black text on white background, blending in the linear color space"/>
     /// <br/><img src="../Help/Images/TextWhiteOnBlackLinear.png" alt="White text on black background, blending in the linear color space"/>
@@ -231,7 +231,7 @@ namespace KGySoft.Drawing.Imaging
     /// <br/><img src="../Help/Images/TextCyanOnBlueLinear.png" alt="Cyan text on blue background, blending in the linear color space"/>
     /// <br/><img src="../Help/Images/TextRedOnGreenLinear.png" alt="Red text on green background, blending in the linear color space"/>
     /// <br/><img src="../Help/Images/TextGreenOnRedLinear.png" alt="Green text on red background, blending in the linear color space"/>
-    /// <br/>Rendering anti-aliased text in the linear color space. The result is usually better, especially when using clashing colors.</div></td>
+    /// <br/>Rendering small anti-aliased text in the linear color space. The result is usually better, especially when using clashing colors.</div></td>
     /// </tr>
     /// </tbody></table>
     /// </example>

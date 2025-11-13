@@ -31,17 +31,17 @@ using SkiaSharp;
 namespace KGySoft.Drawing.SkiaSharp
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="SKPath"/> class.
+    /// Contains extension methods for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a> class.
     /// </summary>
     public static class SKPathExtensions
     {
         #region Methods
 
         /// <summary>
-        /// Converts the specified <see cref="SKPath"/> to a <see cref="Path"/> object.
+        /// Converts the specified <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a> to a <see cref="Path"/> object.
         /// </summary>
-        /// <param name="path">The <see cref="SKPath"/> instance to convert to a <see cref="Path"/>.</param>
-        /// <returns>A <see cref="Path"/> object that represents the same geometric path as the specified <see cref="SKPath"/>.</returns>
+        /// <param name="path">The <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a> instance to convert to a <see cref="Path"/>.</param>
+        /// <returns>A <see cref="Path"/> object that represents the same geometric path as the specified <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a>.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="path"/> is <see langword="null"/>.</exception>
         public static Path ToPath(this SKPath path)
         {
@@ -112,10 +112,10 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         /// <summary>
-        /// Converts the specified <see cref="Path"/> instance to an <see cref="SKPath"/> object.
+        /// Converts the specified <see cref="Path"/> instance to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a> object.
         /// </summary>
-        /// <param name="path">The <see cref="Path"/> instance to convert to an <see cref="SKPath"/>.</param>
-        /// <returns>An <see cref="SKPath"/> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
+        /// <param name="path">The <see cref="Path"/> instance to convert to an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a>.</param>
+        /// <returns>An <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpath" target="_blank">SKPath</a> instance that represents the same geometry as the specified <see cref="Path"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <see langword="null"/>.</exception>
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Moving out the cases would be a bad idea.")]
         public static SKPath ToSKPath(this Path path)
