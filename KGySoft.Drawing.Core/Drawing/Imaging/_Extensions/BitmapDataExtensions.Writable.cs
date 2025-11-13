@@ -302,6 +302,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long, but simple switch cases")]
+        [SecuritySafeCritical]
         private static bool TryClearRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 c)
         {
             Debug.Assert(bitmapData is ManagedBitmapDataBase or UnmanagedBitmapDataBase { RowSize: > 0 });

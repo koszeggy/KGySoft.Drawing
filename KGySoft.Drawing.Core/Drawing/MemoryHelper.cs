@@ -86,7 +86,7 @@ namespace KGySoft.Drawing
         internal static unsafe void FillMemory<T>(ref byte start, long length, T value)
             where T : unmanaged
         {
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP3_0_OR_GREATER
             Debug.Assert(IntPtr.Size == 8 || length <= Int32.MaxValue);
             while (length > Int32.MaxValue)
             {
