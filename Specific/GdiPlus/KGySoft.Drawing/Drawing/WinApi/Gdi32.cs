@@ -17,6 +17,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 #if NET
@@ -45,6 +46,7 @@ namespace KGySoft.Drawing.WinApi
     {
         #region NativeMethods class
 
+        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass", Justification = "Not an issue, always the outer class calls the NativeMethods memebers")]
         private static class NativeMethods
         {
             #region Methods
@@ -267,21 +269,19 @@ namespace KGySoft.Drawing.WinApi
 
         internal static byte[] GetWmfContentFromEmf(IntPtr handle)
         {
-            using (Graphics g = Graphics.FromHwndInternal(IntPtr.Zero))
+            using Graphics g = Graphics.FromHwndInternal(IntPtr.Zero);
+            IntPtr hdc = g.GetHdc();
+            try
             {
-                IntPtr hdc = g.GetHdc();
-                try
-                {
-                    uint bufSize = NativeMethods.GetWinMetaFileBits(handle, 0, null, MappingModes.MM_ANISOTROPIC, hdc);
-                    var result = new byte[bufSize];
-                    if (NativeMethods.GetWinMetaFileBits(handle, bufSize, result, MappingModes.MM_ANISOTROPIC, hdc) == 0)
-                        throw new ArgumentException(DrawingRes.Gdi32GetWmfContentFailed, nameof(handle));
-                    return result;
-                }
-                finally
-                {
-                    g.ReleaseHdc(hdc);
-                }
+                uint bufSize = NativeMethods.GetWinMetaFileBits(handle, 0, null, MappingModes.MM_ANISOTROPIC, hdc);
+                var result = new byte[bufSize];
+                if (NativeMethods.GetWinMetaFileBits(handle, bufSize, result, MappingModes.MM_ANISOTROPIC, hdc) == 0)
+                    throw new ArgumentException(DrawingRes.Gdi32GetWmfContentFailed, nameof(handle));
+                return result;
+            }
+            finally
+            {
+                g.ReleaseHdc(hdc);
             }
         }
 

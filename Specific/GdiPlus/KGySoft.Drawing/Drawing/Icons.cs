@@ -730,7 +730,7 @@ namespace KGySoft.Drawing
         /// or Windows version is below Vista, this method returns <see langword="null"/>.
         /// On Windows XP use the predefined property members to retrieve system icons.
         /// </summary>
-        /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
+        /// <param name="id">The identifier of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
         /// when no icon found or Windows version is below Vista, or the method is called in a non-Windows environment.</returns>
         /// <remarks>
@@ -899,8 +899,8 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
         public static Icon? FromStream(Stream stream, bool forceUncompressedResult)
         {
-            using (var rawIcon = new RawIcon(stream))
-                return rawIcon.ToIcon(forceUncompressedResult);
+            using var rawIcon = new RawIcon(stream);
+            return rawIcon.ToIcon(forceUncompressedResult);
         }
 
         /// <summary>
@@ -952,13 +952,10 @@ namespace KGySoft.Drawing
             if (icons == null)
                 return null;
 
-            using (var rawIcon = new RawIcon())
-            {
-                foreach (Icon icon in icons)
-                    rawIcon.Add(icon);
-
-                return rawIcon.ToIcon(forceUncompressedResult)!;
-            }
+            using var rawIcon = new RawIcon();
+            foreach (Icon icon in icons)
+                rawIcon.Add(icon);
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -1018,13 +1015,10 @@ namespace KGySoft.Drawing
             if (images == null)
                 return null;
 
-            using (var rawIcon = new RawIcon())
-            {
-                foreach (Bitmap image in images)
-                    rawIcon.Add(image);
-
-                return rawIcon.ToIcon(forceUncompressedResult)!;
-            }
+            using var rawIcon = new RawIcon();
+            foreach (Bitmap image in images)
+                rawIcon.Add(image);
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -1066,13 +1060,10 @@ namespace KGySoft.Drawing
             if (images == null || transparentColors == null || imageCount == 0)
                 return null;
 
-            using (var rawIcon = new RawIcon())
-            {
-                for (int i = 0; i < imageCount; i++)
-                    rawIcon.Add(images[i], transparentColors[i]);
-
-                return rawIcon.ToIcon(forceUncompressedResult)!;
-            }
+            using var rawIcon = new RawIcon();
+            for (int i = 0; i < imageCount; i++)
+                rawIcon.Add(images[i], transparentColors[i]);
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         #endregion
@@ -1117,11 +1108,9 @@ namespace KGySoft.Drawing
                 targetLocation = new Point((resultSize.Width >> 1) - (targetSize.Width >> 1), (resultSize.Height >> 1) - (targetSize.Height >> 1));
             }
 
-            using (var result = new Bitmap(resultSize.Width, resultSize.Height))
-            {
-                image.DrawInto(result, new Rectangle(targetLocation, targetSize), scalingMode);
-                return FromBitmap(result);
-            }
+            using var result = new Bitmap(resultSize.Width, resultSize.Height);
+            image.DrawInto(result, new Rectangle(targetLocation, targetSize), scalingMode);
+            return FromBitmap(result);
         }
 
         [SecurityCritical] // GetHicon
@@ -1129,12 +1118,10 @@ namespace KGySoft.Drawing
         {
             if (OSUtils.IsWindows)
                 return Icon.FromHandle(bmp.GetHicon()).ToManagedIcon();
-            
-            using (var rawIcon = new RawIcon())
-            {
-                rawIcon.Add(bmp);
-                return rawIcon.ToIcon(true)!; // forcing uncompressed on non-Windows platforms
-            }
+
+            using var rawIcon = new RawIcon();
+            rawIcon.Add(bmp);
+            return rawIcon.ToIcon(true)!; // forcing uncompressed on non-Windows platforms
         }
 
         #endregion
@@ -1200,9 +1187,9 @@ namespace KGySoft.Drawing
             var result = new RawIcon(icon);
             if (result.ImageCount == 1)
             {
-                using (Bitmap imageLarge = result.ExtractBitmap(0, false)!)
-                using (Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true))
-                    result.Add(imageSmall);
+                using Bitmap imageLarge = result.ExtractBitmap(0, false)!;
+                using Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true);
+                result.Add(imageSmall);
             }
 
             return result;
@@ -1214,6 +1201,7 @@ namespace KGySoft.Drawing
         private static RawIcon DoGetResourceIcon(string resourceName)
             => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
 
+        [SecurityCritical]
         private static RawIcon? DoLoadIconFromFile(string fileName, int id, bool throwError)
         {
             IntPtr hModule = Kernel32.LoadLibraryData(fileName, throwError);
@@ -1229,6 +1217,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SecurityCritical]
         private static unsafe RawIcon GetModuleIcon(IntPtr hModule, IntPtr name)
         {
             byte[] groupIconRawData = Kernel32.ExtractResourceData(hModule, name, Constants.RT_GROUP_ICON);

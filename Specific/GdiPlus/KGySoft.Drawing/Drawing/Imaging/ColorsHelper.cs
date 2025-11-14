@@ -209,10 +209,10 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     // Initializing the lookup table from the result of native SetPixel if that is supported on current operating system.
-                    // It will be quite slow but it is executed only once and since it is OS dependent there is no other reliable way.
+                    // It will be quite slow, but it is executed only once and since it is OS dependent there is no other reliable way.
                     // - On Windows it transforms color channels into a 13 bit range with linear gamma
                     // - On ReactOS the full 16-bit range is used with the same sRGB color space as in case of the 32-bit formats
-                    // - On Linux 64bpp formats are not even supported by the current version of libgdiplus but we try to be prepared for future changes
+                    // - On Linux 64bpp formats are not even supported by the current version of libgdiplus, but we try to be prepared for future changes
                     using var bmp64 = new Bitmap(256, 1, PixelFormat.Format64bppArgb);
                     for (int i = 0; i < 256; i++)
                         bmp64.SetPixel(i, 0, Color.FromArgb(i, i, i));
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
                             isSrgb = isSrgb && lookupTableSrgb8ToLinear16Bit[i] == ColorSpaceHelper.ToUInt16((byte)i);
                         }
 
-                        // On this OS there is no need for a lookup table - the sRGB Color64 with KnownPixelFormats can be used (eg. ReactOS)
+                        // On this OS there is no need for a lookup table - the sRGB Color64 with KnownPixelFormats can be used (e.g. ReactOS)
                         if (isSrgb)
                             lookupTableSrgb8ToLinear16Bit = null;
                     }
@@ -301,7 +301,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // Initializing the lookup table from the result of native GetPixel if that is supported on current operating system.
-                    // It will be quite slow but it is executed only once and since it is OS dependent there is no other reliable way.
+                    // It will be quite slow, but it is executed only once and since it is OS dependent there is no other reliable way.
                     for (int i = 0, x = 0, y = 0; i <= max16BppValue; i++, x++)
                     {
                         if (x == size.Width)

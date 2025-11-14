@@ -136,8 +136,8 @@ namespace KGySoft.Drawing.WinApi
             IntPtr[][] result = new IntPtr[iconCount][];
             for (int i = 0; i < iconCount; i++)
             {
-                result[i] = size == SystemIconSize.Small ? new[] { small![i] }
-                    : size == SystemIconSize.Large ? new[] { large![i] }
+                result[i] = size == SystemIconSize.Small ? [small![i]]
+                    : size == SystemIconSize.Large ? [large![i]]
                     : new[] { large![i], small![i] };
             }
 

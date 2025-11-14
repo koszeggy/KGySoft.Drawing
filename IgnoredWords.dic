@@ -5,11 +5,12 @@ beziers
 bmp
 bpp
 cfg
+enum
 grayscale
 Gy
 hotspot
 Judice
-enum
+libgdiplus
 multipage
 namespace
 Netravali

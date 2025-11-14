@@ -340,7 +340,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Movie DVD media.
         /// </summary>
-        MediamMoieDvd = 86,
+        MediaMovieDvd = 86,
 
         /// <summary>
         /// Enhanced CD media.

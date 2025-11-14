@@ -16,15 +16,16 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
 namespace KGySoft.Drawing.WinApi
 {
-    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Contains information about an icon or a cursor.
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
     internal struct ICONINFO
     {
         #region Fields

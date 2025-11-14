@@ -13,8 +13,15 @@
 
 #endregion
 
+#region Usings
+
+using System.Diagnostics.CodeAnalysis;
+
+#endregion
+
 namespace KGySoft.Drawing.WinApi
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
     internal static class Constants
     {
         #region Constants

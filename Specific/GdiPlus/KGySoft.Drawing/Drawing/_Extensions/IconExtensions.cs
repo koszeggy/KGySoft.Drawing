@@ -69,7 +69,7 @@ namespace KGySoft.Drawing
         /// and <see cref="PixelFormat.Format32bppArgb"/> pixel format as parameters.</para>
         /// <para>If the <paramref name="icon"/> contains multiple images consider to use either the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see>
         /// or <see cref="ExtractNearestBitmap">ExtractNearestBitmap</see> methods to specify the exact image to return,
-        /// or the <see cref="O:KGySoft.Drawing.IconExtensions.ToMultiResBitmap">ToMultiResBitmap</see> methods, which return every images in a single combined <see cref="Bitmap"/>.</para>
+        /// or the <see cref="O:KGySoft.Drawing.IconExtensions.ToMultiResBitmap">ToMultiResBitmap</see> methods, which return every image in a single combined <see cref="Bitmap"/>.</para>
         /// </remarks>
         /// <seealso cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap"/>
         [SecuritySafeCritical]
@@ -148,31 +148,29 @@ namespace KGySoft.Drawing
         {
             if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
             {
-                using (var rawIcon = new RawIcon(icon))
-                    return rawIcon.ToBitmap()!;
+                using var rawIcon = new RawIcon(icon);
+                return rawIcon.ToBitmap()!;
             }
 
             // On Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor and forcing always uncompressed result.
-            using (var result = new RawIcon())
-            {
+            using var result = new RawIcon();
 #pragma warning disable CS8600, CS8604 // Converting null literal or possible null value to non-nullable type. - false alarm, on Windows elements are never null
-                foreach (Icon iconImage in icon.ExtractIcons())
+            foreach (Icon iconImage in icon.ExtractIcons())
+            {
+                using (iconImage)
                 {
-                    using (iconImage)
+                    if (iconImage.GetBitsPerPixel() == 24)
                     {
-                        if (iconImage.GetBitsPerPixel() == 24)
-                        {
-                            using (var bmp = iconImage.ToAlphaBitmap())
-                                result.Add(bmp);
-                        }
-                        else
-                            result.Add(iconImage);
+                        using var bmp = iconImage.ToAlphaBitmap();
+                        result.Add(bmp);
                     }
+                    else
+                        result.Add(iconImage);
                 }
+            }
 #pragma warning restore CS8600, CS8604
 
-                return result.ToBitmap()!;
-            }
+            return result.ToBitmap()!;
         }
 
         /// <summary>
@@ -198,8 +196,8 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
         public static int GetImagesCount(this Icon icon)
         {
-            using (RawIcon rawIcon = new RawIcon(icon))
-                return rawIcon.ImageCount;
+            using RawIcon rawIcon = new RawIcon(icon);
+            return rawIcon.ImageCount;
         }
 
         /// <summary>
@@ -322,8 +320,8 @@ namespace KGySoft.Drawing
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
 
-            using (var rawIcon = new RawIcon(icon, null, null, index))
-                return index >= rawIcon.ImageCount ? null : rawIcon.ExtractBitmap(index, keepOriginalFormat);
+            using var rawIcon = new RawIcon(icon, null, null, index);
+            return index >= rawIcon.ImageCount ? null : rawIcon.ExtractBitmap(index, keepOriginalFormat);
         }
 
         /// <summary>
@@ -348,8 +346,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
-            using (RawIcon rawIcon = new RawIcon(icon))
-                return rawIcon.ExtractNearestBitmap(bpp, size, keepOriginalFormat, false)!;
+            using RawIcon rawIcon = new RawIcon(icon);
+            return rawIcon.ExtractNearestBitmap(bpp, size, keepOriginalFormat, false)!;
         }
 
         /// <summary>
@@ -544,8 +542,8 @@ namespace KGySoft.Drawing
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
 
-            using (var rawIcon = new RawIcon(icon, null, null, index))
-                return rawIcon.ToIcon(forceUncompressedResult);
+            using var rawIcon = new RawIcon(icon, null, null, index);
+            return rawIcon.ToIcon(forceUncompressedResult);
         }
 
         /// <summary>
@@ -592,8 +590,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
-            using (RawIcon rawIcon = new RawIcon(icon))
-                return rawIcon.ExtractNearestIcon(bpp, size, forceUncompressedResult)!;
+            using RawIcon rawIcon = new RawIcon(icon);
+            return rawIcon.ExtractNearestIcon(bpp, size, forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -611,6 +609,7 @@ namespace KGySoft.Drawing
         /// which provides a good quality result but on Windows blocks every parallel <see cref="O:System.Drawing.Graphics.DrawImage">DrawImage</see> call within the same process.
         /// If that might be an issue use the <see cref="Resize(Icon, Size, ScalingMode)"/> overload instead.</para>
         /// </remarks>
+        [SecuritySafeCritical]
         public static Icon Resize(this Icon icon, Size size)
         {
             // If no resizing is needed, we just extract the result without loading the unnecessary sizes. It validates the icon.
@@ -651,6 +650,7 @@ namespace KGySoft.Drawing
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always performs resizing in the linear color space. It helps preserve the original brightness, especially for low color depth icons.</para>
         /// </remarks>
+        [SecuritySafeCritical]
         public static Icon Resize(this Icon icon, Size size, ScalingMode scalingMode)
         {
             // Unlike in the other overload, we validate everything here so we throw if the icon has the requested size but scalingMode is invalid.
@@ -738,16 +738,14 @@ namespace KGySoft.Drawing
             if (icons == null && !forceUncompressedResult)
                 return icon;
 
-            using (var rawIcon = new RawIcon(icon))
+            using var rawIcon = new RawIcon(icon);
+            if (icons != null)
             {
-                if (icons != null)
-                {
-                    foreach (Icon item in icons)
-                        rawIcon.Add(item);
-                }
-
-                return rawIcon.ToIcon(forceUncompressedResult)!;
+                foreach (Icon item in icons)
+                    rawIcon.Add(item);
             }
+
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -810,16 +808,14 @@ namespace KGySoft.Drawing
             if (images == null && !forceUncompressedResult)
                 return icon;
 
-            using (RawIcon rawIcon = new RawIcon(icon))
+            using RawIcon rawIcon = new RawIcon(icon);
+            if (images != null)
             {
-                if (images != null)
-                {
-                    foreach (Bitmap image in images)
-                        rawIcon.Add(image);
-                }
-
-                return rawIcon.ToIcon(forceUncompressedResult)!;
+                foreach (Bitmap image in images)
+                    rawIcon.Add(image);
             }
+
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -859,11 +855,9 @@ namespace KGySoft.Drawing
             if (image == null)
                 return icon;
 
-            using (var rawIcon = new RawIcon(icon))
-            {
-                rawIcon.Add(image, transparentColor);
-                return rawIcon.ToIcon(forceUncompressedResult)!;
-            }
+            using var rawIcon = new RawIcon(icon);
+            rawIcon.Add(image, transparentColor);
+            return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 
         /// <summary>
@@ -883,8 +877,8 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            using (RawIcon rawIcon = new RawIcon(icon))
-                rawIcon.Save(stream, forceUncompressedResult);
+            using RawIcon rawIcon = new RawIcon(icon);
+            rawIcon.Save(stream, forceUncompressedResult);
         }
 
         /// <summary>
@@ -908,12 +902,10 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            using (var rawIcon = new RawIcon(icon, null, null, index))
-            {
-                if (index != null && rawIcon.ImageCount == 0)
-                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
-                return rawIcon.IsCompressed;
-            }
+            using var rawIcon = new RawIcon(icon, null, null, index);
+            if (index != null && rawIcon.ImageCount == 0)
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+            return rawIcon.IsCompressed;
         }
 
         /// <summary>
@@ -928,12 +920,10 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            using (var rawIcon = new RawIcon(icon, null, null, index))
-            {
-                if (index != null && rawIcon.ImageCount == 0)
-                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
-                return rawIcon.Bpp;
-            }
+            using var rawIcon = new RawIcon(icon, null, null, index);
+            if (index != null && rawIcon.ImageCount == 0)
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+            return rawIcon.Bpp;
         }
 
         /// <summary>
@@ -947,14 +937,12 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
-            using (var rawIcon = new RawIcon(icon))
-            {
-                var result = new IconInfo[rawIcon.ImageCount];
-                for (int i = 0; i < result.Length; i++)
-                    result[i] = rawIcon.GetIconInfo(i);
+            using var rawIcon = new RawIcon(icon);
+            var result = new IconInfo[rawIcon.ImageCount];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = rawIcon.GetIconInfo(i);
 
-                return result;
-            }
+            return result;
         }
 
         /// <summary>
@@ -971,12 +959,10 @@ namespace KGySoft.Drawing
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
 
-            using (var rawIcon = new RawIcon(icon, null, null, index))
-            {
-                if (rawIcon.ImageCount == 0)
-                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
-                return rawIcon.GetIconInfo(0);
-            }
+            using var rawIcon = new RawIcon(icon, null, null, index);
+            if (rawIcon.ImageCount == 0)
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+            return rawIcon.GetIconInfo(0);
         }
 
         /// <summary>
@@ -1040,8 +1026,8 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
-            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
-                return rawIcon.ExtractBitmaps(keepOriginalFormat);
+            using RawIcon rawIcon = new RawIcon(icon, size, bpp);
+            return rawIcon.ExtractBitmaps(keepOriginalFormat);
         }
 
         [SecuritySafeCritical]
@@ -1050,8 +1036,8 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
-            using (var rawIcon = new RawIcon(icon, size, bpp))
-                return rawIcon.ExtractBitmap(0, keepOriginalFormat);
+            using var rawIcon = new RawIcon(icon, size, bpp);
+            return rawIcon.ExtractBitmap(0, keepOriginalFormat);
         }
 
         [SecuritySafeCritical]
@@ -1060,8 +1046,8 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon));
 
-            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
-                return rawIcon.ExtractIcons(forceUncompressedResult);
+            using RawIcon rawIcon = new RawIcon(icon, size, bpp);
+            return rawIcon.ExtractIcons(forceUncompressedResult);
         }
 
         [SecuritySafeCritical]
@@ -1070,8 +1056,8 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon));
 
-            using (var rawIcon = new RawIcon(icon, size, bpp))
-                return rawIcon.ExtractIcon(0, forceUncompressedResult);
+            using var rawIcon = new RawIcon(icon, size, bpp);
+            return rawIcon.ExtractIcon(0, forceUncompressedResult);
         }
 
         [SecuritySafeCritical]

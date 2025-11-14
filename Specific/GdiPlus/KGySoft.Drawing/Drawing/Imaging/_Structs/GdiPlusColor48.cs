@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
         internal Color32 ToColor32()
         {
             Debug.Assert(ColorsHelper.LinearWideColors);
-            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit()!;
+            byte[] lookupTable = ColorsHelper.GetLookupTableLinear16ToSrgb8Bit();
 
             GdiPlusColor48 clipped = Clip();
             return new Color32(lookupTable[clipped.r],

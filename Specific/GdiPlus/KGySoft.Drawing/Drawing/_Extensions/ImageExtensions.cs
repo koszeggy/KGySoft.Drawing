@@ -473,9 +473,9 @@ namespace KGySoft.Drawing
         /// </list>
         /// <note><list type="bullet">
         /// <item>On Windows <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/> formats (hereinafter: wide formats)
-        /// actually use 13 bit-per-channel colors internally (values between 0 and 8192, inclusively). The mapping between the 8 and 16 bit color channels is not linear: whereas the <see cref="Color"/>
+        /// actually use 13 bit-per-channel colors internally (values between 0 and 8192, inclusively). The mapping between the 8 and 16-bit color channels is not linear: whereas the <see cref="Color"/>
         /// (and also <see cref="Color32"/>) structures represent colors with gamma correction γ = 2.2, the wide formats have no gamma correction (γ = 1.0).</item>
-        /// <item>If wide color formats are supported on the current operating system, then KGySoft Drawing Libraries auto detects the used range and gamma correction.
+        /// <item>If wide color formats are supported on the current operating system, then KGySoft Drawing Libraries auto-detects the used range and gamma correction.
         /// For example, if the <a href="https://www.mono-project.com/docs/gui/libgdiplus/" target="_blank">libgdiplus</a> library will support them on Linux, then <see cref="IWritableBitmapData"/>
         /// and <see cref="IReadableBitmapData"/> members will always use the correct transformations automatically.</item>
         /// <item>.NET Framework 4.0 is supported on <a href="https://reactos.org/" target="_blank">ReactOS</a>, which uses the full 16-bit range with linear mapping between wide and narrow color channels
@@ -989,8 +989,8 @@ namespace KGySoft.Drawing
             // special handling for same reference (overlapping is handled inside)
             if (ReferenceEquals(source, target))
             {
-                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
-                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetLocation, quantizer, ditherer);
+                using IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData();
+                bitmapData.DrawInto(bitmapData, sourceRectangle, targetLocation, quantizer, ditherer);
 
                 return;
             }
@@ -998,9 +998,9 @@ namespace KGySoft.Drawing
             Bitmap bmp = source.AsBitmap();
             try
             {
-                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                    src.DrawInto(dst, sourceRectangle, targetLocation, quantizer, ditherer);
+                using IReadableBitmapData src = bmp.GetReadableBitmapData();
+                using IReadWriteBitmapData dst = target.GetReadWriteBitmapData();
+                src.DrawInto(dst, sourceRectangle, targetLocation, quantizer, ditherer);
             }
             finally
             {
@@ -1235,8 +1235,8 @@ namespace KGySoft.Drawing
             // special handling for same reference (overlapping is handled inside)
             if (ReferenceEquals(source, target))
             {
-                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
-                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+                using IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData();
+                bitmapData.DrawInto(bitmapData, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
 
                 return;
             }
@@ -1244,9 +1244,9 @@ namespace KGySoft.Drawing
             Bitmap bmp = source.AsBitmap();
             try
             {
-                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                    src.DrawInto(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+                using IReadableBitmapData src = bmp.GetReadableBitmapData();
+                using IReadWriteBitmapData dst = target.GetReadWriteBitmapData();
+                src.DrawInto(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
             }
             finally
             {
@@ -1340,6 +1340,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> into a <paramref name="stream"/> using the built-in BMP encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_ImageExtensions_SaveAsBmp.htm">online help</a> for an example.</div>
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1359,7 +1360,7 @@ namespace KGySoft.Drawing
         /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
         /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>.
-        /// Though reloading such an image will not have transparency but it can be restored (see also the example below).</description></item>
+        /// Reloading such an image will not have transparency, but it can be restored (see also the example below).</description></item>
         /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When the saved image is reloaded by the built-in decoder the pixel format will be <see cref="PixelFormat.Format32bppRgb"/> and the image will have no transparency.
@@ -1424,8 +1425,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsBmp(image, fs);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsBmp(image, fs);
         }
 
         #endregion
@@ -1435,6 +1436,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in JPEG encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <div style="display: none;"><br/>See the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_ImageExtensions_SaveAsJpeg.htm">online help</a> for an example.</div>
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1492,11 +1494,9 @@ namespace KGySoft.Drawing
         {
             if ((uint)quality > 100u)
                 throw new ArgumentOutOfRangeException(nameof(quality), PublicResources.ArgumentMustBeBetween(0, 100));
-            using (var parameters = new EncoderParameters(1))
-            {
-                parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
-                SaveByImageCodecInfo(image, stream, ImageFormat.Jpeg, parameters, false);
-            }
+            using var parameters = new EncoderParameters(1);
+            parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+            SaveByImageCodecInfo(image, stream, ImageFormat.Jpeg, parameters, false);
         }
 
         /// <summary>
@@ -1515,8 +1515,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsJpeg(image, fs, quality);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsJpeg(image, fs, quality);
         }
 
         #endregion
@@ -1580,8 +1580,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsPng(image, fs);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsPng(image, fs);
         }
 
         #endregion
@@ -1667,8 +1667,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsGif(image, fs, quantizer, ditherer);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsGif(image, fs, quantizer, ditherer);
         }
 
         /// <summary>
@@ -1709,7 +1709,7 @@ namespace KGySoft.Drawing
         /// <param name="stream">The stream into the GIF data is to be saved.</param>
         /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/> or empty,
         /// then a default 100 ms delay will be used for all frames.
-        /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
+        /// If contains fewer elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
         /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1725,7 +1725,7 @@ namespace KGySoft.Drawing
         /// <para>Though this method does not support reporting progress directly, you can pass an iterator to the <paramref name="frames"/> parameter that can track
         /// how many images have already been processed.</para>
         /// <para>The resolution of the animation is determined by the first frame. If subsequent frames have different sizes, then they will be centered.</para>
-        /// <para>If <paramref name="quantizer"/> supports an optimized palette for each frames (like <see cref="OptimizedPaletteQuantizer"/>), then some
+        /// <para>If <paramref name="quantizer"/> supports an optimized palette for each frame (like <see cref="OptimizedPaletteQuantizer"/>), then some
         /// frames of the animation might have even more than 256 colors (depending on the differences between frames).</para>
         /// <note type="tip">To customize looping mode, frame size handling, delta frames strategy, etc., then use directly the <see cref="GifEncoder"/> class
         /// and its <see cref="GifEncoder.EncodeAnimation">EncodeAnimation</see> method. And for low level encoding you can instantiate the <see cref="GifEncoder"/>
@@ -1778,7 +1778,7 @@ namespace KGySoft.Drawing
         /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
         /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/> or empty,
         /// then a default 100 ms delay will be used for all frames.
-        /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
+        /// If contains fewer elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
         /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu(int,Color32,byte)">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1997,12 +1997,11 @@ namespace KGySoft.Drawing
             Image toSave = AdjustTiffImage(image);
             try
             {
-                using (var encoderParams = new EncoderParameters(1))
-                {
-                    // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
-                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-                    SaveByImageCodecInfo(toSave, stream, ImageFormat.Tiff, encoderParams, false);
-                }
+                using var encoderParams = new EncoderParameters(1);
+
+                // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
+                encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+                SaveByImageCodecInfo(toSave, stream, ImageFormat.Tiff, encoderParams, false);
             }
             finally
             {
@@ -2027,8 +2026,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsTiff(image, fs, currentFrameOnly);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsTiff(image, fs, currentFrameOnly);
         }
 
         /// <summary>
@@ -2065,28 +2064,28 @@ namespace KGySoft.Drawing
                     Image page = AdjustTiffImage(image);
                     if (page != image)
                         pagesToDispose.Add(page);
-                    using (var encoderParams = new EncoderParameters(2))
+                    
+                    using var encoderParams = new EncoderParameters(2);
+                    
+                    // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+
+                    // Not setting the color depth anymore. Auto selection works fine and also depends on raw format.
+                    // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
+                    //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+
+                    // saving the first page with MultiFrame parameter
+                    if (tiff == null)
                     {
-                        // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
-                        encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-
-                        // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
-                        // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
-                        //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
-
-                        // saving the first page with MultiFrame parameter
-                        if (tiff == null)
-                        {
-                            tiff = page;
-                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
-                            tiff.Save(stream, tiffEncoder, encoderParams);
-                        }
-                        // saving subsequent pages
-                        else
-                        {
-                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
-                            tiff.SaveAdd(page, encoderParams);
-                        }
+                        tiff = page;
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+                        tiff.Save(stream, tiffEncoder, encoderParams);
+                    }
+                    // saving subsequent pages
+                    else
+                    {
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+                        tiff.SaveAdd(page, encoderParams);
                     }
                 }
 
@@ -2170,8 +2169,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsIcon(image, fs, forceUncompressedResult);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsIcon(image, fs, forceUncompressedResult);
         }
 
         /// <summary>
@@ -2198,24 +2197,22 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            using (var rawIcon = new RawIcon())
+            using var rawIcon = new RawIcon();
+            foreach (Image image in images)
             {
-                foreach (Image image in images)
-                {
-                    if (image == null)
-                        throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
+                if (image == null)
+                    throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                    Bitmap bmp = image.AsBitmap();
-                    try
-                    {
-                        rawIcon.Add(bmp); // bmp can be an icon with more images
-                        rawIcon.Save(stream, forceUncompressedResult);
-                    }
-                    finally
-                    {
-                        if (!ReferenceEquals(bmp, image))
-                            bmp.Dispose();
-                    }
+                Bitmap bmp = image.AsBitmap();
+                try
+                {
+                    rawIcon.Add(bmp); // bmp can be an icon with more images
+                    rawIcon.Save(stream, forceUncompressedResult);
+                }
+                finally
+                {
+                    if (!ReferenceEquals(bmp, image))
+                        bmp.Dispose();
                 }
             }
         }
@@ -2448,11 +2445,9 @@ namespace KGySoft.Drawing
                 if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out var fallbackTransformation)
                     && fallbackTransformation.TargetFormat != bmp.PixelFormat)
                 {
-                    using (Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat))
-                    {
-                        SaveByImageCodecInfo(fallbackBmp, stream, imageFormat, null, true);
-                        return;
-                    }
+                    using Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat);
+                    SaveByImageCodecInfo(fallbackBmp, stream, imageFormat, null, true);
+                    return;
                 }
 
                 // Otherwise, we give up

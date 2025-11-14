@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.WinApi
             /// If the loaded resource is available, the return value is a pointer to the first byte of the resource; otherwise, it is NULL.</returns>
             /// <remarks>
             /// <para>The pointer returned by LockResource is valid until the module containing the resource is unloaded. It is not necessary to unlock resources because the system automatically deletes them when the process that created them terminates.</para>
-            /// <para>Do not try to lock a resource by using the handle returned by the FindResourceA function or FindResourceExA function function. Such a handle points to random data.</para>
+            /// <para>Do not try to lock a resource by using the handle returned by the FindResourceA function or FindResourceExA function. Such a handle points to random data.</para>
             /// <note>LockResource does not actually lock memory; it is just used to obtain a pointer to the memory containing the resource data. The name of the function comes from versions prior to Windows XP, when it was used to lock a global memory block allocated by LoadResource.</note>
             /// </remarks>
             [DllImport("kernel32.dll", SetLastError = true)]

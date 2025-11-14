@@ -77,11 +77,9 @@ namespace KGySoft.ComponentModel
             // 1.) Metafile: Saving as EMF/WMF (base would save a PNG here)
             if (value is Metafile metafile)
             {
-                using (var ms = new MemoryStream())
-                {
-                    metafile.Save(ms);
-                    return ms.ToArray();
-                }
+                using var ms = new MemoryStream();
+                metafile.Save(ms);
+                return ms.ToArray();
             }
 
             // 2.) Icon bitmap: Preserving images at least in one color depth
@@ -89,15 +87,11 @@ namespace KGySoft.ComponentModel
             if (bitmap.RawFormat.Guid == ImageFormat.Icon.Guid)
             {
                 Bitmap[] images = bitmap.ExtractIconImages();
-                using (Icon icon = Icons.Combine(images))
-                {
-                    images.ForEach(i => i.Dispose());
-                    using (var ms = new MemoryStream())
-                    {
-                        icon.Save(ms);
-                        return ms.ToArray();
-                    }
-                }
+                using Icon icon = Icons.Combine(images);
+                images.ForEach(i => i.Dispose());
+                using var ms = new MemoryStream();
+                icon.Save(ms);
+                return ms.ToArray();
             }
 
             // 3.) TIFF: Saving every page

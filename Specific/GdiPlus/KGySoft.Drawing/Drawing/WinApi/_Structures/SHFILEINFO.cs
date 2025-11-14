@@ -16,18 +16,19 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
 namespace KGySoft.Drawing.WinApi
 {
-    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Contains information about a file object.
     /// </summary>
     /// <remarks>
     /// This structure is used with the SHGetFileInfo function.
     /// </remarks>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
     internal unsafe struct SHFILEINFO
     {
         #region Fields

@@ -13,8 +13,15 @@
 
 #endregion
 
+#region Usings
+
+using System.Diagnostics.CodeAnalysis;
+
+#endregion
+
 namespace KGySoft.Drawing.WinApi
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
     internal enum MappingModes
     {
         MM_TEXT = 1,

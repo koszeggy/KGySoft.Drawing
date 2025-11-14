@@ -17,9 +17,7 @@
 
 using System;
 using System.Collections.Generic;
-#if NET7_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
-#endif
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -41,6 +39,7 @@ namespace KGySoft.Drawing
     {
         #region Constants
 
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Consistent with other PixelFormat names")]
         internal const PixelFormat Format32bppCmyk = (PixelFormat)0x200F;
 
         #endregion

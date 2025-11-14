@@ -23,7 +23,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace KGySoft.Drawing.WinApi
 {
     [Flags]
-    // ReSharper disable once InconsistentNaming
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal enum SHGSI : uint
     {
         /// <summary>

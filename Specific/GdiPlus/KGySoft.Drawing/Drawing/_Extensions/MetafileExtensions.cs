@@ -169,32 +169,31 @@ namespace KGySoft.Drawing
             {
                 if (OSUtils.IsWindows)
                 {
-                    using (Graphics g = Graphics.FromImage(result))
-                    {
-                        // it can happen that metafile bounds is not at 0, 0 location
-                        GraphicsUnit unit = GraphicsUnit.Pixel;
-                        RectangleF sourceRectangle = metafile.GetBounds(ref unit);
+                    using Graphics g = Graphics.FromImage(result);
+                    
+                    // it can happen that metafile bounds is not at 0, 0 location
+                    GraphicsUnit unit = GraphicsUnit.Pixel;
+                    RectangleF sourceRectangle = metafile.GetBounds(ref unit);
 
-                        // no process-wide lock occurs here because the source image is a Metafile
-                        g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
-                        g.Flush();
-                    }
+                    // no process-wide lock occurs here because the source image is a Metafile
+                    g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
+                    g.Flush();
                 }
                 else
                 {
                     // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
-                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
+                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future-proof in case it will be fixed
                     // Note 2: The result still can be wrong if bounds is not at 0, 0 location
-                    using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
-                        buf.DrawInto(result, targetRectangle);
+                    using Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height);
+                    buf.DrawInto(result, targetRectangle);
                 }
 
                 return result;
             }
 
             // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
-            using (Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1))
-                bmpDouble.DrawInto(result, targetRectangle);
+            using Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1);
+            bmpDouble.DrawInto(result, targetRectangle);
 
             return result;
         }
@@ -304,8 +303,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsEmf(metafile, fs);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsEmf(metafile, fs);
         }
 
         /// <summary>
@@ -342,8 +341,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = Files.CreateWithPath(fileName))
-                SaveAsWmf(metafile, fs);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsWmf(metafile, fs);
         }
 
         #endregion

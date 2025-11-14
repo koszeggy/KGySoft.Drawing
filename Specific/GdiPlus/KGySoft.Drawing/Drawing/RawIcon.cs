@@ -275,7 +275,7 @@ namespace KGySoft.Drawing
                 int maskLength = strideMask * size.Height;
                 if (offset + maskLength > rawData.Length)
                 {
-                    // the mask is sometimes omitted for 32bpp images but we still generate it for best compatibility
+                    // the mask is sometimes omitted for 32bpp images, but we still generate it for best compatibility
                     GenerateMask(strideColor, strideMask);
                     return;
                 }
@@ -368,26 +368,24 @@ namespace KGySoft.Drawing
             // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
             internal Icon? ToIcon(bool forceBmpFormat, bool throwError)
             {
-                using (var ms = new MemoryStream())
+                using var ms = new MemoryStream();
+                Save(ms, forceBmpFormat);
+
+                // returning icon
+                ms.Position = 0L;
+                try
                 {
-                    Save(ms, forceBmpFormat);
+                    return new Icon(ms);
+                }
+                catch (Exception)
+                {
+                    if (OSUtils.IsWindows)
+                        throw;
 
-                    // returning icon
-                    ms.Position = 0L;
-                    try
-                    {
-                        return new Icon(ms);
-                    }
-                    catch (Exception)
-                    {
-                        if (OSUtils.IsWindows)
-                            throw;
-
-                        // On Linux 256x256 icons may not be supported even with BMP format.
-                        if (throwError)
-                            throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
-                        return null;
-                    }
+                    // On Linux 256x256 icons may not be supported even with BMP format.
+                    if (throwError)
+                        throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
+                    return null;
                 }
             }
 
@@ -408,7 +406,7 @@ namespace KGySoft.Drawing
                 }
 
                 // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
-                // because for PNG images may cause troubles in some cases (eg. OutOfMemoryException when used as background image)
+                // because for PNG images may cause troubles in some cases (e.g. OutOfMemoryException when used as background image)
                 if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
                     return new Bitmap(bmpComposite);
 
@@ -537,14 +535,13 @@ namespace KGySoft.Drawing
                 isPng = !forceBmpFormat && IsPngPreferred;
                 if (isPng)
                 {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        // When PNG, using composite image in the first place
-                        // ReSharper disable once PossibleNullReferenceException
-                        bmp.Save(ms, ImageFormat.Png);
-                        rawColor = ms.ToArray();
-                        return;
-                    }
+                    using var ms = new MemoryStream();
+
+                    // When PNG, using composite image in the first place
+                    // ReSharper disable once PossibleNullReferenceException
+                    bmp.Save(ms, ImageFormat.Png);
+                    rawColor = ms.ToArray();
+                    return;
                 }
 
                 // palette
@@ -697,23 +694,22 @@ namespace KGySoft.Drawing
                 // BMP format - composite image
                 if (isCompositeRequired)
                 {
-                    using (Icon? icon = ToIcon(true, false))
+                    using Icon? icon = ToIcon(true, false);
+                    
+                    // On Linux it may return null, in which case we fall back to non-composite image
+                    if (icon != null)
                     {
-                        // On Linux it may return null, in which case we fall back to non-compisite image
-                        if (icon != null)
-                        {
-                            // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
-                            // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
-                            bmpComposite = icon.ToBitmap();
-                            return;
-                        }
+                        // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
+                        // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
+                        bmpComposite = icon.ToBitmap();
+                        return;
                     }
                 }
 
                 // Working from raw format. If it doesn't exist, creating from composite image...
                 if (rawColor == null)
                 {
-                    // Unless the we decide to handle the image as if it was PNG. In this case the icon was created
+                    // ...unless we decide to handle the image as if it was PNG. In this case the icon was created
                     // from a large bitmap but isPng should remain false because we don't create rawColor.
                     if (IsPngPreferred)
                     {
@@ -890,26 +886,19 @@ namespace KGySoft.Drawing
                 if (index.HasValue && index.Value != 0 || size.HasValue && size.Value != icon.Size)
                     return;
 
-                using (Bitmap bmp = icon.ToAlphaBitmap())
-                {
-                    if (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel())
-                    {
-                        Add(bmp);
-                    }
-                }
-
+                using Bitmap bmp = icon.ToAlphaBitmap();
+                if (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel())
+                    Add(bmp);
                 return;
             }
 
             // initializing from stream
-            using (var ms = new MemoryStream())
-            {
-                icon.Save(ms);
-                ms.Position = 0L;
+            using var ms = new MemoryStream();
+            icon.Save(ms);
+            ms.Position = 0L;
 
-                using (var br = new BinaryReader(ms))
-                    Load(br, size, bpp, index);
-            }
+            using var br = new BinaryReader(ms);
+            Load(br, size, bpp, index);
         }
 
         internal RawIcon(Stream stream)
@@ -970,12 +959,12 @@ namespace KGySoft.Drawing
             Bitmap[] bitmaps;
 
             if (!pixelFormat.In(validIconFormats))
-                bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
+                bitmaps = [image.ConvertPixelFormat(PixelFormat.Format32bppArgb)];
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();
             else
                 // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
-                bitmaps = new[] { image.CloneBitmap() };
+                bitmaps = [image.CloneBitmap()];
 
             foreach (Bitmap bitmap in bitmaps)
                 iconImages.Add(new RawIconImage(bitmap, transparentColor));
@@ -989,35 +978,31 @@ namespace KGySoft.Drawing
             if (iconImages.Count == 0)
                 return null;
 
-            using (MemoryStream ms = new MemoryStream())
+            using MemoryStream ms = new MemoryStream();
+            using BinaryWriter bw = new BinaryWriter(ms);
+            Save(bw, forceBmpImages);
+            ms.Position = 0L;
+            try
             {
-                using (BinaryWriter bw = new BinaryWriter(ms))
-                {
-                    Save(bw, forceBmpImages);
-                    ms.Position = 0L;
-                    try
-                    {
-                        return new Icon(ms);
-                    }
-                    catch (Exception e)
-                    {
-                        if (OSUtils.IsWindows)
-                            throw;
-                        throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
-                    }
-                }
+                return new Icon(ms);
+            }
+            catch (Exception e)
+            {
+                if (OSUtils.IsWindows)
+                    throw;
+                throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
             }
         }
 
         /// <summary>
-        /// Gets a <see cref="Bitmap"/> instance, which contains every images of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
+        /// Gets a <see cref="Bitmap"/> instance, which contains every image of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
         /// </summary>
         internal Bitmap? ToBitmap()
         {
             if (iconImages.Count == 0)
                 return null;
 
-            // not in using because stream must left open during the Bitmap lifetime
+            // not in using because stream must be left open during the Bitmap lifetime
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
             Save(bw, true);
@@ -1245,12 +1230,12 @@ namespace KGySoft.Drawing
         {
             // On Linux large icons might not be supported. Looking for the next largest one then.
             Debug.Assert(!OSUtils.IsWindows, "null result is not expected on Windows");
-            int lastSize, nextSize;
+            int lastSize;
 
             do
             {
                 lastSize = nearestImage.Size.Width;
-                nextSize = lastSize;
+                int nextSize = lastSize;
                 foreach (RawIconImage image in iconImages)
                 {
                     // looking for the next largest size

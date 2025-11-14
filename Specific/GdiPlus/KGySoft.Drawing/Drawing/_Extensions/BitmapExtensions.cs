@@ -96,15 +96,13 @@ namespace KGySoft.Drawing
 
             try
             {
-                using (Graphics g = Graphics.FromImage(result))
-                {
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.DrawImage(source, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                    g.Flush();
+                using Graphics g = Graphics.FromImage(result);
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.DrawImage(source, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                g.Flush();
 
-                    return result;
-                }
+                return result;
             }
             finally
             {
@@ -152,9 +150,9 @@ namespace KGySoft.Drawing
             if (OSUtils.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-            using (IReadableBitmapData src = image.GetReadableBitmapData())
-            using (IReadWriteBitmapData dst = result.GetReadWriteBitmapData())
-                src.DrawInto(dst, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);
+            using IReadableBitmapData src = image.GetReadableBitmapData();
+            using IReadWriteBitmapData dst = result.GetReadWriteBitmapData();
+            src.DrawInto(dst, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);
 
             return result;
         }
@@ -192,7 +190,7 @@ namespace KGySoft.Drawing
                 if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                     return ExtractIconImages(image);
 
-                return new[] { image.CloneCurrentFrame() };
+                return [image.CloneCurrentFrame()];
             }
 
             // extracting frames
@@ -549,7 +547,7 @@ namespace KGySoft.Drawing
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <para>The <paramref name="workingColorSpace"/> parameter indicates the preferred color space mode when working with the result bitmap data.
-        /// Blending operations performed by this library (eg. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending in necessary as described above,
+        /// Blending operations performed by this library (e.g. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending in necessary as described above,
         /// or by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
         /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual pixel format is not in the linear color space
         /// and the result is different from the results of most applications including popular image processors and web browsers.
@@ -681,8 +679,8 @@ namespace KGySoft.Drawing
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            using (IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData())
-                bitmapData.Quantize(quantizer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.Quantize(quantizer);
         }
 
         /// <summary>
@@ -722,8 +720,8 @@ namespace KGySoft.Drawing
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            using (var bitmapData = bitmap.GetReadWriteBitmapData())
-                bitmapData.Dither(quantizer, ditherer);
+            using var bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.Dither(quantizer, ditherer);
         }
 
         /// <summary>
