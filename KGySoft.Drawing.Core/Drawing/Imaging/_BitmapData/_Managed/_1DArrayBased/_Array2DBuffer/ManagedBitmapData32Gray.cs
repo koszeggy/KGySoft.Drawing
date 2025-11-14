@@ -37,9 +37,7 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => GetPixelRef(x) = BitmapData.LinearWorkingColorSpace
-                ? new GrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(((ManagedBitmapData32Gray)BitmapData).backColorF))
-                : new GrayF(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BitmapData.BackColor));
+            public override void DoSetColor32(int x, Color32 c) => DoSetColor64(x, new Color64(c));
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -106,9 +104,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, int y, Color32 c) => GetPixelRef(y, x) = LinearWorkingColorSpace
-            ? new GrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(backColorF))
-            : new GrayF(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BackColor));
+        public override void DoSetColor32(int x, int y, Color32 c) => DoSetColor64(x, y, new Color64(c));
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]

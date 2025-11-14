@@ -36,12 +36,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
         
-        internal GrayF(Color32 c)
-        {
-            Debug.Assert(c.A == Byte.MaxValue);
-            Value = ColorSpaceHelper.SrgbToLinear(c.GetBrightness());
-        }
-
         internal GrayF(Color64 c)
         {
             Debug.Assert(c.A == UInt16.MaxValue);

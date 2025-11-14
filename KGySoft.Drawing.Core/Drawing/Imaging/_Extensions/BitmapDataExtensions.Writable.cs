@@ -404,7 +404,7 @@ namespace KGySoft.Drawing.Imaging
                     case KnownPixelFormat.Format32bppGrayScale:
                         DoClearRaw(context, bitmapData, (bitmapData.IsLinearGamma()
                             ? new GrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
-                            : new GrayF(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(bitmapData.BackColor))).Value);
+                            : new GrayF(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value);
                         return true;
                         
                     default:
