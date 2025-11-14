@@ -25,7 +25,7 @@
     methods:
     ! Working in linear color space if the working color space of the source bitmap is linear or the pixel format
       has linear gamma. Previously these methods always worked in sRGB color space.
-    + Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
+    ! Preserving the original color depth for wide pixel formats. Previously the colors were quantized to 32 bit
       during the operation even without a specified quantizer.
   ! [Begin]ToGrayscale[Async]/[Begin]ToTransparent[Async] methods:
     ! The pixel format of the result is no longer always Format32bppArgb. If the source bitmap has a wide format,
@@ -52,7 +52,7 @@
   + New Load/BeginLoad/LoadAsync overloads with WorkingColorSpace parameter.
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:
-  + New ToGray overloads with WorkingColorSpace parameter.
+  + New ToGray extension methods with WorkingColorSpace parameter.
   - Fixing GetBrightness(Color64, WorkingColorSpace) method for the linear color space.
 
 * KGySoft.Drawing.Shapes namespace

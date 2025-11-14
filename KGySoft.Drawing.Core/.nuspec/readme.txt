@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Core Libraries 9.1.1
+﻿Thank you for installing KGy SOFT Drawing Core Libraries 10.0.0-rc.1
 The KGy SOFT Drawing Core Libraries package offers advanced drawing features for completely managed bitmap data
 on multiple platforms.
 
@@ -13,8 +13,7 @@ Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.D
 
                                                  ~~*~~
 
-Project Home Page: https://kgysoft.net/drawing
-Online documentation: https://docs.kgysoft.net/drawing
+Online Documentation: https://koszeggy.github.io/docs/drawing
 GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
                                                  ~~*~~
@@ -45,3 +44,8 @@ Some Highlights of KGy SOFT Drawing Core Libraries:
 - For SkiaSharp specific solutions see the KGySoft.Drawing.SkiaSharp package. It makes possible to create managed,
   fast accessible bitmap data for SKBitmap and SKPixmap instances of any pixel format.
   NuGet: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp
+
+💡 Pro Tip:
+When debugging with Visual Studio, use the debugger visualizers for your bitmap data, color and palette instances.
+Marketplace: https://marketplace.visualstudio.com/items?itemName=KGySoft.drawing-debugger-visualizers-x64
+GitHub: https://github.com/koszeggy/KGySoft.Drawing.Tools

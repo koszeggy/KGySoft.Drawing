@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>-->
-    <!--<TargetFrameworks>net35;net40;net45</TargetFrameworks>-->
+    <TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <!--<TargetFrameworks>net40;netcoreapp3.0;net10.0</TargetFrameworks>-->
 
-		<!--For UnitTesting the .NET Standard versions-->
-    <TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
-    <DefineConstants>NETSTANDARD_TEST</DefineConstants>
+    <!--For UnitTesting the .NET Standard versions-->
+    <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <DefineConstants>NETSTANDARD_TEST</DefineConstants>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them (if the targets are enabled in the main project, too). -->
     <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>-->
