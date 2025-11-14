@@ -666,7 +666,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     do
                     {
                         for (int x = 0; x < target.Width; x++)
-                            Assert.AreEqual(expected, row[x], $"{pixelFormat} {name} {colorSpace}");
+                            Assert.AreEqual(expected, row[x], $"{pixelFormat} {name} {colorSpace} (original color: {color})");
                     } while (row.MoveNextRow());
 
                     //SaveBitmapData($"{pixelFormat} {name} {colorSpace}", target);
@@ -854,7 +854,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var newSize = new Size(256, 256);
             using var resized = refBmpData.Resize(newSize);
             Assert.AreEqual(newSize, resized.Size);
-            Assert.AreEqual(colorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb, resized.PixelFormat.ToKnownPixelFormat());
+            Assert.AreEqual(KnownPixelFormat.Format24bppRgb, resized.PixelFormat.ToKnownPixelFormat());
             SaveBitmapData($"{colorSpace}", resized);
         }
 

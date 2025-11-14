@@ -337,9 +337,7 @@ namespace KGySoft.Drawing
                     }
 
                     pos += vectorCount << 1;
-#if DEBUG
                     count -= vectorCount << 1;
-#endif
                 }
             }
 
