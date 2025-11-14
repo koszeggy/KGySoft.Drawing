@@ -120,9 +120,6 @@
   <data name="General_RequiresWindows" xml:space="preserve">
     <value>This operation is supported on Windows only.</value>
   </data>
-  <data name="General_InternalErrorFormat" xml:space="preserve">
-    <value>Internal Error: {0}</value>
-  </data>
   <data name="General_PixelFormatInvalidFormat" xml:space="preserve">
     <value>Pixel format '{0}' does not represent an actual format.</value>
   </data>

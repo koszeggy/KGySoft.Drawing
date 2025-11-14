@@ -220,7 +220,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             static void AreEqual(Color32 c1, Color32 c2, byte tolerance = 0)
             {
-                Assert.IsTrue(c1.A == 0 && c2.A == 0 || c1.TolerantEquals(c2, tolerance), $"{c1} vs. {c2}");
+                Assert.IsTrue(c1.A == 0 && c2.A == 0 || c1.TolerantEquals(c2, tolerance, 0), $"{c1} vs. {c2}");
             }
 
             #endregion
