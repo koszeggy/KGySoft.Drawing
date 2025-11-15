@@ -50,11 +50,11 @@ namespace KGySoft.Drawing.Wpf
             float r = color.R / 255f;
             float g = color.G / 255f;
             float b = color.B / 255f;
-            float k = 1f - Math.Max(r, Math.Max(g, b));
-            this.k = (byte)(k * 255f);
-            c = (byte)((1f - r - k) / (1f - k) * 255f);
-            m = (byte)((1f - g - k) / (1f - k) * 255f);
-            y = (byte)((1f - b - k) / (1f - k) * 255f);
+            float kF = 1f - Math.Max(r, Math.Max(g, b));
+            k = (byte)(kF * 255f);
+            c = (byte)((1f - r - kF) / (1f - kF) * 255f);
+            m = (byte)((1f - g - kF) / (1f - kF) * 255f);
+            y = (byte)((1f - b - kF) / (1f - kF) * 255f);
         }
 
         #endregion

@@ -111,7 +111,7 @@ namespace KGySoft.Drawing.Wpf
 
             Ditherer = ditherer;
 
-            // Precreating the result bitmap only if the quantizer can be initialized effortlessly
+            // Pre-creating the result bitmap only if the quantizer can be initialized effortlessly
             if (Quantizer is not PredefinedColorsQuantizer predefinedColorsQuantizer)
                 return;
 
@@ -157,7 +157,7 @@ namespace KGySoft.Drawing.Wpf
             {
                 Source = GetSourceBitmapData();
 
-                // Precreating the result bitmap only if the quantizer can be initialized effortlessly
+                // Pre-creating the result bitmap only if the quantizer can be initialized effortlessly
                 if (Quantizer is not PredefinedColorsQuantizer predefinedColorsQuantizer)
                     return;
 
@@ -179,7 +179,7 @@ namespace KGySoft.Drawing.Wpf
             PixelFormat pixelFormat = sourceFormat.ToKnownPixelFormat().ToPixelFormat();
             Palette? palette = source.Palette;
 
-            // indexed custom formats with >8 bpp: ToKnownPixelFormat returns 32bpp but it can be fine-tuned
+            // indexed custom formats with >8 bpp: ToKnownPixelFormat returns 32bpp, but it can be fine-tuned
             if (sourceFormat.IsCustomFormat && sourceFormat.Indexed && sourceFormat.BitsPerPixel > 8 && palette != null)
                 pixelFormat = palette.HasAlpha ? PixelFormats.Bgra32
                     : palette.IsGrayscale ? PixelFormats.Gray16

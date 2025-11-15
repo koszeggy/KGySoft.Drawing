@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Wpf
     {
         #region Fields
 
-        private static readonly Color32[] indexedDefault2BppPalette = { Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF) };
+        private static readonly Color32[] indexedDefault2BppPalette = [Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF)];
 
         #endregion
 
