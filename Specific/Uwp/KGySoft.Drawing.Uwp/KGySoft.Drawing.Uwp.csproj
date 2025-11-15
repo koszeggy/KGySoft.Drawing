@@ -56,21 +56,21 @@
       <Version>6.2.14</Version>
     </PackageReference>
     <!--Primary Drawing.Core reference-->
-    <!--<PackageReference Include="KGySoft.Drawing.Core">
-      <Version>9.0.0</Version>
-    </PackageReference>-->
+    <PackageReference Include="KGySoft.Drawing.Core">
+      <Version>10.0.0-rc.1</Version>
+    </PackageReference>
   </ItemGroup>
   <!--
   Debug-only references - unfortunately conditions are not supported here, so use it only when really needed, and do not forget to reset the package reference in the end.
   When used, target only netstandard2.0 in KGySoft.Drawing.Core
   If UnitTest is also loaded, add the same reference there, too.
   -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <ProjectReference Include="..\..\..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj">
       <Project>{f030bca6-4fe3-481b-ba49-5bb66c305408}</Project>
       <Name>KGySoft.Drawing.Core</Name>
     </ProjectReference>
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <None Include="..\..\..\LICENSE">
       <Link>LICENSE</Link>

@@ -6,12 +6,13 @@
 ===============================================================================
 
 ~~~~~~~~~~
-* v10.0.0:
+! v10.0.0:
 ~~~~~~~~~~
 
-* Common changes
+! Common changes
 ================
-* Referencing KGySoft.Drawing.Core v10.0.0.
+! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, though none of them affects UWP
+  features directly.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
 + KGySoft.Drawing.Uwp namespace

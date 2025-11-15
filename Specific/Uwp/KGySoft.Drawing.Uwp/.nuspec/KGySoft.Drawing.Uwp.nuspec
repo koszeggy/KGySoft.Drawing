@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Uwp</id>
-    <version>9.0.0</version>
+    <version>10.0.0-rc.1</version>
     <title>KGy SOFT Drawing Libraries for UWP</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -15,8 +15,7 @@
 
 This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
 Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
@@ -32,7 +31,7 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="uap10.0.16299" >
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
     </dependencies>
   </metadata>
