@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>9.0.0</version>
+    <version>10.0.0-rc.1</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -10,18 +10,18 @@
     <!--<projectUrl>https://kgysoft.net/drawing</projectUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, shape drawing, quantizing and dithering for any pixel format.</summary>
+    <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, shape/text drawing, quantizing and dithering for any pixel format.</summary>
     <description xml:space="preserve">The KGy SOFT Drawing Libraries for WPF package offers KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap.
 
 Among others:
 - Fast direct native WriteableBitmap data access
-- High performance shape drawing into WriteableBitmap instances of any pixel format, even indexed ones.
+- High performance shape/text drawing into WriteableBitmap instances of any pixel format, even indexed ones.
 - Fast read-only access to any BitmapSource of any pixel format
 - Supporting every PixelFormat
 - Converting between various pixel formats preserving transparency if possible.
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
@@ -37,13 +37,13 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
     </dependencies>
   </metadata>
