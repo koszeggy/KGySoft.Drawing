@@ -6,19 +6,23 @@
 ===============================================================================
 
 ~~~~~~~~~~
-* v10.0.0:
+! v10.0.0:
 ~~~~~~~~~~
 
-* Common changes
+! Common changes
 ================
-* Referencing KGySoft.Drawing.Core v10.0.0.
+! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, though none of them affects WinUI
+  features directly.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
-+ KGySoft.Drawing.WinUI namespace
+* KGySoft.Drawing.WinUI namespace
 =================================
 + New GeometryExtensions class:
   + New ToPath method: To convert a WinUI Geometry instance to a KGySoft.Drawing.Shapes.Path.
   + New ToGeometry method: To convert KGySoft.Drawing.Shapes.Path instance to a WinUI Geometry.
+* WriteableBitmapExtensions class:
+  * GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods: Array pooling strategy for
+    allocating the bitmap data buffer respects the BitmapDataFactory.PoolingStrategy property.
 
 
 ~~~~~~~~~

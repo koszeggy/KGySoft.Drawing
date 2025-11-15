@@ -27,6 +27,8 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 using Windows.Storage.Streams;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.WinUI
@@ -141,8 +143,10 @@ namespace KGySoft.Drawing.WinUI
             // Alert: this is a COM object so all of its members use "remoting".
             IBuffer nativeBuffer = bitmap.PixelBuffer;
 
-            // Just because it can use array pooling
-            ArraySection<byte> managedBuffer = new ArraySection<byte>((int)nativeBuffer.Length, false);
+            // Using ArraySection to be able to pool the buffer if possible
+            ArraySection<byte> managedBuffer = BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased
+                ? new ArraySection<byte>((int)nativeBuffer.Length, false)
+                : new byte[nativeBuffer.Length].AsSection();
             try
             {
                 nativeBuffer.CopyTo(managedBuffer.UnderlyingArray);
