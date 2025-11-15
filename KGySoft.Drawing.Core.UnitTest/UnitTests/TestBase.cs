@@ -102,8 +102,8 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Properties
 
-        protected static bool SaveToFile => false;
-        protected static bool AddTimestamp => true;
+        protected static bool SaveToFile => Program.SaveTestImages;
+        protected static bool AddTimestamp => Program.AddFileTimestamps;
 
         protected static Color32[] PaletteArgb4444
         {

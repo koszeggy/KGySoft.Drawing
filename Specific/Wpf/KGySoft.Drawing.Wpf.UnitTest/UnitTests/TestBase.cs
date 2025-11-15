@@ -54,8 +54,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Properties
 
-        protected static bool SaveToFile => false;
-        private static bool AddTimestamp => true;
+        protected static bool SaveToFile => Program.SaveTestImages;
+        protected static bool AddTimestamp => Program.AddFileTimestamps;
 
         #endregion
 

@@ -33,15 +33,15 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => false;
-        private static bool AddTimestamp => true;
+        protected static bool SaveToFile => Program.SaveTestImages;
+        protected static bool AddTimestamp => Program.AddFileTimestamps;
 
         #endregion
 
         #region Methods
 
         #region Protected Methods
-        
+
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
         {
             var firstRow = new Color32[bitmapData.Width];
@@ -139,7 +139,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             using SKBitmap source = SKBitmap.Decode(fileName);
 
             using var canvas = new SKCanvas(target);
-            using var paint = new SKPaint { BlendMode = SKBlendMode.Src };
+            using var paint = new SKPaint();
+            paint.BlendMode = SKBlendMode.Src;
             canvas.DrawBitmap(source, source.Info.Rect, target.Info.Rect, paint);
         }
 

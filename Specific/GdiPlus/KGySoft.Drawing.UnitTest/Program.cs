@@ -18,8 +18,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+#if NETCOREAPP
+using System.Runtime.InteropServices;
+#endif
 
 using KGySoft.CoreLibraries;
+using KGySoft.Reflection;
 
 using NUnit.Framework.Api;
 using NUnit.Framework.Interfaces;
@@ -92,6 +96,8 @@ namespace KGySoft.Drawing
         #region Internal Properties
 
         internal static TextWriter ConsoleWriter { get; private set; }
+        internal static bool SaveTestImages { get; private set; }
+        internal static bool AddFileTimestamps { get; private set; } = true;
 
         #endregion
 
@@ -101,7 +107,7 @@ namespace KGySoft.Drawing
 #if NETFRAMEWORK
             $".NET Framework Runtime {typeof(object).Assembly.ImageRuntimeVersion}";
 #elif NETCOREAPP
-            $".NET Core {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))}";
+            $".NET Core {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))} ({RuntimeInformation.ProcessArchitecture})";
 #else
             $"{RuntimeInformation.FrameworkDescription}";
 #endif
@@ -112,7 +118,9 @@ namespace KGySoft.Drawing
 
         #region Methods
 
-        internal static void Main()
+        #region Internal Methods
+
+        internal static int Main(string[] args)
         {
 #if !WINDOWS && (NET5_0 || NET6_0)
             // Initializing the context switch that is required for GDI+ to be used on non-Windows systems.
@@ -124,12 +132,13 @@ namespace KGySoft.Drawing
             // or just calling the method to debug directly
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
+            ProcessArgs(args, out TestFilter filter);
 
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");
             ConsoleWriter = Console.Out;
-            ITestResult result = runner.Run(new ConsoleTestReporter(), TestFilter.Empty);
+            ITestResult result = runner.Run(new ConsoleTestReporter(), filter);
             Console.ForegroundColor = result.FailCount > 0 ? ConsoleColor.Red
                 : result.InconclusiveCount > 0 ? ConsoleColor.Yellow
                 : ConsoleColor.Green;
@@ -138,6 +147,68 @@ namespace KGySoft.Drawing
             if (!String.IsNullOrEmpty(result.Message))
                 Console.WriteLine($"Message: {result.Message}");
             ProcessChildren(result.Children);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            return result.FailCount;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void ProcessArgs(string[] args, out TestFilter filter)
+        {
+            filter = TestFilter.Empty;
+            if ("-?".In(args) || "-h".ContainsAny(StringComparison.OrdinalIgnoreCase, args) || "--help".ContainsAny(StringComparison.OrdinalIgnoreCase, args))
+            {
+                Console.WriteLine("Available command line arguments:");
+                Console.WriteLine("  -? or -h or --help         Displays this help message.");
+                Console.WriteLine("  -s or --SaveTestImages     Saves images created during tests to a TestResults folder.");
+                Console.WriteLine("  -t or --NoFileTimestamps   Disables adding timestamps to saved test image file names.");
+                Console.WriteLine("  TestName=<name>            Runs only tests with the specified name.");
+                Console.WriteLine("  ClassName=<name>           Runs only tests in the specified class.");
+                Environment.Exit(-1);
+            }
+
+            foreach (string arg in args)
+            {
+                if (arg.EqualsAny(StringComparison.OrdinalIgnoreCase, "-s", "--SaveTestImages"))
+                    SaveTestImages = true;
+                else if (arg.EqualsAny(StringComparison.OrdinalIgnoreCase, "-t", "--NoFileTimestamps"))
+                    AddFileTimestamps = false;
+                else if (arg.StartsWith("TestName=", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (filter != TestFilter.Empty)
+                    {
+                        Console.WriteLine($"Error: Duplicate filter: {arg}");
+                        Environment.Exit(-1);
+                    }
+
+                    string testName = arg.Substring(arg.IndexOf('=') + 1);
+                    Console.WriteLine($"Applying test name filter: {testName}");
+                    filter = (TestFilter)Reflector.CreateInstance(Reflector.ResolveType("NUnit.Framework.Internal.Filters.TestNameFilter")!, testName);
+                }
+                else if (arg.StartsWith("ClassName=", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (filter != TestFilter.Empty)
+                    {
+                        Console.WriteLine($"Error: Duplicate filter: {arg}");
+                        Environment.Exit(-1);
+                    }
+
+                    string className = arg.Substring(arg.IndexOf('=') + 1);
+                    Console.WriteLine($"Applying class name filter: {className}");
+                    filter = (TestFilter)Reflector.CreateInstance(Reflector.ResolveType("NUnit.Framework.Internal.Filters.ClassNameFilter")!, className);
+                }
+                else
+                {
+                    Console.WriteLine($"Error: Unknown argument: {arg}");
+                    Environment.Exit(-1);
+                }
+            }
+
+            Console.WriteLine($"Saving test images: {SaveTestImages}");
+            if (SaveTestImages)
+                Console.WriteLine($"Adding file timestamps: {AddFileTimestamps}");
         }
 
         private static void ProcessChildren(IEnumerable<ITestResult> children)
@@ -166,6 +237,8 @@ namespace KGySoft.Drawing
                     Console.WriteLine($"Assertion #{i}: {child.AssertionResults[i].Message}{Environment.NewLine}{child.AssertionResults[i].StackTrace}{Environment.NewLine}");
             }
         }
+
+        #endregion
 
         #endregion
     }

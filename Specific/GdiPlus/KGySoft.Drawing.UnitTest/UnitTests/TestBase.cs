@@ -36,13 +36,13 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => true;
-        private static bool AddTimestamp => true;
+        protected static bool SaveToFile => Program.SaveTestImages;
+        protected static bool AddTimestamp => Program.AddFileTimestamps;
 
         #endregion
 
         #region Methods
-        
+
         #region Protected Methods
 
         protected static void AssertPlatformDependent(Action code, params PlatformID[] platforms)
