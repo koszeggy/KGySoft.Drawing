@@ -28,6 +28,8 @@ using KGySoft.Drawing.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Uwp
@@ -141,13 +143,15 @@ namespace KGySoft.Drawing.Uwp
                 var size = new Size(bitmap.PixelWidth, bitmap.PixelHeight);
                 IBuffer nativeBuffer = bitmap.PixelBuffer;
 
-                // Just because it can use array pooling if referenced from a project that can target .NET Standard 2.1
-                ArraySection<byte> managedBuffer = new ArraySection<byte>((int)nativeBuffer.Length, false);
+                // It can use array pooling when referenced from a project that can target .NET Standard 2.1+ (not too likely for a UWP application)
+                ArraySection<byte> managedBuffer = BitmapDataFactory.PoolingStrategy >= ArrayPoolingStrategy.IfByteArrayBased
+                    ? new ArraySection<byte>((int)nativeBuffer.Length, false)
+                    : new byte[nativeBuffer.Length].AsSection();
                 try
                 {
                     nativeBuffer.CopyTo(managedBuffer.UnderlyingArray);
 
-                    // UWP's WriteableBitmap is really simple: it always uses the premultiplied ARGB32 format
+                    // UWP WriteableBitmap is really simple: it always uses the premultiplied ARGB32 format
                     return BitmapDataFactory.CreateBitmapData(managedBuffer, size, size.Width << 2, KnownPixelFormat.Format32bppPArgb, workingColorSpace,
                         disposeCallback: () =>
                         {
