@@ -7,3 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("ReSharper", "LocalizableElement", Justification = "This is just a Unit Test project")]
 [assembly: SuppressMessage("Style", "IDE0300:Use collection expression for array'", Justification = "Decided individually")]
+#if NET
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "False alarm, WPF is supported on Windows only.")]
+#endif

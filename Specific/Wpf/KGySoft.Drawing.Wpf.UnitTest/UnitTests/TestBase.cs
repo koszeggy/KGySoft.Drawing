@@ -18,7 +18,9 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.ExceptionServices;
+#endif
 using System.Threading;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -52,7 +54,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Properties
 
-        protected static bool SaveToFile => true;
+        protected static bool SaveToFile => false;
         private static bool AddTimestamp => true;
 
         #endregion
@@ -167,9 +169,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             };
 
             var thread = new Thread(Execute);
-#if NETFRAMEWORK
             thread.SetApartmentState(ApartmentState.STA);
-#endif
 
             thread.Start(state);
             waitHandle.WaitOne();

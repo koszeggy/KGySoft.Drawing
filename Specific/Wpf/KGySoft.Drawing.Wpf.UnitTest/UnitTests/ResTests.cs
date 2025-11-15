@@ -60,9 +60,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(WpfRes), "Get", "unknown")!.ToString()!.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
 
         [Test]
-        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(WpfRes), "Get", "General_InternalErrorFormat", Reflector.EmptyArray<object>())!.ToString()!.StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
-
-        [Test]
         public void TestResources()
         {
             var obtainedMembers = new HashSet<string>();

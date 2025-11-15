@@ -76,7 +76,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             {
                 UnicodeString = "Hello GlyphRun",
 #if NET35
-                FontUri = new Uri(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "Fonts\\Arial.ttf")),
+                FontUri = new Uri(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"..\Fonts\Arial.ttf")),
 #else
                 FontUri = new Uri(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "Arial.ttf")),
 #endif

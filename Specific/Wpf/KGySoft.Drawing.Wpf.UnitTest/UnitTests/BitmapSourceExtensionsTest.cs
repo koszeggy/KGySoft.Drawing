@@ -454,7 +454,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             Assert.IsFalse(task.IsCompleted);
             Assert.IsNull(result);
 
-            // 2.) Here this method returns but the caller ExecuteAsyncTest starts the dispatcher and prevents the thread from exiting or blocking
+            // 2.) Here this method returns but the caller ExecuteTestWithDispatcher starts the dispatcher and prevents the thread from exiting or blocking
 
             // 3.) This is executed when the async operation finishes
             Task Continuation(Task<WriteableBitmap?> completedTask)
