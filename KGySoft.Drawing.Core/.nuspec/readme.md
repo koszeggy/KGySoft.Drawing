@@ -20,8 +20,4 @@ See the [online help](https://koszeggy.github.io/docs/drawing) for the complete 
 > * For dedicated UWP support see the [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp/) package.
 > * For dedicated WinUI support see the [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI/) package.
 > * For SkiaSharp specific solutions see the [KGySoft.Drawing.SkiaSharp](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/) package. It makes possible to obtain managed, fast accessible bitmap data for `SKBitmap` and `SKPixmap` instances of any pixel format, offering all [`IReadWriteBitmapData`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) features for them. It also offers extension methods for the `SKImage`, `SKSurface`, `SKBitmap`, `SKPixmap` and `SKImageInfo` classes.
-
-> 💡 _Pro Tip:_
-> - When debugging with Visual Studio, use the debugger visualizers for your bitmap data, color and palette instances.
-> - Marketplace: https://marketplace.visualstudio.com/items?itemName=KGySoft.drawing-debugger-visualizers-x64
-> - GitHub: https://github.com/koszeggy/KGySoft.Drawing.Tools
+> * See also the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which contains debugger visualizers for several bitmap, palette and color types of the frameworks listed above.

@@ -9,17 +9,18 @@
 ! v10.0.0:
 ~~~~~~~~~~
 
-* Common changes
+! Common changes
 ================
-* Referencing KGySoft.Drawing.Core v10.0.0. It indirectly fixes some issues, such as losing color information when
-  transforming Bitmaps of wide pixel formats, or picking the sRGB color space even for linear pixel formats.
+! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, which are rather fixes for some
+  issues like losing color information when transforming Bitmaps of wide pixel formats, or picking the sRGB
+  color space even for linear pixel formats.
   It also improves the performance of several operations, especially when targeting newer .NET versions.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
 ! KGySoft.Drawing namespace
 ===========================
 ! GraphicsPathExtensions class:
-  ! New ToGraphicsPath method:
+  ! ToGraphicsPath method:
     ! Instead of returning a path with flattened points, now it preserves the original curves as much as possible.
     - Single-point segments are now preserved even if they are the only segment in a figure.
 - ImageExtensions class:

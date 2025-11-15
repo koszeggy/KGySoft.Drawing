@@ -46,6 +46,8 @@ Some Highlights of KGy SOFT Drawing Core Libraries:
   NuGet: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp
 
 💡 Pro Tip:
-When debugging with Visual Studio, use the debugger visualizers for your bitmap data, color and palette instances.
+When debugging with Visual Studio, use the debugger visualizers for your IReadableBitmapData, Palette,
+Color32, PColor32, Color64, PColor64, ColorF and PColorF instances. It contains debugger visualizers also for the
+various bitmap, palette and color types of GDI+, WPF and SkiaSharp.
 Marketplace: https://marketplace.visualstudio.com/items?itemName=KGySoft.drawing-debugger-visualizers-x64
 GitHub: https://github.com/koszeggy/KGySoft.Drawing.Tools

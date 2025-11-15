@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing</id>
-    <version>9.2.0</version>
+    <version>10.0.0-rc.1</version>
     <title>KGy SOFT Drawing Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,12 +11,12 @@
     <readme>readme.md</readme>
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Advanced drawing features for System.Drawing types. Among others: fast bitmap manipulation, shape drawing, quantizing and dithering, saving bitmaps and metafiles in various formats, creating animated GIFs in high color, manipulating high resolution multi-image icons, etc.</summary>
+    <summary>Advanced drawing features for System.Drawing types. Among others: fast bitmap manipulation, shape/text drawing, quantizing and dithering, saving bitmaps and metafiles in various formats, creating animated GIFs in high color, manipulating high resolution multi-image icons, etc.</summary>
     <description xml:space="preserve">The KGy SOFT Drawing Libraries package offers advanced features built around System.Drawing types.
 
 Among others:
 - Fast direct native Bitmap data access for every PixelFormat.
-- High performance shape drawing into Bitmap instances of any pixel format, even indexed ones.
+- High performance shape/text drawing into Bitmap instances of any pixel format, even indexed ones.
 - Quantizing and dithering.
 - Creating GIF animations.
 - Several built-in icons as well as simple access to Windows associated and stock icons.
@@ -27,8 +27,8 @@ Among others:
 - Converting between various pixel formats preserving transparency if possible.
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
@@ -39,38 +39,38 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
-    <tags>KGySoft Drawing gdi gdiplus extension icon bitmap image metafile graphics gif animgif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat shape shapes</tags>
+    <tags>KGySoft Drawing gdi gdiplus extension icon bitmap image metafile graphics gif animgif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat shape shapes text</tags>
     <language>en-US</language>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="System.Drawing.Common" version="6.0.0" />
       </group>
       <group targetFramework="net7.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.1" />
-        <dependency id="System.Drawing.Common" version="8.0.0 " />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
+        <dependency id="System.Drawing.Common" version="8.0.0" />
       </group>
     </dependencies>
   </metadata>

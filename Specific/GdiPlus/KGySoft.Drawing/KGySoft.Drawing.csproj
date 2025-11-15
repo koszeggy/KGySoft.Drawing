@@ -61,7 +61,7 @@
   <!-- .NET 7.0 or newer references: Unix is no longer supported. For .NET 7 (which is the highest we need to target as of now)
     package version 8.x is the newest one we can use, because MS keeps dropping support for older versions -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="System.Drawing.Common" Version="8.0.22" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->

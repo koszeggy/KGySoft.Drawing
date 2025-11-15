@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 9.2.0
+﻿Thank you for installing KGy SOFT Drawing Libraries 10.0.0-rc.1
 KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
 ⚠️ Warning: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and
@@ -54,3 +54,9 @@ Some Highlights of KGy SOFT Drawing Libraries:
 - For SkiaSharp specific solutions see the KGySoft.Drawing.SkiaSharp package. It makes possible to create managed,
   fast accessible bitmap data for SKBitmap and SKPixmap instances of any pixel format.
   NuGet: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp
+
+💡 Pro Tip:
+When debugging with Visual Studio, use the debugger visualizers for Bitmap, Metafile, Icon, Graphics, BitmapData,
+Color and ColorPalette instances.
+Marketplace: https://marketplace.visualstudio.com/items?itemName=KGySoft.drawing-debugger-visualizers-x64
+GitHub: https://github.com/koszeggy/KGySoft.Drawing.Tools

@@ -23,8 +23,8 @@ Among others:
 - Quantizing and dithering
 - Creating GIF animations
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
