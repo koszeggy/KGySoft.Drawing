@@ -24,6 +24,7 @@ using KGySoft.Drawing.Imaging;
 
 #region Suppressions
 
+// ReSharper disable PrivateFieldCanBeConvertedToLocalVariable - false alarm, struct fields must be kept
 #if NET8_0_OR_GREATER
 #pragma warning disable CS9193 // Argument should be a variable because it is passed to a 'ref readonly' parameter - false alarm
 #pragma warning disable CS9195 // Argument should be passed with the 'in' keyword - false alarm

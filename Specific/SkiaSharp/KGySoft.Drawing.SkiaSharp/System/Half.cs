@@ -151,7 +151,7 @@ namespace System
 
         private static ushort RoundPackToHalf(bool sign, short exp, ushort sig)
         {
-            const int roundIncrement = 0x8; // Depends on rounding mode but it's always towards closest / ties to even
+            const int roundIncrement = 0x8; // Depends on rounding mode, but it's always towards closest / ties to even
             int roundBits = sig & 0xF;
 
             if ((uint)exp >= 0x1D)
@@ -214,7 +214,7 @@ namespace System
 #if NETCOREAPP3_0_OR_GREATER
             return BitOperations.LeadingZeroCount(value);
 #else
-            // Filling trailing zeros with ones, eg 00010010 becomes 00011111
+            // Filling trailing zeros with ones, e.g. 00010010 becomes 00011111
             value |= value >> 1;
             value |= value >> 2;
             value |= value >> 4;

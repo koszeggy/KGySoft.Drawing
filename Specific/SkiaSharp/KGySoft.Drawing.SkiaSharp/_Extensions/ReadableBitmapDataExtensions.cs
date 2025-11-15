@@ -451,7 +451,7 @@ namespace KGySoft.Drawing.SkiaSharp
                         // Opaque formats
                         > 48 => SKColorType.RgbaF32,
                         > 32 => SKColorType.Rgba16161616,
-                        > 24 => SKColorType.Bgr101010x, // this actually turns 888x formats to 101010x but it's better to assume the better quality
+                        > 24 => SKColorType.Bgr101010x, // this actually turns 888x formats to 101010x, but it's better to assume the better quality
                         _ => SKImageInfo.PlatformColorType
                     };
             }

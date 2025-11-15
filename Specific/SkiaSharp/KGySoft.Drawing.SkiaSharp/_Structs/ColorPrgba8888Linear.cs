@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal ColorPrgba8888Linear(PColorF c)
         {
-            // This would be the solution without floating-point operations but it's quantizing the result too heavily
+            // This would be the solution without floating-point operations, but it's quantizing the result too heavily,
             // and it's not even faster on targets where vectorization can be used:
             //PColor32 premultiplied = new Color32(c.A, c.R.ToLinear(), c.G.ToLinear(), c.B.ToLinear()).ToPremultiplied();
             //r = premultiplied.R;

@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -24,6 +25,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Following the naming in SKColorType")]
     internal readonly struct ColorRgba10x6Linear
     {
         #region Constants

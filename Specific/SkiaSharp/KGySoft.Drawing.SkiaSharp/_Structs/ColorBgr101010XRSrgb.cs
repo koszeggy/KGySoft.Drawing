@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -28,6 +29,7 @@ namespace KGySoft.Drawing.SkiaSharp
     /// https://issues.skia.org/issues/40045149 tells that this is MTLPixelFormatBGR10_XR (NOT MTLPixelFormatBGR10_XR_sRGB, even though this is also an sRGB format, so the range is different)
     /// See https://developer.apple.com/documentation/metal/mtlpixelformat/mtlpixelformatbgr10_xr
     /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Following the naming in SKColorType")]
     internal readonly struct ColorBgr101010XRSrgb
     {
         #region Constants

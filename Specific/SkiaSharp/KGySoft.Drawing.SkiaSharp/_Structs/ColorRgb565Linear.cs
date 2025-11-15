@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
 

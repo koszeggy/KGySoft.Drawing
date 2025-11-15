@@ -17,8 +17,6 @@
 
 using System.Runtime.CompilerServices;
 
-using SkiaSharp;
-
 #endregion
 
 namespace KGySoft.Drawing.SkiaSharp

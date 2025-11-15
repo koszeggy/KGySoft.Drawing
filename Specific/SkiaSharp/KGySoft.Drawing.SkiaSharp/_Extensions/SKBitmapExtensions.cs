@@ -472,11 +472,11 @@ namespace KGySoft.Drawing.SkiaSharp
             var tempBitmapInfo = new SKImageInfo(info.Width, info.Height, colorType, info.AlphaType,
                 workingColorSpace == WorkingColorSpace.Linear || workingColorSpace == WorkingColorSpace.Default && bitmap.ColorSpace!.GammaIsLinear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb());
 
-            // We could use bitmap.SetPixel/GetPixel as custom handling but it has two issues:
-            // - The getter/setter would contain a reference back to the original bitmap, which is not allowed (eg. ruins clone or the fallback quantizer)
+            // We could use bitmap.SetPixel/GetPixel as custom handling, but it has two issues:
+            // - The getter/setter would contain a reference back to the original bitmap, which is not allowed (e.g. ruins clone or the fallback quantizer)
             // - SKBitmap.GetPixel fails to return valid colors for non-sRGB images: https://github.com/mono/SkiaSharp/issues/2354
             // Therefore we create a new temp bitmap, which can be handled natively.
-            // For non read-only access this is copied back to the original instance in Dispose
+            // For non-read-only access this is copied back to the original instance in Dispose
             var tempBitmap = new SKBitmap(tempBitmapInfo);
             using (var canvas = new SKCanvas(tempBitmap))
                 canvas.DrawBitmap(bitmap, 0, 0, CopySourcePaint);
