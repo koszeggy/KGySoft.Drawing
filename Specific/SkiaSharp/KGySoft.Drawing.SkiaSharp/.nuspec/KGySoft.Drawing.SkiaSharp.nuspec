@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.SkiaSharp</id>
-    <version>9.1.0</version>
+    <version>10.0.0-rc.1</version>
     <title>KGy SOFT Drawing Libraries for SkiaSharp</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,20 +11,20 @@
     <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Provides KGySoft.Drawing.Core features for SkiaSharp.SKBitmap/SKPixmap/SKImage/SKSurface such as fast and direct bitmap manipulation, shape drawing, quantizing and dithering for any pixel format.</summary>
+    <summary>Provides KGySoft.Drawing.Core features for SkiaSharp.SKBitmap/SKPixmap/SKImage/SKSurface such as fast and direct bitmap manipulation, shape/text drawing, quantizing and dithering for any pixel format.</summary>
     <description xml:space="preserve">The KGy SOFT Drawing Libraries for SkiaSharp package offers KGySoft.Drawing.Core features for SkiaSharp types.
 
 Among others:
 - Fast direct native SKBitmap and SKPixmap data access of any pixel format. This provides a working GetPixel/SetPixel even when SKBitmap.GetPixel fails to get the correct color.
-- High performance shape drawing into SKBitmap and SKPixmap instances of any pixel format with optional quantizing and dithering.
+- High performance shape/text drawing into SKBitmap and SKPixmap instances of any pixel format with optional quantizing and dithering.
 - Read-only access to SKImage instances
 - Read-write access to SKSurface instances
 - Supporting every SKColorType and SKAlphaType
 - Converting between various pixel formats preserving transparency if possible.
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
-Online Documentation: https://docs.kgysoft.net/drawing
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
@@ -39,19 +39,19 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="KGySoft.Drawing.Core" version="9.1.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="SkiaSharp" version="3.116.1" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="KGySoft.Drawing.Core" version="9.1.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="SkiaSharp" version="3.116.1" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="SkiaSharp" version="3.116.1" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.Drawing.Core" version="9.1.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
         <dependency id="SkiaSharp" version="3.116.1" />
       </group>
     </dependencies>
