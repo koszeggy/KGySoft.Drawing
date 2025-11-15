@@ -46,12 +46,14 @@ using UwpArcSegment = Windows.UI.Xaml.Media.ArcSegment;
 using UwpBezierSegment = Windows.UI.Xaml.Media.BezierSegment;
 using UwpLineSegment = Windows.UI.Xaml.Media.LineSegment;
 #if DEBUG
-using UwpPath = Windows.UI.Xaml.Shapes.Path; 
+using UwpPath = Windows.UI.Xaml.Shapes.Path;
 #endif
 
 #endregion
 
 #endregion
+
+#nullable enable
 
 namespace KGySoft.Drawing.Uwp.UnitTest
 {
@@ -242,18 +244,22 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 bounds = new Rect(0, 0, 1, 1);
 
 #if DEBUG
-            // this is how we can display the UWP geometry
-            var uwpPath = new UwpPath
+            AppWindow? appWindow = null;
+            if (SaveToFile)
             {
-                Data = geometry,
-                Fill = new SolidColorBrush(Colors.Yellow),
-                Stroke = new SolidColorBrush(Colors.Blue)
-            };
+                // this is how we can display the UWP geometry
+                var uwpPath = new UwpPath
+                {
+                    Data = geometry,
+                    Fill = new SolidColorBrush(Colors.Yellow),
+                    Stroke = new SolidColorBrush(Colors.Blue)
+                };
 
-            AppWindow appWindow = await AppWindow.TryCreateAsync();
-            var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
-            ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
-            await appWindow.TryShowAsync();
+                appWindow = await AppWindow.TryCreateAsync();
+                var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
+                ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
+                await appWindow.TryShowAsync();
+            }
 
             //// This is how we could render the UWP geometry to a RenderTargetBitmap. The issue is that the RenderTargetBitmap will always be empty,
             ////  even if we make sure the path is visible in a window, so the proper testing now is comparing the displayed path and the saved images visually.
@@ -287,11 +293,11 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             await SaveBitmap($"{name}_converted", bmp);
 #if DEBUG
             // For proper visual testing, place a breakpoint here and compare the Path in the window with the saved bitmap, whose name is printed in the console.
-            await appWindow.CloseAsync();
-#else
+            if (appWindow != null)
+                await appWindow.CloseAsync();
+#endif
             if (!SaveToFile)
                 Assert.Inconclusive("Set SaveToFile to true to save the bitmaps for visual comparison.");
-#endif
 
             // The equality is not pixel perfect so it should be compared visually
             //AssertAreEqual(bmpDataRef, bmpData);
@@ -329,10 +335,15 @@ namespace KGySoft.Drawing.Uwp.UnitTest
                 Fill = new SolidColorBrush(Colors.Yellow),
                 Stroke = new SolidColorBrush(Colors.Blue)
             };
-            AppWindow appWindow = await AppWindow.TryCreateAsync();
-            var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
-            ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
-            await appWindow.TryShowAsync();
+
+            AppWindow? appWindow = null;
+            if (SaveToFile)
+            {
+                appWindow = await AppWindow.TryCreateAsync();
+                var canvas = new Canvas { Background = new SolidColorBrush(Colors.Cyan), Children = { uwpPath } };
+                ElementCompositionPreview.SetAppWindowContent(appWindow, canvas);
+                await appWindow.TryShowAsync();
+            }
 
             //// This is how we could render the UWP geometry to a RenderTargetBitmap. The issue is that the RenderTargetBitmap will always be empty,
             ////  even if we make sure the path is visible in a window, so the proper testing now is comparing the displayed path and the saved images visually.
@@ -351,11 +362,11 @@ namespace KGySoft.Drawing.Uwp.UnitTest
             //AssertAreEqual(bmpRef.ToWriteableBitmap(), bmp);
 #if DEBUG
             // For proper visual testing, place a breakpoint here and compare the Path in the window with the saved bitmap, whose name is printed in the console.
-            await appWindow.CloseAsync();
-#else
+            if (appWindow != null)
+                await appWindow.CloseAsync();
+#endif
             if (!SaveToFile)
                 Assert.Inconclusive("Set SaveToFile to true to save the bitmaps for visual comparison.");
-#endif
         });
 
         #endregion
