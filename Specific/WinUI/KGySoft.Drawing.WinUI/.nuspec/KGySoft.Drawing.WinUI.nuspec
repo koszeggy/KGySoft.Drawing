@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.WinUI</id>
-    <version>9.0.0</version>
+    <version>10.0.0-rc.1</version>
     <title>KGy SOFT Drawing Libraries for WinUI</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -15,8 +15,8 @@
 
 This library requires targeting at least Windows 10.0.17763.0 (October 2018 release, version 1809).
 
-Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
-Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Application Examples: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Online Documentation: https://koszeggy.github.io/docs/drawing
 
 See Also:
@@ -32,7 +32,7 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net6.0-windows10.0.17763" >
-        <dependency id="KGySoft.Drawing.Core" version="9.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
       </group>
     </dependencies>
   </metadata>

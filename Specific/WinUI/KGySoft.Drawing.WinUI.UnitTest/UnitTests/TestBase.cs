@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.WinUI.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => true;
+        protected static bool SaveToFile => false;
         private static bool AddTimestamp => true;
 
         #endregion
