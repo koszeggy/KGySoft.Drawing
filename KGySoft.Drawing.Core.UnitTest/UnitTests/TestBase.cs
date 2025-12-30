@@ -450,6 +450,7 @@ namespace KGySoft.Drawing.UnitTests
         };
 
         protected static IReadWriteBitmapData GetShieldIcon16() => GetBitmapData(@"..\..\..\..\Help\Images\Shield16.png");
+        protected static IReadWriteBitmapData GetShieldIcon48() => GetBitmapData(@"..\..\..\..\Help\Images\Shield48.png");
         protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
 
 #if USE_SKIA

@@ -702,6 +702,141 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
+        public void CombineDifferentInstancesSameSizeTest()
+        {
+            using var source1 = GetInfoIcon256();
+            using var source2 = GetShieldIcon256();
+
+            using var target32 = BitmapDataFactory.CreateBitmapData(source1.Size);
+            source1.Combine(source2, target32, (c1, c2) => new Color32(255, c1.R, c2.G, 0));
+            SaveBitmapData("Color32", target32);
+
+            using var target64 = BitmapDataFactory.CreateBitmapData(source1.Size);
+            source1.Combine(source2, target64, (c1, c2) => new Color64(65535, c1.R, c2.G, 0));
+            SaveBitmapData("Color64", target64);
+            AssertAreEqual(target32, target64);
+
+            using var targetF = BitmapDataFactory.CreateBitmapData(source1.Size);
+            source1.Combine(source2, targetF, (c1, c2) => new ColorF(1f, c1.R, c2.G, 0));
+            SaveBitmapData("ColorF", targetF);
+            AssertAreEqual(target32, targetF);
+
+            using var target4 = BitmapDataFactory.CreateBitmapData(source1.Size, KnownPixelFormat.Format8bppIndexed);
+            source1.CopyTo(target4, ditherer: OrderedDitherer.Bayer8x8);
+
+            source1.Combine(source2, target4, (c1, c2) => new Color32(255, c1.R, c2.G, 0), ditherer: OrderedDitherer.Bayer8x8);
+            SaveBitmapData("DitheredB8", target4);
+            source1.Combine(source2, target4, (c1, c2) => new Color32(255, c1.R, c2.G, 0), ditherer: ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true));
+            SaveBitmapData("DitheredFS", target4);
+        }
+
+        [Test]
+        public void CombineDifferentInstancesClippedTest()
+        {
+            using var source1 = GetInfoIcon64();
+            using var source2 = GetShieldIcon48();
+            using var target = BitmapDataFactory.CreateBitmapData(128, 128);
+            target.Clear(Color.White);
+            var l1 = new Point(12, 12);
+            var l2 = new Point(4, 4);
+            var size = new Size(256, 256);
+            var f = new Func<Color32, Color32, Color32>((c1, c2) => c2.Blend(c1));
+
+            source1.Combine(source2, target, f, l1, l2, new Point(44, 44), size);
+            source1.Combine(source2, target, f, l1, l2, new Point(-20, -20), size);
+            source1.Combine(source2, target, f, l1, l2, new Point(108, -20), size);
+            source1.Combine(source2, target, f, l1, l2, new Point(-20, 108), size);
+            source1.Combine(source2, target, f, l1, l2, new Point(108, 108), size);
+
+            SaveBitmapData(null, target);
+        }
+
+        [Test]
+        public void CombineIntoSource1Test()
+        {
+            // no offset
+            using (IReadWriteBitmapData source1 = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData source2 = GetShieldIcon256();
+                source1.Combine(source2, source1, (Color32 c1, Color32 c2) => c1.Blend(c2));
+                SaveBitmapData("NoOffset", source1);
+            }
+
+            // no overlap
+            using (IReadWriteBitmapData source1 = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData source2 = GetShieldIcon48();
+                source1.Combine(source2, source1, (Color32 c1, Color32 c2) => c1.Blend(c2), new Point(10, 10), Point.Empty, new Point(130, 130));
+                SaveBitmapData("NoOverlap", source1);
+            }
+
+            // overlap with offset
+            using (IReadWriteBitmapData source1 = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData source2 = GetInfoIcon256();
+                source1.Combine(source2, source1, (Color32 c1, Color32 c2) => c1.Blend(c2), new Point(10, 10), Point.Empty, new Point(130, 130));
+                SaveBitmapData("OverlapWithOffset", source1);
+            }
+        }
+
+        [Test]
+        public void CombineIntoSource2Test()
+        {
+            // no offset
+            using (IReadWriteBitmapData target = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData clone = target.Clone();
+                using IReadWriteBitmapData source = GetShieldIcon256();
+
+                source.Combine(target, (Color32 c1, Color32 c2) => c2.Blend(c1));
+                source.Combine(clone, clone, (Color32 c1, Color32 c2) => c2.Blend(c1)); // the same with 3 params
+                AssertAreEqual(target, clone);
+                SaveBitmapData("NoOffset", target);
+            }
+
+            // no overlap
+            using (IReadWriteBitmapData target = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData source = GetShieldIcon48();
+
+                //source.Combine(target, (Color32 c1, Color32 c2) => c2.Blend(c1), null, new Point(130, 130));
+                source.Combine(target, target, (Color32 c1, Color32 c2) => c2.Blend(c1), Point.Empty, new Point(10, 10), new Point(130, 130));
+                SaveBitmapData("NoOverlap", target);
+            }
+
+            // overlap with offset
+            using (IReadWriteBitmapData target = GenerateAlphaGradientBitmapData(new Size(256, 256)))
+            {
+                using IReadWriteBitmapData source = GetInfoIcon256();
+
+                //source.Combine(target, (Color32 c1, Color32 c2) => c2.Blend(c1), null, new Point(130, 130));
+                source.Combine(target, target, (Color32 c1, Color32 c2) => c2.Blend(c1), Point.Empty, new Point(10, 10), new Point(130, 130));
+                SaveBitmapData("OverlapWithOffset", target);
+            }
+        }
+
+        [Test]
+        public void CombineSameInstanceTest()
+        {
+            using var bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 128), true);
+
+            // no offset
+            bitmapData.Combine(bitmapData, (c1, c2) => (c1 - c2).ToOpaque(), new Rectangle(10, 10, 32, 32), new Point(10, 10));
+            bitmapData.Combine(bitmapData, bitmapData, (c1, c2) => (c1 - c2).ToOpaque(), new Point(10, 60), new Point(10, 60), new Point(10, 60), new Size(32, 32));
+
+            // no overlap
+            bitmapData.Combine(bitmapData, bitmapData, (c1, c2) => (c1 - c2).ToOpaque(), new Point(200, 10), new Point(100, 92), new Point(60, 10), new Size(32, 32));
+
+            // 2 overlap with offset
+            bitmapData.Combine(bitmapData, bitmapData, (c1, c2) => (c1 - c2).ToOpaque(), new Point(120, 10), new Point(220, 13), new Point(128, 10), new Size(32, 32));
+
+            // 3 overlap with offset
+            bitmapData.Combine(bitmapData, bitmapData, (c1, c2) => (c1 - c2).ToOpaque(), new Point(200, 10), new Point(220, 13), new Point(192, 10), new Size(32, 32));
+
+            SaveBitmapData(null, bitmapData);
+        }
+
+        [Test]
         public void ClippingClippedBitmapDataTest()
         {
             using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(new Size(100, 100));

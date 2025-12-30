@@ -1957,7 +1957,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Combine
-
+        
         #region Color32
 
         /// <summary>
@@ -2000,6 +2000,14 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), parallelConfig);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction, ditherer), parallelConfig);
+        }
+
         /// <summary>
         /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
         /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
@@ -2040,6 +2048,14 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<Color32, Color32, Color32> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction, ditherer);
+        }
+
         /// <summary>
         /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
         /// </summary>
@@ -2072,6 +2088,14 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source, target, combineFunction);
             sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
+        }
+
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -2115,6 +2139,14 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source, target, combineFunction);
             sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
+        }
+
+        public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction, ditherer), asyncConfig);
         }
 #endif
 
@@ -2160,6 +2192,14 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), parallelConfig);
+        }
+
         /// <summary>
         /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
         /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
@@ -2198,6 +2238,14 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<Color64, Color64, Color64> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction);
+        }
+
         /// <summary>
         /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
         /// </summary>
@@ -2230,6 +2278,14 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), asyncConfig);
+        }
+
 #if !NET35
         /// <summary>
         /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
@@ -2260,6 +2316,14 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source, target, combineFunction);
             sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+
+        public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), asyncConfig);
         }
 #endif
 
@@ -2305,6 +2369,14 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, ParallelConfig? parallelConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), parallelConfig);
+        }
+
         /// <summary>
         /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/>
         /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
@@ -2343,6 +2415,14 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
         }
 
+        public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<ColorF, ColorF, ColorF> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return DoCombine(context ?? AsyncHelper.DefaultContext, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction);
+        }
+
         /// <summary>
         /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
         /// </summary>
@@ -2375,6 +2455,14 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), asyncConfig);
+        }
+
 #if !NET35
         /// <summary>
         /// Combines the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
@@ -2405,6 +2493,14 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source, target, combineFunction);
             sourceRectangle ??= new Rectangle(Point.Empty, source.Size);
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
+        }
+
+        public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
+            Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source1, source2, target, combineFunction);
+            return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source1, source2, target,
+                source1Location ?? default, source2Location ?? default, targetLocation ?? default, size ?? target.Size, combineFunction), asyncConfig);
         }
 #endif
 
@@ -4236,6 +4332,18 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(combineFunction), PublicResources.ArgumentNull);
         }
 
+        private static void ValidateArguments(IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Delegate combineFunction)
+        {
+            if (source1 == null)
+                throw new ArgumentNullException(nameof(source1), PublicResources.ArgumentNull);
+            if (source2 == null)
+                throw new ArgumentNullException(nameof(source2), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (combineFunction == null)
+                throw new ArgumentNullException(nameof(combineFunction), PublicResources.ArgumentNull);
+        }
+
         // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
         #endregion
 
@@ -4757,36 +4865,45 @@ namespace KGySoft.Drawing.Imaging
         private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, Func<Color32, Color32, Color32> combineFunction, IDitherer? ditherer)
         {
+            return DoCombine(context, source, target, target, sourceRectangle.Location, targetLocation, targetLocation, sourceRectangle.Size, combineFunction, ditherer);
+        }
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target,
+            Point source1Location, Point source2Location, Point targetLocation, Size size, Func<Color32, Color32, Color32> combineFunction, IDitherer? ditherer)
+        {
             IQuantizer? quantizer = null;
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
 
             if (context.IsCancellationRequested)
                 return false;
 
-            // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
+            if (!TryGetCombineSession(context, ref source1, ref source2, ref target, source1Location, source2Location, targetLocation, size, out CombineSession session))
+                return !context.IsCancellationRequested;
+
+            // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and copying that temporary result with dithering
             if (ditherer?.InitializeReliesOnContent == true)
             {
                 // Default backColor/alpha/colorSpace is fine, because DoCopy uses them from the target.
-                using IBitmapDataInternal? tempClone = DoCloneDirect(context, target, new Rectangle(Point.Empty, target.Size),
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, source2, session.Source2Rectangle,
                     KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
                     return false;
 
                 Debug.Assert(tempClone != null);
-                return DoCombine(context, source, tempClone!, sourceRectangle, targetLocation, combineFunction, null)
-                    && DoCopy(context, tempClone!, target, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
+                return DoCombine(context, source1, tempClone!, tempClone!, session.Source1Location, Point.Empty, Point.Empty, session.Size, combineFunction, null)
+                    && DoCopy(context, tempClone!, target, new Rectangle(Point.Empty, tempClone!.Size), targetLocation, null, ditherer);
             }
 
-            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
-                return !context.IsCancellationRequested;
             try
             {
                 session.PerformCombine(combineFunction, quantizer, ditherer);
             }
             finally
             {
-                if (!ReferenceEquals(session.Source, source))
-                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Source1, source1))
+                    session.Source1.Dispose();
+                if (!ReferenceEquals(session.Source2, source2))
+                    session.Source2.Dispose();
                 if (!ReferenceEquals(session.Target, target))
                     session.Target.Dispose();
             }
@@ -4797,19 +4914,28 @@ namespace KGySoft.Drawing.Imaging
         private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, Func<Color64, Color64, Color64> combineFunction)
         {
+            return DoCombine(context, source, target, target, sourceRectangle.Location, targetLocation, targetLocation, sourceRectangle.Size, combineFunction);
+        }
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target,
+            Point source1Location, Point source2Location, Point targetLocation, Size size, Func<Color64, Color64, Color64> combineFunction)
+        {
             if (context.IsCancellationRequested)
                 return false;
 
-            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
+            if (!TryGetCombineSession(context, ref source1, ref source2, ref target, source1Location, source2Location, targetLocation, size, out CombineSession session))
                 return !context.IsCancellationRequested;
+            
             try
             {
                 session.PerformCombine(combineFunction);
             }
             finally
             {
-                if (!ReferenceEquals(session.Source, source))
-                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Source1, source1))
+                    session.Source1.Dispose();
+                if (!ReferenceEquals(session.Source2, source2))
+                    session.Source2.Dispose();
                 if (!ReferenceEquals(session.Target, target))
                     session.Target.Dispose();
             }
@@ -4820,60 +4946,161 @@ namespace KGySoft.Drawing.Imaging
         private static bool DoCombine(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Point targetLocation, Func<ColorF, ColorF, ColorF> combineFunction)
         {
+            return DoCombine(context, source, target, target, sourceRectangle.Location, targetLocation, targetLocation, sourceRectangle.Size, combineFunction);
+        }
+
+        private static bool DoCombine(IAsyncContext context, IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target,
+            Point source1Location, Point source2Location, Point targetLocation, Size size, Func<ColorF, ColorF, ColorF> combineFunction)
+        {
             if (context.IsCancellationRequested)
                 return false;
 
-            if (!TryGetCombineSession(context, ref source, ref target, sourceRectangle, targetLocation, out CopySession session))
+            if (!TryGetCombineSession(context, ref source1, ref source2, ref target, source1Location, source2Location, targetLocation, size, out CombineSession session))
                 return !context.IsCancellationRequested;
+            
             try
             {
                 session.PerformCombine(combineFunction);
             }
             finally
             {
-                if (!ReferenceEquals(session.Source, source))
-                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Source1, source1))
+                    session.Source1.Dispose();
+                if (!ReferenceEquals(session.Source2, source2))
+                    session.Source2.Dispose();
                 if (!ReferenceEquals(session.Target, target))
                     session.Target.Dispose();
             }
 
             return !context.IsCancellationRequested;
         }
-
-        private static bool TryGetCombineSession(IAsyncContext context, ref IReadableBitmapData source, ref IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, out CopySession session)
+        
+        private static bool TryGetCombineSession(IAsyncContext context, ref IReadableBitmapData source1, ref IReadableBitmapData source2, ref IWritableBitmapData target,
+            Point source1Location, Point source2Location, Point targetLocation, Size size, out CombineSession session)
         {
-            session = new CopySession(context);
-            var sourceBounds = new Rectangle(default, source.Size);
+            session = new CombineSession(context);
+            var source1Bounds = new Rectangle(default, source1.Size);
+            var source2Bounds = new Rectangle(default, source2.Size);
             var targetBounds = new Rectangle(default, target.Size);
-            Unwrap(ref source, ref sourceBounds);
+            Unwrap(ref source1, ref source1Bounds);
+            Unwrap(ref source2, ref source2Bounds);
             Unwrap(ref target, ref targetBounds);
 
-            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
-            if (session.SourceRectangle.IsEmpty() || session.TargetRectangle.IsEmpty())
+            (session.Source1Location, session.Source2Location, session.TargetLocation, session.Size)
+                = GetActualBounds(source1Bounds, source1Location, source2Bounds, source2Location, targetBounds, targetLocation, size);
+            if (session.Size.IsEmpty())
                 return false;
 
-            // special handling for same references if there is an overlap
-            if (ReferenceEquals(source, target) && session.SourceRectangle.IntersectsWith(session.TargetRectangle))
+            // special handling for same references if there is an overlap, but not exactly the same bounds
+            if (ReferenceEquals(source1, target) && session.Source1Location != session.TargetLocation && session.Source1Rectangle.IntersectsWith(session.TargetRectangle))
             {
-                session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                    source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
+                // all bitmaps are the same reference with overlapping: cloning the combined area of source1/source2
+                if (ReferenceEquals(source2, target) && session.Source2Location != session.TargetLocation && session.Source2Rectangle.IntersectsWith(session.TargetRectangle))
+                {
+                    Rectangle sourcesRectangle = Rectangle.Union(session.Source1Rectangle, session.Source2Rectangle);
+                    session.Source1 = session.Source2 = DoCloneDirect(context, source1, sourcesRectangle, source1.PixelFormat.AsKnownPixelFormatInternal,
+                        source1.BackColor, source1.AlphaThreshold, source1.WorkingColorSpace, null);
+                    if (context.IsCancellationRequested)
+                    {
+                        session.Source1?.Dispose();
+                        return false;
+                    }
+
+                    session.Source1Location = new Point(session.Source1Location.X - sourcesRectangle.X, session.Source1Location.Y - sourcesRectangle.Y);
+                    session.Source2Location = new Point(session.Source2Location.X - sourcesRectangle.X, session.Source2Location.Y - sourcesRectangle.Y);
+                }
+                else
+                {
+                    // source1 and target overlap
+                    session.Source1 = DoCloneDirect(context, source1, session.Source1Rectangle, source1.PixelFormat.AsKnownPixelFormatInternal,
+                        source1.BackColor, source1.AlphaThreshold, source1.WorkingColorSpace, null);
+                    if (context.IsCancellationRequested)
+                    {
+                        session.Source1?.Dispose();
+                        return false;
+                    }
+
+                    session.Source1Location = Point.Empty;
+                }
+            }
+            // source2 and target overlap
+            else if (ReferenceEquals(source2, target) && session.Source2Location != session.TargetLocation && session.Source2Rectangle.IntersectsWith(session.TargetRectangle))
+            {
+                session.Source2 = DoCloneDirect(context, source2, session.Source1Rectangle, source2.PixelFormat.AsKnownPixelFormatInternal,
+                    source2.BackColor, source2.AlphaThreshold, source2.WorkingColorSpace, null);
                 if (context.IsCancellationRequested)
                 {
-                    session.Source?.Dispose();
+                    session.Source2?.Dispose();
                     return false;
                 }
 
-                session.SourceRectangle.Location = Point.Empty;
+                session.Source2Location = Point.Empty;
             }
 
-            session.Source ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+            IBitmapDataInternal s1 = session.Source1
+                ?? source1 as IBitmapDataInternal
+                ?? new BitmapDataWrapper(source1, true, ReferenceEquals(source1, target));
+            IBitmapDataInternal s2 = session.Source2
+                ?? source2 as IBitmapDataInternal
+                ?? (session.Source1 == null && ReferenceEquals(source1, source2) ? s1 : new BitmapDataWrapper(source2, true, ReferenceEquals(source2, target)));
+            IBitmapDataInternal t = target as IBitmapDataInternal
+                ?? (session.Source1 == null && ReferenceEquals(source1, target) ? s1
+                    : session.Source2 == null && ReferenceEquals(source2, target) ? s2
+                    : new BitmapDataWrapper(target, false, true));
+            session.Source1 = s1;
+            session.Source2 = s2;
+            session.Target = t;
             return true;
         }
 
         #endregion
 
         #region Bounds
+
+        private static (Point Source1Location, Point Source2Location, Point TargetLocation, Size Size) GetActualBounds(
+            Rectangle source1Bounds, Point source1Location, Rectangle source2Bounds, Point source2Location, Rectangle targetBounds, Point targetLocation, Size size)
+        {
+            source1Location.Offset(source1Bounds.Location);
+            Rectangle actualSource1Rectangle = new Rectangle(source1Location, size).IntersectSafe(source1Bounds);
+            if (actualSource1Rectangle.IsEmpty())
+                return default;
+
+            source2Location.Offset(source2Bounds.Location);
+            Rectangle actualSource2Rectangle = new Rectangle(source2Location, size).IntersectSafe(source2Bounds);
+            if (actualSource2Rectangle.IsEmpty())
+                return default;
+
+            targetLocation.Offset(targetBounds.Location);
+            Rectangle actualTargetRectangle = new Rectangle(targetLocation, size).IntersectSafe(targetBounds);
+            if (actualTargetRectangle.IsEmpty())
+                return default;
+
+            Size actualSize = new Size(Math.Min(Math.Min(actualSource1Rectangle.Width, actualSource2Rectangle.Width), actualTargetRectangle.Width),
+                Math.Min(Math.Min(actualSource1Rectangle.Height, actualSource2Rectangle.Height), actualTargetRectangle.Height));
+
+            if (size != actualSize)
+            {
+                int x = actualTargetRectangle.X - targetLocation.X + source1Location.X;
+                int y = actualTargetRectangle.Y - targetLocation.Y + source1Location.Y;
+                actualSource1Rectangle = actualSource1Rectangle.IntersectSafe(new Rectangle(x, y, actualSize.Width, actualSize.Height));
+                actualSize = actualSource1Rectangle.Size;
+                x = actualTargetRectangle.X - targetLocation.X + source2Location.X;
+                y = actualTargetRectangle.Y - targetLocation.Y + source2Location.Y;
+                actualSource2Rectangle = actualSource2Rectangle.IntersectSafe(new Rectangle(x, y, actualSize.Width, actualSize.Height));
+                actualSize = actualSource2Rectangle.Size;
+
+                x = actualSource1Rectangle.X - source1Location.X + targetLocation.X;
+                y = actualSource1Rectangle.Y - source1Location.Y + targetLocation.Y;
+                actualTargetRectangle = actualTargetRectangle.IntersectSafe(new Rectangle(x, y, actualSize.Width, actualSize.Height));
+                actualSize = actualTargetRectangle.Size;
+                x = actualSource2Rectangle.X - source2Location.X + targetLocation.X;
+                y = actualSource2Rectangle.Y - source2Location.Y + targetLocation.Y;
+                actualTargetRectangle = actualTargetRectangle.IntersectSafe(new Rectangle(x, y, actualSize.Width, actualSize.Height));
+                actualSize = actualTargetRectangle.Size;
+            }
+
+            return (actualSource1Rectangle.Location, actualSource2Rectangle.Location, actualTargetRectangle.Location, actualSize);
+        }
 
         private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
         {

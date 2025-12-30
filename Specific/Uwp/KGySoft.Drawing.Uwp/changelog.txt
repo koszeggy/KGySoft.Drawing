@@ -19,7 +19,7 @@
 ===============================
 + New GeometryExtensions class:
   + New ToPath method: To convert an UWP Geometry instance to a KGySoft.Drawing.Shapes.Path.
-  + New ToGeometry method: To convert KGySoft.Drawing.Shapes.Path instance to an UWP Geometry.
+  + New ToGeometry method: To convert KGySoft.Drawing.Shapes.Path instance to a UWP Geometry.
 
 
 ~~~~~~~~~

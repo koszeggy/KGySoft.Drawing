@@ -36,7 +36,8 @@
   ! Resize/BeginResize/ResizeAsync methods:
     ! If the original pixel format has no transparency (and no blank borders would be produced due to keeping aspect
       ratio), the result is also created with a pixel format without alpha channel.
-  + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps using a specified function.
+  + New Combine/BeginCombine/EndCombine/CombineAsync methods to combine two bitmaps into the second one or into a
+    third target using a specified function.
   + New TransformColors/BeginTransformColors/TransformColorsAsync overloads with callbacks using Color64/ColorF
     types to support wide pixel formats.
   + New AdjustBrightness/AdjustContrast/AdjustGamma/Invert/MakeGrayscale/MakeOpaque/MakeTransparent/ReplaceColor/
