@@ -49,6 +49,8 @@
     The return type has been changed to Task<bool> from Task.
   - Clone/BeginClone/CloneAsync methods: Fixing palette color space when creating an exact clone with identical
     pixel format of an indexed bitmap with a different color space.
+  - CopyTo/BeginCopyTo/CopyToAsync/DrawInto/BeginDrawInto/DrawIntoAsync methods: Fixing cases when the source and
+    the target is the same instance and the source/target rectangles do not overlap.
 * BitmapDataFactory class:
   + New Load/BeginLoad/LoadAsync overloads with WorkingColorSpace parameter.
   * CreateBitmapData methods: In some overloads some parameters have been made optional.

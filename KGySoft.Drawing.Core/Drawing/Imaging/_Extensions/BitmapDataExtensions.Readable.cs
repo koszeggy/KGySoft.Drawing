@@ -4938,12 +4938,14 @@ namespace KGySoft.Drawing.Imaging
             // special handling for same references
             if (ReferenceEquals(source, target))
             {
-                // same area without quantizing: nothing to do
-                if (quantizer == null && session.SourceRectangle == session.TargetRectangle)
-                    return !context.IsCancellationRequested;
-
-                // overlap: clone source
-                if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
+                if (session.SourceRectangle == session.TargetRectangle)
+                {
+                    // same area without quantizing: nothing to do
+                    if (quantizer == null)
+                        return !context.IsCancellationRequested;
+                }
+                // overlap with offset: clone source
+                else if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
                     session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
                         source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
@@ -4957,8 +4959,10 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            session.Source ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+            session.Source ??= source as IBitmapDataInternal
+                ?? new BitmapDataWrapper(source, true, ReferenceEquals(source, target));
+            session.Target = target as IBitmapDataInternal
+                ?? (ReferenceEquals(source, target) ? session.Source : new BitmapDataWrapper(target, false, true));
 
             try
             {
@@ -5089,33 +5093,26 @@ namespace KGySoft.Drawing.Imaging
 
             IBitmapDataInternal? sessionSource = null;
 
-            // special handling for same references
-            if (ReferenceEquals(source, target) && !targetCloned)
+            // special handling for same references if there is an overlap, but not exactly the same bounds
+            if (ReferenceEquals(source, target) && !targetCloned && actualSourceRectangle != actualTargetRectangle && actualSourceRectangle.IntersectsWith(actualTargetRectangle))
             {
-                // same area without quantizing: nothing to do
-                if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
-                    return !context.IsCancellationRequested;
-
-                // overlap: clone source
-                if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
+                sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                    source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
+                if (context.IsCancellationRequested)
                 {
-                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
-                    if (context.IsCancellationRequested)
-                    {
-                        sessionSource?.Dispose();
-                        return false;
-                    }
-
-                    actualSourceRectangle.Location = Point.Empty;
+                    sessionSource?.Dispose();
+                    return false;
                 }
+
+                actualSourceRectangle.Location = Point.Empty;
             }
 
-            sessionSource ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            sessionSource ??= source as IBitmapDataInternal
+                ?? (!targetCloned && ReferenceEquals(source, target) ? sessionTarget : new BitmapDataWrapper(source, true, false));
 
             try
             {
-                var session = new CopySession(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle);
+                var session = new CopySession(context, sessionSource!, sessionTarget!, actualSourceRectangle, sessionTargetRectangle);
                 if (!isTwoPass)
                 {
                     session.PerformDraw(quantizer, ditherer);
@@ -5133,14 +5130,14 @@ namespace KGySoft.Drawing.Imaging
             finally
             {
                 if (!ReferenceEquals(sessionSource, source))
-                    sessionSource.Dispose();
+                    sessionSource!.Dispose();
                 if (!ReferenceEquals(sessionTarget, target))
                     sessionTarget!.Dispose();
             }
         }
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth the refactoring")]
+            Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth splitting into multiple methods")]
         private static bool DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
@@ -5189,35 +5186,30 @@ namespace KGySoft.Drawing.Imaging
 
             IBitmapDataInternal? sessionSource = null;
 
-            // special handling for same references
-            if (ReferenceEquals(source, target) && !targetCloned)
+            // special handling for same references if there is an overlap, but not exactly the same bounds
+            // (normally shouldn't be the same bounds here, only when a rectangle was trimmed and the rounded other bounds end up the same size)
+            if (ReferenceEquals(source, target) && !targetCloned && actualSourceRectangle != actualTargetRectangle && actualSourceRectangle.IntersectsWith(actualTargetRectangle))
             {
-                // same area without quantizing: nothing to do
-                if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
-                    return !context.IsCancellationRequested;
-
-                // overlap: clone source
-                if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
+                sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                    source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
+                if (context.IsCancellationRequested)
                 {
-                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
-                    if (context.IsCancellationRequested)
-                    {
-                        sessionSource?.Dispose();
-                        return false;
-                    }
-
-                    actualSourceRectangle.Location = Point.Empty;
+                    sessionSource?.Dispose();
+                    return false;
                 }
+
+                actualSourceRectangle.Location = Point.Empty;
             }
 
-            sessionSource ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            sessionSource ??= source as IBitmapDataInternal
+                ?? (!targetCloned && ReferenceEquals(source, target) ? sessionTarget : new BitmapDataWrapper(source, true, false));
+
             try
             {
                 bool linear = (quantizer?.WorkingColorSpace() ?? target.GetPreferredColorSpace()) == WorkingColorSpace.Linear;
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
-                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, linear);
+                    var session = new ResizingSessionNearestNeighbor(context, sessionSource!, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, linear);
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
@@ -5229,7 +5221,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    using var session = ResizingSessionInterpolated.Create(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
+                    using var session = ResizingSessionInterpolated.Create(context, sessionSource!, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
                     if (context.IsCancellationRequested)
                         return false;
 
@@ -5253,7 +5245,7 @@ namespace KGySoft.Drawing.Imaging
             finally
             {
                 if (!ReferenceEquals(sessionSource, source))
-                    sessionSource.Dispose();
+                    sessionSource!.Dispose();
                 if (!ReferenceEquals(sessionTarget, target))
                     sessionTarget!.Dispose();
             }
@@ -5375,7 +5367,8 @@ namespace KGySoft.Drawing.Imaging
 
             return !context.IsCancellationRequested;
         }
-        
+
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "It's not worth splitting into multiple methods")]
         private static bool TryGetCombineSession(IAsyncContext context, ref IReadableBitmapData source1, ref IReadableBitmapData source2, ref IWritableBitmapData target,
             Point source1Location, Point source2Location, Point targetLocation, Size size, out CombineSession session)
         {

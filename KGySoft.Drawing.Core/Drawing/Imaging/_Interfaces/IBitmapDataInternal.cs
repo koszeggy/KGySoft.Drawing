@@ -41,6 +41,7 @@ namespace KGySoft.Drawing.Imaging
         /// Works only if the result row is used in a scope that is never accessible to multiple threads.
         /// </summary>
         IBitmapDataRowInternal GetRowCached(int y);
+        IBitmapDataRowInternal GetRowCached(int y, IBitmapDataRowInternal usedRow);
 
         [SecurityCritical]Color32 DoGetColor32(int x, int y);
         [SecurityCritical]void DoSetColor32(int x, int y, Color32 c);

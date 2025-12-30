@@ -450,7 +450,47 @@ namespace KGySoft.Drawing.Imaging
         public IBitmapDataRowInternal GetRowUncached(int y) => DoGetRow(y);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public IBitmapDataRowInternal GetRowCached(int y) => GetCachedRowByThreadId(y);
+        public IBitmapDataRowInternal GetRowCached(int y)
+        {
+            if (cachedRowByThreadId == null)
+                InitThreadIdCache();
+            int threadId = EnvironmentHelper.CurrentThreadId;
+            int hash = threadId & hashMask;
+            StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRowByThreadId![hash];
+            if (cached?.Value.ThreadId == threadId)
+            {
+                if (cached.Value.Row.Index != y)
+                    cached.Value.Row.DoMoveToRow(y);
+            }
+            else
+                cachedRowByThreadId[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((threadId, DoGetRow(y)));
+            return cached.Value.Row;
+        }
+
+        // NOTE: Not combining with the other overload for performance reasons
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public IBitmapDataRowInternal GetRowCached(int y, IBitmapDataRowInternal usedRow)
+        {
+            if (cachedRowByThreadId == null)
+                InitThreadIdCache();
+            int threadId = EnvironmentHelper.CurrentThreadId;
+            int hash = threadId & hashMask;
+            StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRowByThreadId![hash];
+            if (cached?.Value.ThreadId == threadId)
+            {
+                if (cached.Value.Row.Index == y)
+                    goto ret;
+                if (!ReferenceEquals(cached.Value.Row, usedRow))
+                {
+                    cached.Value.Row.DoMoveToRow(y);
+                    goto ret;
+                }
+            }
+
+            cachedRowByThreadId[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((threadId, DoGetRow(y)));
+        ret:
+            return cached.Value.Row;
+        }
 
         public bool TrySetPalette(Palette? palette)
         {
@@ -555,24 +595,6 @@ namespace KGySoft.Drawing.Imaging
 
             // Otherwise, we create and cache the result.
             return cachedRowByIndex = DoGetRow(y);
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        private IBitmapDataRowInternal GetCachedRowByThreadId(int y)
-        {
-            if (cachedRowByThreadId == null)
-                InitThreadIdCache();
-            int threadId = EnvironmentHelper.CurrentThreadId;
-            var hash = threadId & hashMask;
-            StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRowByThreadId![hash];
-            if (cached?.Value.ThreadId == threadId)
-            {
-                if (cached.Value.Row.Index != y)
-                    cached.Value.Row.DoMoveToRow(y);
-            }
-            else
-                cachedRowByThreadId[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((threadId, DoGetRow(y)));
-            return cached.Value.Row;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

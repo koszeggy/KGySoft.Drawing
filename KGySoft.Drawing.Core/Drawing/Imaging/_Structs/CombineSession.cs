@@ -116,8 +116,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, Size.Height);
                 IBitmapDataRowInternal rowSrc1 = Source1.GetRowCached(Source1Location.Y);
-                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y);
-                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y);
+                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y, rowSrc1);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y, ReferenceEquals(Source1, Target) ? rowSrc1 : rowSrc2);
                 for (int y = 0; y < Size.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -125,8 +125,10 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < Size.Width; x++)
                         rowDst.DoSetColor32(x + TargetLocation.X, combineFunction.Invoke(rowSrc1.DoGetColor32(x + Source1Location.X), rowSrc2.DoGetColor32(x + Source2Location.X)));
                     rowSrc1.MoveNextRow();
-                    rowSrc2.MoveNextRow();
-                    rowDst.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowSrc2))
+                        rowSrc2.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowDst) && !(ReferenceEquals(rowSrc2, rowDst)))
+                        rowDst.MoveNextRow();
                     context.Progress?.Increment();
                 }
 
@@ -150,8 +152,8 @@ namespace KGySoft.Drawing.Imaging
             void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc1 = source1.GetRowCached(source1Location.Y + y);
-                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y, rowSrc1);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y, ReferenceEquals(source1, target) ? rowSrc1 : rowSrc2);
                 int offsetSrc1 = source1Location.X;
                 int offsetSrc2 = source2Location.X;
                 int offsetDst = targetLocation.X;
@@ -172,8 +174,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, Size.Height);
                 IBitmapDataRowInternal rowSrc1 = Source1.GetRowCached(Source1Location.Y);
-                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y);
-                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y);
+                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y, rowSrc1);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y, ReferenceEquals(Source1, Target) ? rowSrc1 : rowSrc2);
                 for (int y = 0; y < Size.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -181,8 +183,10 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < Size.Width; x++)
                         rowDst.DoSetColor64(x + TargetLocation.X, combineFunction.Invoke(rowSrc1.DoGetColor64(x + Source1Location.X), rowSrc2.DoGetColor64(x + Source2Location.X)));
                     rowSrc1.MoveNextRow();
-                    rowSrc2.MoveNextRow();
-                    rowDst.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowSrc2))
+                        rowSrc2.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowDst) && !(ReferenceEquals(rowSrc2, rowDst)))
+                        rowDst.MoveNextRow();
                     context.Progress?.Increment();
                 }
 
@@ -206,8 +210,8 @@ namespace KGySoft.Drawing.Imaging
             void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc1 = source1.GetRowCached(source1Location.Y + y);
-                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y, rowSrc1);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y, ReferenceEquals(source1, target) ? rowSrc1 : rowSrc2);
                 int offsetSrc1 = source1Location.X;
                 int offsetSrc2 = source2Location.X;
                 int offsetDst = targetLocation.X;
@@ -228,8 +232,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, Size.Height);
                 IBitmapDataRowInternal rowSrc1 = Source1.GetRowCached(Source1Location.Y);
-                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y);
-                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y);
+                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y, rowSrc1);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y, ReferenceEquals(Source1, Target) ? rowSrc1 : rowSrc2);
                 for (int y = 0; y < Size.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -237,8 +241,10 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < Size.Width; x++)
                         rowDst.DoSetColorF(x + TargetLocation.X, combineFunction.Invoke(rowSrc1.DoGetColorF(x + Source1Location.X), rowSrc2.DoGetColorF(x + Source2Location.X)));
                     rowSrc1.MoveNextRow();
-                    rowSrc2.MoveNextRow();
-                    rowDst.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowSrc2))
+                        rowSrc2.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowDst) && !(ReferenceEquals(rowSrc2, rowDst)))
+                        rowDst.MoveNextRow();
                     context.Progress?.Increment();
                 }
 
@@ -262,8 +268,8 @@ namespace KGySoft.Drawing.Imaging
             void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc1 = source1.GetRowCached(source1Location.Y + y);
-                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y, rowSrc1);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y, ReferenceEquals(source1, target) ? rowSrc1 : rowSrc2);
                 int offsetSrc1 = source1Location.X;
                 int offsetSrc2 = source2Location.X;
                 int offsetDst = targetLocation.X;
@@ -288,8 +294,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, Size.Height);
                 IBitmapDataRowInternal rowSrc1 = Source1.GetRowCached(Source1Location.Y);
-                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y);
-                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y);
+                IBitmapDataRowInternal rowSrc2 = Source2.GetRowCached(Source2Location.Y, rowSrc1);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetLocation.Y, ReferenceEquals(Source1, Target) ? rowSrc1 : rowSrc2);
                 for (int y = 0; y < Size.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -300,8 +306,10 @@ namespace KGySoft.Drawing.Imaging
                         rowDst.DoSetColor32(x + TargetLocation.X, ditheringSession.GetDitheredColor(combineFunction.Invoke(rowSrc1.DoGetColor32(x + Source1Location.X), rowSrc2.DoGetColor32(x + Source2Location.X)), x, y));
 
                     rowSrc1.MoveNextRow();
-                    rowSrc2.MoveNextRow();
-                    rowDst.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowSrc2))
+                        rowSrc2.MoveNextRow();
+                    if (!ReferenceEquals(rowSrc1, rowDst) && !(ReferenceEquals(rowSrc2, rowDst)))
+                        rowDst.MoveNextRow();
                     context.Progress?.Increment();
                 }
 
@@ -326,8 +334,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc1 = source1.GetRowCached(source1Location.Y + y);
-                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc2 = source2.GetRowCached(source2Location.Y + y, rowSrc1);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y, ReferenceEquals(source1, target) ? rowSrc1 : rowSrc2);
                 int offsetSrc1 = source1Location.X;
                 int offsetSrc2 = source2Location.X;
                 int offsetDst = targetLocation.X;

@@ -292,8 +292,29 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void CopyToSameInstanceOverlappingTest()
         {
-            using IReadWriteBitmapData bitmapData = GetInfoIcon256();
+            using IReadWriteBitmapData orig = GetInfoIcon256();
+            using IReadWriteBitmapData bitmapData = orig.Clone();
+
+            // no offset (nothing should happen)
+            Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData));
+            AssertAreEqual(orig, bitmapData);
+
+            // no offset, quantizing
+            Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Rectangle(20, 20, 200, 200), new Point(20, 20), quantizer: PredefinedColorsQuantizer.Rgb332()));
+            SaveBitmapData("NoOffsetWithQuant", bitmapData);
+
+            // with offset
+            orig.CopyTo(bitmapData);
             Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Point(64, 64)));
+            SaveBitmapData("WithOffset", bitmapData);
+        }
+
+        [Test]
+        public void CopyToSameInstanceNoOverlappingTest()
+        {
+            // using 4bpp and odd location so no raw copy can be used
+            using IReadWriteBitmapData bitmapData = GetInfoIcon256().Clone(KnownPixelFormat.Format4bppIndexed);
+            Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Rectangle(50, 50, 64, 64), new Point(175, 175)));
             SaveBitmapData(null, bitmapData);
         }
 
@@ -401,7 +422,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void DrawIntoWithoutResizeSameInstanceOverlappingTest()
         {
             using var bitmapData = GetInfoIcon256();
+
+            // no offset
+            Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(0, 0, 64, 256), new Rectangle(0, 0, 64, 256)));
+
+            // with offset
             Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Point(64, 64)));
+            SaveBitmapData(null, bitmapData);
+        }
+
+        [Test]
+        public void DrawIntoWithoutResizeSameInstanceNoOverlappingTest()
+        {
+            using IReadWriteBitmapData bitmapData = GetInfoIcon256();
+            Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(50, 50, 64, 64), new Point(175, 175)));
             SaveBitmapData(null, bitmapData);
         }
 
