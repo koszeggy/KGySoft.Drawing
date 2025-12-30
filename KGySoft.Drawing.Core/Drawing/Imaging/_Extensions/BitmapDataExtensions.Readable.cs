@@ -2000,6 +2000,41 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), parallelConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering a <paramref name="ditherer"/> must be explicitly specified. The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, ParallelConfig? parallelConfig = null)
         {
@@ -2048,6 +2083,45 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering a <paramref name="ditherer"/> must be explicitly specified. The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<Color32, Color32, Color32> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null)
         {
@@ -2057,7 +2131,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
@@ -2090,6 +2164,39 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to combine the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering a <paramref name="ditherer"/> must be explicitly specified. The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
@@ -2141,6 +2248,38 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="target"/> has a wide enough <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering a <paramref name="ditherer"/> must be explicitly specified. The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for grayscale formats.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color32, Color32, Color32> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
@@ -2192,6 +2331,39 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color64,Color64,Color64},Point?,Point?,Point?,Size?, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color64,Color64,Color64},Point?,Point?,Point?,Size?, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, ParallelConfig? parallelConfig = null)
         {
@@ -2238,6 +2410,43 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<Color64, Color64, Color64> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null)
         {
@@ -2247,7 +2456,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
@@ -2278,6 +2487,37 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to combine the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, AsyncConfig? asyncConfig = null)
         {
@@ -2318,6 +2558,36 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<Color64, Color64, Color64> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, TaskConfig? asyncConfig = null)
         {
@@ -2369,6 +2639,39 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationSynchronously(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), parallelConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="parallelConfig">The configuration of the operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.
+        /// If <see langword="null"/>, then the degree of parallelization is configured automatically.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property
+        /// of the <paramref name="parallelConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller as it executes synchronously, though the <paramref name="parallelConfig"/> parameter allows configuring the degree of parallelism,
+        /// cancellation and progress reporting. Use the <see cref="BeginCombine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{ColorF,ColorF,ColorF},Point?,Point?,Point?,Size?, AsyncConfig)">BeginCombine</see>
+        /// or <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{ColorF,ColorF,ColorF},Point?,Point?,Point?,Size?, TaskConfig)">CombineAsync</see> (in .NET Framework 4.0 and above) methods to perform the operation asynchronously.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, ParallelConfig? parallelConfig = null)
         {
@@ -2415,6 +2718,43 @@ namespace KGySoft.Drawing.Imaging
             return DoCombine(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/>
+        /// and a <paramref name="context"/> that may belong to a higher level, possibly asynchronous operation, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="context">An <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread, but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.
+        /// To reconfigure the degree of parallelism of an existing context, you can use the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncContextWrapper.htm">AsyncContextWrapper</a> class.</para>
+        /// <para>Alternatively, you can use this method to specify the degree of parallelism for synchronous execution. For example, by
+        /// passing <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncHelper_SingleThreadContext.htm">AsyncHelper.SingleThreadContext</a> to the <paramref name="context"/> parameter
+        /// the method will be forced to use a single thread only.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static bool Combine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, IAsyncContext? context, Func<ColorF, ColorF, ColorF> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null)
         {
@@ -2424,7 +2764,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, and write the result into <paramref name="target"/>.
+        /// Begins to combine the pixels of the <paramref name="source"/> and <paramref name="target"/> bitmaps using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be combined with the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which the combined result should be written.</param>
@@ -2455,6 +2795,37 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to combine the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, writing the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CombineAsync(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer, TaskConfig)">CombineAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndCombine">EndCombine</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static IAsyncResult BeginCombine(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, AsyncConfig? asyncConfig = null)
         {
@@ -2495,6 +2866,36 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationAsync(ctx => DoCombine(ctx, source, target, sourceRectangle.Value, targetLocation ?? default, combineFunction), asyncConfig);
         }
 
+        /// <summary>
+        /// Combines the pixels of <paramref name="source1"/> and <paramref name="source2"/> using the specified <paramref name="combineFunction"/> asynchronously, and writes the result into <paramref name="target"/>.
+        /// </summary>
+        /// <param name="source1">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source2"/>.</param>
+        /// <param name="source2">An <see cref="IReadableBitmapData"/> to be combined with <paramref name="source1"/>.</param>
+        /// <param name="target">The target <see cref="IWritableBitmapData"/> to write the combined result into.</param>
+        /// <param name="combineFunction">The custom function to be used to combine the colors of the bitmaps. Its first parameter represents a pixel in <paramref name="source1"/>,
+        /// whereas the second parameter represents the corresponding pixel in <paramref name="source2"/>. The function must be thread-safe, as it might be called concurrently.</param>
+        /// <param name="source1Location">A <see cref="Point"/> that specifies the origin in <paramref name="source1"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="source2Location">A <see cref="Point"/> that specifies the origin in <paramref name="source2"/> for the operation, or <see langword="null"/> to start with its top-left pixel. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="targetLocation">A <see cref="Point"/> that specifies the target location, or <see langword="null"/> to write the combined result to the top-left corner of the <paramref name="target"/>. Target size will be always the same as the source size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="size">A <see cref="Size"/> that specifies the bounds of the combined pixels, or <see langword="null"/> to take the largest possible area. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is <see langword="true"/>, if the operation completed successfully,
+        /// or <see langword="false"/>, if the operation has been canceled and the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property in <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://koszeggy.github.io/docs/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>The combined area is automatically clipped if <paramref name="size"/> is larger than the dimensions of the smallest bitmap or the available sizes using the specified locations.</para>
+        /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
+        /// To use dithering, call the <see cref="Combine(IReadableBitmapData,IReadableBitmapData,IWritableBitmapData,Func{Color32,Color32,Color32},Point?,Point?,Point?,Size?,IDitherer?,ParallelConfig?)"/> overload instead, and specify a ditherer.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source1"/>,<paramref name="source2"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
         public static Task<bool> CombineAsync(this IReadableBitmapData source1, IReadableBitmapData source2, IWritableBitmapData target, Func<ColorF, ColorF, ColorF> combineFunction,
             Point? source1Location = null, Point? source2Location = null, Point? targetLocation = null, Size? size = null, TaskConfig? asyncConfig = null)
         {
