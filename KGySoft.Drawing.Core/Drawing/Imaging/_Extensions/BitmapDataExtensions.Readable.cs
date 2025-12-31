@@ -1957,7 +1957,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Combine
-        
+
         #region Color32
 
         /// <summary>
@@ -1992,6 +1992,28 @@ namespace KGySoft.Drawing.Imaging
         /// Similarly, if you would like to draw the <paramref name="source"/> into <paramref name="target"/> with blending, you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/>, <paramref name="target"/> or <paramref name="combineFunction"/> is <see langword="null"/>.</exception>
+        /// <overloads>The overloads of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Combine">Combine</see> method can be grouped into the following categories:
+        /// <list type="bullet">
+        /// <item>The ones with one <see cref="IReadableBitmapData"/>&#160;<c>source</c> and an <see cref="IReadWriteBitmapData"/>&#160;<c>target</c> parameter combine the specified
+        /// source and target bitmaps, and write the result back to the specified target. These overloads allow you to specify a <see cref="Rectangle"/> that represents the bounds in
+        /// the source bitmap data and a <see cref="Point"/> that represents the location of the combined result in the target bitmap.</item>
+        /// <item>The other half of the methods have three bitmap data arguments: two <see cref="IReadableBitmapData"/> sources and one <see cref="IWritableBitmapData"/> target,
+        /// allowing two bitmaps to be combined into a third target (it is allowed for them to be the same instances though). These overloads have three optional <see cref="Point"/>
+        /// arguments to designate a custom origin in each bitmap, and one <see cref="Size"/> parameter to specify the bounds for all bitmaps.</item>
+        /// <item>As for the color depth, there are three method groups: you can use either <see cref="Color32"/>, <see cref="Color64"/> or <see cref="ColorF"/> types in the
+        /// combining function delegate. The overloads with the delegates using <see cref="Color32"/> have also an optional <c>ditherer</c> parameter, which allows passing
+        /// an <see cref="IDitherer"/> implementation when the combining function may return a wider set of colors than the target can represent (e.g. indexed bitmaps).</item>
+        /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
+        /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item>
+        /// <item>Some overloads have an <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
+        /// These methods are special ones and are designed to be used from your custom asynchronous methods where combining colors is just one step of potentially multiple operations.
+        /// But you can also use these overloads to force synchronous execution on a single thread.
+        /// See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</item>
+        /// <item>All of these methods block the caller on the current thread. For asynchronous call
+        /// you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CombineAsync">CombineAsync</see> overloads (on .NET Framework 4.0 and above),
+        /// or the old-fashioned <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginCombine">BeginCombine</see> methods that work on every platform target.</item>
+        /// </list></overloads>
         public static bool Combine(this IReadableBitmapData source, IReadWriteBitmapData target, Func<Color32, Color32, Color32> combineFunction,
             Rectangle? sourceRectangle = null, Point? targetLocation = null, IDitherer? ditherer = null, ParallelConfig? parallelConfig = null)
         {
