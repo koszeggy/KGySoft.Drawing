@@ -1955,6 +1955,53 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region CreateSolid
+
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
+        /// </summary>
+        /// <param name="size">The size of the bitmap data to create, in pixels.</param>
+        /// <param name="color">The color of the entire bitmap.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance representing a bitmap of the specified size that returns the specified color for each pixel.</returns>
+        /// <remarks>
+        /// <para>The returned bitmap data has no allocated underlying buffer, and simply returns the specified <paramref name="color"/> for each pixel.</para>
+        /// <note>Please note that operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// allocate a new buffer though.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height.</exception>
+        public static IReadableBitmapData CreateSolid(Size size, Color32 color)
+        {
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            return new SolidBitmapData(size, color);
+        }
+
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="color">The color of the entire bitmap.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance representing a bitmap of the specified size that returns the specified color for each pixel.</returns>
+        /// <remarks>
+        /// <para>The returned bitmap data has no allocated underlying buffer, and simply returns the specified <paramref name="color"/> for each pixel.</para>
+        /// <note>Please note that operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// allocate a new buffer though.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> is zero or negative.</exception>
+        public static IReadableBitmapData CreateSolid(int width, int height, Color32 color)
+        {
+            if (width < 1)
+                throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentOutOfRange);
+            if (height < 1)
+                throw new ArgumentOutOfRangeException(nameof(height), PublicResources.ArgumentOutOfRange);
+            return new SolidBitmapData(new Size(width, height), color);
+        }
+
+        #endregion
+
         #region Load
 
         /// <summary>

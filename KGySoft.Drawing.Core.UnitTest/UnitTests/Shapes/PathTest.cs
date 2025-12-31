@@ -1110,7 +1110,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
             SaveBitmapData(null, bmp);
 
             // No mitered edges exceed beyond the top line if the line width is 1, even with a high miter limit. This keeps consistency with the fast thin lines rendering.
-            AssertAreEqual(bmp.Clip(new Rectangle(0, 0, bmp.Width, 5)), new SolidBitmapData(new Size(bmp.Width, 5), bmp.GetColor32(0, 0)));
+            AssertAreEqual(bmp.Clip(new Rectangle(0, 0, bmp.Width, 5)), BitmapDataFactory.CreateSolid(bmp.Width, 5, bmp.GetColor32(0, 0)));
         }
 
         [TestCase(false, true)]

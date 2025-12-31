@@ -688,7 +688,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     ("uneven stride", BitmapDataFactory.CreateBitmapData(new byte[height, byteWidth + 1], width, pixelFormat, colorSpace)),
                 };
 
-                Color32 expected = new SolidBitmapData(new Size(1, 1), color)
+                Color32 expected = BitmapDataFactory.CreateSolid(new Size(1, 1), color)
                     .Clone(pixelFormat, colorSpace)
                     .GetColor32(0, 0);
 
@@ -1224,7 +1224,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Size offset = new Size(64, 0);
             for (int i = 0; i < colors.Length; i++)
             {
-                using (var vertical = new SolidBitmapData(new Size(32, 512), colors[i]))
+                using (var vertical = BitmapDataFactory.CreateSolid(new Size(32, 512), colors[i]))
                     vertical.DrawInto(target, point + new Size(offset.Width * i, offset.Height * i));
             }
 
@@ -1232,7 +1232,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             offset = new Size(0, 64);
             for (int i = 0; i < colors.Length; i++)
             {
-                using (var horizontal = new SolidBitmapData(new Size(512, 32), Color.FromArgb(128, colors[i])))
+                using (var horizontal = BitmapDataFactory.CreateSolid(new Size(512, 32), Color.FromArgb(128, colors[i])))
                     horizontal.DrawInto(target, point + new Size(offset.Width * i, offset.Height * i));
             }
 

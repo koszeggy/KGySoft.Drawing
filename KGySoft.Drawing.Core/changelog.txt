@@ -53,6 +53,7 @@
     the target is the same instance and the source/target rectangles do not overlap.
 * BitmapDataFactory class:
   + New Load/BeginLoad/LoadAsync overloads with WorkingColorSpace parameter.
+  + New CreateSolid: methods to create read-only solid bitmaps without allocating a buffer.
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:
   + New ToGray extension methods with WorkingColorSpace parameter.
