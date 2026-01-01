@@ -54,6 +54,7 @@
 * BitmapDataFactory class:
   + New Load/BeginLoad/LoadAsync overloads with WorkingColorSpace parameter.
   + New CreateSolid: methods to create read-only solid bitmaps without allocating a buffer.
+  + New CreateLinearGradient: methods to create read-only linear gradient bitmaps without allocating a buffer.
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:
   + New ToGray extension methods with WorkingColorSpace parameter.
@@ -93,6 +94,8 @@
 * Brush class:
   * CreateTexture methods: when TextureMapMode is Stretch or Zoom, using a small internal cache to improve
     performance when the texture is painted repeatedly with the same size.
+  - CreateLinearGradient methods with angle parameter: fixing possible transparent areas in the last pixel row
+    or column the shape to fill.
 + TransformationMatrix struct:
   + New CreateTranslation, CreateScale, CreateRotation and CreateRotationDegrees overloads with Vector2 parameter.
   + New Transform methods to transform a point

@@ -23,9 +23,12 @@ using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
+
+using Brush = KGySoft.Drawing.Shapes.Brush;
 
 #endregion
 
@@ -604,6 +607,37 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 SaveBitmapData($"{testName} Optimized palette {getQuantizer.Method.Name}", bitmapDataOptimizedPalette);
                 AssertAreEqual(optimizedReferenceBitmapData, bitmapDataOptimizedPalette, true);
             }
+        }
+
+        [TestCase(GradientWrapMode.Stop)]
+        [TestCase(GradientWrapMode.Clip)]
+        [TestCase(GradientWrapMode.Repeat)]
+        [TestCase(GradientWrapMode.Mirror)]
+        public void GradientBetweenPointsTest(GradientWrapMode wrapMode)
+        {
+            var size = new Size(100, 100);
+            var bitmapData = BitmapDataFactory.CreateLinearGradient(size, new PointF(0, 10), new PointF(10, 0), Color.White, Color.Black, wrapMode);
+            SaveBitmapData($"{wrapMode}", bitmapData);
+        }
+
+        [Test]
+        public void GradientWithAngle()
+        {
+            using var ms = new MemoryStream();
+            var size = new Size(100, 50);
+            using var encoder = new GifEncoder(ms, size);
+            encoder.GlobalPalette = Palette.Grayscale256();
+            encoder.RepeatCount = 0;
+            float step = 360f / 32;
+            for (float a = 0f; a < 360f; a += step)
+            {
+                IReadableBitmapData frame = BitmapDataFactory.CreateLinearGradient(size, a, Color.White, Color.Black);
+                encoder.AddImage(frame);
+            }
+
+            encoder.FinalizeEncoding();
+            ms.Position = 0;
+            SaveStream(null, ms);
         }
 
         #endregion

@@ -19,6 +19,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+using System.Numerics;
+#endif
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif
@@ -29,6 +32,7 @@ using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Threading;
 
 #endregion
@@ -1972,8 +1976,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height.</exception>
         public static IReadableBitmapData CreateSolid(Size size, Color32 color)
         {
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            ValidateArguments(size);
             return new SolidBitmapData(size, color);
         }
 
@@ -1993,12 +1996,126 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="width"/> or <paramref name="height"/> is zero or negative.</exception>
         public static IReadableBitmapData CreateSolid(int width, int height, Color32 color)
         {
-            if (width < 1)
-                throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentOutOfRange);
-            if (height < 1)
-                throw new ArgumentOutOfRangeException(nameof(height), PublicResources.ArgumentOutOfRange);
+            ValidateArguments(width, height);
             return new SolidBitmapData(new Size(width, height), color);
         }
+
+        #endregion
+
+        #region CreateLinearGradient
+
+        #region Start/End points
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            if (startColor == endColor && wrapMode != GradientWrapMode.Clip && wrapMode.IsDefined() && workingColorSpace.IsDefined()
+                && !startPoint.HasNaNOrInfinity() && !endPoint.HasNaNOrInfinity() && !startPoint.TolerantEquals(endPoint, Constants.PointEqualityTolerance))
+            {
+                return CreateSolid(size, startColor);
+            }
+
+            return CreateLinearGradient(size, startPoint, endPoint, startColor.ToColorF(), endColor.ToColorF(), wrapMode, workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), startPoint, endPoint, startColor, endColor, wrapMode, workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => CreateLinearGradient(size, startPoint, endPoint, startColor.ToColorF(), endColor.ToColorF(), wrapMode, workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), startPoint, endPoint, startColor, endColor, wrapMode, workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(size);
+            if (startPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(startPoint), PublicResources.ArgumentOutOfRange);
+            if (endPoint.HasNaNOrInfinity())
+                throw new ArgumentOutOfRangeException(nameof(endPoint), PublicResources.ArgumentOutOfRange);
+            if (startPoint.TolerantEquals(endPoint, Constants.PointEqualityTolerance))
+                throw new ArgumentException(Res.ShapesStartEndTooClose);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+            bool isLinear = workingColorSpace != WorkingColorSpace.Srgb;
+            return wrapMode switch
+            {
+                GradientWrapMode.Stop => new GradientBitmapData<StoppingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinear),
+                GradientWrapMode.Clip => new GradientBitmapData<ClippingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinear),
+                GradientWrapMode.Repeat => new GradientBitmapData<RepeatingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinear),
+                GradientWrapMode.Mirror => new GradientBitmapData<MirroringInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinear),
+                _ => throw new ArgumentOutOfRangeException(PublicResources.EnumOutOfRange(wrapMode))
+            };
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
+            GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), startPoint, endPoint, startColor, endColor, wrapMode, workingColorSpace);
+        }
+
+        #endregion
+
+        #region Angle
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, float angle, Color32 startColor, Color32 endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            if (startColor == endColor && size.Width > 0 && size.Height > 0 && workingColorSpace.IsDefined())
+                return CreateSolid(size, startColor);
+            return CreateLinearGradient(size, angle, startColor.ToColorF(), endColor.ToColorF(), workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, Color32 startColor, Color32 endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), angle, startColor, endColor, workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, float angle, Color64 startColor, Color64 endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => CreateLinearGradient(size, angle, startColor.ToColorF(), endColor.ToColorF(), workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, Color64 startColor, Color64 endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), angle, startColor, endColor, workingColorSpace);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(Size size, float angle, ColorF startColor, ColorF endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(size);
+            if (Single.IsNaN(angle) || Single.IsInfinity(angle))
+                throw new ArgumentOutOfRangeException(nameof(angle), PublicResources.ArgumentOutOfRange);
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
+            bool isLinear = workingColorSpace != WorkingColorSpace.Srgb;
+            return CreateLinearGradientBitmapData(new Rectangle(Point.Empty, size), angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
+        }
+
+        public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, ColorF startColor, ColorF endColor,
+            WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        {
+            ValidateArguments(width, height);
+            return CreateLinearGradient(new Size(width, height), angle, startColor, endColor, workingColorSpace);
+        }
+
+        #endregion
 
         #endregion
 
@@ -2442,11 +2559,141 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region LinearGradient
+
+        internal static GradientBitmapData<StoppingInterpolation> CreateLinearGradientBitmapData(Rectangle bounds, float angle, ColorF startColor, ColorF endColor, bool isLinear)
+        {
+            Size size = bounds.Size;
+            if (bounds.Width > 1)
+                bounds.Width--;
+            if (bounds.Height > 1)
+                bounds.Height--;
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+            PointF startPoint, endPoint;
+            Vector2 center = new Vector2(bounds.Width, bounds.Height).Div(2f) + new Vector2(bounds.Left, bounds.Top);
+#else
+            PointF startPoint = default;
+            PointF endPoint = default;
+            PointF center = new PointF(bounds.Left + bounds.Width / 2f, bounds.Top + bounds.Height / 2f);
+#endif
+
+            float degree = angle is >= 0f and <= 360f ? angle : angle % 360f;
+            if (degree < 0f)
+                degree += 360f;
+
+            // Using shortcuts for horizontal and vertical gradients. Not just for performance but also to avoid floating point inaccuracies in radians
+            // (apart from 0 degrees, horizontal and vertical lines cannot be represented accurately).
+            switch (degree)
+            {
+                case 0f:
+                    startPoint = new PointF(bounds.Left, center.Y);
+                    endPoint = new PointF(bounds.Right, center.Y);
+                    break;
+                case 90f:
+                    startPoint = new PointF(center.X, bounds.Top);
+                    endPoint = new PointF(center.X, bounds.Bottom);
+                    break;
+                case 180f:
+                    startPoint = new PointF(bounds.Right, center.Y);
+                    endPoint = new PointF(bounds.Left, center.Y);
+                    break;
+                case 270f:
+                    startPoint = new PointF(center.X, bounds.Bottom);
+                    endPoint = new PointF(center.X, bounds.Top);
+                    break;
+
+                default:
+                    float radian = degree.ToRadian();
+                    float minProjection = Single.MaxValue;
+                    float maxProjection = Single.MinValue;
+
+                    // Projecting all corners onto the gradient direction and finding min/max projections
+#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+                    Vector2 direction = new Vector2(MathF.Cos(radian), MathF.Sin(radian));
+                    Vector2[] corners =
+                    [
+                        new(bounds.Left, bounds.Top),
+                        new(bounds.Right, bounds.Top),
+                        new(bounds.Right, bounds.Bottom),
+                        new(bounds.Left, bounds.Bottom)
+                    ];
+
+                    Vector2 start = Vector2.Zero;
+                    Vector2 end = Vector2.Zero;
+                    foreach (Vector2 corner in corners)
+                    {
+                        float projection = Vector2.Dot(corner - center, direction);
+                        if (projection < minProjection)
+                        {
+                            minProjection = projection;
+                            start = center + projection * direction;
+                        }
+
+                        if (projection > maxProjection)
+                        {
+                            maxProjection = projection;
+                            end = center + projection * direction;
+                        }
+                    }
+
+                    startPoint = start.AsPointF();
+                    endPoint = end.AsPointF();
+#else
+                    float directionX = MathF.Cos(radian);
+                    float directionY = MathF.Sin(radian);
+                    PointF[] corners =
+                    [
+                        new(bounds.Left, bounds.Top),
+                        new(bounds.Right, bounds.Top),
+                        new(bounds.Right, bounds.Bottom),
+                        new(bounds.Left, bounds.Bottom)
+                    ];
+
+                    foreach (PointF corner in corners)
+                    {
+                        float projection = (corner.X - center.X) * directionX + (corner.Y - center.Y) * directionY;
+                        if (projection < minProjection)
+                        {
+                            minProjection = projection;
+                            startPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
+                        }
+
+                        if (projection > maxProjection)
+                        {
+                            maxProjection = projection;
+                            endPoint = new PointF(center.X + projection * directionX, center.Y + projection * directionY);
+                        }
+                    }
+#endif
+                    break;
+            }
+
+            return new GradientBitmapData<StoppingInterpolation>(size, startPoint, endPoint, startColor, endColor, isLinear);
+        }
+
+        #endregion
+
         #endregion
 
         #region Private Methods
 
         #region Validation
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
+        private static void ValidateArguments(Size size)
+        {
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+        }
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
+        private static void ValidateArguments(int width, int height)
+        {
+            if (width < 1)
+                throw new ArgumentOutOfRangeException(nameof(width), PublicResources.ArgumentOutOfRange);
+            if (height < 1)
+                throw new ArgumentOutOfRangeException(nameof(height), PublicResources.ArgumentOutOfRange);
+        }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
         private static void ValidateArguments(Size size, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Palette? palette = null)
