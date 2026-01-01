@@ -2407,6 +2407,76 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region CreateCalculated
+
+        /// <summary>
+        /// Creates a read-only bitmap data with no actual underlying buffer, whose pixel values are calculated on demand using the specified delegate.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="getColor">A delegate that can get the color of a pixel as a <see cref="Color32"/> instance. Its input parameters are the pixel coordinates (x, y).</param>
+        /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadableBitmapData"/> is disposed or finalized. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, whose pixel values are calculated on demand using the specified delegate.</returns>
+        /// <remarks>
+        /// <para>The returned bitmap data does not store pixel values; instead, it calculates them dynamically using the provided function.
+        /// This can be useful for generating procedural images or for scenarios where storing the entire bitmap in memory is unnecessary.</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
+        public static IReadableBitmapData CreateCalculated(Size size, Func<int, int, Color32> getColor, Action? disposeCallback = null)
+        {
+            ValidateArguments(size, getColor);
+            return new CalculatedBitmapData(size, getColor, disposeCallback);
+        }
+
+        /// <summary>
+        /// Creates a read-only bitmap data with no actual underlying buffer, whose pixel values are calculated on demand using the specified delegate.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="getColor">A delegate that can get the color of a pixel as a <see cref="Color64"/> instance. Its input parameters are the pixel coordinates (x, y).</param>
+        /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadableBitmapData"/> is disposed or finalized. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, whose pixel values are calculated on demand using the specified delegate.</returns>
+        /// <remarks>
+        /// <para>The returned bitmap data does not store pixel values; instead, it calculates them dynamically using the provided function.
+        /// This can be useful for generating procedural images or for scenarios where storing the entire bitmap in memory is unnecessary.</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
+        public static IReadableBitmapData CreateCalculated(Size size, Func<int, int, Color64> getColor, Action? disposeCallback = null)
+        {
+            ValidateArguments(size, getColor);
+            return new CalculatedBitmapData(size, getColor, disposeCallback);
+        }
+
+        /// <summary>
+        /// Creates a read-only bitmap data with no actual underlying buffer, whose pixel values are calculated on demand using the specified delegate.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="getColor">A delegate that can get the color of a pixel as a <see cref="ColorF"/> instance. Its input parameters are the pixel coordinates (x, y).</param>
+        /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadableBitmapData"/> is disposed or finalized. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, whose pixel values are calculated on demand using the specified delegate.</returns>
+        /// <remarks>
+        /// <para>The returned bitmap data does not store pixel values; instead, it calculates them dynamically using the provided function.
+        /// This can be useful for generating procedural images or for scenarios where storing the entire bitmap in memory is unnecessary.</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
+        public static IReadableBitmapData CreateCalculated(Size size, Func<int, int, ColorF> getColor, Action? disposeCallback = null)
+        {
+            ValidateArguments(size, getColor);
+            return new CalculatedBitmapData(size, getColor, disposeCallback);
+        }
+
+        #endregion
+
         #region Load
 
         /// <summary>
@@ -2997,6 +3067,15 @@ namespace KGySoft.Drawing.Imaging
             int maxColors = 1 << pixelFormat.ToBitsPerPixel();
             if (palette.Count > maxColors)
                 throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat.ToBitsPerPixel()), nameof(palette));
+        }
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
+        private static void ValidateArguments(Size size, Delegate getColor)
+        {
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (getColor == null)
+                throw new ArgumentNullException(nameof(getColor), PublicResources.ArgumentNull);
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]

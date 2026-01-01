@@ -640,6 +640,19 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveStream(null, ms);
         }
 
+        [Test]
+        public void Calculated()
+        {
+            var size = new Size(200, 100);
+            var bitmapData = BitmapDataFactory.CreateCalculated(size, (x, y) =>
+            {
+                float ratioX = (float)x / size.Width;
+                float ratioY = (float)y / size.Height;
+                return new ColorF(1 - ratioX, ratioX, ratioY <= 0.5f ? ratioY * 2f : 1f - (ratioY * 2f - 1f));
+            });
+            SaveBitmapData(null, bitmapData);
+        }
+
         #endregion
 
         #endregion

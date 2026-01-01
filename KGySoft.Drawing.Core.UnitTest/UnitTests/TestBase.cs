@@ -207,7 +207,7 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
-        protected static void SaveBitmapData(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
+        protected static void SaveBitmapData(string imageName, IReadableBitmapData source, [CallerMemberName]string testName = null)
         {
             if (!SaveToFile)
                 return;
@@ -221,7 +221,7 @@ namespace KGySoft.Drawing.UnitTests
             SaveWithCodec(imageName, source, testName);
         }
 
-        protected static void SaveGif(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
+        protected static void SaveGif(string imageName, IReadableBitmapData source, [CallerMemberName]string testName = null)
         {
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
             if (!Directory.Exists(dir))
@@ -568,7 +568,7 @@ namespace KGySoft.Drawing.UnitTests
         private static void CheckFileName(string fileName) => Assert.IsFalse(File.Exists(fileName), $"File already exists: {fileName}");
 
 #if USE_SKIA
-        private static void SaveWithCodec(string imageName, IReadWriteBitmapData source, string testName)
+        private static void SaveWithCodec(string imageName, IReadableBitmapData source, string testName)
         {
             using var bmp = new SKBitmap(source.Width, source.Height, SKColorType.Bgra8888, source.HasAlpha() ? SKAlphaType.Unpremul : SKAlphaType.Opaque);
 
@@ -598,7 +598,7 @@ namespace KGySoft.Drawing.UnitTests
             bitmap.Encode(file, SKEncodedImageFormat.Png, 100);
         }
 #else
-        private static void SaveWithCodec(string imageName, IReadWriteBitmapData source, string testName)
+        private static void SaveWithCodec(string imageName, IReadableBitmapData source, string testName)
         {
             using var bmp = new Bitmap(source.Width, source.Height,
                 source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);

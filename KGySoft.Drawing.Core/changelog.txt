@@ -54,7 +54,8 @@
 * BitmapDataFactory class:
   + New Load/BeginLoad/LoadAsync overloads with WorkingColorSpace parameter.
   + New CreateSolid: methods to create read-only solid bitmaps without allocating a buffer.
-  + New CreateLinearGradient: methods to create read-only linear gradient bitmaps without allocating a buffer.
+  + New CreateLinearGradient methods: to create read-only linear gradient bitmaps without allocating a buffer.
+  + New CreateCalculated methods: to create read-only bitmaps, whose pixels are calculated on demand.
   * CreateBitmapData methods: In some overloads some parameters have been made optional.
 * ColorExtensions class:
   + New ToGray extension methods with WorkingColorSpace parameter.
