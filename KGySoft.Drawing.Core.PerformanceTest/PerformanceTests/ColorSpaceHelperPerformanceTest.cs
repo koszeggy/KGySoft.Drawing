@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorSpaceHelperPerformanceTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2025 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2026 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -704,7 +704,7 @@ namespace KGySoft.Drawing.PerformanceTests
                             return result;
                     }
 
-                    power >>= 1;
+                    power >>>= 1;
                     if (power > 0)
                         current *= current;
                 }
