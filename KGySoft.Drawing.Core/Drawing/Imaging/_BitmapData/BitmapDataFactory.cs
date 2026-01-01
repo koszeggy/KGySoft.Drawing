@@ -1969,7 +1969,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadableBitmapData"/> instance representing a bitmap of the specified size that returns the specified color for each pixel.</returns>
         /// <remarks>
         /// <para>The returned bitmap data has no allocated underlying buffer, and simply returns the specified <paramref name="color"/> for each pixel.</para>
-        /// <note>Please note that operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <note>Operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
         /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
         /// allocate a new buffer though.</note>
         /// </remarks>
@@ -1989,7 +1989,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadableBitmapData"/> instance representing a bitmap of the specified size that returns the specified color for each pixel.</returns>
         /// <remarks>
         /// <para>The returned bitmap data has no allocated underlying buffer, and simply returns the specified <paramref name="color"/> for each pixel.</para>
-        /// <note>Please note that operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <note>Operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
         /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
         /// allocate a new buffer though.</note>
         /// </remarks>
@@ -2006,6 +2006,30 @@ namespace KGySoft.Drawing.Imaging
 
         #region Start/End points
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2018,6 +2042,31 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(size, startPoint, endPoint, startColor.ToColorF(), endColor.ToColorF(), wrapMode, workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, Color32 startColor, Color32 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2025,10 +2074,59 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(new Size(width, height), startPoint, endPoint, startColor, endColor, wrapMode, workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color64"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
             => CreateLinearGradient(size, startPoint, endPoint, startColor.ToColorF(), endColor.ToColorF(), wrapMode, workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color64"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, Color64 startColor, Color64 endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2036,6 +2134,30 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(new Size(width, height), startPoint, endPoint, startColor, endColor, wrapMode, workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Linear"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2059,6 +2181,31 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="startPoint">The starting point of the gradient.</param>
+        /// <param name="endPoint">The end point of the gradient.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="wrapMode">Determines how the gradient is treated outside the gradient area. This parameter is optional.
+        /// <br/>Default value: <see cref="GradientWrapMode.Stop"/>.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Linear"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload creates a gradient specified by coordinates. To automatically apply the gradient to the bounds of the entire bitmap,
+        /// use the overloads with an <c>angle</c> parameter.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, PointF startPoint, PointF endPoint, ColorF startColor, ColorF endColor,
             GradientWrapMode wrapMode = GradientWrapMode.Stop, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2070,6 +2217,29 @@ namespace KGySoft.Drawing.Imaging
 
         #region Angle
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, float angle, Color32 startColor, Color32 endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2078,6 +2248,30 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(size, angle, startColor.ToColorF(), endColor.ToColorF(), workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color32"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, Color32 startColor, Color32 endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2085,10 +2279,57 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(new Size(width, height), angle, startColor, endColor, workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color64"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, float angle, Color64 startColor, Color64 endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
             => CreateLinearGradient(size, angle, startColor.ToColorF(), endColor.ToColorF(), workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Srgb"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Srgb">WorkingColorSpace.Srgb</see>, because
+        /// the <see cref="Color64"/> type represents a color in the sRGB color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, Color64 startColor, Color64 endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2096,6 +2337,29 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradient(new Size(width, height), angle, startColor, endColor, workingColorSpace);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Linear"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(Size size, float angle, ColorF startColor, ColorF endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
@@ -2108,6 +2372,30 @@ namespace KGySoft.Drawing.Imaging
             return CreateLinearGradientBitmapData(new Rectangle(Point.Empty, size), angle, startColor.ToColorF(isLinear), endColor.ToColorF(isLinear), isLinear);
         }
 
+        /// <summary>
+        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
+        /// from one edge of the bitmap to the opposite edge.
+        /// </summary>
+        /// <param name="width">The width of the bitmap data to create, in pixels.</param>
+        /// <param name="height">The height of the bitmap data to create, in pixels.</param>
+        /// <param name="angle">The angle of the gradient line in degrees. The angle is measured clockwise from the positive x-axis.</param>
+        /// <param name="startColor">The color at the start of the gradient.</param>
+        /// <param name="endColor">The color at the end of the gradient.</param>
+        /// <param name="workingColorSpace">The color space used for gradient interpolation. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>, which means <see cref="WorkingColorSpace.Linear"/> for this overload.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance containing the generated linear gradient image.</returns>
+        /// <remarks>
+        /// <para>This overload calculates the start/end points of the gradient automatically, which stretches from one edge to another.
+        /// To specify custom points, use the overloads with a <c>startPoint</c> and <c>endPoint</c> parameters.</para>
+        /// <para>In this overload the default value of <paramref name="workingColorSpace"/> maps to <see cref="WorkingColorSpace.Linear">WorkingColorSpace.Linear</see>, because
+        /// the <see cref="ColorF"/> type represents a color in the linear color space. When creating a monochromatic gradient, specifying <see cref="WorkingColorSpace.Srgb"/> can be better, because then the perceived
+        /// mid-tone brightness will be at the middle of the gradient. Otherwise, using <see cref="WorkingColorSpace.Linear"/> may be more appropriate, so the transition between the colors will seem more "natural".</para>
+        /// <note>Though the returned bitmap does not allocate an internal buffer and calculates every pixel dynamically when they are accessed,
+        /// operations on the result that return a new bitmap data (e.g. <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see>,
+        /// <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Resize">Resize</see>, <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.ToGrayscale">ToGrayscale</see>, etc.)
+        /// end up allocating a pixel buffer.</note>
+        /// </remarks>
         public static IReadableBitmapData CreateLinearGradient(int width, int height, float angle, ColorF startColor, ColorF endColor,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
