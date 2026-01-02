@@ -28,7 +28,5 @@ namespace KGySoft.Drawing.Shapes
     /// <br/>See the properties of the <see cref="DrawingOptions"/> class, and the <strong>Remarks</strong> section of the <see cref="Brush"/>, <see cref="Pen"/> and <see cref="Path"/> classes for examples with images.
     /// </summary>
     [CompilerGenerated]
-    internal static class NamespaceDoc
-    {
-    }
+    internal static class NamespaceDoc;
 }

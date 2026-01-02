@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -22,11 +23,12 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
-    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// The RGBQUAD structure describes a color consisting of relative intensities of red, green, and blue.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct RGBQUAD
     {
         #region Fields

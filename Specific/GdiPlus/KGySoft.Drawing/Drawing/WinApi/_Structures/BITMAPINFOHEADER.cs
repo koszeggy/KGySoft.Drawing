@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -26,6 +27,7 @@ namespace KGySoft.Drawing.WinApi
     /// The BITMAPINFOHEADER structure contains information about the dimensions and color format of a DIB.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct BITMAPINFOHEADER
     {
         #region Fields

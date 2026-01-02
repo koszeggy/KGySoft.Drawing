@@ -1446,6 +1446,9 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Srgb ? src.BlendWithSrgb(dst) : src.BlendWithLinear(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+#if !NETCOREAPP3_0_OR_GREATER
+        [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer", Justification = "Needed for specific targets")]
+#endif
         internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
@@ -1499,6 +1502,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+#if !NETCOREAPP3_0_OR_GREATER
+        [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer", Justification = "Needed for specific targets")]
+#endif
         internal static Color64 BlendWithSrgb(this Color64 src, Color64 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0 && dst.A != 65535, "Partially transparent colors are expected");

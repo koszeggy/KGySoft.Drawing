@@ -17,9 +17,6 @@
 
 using System;
 using System.Drawing;
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-using System.Numerics;
-#endif
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;

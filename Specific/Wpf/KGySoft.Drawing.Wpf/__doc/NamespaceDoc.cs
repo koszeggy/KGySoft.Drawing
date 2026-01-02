@@ -28,7 +28,5 @@ namespace KGySoft.Drawing.Wpf
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>
     [CompilerGenerated]
-    internal static class NamespaceDoc
-    {
-    }
+    internal static class NamespaceDoc;
 }

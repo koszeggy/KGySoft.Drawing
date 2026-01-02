@@ -16,17 +16,19 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
 
 namespace KGySoft.Drawing.WinApi
 {
-    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Receives information used to retrieve a stock Shell icon. This structure is used in a call SHGetStockIconInfo.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct SHSTOCKICONINFO
     {
         #region Fields

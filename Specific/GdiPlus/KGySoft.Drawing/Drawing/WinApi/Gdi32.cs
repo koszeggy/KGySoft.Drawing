@@ -42,6 +42,7 @@ namespace KGySoft.Drawing.WinApi
 #if NET
     [SupportedOSPlatform("windows")]
 #endif
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal static class Gdi32
     {
         #region NativeMethods class

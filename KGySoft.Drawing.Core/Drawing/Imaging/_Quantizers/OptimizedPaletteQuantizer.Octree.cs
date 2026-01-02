@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 
+using KGySoft.Annotations;
 using KGySoft.Threading;
 
 #endregion
@@ -26,6 +27,7 @@ namespace KGySoft.Drawing.Imaging
 {
     public sealed partial class OptimizedPaletteQuantizer
     {
+        [UsedImplicitly]
         private sealed class OctreeQuantizer : IOptimizedPaletteQuantizer
         {
             #region Nested Types
@@ -320,7 +322,7 @@ namespace KGySoft.Drawing.Imaging
                     if (levels[level].Count == 0)
                         continue;
 
-                    // Sorting nodes of the current level (least significant ones first)
+                    // Sorting nodes of the current level (the least significant ones first)
                     // while merging them into their parents until we go under MaxColors
                     List<OctreeNode> nodes = levels[level];
                     nodes.Sort((a, b) => a.DeepPixelCount - b.DeepPixelCount);

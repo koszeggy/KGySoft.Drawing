@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -23,6 +24,7 @@ namespace KGySoft.Drawing.WinApi
 {
     // ReSharper disable once InconsistentNaming
     [StructLayout(LayoutKind.Sequential)]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct BITMAPINFO
     {
         #region Fields

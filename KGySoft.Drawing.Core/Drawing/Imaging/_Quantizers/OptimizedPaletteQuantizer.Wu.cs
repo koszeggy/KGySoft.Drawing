@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Security;
 
+using KGySoft.Annotations;
 using KGySoft.Collections;
 using KGySoft.Threading;
 
@@ -32,6 +33,7 @@ namespace KGySoft.Drawing.Imaging
         /// Credit to Xiaolin Wu's Color Quantizer published at https://www.ece.mcmaster.ca/~xwu/cq.c
         /// This quantizer is mainly based on his code.
         /// </summary>
+        [UsedImplicitly]
         private sealed class WuQuantizer : IOptimizedPaletteQuantizer
         {
             #region Nested types

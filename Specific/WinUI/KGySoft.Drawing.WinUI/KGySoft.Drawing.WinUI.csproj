@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
-    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>-->
+    <TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
+    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
 
-    <TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <!--<TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -36,7 +36,7 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.101">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

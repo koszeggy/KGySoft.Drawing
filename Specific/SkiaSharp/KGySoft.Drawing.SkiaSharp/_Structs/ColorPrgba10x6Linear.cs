@@ -24,6 +24,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
+    // ReSharper disable once InconsistentNaming - Justification: matching the name SKColorType.Rgba10x6
     internal readonly struct ColorPrgba10x6Linear
     {
         #region Constants

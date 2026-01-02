@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace KGySoft.Drawing.WinApi
 {
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal enum MappingModes
     {
         MM_TEXT = 1,

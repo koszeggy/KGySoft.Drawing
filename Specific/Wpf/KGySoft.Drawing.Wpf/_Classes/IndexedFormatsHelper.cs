@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -27,6 +29,7 @@ namespace KGySoft.Drawing.Wpf
 
         internal static bool TrySetPalette(Palette _) => false;
 
+        [SecuritySafeCritical]
         internal static int GetColorIndexI1(ICustomBitmapDataRow row, int x)
         {
             int bits = row.UnsafeGetRefAs<byte>(x >> 3);
@@ -34,6 +37,7 @@ namespace KGySoft.Drawing.Wpf
             return (bits & mask) != 0 ? 1 : 0;
         }
 
+        [SecuritySafeCritical]
         internal static void SetColorIndexI1(ICustomBitmapDataRow row, int x, int colorIndex)
         {
             ref byte bits = ref row.UnsafeGetRefAs<byte>(x >> 3);
@@ -44,6 +48,7 @@ namespace KGySoft.Drawing.Wpf
                 bits |= (byte)mask;
         }
 
+        [SecuritySafeCritical]
         internal static int GetColorIndexI2(ICustomBitmapDataRow row, int x)
         {
             int bits = row.UnsafeGetRefAs<byte>(x >> 2);
@@ -56,6 +61,7 @@ namespace KGySoft.Drawing.Wpf
             };
         }
 
+        [SecuritySafeCritical]
         internal static void SetColorIndexI2(ICustomBitmapDataRow row, int x, int colorIndex)
         {
             int pos = x >> 2;
@@ -81,6 +87,7 @@ namespace KGySoft.Drawing.Wpf
             }
         }
 
+        [SecuritySafeCritical]
         internal static int GetColorIndexI4(ICustomBitmapDataRow row, int x)
         {
             int nibbles = row.UnsafeGetRefAs<byte>(x >> 1);
@@ -89,6 +96,7 @@ namespace KGySoft.Drawing.Wpf
                 : nibbles & 0b00001111;
         }
 
+        [SecuritySafeCritical]
         internal static void SetColorIndexI4(ICustomBitmapDataRow row, int x, int colorIndex)
         {
             ref byte nibbles = ref row.UnsafeGetRefAs<byte>(x >> 1);

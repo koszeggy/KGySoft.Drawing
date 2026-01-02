@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
         bool HasAlpha { get; }
 
         /// <summary>
-        /// Gets the preferred color space when this <see cref="IPalette"/> instance performs blending and measuring distance when looking for a nearest color.
+        /// Gets the preferred color space when this <see cref="IPalette"/> instance performs blending and measuring distance when looking for the nearest color.
         /// </summary>
         /// <remarks>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and

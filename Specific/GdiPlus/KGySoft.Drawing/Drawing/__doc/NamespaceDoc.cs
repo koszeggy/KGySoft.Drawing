@@ -83,7 +83,5 @@ namespace KGySoft.Drawing
     /// </list></para>
     /// </remarks>
     [CompilerGenerated]
-    internal static class NamespaceDoc
-    {
-    }
+    internal static class NamespaceDoc;
 }

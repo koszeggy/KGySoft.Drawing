@@ -110,12 +110,12 @@ namespace KGySoft.Drawing.Imaging
                             WorkingColorSpace = workingColorSpace,
                             DisposeCallback = dispose,
                             BackBufferIndependentPixelAccess = true,
-                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
-                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
-                            RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor64(),
-                            RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
-                            RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColorF(),
-                            RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
+                            RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
+                            RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
+                            RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor64(),
+                            RowSetColor64 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
+                            RowGetColorF = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColorF(),
+                            RowSetColorF = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
                         });
 
                 case PixelFormat.Format64bppPArgb:
@@ -130,14 +130,14 @@ namespace KGySoft.Drawing.Imaging
                             WorkingColorSpace = workingColorSpace,
                             DisposeCallback = dispose,
                             BackBufferIndependentPixelAccess = true,
-                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
-                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
-                            RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor64(),
-                            RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
-                            RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF().ToColorF(),
-                            RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c.ToPColorF()),
-                            RowGetPColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF(),
-                            RowSetPColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                            RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
+                            RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                            RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor64(),
+                            RowSetColor64 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
+                            RowGetColorF = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF().ToColorF(),
+                            RowSetColorF = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c.ToPColorF()),
+                            RowGetPColorF = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToPColorF(),
+                            RowSetPColorF = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
                         });
 
                 case PixelFormat.Format48bppRgb:
@@ -154,16 +154,16 @@ namespace KGySoft.Drawing.Imaging
                             WorkingColorSpace = workingColorSpace,
                             DisposeCallback = dispose,
                             BackBufferIndependentPixelAccess = true,
-                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
-                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == Byte.MaxValue ? new GdiPlusColor48(c)
+                            RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
+                            RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == Byte.MaxValue ? new GdiPlusColor48(c)
                                 : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
                                 : new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
-                            RowGetColor64 = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor64(),
-                            RowSetColor64 = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == UInt16.MaxValue ? new GdiPlusColor48(c)
+                            RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor64(),
+                            RowSetColor64 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A == UInt16.MaxValue ? new GdiPlusColor48(c)
                                 : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColor64()))
                                 : new GdiPlusColor48(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
-                            RowGetColorF = (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColorF(),
-                            RowSetColorF = (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A >= 1f ? new GdiPlusColor48(c)
+                            RowGetColorF = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColorF(),
+                            RowSetColorF = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) = c.A >= 1f ? new GdiPlusColor48(c)
                                 : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new GdiPlusColor48(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
                                 : new GdiPlusColor48(c.Blend(row.BitmapData.BackColor.ToColorF())),
                         });
@@ -179,8 +179,8 @@ namespace KGySoft.Drawing.Imaging
                             WorkingColorSpace = workingColorSpace,
                             DisposeCallback = dispose,
                             BackBufferIndependentPixelAccess = true,
-                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
-                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
+                            RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
+                            RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
                                 new Color16As24(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace), true)
                         });
 
@@ -195,8 +195,8 @@ namespace KGySoft.Drawing.Imaging
                             WorkingColorSpace = workingColorSpace,
                             DisposeCallback = dispose,
                             BackBufferIndependentPixelAccess = true,
-                            RowGetColor32 = (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
-                            RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
+                            RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
+                            RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
                                 new Color16As24(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace), false)
                         });
 

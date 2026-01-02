@@ -34,6 +34,8 @@ namespace KGySoft.Drawing.WinApi
 #if NET
     [SupportedOSPlatform("windows")]
 #endif
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal static class Kernel32
     {
         #region NativeMethods class

@@ -3,8 +3,6 @@
 namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class CallerMemberNameAttribute : Attribute
-    {
-    }
+    internal sealed class CallerMemberNameAttribute : Attribute;
 }
 #endif

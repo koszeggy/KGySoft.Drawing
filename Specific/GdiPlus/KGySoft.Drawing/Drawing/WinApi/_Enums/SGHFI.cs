@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
@@ -23,6 +24,7 @@ namespace KGySoft.Drawing.WinApi
 {
     // ReSharper disable once InconsistentNaming
     [Flags]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal enum SGHFI : uint
     {
         /// <summary>

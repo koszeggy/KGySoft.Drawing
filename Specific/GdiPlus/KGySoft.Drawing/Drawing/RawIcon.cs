@@ -837,13 +837,13 @@ namespace KGySoft.Drawing
         #region Static Fields
 
         private static readonly PixelFormat[] validIconFormats =
-        {
+        [
             PixelFormat.Format1bppIndexed,
             PixelFormat.Format4bppIndexed,
             PixelFormat.Format8bppIndexed,
             PixelFormat.Format24bppRgb,
             PixelFormat.Format32bppArgb
-        };
+        ];
 
         #endregion
 

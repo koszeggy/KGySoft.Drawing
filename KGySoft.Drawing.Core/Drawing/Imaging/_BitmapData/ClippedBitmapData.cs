@@ -250,10 +250,10 @@ namespace KGySoft.Drawing.Imaging
 
             createRowFactory = BitmapData switch
             {
-                IBitmapDataInternal _ => y => new ClippedRowInternal(this, y),
-                IReadWriteBitmapData _ => y => new ClippedRowReadWrite(this, y),
-                IReadableBitmapData _ => y => new ClippedRowReadable(this, y),
-                IWritableBitmapData _ => y => new ClippedRowWritable(this, y),
+                IBitmapDataInternal => y => new ClippedRowInternal(this, y),
+                IReadWriteBitmapData => y => new ClippedRowReadWrite(this, y),
+                IReadableBitmapData => y => new ClippedRowReadable(this, y),
+                IWritableBitmapData => y => new ClippedRowWritable(this, y),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bitmap data type: {source.GetType()}"))
             };
 

@@ -24,7 +24,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal struct ColorPrgba16161616Srgb
+    internal readonly struct ColorPrgba16161616Srgb
     {
         #region Fields
 

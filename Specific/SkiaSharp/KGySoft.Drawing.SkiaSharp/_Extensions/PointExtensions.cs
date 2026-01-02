@@ -17,6 +17,7 @@
 
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using SkiaSharp;
 
@@ -28,6 +29,7 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Methods
 
+        [SecuritySafeCritical]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ref PointF AsPointF(this ref SKPoint point) => ref Unsafe.As<SKPoint, PointF>(ref point);
 

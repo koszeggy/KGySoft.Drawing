@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Security;
+
 #region Used Namespaces
 
 using System;
@@ -216,7 +218,7 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
+                    RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
                 });
 
             if (sourceFormat == PixelFormats.Indexed2)
@@ -282,8 +284,8 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
-                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor64(),
+                    RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
+                    RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgb48)
@@ -294,7 +296,7 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor64(),
+                    RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgba64)
@@ -305,7 +307,7 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColor64 = (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor64(),
+                    RowGetColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Prgba64)
@@ -316,7 +318,7 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetPColor64 = (row, x) => row.UnsafeGetRefAs<ColorPrgba64>(x).ToPColor64(),
+                    RowGetPColor64 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorPrgba64>(x).ToPColor64(),
                 });
 
             if (sourceFormat == PixelFormats.Rgb128Float)
@@ -327,7 +329,7 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColorF = (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToOpaque(),
+                    RowGetColorF = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorF>(x).ToOpaque(),
                 });
 
             if (sourceFormat == PixelFormats.Cmyk32)
@@ -338,8 +340,8 @@ namespace KGySoft.Drawing.Wpf
                     AlphaThreshold = alphaThreshold,
                     WorkingColorSpace = workingColorSpace,
                     BackBufferIndependentPixelAccess = true,
-                    RowGetColor32 = (row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
-                    RowSetColor32 = (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
+                    RowGetColor32 = [SecuritySafeCritical](row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
+                    RowSetColor32 = [SecuritySafeCritical](row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
                         new ColorCmyk32(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace))
                 });
 

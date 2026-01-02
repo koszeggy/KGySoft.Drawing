@@ -18,7 +18,5 @@ namespace KGySoft
     /// <summary>
     /// Represents a discarded type in generic arguments.
     /// </summary>
-    internal struct _
-    {
-    }
+    internal struct _;
 }

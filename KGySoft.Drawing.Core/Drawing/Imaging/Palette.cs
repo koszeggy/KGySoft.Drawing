@@ -342,7 +342,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/>
-        /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
+        /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe, and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
         /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
         /// as this delegate can be re-used in another <see cref="Palette"/> instance when calling the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.

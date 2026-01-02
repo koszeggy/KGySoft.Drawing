@@ -29,6 +29,7 @@ namespace KGySoft.Drawing.WinApi
     /// This structure is used with the SHGetFileInfo function.
     /// </remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal unsafe struct SHFILEINFO
     {
         #region Fields

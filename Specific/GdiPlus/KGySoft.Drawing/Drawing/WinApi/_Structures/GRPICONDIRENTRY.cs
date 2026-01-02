@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -29,6 +30,7 @@ namespace KGySoft.Drawing.WinApi
     /// The only difference is <see cref="nID"/> vs. <see cref="ICONDIRENTRY.dwImageOffset"/>.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct GRPICONDIRENTRY
     {
         #region Fields

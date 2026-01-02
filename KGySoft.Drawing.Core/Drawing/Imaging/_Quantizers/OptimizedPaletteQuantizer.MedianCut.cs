@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Security;
 
+using KGySoft.Annotations;
 using KGySoft.Collections;
 using KGySoft.Threading;
 
@@ -29,6 +30,7 @@ namespace KGySoft.Drawing.Imaging
 {
     public sealed partial class OptimizedPaletteQuantizer
     {
+        [UsedImplicitly]
         private sealed class MedianCutQuantizer<T> : IOptimizedPaletteQuantizer
             where T : unmanaged
         {

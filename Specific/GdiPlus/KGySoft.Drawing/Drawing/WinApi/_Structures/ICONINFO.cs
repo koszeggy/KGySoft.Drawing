@@ -26,6 +26,7 @@ namespace KGySoft.Drawing.WinApi
     /// Contains information about an icon or a cursor.
     /// </summary>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "WinAPI")]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct ICONINFO
     {
         #region Fields

@@ -796,7 +796,7 @@ namespace KGySoft.Drawing
             try
             {
                 var data = new List<RawIcon>();
-                EnumResNameProc enumFunc = (handle, _, resName, _) =>
+                EnumResNameProc enumFunc = [SecuritySafeCritical](handle, _, resName, _) =>
                 {
                     data.Add(GetModuleIcon(handle, resName));
                     return true;

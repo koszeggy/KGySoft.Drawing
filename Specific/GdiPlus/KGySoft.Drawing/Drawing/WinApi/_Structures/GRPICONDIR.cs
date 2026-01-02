@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -27,6 +28,7 @@ namespace KGySoft.Drawing.WinApi
     /// and here: https://chromium.googlesource.com/chromium/src//+/f3080498facd16066076e7d459ba7cfda11e582c/ui/gfx/icon_util.h?autodive=0%2F%2F%2F%2F%2F%2F#188
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "WinAPI")]
     internal struct GRPICONDIR
     {
         #region Fields
