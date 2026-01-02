@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.IsNotNull(Icons.Information.ExtractBitmap(new Size(16, 16), PixelFormat.Format32bppArgb));
             Assert.IsNull(Icons.Information.ExtractBitmap(Size.Empty));
             Assert.IsNull(Icons.Information.ExtractBitmap(new Size(16, 16), PixelFormat.Format1bppIndexed));
-            Assert.IsNotNull(Icons.Information.ExtractBitmap(0));
+            Assert.IsNotNull(Icons.Information.ExtractBitmap(1));
             Assert.IsNull(Icons.Information.ExtractBitmap(99));
         }
 

@@ -27,6 +27,9 @@
   ! ToGraphicsPath method:
     ! Instead of returning a path with flattened points, now it preserves the original curves as much as possible.
     - Single-point segments are now preserved even if they are the only segment in a figure.
+- IconExtensions class:
+  - ExtractBitmap(Icon,int,bool) method: It could return null for non-zero indices, even if the icon contained more
+    than one icons.
 - ImageExtensions class:
   - EqualsByContent method: Fixing a possible GDI+ exception when one of the images is disposed.
     From now on, if either of the images is disposed, the result is always false.

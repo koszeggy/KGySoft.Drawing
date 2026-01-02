@@ -321,7 +321,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
 
             using var rawIcon = new RawIcon(icon, null, null, index);
-            return index >= rawIcon.ImageCount ? null : rawIcon.ExtractBitmap(index, keepOriginalFormat);
+            return rawIcon.ImageCount == 0 ? null : rawIcon.ExtractBitmap(0, keepOriginalFormat);
         }
 
         /// <summary>
