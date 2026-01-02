@@ -25,6 +25,7 @@ using System.Drawing.Imaging;
 using System.Numerics;
 #endif
 using System.Security;
+using System.Threading;
 
 #endregion
 
@@ -44,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private static readonly object syncRoot = new object();
+        private static readonly Lock syncRoot = new Lock();
 
         private static bool lookupTableSrgb8ToLinear16BitInitialized;
         private static ushort[]? lookupTableSrgb8ToLinear16Bit;
