@@ -40,19 +40,19 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <dependencies>
       <group targetFramework="net462">
         <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
-        <dependency id="SkiaSharp" version="3.116.1" />
+        <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="netstandard2.0">
         <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
-        <dependency id="SkiaSharp" version="3.116.1" />
+        <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
         <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
-        <dependency id="SkiaSharp" version="3.116.1" />
+        <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="net5.0" >
         <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
-        <dependency id="SkiaSharp" version="3.116.1" />
+        <dependency id="SkiaSharp" version="3.119.0" />
       </group>
     </dependencies>
   </metadata>

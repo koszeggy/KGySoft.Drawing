@@ -41,6 +41,7 @@
 
   <!-- Package references -->
   <ItemGroup>
+    <!-- Reference the lowest required version to support all SKColorType values --> 
     <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100">
       <PrivateAssets>all</PrivateAssets>

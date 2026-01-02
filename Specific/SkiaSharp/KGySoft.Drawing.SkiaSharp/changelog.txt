@@ -12,7 +12,7 @@
 ! Assembly changes
 ==================
 ! Upgrading SkiaSharp package reference from 3.116.1 to 3.119.0. This is required to support the new Rgba10x6
-  color type.
+  color type natively.
 ! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, though none of them affects SkiaSharp
   features directly.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
