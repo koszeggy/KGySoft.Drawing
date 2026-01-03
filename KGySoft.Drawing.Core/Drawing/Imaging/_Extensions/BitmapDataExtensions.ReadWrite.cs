@@ -3584,7 +3584,13 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
             {
                 if (linear)
+                {
+#if NET9_0_OR_GREATER
+                    return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb && gamma > 0f ? c => TransformGammaF(c, gamma) : c => TransformGammaPerChannelF(c, channels, gamma));
+#else
                     return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGammaF(c, gamma) : c => TransformGammaPerChannelF(c, channels, gamma));
+#endif
+                }
                 if (bitmapData.PixelFormat.IsWide)
                 {
                     ushort[] table64 = GammaLookupTableCache64[gamma];
@@ -3593,7 +3599,13 @@ namespace KGySoft.Drawing.Imaging
             }
 
             if (linear)
+            {
+#if NET9_0_OR_GREATER
+                return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb && gamma > 0f ? c => TransformGammaF(c.ToColorF(), gamma).ToColor32() : c => TransformGammaPerChannelF(c.ToColorF(), channels, gamma).ToColor32(), ditherer);
+#else
                 return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGammaF(c.ToColorF(), gamma).ToColor32() : c => TransformGammaPerChannelF(c.ToColorF(), channels, gamma).ToColor32(), ditherer);
+#endif
+            }
 
             byte[] table32 = GammaLookupTableCache32[gamma];
             return DoTransformColors(context, bitmapData, channels == ColorChannels.Rgb ? c => TransformGamma32(c, table32) : c => TransformGammaPerChannel32(c, channels, table32), ditherer);
