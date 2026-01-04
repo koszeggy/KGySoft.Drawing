@@ -1023,7 +1023,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var newSize = new Size(256, 256);
             using var resized = refBmpData.Resize(newSize);
             Assert.AreEqual(newSize, resized.Size);
-            Assert.AreEqual(KnownPixelFormat.Format24bppRgb, resized.PixelFormat.ToKnownPixelFormat());
+            Assert.AreEqual(refBmpData.HasAlpha() ? (colorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb) : KnownPixelFormat.Format24bppRgb, resized.PixelFormat.ToKnownPixelFormat());
             SaveBitmapData($"{colorSpace}", resized);
         }
 
