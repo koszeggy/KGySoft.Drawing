@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 
 using KGySoft.Drawing.Imaging;
@@ -508,7 +509,7 @@ namespace KGySoft.Drawing.UnitTests.Shapes
                     var pen = new Pen(Color.Blue, width) { StartCap = capStyle, EndCap = capStyle };
                     //bitmapData.FillPath(Color.Yellow, path, drawingOptions);
                     bitmapData.DrawPath(context, pen, path, drawingOptions);
-                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width:F2}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
+                    SaveBitmapData($"{name}_{(antiAliasing ? "AA" : "NA")}_W{width.ToString("F2", NumberFormatInfo.InvariantInfo)}_{capStyle}{(fastThinLines ? "_F" : null)}", bitmapData);
                 }
             }
         }

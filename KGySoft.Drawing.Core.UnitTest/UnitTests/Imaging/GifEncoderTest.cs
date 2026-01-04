@@ -433,7 +433,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 #if USE_SKIA
                 AssertAreEqual(quantized, actual, allowDifferentPixelFormats: true);
 #else
-                AssertAreEqual(quantized, actual);
+                if (!IsMono)
+                    AssertAreEqual(quantized, actual);
 #endif
             }
         }

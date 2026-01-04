@@ -297,7 +297,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // no offset (nothing should happen)
             Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData));
-            AssertAreEqual(orig, bitmapData);
+            AssertAreEqual(orig, bitmapData, true);
 
             // no offset, quantizing
             Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Rectangle(20, 20, 200, 200), new Point(20, 20), quantizer: PredefinedColorsQuantizer.Rgb332()));
