@@ -1962,7 +1962,7 @@ namespace KGySoft.Drawing.Imaging
         #region CreateSolid
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
+        /// Creates a read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
         /// </summary>
         /// <param name="size">The size of the bitmap data to create, in pixels.</param>
         /// <param name="color">The color of the entire bitmap.</param>
@@ -1981,7 +1981,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
+        /// Creates a read-only bitmap data with no actual underlying buffer that has the specified size and solid color.
         /// </summary>
         /// <param name="width">The width of the bitmap data to create, in pixels.</param>
         /// <param name="height">The height of the bitmap data to create, in pixels.</param>
@@ -2007,7 +2007,7 @@ namespace KGySoft.Drawing.Imaging
         #region Start/End points
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
         /// <param name="startPoint">The starting point of the gradient.</param>
@@ -2043,7 +2043,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="width">The width of the bitmap data to create, in pixels.</param>
         /// <param name="height">The height of the bitmap data to create, in pixels.</param>
@@ -2075,7 +2075,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
         /// <param name="startPoint">The starting point of the gradient.</param>
@@ -2103,7 +2103,7 @@ namespace KGySoft.Drawing.Imaging
             => CreateLinearGradient(size, startPoint, endPoint, startColor.ToColorF(), endColor.ToColorF(), wrapMode, workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="width">The width of the bitmap data to create, in pixels.</param>
         /// <param name="height">The height of the bitmap data to create, in pixels.</param>
@@ -2135,7 +2135,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="size">The size, in pixels, of the bitmap data to create.</param>
         /// <param name="startPoint">The starting point of the gradient.</param>
@@ -2182,7 +2182,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// </summary>
         /// <param name="width">The width of the bitmap data to create, in pixels.</param>
         /// <param name="height">The height of the bitmap data to create, in pixels.</param>
@@ -2218,7 +2218,7 @@ namespace KGySoft.Drawing.Imaging
         #region Angle
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
@@ -2249,7 +2249,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
@@ -2280,7 +2280,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
@@ -2307,7 +2307,7 @@ namespace KGySoft.Drawing.Imaging
             => CreateLinearGradient(size, angle, startColor.ToColorF(), endColor.ToColorF(), workingColorSpace == default ? WorkingColorSpace.Srgb : workingColorSpace);
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
@@ -2338,7 +2338,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
@@ -2373,7 +2373,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
+        /// Creates a read-only bitmap data with no actual underlying buffer, containing a linear gradient that transitions between two colors along a straight line.
         /// The line is specified by an <paramref name="angle"/> only, and the actual start and end points are calculated automatically so they stretch
         /// from one edge of the bitmap to the opposite edge.
         /// </summary>
