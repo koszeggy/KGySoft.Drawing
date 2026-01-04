@@ -186,6 +186,7 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         protected static bool IsMono { get; } = Type.GetType("Mono.Runtime") != null;
+        protected static bool IsWindows { get; } = Environment.OSVersion.Platform is PlatformID.Win32NT or PlatformID.Win32Windows;
 
         #endregion
 
