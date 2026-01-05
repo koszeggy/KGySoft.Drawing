@@ -15,6 +15,7 @@
 
 #region Usings
 
+#region Used Namespaces
 using System;
 #if NET7_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
@@ -25,7 +26,15 @@ using System.Drawing.Imaging;
 using System.Numerics;
 #endif
 using System.Security;
-using System.Threading;
+#endregion
+
+#region Used Aliases
+#if NET9_0_OR_GREATER
+using Lock = System.Threading.Lock;
+#else
+using Lock = object;
+#endif
+#endregion
 
 #endregion
 

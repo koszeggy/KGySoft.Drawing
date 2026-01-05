@@ -9,10 +9,6 @@
 ! v10.0.0:
 ~~~~~~~~~~
 
-+ Assembly changes:
-===================
-+ Targeting also .NET 9.0
-
 ! Common changes
 ================
 ! Referencing KGySoft.Drawing.Core v10.0.0. It contains some breaking changes, which are rather fixes for some
