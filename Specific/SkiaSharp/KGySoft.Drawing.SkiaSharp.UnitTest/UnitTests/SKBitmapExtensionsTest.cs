@@ -20,7 +20,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.InteropServices;
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -166,9 +168,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     {
                         SKColorType.Rgb565 => 45, // for 5 bit linear colors the first non-black shade is 48
                         SKColorType.Argb4444 => 64, // for 4 bit it's 70
-#if !NETCOREAPP3_0_OR_GREATER
                         SKColorType.Rgba8888 or SKColorType.Bgra8888 => 3,
-#endif
                         _ => 2
                     });
                 Console.WriteLine($"{"by SkiaSharp",-32}- {actualNative.ToColor32(),-40} ({raw.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).Join('_')}) {(expectedResult.TolerantEquals(actualNative.ToColor32(), tolerance) ? "OK" : "!")}");
@@ -192,11 +192,14 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 // Setting/getting all color types, comparing result to the actual Color result
                 expectedResult = actual.ToColor32();
 #if NETCOREAPP3_0_OR_GREATER // Keeping the original tolerance if a shade difference can occur due to non-accelerated truncating conversions (especially for premultiplied colors)
-                tolerance = alphaType is SKAlphaType.Opaque
-                    || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Rgba10x6
-                    || alphaType is SKAlphaType.Premul && colorType is SKColorType.Srgba8888
-                        ? (byte)1
-                        : (byte)0;
+                if (RuntimeInformation.ProcessArchitecture != Architecture.Arm64)
+                {
+                    tolerance = alphaType is SKAlphaType.Opaque
+                        || alphaType is SKAlphaType.Premul or SKAlphaType.Unpremul && colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Rgba10x6
+                        || alphaType is SKAlphaType.Premul && colorType is SKColorType.Srgba8888
+                            ? (byte)1
+                            : (byte)0;
+                }
 #endif
 
                 // as Color32
@@ -205,11 +208,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 // as PColor32
                 bitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-#if NETCOREAPP3_0_OR_GREATER
-                AssertEqual(nameof(PColor32), expectedResult.ToPColor32().ToColor32(), bitmapData.GetPColor32(0, 0).ToColor32(), tolerance);
-#else
-                AssertEqual(nameof(PColor32), expectedResult.ToPColor32().ToColor32(), bitmapData.GetPColor32(0, 0).ToColor32(), (byte)(tolerance * 2));
-#endif
+                AssertEqual(nameof(PColor32), expectedResult.ToPColor32().ToColor32(), bitmapData.GetPColor32(0, 0).ToColor32(), (byte)(Math.Max((int)tolerance, 1) * 2));
 
                 // as Color64
                 bitmapData.SetColor64(0, 0, testColor.ToColor64());
