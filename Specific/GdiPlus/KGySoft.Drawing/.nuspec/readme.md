@@ -9,7 +9,8 @@ The KGy SOFT Drawing Libraries package offers advanced features for `System.Draw
 Main highlights:
 - Fast [direct native Bitmap data access](https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) for every PixelFormat.
 - High performance [shape drawing](https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#shape-drawing) even into `Bitmap` instances with indexed pixel formats.
-- [Quantizing](https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Quantize.htm) and [dithering](https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Dither.htm).
+- [Quantizing and dithering](https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#quantizing-and-dithering).
+- [Text drawing](https://github.com/koszeggy/KGySoft.Drawing/blob/master/README.md#text-drawing) support even into indexed bitmaps.
 - Creating [GIF animations](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_SaveAsAnimatedGif.htm) even in high color.
 - Several [built-in icons](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.

@@ -60,7 +60,7 @@
         <configuration>
           <targets>
             <!--If there is an unexpected build error regarding KGySoft.CoreLibraries.shfbproj, then build that project first (the libraries, not the help) -->
-            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.Help.shfbproj" />
           </targets>
         </configuration>
       </PlugInConfig>

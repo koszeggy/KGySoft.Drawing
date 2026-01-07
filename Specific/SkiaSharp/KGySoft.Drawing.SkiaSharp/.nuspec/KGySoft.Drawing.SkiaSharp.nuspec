@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.SkiaSharp</id>
-    <version>10.0.0-rc.1</version>
+    <version>10.0.0</version>
     <title>KGy SOFT Drawing Libraries for SkiaSharp</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -39,19 +39,19 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0" />
         <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="netstandard2.0">
-        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0" />
         <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0" />
         <dependency id="SkiaSharp" version="3.119.0" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.Drawing.Core" version="10.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.0" />
         <dependency id="SkiaSharp" version="3.119.0" />
       </group>
     </dependencies>

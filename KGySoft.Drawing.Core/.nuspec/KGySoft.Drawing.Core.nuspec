@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>10.0.0-rc.1</version>
+    <version>10.0.0</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,7 +11,7 @@
     <readme>readme.md</readme>
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Advanced drawing features for completely managed and technology-agnostic bitmap data on multiple platforms. Among others: fast bitmap manipulation, shape drawing, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
+    <summary>Completely managed and technology-agnostic advanced drawing features for multiple platforms. Among others: fast bitmap manipulation, shape drawing, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
     <description xml:space="preserve">The KGy SOFT Drawing Core Libraries package offers advanced features in a technology-agnostic way.
 
 Among others:
@@ -40,42 +40,42 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
         <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
         <dependency id="System.Numerics.Vectors" version="4.5.0" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="net6.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="net8.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="net9.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
       <group targetFramework="net10.0" >
-        <dependency id="KGySoft.CoreLibraries" version="10.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="10.5.0" />
       </group>
     </dependencies>
   </metadata>

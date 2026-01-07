@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net7.0;net9.0</TargetFrameworks>-->
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>
+    <!--<TargetFrameworks>net10.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
-    <!--<TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0;net9.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net46;netstandard2.0;netstandard2.1;netcoreapp2.0;netcoreapp3.0;net5.0;net7.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -55,24 +56,22 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0-rc.1" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0" />
   </ItemGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no longer supported. For .NET 7 (which is the highest we need to target as of now)
-    package version 8.x is the newest one we can use, because MS keeps dropping support for older versions -->
+  <!-- System.Drawing.Common: as MS keeps droping support of older frameworks, we need to reference different versions.
+    Note that unlike apps (and unit tests), a class library aims the best compatibility, so we don't always upgrade to the latest available versions. -->
+  <!-- .NET 7.0 or newer references: Unix is no longer supported. -->
+  <!-- .NET 5.0/6.0: Unix is supported only by an app context switch (initialized by DrawingModule) -->
+  <!-- Note for .NET Standard targets: They are theoretically supported by 6.0.0 but in practice that causes a .dll hell even just from unit tests
+    because if targeting .NET Core 2.0/3.0 from test project (to be able to test the .NET Standard 2.0 versions), then version conflicts
+    and package downgrade errors are appearing. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
-
-  <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
-
-  <!-- Legacy .NET Standard / .NET Core references (they cannot be upgraded, see https://github.com/dotnet/runtime/issues/59032) -->
-  <!-- Note for .NET Standard targets: They are theoretically supported by 6.0.0 but in practice that causes a .dll hell even just from unit tests
-       because if targeting .NET Core 2.0/3.0 from test project (to be able to test the .NET Standard 2.0 versions, then version conflicts
-       and package downgrade errors are appearing) -->
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'netstandard2.1' OR '$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>

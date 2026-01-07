@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0;netcoreapp3.0;net5.0</TargetFrameworks>
+    <!--<TargetFrameworks>net10.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard version-->
     <!--<TargetFrameworks>netstandard2.0</TargetFrameworks>-->
 
     <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them. -->
-    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -39,14 +40,16 @@
     <None Include=".nuspec\KGySoft.Drawing.SkiaSharp.nuspec" />
   </ItemGroup>
 
-  <!-- Package references -->
   <ItemGroup>
-    <!-- Reference the lowest required version to support all SKColorType values --> 
-    <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.101">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- SkiaSharp: Referencing the lowest required version to support all SKColorType values -->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="3.119.0" />
   </ItemGroup>
 
   <!-- Debug only project references -->
@@ -56,7 +59,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0-rc.1" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

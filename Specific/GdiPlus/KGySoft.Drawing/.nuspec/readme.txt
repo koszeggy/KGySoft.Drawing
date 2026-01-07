@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 10.0.0-rc.1
+﻿Thank you for installing KGy SOFT Drawing Libraries 10.0.0
 KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
 ⚠️ Warning: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and
@@ -32,6 +32,7 @@ Some Highlights of KGy SOFT Drawing Libraries:
 - Fast direct Bitmap data access for every PixelFormat.
 - High performance shape drawing even into Bitmap instances with indexed pixel formats.
 - Quantizing and dithering.
+- Text drawing support even into indexed bitmaps.
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
 - Creating combined icons and multi-resolution bitmaps.

@@ -1,6 +1,6 @@
 # KGy SOFT Drawing Libraries
 
-KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image processing features such as quantizing and dithering. The libraries consist of multiple packages. A core library contains the technology-agnostic and platform independent functionality and there are specialized libraries built upon the core package.
+The KGy SOFT Drawing Libraries package offers advanced bitmap data manipulation and image processing features such as quantizing and dithering. The libraries consist of multiple packages. A core library contains the technology-agnostic and platform independent functionality and there are specialized libraries built upon the core package.
 
 [![Online Help](https://img.shields.io/website/https/koszeggy.github.io/docs/drawing.svg?label=online%20help&up_message=available)](https://koszeggy.github.io/docs/drawing)
 [![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing)
@@ -21,6 +21,7 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
    - [3rd Party Bitmap Types Support](#3rd-party-bitmap-types-support)
    - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
    - [Shape Drawing](#shape-drawing)
+   - [Text Drawing](#text-drawing)
    - [Color Correct Alpha Blending](#color-correct-alpha-blending)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
@@ -456,6 +457,73 @@ The basic `Draw...` and `Fill...` methods are synchronous, they automatically ad
 To draw shapes asynchronously, you can use the `Draw...Async` and `Fill...Async` methods on .NET Framework 4.0 or newer targets, or the old-fashioned `BeginDraw...`/`EndDraw...` and `BeginFill...`/`EndFill...` methods on every target starting with .NET Framework 3.5.
 </details>
 
+### Text Drawing
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
+
+The major technology-specific KGy SOFT Drawing libraries offer `DrawText` ([GDI+](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_ReadWriteBitmapDataExtensions_DrawText.htm)/[WPF](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Wpf_ReadWriteBitmapDataExtensions_DrawText.htm)/[SkiaSharp](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_SkiaSharp_ReadWriteBitmapDataExtensions_DrawText.htm)) and `DrawTextOutline` ([GDI+](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)/[WPF](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Wpf_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)/[SkiaSharp](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_SkiaSharp_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)) methods that can be used similarly to the regular shape-drawing methods. Note that they can draw text into any bitmap data instances, also completely managed ones, even though some parameters use technology-specific types, such as the font or a formatted text, or other formatting options.
+
+<!--
+> 💡 **What is the benefit using these extensions when these environments have font support anyway?**<p/>
+> * You can draw text directly into a `WriteableBitmap`, `SKBitmap` or GDI+ `Bitmap`.
+> * The KGy SOFT extensions work even for indexed bitmaps with just a few palette entries, where the native alternatives would throw an exception (you can even specify a ditherer in [`DrawingOptions`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm))
+> * There is no color-depth loss for wide pixel formats (more than 32 bpp)
+> * You can chose linear working color space to avoid color fringing.
+> * The KGy SOFT methods support parallel processing and have async alternatives.
+-->
+
+The following example demonstrates how to draw a text into a WPF `WriteableBitmap`:
+```cs
+var text = new FormattedText("Hello FormattedText", CultureInfo.InvariantCulture,
+    FlowDirection.LeftToRight, new Typeface("Arial"), 20, Brushes.Black);
+var bitmap = new WriteableBitmap(200, 50, 96, 96, PixelFormats.Bgr101010, null);
+using var bitmapData = bitmap.GetReadWriteBitmapData();
+bitmapData.Clear(Colors.Cyan.ToColor32());
+bitmapData.DrawText(Colors.Blue.ToColor32(), text, location: default, new DrawingOptions { AntiAliasing = true });
+```
+
+Instead of solid colors you can specify a [`Brush`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm) for the `DrawText` methods, or a [`Pen`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) for the `DrawTextOutline` methods. The following example demonstrates it, this time for SkiaSharp:
+```cs
+using var bitmap = new SKBitmap(400, 120);
+using var bitmapData = bitmap.GetReadWriteBitmapData(WorkingColorSpace.Linear);
+
+using var typeface = SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold);
+using var font = new SKFont(typeface, 80);
+var location = new PointF(10, 10);
+string text = "KGy SOFT";
+var options = new DrawingOptions { AntiAliasing = true };
+
+var brush = Brush.CreateLinearGradient(new(0, 5), new(5, 0),
+    SKColors.Cyan.ToColor32(), SKColors.Blue.ToColor32(), GradientWrapMode.Mirror);
+var pen = new Pen(SKColors.Black.ToColor32(), 3f);
+
+// Drawing the text with the gradient brush, and then the outline with the solid pen
+bitmapData.DrawText(brush, text, font, location, options);
+bitmapData.DrawTextOutline(pen, text, font, location, options);
+
+// Alternatively, you can convert the text to a Path, and fill/draw it just like any other shapes.
+// If you draw the same text repeatedly, using a cached Path field can be faster for the second time:
+myCachedPath ??= font.GetTextPath(text, new SKPoint(location.X, location.Y + font.Size)).ToPath();
+bitmapData.FillPath(brush, myCachedPath, options); // same as DrawText above, allowing a cached path region
+bitmapData.DrawPath(pen, myCachedPath, options); // same as DrawTextOutline above, allowing a cached path region
+```
+
+> ⚠️ **Note**<p/>
+> The UWP and WinUI packages don't have such direct text drawing extensions, because unlike in WPF, their `GlyphRun` and `FormattedText` types don't offer a public API to obtain the text geometry. If you still want to use text drawing like above, it is recommended to reference also the [`SkiaSharp`](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) or [GDI+](https://www.nuget.org/packages/KGySoft.Drawing) package. 
+</details>
+
+<details>
+<summary><strong>Image Examples</strong></summary><p/>
+
+|Description|Image Example|
+|--|--|
+|Text drawn with a gradient brush fill and a solid outline (the result of the last code sample)|![Text drawn with a gradient brush fill and a solid outline](https://github.com/user-attachments/assets/94202fce-6ca2-49fd-816c-92d9014a73bc)|
+|Tiny text drawn with anti-aliasing, using the sRGB color space.|![Tiny text drawn with anti-aliasing in the sRGB color space](Help/Images/TextGreenOnRedSrgb.png)|
+|Tiny text drawn with anti-aliasing, using the linear color space.|![Tiny text drawn with anti-aliasing in the linear color space](Help/Images/TextGreenOnRedLinear.png)|
+
+</details>
+
 ### Color Correct Alpha Blending
 
 <details>
@@ -513,7 +581,7 @@ See the following table for the possible results (click the images for displayin
 | Test image "Cameraman" quantized with [black and white palette](https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](Help/Images/CameramanBWDitheredFS.gif) |
 
 > 💡 **Tip**<p/>
-> Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantizing and dithering in a real application. See also the [Examples](Examples) folder for example applications in vairous environments.
+> Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantizing and dithering in a real application. See also the [Examples](Examples) folder for example applications in various environments.
 
 <p align="center">
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="Quantizing and Dithering in KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250977-b3198880-db25-11eb-9f72-6fa51d54a9da.png"/></a>

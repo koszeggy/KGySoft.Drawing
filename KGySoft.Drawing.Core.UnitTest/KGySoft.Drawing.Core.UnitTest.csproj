@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>-->
-    <TargetFrameworks>net10.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <!--<TargetFrameworks>net10.0</TargetFrameworks>-->
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
     <DefineConstants>NETSTANDARD_TEST</DefineConstants>-->
 
-    <!--All targets including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them (if the targets are enabled in the main project, too). -->
+    <!--All targets, including the ones dropped from the NuGet package. The project still should be able to be compiled with all of them (if the targets are enabled in the main project, too). -->
     <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;net5.0;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>-->
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
-
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <RootNamespace>KGySoft.Drawing</RootNamespace>
@@ -46,11 +45,26 @@
 
   <!-- Common NuGet references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="NUnit" Version="3.14.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0">
+    <!--NUnit 4.x has major breaking changes and does not support Framework 4.6.2- and .NET 6-. -->
+    <PackageReference Include="NUnit" Version="3.14" />
+
+    <!-- Cannot use different adapter versions for the different frameworks, because the Test Explorer chooses the highest version for all platforms (even though build works).
+         6.0.0 works with .NET Framework 4.6.2 and .NET 8+ only 
+         5.2.0 Emits an error for .NET Core 3.0-
+         3.15.1 Would work even with .NET Core 2.0, but Visual Studio is no longer compatible with it
+         ==> Using 5.1.0. Though it compiles for all targets, executing .NET Core 2.x/3.0 tests is no longer supported from the Test Explorer.
+             Execute .NET Framework 3.5 and .NET Core 2.x/3.x tests as a console application. -->
+    <PackageReference Include="NUnit3TestAdapter" Version="5.1.0">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- Microsoft.NET.Test.Sdk -->
+  <ItemGroup Condition="'$(TargetFramework)'=='net472' OR '$(TargetFramework)'=='net8.0' OR '$(TargetFramework)'=='net9.0' OR '$(TargetFramework)'=='net10.0'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net35' OR '$(TargetFramework)'=='net40' OR '$(TargetFramework)'=='net45' OR '$(TargetFramework)'=='net46' OR '$(TargetFramework)'=='netcoreapp2.0' OR '$(TargetFramework)'=='netcoreapp3.0' OR '$(TargetFramework)'=='net5.0' OR '$(TargetFramework)'=='net6.0'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0"/>
   </ItemGroup>
 
   <!-- Project references -->
@@ -58,36 +72,21 @@
     <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
   </ItemGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no longer supported by System.Drawing.Common, using SkiaSharp instead -->
+  <!-- System.Drawing.Common: To encode/decode test images to/from common image formats. Windows only on .NET 7+ -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Condition="'$(IsWindows)'=='true'" Include="System.Drawing.Common" Version="10.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0'">
+    <PackageReference Condition="'$(IsWindows)'=='true'" Include="System.Drawing.Common" Version="8.0.22" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0' OR '$(TargetFramework)' == 'net5.0'">
+    <PackageReference Condition="'$(IsWindows)'=='true'" Include="System.Drawing.Common" Version="5.0.3" />
+  </ItemGroup>
+
+  <!-- SkiaSharp: To encode/decode test images to/from common image formats on .NET 7.0 or newer targets on platforms where System.Drawing.Common is not supported -->
   <ItemGroup Condition="'$(UseSkia)'=='true'">
     <PackageReference Include="SkiaSharp" Version="3.116.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(IsWindows)'=='true' AND '$(Net70OrGreater)'=='true'">
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-  </ItemGroup>
-
-  <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-  </ItemGroup>
-
-  <!-- Legacy .NET Standard / .NET Core references (they cannot be upgraded, see https://github.com/dotnet/runtime/issues/59032) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
