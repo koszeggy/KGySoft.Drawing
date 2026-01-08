@@ -21,6 +21,7 @@ namespace KGySoft.Drawing.Examples.Shared.Enums
         Ellipse,
         RoundedRectangle,
         Star,
-        Heart
+        Heart,
+        Text
     }
 }
