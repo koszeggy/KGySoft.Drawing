@@ -51,6 +51,9 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         internal MainForm(MainViewModel viewModel) : this()
         {
             this.viewModel = viewModel;
+#if NETFRAMEWORK
+            Font = SystemFonts.MessageBoxFont;
+#endif
             InitPropertyBindings();
             InitCommandBindings();
             var _ = viewModel.ViewApplied();

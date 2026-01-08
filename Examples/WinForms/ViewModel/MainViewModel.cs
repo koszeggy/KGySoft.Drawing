@@ -21,12 +21,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 using KGySoft.ComponentModel;
 using KGySoft.CoreLibraries;
@@ -58,9 +60,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region ProgressUpdater class
 
-        // This class tracks every progress update without immediately updating the bound ViewModel properties,
-        // which are updated only upon request by a timer running on the UI thread. This is much more effective than
-        // invoking a synchronized update in the UI thread for every tiny progress change.
+        // This class tracks every progress update without immediately updating the properties on each tiny change that are bound in the ViewModel.
+        // Instead, UI is updated only upon request, when the timer running on the UI thread invokes the UpdateProgressCommand.
+        // This is much more effective than invoking a synchronized update in the UI thread for every tiny progress change.
         private sealed class ProgressUpdater : IAsyncProgress
         {
             #region Fields
@@ -328,6 +330,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         public MainViewModel()
         {
             progressUpdater = new ProgressUpdater(this);
+            PathFactory.GetTextPathCallback = GetTextPath;
             SelectedFormat = PixelFormat.Format32bppArgb;
             bool isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
             ImageFile =  isWindows ? @"..\..\..\..\..\Help\Images\Information256.png" : "../../../../../Help/Images/Information256.png";
@@ -366,7 +369,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             return result;
         }
 
-        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
+        [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -463,7 +466,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region Private Methods
 
-        // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
+        // NOTE: Do not be afraid of the length of this method. It demonstrates many configurable options and multiple use cases - see the a.) and b.) paths first.
+        // Also, the method could be simpler if we didn't support cancellation or reporting progress, we and didn't handle possible concurrent generating tasks.
+        // The caller method is async void (because it's an event handler), so basically fire-and-forget. To prevent parallel generate sessions we store the current task
         // in the generatePreviewTask field, which can be awaited after a cancellation and before starting to generate a new result.
         private async Task GenerateResult(Configuration cfg)
         {
@@ -476,8 +481,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 return;
             }
 
-            // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Using a while instead of an if, because the awaits make this method reentrant, and a continuation can be spawn after any await at any time.
+            // Therefore, it is possible that though we cleared generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
                 await CancelAndAwaitPendingGenerate();
 
@@ -522,9 +527,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 // ===== a.) No overlay: ConvertPixelFormat does everything in a single step for us. =====
                 if (!cfg.ShowOverlay || cfg.Overlay == null)
                 {
-                    // ConvertPixelFormatAsync does not support selecting the working color space directly, so if linear color space is selected
-                    // we have a non-null quantizer here. If quantizer is null, the linear color is space is used only for 48/64 bpp formats,
-                    // but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
+                    // ConvertPixelFormatAsync does not support selecting the working color space directly, but if we specify a quantizer, we can configure the
+                    // color space for it. If quantizer is null, the linear color is space is used only for 48/64 bpp formats (because in GDI+ they use linear
+                    // color space by default), but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
                     // See the option b.) for the low-level solutions with more flexibility.
                     result = await (quantizer == null && ditherer == null
                         ? cfg.Source!.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
@@ -534,10 +539,12 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in System.Drawing =====
 
-                // Creating the temp bitmap data to work with. Will be converted back to Bitmap in the end.
-                // The Format128bppPRgba format is optimized for alpha blending in the linear color space, whereas Format64bppPArgb in the sRGB color space.
-                // Any other format with enough colors would be alright, though.
-                using IReadWriteBitmapData tempBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source!.Width, cfg.Source.Height),
+                // Creating a new temp bitmap data to work with. It will be converted back to a GDI+ Bitmap in the end.
+                // The Format128bppPRgba format is optimized for alpha blending in the linear color space, whereas Format64bppPArgb for the sRGB color space.
+                // These formats are picked just for demonstration purposes here, any other format with enough colors would be alright.
+                // NOTE: These formats are not related to GDI+ pixel formats. GDI+ has no 128 bpp format at all, and KnownPixelFormat.Format64bppPArgb represents sRGB color space
+                //       (whereas System.Drawing.Imaging.PixelFormat.Format64bppPArgb interprets the colors in the linear color space, using 13 bits per color channel).
+                using IReadWriteBitmapData tempBitmapData = BitmapDataFactory.CreateBitmapData(cfg.Source!.Size,
                     workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format128bppPRgba : KnownPixelFormat.Format64bppPArgb,
                     workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
 
@@ -567,12 +574,12 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
                     var options = cfg.DrawingOptions;
                     var brush = Brush.CreateTexture(overlayBitmapData, TextureMapMode.Center);
-                    tempBitmapData.FillPath(brush, path, options);
+                    await tempBitmapData.FillPathAsync(brush, path, options, asyncConfig);
 
-                    if (cfg.OutlineWidth > 0)
+                    if (cfg.OutlineWidth > 0 && !token.IsCancellationRequested)
                     {
                         var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
-                        tempBitmapData.DrawPath(pen, path, options);
+                        await tempBitmapData.DrawPathAsync(pen, path, options, asyncConfig);
                     }
                 }
 
@@ -590,6 +597,25 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 if (result != null)
                     DisplayImage = result;
             }
+        }
+
+        // This project uses this custom, technology-specific logic when "Text" overlay shape is selected.
+        // To draw text directly into an IReadWriteBitmapData, you can also use the DrawText/DrawTextOutline extensions.
+        // At a lower level it does the same as we do here: adds the text to a GraphicsPath, and converts it to a KGy SOFT Path.
+        private static Path GetTextPath(Rectangle bounds)
+        {
+            string text = "KGy\r\nSOFT";
+            using var font = new Font(SystemFonts.MessageBoxFont!, FontStyle.Bold);
+            SizeF baseSize = TextRenderer.MeasureText(text, font);
+            float ratio = Math.Min(bounds.Width / baseSize.Width, bounds.Height / baseSize.Height);
+
+            // Adding the text to a GDI+ GraphicsPath first
+            using var graphicsPath = new GraphicsPath();
+            using var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            graphicsPath.AddString(text, font.FontFamily, (int)font.Style, font.Size * ratio, bounds, format);
+
+            // Converting the GDI+ GraphicsPath to a KGySoft.Drawing.Shapes.Path
+            return graphicsPath.ToPath();
         }
 
         private void CancelRunningGenerate()
