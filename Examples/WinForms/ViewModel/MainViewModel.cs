@@ -469,7 +469,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         // NOTE: Do not be afraid of the length of this method. It demonstrates many configurable options and multiple use cases - see the a.) and b.) paths first.
         // Also, the method could be simpler if we didn't support cancellation or reporting progress, we and didn't handle possible concurrent generating tasks.
         // The caller method is async void (because it's an event handler), so basically fire-and-forget. To prevent parallel generate sessions we store the current task
-        // in the generatePreviewTask field, which can be awaited after a cancellation and before starting to generate a new result.
+        // in the generateResultTask field, which can be awaited after a cancellation and before starting to generate a new result.
         private async Task GenerateResult(Configuration cfg)
         {
             if (!isViewApplied || IsDisposed)
@@ -482,7 +482,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             }
 
             // Using a while instead of an if, because the awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore, it is possible that though we cleared generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Therefore, it is possible that though we cleared generateResultTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
                 await CancelAndAwaitPendingGenerate();
 

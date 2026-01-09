@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -364,6 +365,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         {
             isInitializing = true;
             progressUpdater = new ProgressUpdater(this);
+            PathFactory.GetTextPathCallback = GetTextPath;
             SelectedFormat = System.Windows.Media.PixelFormats.Bgra32;
             ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
@@ -411,7 +413,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             return result;
         }
 
-        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
+        [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -523,8 +525,10 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         #region Private Methods
 
-        // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
-        // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
+        // NOTE: Do not be afraid of the length of this method. It demonstrates many configurable options and multiple use cases - see the a.) and b.) paths first.
+        // Also, the method could be simpler if we didn't support cancellation or reporting progress, we and didn't handle possible concurrent generating tasks.
+        // The caller method is async void (because it's an event handler), so basically fire-and-forget. To prevent parallel generate sessions we store the current task
+        // in the generateResultTask field, which can be awaited after a cancellation and before starting to generate a new result.
         private async Task GenerateResult(Configuration cfg)
         {
             if (isInitializing || IsDisposed)
@@ -536,8 +540,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 return;
             }
 
-            // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Using a while instead of an if, because the awaits make this method reentrant, and a continuation can be spawn after any await at any time.
+            // Therefore, it is possible that though we cleared generateResultTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
                 await CancelAndAwaitPendingGenerate();
 
@@ -582,9 +586,9 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 // ===== a.) No overlay: ConvertPixelFormat does everything in a single step for us. =====
                 if (!cfg.ShowOverlay || cfg.Overlay == null)
                 {
-                    // ConvertPixelFormatAsync does not support selecting the working color space directly, so if linear color space is selected
-                    // we have a non-null quantizer here. If quantizer is null, the linear color is space is used only for 48/64 bpp formats,
-                    // but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
+                    // ConvertPixelFormatAsync does not support selecting the working color space directly, but if we specify a quantizer, we can configure the
+                    // color space for it. If quantizer is null, the linear color is space is used only for the 128 bpp and 32-bit grayscale formats,
+                    // but please note that the transparency of a 128 bpp result will be blended with the view's background by the rendering engine.
                     // See the option b.) for the low-level solutions with more flexibility.
                     result = await (quantizer == null && ditherer == null
                         ? cfg.Source!.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
@@ -594,10 +598,10 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in WPF =====
 
-                // Creating the temp bitmap data to work with. Will be converted back to WriteableBitmap in the end.
-                // The Format128bppPRgba format is optimized for alpha blending in the linear color space, whereas Format64bppPArgb in the sRGB color space.
-                // Any other format with enough colors would be alright, though.
-                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source!.PixelWidth, cfg.Source.PixelHeight),
+                // Creating a new temp bitmap data to work with. It will be converted back to WriteableBitmap in the end.
+                // The Format128bppPRgba format is optimized for alpha blending in the linear color space, whereas Format64bppPArgb for the sRGB color space.
+                // These formats are picked just for demonstration purposes here, any other format with enough colors would be alright.
+                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(cfg.Source!.PixelWidth, cfg.Source.PixelHeight,
                     workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format128bppPRgba: KnownPixelFormat.Format64bppPArgb,
                     workingColorSpace, cfg.BackColor.ToColor32(), cfg.AlphaThreshold);
 
@@ -627,12 +631,12 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
                     var options = cfg.DrawingOptions;
                     var brush = Brush.CreateTexture(overlayBitmapData, TextureMapMode.Center);
-                    resultBitmapData.FillPath(brush, path, options);
+                    await resultBitmapData.FillPathAsync(brush, path, options, asyncConfig);
 
-                    if (cfg.OutlineWidth > 0)
+                    if (cfg.OutlineWidth > 0 && !token.IsCancellationRequested)
                     {
                         var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
-                        resultBitmapData.DrawPath(pen, path, options);
+                        await resultBitmapData.DrawPathAsync(pen, path, options, asyncConfig);
                     }
                 }
 
@@ -650,6 +654,28 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 if (result != null)
                     DisplayImage = result;
             }
+        }
+
+        // This project uses this custom, technology-specific logic when "Text" overlay shape is selected.
+        // To draw text directly into an IReadWriteBitmapData, you can also use the DrawText/DrawTextOutline extensions.
+        // At a lower level it does the same as we do here: obtains the Geometry of a FormattedText (or GlyphRun), and converts it to a KGy SOFT Path.
+        private Path GetTextPath(Rectangle bounds)
+        {
+            var font = new Typeface(new FontFamily("Calibri"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
+            var text = new FormattedText("KGy\r\nSOFT", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, font, 20, Brushes.Black, null, TextFormattingMode.Ideal, 1);
+            text.TextAlignment = TextAlignment.Center;
+
+            // converting the Geometry of the FormattedText to KGySoft.Drawing.Shapes.Path
+            var result = text.BuildGeometry(default).ToPath();
+
+            // scaling and centering the result
+            Rectangle pathBounds = result.Bounds;
+            float ratio = (float)Math.Min(bounds.Width, bounds.Height) / Math.Max(pathBounds.Width, pathBounds.Height);
+            result.TransformAdded(TransformationMatrix.CreateScale(ratio, ratio));
+            pathBounds = result.Bounds;
+            result.TransformAdded(TransformationMatrix.CreateTranslation(Math.Max(bounds.Width, pathBounds.Width) / 2f - Math.Min(bounds.Width, pathBounds.Width) / 2f - pathBounds.Left,
+                Math.Max(bounds.Height, pathBounds.Height) / 2f - Math.Min(bounds.Height, pathBounds.Height) / 2f - pathBounds.Top));
+            return result;
         }
 
         private void CancelRunningGenerate()
