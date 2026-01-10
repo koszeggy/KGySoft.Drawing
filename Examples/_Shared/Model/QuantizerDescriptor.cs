@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -77,7 +78,7 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
         #region Constructors
 
-        private QuantizerDescriptor(string name, Type type, string methodName, bool hasAlpha)
+        private QuantizerDescriptor(string name, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)]Type type, string methodName, bool hasAlpha)
         {
             displayName = name;
             MethodInfo mi = GetMethod(type, methodName);
@@ -96,7 +97,11 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
         #region Static Methods
 
-        private static MethodInfo GetMethod(Type type, string methodName)
+#if NET5_0_OR_GREATER
+        [UnconditionalSuppressMessage("Trimming", "IL2070:DynamicallyAccessedMembersMismatchParameterTargetsThisParameter",
+            Justification = "False alarm, only PublicMethods is required, because MemberTypes.Methods is used.")]
+#endif
+        private static MethodInfo GetMethod([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)]Type type, string methodName)
         {
             MemberInfo[] methods = type.GetMember(methodName, MemberTypes.Method, BindingFlags.Public | BindingFlags.Static);
             foreach (MemberInfo method in methods)

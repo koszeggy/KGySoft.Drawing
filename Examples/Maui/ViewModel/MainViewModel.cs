@@ -204,7 +204,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
 
         #region Protected Methods
 
-        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateDisplayImage.")]
+        [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -266,15 +266,16 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
 
         #region Private Methods
 
+        // NOTE: Do not be afraid of the length of this method. It demonstrates many configurable options and multiple use cases - see the a.) and b.) paths first.
         // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
-        // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
+        // in the generateResultTask field, which can be awaited after a cancellation before starting to generate a new result.
         private async Task GenerateDisplayImage(Configuration cfg)
         {
             // Note that Images are regular .resx based resources. Make sure their Build Action is None so MAUI's "resizetizer" will not throw a build error.
             baseImage ??= SKBitmap.Decode(Images.Information256);
 
-            // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Using a while instead of an if, because the awaits make this method reentrant, and a continuation can be spawn after any await at any time.
+            // Therefore, it is possible that though we cleared generateResultTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
             {
                 CancelRunningGenerate();
@@ -337,12 +338,12 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                     // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
                     var options = cfg.DrawingOptions;
                     var brush = Brush.CreateTexture(overlayImageBitmapData, TextureMapMode.Center);
-                    blendedResult.FillPath(brush, path, options);
+                    await blendedResult.FillPathAsync(brush, path, options, asyncConfig);
 
-                    if (cfg.OutlineWidth > 0)
+                    if (cfg.OutlineWidth > 0 && !token.IsCancellationRequested)
                     {
                         var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
-                        blendedResult.DrawPath(pen, path, options);
+                        await blendedResult.DrawPathAsync(pen, path, options, asyncConfig);
                     }
                 }
 

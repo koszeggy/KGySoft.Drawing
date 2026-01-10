@@ -398,6 +398,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
 
         public MainViewModel()
         {
+            PathFactory.GetTextPathCallback = GetTextPath;
             isInitializing = true;
             progressUpdater = new ProgressUpdater(this);
             ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
@@ -447,7 +448,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
             return result;
         }
 
-        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
+        [SuppressMessage("ReSharper", "AsyncVoidEventHandlerMethod", Justification = "Event handler. See also the comment above GenerateResult.")]
         protected override async void OnPropertyChanged(PropertyChangedExtendedEventArgs e)
         {
             base.OnPropertyChanged(e);
@@ -553,8 +554,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
 
         #region Private Methods
 
+        // NOTE: Do not be afraid of the length of this method. It demonstrates many configurable options and multiple use cases - see the a.) and b.) paths first.
         // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
-        // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
+        // in the generateResultTask field, which can be awaited after a cancellation before starting to generate a new result.
         private async Task GenerateResult(Configuration cfg)
         {
             if (isInitializing || IsDisposed)
@@ -566,8 +568,8 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                 return;
             }
 
-            // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore, it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            // Using a while instead of an if, because the awaits make this method reentrant, and a continuation can be spawn after any await at any time.
+            // Therefore, it is possible that though we cleared generateResultTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
                 await CancelAndAwaitPendingGenerate();
 
@@ -656,12 +658,12 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                     // When a shape is specified, we use the overlay bitmap data as a texture on a brush.
                     var options = cfg.DrawingOptions;
                     var brush = Brush.CreateTexture(overlayBitmapData, TextureMapMode.Center);
-                    resultBitmapData.FillPath(brush, path, options);
+                    await resultBitmapData.FillPathAsync(brush, path, options, asyncConfig);
 
-                    if (cfg.OutlineWidth > 0)
+                    if (cfg.OutlineWidth > 0 && !token.IsCancellationRequested)
                     {
                         var pen = new Pen(cfg.OutlineColor, cfg.OutlineWidth) { LineJoin = LineJoinStyle.Round };
-                        resultBitmapData.DrawPath(pen, path, options);
+                        await resultBitmapData.DrawPathAsync(pen, path, options, asyncConfig);
                     }
                 }
 
@@ -692,6 +694,41 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
                 if (result != null)
                     DisplayImageBitmap = result;
             }
+        }
+
+        // This project uses this custom, technology-specific logic when "Text" overlay shape is selected.
+        // To draw text directly into an IReadWriteBitmapData, you can also use the DrawText/DrawTextOutline extensions.
+        // At a lower level it does the same as we do here: gets the text as an SKPath, and converts it to a KGy SOFT Path.
+        private static Path GetTextPath(Rectangle bounds)
+        {
+            Path result;
+            using (var font = new SKFont(SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold)))
+            {
+                // converting the two rows of text to Path instances
+                using SKPath skiaPathFirstRow = font.GetTextPath("KGy");
+                result = skiaPathFirstRow.ToPath();
+                using SKPath skiaPathSecondRow = font.GetTextPath("SOFT");
+                Path secondRow = skiaPathSecondRow.ToPath();
+
+                // adding the 2nd row to result with center alignment
+                var boundsRow1 = result.Bounds;
+                var boundsRow2 = secondRow.Bounds;
+                result.TransformTranslation(boundsRow1.Width / 2f - boundsRow2.Width / 2f, boundsRow1.Height);
+                result.AddPath(secondRow, false);
+                result.ResetTransformation();
+
+                // moving the combined result to the origin so scaling will be alright
+                result.TransformAdded(TransformationMatrix.CreateTranslation(-result.Bounds.Left, -result.Bounds.Y));
+            }
+
+            // scaling and centering the combined result in the required bounds
+            Rectangle pathBounds = result.Bounds;
+            float ratio = (float)Math.Min(bounds.Width, bounds.Height) / Math.Max(pathBounds.Width, pathBounds.Height);
+            result.TransformAdded(TransformationMatrix.CreateScale(ratio, ratio));
+            pathBounds = result.Bounds;
+            result.TransformAdded(TransformationMatrix.CreateTranslation(Math.Max(bounds.Width, pathBounds.Width) / 2f - Math.Min(bounds.Width, pathBounds.Width) / 2f - pathBounds.Left,
+                Math.Max(bounds.Height, pathBounds.Height) / 2f - Math.Min(bounds.Height, pathBounds.Height) / 2f - pathBounds.Top));
+            return result;
         }
 
         private void SetEnabledAndVisibilities()

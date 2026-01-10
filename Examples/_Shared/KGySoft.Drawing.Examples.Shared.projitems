@@ -16,5 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IQuantizerSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\DithererDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\QuantizerDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CompilerAnalysis\DynamicallyAccessedMembersAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System.Diagnostics.CompilerAnalysis\DynamicallyAccessedMemberTypes.cs" />
   </ItemGroup>
 </Project>

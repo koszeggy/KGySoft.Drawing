@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -75,7 +76,7 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
         #region Constructors
 
-        private DithererDescriptor(string name, Type type, string propertyName)
+        private DithererDescriptor(string name, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]Type type, string propertyName)
             : this(name, type.GetProperty(propertyName)!)
         {
         }
