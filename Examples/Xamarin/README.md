@@ -6,6 +6,8 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 
 > ℹ️ _Note:_ This example references only the technology-agnostic [`KGySoft.Drawing.Core`](https://www.nuget.org/packages/KGySoft.Drawing.Core) package so it also demonstrates how to obtain a bitmap data for a 3rd party bitmap implementation without dedicated support. See the SkiaSharp specific solutions for [MAUI](../SkiaSharp.Maui) or [WPF](../SkiaSharp.Wpf) for examples that support the wide range of possible pixel formats of the `SKBitmap` type.
 
+> ⚠️ _Warning:_ Visual Studio 2026 does not support the Android and iOS projects of this solution anymore, and opens the Windows project only. You need Visual Studio 2022 or Visual Studio for Mac 2022 to be able to debug the Android and iOS projects. If you use Visual Studio Code, check out the [MAUI](../Maui) example instead.
+
 ## Screenshots
 
 <p align="center">
