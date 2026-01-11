@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
-    <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-    <!-- <TargetFrameworks>$(TargetFrameworks);net10.0-tizen</TargetFrameworks> -->
     <OutputType>Exe</OutputType>
     <RootNamespace>KGySoft.Drawing.Examples.SkiaSharp.Maui</RootNamespace>
     <UseMaui>true</UseMaui>
@@ -14,7 +12,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Display name -->
-    <ApplicationTitle>KGy SOFT Drawing SkiaSharp/MAUI Example</ApplicationTitle>
+    <ApplicationTitle Condition="'$(TargetFramework)' != 'net10.0-maccatalyst'">KGy SOFT Drawing SkiaSharp/MAUI Example</ApplicationTitle>
+    <ApplicationTitle Condition="'$(TargetFramework)' == 'net10.0-maccatalyst'">KGy SOFT Drawing SkiaSharp-MAUI Example</ApplicationTitle>
 
     <!-- App Identifier -->
     <ApplicationId>kgysoft.drawing.examples.skiasharp.maui</ApplicationId>
@@ -24,12 +23,11 @@
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
 
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.1" />
     <PackageReference Include="KGySoft.Drawing.SkiaSharp" Version="10.0.0" />
   </ItemGroup>
