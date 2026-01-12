@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: MainViewModel.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2025 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2026 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -726,8 +726,8 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Wpf.ViewModel
             float ratio = (float)Math.Min(bounds.Width, bounds.Height) / Math.Max(pathBounds.Width, pathBounds.Height);
             result.TransformAdded(TransformationMatrix.CreateScale(ratio, ratio));
             pathBounds = result.Bounds;
-            result.TransformAdded(TransformationMatrix.CreateTranslation(Math.Max(bounds.Width, pathBounds.Width) / 2f - Math.Min(bounds.Width, pathBounds.Width) / 2f - pathBounds.Left,
-                Math.Max(bounds.Height, pathBounds.Height) / 2f - Math.Min(bounds.Height, pathBounds.Height) / 2f - pathBounds.Top));
+            result.TransformAdded(TransformationMatrix.CreateTranslation(Math.Max(bounds.Width, pathBounds.Width) / 2f - Math.Min(bounds.Width, pathBounds.Width) / 2f - pathBounds.Left + bounds.Left,
+                Math.Max(bounds.Height, pathBounds.Height) / 2f - Math.Min(bounds.Height, pathBounds.Height) / 2f - pathBounds.Top + bounds.Top));
             return result;
         }
 
