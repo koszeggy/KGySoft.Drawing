@@ -126,9 +126,9 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 See the [Examples](Examples) folder for example applications for using KGy SOFT Drawing Libraries in various environments such as [MAUI](Examples/SkiaSharp.Maui), [UWP](Examples/Uwp), [WinForms](Examples/WinForms), [WinUI](Examples/WinUI), [WPF](Examples/Wpf) and [Xamarin](Examples/Xamarin).
 
 <p align="center">
-  <a href="Examples/Maui"><img alt="KGy SOFT Drawing WPF Example App" src="https://github.com/user-attachments/assets/cf8e9cf2-e270-441e-9870-6d89c5f48666"/></a>
+  <a href="Examples/Wpf"><img alt="KGy SOFT Drawing WPF Example App" src="https://github.com/user-attachments/assets/cf8e9cf2-e270-441e-9870-6d89c5f48666"/></a>
   <br/><em>Drawing into an indexed <code>WriteableBitmap</code> of 256 colors using color correct alpha blending and dithering by the WPF-specific package of KGy SOFT Drawing Libraries.
-  <br/>See the <a href="Examples">Examples</a> folder for example applications on various platforms.</em>
+  <br/>See the <a href="Examples">Examples</a> folder for more example applications on various platforms.</em>
 </p>
 </details>
 
