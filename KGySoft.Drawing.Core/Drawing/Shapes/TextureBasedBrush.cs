@@ -569,7 +569,7 @@ namespace KGySoft.Drawing.Shapes
                         for (int x = scanline.MinIndex; x <= scanline.MaxIndex; x++)
                         {
                             if (scanline.Scanline.GetElementUnchecked(x) != 0)
-                                rowDst.SetColor32(x + left, tr);
+                                rowDst.DoSetColor32(x + left, tr);
                         }
 
                         return;
@@ -588,7 +588,7 @@ namespace KGySoft.Drawing.Shapes
                             rowDst.DoSetColor32(dstX, transparentColor);
                         else
                         {
-                            Color32 colorSrc = rowSrc.GetColor32(srcX);
+                            Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                             if (value != Byte.MaxValue)
                                 colorSrc = Color32.FromArgb(colorSrc.A == Byte.MaxValue ? value : (byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
                             rowDst.DoSetColor32(dstX, session.GetQuantizedColor(colorSrc));
@@ -615,7 +615,7 @@ namespace KGySoft.Drawing.Shapes
                     if (srcX < 0)
                         continue;
 
-                    Color32 colorSrc = rowSrc.GetColor32(srcX);
+                    Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                     if (colorSrc.A == Byte.MinValue)
                         continue;
 
@@ -821,7 +821,7 @@ namespace KGySoft.Drawing.Shapes
                                 continue;
 
                             int dstX = x + left;
-                            rowDst.SetColor32(dstX, session.GetDitheredColor(default, dstX, dstY));
+                            rowDst.DoSetColor32(dstX, session.GetDitheredColor(default, dstX, dstY));
                         }
                     }
                     else
@@ -839,7 +839,7 @@ namespace KGySoft.Drawing.Shapes
                                 rowDst.DoSetColor32(dstX, session.GetDitheredColor(default, dstX, dstY));
                             else
                             {
-                                Color32 colorSrc = rowSrc.GetColor32(srcX);
+                                Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                                 if (value != Byte.MaxValue)
                                     colorSrc = Color32.FromArgb(colorSrc.A == Byte.MaxValue ? value : (byte)(value * colorSrc.A / Byte.MaxValue), colorSrc);
                                 rowDst.DoSetColor32(dstX, session.GetDitheredColor(colorSrc, dstX, dstY));
@@ -867,7 +867,7 @@ namespace KGySoft.Drawing.Shapes
                     if (srcX < 0)
                         continue;
 
-                    Color32 colorSrc = rowSrc.GetColor32(srcX);
+                    Color32 colorSrc = rowSrc.DoGetColor32(srcX);
                     if (colorSrc.A == Byte.MinValue)
                         continue;
 
