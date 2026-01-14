@@ -2982,7 +2982,7 @@ namespace KGySoft.Drawing.Imaging
         /// overloads that have an <see cref="IDitherer"/> parameter.</item>
         /// <item>To be able to configure the degree of parallelism, cancellation or progress reporting, look for the overloads whose last parameter is
         /// a <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_ParallelConfig.htm">ParallelConfig</a> instance.</item> 
-        /// <item>A couple of overloads have an <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
+        /// <item>Some overloads have an <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> parameter.
         /// These methods are special ones and are designed to be used from your custom asynchronous methods where drawing a bitmap into another one is just one step of potentially multiple operations.
         /// But you can also use these overloads to force synchronous execution on a single thread.
         /// See the <strong>Examples</strong> section of the <a href="https://koszeggy.github.io/docs/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>

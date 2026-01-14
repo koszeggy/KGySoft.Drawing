@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <c>GetReadableBitmapData</c> extension methods for various platform dependent bitmap implementations.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list about the technologies with dedicated support.
     /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
-    /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.
+    /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type, but the main principles apply for all sources.
     /// </summary>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="IReadWriteBitmapData"/>

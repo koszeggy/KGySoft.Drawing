@@ -29,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
     /// about the supported platforms). Otherwise, you can use the members of the <see cref="BitmapDataFactory"/> class to create a bitmap data for
     /// any managed or unmanaged preallocated buffer of any bitmap implementation.
     /// <br/>See the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
-    /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.
+    /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type, but the main principles apply for all sources.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
     /// <seealso cref="IWritableBitmapData"/>

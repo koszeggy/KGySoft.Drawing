@@ -23,6 +23,7 @@ The KGy SOFT Drawing Libraries package offers advanced bitmap data manipulation 
    - [Shape Drawing](#shape-drawing)
    - [Text Drawing](#text-drawing)
    - [Color Correct Alpha Blending](#color-correct-alpha-blending)
+   - [Blending Modes](#blending-modes)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
 5. [License](#license)
@@ -117,6 +118,18 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
     PM> Install-Package KGySoft.Drawing.SkiaSharp
 </details>
+
+> 💡 **Why to use KGy SOFT Drawing Libraries even with engines that have drawing/imaging support?**
+> * Because it's [faster](#fast-bitmap-manipulation).
+> * Because it can offer drawing support even when the original library does not (e.g. [drawing into](#shape-drawing) or [setting pixels](#fast-getpixelsetpixel-for-any-bitmaps) of indexed formats).
+> * Because it can preserve wide color information even when the original library reduces color depth to 32 bits. 
+> * Because it supports async drawing, even if the original library does not.
+> * Because it supports parallel processing, even if the original engine is designed to access its native bitmap type in the UI thread only (e.g. WPF's `WriteableBitmap`).
+> * Because it has consistent behavior for all pixel formats, even when the original library works [inconsistently](https://github.com/mono/SkiaSharp/issues/2354).
+> * Because it allows producing the same pixel-perfect result in all environments (as long as you don't use package-specific features, such as text drawing).
+> * Because if you explicitly specify Linear working color space when you obtain the bitmap data, it can provide [color-correct alpha blending](#color-correct-alpha-blending) for all image types, regardless the underlying pixel format.
+> * Because it's [documented](https://koszeggy.github.io/docs/drawing) properly.
+
 
 ### Application Examples
 
@@ -464,14 +477,18 @@ To draw shapes asynchronously, you can use the `Draw...Async` and `Fill...Async`
 
 The major technology-specific KGy SOFT Drawing libraries offer `DrawText` ([GDI+](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_ReadWriteBitmapDataExtensions_DrawText.htm)/[WPF](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Wpf_ReadWriteBitmapDataExtensions_DrawText.htm)/[SkiaSharp](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_SkiaSharp_ReadWriteBitmapDataExtensions_DrawText.htm)) and `DrawTextOutline` ([GDI+](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)/[WPF](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Wpf_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)/[SkiaSharp](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_SkiaSharp_ReadWriteBitmapDataExtensions_DrawTextOutline.htm)) methods that can be used similarly to the regular shape-drawing methods. Note that they can draw text into any bitmap data instances, also completely managed ones, even though some parameters use technology-specific types, such as the font or a formatted text, or other formatting options.
 
-<!--
-> 💡 **What is the benefit using these extensions when these environments have font support anyway?**<p/>
-> * You can draw text directly into a `WriteableBitmap`, `SKBitmap` or GDI+ `Bitmap`.
-> * The KGy SOFT extensions work even for indexed bitmaps with just a few palette entries, where the native alternatives would throw an exception (you can even specify a ditherer in [`DrawingOptions`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm))
-> * There is no color-depth loss for wide pixel formats (more than 32 bpp)
-> * You can chose linear working color space to avoid color fringing.
+> 💡 **What is the benefit of using these extensions when GDI+/WPF/SkiaSharp have font support anyway?**<p/>
+> * They allow drawing text directly into a `WriteableBitmap`, `SKBitmap` or GDI+ `Bitmap`.
+> * The KGy SOFT extensions work even with indexed bitmaps with just a few palette entries, where the native alternatives would throw an exception (you can even specify a ditherer in [`DrawingOptions`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm))
+> * There is no color-depth loss for wide pixel formats
+> * You can chose linear working color space to avoid color issues with anti-aliased texts.
 > * The KGy SOFT methods support parallel processing and have async alternatives.
--->
+
+The UWP and WinUI packages don't have such direct text drawing extensions, because unlike in WPF, their `GlyphRun` and `FormattedText` types don't offer a public API to obtain the text geometry. If you still want draw text into bitmaps the same way as in other environments, it is recommended to reference also the [`SkiaSharp`](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) or [GDI+](https://www.nuget.org/packages/KGySoft.Drawing) package.
+
+</details>
+<details>
+<summary><strong>Examples</strong></summary><p/>
 
 The following example demonstrates how to draw a text into a WPF `WriteableBitmap`:
 ```cs
@@ -480,7 +497,8 @@ var text = new FormattedText("Hello FormattedText", CultureInfo.InvariantCulture
 var bitmap = new WriteableBitmap(200, 50, 96, 96, PixelFormats.Bgr101010, null);
 using var bitmapData = bitmap.GetReadWriteBitmapData();
 bitmapData.Clear(Colors.Cyan.ToColor32());
-bitmapData.DrawText(Colors.Blue.ToColor32(), text, location: default, new DrawingOptions { AntiAliasing = true });
+bitmapData.DrawText(Colors.Blue.ToColor32(), text, location: default,
+    new DrawingOptions { AntiAliasing = true });
 ```
 
 Instead of solid colors you can specify a [`Brush`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Brush.htm) for the `DrawText` methods, or a [`Pen`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_Pen.htm) for the `DrawTextOutline` methods. The following example demonstrates it, this time for SkiaSharp:
@@ -505,22 +523,14 @@ bitmapData.DrawTextOutline(pen, text, font, location, options);
 // Alternatively, you can convert the text to a Path, and fill/draw it just like any other shapes.
 // If you draw the same text repeatedly, using a cached Path field can be faster for the second time:
 myCachedPath ??= font.GetTextPath(text, new SKPoint(location.X, location.Y + font.Size)).ToPath();
-bitmapData.FillPath(brush, myCachedPath, options); // same as DrawText above, allowing a cached path region
-bitmapData.DrawPath(pen, myCachedPath, options); // same as DrawTextOutline above, allowing a cached path region
+bitmapData.FillPath(brush, myCachedPath, options); // same as DrawText above, caches path region
+bitmapData.DrawPath(pen, myCachedPath, options); // same as DrawTextOutline above, caches path region
 ```
-
-> ⚠️ **Note**<p/>
-> The UWP and WinUI packages don't have such direct text drawing extensions, because unlike in WPF, their `GlyphRun` and `FormattedText` types don't offer a public API to obtain the text geometry. If you still want to use text drawing like above, it is recommended to reference also the [`SkiaSharp`](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp) or [GDI+](https://www.nuget.org/packages/KGySoft.Drawing) package. 
-</details>
-
-<details>
-<summary><strong>Image Examples</strong></summary><p/>
 
 |Description|Image Example|
 |--|--|
-|Text drawn with a gradient brush fill and a solid outline (the result of the last code sample)|![Text drawn with a gradient brush fill and a solid outline](https://github.com/user-attachments/assets/94202fce-6ca2-49fd-816c-92d9014a73bc)|
-|Tiny text drawn with anti-aliasing, using the sRGB color space.|![Tiny text drawn with anti-aliasing in the sRGB color space](Help/Images/TextGreenOnRedSrgb.png)|
-|Tiny text drawn with anti-aliasing, using the linear color space.|![Tiny text drawn with anti-aliasing in the linear color space](Help/Images/TextGreenOnRedLinear.png)|
+|The example above with the linear gradient brush and 3 pixels-wide pen produces this result|![Text drawn with a gradient brush fill and a solid outline](https://github.com/user-attachments/assets/94202fce-6ca2-49fd-816c-92d9014a73bc)|
+|The same as above, but with setting the [`BlackAndWhite`](https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) [`Quantizer`](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Quantizer.htm) and the [`InterleavedGradientNoiseDitherer`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) [`Ditherer`](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_Ditherer.htm) |![Text drawn with a gradient brush fill and a solid outline, using a black-and-white quantizer and interleaved gradient noise dithering](https://github.com/user-attachments/assets/657bbf2a-ab2d-4ff7-bd1b-a7e9d59254c4) in the [`DrawingOptions`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Shapes_DrawingOptions.htm).|
 
 </details>
 
@@ -535,12 +545,36 @@ Most pixel formats use the sRGB color space, in which alpha blending (and also o
 |--|--|
 | Result of blending colors in the sRGB color space. The vertical bars are opaque, whereas the horizontal ones have 50% transparency. Blending colors with disjunct RGB components often produce too dark results. | ![Blending colored stripes in the sRGB color space](Help/Images/BlendingExampleSrgb.png) |
 | Result of blending colors in the linear color space. The result seems much more natural. Note that horizontal bars still have 50% transparency, though they seem brighter now. | ![Blending colored stripes in the linear color space](Help/Images/BlendingExampleLinear.png) |
+|Tiny text drawn with anti-aliasing, blending colors in the sRGB color space.|![Tiny text drawn with anti-aliasing in the sRGB color space](Help/Images/TextGreenOnRedSrgb.png)|
+|Tiny text drawn with anti-aliasing, using the linear color space.|![Tiny text drawn with anti-aliasing in the linear color space](Help/Images/TextGreenOnRedLinear.png)|
 
 By default it depends on the used pixel format which color space is used in KGy SOFT Drawing Libraries. The default pixel format in most rendering engines use some sRGB format (usually a premultiplied one), which is optimized for blending in the sRGB color space. When creating a managed bitmap data by the [`CreateBitmapData`](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads or by the `GetReadable/Writable/ReadWriteBitmapData` methods of the specific libraries you can use the overloads that have a [`WorkingColorSpace`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) parameter.
 
 > 💡 **Tip**<p/>
 > See the [`WorkingColorSpace`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) enumeration for more information and image examples about working in the sRGB and linear color spaces.
 </details>
+
+### Blending Modes
+
+<details>
+<summary><strong>Overview</strong></summary><p/>
+
+Professional image processing tools usually offer a set of predefined blending modes you can choose from when you perform various drawing operations or merge layers. With KGy SOFT Drawing Libraries you can use literally infinite blending modes, while a couple of most common modes have more direct support for better performance:
+* **Copy Source** (aka. Overwrite Mode): This mode takes the source pixels and just copies them to the target. The original value of the target pixels do not affect the result.
+  * To copy a bitmap (or a portion of it) into another one with ignoring the target pixels by considering the source pixels only, you can use the [`CopyTo`](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataExtensions_CopyTo.htm) methods.
+  * When drawing shapes or text, you can set the [DrawingOptions.AlphaBlending](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AlphaBlending.htm) property to `false` to simply write the alpha pixels into the target with no blending.
+* **Alpha Blending** (aka. Normal Blending): If the source pixels have transparency, they are blended with the target pixels according to their alpha value. The result may depend on the [working color space](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm).
+  * To draw a bitmap (or a portion of it) into another one with alpha blending, you can use the [`DrawInto`](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataExtensions_DrawInto.htm) methods. A sort of overloads also allow resizing the source bitmap to fit into a freely specified target rectangle.
+  * When drawing shapes or text, this is the default behavior. You can control it by the [DrawingOptions.AlphaBlending](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Shapes_DrawingOptions_AlphaBlending.htm) property.
+* **Custom Blending Modes**:
+  * To draw a bitmap into another one (or to combine two bitmaps into a third one) with custom blending, you can use the [`Combine`](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataExtensions_Combine.htm) methods. They allow to specify a custom blending function, which makes it possible to implement any blending mode.
+  * If you want to use custom blending when drawing shapes or text, draw them into a temporary bitmap data first, and then use the [`Combine`](https://koszeggy.github.io/docs/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataExtensions_Combine.htm) methods with your custom blending function.
+
+> ℹ️ **Note**<p/>
+> Setting pixels in an [`IWritableBitmapData`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_IWritableBitmapData.htm) instance normally use the overwrite mode, but if the target bitmap data does not support transparency and the color to set has alpha, the color is blended with the [`BackColor`](https://koszeggy.github.io/docs/drawing/html/P_KGySoft_Drawing_Imaging_IBitmapData_BackColor.htm) of the target bitmap first.
+
+</details>
+
 
 ### Quantizing and Dithering
 

@@ -175,7 +175,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap" target="_blank">WriteableBitmap</a>, use the <c>GetReadWriteBitmapData</c> extension methods for various platform dependent
         /// bitmap implementations. See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list about the technologies with dedicated support,
         /// and the <strong>Remarks</strong> section of the <a href="https://koszeggy.github.io/docs/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
-        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.</item>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type, but the main principles apply for all sources.</item>
         /// </list></note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
