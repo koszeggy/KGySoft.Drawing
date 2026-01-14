@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         public static PredefinedColorsQuantizer GetMatchingQuantizer(this PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
-            => (pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite(backColor.ToColor32(), alphaThreshold)
+            => (pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite(backColor.ToColor32(), alphaThreshold: alphaThreshold)
                 : pixelFormat == PixelFormats.Gray2 ? PredefinedColorsQuantizer.Grayscale4(backColor.ToColor32(), false, alphaThreshold)
                 : pixelFormat == PixelFormats.Gray4 ? PredefinedColorsQuantizer.Grayscale16(backColor.ToColor32(), false, alphaThreshold)
                 : pixelFormat == PixelFormats.Indexed1 ? PredefinedColorsQuantizer.SystemDefault1BppPalette(backColor.ToColor32(), alphaThreshold)
