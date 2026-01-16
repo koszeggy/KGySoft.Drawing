@@ -18,9 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-#if NET35 || NET40
 using System.Diagnostics.CodeAnalysis;
-#endif
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -47,6 +45,7 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="OptimizedPaletteQuantizer"/>
     /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
     /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
+    [SuppressMessage("Design", "CA1041:Provide ObsoleteAttribute message", Justification = "Those members are not even browsable anymore, and do not appear in the documentation either.")]
     public sealed class PredefinedColorsQuantizer : IQuantizer
     {
         #region Nested classes

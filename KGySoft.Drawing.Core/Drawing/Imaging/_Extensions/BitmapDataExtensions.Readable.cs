@@ -5758,7 +5758,7 @@ namespace KGySoft.Drawing.Imaging
                 Debug.Assert(result.Palette != null && result.Palette.Count <= 256);
                 Color32[] colors = result.Palette!.Entries;
                 Func<Color32, Color32> convert = result.WorkingColorSpace == WorkingColorSpace.Linear
-                    ? (Func<Color32, Color32>)(c => c.ToGray(WorkingColorSpace.Linear))
+                    ? c => c.ToGray(WorkingColorSpace.Linear)
                     : c => c.ToGray();
                 var grayColors = new Color32[colors.Length];
                 for (int i = 0; i < colors.Length; i++)

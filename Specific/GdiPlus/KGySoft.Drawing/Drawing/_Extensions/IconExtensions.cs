@@ -1044,7 +1044,7 @@ namespace KGySoft.Drawing
         private static Icon?[] ExtractIcons(Icon icon, Size? size, int? bpp, bool forceUncompressedResult)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             using RawIcon rawIcon = new RawIcon(icon, size, bpp);
             return rawIcon.ExtractIcons(forceUncompressedResult);
@@ -1054,7 +1054,7 @@ namespace KGySoft.Drawing
         private static Icon? ExtractFirstIcon(Icon icon, Size size, int? bpp, bool forceUncompressedResult)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             using var rawIcon = new RawIcon(icon, size, bpp);
             return rawIcon.ExtractIcon(0, forceUncompressedResult);

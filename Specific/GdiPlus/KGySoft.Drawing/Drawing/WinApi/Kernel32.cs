@@ -197,7 +197,12 @@ namespace KGySoft.Drawing.WinApi
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static IntPtr MAKEINTRESOURCE(int id) => (IntPtr)((ushort)id);
+        internal static IntPtr MAKEINTRESOURCE(int id)
+#if NET7_0_OR_GREATER
+                    => (ushort)id;
+#else
+                    => (IntPtr)((ushort)id);
+#endif
 
         #endregion
     }
