@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Wpf
 
             KnownPixelFormat knownPixelFormat = pixelFormat.AsKnownPixelFormat();
             if (knownPixelFormat != KnownPixelFormat.Undefined)
-                return new PixelFormatInfo(knownPixelFormat);
+                return knownPixelFormat.ToInfoInternal();
 
             var result = new PixelFormatInfo((byte)pixelFormat.BitsPerPixel);
             if (pixelFormat.IsIndexed())
@@ -92,6 +92,14 @@ namespace KGySoft.Drawing.Wpf
         /// <returns><see langword="true"/>, if <paramref name="pixelFormat"/> represents an indexed format; otherwise, <see langword="false"/>.</returns>
         public static bool IsIndexed(this PixelFormat pixelFormat)
             => pixelFormat.In(PixelFormats.Indexed8, PixelFormats.Indexed4, PixelFormats.Indexed2, PixelFormats.Indexed1);
+
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents a format with alpha (transparency) without checking
+        /// whether <paramref name="pixelFormat"/> represents a valid value.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="KnownPixelFormat"/> instance represents a format with alpha; otherwise, <see langword="false"/>.</returns>
+        public static bool HasAlpha(this PixelFormat pixelFormat) => pixelFormat.GetInfo().HasAlpha;
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="pixelFormat"/>.

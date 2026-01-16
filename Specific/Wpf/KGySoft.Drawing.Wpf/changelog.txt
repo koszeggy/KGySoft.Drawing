@@ -6,7 +6,7 @@
 ===============================================================================
 
 ~~~~~~~~~~
-- v10.0.1:
+* v10.0.1:
 ~~~~~~~~~~
 
 - Common changes
@@ -14,11 +14,12 @@
 - Referencing KGySoft.Drawing.Core v10.0.1. It contains bugfixes only.
   See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
-- KGySoft.Drawing.Wpf namespace
+* KGySoft.Drawing.Wpf namespace
 ===============================
-- PixelFormatExtensions:
+* PixelFormatExtensions class:
   - GetMatchingQuantizer method: The alphaThreshold parameter was interpreted as white threshold when pixelFormat
     was PixelFormats.BlackWhite.
+  + New HasAlpha method.
 
 
 ~~~~~~~~~~
