@@ -6,6 +6,21 @@
 ===============================================================================
 
 ~~~~~~~~~~
+* v10.0.1:
+~~~~~~~~~~
+
+- Common changes
+================
+- Referencing KGySoft.Drawing.Core v10.0.1. It contains bugfixes only.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
++ KGySoft.Drawing namespace
+===========================
++ PixelFormatExtensions class:
+  + The HasAlpha method has been made public.
+
+
+~~~~~~~~~~
 ! v10.0.0:
 ~~~~~~~~~~
 

@@ -202,13 +202,19 @@ namespace KGySoft.Drawing
             => PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToColor32(), alphaThreshold)
                 .ConfigureColorSpace(pixelFormat.HasLinearGamma() ? WorkingColorSpace.Linear : WorkingColorSpace.Default);
 
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents a format with alpha (transparency) without checking
+        /// whether <paramref name="pixelFormat"/> represents a valid value.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="KnownPixelFormat"/> instance represents a format with alpha; otherwise, <see langword="false"/>.</returns>
+        public static bool HasAlpha(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
+
         #endregion
 
         #region Internal Methods
-
-        internal static bool HasAlpha(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
 
         internal static KnownPixelFormat ToKnownPixelFormatInternal(this PixelFormat pixelFormat) => pixelFormat switch
         {
