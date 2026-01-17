@@ -2,9 +2,12 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
 
-    <TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
-    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
-    <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
+    <TargetFrameworks>net6.0-windows10.0.17763;net8.0-windows10.0.17763</TargetFrameworks>
+    <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net6.0-windows10.0.17763'">win10-x86;win10-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net8.0-windows10.0.17763'">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+
+    <!-- Required only for .NET 6.0 -->
+    <PublishProfile Condition="'$(TargetFramework)' == 'net6.0-windows10.0.17763'">win10-$(Platform).pubxml</PublishProfile>
 
     <!--<TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>-->
@@ -22,7 +25,7 @@
 
     <!--Suppressions:
       - NETSDK1138: The target framework 'tfm' is out of support - the unit test requires to target the versions supported by the library
-      - NETSDK1198: A publish profile with the name 'win10-x64.pubxml' was not found in the project. Set the PublishProfile property to a valid file name. - may appear after the first build when .NET 6.0 is targeted
+      - NETSDK1198: A PublishProfile with the name 'win10-x64.pubxml' was not found in the project. Set the PublishProfile property to a valid file name. - may appear after the first build when .NET 6.0 is targeted
       -->
     <NoWarn>$(NoWarn);NETSDK1138;NETSDK1198</NoWarn>
   </PropertyGroup>
@@ -37,9 +40,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
-
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -53,19 +54,5 @@
        package has not yet been restored -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--
-		If you encounter this error message:
-		
-			error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll. Please update to a newer .NET SDK in order to reference this assembly.
-
-		This means that the two packages below must be aligned with the "build" version number of
-		the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
-		must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
-		-->
-    <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.22000.25" />
-    <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.22000.25" />
   </ItemGroup>
 </Project>

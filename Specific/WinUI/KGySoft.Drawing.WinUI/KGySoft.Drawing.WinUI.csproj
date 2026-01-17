@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0-windows10.0.17763</TargetFrameworks>
-    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
+    <TargetFrameworks>net6.0-windows10.0.17763;net8.0-windows10.0.17763</TargetFrameworks>
+    <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net6.0-windows10.0.17763'">win10-x86;win10-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="'$(TargetFramework)' == 'net8.0-windows10.0.17763'">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 
     <!--<TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>-->
@@ -34,14 +35,22 @@
     <None Include=".nuspec\KGySoft.Drawing.WinUI.nuspec" />
   </ItemGroup>
 
-  <!-- Package references -->
+  <!-- Common package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.101">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.102">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+  </ItemGroup>
+
+  <!-- Microsoft.WindowsAppSDK: v1.8 introduced a DLL hell issue in a transitive dependency to the WebView2 component (even though this library does not use it),
+       making it impossible for the consumer projects to upgrade to 1.8+ if this library references 1.6.x (see https://github.com/microsoft/WindowsAppSDK/issues/4807#issuecomment-3730598360).
+       Unfortunately, there is no perfect solution for this:
+       - When targeting .NET 8+, we demand upgrading to 1.8.
+       - For .NET 6/7 we still allow using 1.6 or 1.7 (but upgrading to 1.8 is not possible for such projects) -->
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'net6.0-windows10.0.17763'" Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net8.0-windows10.0.17763' OR '$(TargetFramework)' == 'net10.0-windows10.0.17763'" Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
   </ItemGroup>
 
   <!-- Debug only project references -->
@@ -51,7 +60,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.0" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="10.0.1" />
   </ItemGroup>
 
   <!--<ItemGroup>

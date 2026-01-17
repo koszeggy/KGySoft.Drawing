@@ -6,6 +6,26 @@
 ===============================================================================
 
 ~~~~~~~~~~
+! v10.0.1:
+~~~~~~~~~~
+
+! Assembly changes:
+===================
+! Targeting also .NET 8.0, which requires referencing at least SDK version 1.8, whereas the .NET 6.0 target keeps
+  referencing SDK version 1.6. Normally this should not be a breaking change, but unfortunately the
+  Microsoft.WindowsAppSDK package introduced a DLL hell issue in v1.8 in one of its transitive dependency, which
+  prevents upgrading a WinUI application to SDK v1.8 if one of its referenced packages still depends on SDK v1.6.
+  This is maybe the least painful way to allow a consumer project upgrading to v1.8+, while keeping the
+  compatibility for projects that still target the already out-of-support .NET 6/7 platforms.
+  See more details at https://github.com/microsoft/WindowsAppSDK/issues/4807#issuecomment-3730598360.
+
+- Common changes
+================
+- Referencing KGySoft.Drawing.Core v10.0.1. It contains bugfixes only.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+
+
+~~~~~~~~~~
 ! v10.0.0:
 ~~~~~~~~~~
 
