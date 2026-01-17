@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.WinUI</id>
-    <version>10.0.0</version>
+    <version>10.0.1</version>
     <title>KGy SOFT Drawing Libraries for WinUI</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -32,7 +32,12 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net6.0-windows10.0.17763" >
-        <dependency id="KGySoft.Drawing.Core" version="10.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="10.0.1" />
+        <dependency id="Microsoft.WindowsAppSDK" version="1.6.250108002" />
+      </group>
+      <group targetFramework="net8.0-windows10.0.17763" >
+        <dependency id="KGySoft.Drawing.Core" version="10.0.1" />
+        <dependency id="Microsoft.WindowsAppSDK" version="1.8.250907003" />
       </group>
     </dependencies>
   </metadata>
@@ -44,5 +49,8 @@ SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Ski
     <file src="..\bin\Release\net6.0-windows10.0.17763\KGySoft.Drawing.WinUI.dll" target="lib\net6.0-windows10.0.17763" />
     <file src="..\bin\Release\net6.0-windows10.0.17763\KGySoft.Drawing.WinUI.xml" target="lib\net6.0-windows10.0.17763" />
     <file src="..\bin\Release\net6.0-windows10.0.17763\KGySoft.Drawing.WinUI.pri" target="lib\net6.0-windows10.0.17763" />
+    <file src="..\bin\Release\net8.0-windows10.0.17763\KGySoft.Drawing.WinUI.dll" target="lib\net8.0-windows10.0.17763" />
+    <file src="..\bin\Release\net8.0-windows10.0.17763\KGySoft.Drawing.WinUI.xml" target="lib\net8.0-windows10.0.17763" />
+    <file src="..\bin\Release\net8.0-windows10.0.17763\KGySoft.Drawing.WinUI.pri" target="lib\net8.0-windows10.0.17763" />
   </files>
 </package>
