@@ -35,7 +35,7 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>10.0.0</HelpFileVersion>
+    <HelpFileVersion>10.0.1</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -1665,18 +1665,28 @@
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
-       Just the PackageReference is not enough. The direct .dll references are enough, left the package reference for auto restoring.
+       The direct .dll references would be enough, the package reference are left for auto restoring.
        If auto restore does not happen execute the following command:
-       nuget install Microsoft.Windows.SDK.NET.Ref -Version 10.0.22621.27
+       nuget install Microsoft.Windows.SDK.NET.Ref -Version 10.0.26100.81
   -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.22621.27" />
-    <Reference Include="Microsoft.Windows.SDK.NET, Version=10.0.22621.24, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
-      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.27\lib\net6.0\Microsoft.Windows.SDK.NET.dll</HintPath>
+    <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.26100.81" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
+
+    <Reference Include="Microsoft.Windows.SDK.NET, Version=10.0.26100.79, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.26100.81\lib\net8.0\Microsoft.Windows.SDK.NET.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WinRT.Runtime, Version=2.0.0.0, Culture=neutral, PublicKeyToken=99ea127f02d97709">
-      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.22621.27\lib\net6.0\WinRT.Runtime.dll</HintPath>
+    <Reference Include="WinRT.Runtime, Version=2.2.0.0, Culture=neutral, PublicKeyToken=99ea127f02d97709">
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.26100.81\lib\net8.0\WinRT.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b">
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windowsappsdk.winui\1.8.250906003\lib\net6.0-windows10.0.17763.0\Microsoft.WinUI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.InteractiveExperiences.Projection, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windowsappsdk.interactiveexperiences\1.8.250906004\lib\net6.0-windows10.0.18362.0\Microsoft.InteractiveExperiences.Projection.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
