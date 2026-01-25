@@ -148,11 +148,18 @@ See the [Examples](Examples) folder for example applications for using KGy SOFT 
 <details>
 <summary><strong>KGy SOFT Imaging Tools and Debugger Visualizers</strong></summary><p/>
 
-[KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a Windows Forms desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing`, `WPF`, `SkiaSharp` and `KGySoft` types including `Bitmap`, `Metafile`, `Icon`, `Graphics`, `WriteableBitmap`, `SKBitmap` and more.
+[KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a Windows Forms desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc.
 
 <p align="center">
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250655-5e760d80-db25-11eb-824f-195e5e1dbcbe.png"/></a>
   <br/><em>KGy SOFT Imaging Tools</em>
+</p>
+
+The tool is packed also with some debugger visualizers for several `System.Drawing`, `WPF`, `SkiaSharp` and `KGySoft` types including `Bitmap`, `Metafile`, `Icon`, `Graphics`, `WriteableBitmap`, `SKBitmap` and more:
+
+<p align="center">
+  <img alt="Debugging a Graphics instance" src="https://github.com/user-attachments/assets/7659a0a1-7a66-40a1-8fd7-9222823e52f0"/>
+  <br/><em>Debugging a Graphics instance in Visual Studio 2022</em>
 </p>
 </details>
 
@@ -162,9 +169,10 @@ See the [Examples](Examples) folder for example applications for using KGy SOFT 
 [ScreenToGif](https://github.com/NickeManarin/ScreenToGif) is a WPF desktop application by Nicke Manarin that can be used to create and save animations. Among others, it can use KGy SOFT Drawing Libraries to save GIF animations using various quantizers and ditherers.
 
 <p align="center">
-  <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/173610775-360e10eb-5e18-4aae-ad01-a4a176d6efc6.png"/>
+  <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/152844903-b60c82c0-9fab-4ae8-93f7-b168308c2117.gif"/>
   <br/><em>KGy SOFT GIF encoder options in ScreenToGif</em>
 </p>
+
 </details>
 
 <!--## Project Site
@@ -193,7 +201,7 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)  TODO: to d
 <summary><strong>Fast Bitmap Manipulation</strong><a id="fast-bitmap-manipulation"/></summary><p/>
 
 > ℹ️ **Note**<p/>
-> This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but it works similarly also for other bitmap types (e.g. `WriteableBitmap` of WPF/UWP/WinUI) you can create an [`IBitmapData`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)
+> This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but it works similarly also for other bitmap types (e.g. `WriteableBitmap` of WPF/UWP/WinUI), for which you can create an [`IBitmapData`](https://koszeggy.github.io/docs/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance.
 
 As it is well known, `Bitmap.SetPixel`/`GetPixel` methods are very slow, and `Bitmap.SetPixel` does not even support every pixel format. A typical solution can be to obtain a `BitmapData` by the `LockBits` method, which has further drawbacks: you need to use unsafe code and pointers, and the way you need to access the bitmap data depends on the actual `PixelFormat` of the bitmap.
 
