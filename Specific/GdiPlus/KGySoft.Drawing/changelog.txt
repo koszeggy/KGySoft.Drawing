@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~~
+- v10.0.5:
+~~~~~~~~~~
+
+- KGySoft.Drawing namespace
+===========================
+- IconExtensions class:
+  - Resize methods: On non-windows platforms and on Mono the background of the returned icon was sometimes black.
+
+
+~~~~~~~~~~
 * v10.0.1:
 ~~~~~~~~~~
 
