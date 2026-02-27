@@ -164,6 +164,12 @@ namespace KGySoft.Drawing.WinApi
             index = iconInfo.iIcon;
         }
 
+        internal static IntPtr GetStockIconHandle(StockIcon id, SystemIconSize size)
+        {
+            var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO)) };
+            return NativeMethods.SHGetStockIconInfo(id, SHGSI.ICON | (SHGSI)size, ref iconInfo) == 0 ? iconInfo.hIcon : IntPtr.Zero;
+        }
+
         #endregion
     }
 }

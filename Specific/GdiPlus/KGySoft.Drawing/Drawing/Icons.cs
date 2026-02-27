@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
@@ -1151,27 +1152,55 @@ namespace KGySoft.Drawing
             if (isVistaOrLater && ((id & stockIconIdMask) != 0 || id == 0))
             {
                 // Vista or later, we have a valid stock icon id
-                Shell32.GetStockIconPath((StockIcon)(id & stockIconIdMask), out string path, out int index);
+                StockIcon stockIconId = (StockIcon)(id & stockIconIdMask);
+                Shell32.GetStockIconPath(stockIconId, out string path, out int index);
+
                 if (!String.IsNullOrEmpty(path))
                 {
-                    RawIcon? result = DoLoadIconFromFile(path, Math.Abs(index), false);
-                    if (result != null)
-                        return result;
-                }
+                    // Wine workaround: for SHGetStockIconInfo: a "semi-stub" always returns shell32.dll/-1. Trying to be future-proof with the fix.
+                    if (Path.GetFileName(path) == "shell32.dll" && index == -1)
+                    {
+                        // For some reason the icon handles in SHGetStockIconInfo are alright, even when the paths are wrong in Wine.
+                        IntPtr largeHandle = Shell32.GetStockIconHandle(stockIconId, SystemIconSize.Large);
+                        if (largeHandle == IntPtr.Zero)
+                            return null;
 
+                        // NOTE: we could get the small icon by Shell32.GetStockIconHandle(stockIconId, SystemIconSize.Small), but here we execute under Wine, where
+                        // GetStockIconHandle returns a very poorly resized version of the larger icon, so it's better if we do the resizing with our resize implementation.
+                        var largeIcon = Icon.FromHandle(largeHandle);
+                        using Icon smallIcon = largeIcon.Resize(new Size(largeIcon.Width / 2, largeIcon.Height / 2), ScalingMode.Auto);
+                        var result = new RawIcon(largeIcon);
+                        User32.DestroyIcon(largeHandle);
+                        result.Add(smallIcon);
+                        return result;
+                    }
+                    else
+                    {
+                        RawIcon? result = DoLoadIconFromFile(path, Math.Abs(index), false);
+                        if (result != null)
+                            return result;
+                    }
+                }
             }
 
             // no alternative id is specified: exiting
             if ((id & alternativeIconIdMask) == 0)
                 return null;
 
-            // the alternative id is from user32.dll
-            if ((id & isImageResIconFlag) == 0)
-                return DoLoadIconFromFile("user32", id >> alternativeIdShift, false);
+            try
+            {
+                // the alternative id is from user32.dll
+                if ((id & isImageResIconFlag) == 0)
+                    return DoLoadIconFromFile("user32", id >> alternativeIdShift, false);
 
-            // the alternative id is from imageres.dll
-            if (isVistaOrLater)
-                return DoLoadIconFromFile("imageres", (id & ~isImageResIconFlag) >> alternativeIdShift, false);
+                // the alternative id is from imageres.dll
+                if (isVistaOrLater)
+                    return DoLoadIconFromFile("imageres", (id & ~isImageResIconFlag) >> alternativeIdShift, false);
+            }
+            catch (Win32Exception) // file or resource does not exist
+            {
+                return null;
+            }
 
             return null;
         }
