@@ -1,6 +1,6 @@
 # KGy SOFT Drawing Libraries
 
-The KGy SOFT Drawing Libraries package offers advanced bitmap data manipulation and image processing features such as quantizing and dithering. The libraries consist of multiple packages. A core library contains the technology-agnostic and platform independent functionality and there are specialized libraries built upon the core package.
+The various packages of KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image processing features such as quantizing and dithering. A core package contains the technology-agnostic and platform independent functionality, and there are specialized libraries built upon the core package.
 
 [![Online Help](https://img.shields.io/website/https/koszeggy.github.io/docs/drawing.svg?label=online%20help&up_message=available)](https://koszeggy.github.io/docs/drawing)
 [![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing)
