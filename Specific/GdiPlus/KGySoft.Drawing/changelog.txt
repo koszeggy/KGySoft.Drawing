@@ -9,15 +9,17 @@
 - v10.0.2:
 ~~~~~~~~~~
 
-This version contains only small fixes when using the library under Mono or Wine.
+This version contains only small fixes.
 
 - KGySoft.Drawing namespace
 ===========================
+- GraphicsExtensions class
+  - ToBitmap method: Preventing the result from being clipped at the side with right-to-left layout.
 - IconExtensions class:
   - Resize methods: On non-windows platforms and on Mono the background of the returned icon was sometimes black.
 - Icons class:
   - SystemApplication/SystemError/SystemInformation/SystemShield/SystemQuestion/SystemWarning properties
-    and GetStockIcon method: On Wine these members could return the same default icon.
+    and GetStockIcon method: On Wine these members returned the same default icon.
 
 
 ~~~~~~~~~~

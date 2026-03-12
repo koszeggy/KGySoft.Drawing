@@ -284,6 +284,11 @@ namespace KGySoft.Drawing
                 // obtaining size in pixels
                 graphics.PageUnit = GraphicsUnit.Pixel;
                 visibleRect = graphics.VisibleClipBounds;
+
+                // visibleClipBounds.X can be -1 or -0.5 (depending on pixel offset mode) with mirrored layout
+                if (visibleRect.X < 0)
+                    visibleRect.Offset(-visibleRect.X, 0);
+
                 sourceLeft = (int)visibleRect.Left;
                 sourceTop = (int)visibleRect.Top;
                 targetWidth = (int)visibleRect.Width;
