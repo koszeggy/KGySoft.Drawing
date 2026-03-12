@@ -605,9 +605,10 @@ namespace KGySoft.Drawing
         /// then this method just extracts the highest bit-per-pixel image of the requested size.</para>
         /// <para>If the icon does not contain an image exactly with the specified <paramref name="size"/>, then this method takes a
         /// close image in size and resizes that to the requested size. If resizing happens, the result will always contain a 32 bpp image.</para>
-        /// <para>If an actual resize is needed, this overload uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally,
-        /// which provides a good quality result but on Windows blocks every parallel <see cref="O:System.Drawing.Graphics.DrawImage">DrawImage</see> call within the same process.
-        /// If that might be an issue use the <see cref="Resize(Icon, Size, ScalingMode)"/> overload instead.</para>
+        /// <para>If an actual resize is needed, this overload uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally.
+        /// It provides a good quality result on Windows, but it also blocks every parallel <see cref="O:System.Drawing.Graphics.DrawImage">DrawImage</see> call within the same process.
+        /// On non-Windows platforms (e.g. when the operation is backed by libgdiplus) the quality of the result can be quite poor.
+        /// If these can be issues, use the <see cref="Resize(Icon, Size, ScalingMode)"/> overload instead.</para>
         /// </remarks>
         [SecuritySafeCritical]
         public static Icon Resize(this Icon icon, Size size)

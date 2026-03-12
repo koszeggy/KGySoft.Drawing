@@ -1214,7 +1214,7 @@ namespace KGySoft.Drawing
             if (result.ImageCount == 1)
             {
                 using Bitmap imageLarge = result.ExtractBitmap(0, false)!;
-                using Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true);
+                using Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), ScalingMode.Auto, true);
                 result.Add(imageSmall);
             }
 
