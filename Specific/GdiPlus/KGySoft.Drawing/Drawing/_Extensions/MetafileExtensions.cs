@@ -174,8 +174,6 @@ namespace KGySoft.Drawing
                     // it can happen that metafile bounds is not at 0, 0 location
                     GraphicsUnit unit = GraphicsUnit.Pixel;
                     RectangleF sourceRectangle = metafile.GetBounds(ref unit);
-
-                    // no process-wide lock occurs here because the source image is a Metafile
                     g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
                     g.Flush();
                 }
@@ -237,7 +235,11 @@ namespace KGySoft.Drawing
             if (!OSUtils.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
-            bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
+            bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid
+                || (metafile.RawFormat.Guid == ImageFormat.Emf.Guid
+                    ? false
+                    : throw new ArgumentException(DrawingRes.MetafileExtensionsUnsupportedFormat, nameof(metafile))); // a deserialized instance may have a PNG raw format
+
             if (isWmf || forceWmfFormat)
                 WriteWmfHeader(metafile, stream);
 

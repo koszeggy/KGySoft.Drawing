@@ -6,6 +6,19 @@
 ===============================================================================
 
 ~~~~~~~~~~
+- v10.0.3:
+~~~~~~~~~~
+
+This version contains only small fixes.
+
+- KGySoft.Drawing namespace
+===========================
+- MetafileExtensions class
+  - SaveAsEmf/SaveAsWmf methods: An InvalidCastException was thrown when the raw format of the metafile was neither
+    EMF nor WMF. From now on an ArgumentException is thrown in such cases.
+
+
+~~~~~~~~~~
 - v10.0.2:
 ~~~~~~~~~~
 

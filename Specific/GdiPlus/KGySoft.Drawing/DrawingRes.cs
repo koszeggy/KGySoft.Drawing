@@ -114,6 +114,9 @@ namespace KGySoft
         /// <summary>The specified metafile can only be saved as WMF.</summary>
         internal static string MetafileExtensionsCannotBeSavedAsEmf => Get("MetafileExtensions_CannotBeSavedAsEmf");
 
+        /// <summary>The specified metafile has an unsupported raw format.</summary>
+        internal static string MetafileExtensionsUnsupportedFormat => Get("MetafileExtensions_UnsupportedFormat");
+
         #endregion
 
         #region RawIcon
