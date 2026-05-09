@@ -383,7 +383,7 @@ namespace KGySoft.Drawing
             // creating a compatible bitmap
             IntPtr dcTarget = Gdi32.CreateCompatibleDC(dcSource);
             IntPtr hbmResult = Gdi32.CreateCompatibleBitmap(dcSource, targetWidth, targetHeight);
-            Gdi32.SelectObject(dcTarget, hbmResult);
+            IntPtr prevTarget = Gdi32.SelectObject(dcTarget, hbmResult);
 
             // Copy content
             Gdi32.BitBlt(dcTarget, 0, 0, targetWidth, targetHeight, dcSource, sourceLeft, sourceTop);
@@ -391,6 +391,7 @@ namespace KGySoft.Drawing
 
             //cleanup
             graphics.ReleaseHdc(dcSource);
+            Gdi32.SelectObject(dcTarget, prevTarget);
             Gdi32.DeleteDC(dcTarget);
             Gdi32.DeleteObject(hbmResult);
 

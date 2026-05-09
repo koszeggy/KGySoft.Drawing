@@ -245,10 +245,12 @@ namespace KGySoft.Drawing.WinApi
 
         internal static IntPtr CreateCompatibleDC(IntPtr hdc) => NativeMethods.CreateCompatibleDC(hdc);
 
-        internal static void SelectObject(IntPtr hdc, IntPtr hgdiobj)
+        internal static IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj)
         {
-            if (NativeMethods.SelectObject(hdc, hgdiobj) == IntPtr.Zero)
+            IntPtr result = NativeMethods.SelectObject(hdc, hgdiobj);
+            if (result == IntPtr.Zero)
                 throw new Win32Exception();
+            return result;
         }
 
         internal static void BitBlt(IntPtr hdc, int xDest, int yDest, int width, int height, IntPtr hdcSrc, int xSrc, int ySrc)
