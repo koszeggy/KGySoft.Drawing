@@ -63,9 +63,7 @@ namespace KGySoft.Drawing
             public void Dispose()
             {
                 foreach (RawIconImage image in this)
-                {
                     image.Dispose();
-                }
 
                 Clear();
             }
@@ -84,7 +82,7 @@ namespace KGySoft.Drawing
             {
                 if (Count == UInt16.MaxValue)
                     throw new NotSupportedException(DrawingRes.RawIconTooManyImages);
-                base.InsertItem(index, item);
+                base.InsertItem(index, item ?? throw new ArgumentNullException(nameof(item), PublicResources.ArgumentNull));
             }
 
             #endregion
@@ -129,7 +127,7 @@ namespace KGySoft.Drawing
             private byte[]? rawColor;
 
             /// <summary>
-            /// Mask data (can be null even if BMP)
+            /// Mask data (can be null in an icon file even if BMP, though we always generate it)
             /// </summary>
             private byte[]? rawMask;
 
@@ -212,14 +210,18 @@ namespace KGySoft.Drawing
             /// <summary>
             /// From raw data
             /// </summary>
-            internal unsafe RawIconImage(byte[] rawData)
+            internal RawIconImage(byte[] rawData)
             {
-                int signature = BitConverter.ToInt32(rawData, 0);
+                #region Local Methods
 
-                // PNG header: 0x89+"PNG"
-                isPng = signature == 0x474E5089;
-                if (isPng)
+                bool TryInitFromPng()
                 {
+                    // PNG header: 0x89+"PNG"
+                    const int signature = 0x474E5089;
+                    if (rawData.Length < 4 || BitConverter.ToInt32(rawData, 0) != signature)
+                        return false;
+
+                    isPng = true;
                     rawColor = rawData;
 
                     // byte 24: bpp per channel
@@ -241,45 +243,66 @@ namespace KGySoft.Drawing
 
                     // size is at 16 and 20 DWORD big endian so reading last 2 bytes only
                     size = new Size((rawData[18] << 8) + rawData[19], (rawData[22] << 8) + rawData[23]);
-                    return;
+                    return true;
                 }
 
-                // BMP header: size of the BITMAPINFOHEADER structure
-                if (signature != sizeof(BITMAPINFOHEADER))
+                bool TryInitFromBitmap()
+                {
+                    int headerSize;
+                    unsafe { headerSize = sizeof(BITMAPINFOHEADER); }
+
+                    // BMP header: size of the BITMAPINFOHEADER structure
+                    if (rawData.Length < 4 || BitConverter.ToInt32(rawData, 0) != headerSize)
+                        return false;
+
+                    // header
+                    bmpHeader = BinarySerializer.DeserializeValueType<BITMAPINFOHEADER>(rawData);
+                    size = new Size(bmpHeader.biWidth, bmpHeader.biHeight >> 1); // height is doubled because of mask
+                    bpp = bmpHeader.biBitCount;
+                    int offset = headerSize;
+
+                    // palette
+                    int colorCount = PaletteColorCount;
+                    int colorSize;
+                    unsafe { colorSize = sizeof(RGBQUAD); }
+                    if (colorCount > 0)
+                    {
+                        palette = BinarySerializer.DeserializeValueArray<RGBQUAD>(rawData, offset, colorCount);
+                        offset += colorSize * palette.Length;
+                    }
+
+                    int strideColor = ((bmpHeader.biWidth * bmpHeader.biBitCount + 31) & ~31) >> 3;
+                    int rawColorLength = strideColor * size.Height;
+                    int strideMask = ((bmpHeader.biWidth + 31) & ~31) >> 3;
+                    int maskLength = strideMask * size.Height;
+
+                    // unexpected length
+                    if (rawData.Length < offset + rawColorLength)
+                        return false;
+
+                    // color image (XOR)
+                    rawColor = new byte[strideColor * size.Height];
+                    Buffer.BlockCopy(rawData, offset, rawColor, 0, rawColor.Length);
+
+                    offset += rawColor.Length;
+
+                    // mask image (AND)
+                    if (offset + maskLength > rawData.Length)
+                    {
+                        // the mask is sometimes omitted for 32bpp images, but we still generate it for best compatibility
+                        GenerateMask(strideColor, strideMask);
+                        return true;
+                    }
+
+                    rawMask = new byte[maskLength];
+                    Buffer.BlockCopy(rawData, offset, rawMask, 0, maskLength);
+                    return true;
+                }
+
+                #endregion
+
+                if (!TryInitFromPng() && !TryInitFromBitmap())
                     throw new ArgumentException(DrawingRes.RawIconBadIconFormat, nameof(rawData));
-
-                // header
-                bmpHeader = BinarySerializer.DeserializeValueType<BITMAPINFOHEADER>(rawData);
-                size = new Size(bmpHeader.biWidth, bmpHeader.biHeight >> 1); // height is doubled because of mask
-                bpp = bmpHeader.biBitCount;
-                int offset = signature;
-
-                // palette
-                int colorCount = PaletteColorCount;
-                if (colorCount > 0)
-                {
-                    palette = BinarySerializer.DeserializeValueArray<RGBQUAD>(rawData, offset, colorCount);
-                    offset += sizeof(RGBQUAD) * palette.Length;
-                }
-
-                // color image (XOR)
-                int strideColor = ((bmpHeader.biWidth * bmpHeader.biBitCount + 31) & ~31) >> 3;
-                rawColor = new byte[strideColor * size.Height];
-                Buffer.BlockCopy(rawData, offset, rawColor, 0, rawColor.Length);
-                offset += rawColor.Length;
-
-                // mask image (AND)
-                int strideMask = ((bmpHeader.biWidth + 31) & ~31) >> 3;
-                int maskLength = strideMask * size.Height;
-                if (offset + maskLength > rawData.Length)
-                {
-                    // the mask is sometimes omitted for 32bpp images, but we still generate it for best compatibility
-                    GenerateMask(strideColor, strideMask);
-                    return;
-                }
-
-                rawMask = new byte[maskLength];
-                Buffer.BlockCopy(rawData, offset, rawMask, 0, maskLength);
             }
 
             #endregion
@@ -381,25 +404,16 @@ namespace KGySoft.Drawing
                 }
             }
 
-            internal Bitmap? ToBitmap(bool keepOriginalFormat, bool throwError)
+            internal Bitmap ToBitmap(bool keepOriginalFormat)
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
-                if (keepOriginalFormat && bmpColor != null)
-                    return bmpColor.CloneBitmap();
+                Debug.Assert(keepOriginalFormat && bmpColor != null || !keepOriginalFormat && bmpComposite != null, "Generated bitmaps are expected here");
+                if (keepOriginalFormat)
+                    return bmpColor!.CloneBitmap();
 
-                if (bmpComposite == null)
-                {
-                    Debug.Assert(!OSUtils.IsVistaOrLater || OSUtils.IsMono, "Bitmaps should have been able to be generated on non-Mono Windows Vista+");
-                    if (bmpColor != null)
-                        return bmpColor.CloneBitmap();
-                    if (!throwError)
-                        return null;
-                    throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsBitmap);
-                }
-
-                // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
-                // because for PNG images may cause troubles in some cases (e.g. OutOfMemoryException when used as background image)
-                if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
+                // When not original format is requested, making sure that a MemoryBMP is returned,
+                // because e.g. PNG images may cause troubles in some cases (e.g. OutOfMemoryException when used as a background image)
+                if (bmpComposite!.RawFormat.Guid != ImageFormat.MemoryBmp.Guid)
                     return new Bitmap(bmpComposite);
 
                 // Cloning by Bitmap.Clone(Rectangle, PixelFormat) instead of Image.Clone because the latter may return a blank result on Linux
@@ -528,14 +542,9 @@ namespace KGySoft.Drawing
                     // generating the maximum number of palette entries without optimization
                     // (so PaletteColorCount can return number of colors before generating the palette)
                     palette = new RGBQUAD[1 << bpp];
-                    // ReSharper disable once PossibleNullReferenceException
                     Color[] entries = bmp.Palette.Entries;
                     for (int i = 0; i < entries.Length; i++)
-                    {
-                        palette[i].rgbRed = entries[i].R;
-                        palette[i].rgbGreen = entries[i].G;
-                        palette[i].rgbBlue = entries[i].B;
-                    }
+                        palette[i] = new RGBQUAD(entries[i]);
                 }
 
                 // header
@@ -585,7 +594,7 @@ namespace KGySoft.Drawing
                 }
 
                 // Mask image (AND): Creating from color image and provided transparent color.
-                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
+                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width + 31) / 32)
                 GenerateMask(strideColor, strideMask);
             }
 
@@ -668,86 +677,122 @@ namespace KGySoft.Drawing
                     return;
                 }
 
-                // BMP format - composite image
-                if (isCompositeRequired)
-                {
-                    using Icon? icon = ToIcon(true, false);
-
-                    // On Linux it may return null, in which case we fall back to non-composite image
-                    if (icon != null)
-                    {
-                        // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
-                        // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
-                        bmpComposite = icon.ToBitmap();
-                        return;
-                    }
-                }
-
-                // Working from raw format. If it doesn't exist, creating from composite image, forcing BMP format
+                // Working from raw format. If it doesn't exist, creating from composite image, forcing BMP format (PNG can be regenerated on next save)
                 if (rawColor == null)
                     AssureRawFormatGenerated(true);
 
-                if (OSUtils.IsWindows)
-                    GenerateColorBitmapWindows();
+                // BMP format - composite image
+                if (isCompositeRequired)
+                    GenerateCompositeBitmap();
                 else
-                    GenerateColorBitmapNonWindows();
+                    GenerateColorBitmap();
             }
 
-            private void GenerateColorBitmapWindows()
+            private void GenerateColorBitmap()
             {
-                // BMP format - original image format required
-                IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
+                Debug.Assert(bmpColor == null, "Unnecessary GenerateColorBitmap call");
+                Debug.Assert(rawColor != null, "AssureRawFormatGenerated was not called");
 
-                // initializing bitmap data
-                BITMAPINFO bitmapInfo;
-                bitmapInfo.icHeader = bmpHeader;
-                bitmapInfo.icHeader.biHeight /= 2;
-                bitmapInfo.icColors = null;
+                KnownPixelFormat pixelFormat = bpp switch
+                {
+                    1 => KnownPixelFormat.Format1bppIndexed,
+                    4 => KnownPixelFormat.Format4bppIndexed,
+                    8 => KnownPixelFormat.Format8bppIndexed,
+                    24 => KnownPixelFormat.Format24bppRgb,
+                    32 => KnownPixelFormat.Format32bppArgb,
+                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bit depth: {bpp}"))
+                };
 
+                // reinterpreting rawColor as a bitmap
+                int stride = ((size.Width * bpp + 31) & ~31) >> 3;
+                using IReadableBitmapData bmpDataSrc = BitmapDataFactory.CreateBitmapData(rawColor!, size, stride, pixelFormat);
+
+                // We could simply return bmpDataSrc.ToBitmap() if it was a top-down bitmap (and negative stride is not supported for managed buffers).
+                // So we need to manually create the result and the source into it while flipping the image vertically.
+                // NOTE: We could use ParallelHelper, but sequential processing would be faster for almost every size anyway
+                var result = new Bitmap(size.Width, size.Height, pixelFormat.ToPixelFormat());
                 if (PaletteColorCount > 0)
                 {
-                    bitmapInfo.icColors = new RGBQUAD[256];
+                    Debug.Assert(palette?.Length > 0);
+                    ColorPalette resultPalette = result.Palette;
+                    Color[] colors = resultPalette.Entries;
                     for (int i = 0; i < palette!.Length; i++)
-                        bitmapInfo.icColors[i] = palette[i];
+                        colors[i] = palette[i].ToColor();
+
+                    // we must reassign it to take effect
+                    result.Palette = resultPalette;
                 }
 
-                // creating color raw bitmap (XOR)
-                IntPtr dcColor = Gdi32.CreateCompatibleDC(dcScreen);
-                IntPtr hbmpColor = Gdi32.CreateDibSectionRgb(dcColor, ref bitmapInfo, out IntPtr bits);
-                Marshal.Copy(rawColor!, 0, bits, rawColor!.Length);
+                using IWritableBitmapData bmpDataDst = result.GetWritableBitmapData();
+                IReadableBitmapDataRowMovable rowSrc = bmpDataSrc.FirstRow;
+                IWritableBitmapDataRowMovable rowDst = bmpDataDst.FirstRow;
+                for (int y = 0, yNeg = size.Height - 1; y < size.Height; y++, yNeg--)
+                {
+                    rowSrc.MoveToRow(y);
+                    rowDst.MoveToRow(yNeg);
+                    for (int x = 0; x < size.Width; x++)
+                        rowDst[x] = rowSrc[x];
+                }
 
-                // creating bmpColor
-                bmpColor = Image.FromHbitmap(hbmpColor);
-
-                User32.ReleaseDC(IntPtr.Zero, dcScreen);
-                Gdi32.DeleteObject(hbmpColor);
-                Gdi32.DeleteDC(dcColor);
+                bmpColor = result;
             }
 
-            private void GenerateColorBitmapNonWindows()
+            private void GenerateCompositeBitmap()
             {
-                // On non-windows the original format will be the icon itself
-                var ms = new MemoryStream();
-                Save(ms, true);
-                ms.Position = 0;
-                try
-                {
-                    var bmp = new Bitmap(ms);
+                Debug.Assert(bmpComposite == null, "Unnecessary GenerateCompositeBitmap call");
+                Debug.Assert(rawColor != null && rawMask != null, "AssureRawFormatGenerated was not called");
 
-                    // On Linux an uncompressed 256x256 icon might be instantiated as a 0x0 bitmap
-                    if (!bmp.Size.IsEmpty)
-                        bmpColor = bmp;
-                    else if (bmpColor == null)
-                        bmpColor = bmpComposite;
-                }
-                catch (Exception)
+                KnownPixelFormat pixelFormat = bpp switch
                 {
-                    if (OSUtils.IsVistaOrLater && !OSUtils.IsMono)
-                        throw;
+                    1 => KnownPixelFormat.Format1bppIndexed,
+                    4 => KnownPixelFormat.Format4bppIndexed,
+                    8 => KnownPixelFormat.Format8bppIndexed,
+                    24 => KnownPixelFormat.Format24bppRgb,
+                    32 => KnownPixelFormat.Format32bppArgb,
+                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bit depth: {bpp}"))
+                };
 
-                    // As a fallback we use the composite image (if any)
-                    bmpColor = bmpComposite;
+                // reinterpreting rawColor and rawMask bitmaps
+                int strideColor = ((size.Width * bpp + 31) & ~31) >> 3;
+                using var bmpDataColor = BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, pixelFormat);
+                int strideMask = ((size.Width + 31) & ~31) >> 3;
+                using var bmpDataMask = BitmapDataFactory.CreateBitmapData(rawMask!, size, strideMask, KnownPixelFormat.Format1bppIndexed);
+
+                // Combining rawColor (XOR) and the mask (AND) images
+                // NOTE: the sources are bottom-up, whereas the result is top-bottom, so cannot just use Combine (negative stride is not supported for managed buffers).
+                // NOTE 2: we still could use ParallelHelper, but sequential processing would be faster for almost every size
+                var result = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+                using IWritableBitmapData bmpDataResult = result.GetWritableBitmapData();
+                IWritableBitmapDataRowMovable rowComposite = bmpDataResult.FirstRow;
+                var rowColor = bmpDataColor.FirstRow;
+                var rowMask = bmpDataMask.FirstRow;
+                for (int y = 0, yNeg = size.Height - 1; y < size.Height; y++, yNeg--)
+                {
+                    rowComposite.MoveToRow(y);
+                    rowColor.MoveToRow(yNeg);
+                    rowMask.MoveToRow(yNeg);
+
+                    // Special handling for 32 bpp icons: we ignore tha mask, unless it indicates transparency for totally opaque pixels
+                    if (bpp == 32 && transparentColor.A == 0)
+                    {
+                        for (int x = 0; x < size.Width; x++)
+                        {
+                            Color32 srcColor = rowColor[x];
+                            if (srcColor.A != 0 && (srcColor.A < Byte.MaxValue || rowMask.GetColorIndex(x) == 0))
+                                rowComposite[x] = srcColor;
+                        }
+
+                        continue;
+                    }
+
+                    for (int x = 0; x < size.Width; x++)
+                    {
+                        if (rowMask.GetColorIndex(x) == 0)
+                            rowComposite[x] = rowColor[x];
+                    }
                 }
+
+                bmpComposite = result;
             }
 
             private void AssurePngBitmapsGenerated(bool isCompositeRequired)
@@ -760,7 +805,15 @@ namespace KGySoft.Drawing
                 if (isCompositeRequired)
                 {
                     Debug.Assert(bmpComposite == null, "Calling generate was not necessary");
-                    bmpComposite = result;
+                    if (result.PixelFormat == PixelFormat.Format32bppArgb)
+                    {
+                        bmpComposite = result;
+                        return;
+                    }
+
+                    // If the decoder returned a non-alpha or indexed PNG
+                    bmpComposite = result.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+                    result.Dispose();
                     return;
                 }
 
@@ -965,25 +1018,47 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Gets a <see cref="Bitmap"/> instance, which contains every image of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
+        /// On platforms where multi-resolutions bitmaps are not supported, the largest bitmap is returned.
         /// </summary>
-        internal Bitmap? ToBitmap()
+        internal Bitmap ToBitmap()
         {
             if (iconImages.Count == 0)
-                return null;
+                throw new InvalidOperationException(DrawingRes.RawIconEmpty);
 
-            // not in using because stream must be left open during the Bitmap lifetime
-            var ms = new MemoryStream();
-            var bw = new BinaryWriter(ms);
-            Save(bw, true);
-            ms.Position = 0L;
-
+            // For the best compatibility, returning pure 32 bpp uncompressed images.
+            // For example, Windows XP does not support PNG images, and a 24 bpp icon may cause a "Parameter is invalid" error in Bitmap ctor.
             try
             {
+                var ms = new MemoryStream();
+                var bw = new BinaryWriter(ms);
+
+                // Simple case: just save and return
+                if (iconImages.All(i => i.Bpp == 32))
+                {
+                    // not in using because stream must be left open during the Bitmap lifetime
+                    Save(bw, true);
+                    ms.Position = 0L;
+                    return new Bitmap(ms);
+                }
+
+                // Mixed color depths: taking the first highest bpp image of all sizes
+                using var result = new RawIcon();
+                foreach (Size size in iconImages.Select(i => i.Size).Distinct())
+                {
+                    RawIconImage image = GetNearestImage(32, size, true);
+                    if (image.Bpp == 32)
+                        result.Add(image);
+                    else
+                        result.Add(image.ToBitmap(false));
+                }
+
+                result.Save(bw, true);
+                ms.Position = 0L;
                 return new Bitmap(ms);
             }
-            catch (Exception e)
+            catch (Exception e) when (!e.IsCriticalGdi())
             {
-                throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsBitmap, e);
+                return ExtractNearestBitmap(32, new Size(Int32.MaxValue, Int32.MaxValue), false, true)!;
             }
         }
 
@@ -1019,24 +1094,24 @@ namespace KGySoft.Drawing
         {
             if (index < 0 || index >= iconImages.Count)
                 return null;
-            return iconImages[index].ToBitmap(keepOriginalFormat, true);
+            return iconImages[index].ToBitmap(keepOriginalFormat);
         }
 
         /// <summary>
         /// Gets the images of the <see cref="RawIcon"/> instance as separated <see cref="Bitmap"/> instances.
         /// </summary>
-        internal Bitmap?[] ExtractBitmaps(bool keepOriginalFormat)
+        internal Bitmap[] ExtractBitmaps(bool keepOriginalFormat)
         {
-            Bitmap?[] result = new Bitmap[iconImages.Count];
+            Bitmap[] result = new Bitmap[iconImages.Count];
             for (int i = 0; i < result.Length; i++)
-                result[i] = iconImages[i].ToBitmap(keepOriginalFormat, false);
+                result[i] = iconImages[i].ToBitmap(keepOriginalFormat);
 
             return result;
         }
 
         /// <summary>
         /// Gets the nearest bitmap to the specified color depth and size. Bpp is matched first.
-        /// If preferLarger is true, the distance the larger images is halved. This is preferable when the extracted bitmap is about to be resized.
+        /// If preferLarger is true, the distance to the larger images is halved. This is preferable when the extracted bitmap is about to be resized.
         /// </summary>
         internal Bitmap? ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat, bool preferLarger)
         {
@@ -1044,14 +1119,10 @@ namespace KGySoft.Drawing
                 return null;
 
             if (iconImages.Count == 1)
-                return iconImages[0].ToBitmap(keepOriginalFormat, false);
+                return iconImages[0].ToBitmap(keepOriginalFormat);
 
             RawIconImage nearestImage = GetNearestImage(bpp, size, preferLarger);
-            Bitmap? result = nearestImage.ToBitmap(keepOriginalFormat, false);
-            if (result != null)
-                return result;
-
-            return GetNextLargestResult(nearestImage, bpp, img => img.ToBitmap(keepOriginalFormat, false));
+            return nearestImage.ToBitmap(keepOriginalFormat);
         }
 
         /// <summary>
@@ -1078,6 +1149,8 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
+
+        private void Add(RawIconImage image) => iconImages.Add(image);
 
         private unsafe void Save(BinaryWriter bw, bool forceBmpImages)
         {

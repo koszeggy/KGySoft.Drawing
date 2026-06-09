@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.WinApi
             /// <summary>
             /// The GetObject function retrieves information for the specified graphics object.
             /// </summary>
-            /// <param name="hgdiobj">A handle to the graphics object of interest. This can be a handle to one of the following: a logical bitmap, a brush, a font, a palette, a pen, or a device independent bitmap created by calling the <see cref="CreateDIBSection"/> function.</param>
+            /// <param name="hgdiobj">A handle to the graphics object of interest. This can be a handle to one of the following: a logical bitmap, a brush, a font, a palette, a pen, or a device independent bitmap created by calling the CreateDIBSection function.</param>
             /// <param name="cbBuffer">The number of bytes of information to be written to the buffer.</param>
             /// <param name="lpvObject">A pointer to a buffer that receives the information about the specified graphics object.</param>
             /// <returns>If the lpvObject parameter is NULL, the function return value is the number of bytes required to store the information it writes to the buffer for the specified graphics object.</returns>
@@ -70,23 +70,6 @@ namespace KGySoft.Drawing.WinApi
             [DllImport("gdi32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteObject(IntPtr hObject);
-
-            /// <summary>
-            /// The CreateDIBSection function creates a DIB that applications can write to directly. The function gives you a pointer to the location of the bitmap bit values. You can supply a handle to a file-mapping object that the function will use to create the bitmap, or you can let the system allocate the memory for the bitmap.
-            /// </summary>
-            /// <param name="hdc">A handle to a device context. If the value of iUsage is DIB_PAL_COLORS, the function uses this device context's logical palette to initialize the DIB colors.</param>
-            /// <param name="pbmi">A pointer to a <see cref="BITMAPINFO"/> structure that specifies various attributes of the DIB, including the bitmap dimensions and colors.</param>
-            /// <param name="iUsage">The type of data contained in the bmiColors array member of the BITMAPINFO structure pointed to by pbmi (either logical palette indexes or literal RGB values). The following values are defined.
-            /// <para>DIB_PAL_COLORS - The bmiColors member is an array of 16-bit indexes into the logical palette of the device context specified by hdc.</para>
-            /// <para>DIB_RGB_COLORS - The BITMAPINFO structure contains an array of literal RGB values.</para>
-            /// </param>
-            /// <param name="ppvBits">A pointer to a variable that receives a pointer to the location of the DIB bit values.</param>
-            /// <param name="hSection">A handle to a file-mapping object that the function will use to create the DIB. This parameter can be NULL.</param>
-            /// <param name="dwOffset">The offset from the beginning of the file-mapping object referenced by hSection where storage for the bitmap bit values is to begin. This value is ignored if hSection is NULL. The bitmap bit values are aligned on doubleword boundaries, so dwOffset must be a multiple of the size of a DWORD.</param>
-            /// <returns>If the function succeeds, the return value is a handle to the newly created DIB, and *ppvBits points to the bitmap bit values.
-            /// If the function fails, the return value is NULL, and ppvBits is NULL.</returns>
-            [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
-            internal static extern IntPtr CreateDIBSection(IntPtr hdc, [In] ref BITMAPINFO pbmi, int iUsage, out IntPtr ppvBits, IntPtr hSection, uint dwOffset);
 
             /// <summary>
             /// This function creates a memory device context (DC) compatible with the specified device.
@@ -218,12 +201,6 @@ namespace KGySoft.Drawing.WinApi
 
         #endregion
 
-        #region Constants
-
-        private const int DIB_RGB_COLORS = 0;
-
-        #endregion
-
         #region Methods
 
         internal static unsafe int GetBitmapColorDepth(IntPtr handle)
@@ -239,9 +216,6 @@ namespace KGySoft.Drawing.WinApi
             if (!NativeMethods.DeleteObject(handle))
                 throw new ArgumentException(DrawingRes.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
         }
-
-        internal static IntPtr CreateDibSectionRgb(IntPtr hdc, ref BITMAPINFO bitmapInfo, out IntPtr bits)
-            => NativeMethods.CreateDIBSection(hdc, ref bitmapInfo, DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
 
         internal static IntPtr CreateCompatibleDC(IntPtr hdc) => NativeMethods.CreateCompatibleDC(hdc);
 

@@ -130,8 +130,8 @@ namespace KGySoft
         /// <summary>On this platform this icon cannot be instantiated with the current size or compression.</summary>
         internal static string RawIconCannotBeInstantiatedAsIcon => Get("RawIcon_CannotBeInstantiatedAsIcon");
 
-        /// <summary>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</summary>
-        internal static string RawIconCannotBeInstantiatedAsBitmap => Get("RawIcon_CannotBeInstantiatedAsBitmap");
+        /// <summary>The icon does not contain any images.</summary>
+        internal static string RawIconEmpty => Get("RawIcon_Empty");
 
         #endregion
 

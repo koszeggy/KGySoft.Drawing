@@ -159,8 +159,8 @@
   <data name="RawIcon_CannotBeInstantiatedAsIcon" xml:space="preserve">
     <value>On this platform this icon cannot be instantiated with the current size or compression.</value>
   </data>
-  <data name="RawIcon_CannotBeInstantiatedAsBitmap" xml:space="preserve">
-    <value>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</value>
+  <data name="RawIcon_Empty" xml:space="preserve">
+    <value>The icon does not contain any images.</value>
   </data>
   <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
     <value>Length of images and transparentColors must be the same.</value>

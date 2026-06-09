@@ -55,8 +55,19 @@ namespace KGySoft.Drawing.WinApi
 
         #endregion
 
+        #region Constructors
+
+        internal RGBQUAD(Color color)
+        {
+            rgbRed = color.R;
+            rgbGreen = color.G;
+            rgbBlue = color.B;
+        }
+
+        #endregion
+
         #region Methods
-        
+
         internal Color ToColor() => Color.FromArgb(rgbRed, rgbGreen, rgbBlue);
 
         #endregion

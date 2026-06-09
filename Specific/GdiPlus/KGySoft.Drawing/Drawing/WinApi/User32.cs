@@ -63,29 +63,6 @@ namespace KGySoft.Drawing.WinApi
             internal static extern bool DestroyIcon(IntPtr handle);
 
             /// <summary>
-            /// The GetDC function retrieves a handle to a device context(DC) for the client area of a specified window or for the entire screen.You can use the returned handle in subsequent GDI functions to draw in the DC.The device context is an opaque data structure, whose values are used internally by GDI.
-            /// </summary>
-            /// <param name = "hWnd" > A handle to the window whose DC is to be retrieved.If this value is NULL, GetDC retrieves the DC for the entire screen.</param>
-            /// <returns>If the function succeeds, the return value is a handle to the DC for the specified window's client area.
-            /// If the function fails, the return value is NULL.</returns>
-            [DllImport("user32.dll", CharSet = CharSet.Auto)]
-            internal static extern IntPtr GetDC(IntPtr hWnd);
-
-            /// <summary>
-            /// The ReleaseDC function releases a device context (DC), freeing it for use by other applications. The effect of the ReleaseDC function depends on the type of DC. It frees only common and window DCs. It has no effect on class or private DCs.
-            /// </summary>
-            /// <param name="hWnd">A handle to the window whose DC is to be released.</param>
-            /// <param name="hDC">A handle to the DC to be released.</param>
-            /// <returns>The return value indicates whether the DC was released. If the DC was released, the return value is 1.
-            /// If the DC was not released, the return value is zero.</returns>
-            /// <remarks>
-            /// The application must call the ReleaseDC function for each call to the GetWindowDC function and for each call to the GetDC function that retrieves a common DC.
-            /// An application cannot use the ReleaseDC function to release a DC that was created by calling the CreateDC function; instead, it must use the DeleteDC function. ReleaseDC must be called from the same thread that called GetDC.</remarks>
-            [DllImport("user32.dll")]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            internal static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-            /// <summary>
             /// Retrieves information about the specified icon or cursor.
             /// </summary>
             /// <param name="hIcon">A handle to the icon or cursor. To retrieve information about a standard icon or cursor, specify one of the standard values.</param>
@@ -153,20 +130,6 @@ namespace KGySoft.Drawing.WinApi
         {
             if (!NativeMethods.DestroyIcon(handle))
                 throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle), new Win32Exception());
-        }
-
-        internal static IntPtr GetDC(IntPtr handle)
-        {
-            IntPtr dc = NativeMethods.GetDC(handle);
-            if (dc == IntPtr.Zero)
-                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle));
-            return dc;
-        }
-
-        internal static void ReleaseDC(IntPtr handle, IntPtr dc)
-        {
-            if (!NativeMethods.ReleaseDC(handle, dc))
-                throw new ArgumentException(DrawingRes.User32InvalidHandle, nameof(handle));
         }
 
         internal static void GetIconInfo(IntPtr handle, out ICONINFO iconInfo)

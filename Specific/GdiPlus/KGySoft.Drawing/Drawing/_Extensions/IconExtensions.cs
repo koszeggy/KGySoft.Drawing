@@ -138,39 +138,12 @@ namespace KGySoft.Drawing
         /// When the returned <see cref="Bitmap"/> is used to create another <see cref="Bitmap"/> or is drawn into a <see cref="Graphics"/>, the best-fitting image is automatically applied.
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
-        /// <remarks>
-        /// <para></para>
-        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
-        /// </remarks>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
         [SecuritySafeCritical]
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
-            if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
-            {
-                using var rawIcon = new RawIcon(icon);
-                return rawIcon.ToBitmap()!;
-            }
-
-            // On Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor and forcing always uncompressed result.
-            using var result = new RawIcon();
-#pragma warning disable CS8600, CS8604 // Converting null literal or possible null value to non-nullable type. - false alarm, on Windows elements are never null
-            foreach (Icon iconImage in icon.ExtractIcons())
-            {
-                using (iconImage)
-                {
-                    if (iconImage.GetBitsPerPixel() == 24)
-                    {
-                        using var bmp = iconImage.ToAlphaBitmap();
-                        result.Add(bmp);
-                    }
-                    else
-                        result.Add(iconImage);
-                }
-            }
-#pragma warning restore CS8600, CS8604
-
-            return result.ToBitmap()!;
+            using var rawIcon = new RawIcon(icon);
+            return rawIcon.ToBitmap()!;
         }
 
         /// <summary>
@@ -179,9 +152,6 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
         /// <param name="forceUncompressedResult">This parameter is ignored.</param>
-        /// <remarks>
-        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
-        /// </remarks>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
         [SecuritySafeCritical]
         [Obsolete("This overload is now obsolete because the forceUncompressedResult parameter is not used anymore in this method.")]
@@ -207,13 +177,9 @@ namespace KGySoft.Drawing
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/> elements</returns>
-        /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
-        /// </remarks>
+        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon)" />
-        public static Bitmap?[] ExtractBitmaps(this Icon icon, bool keepOriginalFormat = false) => ExtractBitmaps(icon, null, null, keepOriginalFormat);
+        public static Bitmap[] ExtractBitmaps(this Icon icon, bool keepOriginalFormat = false) => ExtractBitmaps(icon, null, null, keepOriginalFormat);
 
         /// <summary>
         /// Extracts every image of specified size from an <see cref="Icon"/> instance.
@@ -223,13 +189,9 @@ namespace KGySoft.Drawing
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/> elements</returns>
-        /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
-        /// </remarks>
+        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon,Size)"/>
-        public static Bitmap?[] ExtractBitmaps(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractBitmaps(icon, size, null, keepOriginalFormat);
+        public static Bitmap[] ExtractBitmaps(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractBitmaps(icon, size, null, keepOriginalFormat);
 
         /// <summary>
         /// Extracts every image of specified pixel format from an <see cref="Icon"/> instance.
@@ -239,30 +201,22 @@ namespace KGySoft.Drawing
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/> elements</returns>
-        /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
-        /// </remarks>
+        /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon,PixelFormat)"/>
-        public static Bitmap?[] ExtractBitmaps(this Icon icon, PixelFormat pixelFormat, bool keepOriginalFormat = false)
+        public static Bitmap[] ExtractBitmaps(this Icon icon, PixelFormat pixelFormat, bool keepOriginalFormat = false)
             => ExtractBitmaps(icon, null, pixelFormat.ToBitsPerPixel(), keepOriginalFormat);
 
         /// <summary>
-        /// Extracts the first image from an <see cref="Icon"/> instance. If the icon has only one image consider to use
-        /// <see cref="ToAlphaBitmap">ToAlphaBitmap</see>, which is faster.
+        /// Extracts the first image from an <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/> if no image was found in the <paramref name="icon"/>.</returns>
-        /// <remarks>
-        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
-        /// </remarks>
+        /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ToAlphaBitmap"/>
-        public static Bitmap? ExtractBitmap(this Icon icon, bool keepOriginalFormat = false) => ExtractFirstBitmap(icon, null, null, keepOriginalFormat);
+        public static Bitmap ExtractBitmap(this Icon icon, bool keepOriginalFormat = false)
+            => ExtractFirstBitmap(icon, null, null, keepOriginalFormat)!; // suppress is OK, an icon always has at least one image
 
         /// <summary>
         /// Extracts the first image of specified size from an <see cref="Icon"/> instance.
@@ -291,9 +245,6 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found with the specified size and format.</returns>
-        /// <remarks>
-        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
-        /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,Size,PixelFormat)"/>
         public static Bitmap? ExtractBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat = false)
             => ExtractFirstBitmap(icon, size, pixelFormat.ToBitsPerPixel(), keepOriginalFormat);
@@ -308,9 +259,6 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if the specified <paramref name="index"/> was too large.</returns>
-        /// <remarks>
-        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
-        /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,int)"/>
         [SecuritySafeCritical]
         public static Bitmap? ExtractBitmap(this Icon icon, int index, bool keepOriginalFormat = false)
@@ -335,9 +283,6 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>. If no
         /// icon was found with the specified size and format the nearest image (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
-        /// <remarks>
-        /// <para>On some platforms it may happen that a smaller result is returned than requested if the requested size and format is not supported.</para>
-        /// </remarks>
         /// <seealso cref="ExtractNearestIcon(Icon,Size,PixelFormat)"/>
         [SecuritySafeCritical]
         public static Bitmap ExtractNearestBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat = false)
@@ -1028,7 +973,7 @@ namespace KGySoft.Drawing
         #region Private Methods
 
         [SecuritySafeCritical]
-        private static Bitmap?[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
+        private static Bitmap[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
@@ -1044,7 +989,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             using var rawIcon = new RawIcon(icon, size, bpp);
-            return rawIcon.ExtractBitmap(0, keepOriginalFormat);
+            return rawIcon.ExtractBitmap(0, keepOriginalFormat); // suppressing is OK, an icon always has at least one image
         }
 
         [SecuritySafeCritical]
