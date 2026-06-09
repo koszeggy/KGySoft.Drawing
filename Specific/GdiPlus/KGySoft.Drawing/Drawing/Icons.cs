@@ -810,7 +810,7 @@ namespace KGySoft.Drawing
                 for (int i = 0; i < data.Count; i++)
                 {
                     using RawIcon rawIcon = data[i];
-                    result[i] = rawIcon.ToIcon(OSUtils.IsXpOrEarlier)!;
+                    result[i] = rawIcon.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
                 }
 
                 return result;
@@ -842,7 +842,7 @@ namespace KGySoft.Drawing
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             using RawIcon result = DoLoadIconFromFile(fileName, id, true)!;
-            return result.ToIcon(OSUtils.IsXpOrEarlier)!;
+            return result.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
         }
 
         /// <summary>
@@ -888,7 +888,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon? FromStream(Stream stream) => FromStream(stream, OSUtils.IsXpOrEarlier);
+        public static Icon? FromStream(Stream stream) => FromStream(stream, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
 
         /// <summary>
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
@@ -914,7 +914,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(IEnumerable<Icon>? icons)
-            => Combine(OSUtils.IsXpOrEarlier, icons);
+            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -926,7 +926,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(params Icon[]? icons)
-            => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Icon>?)icons);
+            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Icon>?)icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -970,7 +970,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(params Bitmap[]? images)
-            => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>?)images);
+            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -983,7 +983,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(IEnumerable<Bitmap>? images)
-            => Combine(OSUtils.IsXpOrEarlier, images);
+            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -1035,7 +1035,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
-            => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
+            => Combine(images, transparentColors, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -1222,7 +1222,7 @@ namespace KGySoft.Drawing
         }
 
         private static Icon GetResourceIcon(string resourceName)
-            => ResourceIconsCache.GetOrAdd(resourceName, getResourceIconAddValueFactory).ToIcon(OSUtils.IsXpOrEarlier)!;
+            => ResourceIconsCache.GetOrAdd(resourceName, getResourceIconAddValueFactory).ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
 
         private static RawIcon DoGetResourceIcon(string resourceName)
             => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);

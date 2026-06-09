@@ -27,6 +27,7 @@ namespace KGySoft.Drawing.WinApi
 
         private static bool? isVistaOrLater;
         private static bool? isWindows;
+        private static bool? isMono;
 
         #endregion
 
@@ -53,7 +54,7 @@ namespace KGySoft.Drawing.WinApi
 
         internal static bool IsWindows => isWindows ??= Environment.OSVersion.Platform is PlatformID.Win32NT or PlatformID.Win32Windows;
 
-        internal static bool IsXpOrEarlier => IsWindows && !IsVistaOrLater;
+        public static bool IsMono => isMono ??= Type.GetType("Mono.Runtime") != null;
 
         #endregion
     }

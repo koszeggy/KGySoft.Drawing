@@ -187,8 +187,6 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            #region Construction and Destruction
-
             #region Constructors
 
             /// <summary>
@@ -286,25 +284,19 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            #region Destructor
-
-            ~RawIconImage() => Dispose(false);
-
-            #endregion
-
-            #endregion
-
             #region Methods
 
             #region Public Methods
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
             public void Dispose()
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
+                bmpColor?.Dispose();
+                bmpComposite?.Dispose();
+                bmpColor = null;
+                bmpComposite = null;
+                rawColor = null;
+                rawMask = null;
+                palette = null;
             }
 
             #endregion
@@ -379,10 +371,10 @@ namespace KGySoft.Drawing
                 }
                 catch (Exception)
                 {
-                    if (OSUtils.IsWindows)
+                    if (OSUtils.IsVistaOrLater && !OSUtils.IsMono)
                         throw;
 
-                    // On Linux 256x256 icons may not be supported even with BMP format.
+                    // Wine/Mono supports uncompressed large icons, but Framework Mono cannot handle an icon with a single large image (neither PNG nor BMP).
                     if (throwError)
                         throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
                     return null;
@@ -397,7 +389,7 @@ namespace KGySoft.Drawing
 
                 if (bmpComposite == null)
                 {
-                    Debug.Assert(!OSUtils.IsWindows, "Bitmaps should have been able to be generated on Windows");
+                    Debug.Assert(!OSUtils.IsVistaOrLater || OSUtils.IsMono, "Bitmaps should have been able to be generated on non-Mono Windows Vista+");
                     if (bmpColor != null)
                         return bmpColor.CloneBitmap();
                     if (!throwError)
@@ -410,7 +402,7 @@ namespace KGySoft.Drawing
                 if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
                     return new Bitmap(bmpComposite);
 
-                // Cloning by Bitmap.Clone instead of Image.Clone because the latter may return a blank result on Linux
+                // Cloning by Bitmap.Clone(Rectangle, PixelFormat) instead of Image.Clone because the latter may return a blank result on Linux
                 return bmpComposite.CloneBitmap();
             }
 
@@ -485,21 +477,6 @@ namespace KGySoft.Drawing
                 WriteRawImage(bw, forceBmpFormat);
             }
 
-            private void Dispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    bmpColor?.Dispose();
-                    bmpComposite?.Dispose();
-                }
-
-                bmpColor = null;
-                bmpComposite = null;
-                rawColor = null;
-                rawMask = null;
-                palette = null;
-            }
-
             private unsafe void AssureRawFormatGenerated(bool forceBmpFormat)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
@@ -541,6 +518,7 @@ namespace KGySoft.Drawing
                     // ReSharper disable once PossibleNullReferenceException
                     bmp.Save(ms, ImageFormat.Png);
                     rawColor = ms.ToArray();
+                    rawMask = null;
                     return;
                 }
 
@@ -608,7 +586,6 @@ namespace KGySoft.Drawing
 
                 // Mask image (AND): Creating from color image and provided transparent color.
                 int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
-
                 GenerateMask(strideColor, strideMask);
             }
 
@@ -695,7 +672,7 @@ namespace KGySoft.Drawing
                 if (isCompositeRequired)
                 {
                     using Icon? icon = ToIcon(true, false);
-                    
+
                     // On Linux it may return null, in which case we fall back to non-composite image
                     if (icon != null)
                     {
@@ -706,20 +683,9 @@ namespace KGySoft.Drawing
                     }
                 }
 
-                // Working from raw format. If it doesn't exist, creating from composite image...
+                // Working from raw format. If it doesn't exist, creating from composite image, forcing BMP format
                 if (rawColor == null)
-                {
-                    // ...unless we decide to handle the image as if it was PNG. In this case the icon was created
-                    // from a large bitmap but isPng should remain false because we don't create rawColor.
-                    if (IsPngPreferred)
-                    {
-                        AssurePngBitmapsGenerated(false);
-                        return;
-                    }
-
-                    // Now we create rawColor and it will be a BMP for sure.
                     AssureRawFormatGenerated(true);
-                }
 
                 if (OSUtils.IsWindows)
                     GenerateColorBitmapWindows();
@@ -768,7 +734,7 @@ namespace KGySoft.Drawing
                 {
                     var bmp = new Bitmap(ms);
 
-                    // On Linux an uncompressed 256x256 icon will be instantiated as a 0x0 bitmap
+                    // On Linux an uncompressed 256x256 icon might be instantiated as a 0x0 bitmap
                     if (!bmp.Size.IsEmpty)
                         bmpColor = bmp;
                     else if (bmpColor == null)
@@ -776,7 +742,7 @@ namespace KGySoft.Drawing
                 }
                 catch (Exception)
                 {
-                    if (OSUtils.IsWindows)
+                    if (OSUtils.IsVistaOrLater && !OSUtils.IsMono)
                         throw;
 
                     // As a fallback we use the composite image (if any)
@@ -786,31 +752,34 @@ namespace KGySoft.Drawing
 
             private void AssurePngBitmapsGenerated(bool isCompositeRequired)
             {
+                Debug.Assert(isPng && rawColor != null);
+
                 // Note: MemoryStream must not be in a using because that would kill the new bitmap.
-                Bitmap result = bmpComposite ?? bmpColor
-                    // rawColor is available, otherwise, object would be disposed. 
-                    ?? new Bitmap(new MemoryStream(rawColor!));
+                var result = new Bitmap(new MemoryStream(rawColor!));
 
-                // assignments below will not replace any instance, otherwise, we would have returned above
                 if (isCompositeRequired)
-                    bmpComposite = result;
-                else
                 {
-                    // if PNG bpp matches the required result
-                    if (bpp == result.GetBitsPerPixel())
-                        bmpColor = result;
-                    else
-                    {
-                        // generating a lower bpp image
-                        // note: this code theoretically executes only for indexed PNG if the decoder restored it with higher BPP
-                        Color[]? paletteBmpColor = null;
-                        if (bpp <= 8)
-                            paletteBmpColor = result.GetColors(1 << bpp);
-
-                        bmpColor = result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
-                        result.Dispose();
-                    }
+                    Debug.Assert(bmpComposite == null, "Calling generate was not necessary");
+                    bmpComposite = result;
+                    return;
                 }
+
+                // if PNG bpp matches the required result
+                Debug.Assert(bmpColor == null, "Calling generate was not necessary");
+                if (bpp == result.GetBitsPerPixel())
+                {
+                    bmpColor = result;
+                    return;
+                }
+
+                // generating a lower bpp image
+                // note: this code theoretically executes only for indexed PNG if the decoder restored it with higher BPP
+                Color[]? paletteBmpColor = null;
+                if (bpp <= 8)
+                    paletteBmpColor = result.GetColors(1 << bpp);
+
+                bmpColor = result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
+                result.Dispose();
             }
 
             #endregion
@@ -988,9 +957,9 @@ namespace KGySoft.Drawing
             }
             catch (Exception e)
             {
-                if (OSUtils.IsWindows)
-                    throw;
-                throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
+                if (!OSUtils.IsVistaOrLater || OSUtils.IsMono)
+                    throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
+                throw;
             }
         }
 
@@ -1228,8 +1197,8 @@ namespace KGySoft.Drawing
         private TResult? GetNextLargestResult<TResult>(RawIconImage nearestImage, int bpp, Func<RawIconImage, TResult?> getResult)
             where TResult : class?
         {
-            // On Linux large icons might not be supported. Looking for the next largest one then.
-            Debug.Assert(!OSUtils.IsWindows, "null result is not expected on Windows");
+            // On XP or Mono large icons might not be supported. Looking for the next largest one then.
+            Debug.Assert(!OSUtils.IsVistaOrLater || OSUtils.IsMono, "null result is not expected on Windows Vista+");
             int lastSize;
 
             do
