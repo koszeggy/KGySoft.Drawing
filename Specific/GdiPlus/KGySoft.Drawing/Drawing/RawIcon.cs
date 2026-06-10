@@ -22,7 +22,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 #if NET7_0_OR_GREATER
 using System.Runtime.Versioning;
 #endif
@@ -127,7 +126,7 @@ namespace KGySoft.Drawing
             private byte[]? rawColor;
 
             /// <summary>
-            /// Mask data (can be null in an icon file even if BMP, though we always generate it)
+            /// Mask data (can be null in an icon file even if BMP, though we always generate it). 0: opacity, 1: transparency.
             /// </summary>
             private byte[]? rawMask;
 
@@ -396,7 +395,6 @@ namespace KGySoft.Drawing
                 {
                     if (OSUtils.IsVistaOrLater && !OSUtils.IsMono)
                         throw;
-
                     // Wine/Mono supports uncompressed large icons, but Framework Mono cannot handle an icon with a single large image (neither PNG nor BMP).
                     if (throwError)
                         throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
@@ -529,7 +527,6 @@ namespace KGySoft.Drawing
                     using var ms = new MemoryStream();
 
                     // When PNG, using composite image in the first place
-                    // ReSharper disable once PossibleNullReferenceException
                     bmp.Save(ms, ImageFormat.Png);
                     rawColor = ms.ToArray();
                     rawMask = null;
@@ -559,34 +556,22 @@ namespace KGySoft.Drawing
                 bmpHeader.biClrUsed = (uint)PaletteColorCount;
                 bmpHeader.biClrImportant = 0;
 
-                // Color image (XOR): copying from input bitmap
+                // Color image (XOR): copying from input bitmap while flipping the image vertically.
+                // We could use bmp.GetReadableBitmapData, but this way we can invert the original stride to produce a bottom-up result by a simple CopyTo.
                 int strideColor;
-
-                // ReSharper disable once PossibleNullReferenceException - bmp cannot be null here
-                BitmapData dataColor = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                BitmapData dataColor = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 try
                 {
                     strideColor = dataColor.Stride;
                     rawColor = new byte[Math.Abs(strideColor) * dataColor.Height];
                     bmpHeader.biSizeImage = (uint)rawColor.Length;
 
-                    // Theoretically negative stride cannot occur here because Bitmap fields are clones but just in case...
-                    if (strideColor < 0)
-                    {
-                        IntPtr startAddress = new IntPtr(dataColor.Scan0.ToInt64() + (dataColor.Height - 1) * strideColor);
-                        Marshal.Copy(startAddress, rawColor, 0, rawColor.Length);
-                        strideColor = -strideColor;
-                    }
-                    else
-                    {
-                        // If stride is positive, then flipping the image horizontally because a bottom-up BMP has to be saved
-                        for (int i = 0; i < size.Height; i++)
-                        {
-                            IntPtr offsetSrc = new IntPtr(dataColor.Scan0.ToInt64() + i * strideColor);
-                            int offsetDst = (size.Height - 1 - i) * strideColor;
-                            Marshal.Copy(offsetSrc, rawColor, offsetDst, strideColor);
-                        }
-                    }
+                    var startAddress = new IntPtr(dataColor.Scan0.ToInt64() + (dataColor.Height - 1) * strideColor);
+                    strideColor = -strideColor; // this works both for positive and negative original stride, though negative is not really expected after cloning in Add
+                    using IReadableBitmapData bitmapDataSrc = BitmapDataFactory.CreateBitmapData(startAddress, size, strideColor, dataColor.PixelFormat.ToKnownPixelFormatInternal());
+                    strideColor = Math.Abs(strideColor); // the stride of our managed buffer is always positive
+                    using IWritableBitmapData bitmapDataDst = BitmapDataFactory.CreateBitmapData(rawColor, size, strideColor, bitmapDataSrc.PixelFormat.AsKnownPixelFormatInternal);
+                    bitmapDataSrc.CopyTo(bitmapDataDst); // as pixel formats and the palette (which we don't even specify here) are the same, this will perform a raw copy
                 }
                 finally
                 {
@@ -608,57 +593,29 @@ namespace KGySoft.Drawing
                 if (bpp <= 8 && transparentIndices.IsNullOrEmpty() || bpp == 24 && transparentColor.A != Byte.MaxValue)
                     return;
 
-                for (int y = 0; y < size.Height; y++)
+                // Reinterpreting rawColor and rawMask bytes as bitmaps. Omitting palette initialization, because we only check the palette indices for indexed formats.
+                using IReadableBitmapData bmpDataColor = BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, bpp.ToPixelFormat().ToKnownPixelFormatInternal());
+                using IWritableBitmapData bmpDataMask = BitmapDataFactory.CreateBitmapData(rawMask, size, strideMask, KnownPixelFormat.Format1bppIndexed);
+
+                // We could use Combine (like in GenerateCompositeBitmap) for >= 24 bpp formats, but this way we can handle all formats together
+                // (and setting the mask by color index rather than by Color32 is a bit more effective).
+                var rowColor = (IBitmapDataRowInternal)bmpDataColor.FirstRow;
+                var rowMask = (IBitmapDataRowInternal)bmpDataMask.FirstRow;
+                do
                 {
-                    int posColorY = strideColor * y;
-                    int posMaskY = strideMask * y;
                     for (int x = 0; x < size.Width; x++)
                     {
-                        int mask = 128 >> (x & 7);
-                        switch (bpp)
+                        bool isTransparent = bpp switch
                         {
-                            case 1:
-                                int bits = rawColor![(x >> 3) + posColorY];
-                                int colorIndex = (bits & mask) != 0 ? 1 : 0;
-                                if (transparentIndices!.Contains(colorIndex))
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
-                                break;
+                            32 => rowColor.DoGetColor32(x) is Color32 c && (c == transparentColor || transparentColor.A == 0 && c.A < 128),
+                            24 => rowColor.DoGetColor32(x) == transparentColor,
+                            _ => transparentIndices!.Contains(rowColor.DoGetColorIndex(x))
+                        };
 
-                            case 4:
-                                bits = rawColor![(x >> 1) + posColorY];
-                                colorIndex = (x & 1) == 0 ? bits >> 4 : bits & 0b00001111;
-                                if (transparentIndices!.Contains(colorIndex))
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
-                                break;
-
-                            case 8:
-                                if (transparentIndices!.Contains(rawColor![x + posColorY]))
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
-                                break;
-
-                            case 24:
-                                int pos = posColorY + x * 3;
-                                Color32 pixelColor = new Color32(rawColor![pos + 2],
-                                    rawColor[pos + 1],
-                                    rawColor[pos]);
-                                if (pixelColor == transparentColor)
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
-                                break;
-
-                            case 32:
-                                pos = posColorY + (x << 2);
-                                pixelColor = new Color32(rawColor![pos + 3],
-                                    rawColor[pos + 2],
-                                    rawColor[pos + 1],
-                                    rawColor[pos]);
-
-                                if (pixelColor == transparentColor || transparentColor.A == 0 && pixelColor.A < 128)
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
-
-                                break;
-                        }
+                        if (isTransparent)
+                            rowMask.DoSetColorIndex(x, 1);
                     }
-                }
+                } while (rowColor.MoveNextRow() && rowMask.MoveNextRow());
             }
 
             private void AssureBitmapsGenerated(bool isCompositeRequired)
@@ -692,28 +649,30 @@ namespace KGySoft.Drawing
             {
                 Debug.Assert(bmpColor == null, "Unnecessary GenerateColorBitmap call");
                 Debug.Assert(rawColor != null, "AssureRawFormatGenerated was not called");
-
-                KnownPixelFormat pixelFormat = bpp switch
-                {
-                    1 => KnownPixelFormat.Format1bppIndexed,
-                    4 => KnownPixelFormat.Format4bppIndexed,
-                    8 => KnownPixelFormat.Format8bppIndexed,
-                    24 => KnownPixelFormat.Format24bppRgb,
-                    32 => KnownPixelFormat.Format32bppArgb,
-                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bit depth: {bpp}"))
-                };
+                PixelFormat pixelFormat = bpp.ToPixelFormat();
 
                 // reinterpreting rawColor as a bitmap
                 int stride = ((size.Width * bpp + 31) & ~31) >> 3;
-                using IReadableBitmapData bmpDataSrc = BitmapDataFactory.CreateBitmapData(rawColor!, size, stride, pixelFormat);
+                using IReadableBitmapData bmpDataSrc = BitmapDataFactory.CreateBitmapData(rawColor!, size, stride, pixelFormat.ToKnownPixelFormatInternal());
 
-                // We could simply return bmpDataSrc.ToBitmap() if it was a top-down bitmap (and negative stride is not supported for managed buffers).
-                // So we need to manually create the result and the source into it while flipping the image vertically.
-                // NOTE: We could use ParallelHelper, but sequential processing would be faster for almost every size anyway
-                var result = new Bitmap(size.Width, size.Height, pixelFormat.ToPixelFormat());
+                // We could simply return bmpDataSrc.ToBitmap() here (after specifying a palette as well), but we must flip the image vertically, so creating the result manually.
+                var result = new Bitmap(size.Width, size.Height, pixelFormat);
+                BitmapData bitmapDataColor = result.LockBits(new Rectangle(Point.Empty, size), ImageLockMode.WriteOnly, pixelFormat);
+                try
+                {
+                    // Instead of using result.GetWritableBitmapData, we use the factory here as well, so we can invert the stride. This way a simple CopyTo flips the image for us.
+                    var startAddress = new IntPtr(bitmapDataColor.Scan0.ToInt64() + (size.Height - 1) * bitmapDataColor.Stride);
+                    using IWritableBitmapData bmpDataDst = BitmapDataFactory.CreateBitmapData(startAddress, size, -bitmapDataColor.Stride, pixelFormat.ToKnownPixelFormatInternal());
+                    bmpDataSrc.CopyTo(bmpDataDst); // as pixel formats and the palette (which we didn't even specify yet) are the same, this will perform a raw copy
+                }
+                finally
+                {
+                    result.UnlockBits(bitmapDataColor);
+                }
+
+                // Trick: we set the palette only after the copying. Otherwise, we must have set it both for the source and the target to make CopyTo work correctly.
                 if (PaletteColorCount > 0)
                 {
-                    Debug.Assert(palette?.Length > 0);
                     ColorPalette resultPalette = result.Palette;
                     Color[] colors = resultPalette.Entries;
                     for (int i = 0; i < palette!.Length; i++)
@@ -723,17 +682,6 @@ namespace KGySoft.Drawing
                     result.Palette = resultPalette;
                 }
 
-                using IWritableBitmapData bmpDataDst = result.GetWritableBitmapData();
-                IReadableBitmapDataRowMovable rowSrc = bmpDataSrc.FirstRow;
-                IWritableBitmapDataRowMovable rowDst = bmpDataDst.FirstRow;
-                for (int y = 0, yNeg = size.Height - 1; y < size.Height; y++, yNeg--)
-                {
-                    rowSrc.MoveToRow(y);
-                    rowDst.MoveToRow(yNeg);
-                    for (int x = 0; x < size.Width; x++)
-                        rowDst[x] = rowSrc[x];
-                }
-
                 bmpColor = result;
             }
 
@@ -741,55 +689,34 @@ namespace KGySoft.Drawing
             {
                 Debug.Assert(bmpComposite == null, "Unnecessary GenerateCompositeBitmap call");
                 Debug.Assert(rawColor != null && rawMask != null, "AssureRawFormatGenerated was not called");
+                KnownPixelFormat pixelFormat = bpp.ToPixelFormat().ToKnownPixelFormatInternal();
 
-                KnownPixelFormat pixelFormat = bpp switch
-                {
-                    1 => KnownPixelFormat.Format1bppIndexed,
-                    4 => KnownPixelFormat.Format4bppIndexed,
-                    8 => KnownPixelFormat.Format8bppIndexed,
-                    24 => KnownPixelFormat.Format24bppRgb,
-                    32 => KnownPixelFormat.Format32bppArgb,
-                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bit depth: {bpp}"))
-                };
-
-                // reinterpreting rawColor and rawMask bitmaps
+                // Reinterpreting rawColor (XOR) and rawMask (AND) bytes as bitmaps, so we can easily combine them into an actual alpha bitmap.
                 int strideColor = ((size.Width * bpp + 31) & ~31) >> 3;
-                using var bmpDataColor = BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, pixelFormat);
+                Palette? paletteColor = palette == null ? null : new Palette(palette.Select(c => c.ToColor()));
+                using IReadableBitmapData bmpDataColor = BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, pixelFormat, paletteColor);
                 int strideMask = ((size.Width + 31) & ~31) >> 3;
-                using var bmpDataMask = BitmapDataFactory.CreateBitmapData(rawMask!, size, strideMask, KnownPixelFormat.Format1bppIndexed);
-
-                // Combining rawColor (XOR) and the mask (AND) images
-                // NOTE: the sources are bottom-up, whereas the result is top-bottom, so cannot just use Combine (negative stride is not supported for managed buffers).
-                // NOTE 2: we still could use ParallelHelper, but sequential processing would be faster for almost every size
+                using IReadableBitmapData bmpDataMask = BitmapDataFactory.CreateBitmapData(rawMask!, size, strideMask, KnownPixelFormat.Format1bppIndexed);
                 var result = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
-                using IWritableBitmapData bmpDataResult = result.GetWritableBitmapData();
-                IWritableBitmapDataRowMovable rowComposite = bmpDataResult.FirstRow;
-                var rowColor = bmpDataColor.FirstRow;
-                var rowMask = bmpDataMask.FirstRow;
-                for (int y = 0, yNeg = size.Height - 1; y < size.Height; y++, yNeg--)
+                BitmapData resultBitmapData = result.LockBits(new Rectangle(Point.Empty, size), ImageLockMode.WriteOnly, result.PixelFormat);
+                try
                 {
-                    rowComposite.MoveToRow(y);
-                    rowColor.MoveToRow(yNeg);
-                    rowMask.MoveToRow(yNeg);
+                    // Special handling for 32 bpp icons: we ignore the mask, unless it indicates transparency for totally opaque pixels.
+                    // Mask 0 (opacity) and 1 (transparency) bits are mapped to the black and white colors of the default 1 bpp palette.
+                    Func<Color32, Color32, Color32> combineFunction = bpp == 32 && transparentColor.A == 0
+                        ? (color, mask) => color.A != 0 && (color.A < Byte.MaxValue || mask == Color32.Black) ? color : default
+                        : (color, mask) => mask == Color32.Black ? color : default;
 
-                    // Special handling for 32 bpp icons: we ignore tha mask, unless it indicates transparency for totally opaque pixels
-                    if (bpp == 32 && transparentColor.A == 0)
-                    {
-                        for (int x = 0; x < size.Width; x++)
-                        {
-                            Color32 srcColor = rowColor[x];
-                            if (srcColor.A != 0 && (srcColor.A < Byte.MaxValue || rowMask.GetColorIndex(x) == 0))
-                                rowComposite[x] = srcColor;
-                        }
-
-                        continue;
-                    }
-
-                    for (int x = 0; x < size.Width; x++)
-                    {
-                        if (rowMask.GetColorIndex(x) == 0)
-                            rowComposite[x] = rowColor[x];
-                    }
+                    // NOTE: The sources are bottom-up, whereas the result bitmap is top-bottom. But negative strides can be used for unmanaged buffers only,
+                    //       so inverting it for the result rather than the sources. This way a simple Combine call will also flip the result vertically while applying the mask.
+                    //       If we didn't need to do the flip, we simply could use result.GetWritableBitmapData without Un/LockBits.
+                    var startAddress = new IntPtr(resultBitmapData.Scan0.ToInt64() + (size.Height - 1) * resultBitmapData.Stride);
+                    using IWritableBitmapData bmpDataComposite = BitmapDataFactory.CreateBitmapData(startAddress, size, -resultBitmapData.Stride, KnownPixelFormat.Format32bppArgb);
+                    bmpDataColor.Combine(bmpDataMask, bmpDataComposite, combineFunction);
+                }
+                finally
+                {
+                    result.UnlockBits(resultBitmapData);
                 }
 
                 bmpComposite = result;
