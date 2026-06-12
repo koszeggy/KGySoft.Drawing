@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 #endif
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.Shapes;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Threading;
 
@@ -577,6 +578,34 @@ namespace KGySoft.Drawing.UnitTests
             using Icon icon = bmpRef.ToIcon();
             Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, icon.GetImagesCount());
             SaveIcon(null, icon);
+        }
+
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        public void ReducingColorDepthTest(PixelFormat pixelFormat)
+        {
+            using var bmp = new Bitmap(64, 64, pixelFormat);
+            bmp.Clear(Color.Transparent);
+            using (var bitmapData = bmp.GetReadWriteBitmapData())
+            {
+                bitmapData.FillEllipse(Color.Blue, 0, 0, 64, 64);
+                bitmapData.FillRectangle(Color.Cyan, 16, 16, 32, 32);
+            }
+
+            // specifying Color.Transparent preserves the original image and the original pixel format, whereas omitting transparentColor allows reducing the color depth
+            using var iconPreserved = bmp.ToIcon(Color.Transparent);
+            using var iconReduced = bmp.ToIcon();
+
+            using var bmpPreserved = iconPreserved.ToBitmap().GetReadableBitmapData();
+            using var bmpReduced = iconReduced.ToBitmap().GetReadableBitmapData();
+            AssertAreEqual(bmpPreserved, bmpReduced, true);
+            Assert.AreEqual(pixelFormat.ToBitsPerPixel(), iconPreserved.GetIconInfo(0).BitsPerPixel);
+            Assert.AreEqual(1, iconReduced.GetIconInfo(0).BitsPerPixel);
+
+            // specifying an opaque color turns more region transparent
+            using var iconAlphaMerged = bmp.ToIcon(Color.Cyan);
+            using var bmpAlphaMerged = iconAlphaMerged.ToBitmap().GetReadableBitmapData();
+            Assert.AreNotEqual(bmpReduced.GetColorCount(), bmpAlphaMerged.GetColorCount());
         }
 
         [Test]

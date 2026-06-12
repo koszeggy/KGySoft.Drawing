@@ -167,7 +167,7 @@ namespace KGySoft.Drawing.UnitTests
         public void IsCompressedTest()
         {
             Assert.IsFalse(Icons.Information.ExtractIcon(new Size(16, 16)).IsCompressed());
-            Assert.IsTrue(OSUtils.IsXpOrEarlier ^ Icons.Information.IsCompressed());
+            Assert.IsTrue(!(OSUtils.IsVistaOrLater && !OSUtils.IsMono) ^ Icons.Information.IsCompressed());
             Assert.IsFalse(Icons.Information.ToUncompressedIcon().IsCompressed());
             
             // On Linux this extracts the uncompressed 64x64 icon...

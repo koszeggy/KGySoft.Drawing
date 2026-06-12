@@ -97,16 +97,21 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
-            private readonly Color32 transparentColor;
+            /// <summary>
+            /// Matters when rawColor/pngColor is null (instance is initialized from a Bitmap, not an actual Icon stream).
+            /// When null, preserving the actual transparency only, and the color depth of bmpComposite is attempted to be reduced losslessly while generating bmpColor or the raw content.
+            /// When specified (even from Color.Transparent), it is initialized along with bmpColor, whose pixel format is preserved, and only the alpha is applied when generating bmpComposite or the raw content.
+            /// </summary>
+            private readonly Color32? transparentColor;
 
             private Size size;
             private int bpp;
-            private HashSet<int>? transparentIndices;
+            private bool isPng;
 
             /// <summary>
-            /// Gets whether <see cref="rawColor"/> contains PNG data.
+            /// Needed when initializing from an indexed bitmap, and transparentColor is explicitly specified, so the alpha mask is not generated from just already transparent pixels.
             /// </summary>
-            private bool isPng;
+            private HashSet<int>? transparentIndices;
 
             /// <summary>
             /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
@@ -121,12 +126,12 @@ namespace KGySoft.Drawing
             private Bitmap? bmpColor;
 
             /// <summary>
-            /// Color image or the raw image itself when PNG
+            /// BMP color (XOR) data (bottom-up orientation), or the raw image itself when PNG
             /// </summary>
             private byte[]? rawColor;
 
             /// <summary>
-            /// Mask data (can be null in an icon file even if BMP, though we always generate it). 0: opacity, 1: transparency.
+            /// BMP mask (AND) data (bottom-up orientation). Can be null even in a BMP icon, though we always generate it. 0: opacity, 1: transparency.
             /// </summary>
             private byte[]? rawMask;
 
@@ -178,7 +183,7 @@ namespace KGySoft.Drawing
                 }
             }
 
-            private bool IsPngPreferred => bpp >= 32 && (size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
+            private bool IsPngPreferred => bpp == 32 && (size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
 
             #endregion
 
@@ -189,21 +194,20 @@ namespace KGySoft.Drawing
             /// <summary>
             /// From bitmap
             /// </summary>
-            internal RawIconImage(Bitmap bmpColor, Color transparentColor)
+            internal RawIconImage(Bitmap image, Color? transparentColor)
             {
-                // bitmaps are clones so they can be disposed with the RawIconImage instance
-                if (bmpColor.PixelFormat == PixelFormat.Format32bppArgb && transparentColor.A == 0)
+                if (transparentColor == null)
                 {
-                    bmpComposite = bmpColor;
-                    this.transparentColor = default;
+                    Debug.Assert(image.PixelFormat == PixelFormat.Format32bppArgb);
+                    bmpComposite = image;
                 }
                 else
                 {
-                    this.bmpColor = bmpColor;
-                    this.transparentColor = new Color32(transparentColor);
+                    bmpColor = image;
+                    this.transparentColor = transparentColor;
                 }
 
-                InitFromBitmap(bmpColor);
+                InitFromBitmap(image, image == bmpColor);
             }
 
             /// <summary>
@@ -289,7 +293,7 @@ namespace KGySoft.Drawing
                     if (offset + maskLength > rawData.Length)
                     {
                         // the mask is sometimes omitted for 32bpp images, but we still generate it for best compatibility
-                        GenerateMask(strideColor, strideMask);
+                        GenerateMask();
                         return true;
                     }
 
@@ -327,7 +331,7 @@ namespace KGySoft.Drawing
 
             internal unsafe void WriteDirEntry(BinaryWriter bw, bool forceBmpFormat, ref uint offset)
             {
-                AssureRawFormatGenerated(forceBmpFormat);
+                EnsureRawFormatGenerated(forceBmpFormat);
                 ICONDIRENTRY entry = new ICONDIRENTRY
                 {
                     dwImageOffset = offset,
@@ -358,7 +362,7 @@ namespace KGySoft.Drawing
 
             internal void WriteRawImage(BinaryWriter bw, bool forceBmpFormat)
             {
-                AssureRawFormatGenerated(forceBmpFormat);
+                EnsureRawFormatGenerated(forceBmpFormat);
                 if (isPng)
                 {
                     bw.Write(rawColor!);
@@ -404,12 +408,12 @@ namespace KGySoft.Drawing
 
             internal Bitmap ToBitmap(bool keepOriginalFormat)
             {
-                AssureBitmapsGenerated(!keepOriginalFormat);
+                EnsureBitmapGenerated(!keepOriginalFormat);
                 Debug.Assert(keepOriginalFormat && bmpColor != null || !keepOriginalFormat && bmpComposite != null, "Generated bitmaps are expected here");
                 if (keepOriginalFormat)
                     return bmpColor!.CloneBitmap();
 
-                // When not original format is requested, making sure that a MemoryBMP is returned,
+                // When not original format is requested, making sure that a MemoryBMP is returned (cloning the whole area preserves raw format),
                 // because e.g. PNG images may cause troubles in some cases (e.g. OutOfMemoryException when used as a background image)
                 if (bmpComposite!.RawFormat.Guid != ImageFormat.MemoryBmp.Guid)
                     return new Bitmap(bmpComposite);
@@ -420,6 +424,10 @@ namespace KGySoft.Drawing
 
             internal IconInfo GetIconInfo()
             {
+                // performing auto-reduction if this instance was created from a bitmap, specifying null transparentColor
+                if (transparentColor == null && rawColor == null && bmpColor == null)
+                    EnsureBitmapGenerated(false);
+
                 var result = new IconInfo
                 {
                     Size = size,
@@ -434,7 +442,6 @@ namespace KGySoft.Drawing
                     else
                     {
                         Debug.Assert(isPng, "Palette should exist for non-PNG image here");
-                        AssureBitmapsGenerated(false);
                         Debug.Assert(bmpColor != null && bmpColor.GetBitsPerPixel() == bpp);
                         result.Palette = bmpColor!.Palette.Entries;
                     }
@@ -447,16 +454,17 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
-            private void InitFromBitmap(Bitmap bitmap)
+            private void InitFromBitmap(Bitmap bitmap, bool initPalette)
             {
-                if (bitmap.PixelFormat.IsIndexed())
+                if (initPalette && bitmap.PixelFormat.IsIndexed())
                 {
                     transparentIndices = new HashSet<int>();
                     Color[] entries = bitmap.Palette.Entries;
+                    Color32 tr = transparentColor.GetValueOrDefault();
                     for (int i = 0; i < entries.Length; i++)
                     {
                         ref Color c = ref entries[i];
-                        if (c.ToArgb() == transparentColor.ToArgb() || c.A == 0 && transparentColor.A == 0)
+                        if (c.A == 0 || c.ToArgb() == tr.ToArgb())
                             transparentIndices.Add(i);
                     }
                 }
@@ -489,7 +497,7 @@ namespace KGySoft.Drawing
                 WriteRawImage(bw, forceBmpFormat);
             }
 
-            private unsafe void AssureRawFormatGenerated(bool forceBmpFormat)
+            private unsafe void EnsureRawFormatGenerated(bool forceBmpFormat)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
@@ -499,39 +507,42 @@ namespace KGySoft.Drawing
                 if (rawColor != null && !(forceBmpFormat && isPng))
                     return;
 
-                Bitmap bmp;
-
-                // if there is only a raw PNG we create the bitmap from it to create the raw format from
+                // if BMP is needed, but there is only a raw PNG, we create the composite bitmap from it, to create the raw BMP format from
                 if (forceBmpFormat && bmpColor == null && bmpComposite == null && isPng)
+                    EnsurePngBitmapFromRaw(true); // composite, from which we can generate reduced non-composite below if needed
+
+                // When (re)generating, we save PNG only in 32 BPP format. Even Windows does not support 24 BPP PNG icons correctly.
+                if (!forceBmpFormat && IsPngPreferred)
                 {
-                    // rawColor cannot be null here, see the first check
-                    bmp = new Bitmap(new MemoryStream(rawColor!));
-                    if (!bmp.PixelFormat.In(validIconFormats))
-                    {
-                        // not very likely that we reach this point, at least on Windows PNG decoder does not return 16/48/64 BPP formats...
-                        bmpColor = bmp.ConvertPixelFormat(PixelFormat.Format32bppArgb);
-                        bmp.Dispose();
-                    }
-                    else
-                        bmpColor = bmp;
-
-                    InitFromBitmap(bmpColor);
-                }
-
-                bmp = bmpColor ?? bmpComposite!;
-
-                // When (re)generating we allow PNG only for 32 BPP formats. Even Windows does not support 24 BPP PNG icons correctly.
-                isPng = !forceBmpFormat && IsPngPreferred;
-                if (isPng)
-                {
+                    EnsureBitmapGenerated(true); // composite, because we always generate 32 bpp PNG for best compatibility
+                    isPng = true;
                     using var ms = new MemoryStream();
-
-                    // When PNG, using composite image in the first place
-                    bmp.Save(ms, ImageFormat.Png);
+                    bmpComposite!.Save(ms, ImageFormat.Png);
                     rawColor = ms.ToArray();
                     rawMask = null;
                     return;
                 }
+
+                isPng = false;
+                rawColor = rawMask = null;
+
+                // If transparentColor is null, generating bmpColor by automatically reducing the colors if possible.
+                // NOTE: it's possible that two colors will be merged in bmpColors, and only applying the transparency mask can separate them again.
+                if (transparentColor == null && bmpColor == null)
+                {
+                    Debug.Assert(bmpComposite != null);
+                    GenerateReducedColorBitmapFromCompositeBitmap();
+                }
+                // If transparentColor is not actually transparent, generating bmpComposite by applying the transparency.
+                // NOTE: if bmpColor already has transparency, the transparent area is extended to transparentColor as well. If bpp = 32, bmpColor is also updated.
+                else if (transparentColor.GetValueOrDefault().A != 0 && bmpComposite == null)
+                {
+                    Debug.Assert(bmpColor != null);
+                    GenerateCompositeBitmapFromColorBitmap();
+                }
+
+                Bitmap bmp = bmpColor ?? bmpComposite!;
+                Debug.Assert(ReferenceEquals(bmp, bmpColor) || bpp == 32, "If we generate the raw data from bmpComposite, 32 bpp is expected");
 
                 // palette
                 if (bpp <= 8)
@@ -558,19 +569,18 @@ namespace KGySoft.Drawing
 
                 // Color image (XOR): copying from input bitmap while flipping the image vertically.
                 // We could use bmp.GetReadableBitmapData, but this way we can invert the original stride to produce a bottom-up result by a simple CopyTo.
-                int strideColor;
                 BitmapData dataColor = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 try
                 {
-                    strideColor = dataColor.Stride;
-                    rawColor = new byte[Math.Abs(strideColor) * dataColor.Height];
+                    int stride = dataColor.Stride;
+                    rawColor = new byte[Math.Abs(stride) * dataColor.Height];
                     bmpHeader.biSizeImage = (uint)rawColor.Length;
 
-                    var startAddress = new IntPtr(dataColor.Scan0.ToInt64() + (dataColor.Height - 1) * strideColor);
-                    strideColor = -strideColor; // this works both for positive and negative original stride, though negative is not really expected after cloning in Add
-                    using IReadableBitmapData bitmapDataSrc = BitmapDataFactory.CreateBitmapData(startAddress, size, strideColor, dataColor.PixelFormat.ToKnownPixelFormatInternal());
-                    strideColor = Math.Abs(strideColor); // the stride of our managed buffer is always positive
-                    using IWritableBitmapData bitmapDataDst = BitmapDataFactory.CreateBitmapData(rawColor, size, strideColor, bitmapDataSrc.PixelFormat.AsKnownPixelFormatInternal);
+                    var startAddress = new IntPtr(dataColor.Scan0.ToInt64() + (dataColor.Height - 1) * stride);
+                    stride = -stride; // this works both for positive and negative original stride, though negative is not really expected after cloning in Add
+                    using IReadableBitmapData bitmapDataSrc = BitmapDataFactory.CreateBitmapData(startAddress, size, stride, dataColor.PixelFormat.ToKnownPixelFormatInternal());
+                    stride = Math.Abs(stride); // the stride of our managed buffer is always positive
+                    using IWritableBitmapData bitmapDataDst = BitmapDataFactory.CreateBitmapData(rawColor, size, stride, bitmapDataSrc.PixelFormat.AsKnownPixelFormatInternal);
                     bitmapDataSrc.CopyTo(bitmapDataDst); // as pixel formats and the palette (which we don't even specify here) are the same, this will perform a raw copy
                 }
                 finally
@@ -578,37 +588,61 @@ namespace KGySoft.Drawing
                     bmp.UnlockBits(dataColor);
                 }
 
-                // Mask image (AND): Creating from color image and provided transparent color.
-                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width + 31) / 32)
-                GenerateMask(strideColor, strideMask);
+                // Mask image (AND): Creating from composite or color image and provided transparent color.
+                GenerateMask();
             }
 
-            private void GenerateMask(int strideColor, int strideMask)
+            private void GenerateMask()
             {
                 // rawColor now contains the provided bitmap data with the original background, while rawMask is still null.
                 Debug.Assert(rawColor != null && rawMask == null);
+                int strideColor = ((size.Width * bpp + 31) & ~31) >> 3;
+                int strideMask = ((size.Width + 31) >> 5) << 2;
                 rawMask = new byte[strideMask * size.Height];
 
-                // we know that the icon will not be transparent: returning a solid mask (note: we create it even for 32bpp images for best compatibility)
-                if (bpp <= 8 && transparentIndices.IsNullOrEmpty() || bpp == 24 && transparentColor.A != Byte.MaxValue)
+                // We know that the icon will not be transparent: returning a solid mask (note: we create it even for 32bpp images for best compatibility).
+                // Reminder: transparentIndices and transparentColor are set when mask is generated from bmpColor-based rawColor rather than bmpComposite or icon-based rawColor.
+                bool fromComposite = bmpComposite != null;
+                if (bpp <= 8 && (transparentIndices?.Count == 0 && !fromComposite) || bpp == 24 && (transparentColor.GetValueOrDefault().A < 255 && !fromComposite))
                     return;
 
                 // Reinterpreting rawColor and rawMask bytes as bitmaps. Omitting palette initialization, because we only check the palette indices for indexed formats.
-                using IReadableBitmapData bmpDataColor = BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, bpp.ToPixelFormat().ToKnownPixelFormatInternal());
+                using IReadableBitmapData bmpDataSrc = fromComposite
+                    ? bmpComposite!.GetReadableBitmapData()
+                    : BitmapDataFactory.CreateBitmapData(rawColor!, size, strideColor, bpp.ToPixelFormat().ToKnownPixelFormatInternal());
                 using IWritableBitmapData bmpDataMask = BitmapDataFactory.CreateBitmapData(rawMask, size, strideMask, KnownPixelFormat.Format1bppIndexed);
-
-                // We could use Combine (like in GenerateCompositeBitmap) for >= 24 bpp formats, but this way we can handle all formats together
-                // (and setting the mask by color index rather than by Color32 is a bit more effective).
-                var rowColor = (IBitmapDataRowInternal)bmpDataColor.FirstRow;
                 var rowMask = (IBitmapDataRowInternal)bmpDataMask.FirstRow;
+
+                // bmpDataSrc is top-down 32bpp from bmpComposite, bmpDataMask is bottom-up 1bpp from rawMask.
+                // Unlike in GenerateCompositeBitmapFromRaw, not using Combine, because setting the mask by color index rather than by Color32 is a bit more effective.
+                if (fromComposite)
+                {
+                    var rowComposite = (IBitmapDataRowInternal)bmpDataSrc.FirstRow;
+                    for (int y = 0, yRev = size.Height - 1; y < size.Height; y++, yRev--)
+                    {
+                        rowComposite.DoMoveToRow(y);
+                        rowMask.DoMoveToRow(yRev);
+                        for (int x = 0; x < size.Width; x++)
+                        {
+                            if (rowComposite.DoGetColor32(x).A < 128)
+                                rowMask.DoSetColorIndex(x, 1);
+                        }
+                    }
+
+                    return;
+                }
+
+                // bmpDataSrc is from rawColor, bmpDataMask from rawMask, both are bottom-up.
+                var rowColor = (IBitmapDataRowInternal)bmpDataSrc.FirstRow;
+                Color32 trColor = transparentColor!.Value;
                 do
                 {
                     for (int x = 0; x < size.Width; x++)
                     {
                         bool isTransparent = bpp switch
                         {
-                            32 => rowColor.DoGetColor32(x) is Color32 c && (c == transparentColor || transparentColor.A == 0 && c.A < 128),
-                            24 => rowColor.DoGetColor32(x) == transparentColor,
+                            32 => rowColor.DoGetColor32(x) is Color32 c && (c == trColor || trColor.A == 0 && c.A < 128),
+                            24 => rowColor.DoGetColor32(x) == trColor,
                             _ => transparentIndices!.Contains(rowColor.DoGetColorIndex(x))
                         };
 
@@ -618,7 +652,7 @@ namespace KGySoft.Drawing
                 } while (rowColor.MoveNextRow() && rowMask.MoveNextRow());
             }
 
-            private void AssureBitmapsGenerated(bool isCompositeRequired)
+            private void EnsureBitmapGenerated(bool isCompositeRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
@@ -627,25 +661,39 @@ namespace KGySoft.Drawing
                 if (isCompositeRequired && bmpComposite != null || !isCompositeRequired && bmpColor != null)
                     return;
 
-                // PNG format
+                // from raw PNG data
                 if (isPng)
                 {
-                    AssurePngBitmapsGenerated(isCompositeRequired);
+                    EnsurePngBitmapFromRaw(isCompositeRequired);
+                    return;
+                }
+
+                // generating from bmpColor + transparency info
+                if (isCompositeRequired && bmpColor != null)
+                {
+                    GenerateCompositeBitmapFromColorBitmap();
+                    return;
+                }
+
+                // generating from bmpComposite by auto-reduction
+                if (!isCompositeRequired && rawColor == null && transparentColor == null && bmpComposite != null)
+                {
+                    GenerateReducedColorBitmapFromCompositeBitmap();
                     return;
                 }
 
                 // Working from raw format. If it doesn't exist, creating from composite image, forcing BMP format (PNG can be regenerated on next save)
                 if (rawColor == null)
-                    AssureRawFormatGenerated(true);
+                    EnsureRawFormatGenerated(true);
 
-                // BMP format - composite image
+                // from raw BMP data
                 if (isCompositeRequired)
-                    GenerateCompositeBitmap();
+                    GenerateCompositeBitmapFromRaw();
                 else
-                    GenerateColorBitmap();
+                    GenerateColorBitmapFromRaw();
             }
 
-            private void GenerateColorBitmap()
+            private void GenerateColorBitmapFromRaw()
             {
                 Debug.Assert(bmpColor == null, "Unnecessary GenerateColorBitmap call");
                 Debug.Assert(rawColor != null, "AssureRawFormatGenerated was not called");
@@ -685,7 +733,7 @@ namespace KGySoft.Drawing
                 bmpColor = result;
             }
 
-            private void GenerateCompositeBitmap()
+            private void GenerateCompositeBitmapFromRaw()
             {
                 Debug.Assert(bmpComposite == null, "Unnecessary GenerateCompositeBitmap call");
                 Debug.Assert(rawColor != null && rawMask != null, "AssureRawFormatGenerated was not called");
@@ -703,7 +751,7 @@ namespace KGySoft.Drawing
                 {
                     // Special handling for 32 bpp icons: we ignore the mask, unless it indicates transparency for totally opaque pixels.
                     // Mask 0 (opacity) and 1 (transparency) bits are mapped to the black and white colors of the default 1 bpp palette.
-                    Func<Color32, Color32, Color32> combineFunction = bpp == 32 && transparentColor.A == 0
+                    Func<Color32, Color32, Color32> combineFunction = bpp == 32 && transparentColor.GetValueOrDefault().A == 0
                         ? (color, mask) => color.A != 0 && (color.A < Byte.MaxValue || mask == Color32.Black) ? color : default
                         : (color, mask) => mask == Color32.Black ? color : default;
 
@@ -722,44 +770,119 @@ namespace KGySoft.Drawing
                 bmpComposite = result;
             }
 
-            private void AssurePngBitmapsGenerated(bool isCompositeRequired)
+            private void EnsurePngBitmapFromRaw(bool isCompositeRequired)
             {
                 Debug.Assert(isPng && rawColor != null);
 
-                // Note: MemoryStream must not be in a using because that would kill the new bitmap.
-                var result = new Bitmap(new MemoryStream(rawColor!));
+                // exiting, if the requested bitmap already exists
+                if (isCompositeRequired && bmpComposite != null || !isCompositeRequired && bmpColor != null)
+                    return;
+
+                var png = new Bitmap(new MemoryStream(rawColor!));
 
                 if (isCompositeRequired)
                 {
-                    Debug.Assert(bmpComposite == null, "Calling generate was not necessary");
-                    if (result.PixelFormat == PixelFormat.Format32bppArgb)
+                    // PNG is actually always a composite bitmap (in terms of no additional alpha mask is used for it), but in this class bmpComposite is always 32 bpp ARGB
+                    if (png.PixelFormat != PixelFormat.Format32bppArgb)
                     {
-                        bmpComposite = result;
-                        return;
+                        bmpComposite = png.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+                        png.Dispose();
                     }
+                    else
+                        bmpComposite = png;
 
-                    // If the decoder returned a non-alpha or indexed PNG
-                    bmpComposite = result.ConvertPixelFormat(PixelFormat.Format32bppArgb);
-                    result.Dispose();
-                    return;
+                    if (isCompositeRequired)
+                        return;
                 }
 
-                // if PNG bpp matches the required result
-                Debug.Assert(bmpColor == null, "Calling generate was not necessary");
-                if (bpp == result.GetBitsPerPixel())
+                // Here the non-composite bitmap is requested.
+                // Not calling GenerateReducedColorBitmapFromCompositeBitmap even if transparentColor is null, because if we restore from rawColor, we want to restore the reality.
+                if (bpp == png.GetBitsPerPixel())
                 {
-                    bmpColor = result;
+                    bmpColor = png;
                     return;
                 }
 
                 // generating a lower bpp image
-                // note: this code theoretically executes only for indexed PNG if the decoder restored it with higher BPP
+                // note: this code theoretically executed only for indexed PNG if the decoder restored it with higher BPP
                 Color[]? paletteBmpColor = null;
                 if (bpp <= 8)
-                    paletteBmpColor = result.GetColors(1 << bpp);
+                    paletteBmpColor = png.GetColors(1 << bpp);
 
-                bmpColor = result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
-                result.Dispose();
+                bmpColor = png.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
+                InitFromBitmap(bmpColor, true); // to adjust transparentIndices
+                png.Dispose();
+            }
+
+            private void GenerateCompositeBitmapFromColorBitmap()
+            {
+                Debug.Assert(bmpColor != null && bmpComposite == null);
+                bmpComposite = new Bitmap(bmpColor!); // this ensures 32 bpp for the composite bitmap
+                if (transparentColor == null || transparentColor.Value.A == 0)
+                    return;
+
+                bmpComposite.MakeTransparent(transparentColor.Value);
+
+                // 32 bpp opaque transparentColor: we must reassign bmpColor with the new result, because most modern renderers ignore the alpha mask for 32 bpp icons
+                if (bpp == 32)
+                {
+                    bmpColor!.Dispose();
+                    bmpColor = bmpComposite;
+                }
+            }
+
+            private void GenerateReducedColorBitmapFromCompositeBitmap()
+            {
+                Debug.Assert(bmpComposite != null && bmpColor == null && bmpComposite.PixelFormat == PixelFormat.Format32bppArgb);
+                Debug.Assert(transparentColor == null, "Reducing colors is expected only when transparentColor is null");
+
+                // Scanning for up to 258 colors. The maximum number of allowed colors for an indexed result is 256 opaque + 1 transparent color.
+                // GetColors merges all completely transparent colors, so only up to 1 completely transparent element is expected
+                Color[] colors = bmpComposite!.GetColors((1 << 8) + 2, true);
+
+                // has partial transparency: no reducing
+                if (colors.Any(c => c.A is > Byte.MinValue and < Byte.MaxValue))
+                {
+                    Debug.Assert(bpp == 32);
+                    bmpColor = bmpComposite;
+                    return;
+                }
+
+                int transparentIndex = Array.FindIndex(colors, c => c.A == 0);
+
+                // more than 256 non-transparent colors: 24 bpp
+                if (colors.Length - Math.Sign(transparentIndex + 1) > 256)
+                    bmpColor = bmpComposite!.ConvertPixelFormat(PixelFormat.Format24bppRgb); // transparent colors will be black
+                else
+                {
+                    // reducing colors: merging the first non-transparent color with the transparent one
+                    if (colors.Length is 257 or 17 or 3)
+                    {
+                        colors = colors.Where(c => c.A != 0).ToArray();
+                        transparentIndex = 0;
+                    }
+                    // keeping the current palette, but making the transparent entry equal to the first non-transparent color
+                    else
+                    {
+                        colors[transparentIndex] = colors.Length == 1 ? Color.Black
+                            : transparentIndex == 0 ? colors[1]
+                            : colors[0];
+                    }
+
+                    PixelFormat pixelFormat = colors.Length switch
+                    {
+                        > 16 => PixelFormat.Format8bppIndexed,
+                        > 2 => PixelFormat.Format4bppIndexed,
+                        _ => PixelFormat.Format1bppIndexed
+                    };
+
+                    // Transparent pixels will be the same color as the first non-transparent color.
+                    // If the palette was not reduced, the transparent entry still will have a separate index.
+                    bmpColor = bmpComposite!.ConvertPixelFormat(pixelFormat, colors, colors[transparentIndex], 0);
+                }
+
+                // to reset bpp (clearing palette indices to generate transparency mask from bmpComposite, because if the palette was reduced, there is no unique transparent index)
+                InitFromBitmap(bmpColor!, false);
             }
 
             #endregion
@@ -887,36 +1010,27 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adds an image to the raw icon. If it contains icons, all images are added.
+        /// The color depth is attempted to be reduced.
         /// </summary>
         internal void Add(Bitmap image)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Add(image, Color.Transparent);
+            Add(image, null);
         }
 
         /// <summary>
         /// Adds an image to the raw icon. If it contains icons, all images are added.
+        /// The color depth is not attempted to be reduced.
+        /// If <paramref name="transparentColor"/> is opaque, but <paramref name="image"/> already has transparent pixels, in the result both will be transparent.
         /// </summary>
         internal void Add(Bitmap image, Color transparentColor)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            PixelFormat pixelFormat = image.PixelFormat;
-            Bitmap[] bitmaps;
-
-            if (!pixelFormat.In(validIconFormats))
-                bitmaps = [image.ConvertPixelFormat(PixelFormat.Format32bppArgb)];
-            else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
-                bitmaps = image.ExtractIconImages();
-            else
-                // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
-                bitmaps = [image.CloneBitmap()];
-
-            foreach (Bitmap bitmap in bitmaps)
-                iconImages.Add(new RawIconImage(bitmap, transparentColor));
+            Add(image, (Color?)transparentColor);
         }
 
         /// <summary>
@@ -976,7 +1090,7 @@ namespace KGySoft.Drawing
                     if (image.Bpp == 32)
                         result.Add(image);
                     else
-                        result.Add(image.ToBitmap(false));
+                        result.Add(image.ToBitmap(false), Color.Transparent); // specifying transparentColor to force preserving 32 bpp format
                 }
 
                 result.Save(bw, true);
@@ -1078,6 +1192,23 @@ namespace KGySoft.Drawing
         #region Private Methods
 
         private void Add(RawIconImage image) => iconImages.Add(image);
+
+        private void Add(Bitmap image, Color? transparentColor)
+        {
+            PixelFormat pixelFormat = image.PixelFormat;
+            Bitmap[] bitmaps;
+
+            if (!pixelFormat.In(validIconFormats))
+                bitmaps = [image.ConvertPixelFormat(PixelFormat.Format32bppArgb)];
+            else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
+                bitmaps = image.ExtractIconImages();
+            else
+                // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
+                bitmaps = [transparentColor == null ? image.ConvertPixelFormat(PixelFormat.Format32bppArgb) : image.CloneBitmap()];
+
+            foreach (Bitmap bitmap in bitmaps)
+                iconImages.Add(new RawIconImage(bitmap, transparentColor));
+        }
 
         private unsafe void Save(BinaryWriter bw, bool forceBmpImages)
         {

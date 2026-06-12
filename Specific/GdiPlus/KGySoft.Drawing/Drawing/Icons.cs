@@ -966,8 +966,10 @@ namespace KGySoft.Drawing
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
         /// <remarks>
-        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Bitmap[],Color[])"/> overload instead.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(params Bitmap[]? images)
             => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Bitmap>?)images);
@@ -979,8 +981,10 @@ namespace KGySoft.Drawing
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
         /// <remarks>
-        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Bitmap[],Color[])"/> overload instead.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(IEnumerable<Bitmap>? images)
             => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, images);
@@ -995,6 +999,8 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Bitmap[],Color[])"/> overload instead.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(bool forceUncompressedResult, params Bitmap[]? images)
             => Combine(forceUncompressedResult, (IEnumerable<Bitmap>?)images);
@@ -1009,6 +1015,8 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Bitmap[],Color[])"/> overload instead.</para>
         /// </remarks>
         [SecuritySafeCritical]
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Bitmap>? images)
@@ -1031,8 +1039,12 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>
         /// <remarks>
-        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to preserve the actual pixel format of the specified <paramref name="images"/>, and just applies a transparency mask using the specified colors.
+        /// To allow reducing the color depth losslessly, use the <see cref="Combine(Bitmap[])"/> overload instead.</para>
+        /// <para>If an element of <paramref name="transparentColors"/> is an opaque color and the corresponding item in <paramref name="images"/> already has transparent pixels, then both the originally transparent
+        /// pixels, and the ones that equal to the specified color will be transparent in the result.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
             => Combine(images, transparentColors, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
@@ -1049,6 +1061,10 @@ namespace KGySoft.Drawing
         /// </returns>
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to preserve the actual pixel format of the specified <paramref name="images"/>, and just applies a transparency mask using the specified colors.
+        /// To allow reducing the color depth losslessly, use the <see cref="Combine(bool,Bitmap[])"/> overload instead.</para>
+        /// <para>If an element of <paramref name="transparentColors"/> is an opaque color and the corresponding item in <paramref name="images"/> already has transparent pixels, then both the originally transparent
+        /// pixels, and the ones that equal to the specified color will be transparent in the result.</para>
         /// </remarks>
         [SecuritySafeCritical]
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors, bool forceUncompressedResult)
@@ -1119,7 +1135,7 @@ namespace KGySoft.Drawing
         {
             using var rawIcon = new RawIcon();
             rawIcon.Add(bmp);
-            return rawIcon.ToIcon(!OSUtils.IsVistaOrLater)!; // forcing uncompressed on XP or non-Windows platforms
+            return rawIcon.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!; // forcing uncompressed on XP or non-Windows platforms
         }
 
         #endregion

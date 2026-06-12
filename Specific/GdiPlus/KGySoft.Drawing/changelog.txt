@@ -13,12 +13,17 @@
 ===========================
 * Icons class:
   * FromFile, FromStream, Combine methods: Improving compatibility with Mono
+  * Combine methods: The overloads with Bitmap arguments and without transparentColors parameter allow adjusting the
+    color depth of the result icon automatically.
 * IconExtensions class:
   + ToMultiResBitmap, ExtractBitmap methods: They never return null anymore, even if the current runtime does not
     support large icons.
   + ExtractBitmaps: The elements of the result no longer can be null, even if the current runtime does not support
     large icons.
+  + New Combine overloads that allow adjusting the color depth of the result icon automatically.
   * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine, Resize methods: Improving compatibility with Mono
++ ImageExtensions class:
+  + New ToIcon overload that allows adjusting the color depth of the result icon automatically.
 - MetafileExtensions class
   - SaveAsEmf/SaveAsWmf methods: An InvalidCastException was thrown when the raw format of the metafile was neither
     EMF nor WMF. From now on an ArgumentException is thrown in such cases.

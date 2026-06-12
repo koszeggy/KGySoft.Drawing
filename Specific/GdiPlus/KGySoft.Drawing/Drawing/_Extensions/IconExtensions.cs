@@ -174,8 +174,8 @@ namespace KGySoft.Drawing
         /// Extracts every image from an <see cref="Icon" /> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon images with their underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon)" />
@@ -186,8 +186,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon images with their underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon,Size)"/>
@@ -198,8 +198,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon images with their underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.</returns>
         /// <seealso cref="ExtractIcons(Icon,PixelFormat)"/>
@@ -210,8 +210,8 @@ namespace KGySoft.Drawing
         /// Extracts the first image from an <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon images with their underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ToAlphaBitmap"/>
@@ -223,8 +223,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon image with its underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found with the specified size.</returns>
@@ -240,8 +240,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon image with its underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found with the specified size and format.</returns>
@@ -254,8 +254,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="index">The zero-based index of the icon image to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon image with its underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if the specified <paramref name="index"/> was too large.</returns>
@@ -278,8 +278,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format stored in the <paramref name="icon"/>. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, returns the actual icon image with its underlying pixel format, without applying the transparency mask.
+        /// Possible transparent pixels of non-32 bpp ARGB icon images will be opaque. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>. If no
         /// icon was found with the specified size and format the nearest image (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
@@ -707,6 +707,8 @@ namespace KGySoft.Drawing
         /// </returns>
         /// <remarks>
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color)"/> overload instead.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, params Bitmap[]? images)
@@ -722,6 +724,8 @@ namespace KGySoft.Drawing
         /// </returns>
         /// <remarks>
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/>` losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color)"/> overload instead.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, IEnumerable<Bitmap>? images)
@@ -737,7 +741,11 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
+        /// <remarks>
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color,bool)"/> overload instead.</para>
+        /// </remarks>
         public static Icon Combine(this Icon icon, bool forceUncompressedResult, params Bitmap[]? images) => Combine(icon, forceUncompressedResult, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
@@ -750,7 +758,11 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
+        /// <remarks>
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="images"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color,bool)"/> overload instead.</para>
+        /// </remarks>
         [SecuritySafeCritical]
         public static Icon Combine(this Icon icon, bool forceUncompressedResult, IEnumerable<Bitmap>? images)
         {
@@ -780,6 +792,10 @@ namespace KGySoft.Drawing
         /// </returns>
         /// <remarks>
         /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to preserve the actual pixel format of the specified <paramref name="image"/>, and just applies a transparency mask for the specified color.
+        /// To allow reducing the color depth losslessly, use the <see cref="Combine(Icon,Bitmap)"/> overload instead.</para>
+        /// <para>If <paramref name="transparentColor"/> is an opaque color and <paramref name="image"/> already has transparent pixels, then both the originally transparent
+        /// pixels, and the ones that equal to <paramref name="transparentColor"/> will be transparent in the result.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, Bitmap? image, Color transparentColor)
@@ -798,6 +814,10 @@ namespace KGySoft.Drawing
         /// </returns>
         /// <remarks>
         /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to preserve the actual pixel format of the specified <paramref name="image"/>, and just applies a transparency mask for the specified color.
+        /// To allow reducing the color depth losslessly, use the <see cref="Combine(Icon,Bitmap,bool)"/> overload instead.</para>
+        /// <para>If <paramref name="transparentColor"/> is an opaque color and <paramref name="image"/> already has transparent pixels, then both the originally transparent
+        /// pixels, and the ones that equal to <paramref name="transparentColor"/> will be transparent in the result.</para>
         /// </remarks>
         [SecuritySafeCritical]
         public static Icon Combine(this Icon icon, Bitmap? image, Color transparentColor, bool forceUncompressedResult)
@@ -809,6 +829,51 @@ namespace KGySoft.Drawing
 
             using var rawIcon = new RawIcon(icon);
             rawIcon.Add(image, transparentColor);
+            return rawIcon.ToIcon(forceUncompressedResult)!;
+        }
+
+        /// <summary>
+        /// Combines an <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other images.</param>
+        /// <param name="image">The image to be added to the <paramref name="icon"/>. Can be a non-squared one.</param>
+        /// <returns>
+        /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
+        /// </returns>
+        /// <remarks>
+        /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="image"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color)"/> overload instead.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon Combine(this Icon icon, Bitmap? image)
+            => Combine(icon, image, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+
+        /// <summary>
+        /// Combines an <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other images.</param>
+        /// <param name="image">The image to be added to the <paramref name="icon"/>. Can be a non-squared one.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <returns>
+        /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
+        /// </returns>
+        /// <remarks>
+        /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
+        /// <para>This overload attempts to reduce the color depth of the added icon <paramref name="image"/> losslessly if possible.
+        /// To prevent that, use the <see cref="Combine(Icon,Bitmap,Color,bool)"/> overload instead.</para>
+        /// </remarks>
+        [SecuritySafeCritical]
+        public static Icon Combine(this Icon icon, Bitmap? image, bool forceUncompressedResult)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            if (image == null)
+                return icon;
+
+            using var rawIcon = new RawIcon(icon);
+            rawIcon.Add(image);
             return rawIcon.ToIcon(forceUncompressedResult)!;
         }
 

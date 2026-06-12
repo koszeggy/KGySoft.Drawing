@@ -1284,7 +1284,7 @@ namespace KGySoft.Drawing
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
-        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</remarks>
         public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio, ScalingMode.Auto);
 
         /// <summary>
@@ -1297,24 +1297,27 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="true"/>.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
-        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</remarks>
         public static Icon ToIcon(this Image image, int size, ScalingMode scalingMode, bool keepAspectRatio = true) => Icons.FromImage(image, size, keepAspectRatio, scalingMode);
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
         /// </summary>
         /// <param name="image">The image to be converted to an icon.</param>
-        /// <param name="transparentColor">A color that represents transparent color for the icon to be created. Ignored if the <paramref name="image"/> is large and will be PNG compressed. This parameter is optional.
-        /// <br/>Default value: <see cref="Color.Empty"/>, which keeps only already transparent pixels.</param>
+        /// <param name="transparentColor">A color that represents transparent color for the icon to be created. Ignored if the <paramref name="image"/> is large and will be PNG compressed.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/> that has the same size as the specified <paramref name="image"/>.</returns>
         /// <remarks>
         /// <para>The result icon will have the same size as the specified <paramref name="image"/>.
-        /// To create a squared icon, use the <see cref="ToIcon(Image,int,bool)"/> overload instead.</para>
+        /// To force creating a squared icon, use the <see cref="ToIcon(Image,int,bool)"/> overload instead.</para>
         /// <para>If the raw format of <paramref name="image"/> is an icon that contains multiple images, then the result will also contain multiple resolutions.</para>
+        /// <para>To disable PNG compression also for large images regardless of the current operating system use the <see cref="Icons.Combine(Bitmap[], Color[], bool)"/> method instead.</para>
+        /// <para>This overload attempts to preserve the actual pixel format of the specified <paramref name="image"/>, and just applies a transparency mask for the specified color.
+        /// To allow reducing the color depth losslessly, use the <see cref="ToIcon(Image)"/> overload instead.</para>
+        /// <para>If <paramref name="transparentColor"/> is an opaque color and <paramref name="image"/> already has transparent pixels, then both the originally transparent
+        /// pixels, and the ones that equal to <paramref name="transparentColor"/> will be transparent in the result.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
-        /// <para>To disable PNG compression also for large images regardless of the current operating system call the <see cref="Icons.Combine(Bitmap[], Color[], bool)"/> method instead.</para>
         /// </remarks>
-        public static Icon ToIcon(this Image image, Color transparentColor = default)
+        public static Icon ToIcon(this Image image, Color transparentColor)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -1323,6 +1326,37 @@ namespace KGySoft.Drawing
             try
             {
                 return Icons.Combine([bmp], [transparentColor]);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
+        /// </summary>
+        /// <param name="image">The image to be converted to an icon.</param>
+        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/> that has the same size as the specified <paramref name="image"/>.</returns>
+        /// <remarks>
+        /// <para>The result icon will have the same size as the specified <paramref name="image"/>.
+        /// To force creating a squared icon, use the <see cref="ToIcon(Image,int,bool)"/> overload instead.</para>
+        /// <para>If the raw format of <paramref name="image"/> is an icon that contains multiple images, then the result will also contain multiple resolutions.</para>
+        /// <para>To disable PNG compression also for large images regardless of the current operating system use the <see cref="Icons.Combine(Bitmap[], Color[], bool)"/> method instead.</para>
+        /// <para>This overload attempts to reduce the color depth of the <paramref name="image"/> losslessly if possible.
+        /// To prevent that, use the <see cref="ToIcon(Image,Color)"/> overload instead.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon ToIcon(this Image image)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+
+            Bitmap bmp = image.AsBitmap();
+            try
+            {
+                return Icons.FromBitmap(bmp);
             }
             finally
             {
@@ -2146,7 +2180,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The <paramref name="image"/> can be saved even without a registered Icon encoder in the current operating system.</para>
         /// <para>If the saved image is reloaded by the <see cref="Bitmap(Stream)"/> constructor, then it will have always <see cref="PixelFormat.Format32bppArgb"/> pixel format.
-        /// The indexed and 24 BPP pixel formats are preserved though if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
+        /// The indexed and 24 BPP pixel formats are preserved though, if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
         /// <para>On non-Windows platforms reloading the large icons can be problematic.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
@@ -2185,7 +2219,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The icon can be saved even without a registered Icon encoder in the current operating system.</para>
         /// <para>If the saved image is reloaded by the <see cref="Bitmap(Stream)"/> constructor, then it will have always <see cref="PixelFormat.Format32bppArgb"/> pixel format.
-        /// The indexed and 24 BPP pixel formats are preserved though if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
+        /// The indexed and 24 BPP pixel formats are preserved though, if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="images"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/> element.</exception>
@@ -2206,7 +2240,7 @@ namespace KGySoft.Drawing
                 Bitmap bmp = image.AsBitmap();
                 try
                 {
-                    rawIcon.Add(bmp); // bmp can be an icon with more images
+                    rawIcon.Add(bmp); // bmp can be an icon with multiple images
                     rawIcon.Save(stream, forceUncompressedResult);
                 }
                 finally
