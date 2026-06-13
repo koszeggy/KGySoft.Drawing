@@ -67,7 +67,19 @@ namespace KGySoft.Drawing
 
         #region ColorPalette
         
-        internal static bool TrySetEntries(this ColorPalette palette, Color[] value) => TrySetFieldValue(palette, "entries", value);
+        internal static bool TrySetEntries(this ColorPalette palette, Color[] value)
+        {
+            if (TrySetFieldValue(palette, "entries", value))
+                return true;
+
+            Color[] entries = palette.Entries;
+            if (value.Length > entries.Length)
+                return false;
+
+            value.CopyTo(entries, 0);
+            return true;
+        }
+
         internal static void SetFlags(this ColorPalette palette, int value) => TrySetFieldValue(palette, "flags", value);
 
         #endregion

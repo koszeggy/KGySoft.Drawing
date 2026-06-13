@@ -98,13 +98,21 @@ namespace KGySoft.Drawing
             #region Fields
 
             /// <summary>
-            /// Matters when rawColor/pngColor is null (instance is initialized from a Bitmap, not an actual Icon stream).
+            /// Matters when rawColor/pngData is null (instance is initialized from a Bitmap, not an actual Icon stream).
             /// When null, preserving the actual transparency only, and the color depth of bmpComposite is attempted to be reduced losslessly while generating bmpColor or the raw content.
             /// When specified (even from Color.Transparent), it is initialized along with bmpColor, whose pixel format is preserved, and only the alpha is applied when generating bmpComposite or the raw content.
             /// </summary>
             private readonly Color32? transparentColor;
 
+            /// <summary>
+            /// Must be always initialized, not matter what the source is. Should be readonly, but its initialization is in separate methods.
+            /// </summary>
             private Size size;
+
+            /// <summary>
+            /// The bit depth of the BMP-encoded icon. May change when auto-reducing color depth or forcing BMP format for an originally PNG encoded icon.
+            /// If the possibly existing PNG content should also be considered, use the <see cref="Bpp"/> property instead.
+            /// </summary>
             private int bpp;
 
             /// <summary>
@@ -113,13 +121,13 @@ namespace KGySoft.Drawing
             private HashSet<int>? transparentIndices;
 
             /// <summary>
-            /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
+            /// In: The 32 bpp source image if transparentColor is null. Meant to contain the final icon image after applying the transparency mask.
             /// Out: Result image of ToBitmap(false)
             /// </summary>
             private Bitmap? bmpComposite;
 
             /// <summary>
-            /// In: Source image if it is non ARGB or when a custom transparent color is specified
+            /// In: The source image in any valid icon pixel format if transparentColor is specified. Meant to represent the XOR bitmap without the AND mask.
             /// Out: Result image of ToBitmap(true)
             /// </summary>
             private Bitmap? bmpColor;
@@ -130,12 +138,12 @@ namespace KGySoft.Drawing
             private byte[]? rawColor;
 
             /// <summary>
-            /// BMP mask (AND) data (bottom-up orientation). Can be null even in a BMP icon, though we always generate it. 0: opacity, 1: transparency.
+            /// BMP mask (AND) data (bottom-up orientation). Can be missing even in a BMP icon, though we always generate it. 0: opacity, 1: transparency.
             /// </summary>
             private byte[]? rawMask;
 
             /// <summary>
-            /// PNG-encoded image data. Always as 32 bpp.
+            /// PNG-encoded image data. Contains always a 32 bpp PNG stream.
             /// </summary>
             private byte[]? pngData;
 
@@ -155,7 +163,7 @@ namespace KGySoft.Drawing
 
             #region Internal Properties
 
-            internal int Bpp => bpp;
+            internal int Bpp => IsCompressed ? 32 : bpp;
 
             /// <summary>
             /// Gets the size in pixels
@@ -172,7 +180,7 @@ namespace KGySoft.Drawing
             {
                 get
                 {
-                    // from raw data: returning actual size of the palette
+                    // from raw BMP data - NOTE: not checking IsCompressed here, assuming possible forced BMP usage
                     if (bmpHeader.biSize != 0U)
                     {
                         return (int)(bmpHeader.biClrUsed != 0
@@ -180,7 +188,14 @@ namespace KGySoft.Drawing
                                 : bmpHeader.biBitCount <= 8 ? (uint)(1 << bmpHeader.biBitCount) : 0);
                     }
 
-                    // from source image: when image is indexed, always the maximum palette number will be generated without optimization
+                    // from source image
+                    if (bmpColor != null)
+                    {
+                        Debug.Assert(bpp == bmpColor.GetBitsPerPixel());
+                        return bmpColor.Palette.Entries.Length;
+                    }
+
+                    Debug.Assert(bpp == 32, "When neither raw BMP, nor bmpColor is initialized (only pngData or bmpComposite exists), bpp is expected to be 32");
                     return bpp > 8 ? 0 : 1 << bpp;
                 }
             }
@@ -227,8 +242,6 @@ namespace KGySoft.Drawing
                         return false;
 
                     // byte 24: bpp per channel
-                    // Note: When re-saving from generated data always 32 BPP is used for PNG images because even 24 BPP PNG
-                    // bitmaps are not really supported by Windows (neither in Explorer nor by apps) and because transparency would be lost otherwise.
                     bpp = rawData[24];
                     switch (rawData[25])
                     {
@@ -245,6 +258,7 @@ namespace KGySoft.Drawing
 
 
                     // Icon PNG stream must always be 32 bpp - https://devblogs.microsoft.com/oldnewthing/?p=12473
+                    // Other PNG icon bit-depths are not even really supported by Windows (neither in Explorer nor by apps).
                     if (bpp == 32)
                     {
                         // size is at 16 and 20 DWORD big endian so reading last 2 bytes only
@@ -253,9 +267,12 @@ namespace KGySoft.Drawing
                         return true;
                     }
 
-                    // Ensuring 32 bpp image. Windows PNG decoder may load indexed PNG as 32 bpp if it contains semi-transparent entries.
-                    // Initializing like in the Bitmap ctor: setting bmpComposite, and by leaving transparentColor null, allowing color-depth auto-detection on Save.
+                    // Ensuring 32 bpp image.
+                    Debug.Fail($"Invalid PNG icon image bpp: {bpp}");
                     var bmp = new Bitmap(new MemoryStream(rawData));
+
+                    // Initializing like in the Bitmap ctor: setting bmpComposite, and allowing color-depth auto-detection on next Save by leaving transparentColor null.
+                    // Pixel format check: PNG decoder in Windows may load indexed PNG as 32 bpp if it contains semi-transparent entries.
                     bmpComposite = bmp.PixelFormat == PixelFormat.Format32bppArgb ? bmp : new Bitmap(bmp);
                     if (!ReferenceEquals(bmp, bmpComposite))
                         bmp.Dispose();
@@ -562,10 +579,11 @@ namespace KGySoft.Drawing
                 // palette
                 if (bpp <= 8)
                 {
-                    // generating the maximum number of palette entries without optimization
-                    // (so PaletteColorCount can return number of colors before generating the palette)
-                    palette = new RGBQUAD[1 << bpp];
                     Color[] entries = bmp.Palette.Entries;
+                    Debug.Assert(bmp == bmpColor && entries.Length > 0 && entries.Length <= (1 << bpp));
+                    palette = new RGBQUAD[entries.Length];
+                    if (entries.Length != (1 << bpp))
+                        bmpHeader.biClrUsed = (uint)entries.Length;
                     for (int i = 0; i < entries.Length; i++)
                         palette[i] = new RGBQUAD(entries[i]);
                 }
@@ -685,7 +703,7 @@ namespace KGySoft.Drawing
                 }
 
                 // generating from bmpColor + transparency info
-                if (isCompositeRequired && bmpColor != null)
+                if (isCompositeRequired && bmpColor != null && transparentColor != null)
                 {
                     GenerateCompositeBitmapFromColorBitmap();
                     return;
@@ -735,15 +753,10 @@ namespace KGySoft.Drawing
                 }
 
                 // Trick: we set the palette only after the copying. Otherwise, we must have set it both for the source and the target to make CopyTo work correctly.
-                if (PaletteColorCount > 0)
+                if (bpp <= 8)
                 {
-                    ColorPalette resultPalette = result.Palette;
-                    Color[] colors = resultPalette.Entries;
-                    for (int i = 0; i < palette!.Length; i++)
-                        colors[i] = palette[i].ToColor();
-
-                    // we must reassign it to take effect
-                    result.Palette = resultPalette;
+                    Debug.Assert(palette?.Length > 0);
+                    result.TrySetPalette(palette!.Select(c => c.ToColor()).ToArray());
                 }
 
                 bmpColor = result;
@@ -808,14 +821,14 @@ namespace KGySoft.Drawing
 
             private void GenerateCompositeBitmapFromColorBitmap()
             {
-                Debug.Assert(bmpColor != null && bmpComposite == null);
+                Debug.Assert(bmpColor != null && bmpComposite == null && transparentColor != null);
                 bmpComposite = new Bitmap(bmpColor!); // this ensures 32 bpp for the composite bitmap
-                if (transparentColor == null || transparentColor.Value.A == 0)
+                if (transparentColor!.Value.A == 0)
                     return;
 
                 bmpComposite.MakeTransparent(transparentColor.Value);
 
-                // 32 bpp opaque transparentColor: we must reassign bmpColor with the new result, because most modern renderers ignore the alpha mask for 32 bpp icons
+                // 32 bpp source and opaque transparentColor: we must reassign bmpColor with the new result, because most modern renderers ignore the alpha mask for 32 bpp icons
                 if (bpp == 32)
                 {
                     bmpColor!.Dispose();
@@ -854,12 +867,14 @@ namespace KGySoft.Drawing
                         transparentIndex = 0;
                     }
                     // keeping the current palette, but making the transparent entry equal to the first non-transparent color
-                    else
+                    else if (transparentIndex >= 0)
                     {
                         colors[transparentIndex] = colors.Length == 1 ? Color.Black
                             : transparentIndex == 0 ? colors[1]
                             : colors[0];
                     }
+                    else
+                        transparentIndex = 0;
 
                     PixelFormat pixelFormat = colors.Length switch
                     {
@@ -1195,7 +1210,7 @@ namespace KGySoft.Drawing
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();
             else
-                // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
+                // If transparentColor is null, we forcibly convert the image to 32bpp to consider it a composite image and to allow auto-reducing the color depth and palette
                 bitmaps = [transparentColor == null ? image.ConvertPixelFormat(PixelFormat.Format32bppArgb) : image.CloneBitmap()];
 
             foreach (Bitmap bitmap in bitmaps)
