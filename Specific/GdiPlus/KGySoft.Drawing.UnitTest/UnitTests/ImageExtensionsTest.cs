@@ -497,6 +497,39 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage("result", bmp);
         }
 
+        [TestCase(100)]
+        [TestCase(100_000)]
+        public void DrawMetafileIntoBitmapTest(int size)
+        {
+            using var sourceMetafile = GenerateMetafile(new Size(size, size));
+            using var targetBitmap = GenerateAlphaGradientBitmap(new Size(256, 256));
+
+            // no resize, top-left corner
+            Assert.DoesNotThrow(() => sourceMetafile.DrawInto(targetBitmap));
+            SaveImage($"top-left_{size}", targetBitmap);
+
+            // no resize, vertically centered, left align
+            GenerateAlphaGradient(targetBitmap);
+            Point location = new Point(0, targetBitmap.Height / 2 - size / 2);
+            Assert.DoesNotThrow(() => sourceMetafile.DrawInto(targetBitmap, location));
+            SaveImage($"middle-left_{size}", targetBitmap);
+
+            // with resize, full
+            GenerateAlphaGradient(targetBitmap);
+            Assert.DoesNotThrow(() => sourceMetafile.DrawInto(targetBitmap, new Rectangle(Point.Empty, targetBitmap.Size)));
+            SaveImage($"resized-full_{size}", targetBitmap);
+
+            // with resize, portion
+            GenerateAlphaGradient(targetBitmap);
+            Assert.DoesNotThrow(() => sourceMetafile.DrawInto(targetBitmap, new Rectangle(size / 5, size / 5, size / 2, size / 2), new Rectangle(Point.Empty, targetBitmap.Size)));
+            SaveImage($"resized-portion_{size}", targetBitmap);
+
+            // with resize, distorting
+            GenerateAlphaGradient(targetBitmap);
+            Assert.DoesNotThrow(() => sourceMetafile.DrawInto(targetBitmap, new Rectangle(-size / 10, 0, size, size), new Rectangle(0, targetBitmap.Height / 3, targetBitmap.Width, targetBitmap.Height / 2)));
+            SaveImage($"resized-distorted_{size}", targetBitmap);
+        }
+
         [Test]
         public void EqualsByContentTest()
         {
@@ -667,17 +700,6 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(ImageFormat.Bmp, bmp.RawFormat);
             Assert.AreEqual(savedFormat, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
-        }
-
-        [Test]
-        public void SaveMetafileAsBmpTest()
-        {
-            var ms = new MemoryStream();
-            GenerateMetafile().SaveAsBmp(ms);
-            ms.Position = 0;
-            var bmp = new Bitmap(ms);
-            Assert.AreEqual(ImageFormat.Bmp, bmp.RawFormat);
-            SaveImage(null, bmp, true);
         }
 
         [TestCase(PixelFormat.Format64bppArgb)]

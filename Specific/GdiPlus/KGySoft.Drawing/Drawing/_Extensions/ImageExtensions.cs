@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -55,6 +56,14 @@ namespace KGySoft.Drawing
 #endif
     public static class ImageExtensions
     {
+        #region Constants
+
+        private const int maxConvertedBitmapSize = 8192;
+        private const int maxMetafileDownscaleAttempts = 4;
+
+        #endregion
+
+
         #region Fields
 
         private static ImageCodecInfo[]? encoders;
@@ -995,7 +1004,12 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            Bitmap bmp = source.AsBitmap();
+            var targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
+            Bitmap? bmp = source.AsBitmap(ref sourceRectangle, ref targetRectangle, target.Size);
+            if (bmp == null) // should not really occur, because there is no scaling here
+                return;
+
+            targetLocation = targetRectangle.Location;
             try
             {
                 using IReadableBitmapData src = bmp.GetReadableBitmapData();
@@ -1241,7 +1255,9 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            Bitmap bmp = source.AsBitmap();
+            Bitmap? bmp = source.AsBitmap(ref sourceRectangle, ref targetRectangle, target.Size);
+            if (bmp == null) // it was scaled down to zero height or width
+                return;
             try
             {
                 using IReadableBitmapData src = bmp.GetReadableBitmapData();
@@ -2275,13 +2291,69 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-        internal static Bitmap AsBitmap(this Image image) => image switch
+        internal static Bitmap AsBitmap(this Image image)
         {
-            Bitmap bmp => bmp,
-            Metafile metafile => metafile.ToBitmap(metafile.Size),
-            null => throw new ArgumentNullException(nameof(image), PublicResources.Null),
-            _ => throw new InvalidOperationException(Res.InternalError($"Unexpected image type: {image.GetType()}"))
-        };
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.Null);
+
+            if (image is Bitmap bitmap)
+                return bitmap;
+
+            Size origSize = image.Size;
+            int max = Math.Max(origSize.Width, origSize.Height);
+            float scale = max <= maxConvertedBitmapSize ? 1f : (float)maxConvertedBitmapSize / max;
+            for (int i = 0; i < maxMetafileDownscaleAttempts; i++)
+            {
+                try
+                {
+                    Size size = origSize.Scale(scale);
+                    if (size.Width < 1)
+                        size.Width = 1;
+                    if (size.Height < 1)
+                        size.Height = 1;
+
+                    // NOTE: not using the image drawing constructor here, because it uses bilinear interpolation,
+                    //       which may cause ugly black edges for bitmap drawing records in case of legacy GDI metafile types.
+                    // Interpolation mode must always be NN here. Matters when the metafile contains image drawing records, and the metafile type is WMF or EmfOnly.
+                    // In this case the resized result with interpolation may cause ugly black contours at transparent edges.
+                    var result = new Bitmap(size.Width, size.Height);
+                    using var g = Graphics.FromImage(result);
+                    g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    g.DrawImage(image, new Rectangle(Point.Empty, size));
+
+                    return result;
+                }
+                catch (Exception e) when (i < maxMetafileDownscaleAttempts - 1 && !e.IsCriticalGdi())
+                {
+                    scale /= 2f;
+                }
+            }
+
+            throw new InvalidOperationException(); // never reached, just to satisfy the compiler
+        }
+
+        /// <summary>
+        /// This method is NOT for cloning, so if image is a Bitmap, we just return the original instance with unchanged sourceRectangle.
+        /// The method is needed to support metafiles that are too huge to be converted to a bitmap in their original size.
+        /// </summary>
+        internal static Bitmap? AsBitmap(this Image image, ref Rectangle sourceRectangle, ref Rectangle targetRetangle, Size targetSize)
+        {
+            if (image is not Metafile)
+                return image.AsBitmap();
+
+            Size sourceSize = image.Size;
+            GetActualDrawMetafileRectangles(ref sourceRectangle, ref sourceSize, ref targetRetangle, targetSize);
+            if (sourceRectangle.IsEmpty())
+                return null;
+
+            var result = new Bitmap(sourceRectangle.Width, sourceRectangle.Height);
+            using Graphics g = Graphics.FromImage(result);
+            g.InterpolationMode = InterpolationMode.NearestNeighbor; // to prevent ugly thick edges if the metafile contains bitmap drawing records
+            var virtualBounds = new Rectangle(-sourceRectangle.X, -sourceRectangle.Y, sourceSize.Width, sourceSize.Height);
+            g.DrawImage(image, virtualBounds);
+            sourceRectangle.Location = Point.Empty;
+            return result;
+        }
 
         #endregion
 
@@ -2492,6 +2564,81 @@ namespace KGySoft.Drawing
                 if (!ReferenceEquals(image, bmp))
                     bmp.Dispose();
             }
+        }
+
+        #endregion
+
+        #region Bounds
+
+        private static void GetActualDrawMetafileRectangles(ref Rectangle sourceRectangle, ref Size sourceSize, ref Rectangle targetRectangle, Size targetSize)
+        {
+            // Drawing while shrinking in any dimension: reinterpreting sourceSize - we can do it freely for a metafile
+            // This ensures that we never create a larger bitmap for the metafile than the drawn size.
+            if (Math.Abs((float)Math.Max(targetRectangle.Width, targetRectangle.Height) / Math.Max(sourceRectangle.Width, sourceRectangle.Height)) is float scale and not 1f)
+            {
+                sourceSize = sourceSize.Scale(scale);
+                sourceRectangle = sourceRectangle.Scale(scale);
+            }
+
+            Rectangle sourceBounds = new Rectangle(Point.Empty, sourceSize);
+            Rectangle actualSourceRectangle = sourceRectangle.IntersectSafe(sourceBounds);
+            if (actualSourceRectangle.IsEmpty())
+            {
+                sourceRectangle = default;
+                return;
+            }
+
+            Rectangle targetBounds = new Rectangle(Point.Empty, targetSize);
+            Rectangle actualTargetRectangle = targetRectangle.IntersectSafe(targetBounds);
+            if (actualTargetRectangle.IsEmpty())
+            {
+                sourceRectangle = default;
+                return;
+            }
+
+            float widthRatio = (float)sourceRectangle.Width / targetRectangle.Width;
+            float heightRatio = (float)sourceRectangle.Height / targetRectangle.Height;
+
+            // adjusting source by clipped target
+            if (targetRectangle != actualTargetRectangle)
+            {
+                if (sourceRectangle.Size == targetRectangle.Size)
+                {
+                    int x = actualTargetRectangle.X - targetRectangle.X + sourceRectangle.X;
+                    int y = actualTargetRectangle.Y - targetRectangle.Y + sourceRectangle.Y;
+                    actualSourceRectangle = actualSourceRectangle.IntersectSafe(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
+                }
+                else
+                {
+                    int x = (int)MathF.Round((actualTargetRectangle.X - targetRectangle.X) * widthRatio + sourceRectangle.X);
+                    int y = (int)MathF.Round((actualTargetRectangle.Y - targetRectangle.Y) * heightRatio + sourceRectangle.Y);
+                    int w = (int)MathF.Round(actualTargetRectangle.Width * widthRatio);
+                    int h = (int)MathF.Round(actualTargetRectangle.Height * heightRatio);
+                    actualSourceRectangle = actualSourceRectangle.IntersectSafe(new Rectangle(x, y, w, h));
+                }
+            }
+
+            // adjusting target by clipped source
+            if (sourceRectangle != actualSourceRectangle)
+            {
+                if (sourceRectangle.Size == targetRectangle.Size)
+                {
+                    int x = actualSourceRectangle.X - sourceRectangle.X + targetRectangle.X;
+                    int y = actualSourceRectangle.Y - sourceRectangle.Y + targetRectangle.Y;
+                    actualTargetRectangle = actualTargetRectangle.IntersectSafe(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
+                }
+                else
+                {
+                    int x = (int)MathF.Round((actualSourceRectangle.X - sourceRectangle.X) / widthRatio + targetRectangle.X);
+                    int y = (int)MathF.Round((actualSourceRectangle.Y - sourceRectangle.Y) / heightRatio + targetRectangle.Y);
+                    int w = (int)MathF.Round(actualSourceRectangle.Width / widthRatio);
+                    int h = (int)MathF.Round(actualSourceRectangle.Height / heightRatio);
+                    actualTargetRectangle = actualTargetRectangle.IntersectSafe(new Rectangle(x, y, w, h));
+                }
+            }
+
+            sourceRectangle = actualSourceRectangle;
+            targetRectangle = actualTargetRectangle;
         }
 
         #endregion

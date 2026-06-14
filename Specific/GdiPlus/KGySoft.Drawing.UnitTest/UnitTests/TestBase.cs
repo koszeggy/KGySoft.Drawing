@@ -180,25 +180,31 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
-        protected static Metafile GenerateMetafile()
+        protected static Metafile GenerateMetafile(Size size = default)
         {
             //Set up reference Graphic
             Graphics refGraph = Graphics.FromHwnd(IntPtr.Zero);
             IntPtr hdc = refGraph.GetHdc();
-            Metafile result = new Metafile(hdc, new Rectangle(0, 0, 100, 100), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
+            if (size == Size.Empty)
+                size = new Size(100, 100);
+            Metafile result = new Metafile(hdc, new Rectangle(Point.Empty, size), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
 
             //Draw some silly drawing
             using (var g = Graphics.FromImage(result))
             {
-                var r = new Rectangle(0, 0, 100, 100);
-                var leftEye = new Rectangle(20, 20, 20, 30);
-                var rightEye = new Rectangle(60, 20, 20, 30);
+                var r = new Rectangle(Point.Empty, size);
+                var leftEye = new RectangleF(size.Width * 0.2f, size.Height * 0.2f, size.Width * 0.2f, size.Height * 0.3f);
+                var rightEye = new RectangleF(size.Width * 0.6f, size.Height * 0.2f, size.Width * 0.2f, size.Height * 0.3f);
                 g.FillEllipse(Brushes.Yellow, r);
                 g.FillEllipse(Brushes.White, leftEye);
                 g.FillEllipse(Brushes.White, rightEye);
                 g.DrawEllipse(Pens.Black, leftEye);
                 g.DrawEllipse(Pens.Black, rightEye);
-                g.DrawBezier(Pens.Red, new Point(10, 50), new Point(10, 100), new Point(90, 100), new Point(90, 50));
+                g.DrawBezier(Pens.Red, 
+                    new PointF(size.Width * 0.1f, size.Height * 0.5f), 
+                    new PointF(size.Width * 0.1f, size.Height),
+                    new PointF(size.Width * 0.9f, size.Height),
+                    new PointF(size.Width * 0.9f, size.Height * 0.5f));
             }
 
             refGraph.ReleaseHdc(hdc); //cleanup
@@ -212,6 +218,12 @@ namespace KGySoft.Drawing.UnitTests
             using var bitmapData = result.GetReadWriteBitmapData();
             GenerateAlphaGradient(bitmapData);
             return result;
+        }
+
+        protected static void GenerateAlphaGradient(Bitmap bitmap)
+        {
+            using var bitmapData = bitmap.GetReadWriteBitmapData();
+            GenerateAlphaGradient(bitmapData);
         }
 
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
