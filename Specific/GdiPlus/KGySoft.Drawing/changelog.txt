@@ -26,6 +26,8 @@
 * ImageExtensions class:
   + New ToIcon overload that allows adjusting the color depth of the result icon automatically.
   - DrawInto methods: For very large metafile sources an exception was thrown.
+  - SaveAsIcon(IEnumerable<Image>,Stream,bool) overload: It saved the images into the stream as separate icons
+    rather than one compound icon.
 - MetafileExtensions class
   - SaveAsEmf/SaveAsWmf methods: An InvalidCastException was thrown when the raw format of the metafile was neither
     EMF nor WMF (can occur after deserialization in .NET Framework 3.5). From now on an ArgumentException is thrown

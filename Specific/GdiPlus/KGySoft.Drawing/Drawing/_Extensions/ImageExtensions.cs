@@ -2257,7 +2257,6 @@ namespace KGySoft.Drawing
                 try
                 {
                     rawIcon.Add(bmp); // bmp can be an icon with multiple images
-                    rawIcon.Save(stream, forceUncompressedResult);
                 }
                 finally
                 {
@@ -2265,6 +2264,8 @@ namespace KGySoft.Drawing
                         bmp.Dispose();
                 }
             }
+
+            rawIcon.Save(stream, forceUncompressedResult);
         }
 
         #endregion
