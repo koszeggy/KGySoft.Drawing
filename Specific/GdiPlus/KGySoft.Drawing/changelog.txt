@@ -33,6 +33,10 @@
   - SaveAsEmf/SaveAsWmf methods: An InvalidCastException was thrown when the raw format of the metafile was neither
     EMF nor WMF (can occur after deserialization in .NET Framework 3.5). From now on an ArgumentException is thrown
     in such cases.
+  - ToBitmap methods:
+    - Fixing rare quality issues when the metafile contains bitmap-drawing records.
+    - Not throwing an exception anymore if the requested size is very large and antialiasing is requested. In such
+      case the operation simply omits antialiasing.
 
 
 ~~~~~~~~~~

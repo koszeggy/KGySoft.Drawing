@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -133,6 +134,11 @@ namespace KGySoft.Drawing
         /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
+        /// <remarks>
+        /// <para>If the source <paramref name="metafile"/> contains already anti-aliased records, setting <paramref name="antiAliased"/> to <see langword="true"/>
+        /// will not improve the result. It also does not really help if the <paramref name="metafile"/> contains only bitmap drawing records.</para>
+        /// <para>If the <paramref name="requestedSize"/> is very large, the conversion may omit anti-aliasing.</para>
+        /// </remarks>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
 
         /// <summary>
@@ -143,6 +149,11 @@ namespace KGySoft.Drawing
         /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>.</param>
         /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the source <paramref name="metafile"/>; otherwise, <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
+        /// <remarks>
+        /// <para>If the source <paramref name="metafile"/> contains already anti-aliased records, setting <paramref name="antiAliased"/> to <see langword="true"/>
+        /// will not improve the result. It also does not really help if the <paramref name="metafile"/> contains only bitmap drawing records.</para>
+        /// <para>If the <paramref name="requestedSize"/> is very large, the conversion may omit anti-aliasing.</para>
+        /// </remarks>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
         {
             if (metafile == null)
@@ -161,37 +172,42 @@ namespace KGySoft.Drawing
                 targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
             }
 
-            if (!antiAliased && requestedSize == targetRectangle.Size)
-                return new Bitmap(metafile, requestedSize);
-
+            // NOTE: not using the image drawing constructor here, because it uses bilinear interpolation,
+            //       which may cause ugly black edges for bitmap drawing records in case of legacy GDI metafile types.
             var result = new Bitmap(requestedSize.Width, requestedSize.Height);
-            if (!antiAliased)
+            if (antiAliased)
             {
-                if (OSUtils.IsWindows)
+                try
                 {
-                    using Graphics g = Graphics.FromImage(result);
-                    
-                    // it can happen that metafile bounds is not at 0, 0 location
-                    GraphicsUnit unit = GraphicsUnit.Pixel;
-                    RectangleF sourceRectangle = metafile.GetBounds(ref unit);
-                    g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
-                    g.Flush();
-                }
-                else
-                {
-                    // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
-                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future-proof in case it will be fixed
-                    // Note 2: The result still can be wrong if bounds is not at 0, 0 location
-                    using Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height);
-                    buf.DrawInto(result, targetRectangle);
-                }
+                    var doubledSize = new Size(targetRectangle.Width << 1, targetRectangle.Height << 1);
+                    using Bitmap bmpDouble = new Bitmap(doubledSize.Width, doubledSize.Height);
+                    using (Graphics g = Graphics.FromImage(bmpDouble))
+                    {
+                        // Interpolation mode must always be NN here. Matters when the metafile contains image drawing records, and the metafile type is WMF or EmfOnly.
+                        // In this case the enlarged result with interpolation may cause ugly black contours at transparent edges.
+                        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                        g.DrawImage(metafile, new Rectangle(Point.Empty, doubledSize));
+                    }
 
-                return result;
+                    // Using DrawInto instead of Graphics.DrawImage here to prevent blocking other Graphics operations in the process during the slower interpolated resizing.
+                    // The same kind of blocking occurs also when drawing the metafile, but unless the metafile contains interpolated image drawing records,
+                    // the drawing operation tends to be fast enough.
+                    bmpDouble.DrawInto(result, targetRectangle);
+                    return result;
+                }
+                catch (Exception e) when (!e.IsCriticalGdi())
+                {
+                    // trying it again without antialiasing
+                }
             }
 
-            // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
-            using Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1);
-            bmpDouble.DrawInto(result, targetRectangle);
+            using (Graphics g = Graphics.FromImage(result))
+            {
+                // NN is not because we don't use anti-aliasing here, as for metafiles it makes a difference only when the metafile contains image drawing records,
+                // and the metafile type is WMF or EmfOnly. In such case using other interpolation mode could cause ugly black edges if the requestedSize makes the original image zoom in.
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.DrawImage(metafile, targetRectangle);
+            }
 
             return result;
         }

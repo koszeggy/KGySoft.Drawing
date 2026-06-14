@@ -40,11 +40,9 @@ namespace KGySoft.Drawing.UnitTests
             using var metafile = GenerateMetafile();
             var size = new Size(512, 256);
 
-            using (var bmp = metafile.ToBitmap(size, antiAlias, keepAspectRatio))
-            {
-                Assert.AreEqual(size, bmp.Size);
-                SaveImage($"AntiAlias={antiAlias}, KeepRatio={keepAspectRatio}", bmp);
-            }
+            using var bmp = metafile.ToBitmap(size, antiAlias, keepAspectRatio);
+            Assert.AreEqual(size, bmp.Size);
+            SaveImage($"AntiAlias={antiAlias}, KeepRatio={keepAspectRatio}", bmp);
         }
 
         [Test]
