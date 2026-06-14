@@ -25,7 +25,8 @@
   * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine, Resize methods: Improving compatibility with Mono
 * ImageExtensions class:
   + New ToIcon overload that allows adjusting the color depth of the result icon automatically.
-  - DrawInto methods: For very large metafile sources an exception was thrown.
+  - ConvertPixelFormat, DrawInto, SaveAs*, ToGrayscale, ToIcon methods: They threw an exception if the input image
+    was a very large metafile.
   - SaveAsIcon(IEnumerable<Image>,Stream,bool) overload: It saved the images into the stream as separate icons
     rather than one compound icon.
 - MetafileExtensions class

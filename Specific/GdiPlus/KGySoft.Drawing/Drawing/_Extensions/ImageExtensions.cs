@@ -1460,7 +1460,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
         public static void SaveAsBmp(this Image image, Stream stream)
-            => SaveByImageCodecInfo(image, stream, ImageFormat.Bmp, null, false);
+            => SaveByImageCodecInfo(image, stream, ImageFormat.Bmp, null);
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> to the specified file using the built-in BMP encoder if available in the current operating system.
@@ -1546,7 +1546,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(quality), PublicResources.ArgumentMustBeBetween(0, 100));
             using var parameters = new EncoderParameters(1);
             parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
-            SaveByImageCodecInfo(image, stream, ImageFormat.Jpeg, parameters, false);
+            SaveByImageCodecInfo(image, stream, ImageFormat.Jpeg, parameters);
         }
 
         /// <summary>
@@ -1615,7 +1615,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
         public static void SaveAsPng(this Image image, Stream stream)
-            => SaveByImageCodecInfo(image, stream, ImageFormat.Png, null, false);
+            => SaveByImageCodecInfo(image, stream, ImageFormat.Png, null);
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> to the specified file using the built-in PNG encoder if available in the current operating system.
@@ -1686,7 +1686,7 @@ namespace KGySoft.Drawing
                 }
             }
 
-            Bitmap asBitmap = image as Bitmap ?? new Bitmap(image, image.Size);
+            Bitmap asBitmap = image.AsBitmap();
             try
             {
                 using IReadableBitmapData bitmapData = asBitmap.GetReadableBitmapData();
@@ -1789,7 +1789,7 @@ namespace KGySoft.Drawing
             {
                 foreach (Image image in images)
                 {
-                    Bitmap asBitmap = image as Bitmap ?? new Bitmap(image, image.Size);
+                    Bitmap asBitmap = image.AsBitmap();
                     try
                     {
                         using IReadableBitmapData bitmapData = asBitmap.GetReadableBitmapData();
@@ -1919,7 +1919,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
             
-            Bitmap bitmap = image as Bitmap ?? new Bitmap(image);
+            Bitmap bitmap = image.AsBitmap();
             try
             {
                 using var bitmapData = bitmap.GetReadableBitmapData();
@@ -2051,7 +2051,7 @@ namespace KGySoft.Drawing
 
                 // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
                 encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-                SaveByImageCodecInfo(toSave, stream, ImageFormat.Tiff, encoderParams, false);
+                SaveByImageCodecInfo(toSave, stream, ImageFormat.Tiff, encoderParams);
             }
             finally
             {
@@ -2501,64 +2501,69 @@ namespace KGySoft.Drawing
                 : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
         }
 
-        private static void SaveByImageCodecInfo(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters? encoderParameters, bool isFallback)
+        private static void SaveByImageCodecInfo(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters? encoderParameters)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            // Metafile: recursion with bitmap
-            if (image is not Bitmap bmp)
-            {
-                using (bmp = new Bitmap(image, image.Size))
-                {
-                    SaveByImageCodecInfo(bmp, stream, imageFormat, encoderParameters, isFallback);
-                    return;
-                }
-            }
-
-            ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
-            if (encoder == null)
-                throw new InvalidOperationException(DrawingRes.ImageExtensionsNoEncoder(imageFormat));
-
-            // To avoid various issues with some encoders and pixel formats we may convert pixel format before saving
-            var transformations = saveConversions[imageFormat.Guid];
-            PixelFormat srcPixelFormat = image.PixelFormat;
-            if (transformations.TryGetValue(srcPixelFormat, out var transformation)
-                && (!transformation.NonWindowsOnly || !OSUtils.IsWindows))
-            {
-                int srcBpp = srcPixelFormat.ToBitsPerPixel();
-                int dstBpp = transformation.TargetFormat.ToBitsPerPixel();
-                IQuantizer? quantizer = null;
-                if (transformation.TargetFormat.IsIndexed() && srcBpp > dstBpp)
-                {
-                    // auto setting quantizer if target is indexed and conversion is from higher BPP
-                    quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
-                        ? PredefinedColorsQuantizer.Grayscale()
-                        : OptimizedPaletteQuantizer.Wu();
-                }
-
-                bmp = ConvertPixelFormat(image, transformation.TargetFormat, quantizer);
-            }
-
+            Bitmap bmp = image.AsBitmap();
             try
             {
-                bmp.Save(stream, encoder, encoderParameters);
-            }
-            catch (Exception e)
-            {
-                // On failure trying to use a fallback pixel format and omitting all parameters. This should not occur on Windows.
-                if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out var fallbackTransformation)
-                    && fallbackTransformation.TargetFormat != bmp.PixelFormat)
+                ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
+                if (encoder == null)
+                    throw new InvalidOperationException(DrawingRes.ImageExtensionsNoEncoder(imageFormat));
+
+                // To avoid various issues with some encoders and pixel formats we may convert pixel format before saving
+                var transformations = saveConversions[imageFormat.Guid];
+                PixelFormat srcPixelFormat = bmp.PixelFormat;
+                Bitmap toSave = bmp;
+                if (transformations.TryGetValue(srcPixelFormat, out var transformation)
+                    && (!transformation.NonWindowsOnly || !OSUtils.IsWindows))
                 {
-                    using Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat);
-                    SaveByImageCodecInfo(fallbackBmp, stream, imageFormat, null, true);
-                    return;
+                    int srcBpp = srcPixelFormat.ToBitsPerPixel();
+                    int dstBpp = transformation.TargetFormat.ToBitsPerPixel();
+                    IQuantizer? quantizer = null;
+                    if (transformation.TargetFormat.IsIndexed() && srcBpp > dstBpp)
+                    {
+                        // auto setting quantizer if target is indexed and conversion is from higher BPP
+                        quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
+                            ? PredefinedColorsQuantizer.Grayscale()
+                            : OptimizedPaletteQuantizer.Wu();
+                    }
+
+                    toSave = ConvertPixelFormat(bmp, transformation.TargetFormat, quantizer);
                 }
 
-                // Otherwise, we give up
-                throw new InvalidOperationException(DrawingRes.ImageExtensionsEncoderSaveFail(imageFormat), e);
+                try
+                {
+                    toSave.Save(stream, encoder, encoderParameters);
+                }
+                catch (Exception e)
+                {
+                    // if there is no fallback strategy with a different pixel format, giving up
+                    if (!transformations.TryGetValue(PixelFormat.Undefined, out var fallbackTransformation)
+                        || fallbackTransformation.TargetFormat == bmp.PixelFormat)
+                    {
+                        throw new InvalidOperationException(DrawingRes.ImageExtensionsEncoderSaveFail(imageFormat), e);
+                    }
+
+                    try
+                    {
+                        using Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat);
+                        fallbackBmp.Save(stream, encoder, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException(DrawingRes.ImageExtensionsEncoderSaveFail(imageFormat), ex);
+                    }
+                }
+                finally
+                {
+                    if (!ReferenceEquals(bmp, toSave))
+                        toSave.Dispose();
+                }
             }
             finally
             {

@@ -245,6 +245,19 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, converted);
         }
 
+        [TestCase(100, PixelFormat.Format32bppArgb)]
+        [TestCase(100_000, PixelFormat.Format32bppArgb)]
+        [TestCase(100, PixelFormat.Format4bppIndexed)]
+        [TestCase(100_000, PixelFormat.Format4bppIndexed)]
+        public void ConvertMetafilePixelFormatTest(int size, PixelFormat pixelFormat)
+        {
+            using Metafile metafile = GenerateMetafile(new Size(size, size));
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()) : null;
+            using Bitmap bitmap = metafile.ConvertPixelFormat(pixelFormat, quantizer);
+            Assert.AreEqual(pixelFormat, bitmap.PixelFormat);
+            SaveImage($"{size}_{pixelFormat}", bitmap);
+        }
+
         [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
         [TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
         [TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
@@ -702,6 +715,18 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
+        [TestCase(100)]
+        [TestCase(100_000)]
+        public void SaveMetafileByBuiltInEncoderTest(int size)
+        {
+            var ms = new MemoryStream();
+            GenerateMetafile(new Size(size, size)).SaveAsPng(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+            Assert.AreEqual(ImageFormat.Png, bmp.RawFormat);
+            SaveImage($"Size_{size}", bmp, true);
+        }
+
         [TestCase(PixelFormat.Format64bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb)]
         [TestCase(PixelFormat.Format48bppRgb)]
@@ -931,6 +956,20 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [Test]
+        public void SaveMetafileAsIconTest()
+        {
+            var sizes = new int[] { 131_072, 1024, 256, 64, 32, 16 };
+            IEnumerable<Image> images = sizes.Select(Image (s) => GenerateMetafile(new Size(s, s)));
+            var ms = new MemoryStream();
+            images.SaveAsIcon(ms);
+            ms.Position = 0;
+            var icon = new Icon(ms);
+
+            Assert.AreEqual(sizes.Length, icon.GetImagesCount());
+            SaveIcon(null, icon);
         }
 
         [Explicit]
