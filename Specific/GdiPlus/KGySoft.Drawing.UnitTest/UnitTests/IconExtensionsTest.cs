@@ -116,7 +116,7 @@ namespace KGySoft.Drawing.UnitTests
         public void ExtractNearestIconTest()
         {
             Assert.IsNotNull(Icons.Information.ExtractNearestIcon(Size.Empty, PixelFormat.Format1bppIndexed));
-            Assert.AreEqual(OSUtils.IsWindows ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
+            Assert.AreEqual(OSUtils.IsWindows && !OSUtils.IsMono ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.UnitTests
                 Assert.IsNotNull(extracted);
                 Assert.AreEqual(reqSize, extracted.Size);
                 Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSUtils.IsVistaOrLater);
-            }, PlatformID.Win32NT);
+            }, OSUtils.IsWindows && !OSUtils.IsMono);
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.IsFalse(Icons.Information.ToUncompressedIcon().IsCompressed());
             
             // On Linux this extracts the uncompressed 64x64 icon...
-            Assert.IsTrue(OSUtils.IsVistaOrLater ^ !Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format32bppArgb).IsCompressed());
+            Assert.IsTrue((OSUtils.IsVistaOrLater && !OSUtils.IsMono) ^ !Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format32bppArgb).IsCompressed());
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(7, info.Length);
             Assert.AreEqual(new Size(256, 256), info[0].Size);
             Assert.AreEqual(new Size(16, 16), info[6].Size);
-            Assert.IsTrue(info[0].IsCompressed);
+            Assert.IsTrue(info[0].IsCompressed || !OSUtils.IsVistaOrLater || OSUtils.IsMono);
             Assert.IsFalse(info[1].IsCompressed);
         }
 

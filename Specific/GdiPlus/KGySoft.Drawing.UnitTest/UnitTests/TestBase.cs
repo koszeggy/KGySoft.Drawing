@@ -59,6 +59,20 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
+        protected static void AssertPlatformDependent(Action code, bool condition, [CallerArgumentExpression(nameof(condition))]string expression = null)
+        {
+            try
+            {
+                code.Invoke();
+            }
+            catch (Exception e)
+            {
+                if (condition)
+                    throw;
+                Assert.Inconclusive($"Test failed on platform {expression}: {e.Message}");
+            }
+        }
+
         protected static void SaveImage(string imageName, Image image, bool origFormat = false, [CallerMemberName]string testName = null)
         {
             if (!SaveToFile)
@@ -192,9 +206,10 @@ namespace KGySoft.Drawing.UnitTests
                 size = new Size(100, 100);
             Metafile result = new Metafile(hdc, new Rectangle(Point.Empty, size), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
 
-            //Draw some silly drawing
-            using (var g = Graphics.FromImage(result))
+            try
             {
+                // Draw some silly drawing
+                using var g = Graphics.FromImage(result);
                 var r = new Rectangle(Point.Empty, size);
                 var leftEye = new RectangleF(size.Width * 0.2f, size.Height * 0.2f, size.Width * 0.2f, size.Height * 0.3f);
                 var rightEye = new RectangleF(size.Width * 0.6f, size.Height * 0.2f, size.Width * 0.2f, size.Height * 0.3f);
@@ -203,15 +218,22 @@ namespace KGySoft.Drawing.UnitTests
                 g.FillEllipse(Brushes.White, rightEye);
                 g.DrawEllipse(Pens.Black, leftEye);
                 g.DrawEllipse(Pens.Black, rightEye);
-                g.DrawBezier(Pens.Red, 
-                    new PointF(size.Width * 0.1f, size.Height * 0.5f), 
+                g.DrawBezier(Pens.Red,
+                    new PointF(size.Width * 0.1f, size.Height * 0.5f),
                     new PointF(size.Width * 0.1f, size.Height),
                     new PointF(size.Width * 0.9f, size.Height),
                     new PointF(size.Width * 0.9f, size.Height * 0.5f));
             }
+            catch (Exception e) when (OSUtils.IsMono && OSUtils.IsWindows)
+            {
+                Assert.Inconclusive($"This test cannot be executed on Mono/Windows: {e.Message}");
+            }
+            finally
+            {
+                refGraph.ReleaseHdc(hdc); //cleanup
+                refGraph.Dispose();
+            }
 
-            refGraph.ReleaseHdc(hdc); //cleanup
-            refGraph.Dispose();
             return result;
         }
 
