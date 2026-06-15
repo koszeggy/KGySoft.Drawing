@@ -176,6 +176,8 @@ namespace KGySoft.Drawing
 
             #region Private Properties
 
+            private bool IsDisposed => rawColor == null && pngData == null && bmpColor == null && bmpComposite == null;
+
             private int PaletteColorCount
             {
                 get
@@ -536,7 +538,7 @@ namespace KGySoft.Drawing
 
             private unsafe void EnsureRawFormatGenerated(bool forceBmpFormat)
             {
-                if (rawColor == null && pngData == null && bmpColor == null && bmpComposite == null)
+                if (IsDisposed)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 // Exiting, if raw data of the desired format is already generated.
@@ -687,7 +689,7 @@ namespace KGySoft.Drawing
 
             private void EnsureBitmapGenerated(bool isCompositeRequired)
             {
-                if (rawColor == null && pngData == null && bmpColor == null && bmpComposite == null)
+                if (IsDisposed)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 // exiting, if the requested bitmap already exists

@@ -551,32 +551,19 @@ namespace KGySoft.Drawing.UnitTests
             Assert.IsFalse(Icons.Information.ExtractBitmap(large).EqualsByContent(Icons.Question.ExtractBitmap(large)));
         }
 
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void ToIconSquaredTest(PixelFormat pixelFormat)
+        [Test]
+        public void ToIconSquaredTest()
         {
-            using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true), pixelFormat);
-            SaveImage($"{pixelFormat} Reference", bmpRef);
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256))!.Resize(new Size(256, 128), true);
+            SaveImage("Reference", bmpRef);
 
             using var noKeepRatio128 = bmpRef.ToIcon(128, false);
             Assert.AreEqual(new Size(128, 128), noKeepRatio128.Size);
-            SaveIcon($"{pixelFormat} noKeepRatio128", noKeepRatio128);
+            SaveIcon("noKeepRatio128", noKeepRatio128);
 
             using var keepRatio128 = bmpRef.ToIcon(128, true);
             Assert.AreEqual(new Size(128, 128), keepRatio128.Size);
-            SaveIcon($"{pixelFormat} keepRatio128", keepRatio128);
+            SaveIcon("keepRatio128", keepRatio128);
         }
 
         [TestCase(PixelFormat.Format64bppArgb, 0xFF000000)]

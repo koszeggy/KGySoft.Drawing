@@ -1131,10 +1131,13 @@ namespace KGySoft.Drawing
         }
 
         [SecurityCritical] // GetHicon
-        internal static Icon FromBitmap(Bitmap bmp)
+        internal static Icon FromBitmap(Bitmap bmp, bool autoBpp = false)
         {
             using var rawIcon = new RawIcon();
-            rawIcon.Add(bmp);
+            if (autoBpp)
+                rawIcon.Add(bmp);
+            else
+                rawIcon.Add(bmp, Color.Transparent);
             return rawIcon.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!; // forcing uncompressed on XP or non-Windows platforms
         }
 

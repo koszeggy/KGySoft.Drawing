@@ -1299,8 +1299,12 @@ namespace KGySoft.Drawing
         /// <param name="size">The required width and height of the icon.</param>
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized and will contain only a single image.
-        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</remarks>
+        /// <remarks>
+        /// <para>The result icon will be always square sized and will contain only a single image.
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</para>
+        /// <para>If <paramref name="image"/> is not resized, this method attempts to preserve the original pixel format.
+        /// If the image is resized, the result icon will always contain a 32-bit image.</para>
+        /// </remarks>
         public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio, ScalingMode.Auto);
 
         /// <summary>
@@ -1312,8 +1316,10 @@ namespace KGySoft.Drawing
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio. This parameter is optional.
         /// <br/>Default value: <see langword="true"/>.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized and will contain only a single image.
-        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</remarks>
+        /// <para>The result icon will be always square sized and will contain only a single image.
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload instead.</para>
+        /// <para>If <paramref name="image"/> is not resized, this method attempts to preserve the original pixel format.
+        /// If the image is resized, the result icon will always contain a 32-bit image.</para>
         public static Icon ToIcon(this Image image, int size, ScalingMode scalingMode, bool keepAspectRatio = true) => Icons.FromImage(image, size, keepAspectRatio, scalingMode);
 
         /// <summary>
@@ -1372,7 +1378,7 @@ namespace KGySoft.Drawing
             Bitmap bmp = image.AsBitmap();
             try
             {
-                return Icons.FromBitmap(bmp);
+                return Icons.FromBitmap(bmp, true);
             }
             finally
             {
