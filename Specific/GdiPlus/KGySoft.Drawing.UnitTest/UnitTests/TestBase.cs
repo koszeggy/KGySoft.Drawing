@@ -93,7 +93,10 @@ namespace KGySoft.Drawing.UnitTests
 
             if (image is Metafile metafile)
             {
-                metafile.SaveAsWmf($"{fileName}.wmf");
+                if (metafile.RawFormat.Guid == ImageFormat.Wmf.Guid)
+                    metafile.SaveAsWmf($"{fileName}.wmf");
+                else
+                    metafile.SaveAsEmf($"{fileName}.emf");
                 return;
             }
 

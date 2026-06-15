@@ -16,6 +16,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -48,25 +49,55 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void SaveTest()
         {
-            using var metafile = GenerateMetafile();
+            using Metafile emf = GenerateMetafile();
+            Metafile wmf;
 
             using (var ms = new MemoryStream())
             {
-                metafile.Save(ms, false);
+                emf.Save(ms, false);
                 ms.Position = 0;
-                var clone = new Metafile(ms);
-                Assert.IsTrue(metafile.EqualsByContent(clone));
-                SaveImage("EMF", clone);
+                using var clone = new Metafile(ms);
+                Assert.IsTrue(emf.EqualsByContent(clone));
+                SaveImage("Emf", clone);
             }
 
             using (var ms = new MemoryStream())
             {
-                metafile.Save(ms, true);
+                emf.SaveAsWmf(ms);
                 ms.Position = 0;
-                var clone = Image.FromStream(ms);
-                Assert.IsTrue(metafile.EqualsByContent(clone));
-                SaveImage("WMF", clone);
+                wmf = new Metafile(ms);
+                Assert.IsTrue(emf.EqualsByContent(wmf));
+                SaveImage("EmfAsWmf", wmf);
             }
+
+            using (var ms = new MemoryStream())
+            {
+                wmf.Save(ms, false);
+                ms.Position = 0;
+                using var clone = new Metafile(ms);
+                Assert.IsTrue(wmf.EqualsByContent(clone));
+                SaveImage("Wmf", clone);
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                wmf.SaveAsEmf(ms);
+                ms.Position = 0;
+                using var clone = new Metafile(ms);
+                Assert.IsTrue(wmf.EqualsByContent(clone));
+                SaveImage("WmfAsEmf", clone);
+            }
+
+            wmf.Dispose();
+        }
+
+        [Test]
+        public void SaveLargeEmfTest()
+        {
+            using Metafile emf = GenerateMetafile(new Size(50_000, 50_000));
+            using var ms = new MemoryStream();
+            Assert.DoesNotThrow(() => emf.SaveAsEmf(ms));
+            Assert.Throws<ArgumentException>(() => emf.SaveAsWmf(ms), DrawingRes.Gdi32GetWmfContentFailed);
         }
 
         #endregion

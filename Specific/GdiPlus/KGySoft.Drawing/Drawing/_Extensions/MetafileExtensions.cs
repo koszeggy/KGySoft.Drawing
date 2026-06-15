@@ -234,9 +234,12 @@ namespace KGySoft.Drawing
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>
         /// <param name="forceWmfFormat">When <see langword="true"/>, forces to use the Windows Metafile Format (WMF), even if
         /// the <paramref name="metafile"/> itself is encoded by Enhanced Metafile Format (EMF). When <see langword="false"/>, uses the appropriate format automatically.</param>
+        /// <exception cref="ArgumentException"><paramref name="metafile"/> is an EMF that cannot be saved as WMF (e.g. too large size).</exception>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
+        /// <para>Setting <paramref name="forceWmfFormat"/> to <see langword="true"/> forces to use Window Metafile Format (WMF) even for Enhanced Metafiles (EMF).
+        /// It may help providing compatibility, but the operation may throw an <see cref="ArgumentException"/> if the conversion cannot be performed (e.g. the metafile is too large).</para>
         /// </remarks>
         [SecuritySafeCritical]
 #if NET
@@ -256,26 +259,14 @@ namespace KGySoft.Drawing
                     ? false
                     : throw new ArgumentException(DrawingRes.MetafileExtensionsUnsupportedFormat, nameof(metafile))); // a deserialized instance may have a PNG raw format
 
-            if (isWmf || forceWmfFormat)
-                WriteWmfHeader(metafile, stream);
-
-            // making a clone, otherwise, it will not be usable after saving
-            metafile = (Metafile)metafile.Clone();
-            IntPtr handle = metafile.GetHenhmetafile();
-            try
-            {
-                byte[] buffer = isWmf ? Gdi32.GetWmfContent(handle)
-                        : (forceWmfFormat ? Gdi32.GetWmfContentFromEmf(handle) : Gdi32.GetEmfContent(handle));
-                stream.Write(buffer, 0, buffer.Length);
-            }
-            finally
-            {
-                if (isWmf)
-                    Gdi32.DeleteMetaFile(handle);
-                else
-                    Gdi32.DeleteEnhMetaFile(handle);
-                metafile.Dispose();
-            }
+            // creating a clone, otherwise, it will not be usable after saving
+            using var clone = (Metafile)metafile.Clone();
+            if (isWmf)
+                SaveWmf(clone, stream);
+            else if (forceWmfFormat)
+                SaveEmfAsWmf(clone, stream);
+            else
+                SaveEmf(clone, stream);
         }
 
         /// <summary>
@@ -284,7 +275,6 @@ namespace KGySoft.Drawing
         /// <param name="metafile">The <see cref="Metafile"/> instance to save. It must have <see cref="ImageFormat.Emf"/> raw format.</param>
         /// <param name="stream">The stream to save the image into.</param>
         /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">The <see cref="Image.RawFormat"/> of the specified <paramref name="metafile"/> is not the <see cref="ImageFormat.Emf"/> format.</exception>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
@@ -296,9 +286,18 @@ namespace KGySoft.Drawing
         {
             if (metafile == null)
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
-            if (metafile.RawFormat.Guid != ImageFormat.Emf.Guid)
-                throw new ArgumentException(DrawingRes.MetafileExtensionsCannotBeSavedAsEmf, nameof(metafile));
-            Save(metafile, stream, false);
+
+            bool isEmf = metafile.RawFormat.Guid == ImageFormat.Emf.Guid
+                || (metafile.RawFormat.Guid == ImageFormat.Wmf.Guid
+                    ? false
+                    : throw new ArgumentException(DrawingRes.MetafileExtensionsUnsupportedFormat, nameof(metafile))); // a deserialized instance may have a PNG raw format
+
+            // creating a clone, otherwise, it will not be usable after saving
+            using var clone = (Metafile)metafile.Clone();
+            if (isEmf)
+                SaveEmf(clone, stream);
+            else
+                SaveWmfAsEmf(clone, stream);
         }
 
         /// <summary>
@@ -307,7 +306,6 @@ namespace KGySoft.Drawing
         /// <param name="metafile">The <see cref="Metafile"/> instance to save. It must have <see cref="ImageFormat.Emf"/> raw format.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="metafile"/>. The directory of the specified path is created if it does not exist.</param>
         /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">The <see cref="Image.RawFormat"/> of the specified <paramref name="metafile"/> is not the <see cref="ImageFormat.Emf"/> format.</exception>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
@@ -331,6 +329,7 @@ namespace KGySoft.Drawing
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
         /// <param name="stream">The stream to save the image into.</param>
         /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="metafile"/> is an EMF that cannot be saved as WMF (e.g. too large size).</exception>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
@@ -346,6 +345,7 @@ namespace KGySoft.Drawing
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="metafile"/>. The directory of the specified path is created if it does not exist.</param>
         /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="metafile"/> is an EMF that cannot be saved as WMF (e.g. too large size).</exception>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
@@ -373,6 +373,68 @@ namespace KGySoft.Drawing
             WmfHeader header = new WmfHeader((short)metafile.Width, (short)metafile.Height, (ushort)metafile.HorizontalResolution);
             byte[] rawHeader = BinarySerializer.SerializeValueType(header);
             stream.Write(rawHeader, 0, rawHeader.Length);
+        }
+
+        private static void SaveWmf(Metafile metafile, Stream stream)
+        {
+            Debug.Assert(metafile.RawFormat.Equals(ImageFormat.Wmf));
+            WriteWmfHeader(metafile, stream);
+            IntPtr handle = metafile.GetHenhmetafile();
+            try
+            {
+                byte[] buffer = Gdi32.GetWmfContent(handle);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+            finally
+            {
+                Gdi32.DeleteMetaFile(handle);
+            }
+        }
+
+        private static void SaveEmf(Metafile metafile, Stream stream)
+        {
+            Debug.Assert(metafile.RawFormat.Equals(ImageFormat.Emf));
+            IntPtr handle = metafile.GetHenhmetafile();
+            try
+            {
+                byte[] buffer = Gdi32.GetEmfContent(handle);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+            finally
+            {
+                Gdi32.DeleteEnhMetaFile(handle);
+            }
+        }
+
+        private static void SaveEmfAsWmf(Metafile metafile, Stream stream)
+        {
+            Debug.Assert(metafile.RawFormat.Equals(ImageFormat.Emf));
+            WriteWmfHeader(metafile, stream);
+            IntPtr handle = metafile.GetHenhmetafile();
+            try
+            {
+                byte[] buffer = Gdi32.GetWmfContentFromEmf(handle);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+            finally
+            {
+                Gdi32.DeleteEnhMetaFile(handle);
+            }
+        }
+
+        private static void SaveWmfAsEmf(Metafile metafile, Stream stream)
+        {
+            Debug.Assert(metafile.RawFormat.Equals(ImageFormat.Wmf));
+            IntPtr handle = metafile.GetHenhmetafile();
+            try
+            {
+                byte[] buffer = Gdi32.GetEmfContentFromWmf(handle);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+            finally
+            {
+                Gdi32.DeleteMetaFile(handle);
+            }
         }
 
         #endregion

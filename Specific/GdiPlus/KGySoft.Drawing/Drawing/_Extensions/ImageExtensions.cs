@@ -58,7 +58,7 @@ namespace KGySoft.Drawing
     {
         #region Constants
 
-        private const int maxConvertedBitmapSize = 8192;
+        private const int maxConvertedBitmapSize = 1 << 13;
         private const int maxMetafileDownscaleAttempts = 4;
 
         #endregion
