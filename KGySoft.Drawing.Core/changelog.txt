@@ -6,11 +6,24 @@
 ===============================================================================
 
 ~~~~~~~~~~
+- v10.0.2:
+~~~~~~~~~~
+
+- KGySoft.Drawing.Shapes namespace
+==================================
+- BitmapDataExtensions class:
+  - Fill*/Draw* methods: Fixing a rare, processor architecture-dependent bug on .NET Framework 4.5 or later,
+    and on .NET 8.0 or older when a Path contains points with NaN coordinates, causing an infinite loop.
+    From now on the expected OverflowException is thrown for such Paths on all platforms and CPU architectures.
+    .NET Framework 3.5/4.0, and .NET 9.0 or later platform targets were not affected by this bug.
+
+
+~~~~~~~~~~
 - v10.0.1:
 ~~~~~~~~~~
 
-- KGySoft.Drawing.Imaging namespace
-===================================
+- KGySoft.Drawing.Shapes namespace
+==================================
 - Brush class:
   - CreateLinearGradient methods: Fixing using a linear gradient brush with quantizing and dithering.
 

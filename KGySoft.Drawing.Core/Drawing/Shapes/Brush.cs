@@ -820,6 +820,7 @@ namespace KGySoft.Drawing.Shapes
                         return;
 
                     currentYf = scanner.Edges[scanner.SortedIndexYStart[0]].YStart;
+                    Debug.Assert(!Single.IsInfinity(currentYf) && !Single.IsNaN(currentYf));
                 }
 
                 internal AntiAliasingScannerContext(in AntiAliasingScannerContext other, int top)

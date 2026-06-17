@@ -118,7 +118,7 @@ namespace KGySoft.Drawing.Shapes
             int maxPoints = points.Count + (points.Count > 2 && !points[0].TolerantEquals(points[points.Count - 1], Constants.PointEqualityTolerance) ? 1 : 0);
             var result = closedVerticesBuffer = new PointF[maxPoints];
             int resultCount = 0;
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+#if NET9_0_OR_GREATER
             var min = new Vector2(Single.MaxValue);
             var max = new Vector2(Single.MinValue);
 #else
@@ -142,7 +142,7 @@ namespace KGySoft.Drawing.Shapes
                     {
                         // All points are practically the same.
                         AddPoint(result, points[0], ref resultCount);
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+#if NET9_0_OR_GREATER
                         PointF p = points[0];
                         min = max = p.AsVector2();
 #else
@@ -187,8 +187,9 @@ namespace KGySoft.Drawing.Shapes
                 VertexCount = resultCount;
                 for (int i = 0; i < resultCount; i++)
                 {
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
-                    // Unlike in ColorF, we don't mind possibly inconsistent NaN handling here
+#if NET9_0_OR_GREATER
+                    // As we must propagate NaNs to throw an exception in the checked block below, allowing vectorized Min/Max in .NET9+ only,
+                    // because before that Min/Max/Clamp are non-deterministic: https://github.com/dotnet/runtime/issues/103845#issuecomment-2269365226
                     Vector2 vertex = result[i].AsVector2();
                     min = Vector2.Min(min, vertex);
                     max = Vector2.Max(max, vertex);
@@ -225,7 +226,7 @@ namespace KGySoft.Drawing.Shapes
                 // Offsetting the input points could be simpler, but it may not be a copy in every case and may contain ignored points.
                 if (offset)
                 {
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+#if NET9_0_OR_GREATER
                     min += new Vector2(0.5f);
                     max += new Vector2(0.5f);
 #else
@@ -241,7 +242,7 @@ namespace KGySoft.Drawing.Shapes
                 // transformations into the valid range before drawing), but here we throw an OverflowException for extreme cases.
                 checked
                 {
-#if NETCOREAPP || NET45_OR_GREATER || NETSTANDARD
+#if NET9_0_OR_GREATER
                     int left = (int)min.X.TolerantFloor(Constants.PointEqualityTolerance);
                     int top = (int)min.Y.TolerantFloor(Constants.PointEqualityTolerance);
                     int right = (int)max.X.TolerantCeiling(Constants.PointEqualityTolerance);
