@@ -253,7 +253,7 @@ namespace KGySoft.Drawing
         /// <returns>A <see cref="Bitmap"/> object that contains the image content of the source <see cref="Graphics"/> object, or <see langword="null"/>, when the required area of
         /// <paramref name="graphics"/> is empty.</returns>
         /// <remarks>
-        /// <note>This method is supported on Windows only.</note>
+        /// <note>This method is supported on Windows only. On Mono (under on Windows or Wine) the result may only be a black rectangle if the <see cref="Graphics"/> instance was created from an <see cref="Image"/>.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <exception cref="NotSupportedException"><paramref name="graphics"/> belongs to a <see cref="Metafile"/>, which cannot be accessed until the <paramref name="graphics"/> is disposed.</exception>
@@ -263,7 +263,7 @@ namespace KGySoft.Drawing
 #endif
         public static Bitmap? ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             if (graphics == null)
@@ -328,31 +328,6 @@ namespace KGySoft.Drawing
                 IntPtr hwnd = User32.WindowFromDC(dcSource);
                 if (hwnd != IntPtr.Zero)
                 {
-                    //// Show in whole screen
-                    //RECT rect;
-                    //GetWindowRect(hwnd, out rect); // the full rect of self control on screen
-                    //// Show in screen
-                    //GetWindowRect(hwnd, out rect);
-                    //left = -rect.Left;
-                    //top = -rect.Top;
-                    //width = GetDeviceCaps(dcSource, DeviceCap.HORZRES);
-                    //height = GetDeviceCaps(dcSource, DeviceCap.VERTRES);
-                    //visibleRect.Offset(rect.Left, rect.Top);
-
-                    //// Show in parent control
-                    //IntPtr hwndParent = GetParent(hwnd);
-                    //if (hwndParent != IntPtr.Zero)
-                    //{
-                    //    RECT rectParent;
-                    //    GetWindowRect(hwndParent, out rectParent);
-                    //    left = rectParent.Left - rect.Left;
-                    //    top = rectParent.Top - rect.Top;
-                    //    width = rectParent.Right - rectParent.Left;
-                    //    height = rectParent.Bottom - rectParent.Top;
-                    //    visibleRect.Offset(-left, -top);
-                    //}
-                    //else
-
                     // Show in container control
                     Rectangle rect = User32.GetClientRect(hwnd);
                     if (rect.Right < visibleRect.Right && rect.Bottom < visibleRect.Bottom)
@@ -381,6 +356,8 @@ namespace KGySoft.Drawing
             }
 
             // creating a compatible bitmap
+            // NOTE: We could use GetCurrentObject(dcSource, OBJ_BITMAP) to get a hBitmap, but it almost always returns a blank buffer, so we must use BitBlt to copy the source.
+            //       Not even the BitBlt solution works if dcSource is created from an Image, that's why we try to extract the backing image from Graphics above.
             IntPtr dcTarget = Gdi32.CreateCompatibleDC(dcSource);
             IntPtr hbmResult = Gdi32.CreateCompatibleBitmap(dcSource, targetWidth, targetHeight);
             IntPtr prevTarget = Gdi32.SelectObject(dcTarget, hbmResult);
@@ -389,7 +366,7 @@ namespace KGySoft.Drawing
             Gdi32.BitBlt(dcTarget, 0, 0, targetWidth, targetHeight, dcSource, sourceLeft, sourceTop);
             result = Image.FromHbitmap(hbmResult);
 
-            //cleanup
+            // cleanup
             graphics.ReleaseHdc(dcSource);
             Gdi32.SelectObject(dcTarget, prevTarget);
             Gdi32.DeleteDC(dcTarget);

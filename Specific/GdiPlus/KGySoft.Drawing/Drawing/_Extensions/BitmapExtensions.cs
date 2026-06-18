@@ -87,7 +87,7 @@ namespace KGySoft.Drawing
                 : new Rectangle(Point.Empty, newSize);
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
-            if (OSUtils.IsWindows)
+            if (OSHelper.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             Bitmap source = image;
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing
                 : new Rectangle(Point.Empty, newSize);
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
-            if (OSUtils.IsWindows)
+            if (OSHelper.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             using IReadableBitmapData src = image.GetReadableBitmapData();
@@ -181,7 +181,7 @@ namespace KGySoft.Drawing
                     dimension = FrameDimension.Resolution;
             }
 
-            int frameCount = dimension != null ? image.GetFrameCount(dimension) : 0;
+            int frameCount = dimension != null ? image.GetFrameCountSafe(dimension) : 0;
 
             // single image, unknown dimension or one frame only: returning a copy
             if (frameCount <= 1 || dimension == null)
@@ -344,7 +344,7 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             Bitmap source = bitmap;
@@ -1347,8 +1347,11 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Returns a clone of a bitmap in a way that works also on Linux where Image.Clone may return a fully transparent image.
+        /// Also on Linux, this should be used with pixelFormat: PixelFormat.Format32bppArgb instead of new Bitmap(bmp), which may turn transparent pixels black for indexed bitmaps.
         /// </summary>
-        internal static Bitmap CloneBitmap(this Bitmap bmp) => bmp.Clone(new Rectangle(Point.Empty, bmp.Size), bmp.PixelFormat);
+        internal static Bitmap CloneBitmap(this Bitmap bmp, PixelFormat pixelFormat = PixelFormat.Undefined) => OSHelper.IsWindows
+            ? bmp.Clone(new Rectangle(Point.Empty, bmp.Size), pixelFormat == PixelFormat.Undefined ? bmp.PixelFormat : pixelFormat)
+            : bmp.ConvertPixelFormat(pixelFormat == PixelFormat.Undefined ? bmp.PixelFormat : pixelFormat); // because on Linux the clone above simply ignores pixelFormat, and always returns a bitmap with the original format
 
         internal static bool TrySetPalette(this Bitmap target, Color[] palette)
         {
@@ -1399,6 +1402,33 @@ namespace KGySoft.Drawing
                 targetPalette.SetFlags(flags);
             target.Palette = targetPalette;
             return true;
+        }
+
+        internal static void MakeTransparentSafe(/*this */ref Bitmap bitmap, Color transparentColor)
+        {
+            if (OSHelper.IsWindows)
+                bitmap.MakeTransparent(transparentColor);
+            else
+            {
+                // On Linux MakeTransparent does not change pixel format to 32bpp, and on MacOS it doesn't even replace the color, so doing everything manually
+                Color32 tr = transparentColor;
+                IQuantizer? quantizer = tr.A == 0 ? null : PredefinedColorsQuantizer.FromCustomFunction(c => c == tr ? default : c);
+                Bitmap clone = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb, quantizer);
+                bitmap.Dispose();
+                bitmap = clone;
+            }
+        }
+
+        internal static int GetFrameCountSafe(this Bitmap bitmap, FrameDimension dimension)
+        {
+            try
+            {
+                return bitmap.GetFrameCount(dimension);
+            }
+            catch (Exception e) when (!OSHelper.IsRealWindows && !e.IsCriticalGdi())
+            {
+                return 1;
+            }
         }
 
         #endregion

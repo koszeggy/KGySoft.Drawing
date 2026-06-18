@@ -37,26 +37,26 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var bmp = SystemIcons.Information.ToBitmap();
             using var abmp = SystemIcons.Information.ToAlphaBitmap();
-            if (OSUtils.IsWindows)
+            if (OSHelper.IsNonWineWindows)
                 Assert.IsFalse(bmp.EqualsByContent(abmp));
             SaveImage(nameof(Icon.ToBitmap), bmp);
             SaveImage(nameof(IconExtensions.ToAlphaBitmap), abmp);
         }
 
         [Test]
-        public void ToMultiResBitmapTest()
+        public void ToMultiResBitmapTest() => AssertPlatformDependent(() =>
         {
-            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
+            Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
 
-            // 128x128 PNG compressed icons are problematic even on Windows
+            // Adding a missing 128x128 icon to an already compound icon
             var reqSize = new Size(128, 128);
             Icon origIcon = Icons.Information;
             Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));
             Bitmap multiRes = combined.ToMultiResBitmap();
 
             // ToMultiResBitmap does not use compressed icons anymore: it just caused problems and doesn't even matter as a Bitmap
-            Assert.AreEqual(OSUtils.IsWindows ? 8 : 1, multiRes.ExtractBitmaps().Length);
-        }
+            Assert.AreEqual(8, multiRes.ExtractBitmaps().Length);
+        }, OSHelper.IsNonWineWindows);
 
         [Test]
         public void GetImagesCountTest()
@@ -76,9 +76,9 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ExtractBitmapTest()
         {
-            Assert.IsNotNull(Icons.Information.ExtractBitmap());
-            Assert.IsNotNull(Icons.Information.ExtractBitmap(new Size(16, 16)));
-            Assert.IsNotNull(Icons.Information.ExtractBitmap(new Size(16, 16), PixelFormat.Format32bppArgb));
+            Assert.AreEqual(new Size(256, 256), Icons.Information.ExtractBitmap().Size);
+            Assert.AreEqual(new Size(16, 16), Icons.Information.ExtractBitmap(new Size(16, 16))?.Size);
+            Assert.AreEqual(new Size(16, 16), Icons.Information.ExtractBitmap(new Size(16, 16), PixelFormat.Format32bppArgb)?.Size);
             Assert.IsNull(Icons.Information.ExtractBitmap(Size.Empty));
             Assert.IsNull(Icons.Information.ExtractBitmap(new Size(16, 16), PixelFormat.Format1bppIndexed));
             Assert.IsNotNull(Icons.Information.ExtractBitmap(1));
@@ -116,7 +116,7 @@ namespace KGySoft.Drawing.UnitTests
         public void ExtractNearestIconTest()
         {
             Assert.IsNotNull(Icons.Information.ExtractNearestIcon(Size.Empty, PixelFormat.Format1bppIndexed));
-            Assert.AreEqual(OSUtils.IsWindows && !OSUtils.IsMono ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
+            Assert.AreEqual(OSHelper.IsWindows && !OSHelper.IsFrameworkMono ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
         }
 
         [Test]
@@ -149,12 +149,11 @@ namespace KGySoft.Drawing.UnitTests
             {
                 Icon extracted = combined.ExtractIcon(reqSize);
                 SaveIcon($"Extracted{newSize}", extracted);
-                SaveImage($"Extracted{newSize}", extracted.ToAlphaBitmap());
 
                 Assert.IsNotNull(extracted);
                 Assert.AreEqual(reqSize, extracted.Size);
-                Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSUtils.IsVistaOrLater);
-            }, OSUtils.IsWindows && !OSUtils.IsMono);
+                Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSHelper.IsVistaOrLater);
+            }, OSHelper.IsWindows && !OSHelper.IsMono);
         }
 
         [Test]
@@ -167,11 +166,11 @@ namespace KGySoft.Drawing.UnitTests
         public void IsCompressedTest()
         {
             Assert.IsFalse(Icons.Information.ExtractIcon(new Size(16, 16)).IsCompressed());
-            Assert.IsTrue(!(OSUtils.IsVistaOrLater && !OSUtils.IsMono) ^ Icons.Information.IsCompressed());
+            Assert.IsTrue(!(OSHelper.IsVistaOrLater && !OSHelper.IsMono) ^ Icons.Information.IsCompressed());
             Assert.IsFalse(Icons.Information.ToUncompressedIcon().IsCompressed());
             
             // On Linux this extracts the uncompressed 64x64 icon...
-            Assert.IsTrue((OSUtils.IsVistaOrLater && !OSUtils.IsMono) ^ !Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format32bppArgb).IsCompressed());
+            Assert.IsTrue((OSHelper.IsVistaOrLater && !OSHelper.IsMono) ^ !Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format32bppArgb).IsCompressed());
         }
 
         [Test]
@@ -189,7 +188,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(7, info.Length);
             Assert.AreEqual(new Size(256, 256), info[0].Size);
             Assert.AreEqual(new Size(16, 16), info[6].Size);
-            Assert.IsTrue(info[0].IsCompressed || !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            Assert.IsTrue(info[0].IsCompressed || !OSHelper.IsVistaOrLater || OSHelper.IsMono);
             Assert.IsFalse(info[1].IsCompressed);
         }
 

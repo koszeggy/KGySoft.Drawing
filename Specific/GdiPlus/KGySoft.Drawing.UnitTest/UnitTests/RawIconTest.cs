@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var size = OSUtils.IsWindows ? new Size(256, 256) : new Size(64, 64);
+            var size = OSHelper.IsWindows ? new Size(256, 256) : new Size(64, 64);
             var refImage = Convert(Icons.Information.ExtractBitmap(size), pixelFormat, quantizer);
 
             using (RawIcon icon = new RawIcon())
@@ -82,7 +82,7 @@ namespace KGySoft.Drawing.UnitTests
         public void AddBitmapCustomBackgroundSaveUncompressedTest(string testName, PixelFormat pixelFormat, uint backColor)
         {
             var ms = new MemoryStream();
-            var size = OSUtils.IsWindows ? new Size(256, 256) : new Size(64, 64);
+            var size = OSHelper.IsWindows ? new Size(256, 256) : new Size(64, 64);
             var refImage = Icons.Information.ExtractBitmap(size).ConvertPixelFormat(pixelFormat);
 
             using (RawIcon icon = new RawIcon())
@@ -117,7 +117,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
-            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, bmp.ExtractIconImages().Length);
+            Assert.AreEqual(OSHelper.IsWindows && !OSHelper.IsWine ? 7 : 1, bmp.ExtractIconImages().Length, "7 icons are expected on real Windows and Framework Mono on Windows, 1 otherwise");
             SaveImage("result", bmp, true);
         }
 

@@ -85,7 +85,7 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         protected override bool ReleaseHandle()
         {
-            if (handle != IntPtr.Zero && OSUtils.IsWindows)
+            if (handle != IntPtr.Zero && OSHelper.IsWindows)
                 User32.DestroyCursor(handle);
             return true;
         }

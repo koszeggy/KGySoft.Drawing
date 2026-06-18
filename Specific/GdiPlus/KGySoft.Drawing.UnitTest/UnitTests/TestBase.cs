@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.UnitTests
             {
                 if (Environment.OSVersion.Platform.In(platforms))
                     throw;
-                Assert.Inconclusive($"Test failed on platform {Environment.OSVersion.Platform}: {e.Message}");
+                Assert.Inconclusive($"Test failed on platform '{Environment.OSVersion.Platform}': {e.Message}");
             }
         }
 
@@ -69,7 +69,7 @@ namespace KGySoft.Drawing.UnitTests
             {
                 if (condition)
                     throw;
-                Assert.Inconclusive($"Test failed on platform {expression}: {e.Message}");
+                Assert.Inconclusive($"Test failed on platform '{Environment.OSVersion.Platform}' - failed condition: {expression}): {e.Message}");
             }
         }
 
@@ -156,7 +156,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (OSUtils.IsWindows || pixelFormat.IsSupportedNatively())
+                if (OSHelper.IsWindows || pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported on Linux: {e.Message}");
                 throw;
@@ -199,15 +199,18 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static Metafile GenerateMetafile(Size size = default)
         {
-            //Set up reference Graphic
-            Graphics refGraph = Graphics.FromHwnd(IntPtr.Zero);
-            IntPtr hdc = refGraph.GetHdc();
-            if (size == Size.Empty)
-                size = new Size(100, 100);
-            Metafile result = new Metafile(hdc, new Rectangle(Point.Empty, size), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
+            Graphics refGraph = null;
+            IntPtr hdc = IntPtr.Zero;
 
             try
             {
+                //Set up reference Graphic
+                refGraph = Graphics.FromHwnd(IntPtr.Zero);
+                hdc = refGraph.GetHdc();
+                if (size == Size.Empty)
+                    size = new Size(100, 100);
+                Metafile result = new Metafile(hdc, new Rectangle(Point.Empty, size), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
+
                 // Draw some silly drawing
                 using var g = Graphics.FromImage(result);
                 var r = new Rectangle(Point.Empty, size);
@@ -223,18 +226,19 @@ namespace KGySoft.Drawing.UnitTests
                     new PointF(size.Width * 0.1f, size.Height),
                     new PointF(size.Width * 0.9f, size.Height),
                     new PointF(size.Width * 0.9f, size.Height * 0.5f));
+                return result;
             }
-            catch (Exception e) when (OSUtils.IsMono && OSUtils.IsWindows)
+            catch (Exception e) when (!OSHelper.IsRealWindows)
             {
-                Assert.Inconclusive($"This test cannot be executed on Mono/Windows: {e.Message}");
+                Assert.Inconclusive($"This test is not supported on current platform: {e.Message}");
+                return default; // never reached, just to satisfy the compiler
             }
             finally
             {
-                refGraph.ReleaseHdc(hdc); //cleanup
-                refGraph.Dispose();
+                if (hdc != IntPtr.Zero)
+                    refGraph!.ReleaseHdc(hdc); //cleanup
+                refGraph?.Dispose();
             }
-
-            return result;
         }
 
         protected static Bitmap GenerateAlphaGradientBitmap(Size size)

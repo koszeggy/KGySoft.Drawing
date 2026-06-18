@@ -20,6 +20,8 @@ using System;
 using System.IO;
 #endif
 
+using KGySoft.Drawing.WinApi;
+
 using NUnit.Framework;
 
 #endregion
@@ -34,6 +36,10 @@ namespace KGySoft.Drawing
         [OneTimeSetUp]
         public void Initialize()
         {
+#if NET7_0_OR_GREATER
+            if (!OSHelper.IsWindows)
+                Assert.Fail("The .NET 7.0 and later builds do not support non-Windows platforms directly. Use Wine to execute the tests on this platform.");
+#endif
             if (Program.ConsoleWriter != null)
                 Console.SetOut(Program.ConsoleWriter);
 #if NET35
@@ -48,12 +54,6 @@ namespace KGySoft.Drawing
 
 #if NET7_0_OR_GREATER && !WINDOWS
             Assert.Inconclusive("When targeting .NET 7 or later, executing the tests require Windows. For Unix systems target .NET 6 or earlier.");
-#endif
-
-#if !WINDOWS && (NET5_0 || NET6_0)
-            // To make sure that System.Drawing types can be used also on Unix systems
-            // NOTE: With the latest test runners under VS Code it doesn't work from here so execute the tests as an application instead.
-            DrawingModule.Initialize();
 #endif
         }
 

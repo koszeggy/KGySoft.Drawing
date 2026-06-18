@@ -80,7 +80,7 @@ namespace KGySoft.Drawing
 
             if (icon.HasRawData())
                 return icon.ExtractNearestBitmap(icon.Size, PixelFormat.Format32bppArgb);
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 return icon.ToBitmap();
 
             User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
@@ -89,7 +89,7 @@ namespace KGySoft.Drawing
                 // Getting color depth by GDI. (FromHbitmap always returns 32 bppRgb format)
                 // The possible 1 bit transparency is handled by ToBitmap. The code below would return a fully transparent bitmap for non-ARGB sources.
                 // GetBitmapColorDepth actually returns the current display BPP for HICONs.
-                if (Gdi32.GetBitmapColorDepth(iconInfo.hbmColor) < 32)
+                if (Gdi32.GetBitmapInfo(iconInfo.hbmColor).bmBitsPixel < 32)
                     return icon.ToBitmap();
 
                 // The result bitmap has now black pixels where the icon was transparent
@@ -117,7 +117,7 @@ namespace KGySoft.Drawing
 
                     // Cloning result bitmap because original destination uses a temporary memory area
                     // If bmpRedirected was returned, its image could be corrupted at each refresh
-                    Bitmap result = new Bitmap(bmpRedirected);
+                    Bitmap result = new Bitmap(bmpRedirected); // it's OK here also on Linux, bmpRedirected is 32 bpp ARGB
                     return result;
                 }
                 finally
@@ -307,7 +307,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon)
-            => ExtractIcons(icon, null, null, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractIcons(icon, null, null, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts every icon from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
@@ -336,7 +336,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, Size size)
-            => ExtractIcons(icon, size, null, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractIcons(icon, size, null, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
@@ -367,7 +367,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, PixelFormat pixelFormat)
-            => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
@@ -399,7 +399,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,bool)"/>
         public static Icon? ExtractIcon(this Icon icon, Size size)
-            => ExtractFirstIcon(icon, size, null, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractFirstIcon(icon, size, null, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts the first icon of specified size from an <see cref="Icon"/> instance.
@@ -432,7 +432,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
         public static Icon? ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat)
-            => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts the icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -464,7 +464,7 @@ namespace KGySoft.Drawing
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
-        public static Icon? ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+        public static Icon? ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts the icon of specified index from an <see cref="Icon"/> instance.
@@ -509,7 +509,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
         /// <seealso cref="Resize(Icon,Size)"/>
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat)
-            => ExtractNearestIcon(icon, size, pixelFormat, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => ExtractNearestIcon(icon, size, pixelFormat, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Extracts the nearest icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -644,7 +644,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, IEnumerable<Icon>? icons)
-            => Combine(icon, !OSUtils.IsVistaOrLater || OSUtils.IsMono, icons);
+            => Combine(icon, !OSHelper.IsVistaOrLater || OSHelper.IsMono, icons);
 
         /// <summary>
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -657,7 +657,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, params Icon[]? icons)
-            => Combine(icon, !OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Icon>?)icons);
+            => Combine(icon, !OSHelper.IsVistaOrLater || OSHelper.IsMono, (IEnumerable<Icon>?)icons);
 
         /// <summary>
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -712,7 +712,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, params Bitmap[]? images)
-            => Combine(icon, !OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Bitmap>?)images);
+            => Combine(icon, !OSHelper.IsVistaOrLater || OSHelper.IsMono, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -729,7 +729,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, IEnumerable<Bitmap>? images)
-            => Combine(icon, !OSUtils.IsVistaOrLater || OSUtils.IsMono, images);
+            => Combine(icon, !OSHelper.IsVistaOrLater || OSHelper.IsMono, images);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -799,7 +799,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, Bitmap? image, Color transparentColor)
-            => Combine(icon, image, transparentColor, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => Combine(icon, image, transparentColor, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -847,7 +847,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, Bitmap? image)
-            => Combine(icon, image, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => Combine(icon, image, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -1007,7 +1007,7 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             return Icons.ToCursorHandle(icon.Handle, cursorHotspot);
@@ -1026,7 +1026,7 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
         internal static Icon ToManagedIcon(this Icon unmanagedIcon)
         {
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 return unmanagedIcon;
             Icon managedIcon = (Icon)unmanagedIcon.Clone();
             User32.DestroyIcon(unmanagedIcon.Handle);
@@ -1085,13 +1085,13 @@ namespace KGySoft.Drawing
 
             // Exactly one image of the requested size: just extracting it
             if (rawIcon.ImageCount == 1)
-                return rawIcon.ExtractIcon(0, !OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
+                return rawIcon.ExtractIcon(0, !OSHelper.IsVistaOrLater || OSHelper.IsMono)!;
 
             // More than one image of the requested size: returning the one with the highest bpp
             if (rawIcon.ImageCount > 1)
             {
                 // a null result from ExtractNearestIcon means that the requested size is not supported on this platform (Linux or Mono with 256x256 icons)
-                return rawIcon.ExtractNearestIcon(32, size, !OSUtils.IsVistaOrLater || OSUtils.IsMono)
+                return rawIcon.ExtractNearestIcon(32, size, !OSHelper.IsVistaOrLater || OSHelper.IsMono)
                     ?? throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon);
             }
 

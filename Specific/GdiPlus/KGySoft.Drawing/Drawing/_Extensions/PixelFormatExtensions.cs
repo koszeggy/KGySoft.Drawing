@@ -100,7 +100,7 @@ namespace KGySoft.Drawing
             if (!pixelFormat.IsValidFormat())
                 return false;
 
-            if (OSUtils.IsWindows)
+            if (OSHelper.IsWindows)
                 return true;
 
             Dictionary<PixelFormat, bool>? map = supportedFormats;
@@ -229,7 +229,7 @@ namespace KGySoft.Drawing
 
         internal static bool CanBeDrawn(this PixelFormat pixelFormat)
         {
-            if (OSUtils.IsWindows)
+            if (OSHelper.IsWindows)
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
             return pixelFormat is not (PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565)
                 && pixelFormat.IsSupportedNatively();

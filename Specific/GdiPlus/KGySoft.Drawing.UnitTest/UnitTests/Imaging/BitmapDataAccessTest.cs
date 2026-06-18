@@ -136,73 +136,74 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
 
             var gdiPixelFormat = pixelFormat.ToPixelFormat();
-            if (gdiPixelFormat.IsSupportedNatively())
-            {
-                using Bitmap bmp = new Bitmap(1, 1, gdiPixelFormat);
+            if (!gdiPixelFormat.IsSupportedNatively())
+                Assert.Inconclusive($"Pixel format {gdiPixelFormat} is not supported on this platform");
 
-                // Reference test by Set/GetPixel
+            using Bitmap bmp = new Bitmap(1, 1, gdiPixelFormat);
+
+            // Reference test by Set/GetPixel
+            try
+            {
+                Console.Write("Bitmap.SetPixel/GetPixel: ");
+                bmp.SetPixel(0, 0, testColor);
+                actualColor = bmp.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, 1, 1), ImageLockMode.ReadOnly, gdiPixelFormat);
                 try
                 {
-                    Console.Write("Bitmap.SetPixel/GetPixel: ");
-                    bmp.SetPixel(0, 0, testColor);
-                    actualColor = bmp.GetPixel(0, 0);
-                    Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
-                    BitmapData data = bmp.LockBits(new Rectangle(0, 0, 1, 1), ImageLockMode.ReadOnly, gdiPixelFormat);
-                    try
-                    {
-                        actualRawValue = GetRawValueNative(gdiPixelFormat, data.Scan0);
-                        Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")}){Environment.NewLine}");
-                    }
-                    finally
-                    {
-                        bmp.UnlockBits(data);
-                    }
+                    actualRawValue = GetRawValueNative(gdiPixelFormat, data.Scan0);
+                    Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")}){Environment.NewLine}");
                 }
-                catch (Exception e)
+                finally
                 {
-                    Console.WriteLine(e.Message);
+                    bmp.UnlockBits(data);
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
-                using (IReadWriteBitmapData nativeBitmapData = bmp.GetReadWriteBitmapData())
+            using (IReadWriteBitmapData nativeBitmapData = bmp.GetReadWriteBitmapData())
+            {
+                // by Accessor Set/GetPixel
+                Console.Write("SetPixel/GetPixel native accessor: ");
+                nativeBitmapData.SetPixel(0, 0, testColor);
+                actualColor = nativeBitmapData.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+                Assert.AreEqual(expectedResult.ToArgb(), actualColor.ToArgb());
+
+                actualRawValue = GetRawValue(pixelFormat, nativeBitmapData);
+                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")})");
+                if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat() // can differ on Linux for 16 bpp formats
+                    && (pixelFormat.ToBitsPerPixel() <= 32 || ColorsHelper.LinearWideColors))  // on Wine wide formats are non-linear, so ignoring the raw value check, which is adjusted to real Windows' GDI+ behavior
                 {
-                    // by Accessor Set/GetPixel
-                    Console.Write("SetPixel/GetPixel native accessor: ");
-                    nativeBitmapData.SetPixel(0, 0, testColor);
-                    actualColor = nativeBitmapData.GetPixel(0, 0);
-                    Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
-                    Assert.AreEqual(expectedResult.ToArgb(), actualColor.ToArgb());
-
-                    actualRawValue = GetRawValue(pixelFormat, nativeBitmapData);
-                    Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")})");
-                    if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
-                        Assert.AreEqual(expectedRawValueNative, actualRawValue);
-
-                    // by indexer (Color32)
-                    nativeBitmapData[0][0] = new Color32(testColor);
-                    Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData[0][0].ToArgb());
-                    if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
-                        Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
-
-                    // as PColor32
-                    nativeBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
-                    Assert.AreEqual(expectedResult.ToPColor32().ToColor32(), nativeBitmapData.GetPColor32(0, 0).ToColor32());
-
-                    // as Color64
-                    nativeBitmapData.SetColor64(0, 0, testColor.ToColor64());
-                    Assert.AreEqual(expectedResult.ToColor64().ToColor32(), nativeBitmapData.GetColor64(0, 0).ToColor32());
-
-                    // as PColor64
-                    nativeBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
-                    Assert.AreEqual(expectedResult.ToPColor64().ToColor32(), nativeBitmapData.GetPColor64(0, 0).ToColor32());
-
-                    // as ColorF
-                    nativeBitmapData.SetColorF(0, 0, testColor.ToColorF());
-                    Assert.AreEqual(expectedResult.ToColorF().ToColor32(), nativeBitmapData.GetColorF(0, 0).ToColor32());
-
-                    // as PColorF
-                    nativeBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
-                    Assert.AreEqual(expectedResult.ToPColorF().ToColor32(), nativeBitmapData.GetPColorF(0, 0).ToColor32());
+                    Assert.AreEqual(expectedRawValueNative, actualRawValue, $"{expectedRawValueNative:X8} vs. {actualRawValue:X8}");
                 }
+
+                // by indexer (Color32)
+                nativeBitmapData[0][0] = new Color32(testColor);
+                Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData[0][0].ToArgb());
+
+                // as PColor32
+                nativeBitmapData.SetPColor32(0, 0, testColor.ToPColor32());
+                Assert.AreEqual(expectedResult.ToPColor32().ToColor32(), nativeBitmapData.GetPColor32(0, 0).ToColor32());
+
+                // as Color64
+                nativeBitmapData.SetColor64(0, 0, testColor.ToColor64());
+                Assert.AreEqual(expectedResult.ToColor64().ToColor32(), nativeBitmapData.GetColor64(0, 0).ToColor32());
+
+                // as PColor64
+                nativeBitmapData.SetPColor64(0, 0, testColor.ToPColor64());
+                Assert.AreEqual(expectedResult.ToPColor64().ToColor32(), nativeBitmapData.GetPColor64(0, 0).ToColor32());
+
+                // as ColorF
+                nativeBitmapData.SetColorF(0, 0, testColor.ToColorF());
+                Assert.AreEqual(expectedResult.ToColorF().ToColor32(), nativeBitmapData.GetColorF(0, 0).ToColor32());
+
+                // as PColorF
+                nativeBitmapData.SetPColorF(0, 0, testColor.ToPColorF());
+                Assert.AreEqual(expectedResult.ToPColorF().ToColor32(), nativeBitmapData.GetPColorF(0, 0).ToColor32());
             }
         }
 

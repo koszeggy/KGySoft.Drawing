@@ -275,7 +275,7 @@ namespace KGySoft.Drawing
 
                     // Initializing like in the Bitmap ctor: setting bmpComposite, and allowing color-depth auto-detection on next Save by leaving transparentColor null.
                     // Pixel format check: PNG decoder in Windows may load indexed PNG as 32 bpp if it contains semi-transparent entries.
-                    bmpComposite = bmp.PixelFormat == PixelFormat.Format32bppArgb ? bmp : new Bitmap(bmp);
+                    bmpComposite = bmp.PixelFormat == PixelFormat.Format32bppArgb ? bmp : bmp.CloneBitmap(PixelFormat.Format32bppArgb);
                     if (!ReferenceEquals(bmp, bmpComposite))
                         bmp.Dispose();
                     
@@ -436,7 +436,7 @@ namespace KGySoft.Drawing
                 }
                 catch (Exception)
                 {
-                    if (OSUtils.IsVistaOrLater && !OSUtils.IsMono)
+                    if (OSHelper.IsVistaOrLater && !OSHelper.IsMono)
                         throw;
                     // Wine/Mono supports uncompressed large icons, but Framework Mono cannot handle an icon with a single large image (neither PNG nor BMP).
                     if (throwError)
@@ -456,7 +456,7 @@ namespace KGySoft.Drawing
                 // When not original format is requested, making sure that a MemoryBMP is returned (cloning the whole area preserves raw format),
                 // because e.g. PNG images may cause troubles in some cases (e.g. OutOfMemoryException when used as a background image)
                 if (bmpComposite!.RawFormat.Guid != ImageFormat.MemoryBmp.Guid)
-                    return new Bitmap(bmpComposite);
+                    return new Bitmap(bmpComposite); // here this is OK also on Linux (will not turn transparent pixels black), because the source is already 32bpp
 
                 // Cloning by Bitmap.Clone(Rectangle, PixelFormat) instead of Image.Clone because the latter may return a blank result on Linux
                 return bmpComposite.CloneBitmap();
@@ -583,9 +583,13 @@ namespace KGySoft.Drawing
                 {
                     Color[] entries = bmp.Palette.Entries;
                     Debug.Assert(bmp == bmpColor && entries.Length > 0 && entries.Length <= (1 << bpp));
-                    palette = new RGBQUAD[entries.Length];
-                    if (entries.Length != (1 << bpp))
-                        bmpHeader.biClrUsed = (uint)entries.Length;
+                    palette = new RGBQUAD[1 << bpp];
+
+                    // TODO: if generating with trimming enabled (may cause compatibility issues on Mono)
+                    //palette = new RGBQUAD[entries.Length];
+                    //if (entries.Length != (1 << bpp))
+                    //    bmpHeader.biClrUsed = (uint)entries.Length;
+
                     for (int i = 0; i < entries.Length; i++)
                         palette[i] = new RGBQUAD(entries[i]);
                 }
@@ -669,7 +673,7 @@ namespace KGySoft.Drawing
 
                 // bmpDataSrc is from rawColor, bmpDataMask from rawMask, both are bottom-up.
                 var rowColor = (IBitmapDataRowInternal)bmpDataSrc.FirstRow;
-                Color32 trColor = transparentColor!.Value;
+                Color32 trColor = transparentColor.GetValueOrDefault();
                 do
                 {
                     for (int x = 0; x < size.Width; x++)
@@ -824,11 +828,11 @@ namespace KGySoft.Drawing
             private void GenerateCompositeBitmapFromColorBitmap()
             {
                 Debug.Assert(bmpColor != null && bmpComposite == null && transparentColor != null);
-                bmpComposite = new Bitmap(bmpColor!); // this ensures 32 bpp for the composite bitmap
+                bmpComposite = bmpColor!.CloneBitmap(PixelFormat.Format32bppArgb);
                 if (transparentColor!.Value.A == 0)
                     return;
 
-                bmpComposite.MakeTransparent(transparentColor.Value);
+                BitmapExtensions.MakeTransparentSafe(ref bmpComposite, transparentColor.Value);
 
                 // 32 bpp source and opaque transparentColor: we must reassign bmpColor with the new result, because most modern renderers ignore the alpha mask for 32 bpp icons
                 if (bpp == 32)
@@ -1060,7 +1064,7 @@ namespace KGySoft.Drawing
             }
             catch (Exception e)
             {
-                if (!OSUtils.IsVistaOrLater || OSUtils.IsMono)
+                if (!OSHelper.IsVistaOrLater || OSHelper.IsMono)
                     throw new PlatformNotSupportedException(DrawingRes.RawIconCannotBeInstantiatedAsIcon, e);
                 throw;
             }
@@ -1338,7 +1342,7 @@ namespace KGySoft.Drawing
             where TResult : class?
         {
             // On XP or Mono large icons might not be supported. Looking for the next largest one then.
-            Debug.Assert(!OSUtils.IsVistaOrLater || OSUtils.IsMono, "null result is not expected on Windows Vista+");
+            Debug.Assert(!OSHelper.IsVistaOrLater || OSHelper.IsMono, "null result is not expected on Windows Vista+");
             int lastSize;
 
             do

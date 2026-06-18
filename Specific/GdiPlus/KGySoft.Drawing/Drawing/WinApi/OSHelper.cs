@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WindowsUtils.cs
+//  File: OSHelper.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2026 - All Rights Reserved
 //
@@ -21,13 +21,14 @@ using System;
 
 namespace KGySoft.Drawing.WinApi
 {
-    internal static class OSUtils
+    internal static class OSHelper
     {
         #region Fields
 
         private static bool? isVistaOrLater;
         private static bool? isWindows;
         private static bool? isMono;
+        private static bool? isWine;
 
         #endregion
 
@@ -53,8 +54,12 @@ namespace KGySoft.Drawing.WinApi
         }
 
         internal static bool IsWindows => isWindows ??= Environment.OSVersion.Platform is PlatformID.Win32NT or PlatformID.Win32Windows;
-
-        public static bool IsMono => isMono ??= Type.GetType("Mono.Runtime") != null;
+        internal static bool IsMono => isMono ??= Type.GetType("Mono.Runtime") != null;
+        internal static bool IsWine => isWine ??= !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WINELOADER"));
+        internal static bool IsFrameworkMono => IsMono && !IsWine;
+        internal static bool IsRealWindows => IsWindows && !IsMono && !IsWine;
+        internal static bool IsWineMono => IsMono && IsWine;
+        internal static bool IsNonWineWindows => IsWindows && !IsWine;
 
         #endregion
     }

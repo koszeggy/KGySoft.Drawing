@@ -50,7 +50,7 @@ namespace KGySoft.Drawing
 
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable", Justification = "Serialized structure")]
-        private struct WmfHeader
+        private readonly struct WmfHeader
         {
             #region Fields
 
@@ -251,7 +251,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid
@@ -286,6 +286,8 @@ namespace KGySoft.Drawing
         {
             if (metafile == null)
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
+            if (!OSHelper.IsWindows)
+                throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             bool isEmf = metafile.RawFormat.Guid == ImageFormat.Emf.Guid
                 || (metafile.RawFormat.Guid == ImageFormat.Wmf.Guid

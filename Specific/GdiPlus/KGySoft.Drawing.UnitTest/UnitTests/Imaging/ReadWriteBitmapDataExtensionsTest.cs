@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
+using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
 
@@ -70,7 +71,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
-        public void DrawTextOutlineTest()
+        public void DrawTextOutlineTest() => AssertPlatformDependent(() =>
         {
             using var bitmap = new Bitmap(250, 100);
             using (var bitmapData = bitmap.GetReadWriteBitmapData())
@@ -86,7 +87,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             SaveImage(null, bitmap);
-        }
+        }, !OSHelper.IsWineMono);
 
         [Test]
         public void FillTextWithOutlineTest()

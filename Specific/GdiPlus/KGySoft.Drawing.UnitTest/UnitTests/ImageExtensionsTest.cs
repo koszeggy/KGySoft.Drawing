@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks; 
 #endif
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Shapes;
 using KGySoft.Drawing.WinApi;
@@ -304,14 +305,14 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, bmpDst);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format1bppIndexed, false)]
+        [TestCase(PixelFormat.Format4bppIndexed, false)]
+        [TestCase(PixelFormat.Format8bppIndexed, false)]
+        [TestCase(PixelFormat.Format16bppRgb555, false)]
 #if WINDOWS
-        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppArgb1555, true)]
 #endif
-        public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst)
+        public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst, bool platformDependent) => AssertPlatformDependent(() =>
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
@@ -348,7 +349,7 @@ namespace KGySoft.Drawing.UnitTests
 
                 SaveImage($"{formatDst} {ditherer.Key}", bmpDst);
             }
-        }
+        }, platformDependent && OSHelper.IsWindows);
 
         [Test]
         public void DrawIntoNoScalingSameInstanceTest()
@@ -458,15 +459,15 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{pixelFormat}, {scalingMode}", bmp);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto, false)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor, false)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto, false)]
 #if WINDOWS
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor, true)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto, true)]
 #endif
-        public void DrawIntoWithResizeDitheringTest(PixelFormat formatDst, ScalingMode scalingMode)
+        public void DrawIntoWithResizeDitheringTest(PixelFormat formatDst, ScalingMode scalingMode, bool platformDependent) => AssertPlatformDependent(() =>
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
@@ -500,7 +501,7 @@ namespace KGySoft.Drawing.UnitTests
 
                 SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
             }
-        }
+        }, platformDependent && OSHelper.IsWindows);
 
         [Test]
         public void DrawIntoWithResizeSameInstanceTest()
@@ -609,7 +610,7 @@ namespace KGySoft.Drawing.UnitTests
             using var bmpRef = Icons.Information.ToMultiResBitmap();
 
             using Icon icon = bmpRef.ToIcon();
-            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, icon.GetImagesCount());
+            Assert.AreEqual(OSHelper.IsWindows && !OSHelper.IsWine ? 7 : 1, icon.GetImagesCount(), "7 icons are expected on real Windows and Framework Mono on Windows, 1 otherwise");
             SaveIcon(null, icon);
         }
 
@@ -634,11 +635,13 @@ namespace KGySoft.Drawing.UnitTests
             AssertAreEqual(bmpPreserved, bmpReduced, true);
             Assert.AreEqual(pixelFormat.ToBitsPerPixel(), iconPreserved.GetIconInfo(0).BitsPerPixel);
             Assert.AreEqual(1, iconReduced.GetIconInfo(0).BitsPerPixel);
+            SaveImage($"{pixelFormat}_orig", bmp);
 
             // specifying an opaque color turns more region transparent
             using var iconAlphaMerged = bmp.ToIcon(Color.Cyan);
-            using var bmpAlphaMerged = iconAlphaMerged.ToBitmap().GetReadableBitmapData();
-            Assert.AreNotEqual(bmpReduced.GetColorCount(), bmpAlphaMerged.GetColorCount());
+            using var bmpAlphaMerged = iconAlphaMerged.ExtractBitmap(0);
+            SaveImage($"{pixelFormat}_merged", bmpAlphaMerged);
+            Assert.AreNotEqual(bmp.GetColorCount(), bmpAlphaMerged!.GetColorCount(), $"Merged colors: {bmpAlphaMerged.GetColors().Select(c => $"0x{c.ToArgb():X8}").Join("; ")}");
         }
 
         [Test]
@@ -698,7 +701,7 @@ namespace KGySoft.Drawing.UnitTests
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Bmp, bmp.RawFormat);
-            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            Assert.IsTrue(savedFormat == bmp.PixelFormat || !OSHelper.IsRealWindows, $"{savedFormat} vs. {bmp.PixelFormat}");
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
@@ -762,7 +765,7 @@ namespace KGySoft.Drawing.UnitTests
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
-            Assert.AreEqual(OSUtils.IsWindows ? PixelFormat.Format32bppArgb : PixelFormat.Format8bppIndexed, bmp.PixelFormat);
+            Assert.AreEqual(OSHelper.IsWindows ? PixelFormat.Format32bppArgb : PixelFormat.Format8bppIndexed, bmp.PixelFormat);
             SaveStream($"{pixelFormat}", ms);
         }
 
@@ -782,7 +785,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Gif, reloaded.RawFormat);
 
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 return;
 
             Assert.AreEqual(PixelFormat.Format32bppArgb, reloaded.PixelFormat);
@@ -828,7 +831,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format24bppRgb, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
@@ -837,7 +840,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
         [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
-        public void SaveAsPngTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? savedFormatLinux = null)
+        public void SaveAsPngTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? alternativeFormat = null)
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
@@ -848,25 +851,25 @@ namespace KGySoft.Drawing.UnitTests
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Png, bmp.RawFormat);
-            Assert.AreEqual(OSUtils.IsWindows ? savedFormat : savedFormatLinux ?? savedFormat, bmp.PixelFormat);
+            Assert.IsTrue(OSHelper.IsRealWindows && bmp.PixelFormat == savedFormat || !OSHelper.IsRealWindows && (bmp.PixelFormat == alternativeFormat || bmp.PixelFormat == savedFormat), $"{savedFormat} vs. {bmp.PixelFormat}");
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
         [TestCase(PixelFormat.Format64bppArgb, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb, PixelFormat.Format48bppRgb)]
         [TestCase(PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format24bppRgb, PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format8bppIndexed)]
         [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
-        public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? savedFormatLinux = null)
+        public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? alternativeFormat = null)
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel(), Color.Silver, 0) : null;
@@ -877,44 +880,39 @@ namespace KGySoft.Drawing.UnitTests
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
-            Assert.AreEqual(OSUtils.IsWindows ? savedFormat : savedFormatLinux ?? savedFormat, bmp.PixelFormat);
+            Assert.IsTrue(OSHelper.IsRealWindows && bmp.PixelFormat == savedFormat || !OSHelper.IsRealWindows && (bmp.PixelFormat == alternativeFormat || bmp.PixelFormat == savedFormat), $"{savedFormat} vs. {bmp.PixelFormat}");
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
         [Test]
-        public void SaveAsTiffAllFramesTest()
+        public void SaveAsTiffAllFramesTest() => AssertPlatformDependent(() =>
         {
-            AssertPlatformDependent(() =>
-            {
-                using var ms = new MemoryStream();
-                using var refImage = Icons.Information.ToMultiResBitmap();
+            using var ms = new MemoryStream();
+            using var refImage = Icons.Information.ToMultiResBitmap();
 
-                refImage.SaveAsTiff(ms, false);
-                ms.Position = 0;
-                var bmp = new Bitmap(ms);
+            refImage.SaveAsTiff(ms, false);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
 
-                Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
-                Assert.AreEqual(Icons.Information.GetImagesCount(), bmp.GetFrameCount(FrameDimension.Page));
+            Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
+            Assert.AreEqual(Icons.Information.GetImagesCount(), bmp.GetFrameCount(FrameDimension.Page));
 
-                SaveImage(null, bmp, true);
-            }, PlatformID.Win32NT);
-        }
+            SaveImage(null, bmp, true);
+        }, OSHelper.IsNonWineWindows);
 
         [Test]
-        public void SaveAsMultipageTiffTest()
+        public void SaveAsMultipageTiffTest() => AssertPlatformDependent(() =>
         {
-            AssertPlatformDependent(() =>
-            {
-                using var ms = new MemoryStream();
-                var pages = Icons.Information.ExtractBitmaps();
-                pages.SaveAsMultipageTiff(ms);
-                ms.Position = 0;
-                var tiff = new Bitmap(ms);
-                Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
-                Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
-                SaveStream(null, ms, nameof(tiff));
-            }, PlatformID.Win32NT);
-        }
+            
+            using var ms = new MemoryStream();
+            var pages = Icons.Information.ExtractBitmaps();
+            pages.SaveAsMultipageTiff(ms);
+            ms.Position = 0;
+            var tiff = new Bitmap(ms);
+            Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
+            Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
+            SaveStream(null, ms, nameof(tiff));
+        }, PlatformID.Win32NT);
 
         [TestCase(PixelFormat.Format64bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb)]

@@ -298,7 +298,7 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ExtractBitmapsTest()
         {
-            AssertPlatformDependent(() => Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length), PlatformID.Win32NT);
+            AssertPlatformDependent(() => Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length), OSHelper.IsNonWineWindows);
         }
 
         [Test]
@@ -320,7 +320,7 @@ namespace KGySoft.Drawing.UnitTests
             using var icon = Icons.Information.ToMultiResBitmap();
             clone = icon.CloneCurrentFrame();
             Assert.AreEqual(1, clone.ExtractBitmaps().Length);
-            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, icon.ExtractBitmaps().Length);
+            Assert.AreEqual(OSHelper.IsWindows && !OSHelper.IsWine ? 7 : 1, icon.ExtractBitmaps().Length, "7 icons are expected on real Windows and Framework Mono on Windows, 1 otherwise");
             SaveImage("IconClone", clone);
         }
 

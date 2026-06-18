@@ -96,7 +96,7 @@ namespace KGySoft.Drawing
 #if NET5_0 || NET6_0
             // Making sure that the static constructor of the NativeMethods.Gdip class does not throw an exception
             // NOTE: Affects only .NET 5 and 6 because .NET Core 3.x and below an older version is referenced (see the csproj and https://github.com/dotnet/runtime/issues/59032) 
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true); 
 #endif
         }

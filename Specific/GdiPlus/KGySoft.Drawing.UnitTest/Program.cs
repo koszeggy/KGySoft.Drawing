@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 #endif
 
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
 
 using NUnit.Framework.Api;
@@ -122,7 +123,7 @@ namespace KGySoft.Drawing
 
         internal static int Main(string[] args)
         {
-#if !WINDOWS && (NET5_0 || NET6_0)
+#if NET5_0 || NET6_0
             // Initializing the context switch that is required for GDI+ to be used on non-Windows systems.
             DrawingModule.Initialize();
 #endif
@@ -132,6 +133,13 @@ namespace KGySoft.Drawing
             // or just calling the method to debug directly
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(FrameworkVersion);
+            Console.WriteLine($"IsWindows: {OSHelper.IsWindows} {(OSHelper.IsWindows ? Environment.OSVersion.Version : null)}");
+            Console.WriteLine($"IsMono: {OSHelper.IsMono} {(OSHelper.IsMono ? Reflector.InvokeMethod(Type.GetType("Mono.Runtime")!, "GetDisplayName") : null)}");
+            Console.WriteLine($"IsWine: {OSHelper.IsWine} {Environment.GetEnvironmentVariable("WINEPREFIX")}");
+            Console.WriteLine($"Environment.OSVersion.Platform: {Environment.OSVersion.Platform}");
+#if NET471_OR_GREATER || NETCOREAPP
+            Console.WriteLine($"RuntimeInformation.FrameworkDescription: {RuntimeInformation.FrameworkDescription}");
+#endif  
             ProcessArgs(args, out TestFilter filter);
 
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());

@@ -77,6 +77,8 @@ namespace KGySoft.Drawing
 
         private static readonly Func<int, Func<Icon>?, RawIcon?> getSystemIconAddValueFactory = GetStockIconOrDefault;
         private static readonly Func<string, RawIcon> getResourceIconAddValueFactory = DoGetResourceIcon;
+        private static readonly Size smallStandardIconSize = new Size(16, 16);
+        private static readonly Size largeStandardIconSize = new Size(32, 32);
 
         private static ResourceManager? resourceManager;
         private static ThreadSafeDictionary<int, RawIcon?>? systemIconsCache;
@@ -759,7 +761,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 return Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
@@ -787,7 +789,7 @@ namespace KGySoft.Drawing
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
 
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
             {
                 using var stream = File.OpenRead(fileName);
                 return new RawIcon(stream).ExtractIcons(true).Where(i => i != null).ToArray()!;
@@ -810,7 +812,7 @@ namespace KGySoft.Drawing
                 for (int i = 0; i < data.Count; i++)
                 {
                     using RawIcon rawIcon = data[i];
-                    result[i] = rawIcon.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
+                    result[i] = rawIcon.ToIcon(!OSHelper.IsVistaOrLater || OSHelper.IsMono)!;
                 }
 
                 return result;
@@ -838,11 +840,11 @@ namespace KGySoft.Drawing
         {
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 throw new PlatformNotSupportedException(DrawingRes.RequiresWindows);
 
             using RawIcon result = DoLoadIconFromFile(fileName, id, true)!;
-            return result.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
+            return result.ToIcon(!OSHelper.IsVistaOrLater || OSHelper.IsMono)!;
         }
 
         /// <summary>
@@ -867,8 +869,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(fileOrExtension), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
-            if (!OSUtils.IsWindows)
-                return SystemIcons.WinLogo;
+            if (!OSHelper.IsWindows)
+                return SystemIcons.WinLogo.Resize(size == SystemIconSize.Small ? smallStandardIconSize : largeStandardIconSize);
 
             if (!Path.HasExtension(fileOrExtension))
                 fileOrExtension = Path.GetFileName(fileOrExtension) == fileOrExtension ? '.' + fileOrExtension : ".";
@@ -888,7 +890,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon? FromStream(Stream stream) => FromStream(stream, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+        public static Icon? FromStream(Stream stream) => FromStream(stream, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
@@ -914,7 +916,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(IEnumerable<Icon>? icons)
-            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, icons);
+            => Combine(!OSHelper.IsVistaOrLater || OSHelper.IsMono, icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -926,7 +928,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(icons))]public static Icon? Combine(params Icon[]? icons)
-            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Icon>?)icons);
+            => Combine(!OSHelper.IsVistaOrLater || OSHelper.IsMono, (IEnumerable<Icon>?)icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -972,7 +974,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(params Bitmap[]? images)
-            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, (IEnumerable<Bitmap>?)images);
+            => Combine(!OSHelper.IsVistaOrLater || OSHelper.IsMono, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -987,7 +989,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(IEnumerable<Bitmap>? images)
-            => Combine(!OSUtils.IsVistaOrLater || OSUtils.IsMono, images);
+            => Combine(!OSHelper.IsVistaOrLater || OSHelper.IsMono, images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -1047,7 +1049,7 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         [return:NotNullIfNotNull(nameof(images))]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
-            => Combine(images, transparentColors, !OSUtils.IsVistaOrLater || OSUtils.IsMono);
+            => Combine(images, transparentColors, !OSHelper.IsVistaOrLater || OSHelper.IsMono);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -1093,7 +1095,7 @@ namespace KGySoft.Drawing
 #endif
         internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
         {
-            Debug.Assert(OSUtils.IsWindows);
+            Debug.Assert(OSHelper.IsWindows);
             User32.GetIconInfo(iconHandle, out ICONINFO iconInfo);
             iconInfo.xHotspot = cursorHotspot.X;
             iconInfo.yHotspot = cursorHotspot.Y;
@@ -1138,7 +1140,7 @@ namespace KGySoft.Drawing
                 rawIcon.Add(bmp);
             else
                 rawIcon.Add(bmp, Color.Transparent);
-            return rawIcon.ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!; // forcing uncompressed on XP or non-Windows platforms
+            return rawIcon.ToIcon(!OSHelper.IsVistaOrLater || OSHelper.IsMono)!; // forcing uncompressed on XP or non-Windows platforms
         }
 
         #endregion
@@ -1163,11 +1165,11 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         private static RawIcon? DoGetStockIcon(int id)
         {
-            if (!OSUtils.IsWindows)
+            if (!OSHelper.IsWindows)
                 return null;
 
             // we have a stock icon id and running on Vista or later
-            bool isVistaOrLater = OSUtils.IsVistaOrLater;
+            bool isVistaOrLater = OSHelper.IsVistaOrLater;
             if (isVistaOrLater && ((id & stockIconIdMask) != 0 || id == 0))
             {
                 // Vista or later, we have a valid stock icon id
@@ -1233,7 +1235,7 @@ namespace KGySoft.Drawing
             if (result.ImageCount == 1)
             {
                 using Bitmap imageLarge = result.ExtractBitmap(0, false)!;
-                using Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), ScalingMode.Auto, true);
+                using Bitmap imageSmall = imageLarge.Resize(smallStandardIconSize, ScalingMode.Auto, true);
                 result.Add(imageSmall);
             }
 
@@ -1241,7 +1243,7 @@ namespace KGySoft.Drawing
         }
 
         private static Icon GetResourceIcon(string resourceName)
-            => ResourceIconsCache.GetOrAdd(resourceName, getResourceIconAddValueFactory).ToIcon(!OSUtils.IsVistaOrLater || OSUtils.IsMono)!;
+            => ResourceIconsCache.GetOrAdd(resourceName, getResourceIconAddValueFactory).ToIcon(!OSHelper.IsVistaOrLater || OSHelper.IsMono)!;
 
         private static RawIcon DoGetResourceIcon(string resourceName)
             => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);

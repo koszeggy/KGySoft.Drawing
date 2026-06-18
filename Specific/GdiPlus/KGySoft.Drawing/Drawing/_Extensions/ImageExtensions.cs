@@ -123,6 +123,7 @@ namespace KGySoft.Drawing
                 [PixelFormat.Format16bppRgb555] = (PixelFormat.Format24bppRgb, true),
                 [PixelFormat.Format16bppRgb565] = (PixelFormat.Format24bppRgb, true),
                 [PixelFormat.Format32bppPArgb] = (PixelFormat.Format32bppArgb, true),
+                [PixelFormat.Format48bppRgb] = (PixelFormat.Format24bppRgb, true),
                 [PixelFormat.Undefined] = (PixelFormat.Format32bppArgb, false)
             },
         };
@@ -2033,7 +2034,7 @@ namespace KGySoft.Drawing
                         dimension = FrameDimension.Resolution;
                 }
 
-                int frameCount = dimension != null ? bmp.GetFrameCount(dimension) : 0;
+                int frameCount = dimension != null ? bmp.GetFrameCountSafe(dimension) : 0;
                 bool isIcon = bmp.RawFormat.Guid == ImageFormat.Icon.Guid;
                 if (frameCount > 1 || isIcon)
                 {
@@ -2526,7 +2527,7 @@ namespace KGySoft.Drawing
                 PixelFormat srcPixelFormat = bmp.PixelFormat;
                 Bitmap toSave = bmp;
                 if (transformations.TryGetValue(srcPixelFormat, out var transformation)
-                    && (!transformation.NonWindowsOnly || !OSUtils.IsWindows))
+                    && !(transformation.NonWindowsOnly && OSHelper.IsNonWineWindows))
                 {
                     int srcBpp = srcPixelFormat.ToBitsPerPixel();
                     int dstBpp = transformation.TargetFormat.ToBitsPerPixel();

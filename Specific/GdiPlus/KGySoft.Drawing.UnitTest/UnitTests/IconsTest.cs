@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.UnitTests
         public void StockIconsTest(StockIcon stockIcon)
         {
             var icon = Icons.GetStockIcon(stockIcon);
-            Assert.IsTrue(!OSUtils.IsWindows || icon != null);
+            Assert.IsTrue(!OSHelper.IsWindows || icon != null);
             SaveIcon(stockIcon.ToString(), icon);
         }
 
@@ -79,15 +79,15 @@ namespace KGySoft.Drawing.UnitTests
         public void FromExtensionTest(string extension, SystemIconSize size)
         {
             Icon icon = null;
-            Assert.That(() => icon = Icons.FromExtension(extension, size), OSUtils.IsWindows ? Is.Not.Null : Throws.TypeOf<PlatformNotSupportedException>());
+            Assert.DoesNotThrow(() => icon = Icons.FromExtension(extension, size));
             SaveIcon($"{size}{extension}", icon);
         }
 
         [TestCase("shell32", 13)]
         public void FromFileTest(string fileName, int id)
         {
-            var icon = Icons.FromFile(fileName, id);
-            Assert.IsNotNull(icon);
+            Icon icon = null;
+            Assert.That(() => icon = Icons.FromFile(fileName, id), OSHelper.IsWindows ? Is.Not.Null : Throws.TypeOf<PlatformNotSupportedException>());
             SaveIcon($"{fileName}.{id}", icon);
         }
 

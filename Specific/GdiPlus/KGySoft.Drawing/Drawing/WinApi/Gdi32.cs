@@ -212,6 +212,16 @@ namespace KGySoft.Drawing.WinApi
             [DllImport("gdi32.dll")]
             internal static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
 
+            /// <summary>
+            /// The GetCurrentObject function retrieves a handle to an object of the specified type that has been selected into the specified device context (DC).
+            /// </summary>
+            /// <param name="hdc">A handle to the DC.</param>
+            /// <param name="type">The object type to be queried.</param>
+            /// <returns>If the function succeeds, the return value is a handle to the specified object.
+            /// If the function fails, the return value is NULL.</returns>
+            [DllImport("gdi32.dll")]
+            internal static extern IntPtr GetCurrentObject(IntPtr hdc, uint type);
+
             #endregion
         }
 
@@ -219,12 +229,12 @@ namespace KGySoft.Drawing.WinApi
 
         #region Methods
 
-        internal static unsafe int GetBitmapColorDepth(IntPtr handle)
+        internal static unsafe BITMAP GetBitmapInfo(IntPtr handle)
         {
             if (NativeMethods.GetObject(handle, sizeof(BITMAP), out BITMAP bitmapInfo) == 0)
                 throw new ArgumentException(DrawingRes.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
 
-            return bitmapInfo.bmBitsPixel;
+            return bitmapInfo;
         }
 
         internal static void DeleteObject(IntPtr handle)

@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
-        public void SaveTest()
+        public void SaveTest() => AssertPlatformDependent(() =>
         {
             using Metafile emf = GenerateMetafile();
             Metafile wmf;
@@ -89,16 +89,16 @@ namespace KGySoft.Drawing.UnitTests
             }
 
             wmf.Dispose();
-        }
+        }, PlatformID.Win32NT);
 
         [Test]
-        public void SaveLargeEmfTest()
+        public void SaveLargeEmfTest() => AssertPlatformDependent(() =>
         {
             using Metafile emf = GenerateMetafile(new Size(50_000, 50_000));
             using var ms = new MemoryStream();
             Assert.DoesNotThrow(() => emf.SaveAsEmf(ms));
             Assert.Throws<ArgumentException>(() => emf.SaveAsWmf(ms), DrawingRes.Gdi32GetWmfContentFailed);
-        }
+        }, PlatformID.Win32NT);
 
         #endregion
     }

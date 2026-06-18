@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
             //   the changes are not applied back to the original image so we access it as 24bpp bitmap data.
             //   Even this works only if it wasn't accessed as the actual format before and when the bitmap was created by a decoder, not by Bitmap constructor with pixel format parameter.
             // - On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
-            PixelFormat bitmapDataPixelFormat = OSUtils.IsWindows
+            PixelFormat bitmapDataPixelFormat = OSHelper.IsWindows
                 ? pixelFormat is PixelFormatExtensions.Format32bppCmyk
                     ? PixelFormat.Format24bppRgb
                     : pixelFormat
