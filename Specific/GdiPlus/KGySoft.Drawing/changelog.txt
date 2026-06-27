@@ -12,17 +12,18 @@
 * KGySoft.Drawing namespace
 ===========================
 * Icons class:
-  * FromFile, FromStream, Combine methods: Improving compatibility with Mono
+  * FromFile, FromStream, Combine methods: Improving compatibility with Mono and Wine.
   * Combine methods: The overloads with Bitmap arguments and without transparentColors parameter allow reducing the
     color depth of the result icon automatically for a more compact result, without losing color information.
 * IconExtensions class:
-  + ToMultiResBitmap, ExtractBitmap methods: They never return null anymore, even if the current runtime does not
+  + ToMultiResBitmap, ExtractBitmap methods: They never return null anymore, even if the platform runtime does not
     support large icons.
-  + ExtractBitmaps: The elements of the result no longer can be null, even if the current runtime does not support
+  + ExtractBitmaps: The elements of the result no longer can be null, even if the current platform does not support
     large icons.
   + New Combine overloads that allow reducing the color depth of the result icon automatically for a more compact
     result, without losing color information.
-  * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine, Resize methods: Improving compatibility with Mono
+  * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine, Resize methods: Improving compatibility with Mono and
+    Wine.
 * ImageExtensions class:
   + New ToIcon overload that allows adjusting the color depth of the result icon automatically.
   - ConvertPixelFormat, DrawInto, SaveAs*, ToGrayscale, ToIcon methods: They threw an exception if the input image
