@@ -35,7 +35,7 @@
       <DocumentationSource sourceFile="Specific\SkiaSharp\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>10.0.1</HelpFileVersion>
+    <HelpFileVersion>10.1.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -1672,7 +1672,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.NET.Ref" Version="10.0.26100.81" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
-
     <Reference Include="Microsoft.Windows.SDK.NET, Version=10.0.26100.79, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <HintPath>$(USERPROFILE)\.nuget\packages\microsoft.windows.sdk.net.ref\10.0.26100.81\lib\net8.0\Microsoft.Windows.SDK.NET.dll</HintPath>
       <Private>True</Private>
