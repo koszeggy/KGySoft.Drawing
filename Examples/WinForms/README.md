@@ -1,4 +1,4 @@
-﻿﻿[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net)
+﻿<!--﻿[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net)-->
 
 # KGy SOFT Drawing WinForms Example
 
@@ -12,4 +12,9 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 <p align="center">
   <img alt="KGy SOFT Drawing WinForms Example App on Ubuntu Linux" src="https://github.com/user-attachments/assets/532987af-baeb-4913-ad7f-bc8cfa8abd51"/>
   <br/><em>The KGy SOFT Drawing WinForms Example App running on Ubuntu Linux</em>
+</p>
+
+<p align="center">
+  <img alt="KGy SOFT Drawing WinForms Example App on macOS" src="https://github.com/user-attachments/assets/b8ad06f1-5c0b-4c9b-b3e5-be92e716a886" />
+  <br/><em>The KGy SOFT Drawing WinForms Example App running on macOS</em>
 </p>
