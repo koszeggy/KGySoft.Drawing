@@ -44,8 +44,15 @@ using Pen = KGySoft.Drawing.Shapes.Pen;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides extension methods for the <see cref="IReadWriteBitmapData"/> type.
+    /// Provides GDI+ specific text drawing extension methods for the <see cref="IReadWriteBitmapData"/> type.
     /// </summary>
+    /// <remarks>
+    /// <note type="tip">This class contains GDI+ specific text drawing methods. If you use it in a Windows Forms projects, you can also use the
+    /// similar <a href="https://koszeggy.github.io/docs/winforms/html/T_KGySoft_Drawing_Imaging_WinFormsBitmapDataExtensions.htm" target="_blank">WinFormsBitmapDataExtensions</a>
+    /// class from <a href="https://github.com/koszeggy/KGySoft.WinForms" target="_blank">KGy SOFT WinForms Libraries</a>,
+    /// which contains the same extension methods, but use the <a href="https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.textformatflags" target="_blank">TextFormatFlags</a> enumeration
+    /// instead of the disposable <see cref="StringFormat"/> class in the parameters.</note>
+    /// </remarks>
 #if NET7_0_OR_GREATER
     [SupportedOSPlatform("windows")]
 #endif
