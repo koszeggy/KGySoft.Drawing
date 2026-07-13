@@ -1,4 +1,4 @@
-﻿[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net)
+﻿<!--﻿[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net)-->
 
 # KGy SOFT Drawing WPF Example
 
@@ -7,5 +7,10 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 <p align="center">
   <img alt="KGy SOFT Drawing WPF Example App on Windows 11" src="https://github.com/user-attachments/assets/cf8e9cf2-e270-441e-9870-6d89c5f48666"/>
   <br/><em>The KGy SOFT Drawing WPF Example App running on Windows 11</em>
+</p>
+
+<p align="center">
+  <img alt="KGy SOFT Drawing WPF Example App on macOS using Wine" src="https://github.com/user-attachments/assets/3d9b6de9-7afc-484f-8262-d6d3e1147479"/>
+  <br/><em>The KGy SOFT Drawing WPF Example App running on macOS using Wine</em>
 </p>
 

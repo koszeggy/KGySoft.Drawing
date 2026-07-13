@@ -11,10 +11,10 @@ This example demonstrates how to obtain an [`IReadWriteBitmapData`](https://docs
 
 <p align="center">
   <img alt="KGy SOFT Drawing WinForms Example App on Ubuntu Linux" src="https://github.com/user-attachments/assets/532987af-baeb-4913-ad7f-bc8cfa8abd51"/>
-  <br/><em>The KGy SOFT Drawing WinForms Example App running on Ubuntu Linux</em>
+  <br/><em>The KGy SOFT Drawing WinForms Example App running on Ubuntu Linux using Mono</em>
 </p>
 
 <p align="center">
-  <img alt="KGy SOFT Drawing WinForms Example App on macOS" src="https://github.com/user-attachments/assets/b8ad06f1-5c0b-4c9b-b3e5-be92e716a886" />
-  <br/><em>The KGy SOFT Drawing WinForms Example App running on macOS</em>
+  <img alt="The KGy SOFT Drawing WinForms Example App running on macOS using Wine" src="https://github.com/user-attachments/assets/6ba145d3-270b-4921-badf-ef531f7244ff" />
+  <br/><em>The KGy SOFT Drawing WinForms Example App running on macOS using Wine</em>
 </p>
